@@ -1127,19 +1127,19 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Production ACT / Plant Simulation - P50',
+                    'name' => 'Production ACT / Forecast - P50',
                     'type' => 'line',
                     'data' => $tbody_forecast_PVSYSTP50,
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Production ACT / Plant Simulation - P90',
+                    'name' => 'Production ACT / Forecast - P90',
                     'type' => 'line',
                     'data' => $tbody_forecast_PVSYSTP90,
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Plant Simulation - P50',
+                    'name' => 'Forecast - P50',
                     'type' => 'line',
                     'data' => $tbody_forecast_plan_PVSYSTP50,
                     'visualMap' => 'false',
@@ -1148,7 +1148,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Plant Simulation - P90',
+                    'name' => 'Forecast - P90',
                     'type' => 'line',
                     'data' => $tbody_forecast_plan_PVSYSTP90,
                     'visualMap' => 'false',
@@ -1261,7 +1261,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Plant Simulation - P50',
+                    'name' => 'Forecast - P50',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP50,
                     'visualMap' => 'false',
@@ -1270,7 +1270,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Plant Simulation - P90',
+                    'name' => 'Forecast - P90',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP90,
                     'visualMap' => 'false',
@@ -1668,7 +1668,7 @@ class AssetManagementService
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Plant Simulation',
+                            'name' => 'Forecast',
                             'type' => 'bar',
                             'data' => [
                                 $expectedPvSyst[$report['reportMonth'] - 1],
@@ -2850,7 +2850,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'forecast g4n[%]',
+                    'name' => 'forecast[%]',
                     'type' => 'bar',
                     'data' => [$percentageTable['forecast']],
                     'visualMap' => 'false',
@@ -3064,7 +3064,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Forecast g4n[%]',
+                    'name' => 'Forecast[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
@@ -3138,7 +3138,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Forecast g4n[%]',
+                    'name' => 'Forecast[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
@@ -3298,7 +3298,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Forecast g4n[%]',
+                        'name' => 'Forecast[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
@@ -3373,7 +3373,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Forecast g4n[%]',
+                        'name' => 'Forecast[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
@@ -4328,7 +4328,7 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Actual plus Forecast g4n',
+                    'name' => 'Actual plus Forecast',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_G4N'],
                     'visualMap' => 'false',
@@ -4340,13 +4340,13 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Expected g4n plus Forecast g4n',
+                    'name' => 'Expected g4n plus Forecast',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_Forecast'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Forecast g4n P50',
+                    'name' => 'Forecast P50',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['g4n_plan_proceeds_EXP_P50'],
                     'visualMap' => 'false',
@@ -4425,7 +4425,7 @@ class AssetManagementService
                         'visualMap' => 'false',
                     ],
                     [
-                        'name' => 'Difference ACT to forecast g4n',
+                        'name' => 'Difference ACT to forecast',
                         'type' => 'line',
                         'data' => $difference_prod_to_forecast,
                         'visualMap' => 'false',
@@ -4443,7 +4443,7 @@ class AssetManagementService
                         'visualMap' => 'false',
                     ],
                     [
-                        'name' => 'Difference ACT to forecast g4n',
+                        'name' => 'Difference ACT to forecast',
                         'type' => 'line',
                         'data' => $difference_prod_to_forecast,
                         'visualMap' => 'false',
@@ -4523,7 +4523,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Forecast g4n',
+                    'name' => 'Forecast',
                     'type' => 'bar',
                     'data' => $incomePerMonth['gvn_plan_proceeds_EXP'],
                     'visualMap' => 'false',
@@ -4649,7 +4649,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Forecast g4n - proceeds',
+                    'name' => 'Forecast - proceeds',
                     'type' => 'bar',
                     'data' => $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'],
                     'visualMap' => 'false',

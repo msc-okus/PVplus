@@ -27,7 +27,7 @@
 {% macro forecast(table_overview_monthly, anlage) %}
     {% set forecastsum = 0 %}
     <tr>
-        <td class="tr_first_column" style="text-align: right;">Forecast g4n</td>
+        <td class="tr_first_column" style="text-align: right;">Forecast</td>
         {% for data in table_overview_monthly.forecast %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
             {% set forecastsum = forecastsum + data %}

@@ -2,7 +2,7 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Cumulative Forecast</h3>
-    <span class="subheadline">Yearly planned simulation values vs. Actuals</span>
+    <span class="subheadline">Yearly Forecast values vs. Actuals</span>
     {# what is this for? marked to remove #}
     {% for data in table_overview_monthly.powerEvu %}
     {% endfor %}
@@ -37,14 +37,14 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Plant Simulation - P50</td>
+                        <td class="tr_first_column" style="text-align: right">Forecast - P50</td>
                         {% for data in forecast_PVSYST_table.forcast_plan_PVSYSTP50 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
 
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Plant Simulation - P90</td>
+                        <td class="tr_first_column" style="text-align: right">Forecast - P90</td>
                         {% for data in forecast_PVSYST_table.forcast_plan_PVSYSTP90 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}

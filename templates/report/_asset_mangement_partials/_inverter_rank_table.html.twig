@@ -7,13 +7,10 @@
             <tr>
                 <th class="table-center">Inverter</th>
                 <th class="table-center">Power[kWh]</th>
-                <th class="table-center">Inverter Pnom[kWh]</th>
+                <th class="table-center">Inverter Pnom[kWp]</th>
                 <th class="table-center">Specific Yield[kWh/kWp]</th>
-                <th class="table-center">Average Power[kWh]</th>
-                <th class="table-center">Irradiation Average[kWh/m<sup>2</sup>]</th>
-                <th class="table-center">Theoretical</th>
+                <th class="table-center">Power Theo.[kWh]</th>
                 <th class="table-center">Inverter PR[%]</th>
-                <th class="table-center">Calculated PR[%]</th>
             </tr>
         </thead>
         <tbody>
@@ -23,11 +20,8 @@
                 <td class="tr_next_columns">{{ row.power|number_format(2, ',', '.') }}</td>
                 <td class="tr_next_columns">{{ row.Pnom|number_format(2, ',', '.') }}</td>
                 <td class="tr_next_columns">{{ row.powerYield|number_format(2, ',', '.') }}</td>
-                <td class="tr_next_columns">{{ row.avgPower|number_format(2, ',', '.') }}</td>
-                <td class="tr_next_columns">{{ row.avgIrr|number_format(2, ',', '.') }}</td>
                 <td class="tr_next_columns">{{ row.theoPower|number_format(2, ',', '.') }}</td>
                 <td class="tr_next_columns">{{ row.invPR|number_format(2, ',', '.') }}</td>
-                <td class="tr_next_columns">{{ row.calcPR|number_format(2, ',', '.') }}</td>
             </tr>
         {% endfor %}
         </tbody>
