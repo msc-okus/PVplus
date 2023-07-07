@@ -14,6 +14,7 @@ use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\OpenWeatherRepository;
+use App\Service\Functions\IrradiationService;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 
@@ -30,7 +31,8 @@ class ExpectedService
         private FunctionsService $functions,
         private WeatherFunctionsService $weatherFunctions,
         private OpenWeatherService $openWeather,
-        private OpenWeatherRepository $openWeatherRepo)
+        private OpenWeatherRepository $openWeatherRepo,
+        private IrradiationService $irradiationService)
     {
     }
 
@@ -44,7 +46,7 @@ class ExpectedService
         }
 
         $output = '';
-        if ($anlage->getGroups() && ! $anlage->isExcludeFromExpCalc()) {
+        if ($anlage->getGroups() && !$anlage->isExcludeFromExpCalc() && $anlage->getAnlBetrieb() !== null) {
             $conn = self::getPdoConnection();
             $arrayExpected = $this->calcExpected($anlage, $from, $to);
             if ($arrayExpected) {
@@ -55,7 +57,7 @@ class ExpectedService
                         $expected['exp_current_dc'].','.$expected['exp_current_dc'].','.$expected['exp_power_dc'].','.$expected['exp_voltage'].'),';
                 }
                 $sql = substr($sql, 0, -1); // nimm das letzte Komma weg
-                $conn->exec("DELETE FROM ".$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to';");
+                $conn->exec('DELETE FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to';");
                 $conn->exec($sql);
                 $recUpdated = count($arrayExpected);
                 $output .= "From $from until $to – $recUpdated records updated.<br>";
@@ -153,8 +155,8 @@ class ExpectedService
                     }
 
                     $pannelTemp = is_numeric($weather['panel_temp']) ? (float)$weather['panel_temp'] : null;   // Pannel Temperatur
-                    $irrUpper = (float) $weather['irr_upper'] - ((float) $weather['irr_upper'] / 100 * $shadow_loss);    // Strahlung an obern Sensor
-                    $irrLower = (float) $weather['irr_lower'] - ((float) $weather['irr_lower'] / 100 * $shadow_loss);    // Strahlung an unterem Sensor
+                    $irrUpper = (float) $weather['irr_upper'] - ((float) $weather['irr_upper'] / 100 * $shadow_loss);    // Strahlung an obern (Ost) Sensor
+                    $irrLower = (float) $weather['irr_lower'] - ((float) $weather['irr_lower'] / 100 * $shadow_loss);    // Strahlung an unterem (West) Sensor
 
                     // Strahlung berechnen, für Analgen die KEINE 'Ost/West' Ausrichtung haben
                     if ($anlage->getUseLowerIrrForExpected()) {
@@ -221,7 +223,7 @@ class ExpectedService
                                     #$airTemp = $openWeather->getTempC();
 
                                     // Calculate pannel temperatur by NREL
-                                    $pannelTemp = round($this->weatherFunctions->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
+                                    $pannelTemp = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
 
                                     // Correct Values by modul temperature
                                     $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
@@ -231,13 +233,14 @@ class ExpectedService
                             }
                         }
 
-                        // Calculate DC power by current and voltage
+
                         if ($anlage->getSettings()->getEpxCalculationByCurrent()) {
+                            // Calculate DC power by current and voltage
                             $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
                         }
-
                         // degradation abziehen (degradation * Betriebsjahre).
-                        $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        $expCurrentDcHlp = $expCurrentDcHlp - $expCurrentDcHlp  * ($modul->getModuleType()->getDegradation() * $betriebsJahre / 100);
+                        $expPowerDcHlp = $expPowerDcHlp - $expPowerDcHlp * ($modul->getModuleType()->getDegradation() * $betriebsJahre / 100);
 
                         $expPowerDc += $expPowerDcHlp;
                         $expCurrentDc += $expCurrentDcHlp;
@@ -253,8 +256,8 @@ class ExpectedService
 
                     // Verhindert 'diff by zero'
                     if ($loss != 0) {
-                        $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);
-                        $expCurrentDc = $expCurrentDc - ($expCurrentDc / 100 * $loss);
+                        $expPowerDc = $expPowerDc - $expPowerDc * ($loss / 100);
+                        $expCurrentDc = $expCurrentDc - $expCurrentDc * ($loss / 100);
                     }
 
                     // Limitierung durch Modul prüfen und entsprechend abregeln
@@ -262,9 +265,10 @@ class ExpectedService
 
                     // AC Expected Berechnung
                     // Umrechnung DC nach AC
-                    $expNoLimit = $expPowerDc - ($expPowerDc / 100 * $group->getFactorAC());
+                    $expNoLimit = $expPowerDc - $expPowerDc * ($group->getFactorAC() / 100);
 
                     // Prüfe ob Abriegelung gesetzt ist, wenn ja, begrenze den Wert auf das maximale.
+
                     if ($group->getLimitAc() > 0) {
                         ($expNoLimit > $group->getLimitAc()) ? $expPowerAc = $group->getLimitAc() : $expPowerAc = $expNoLimit;
                     } else {

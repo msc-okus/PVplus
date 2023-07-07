@@ -1,0 +1,9 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3>Technical Plant Availability</h3>
+    <div style="height: 50%">
+        {{ PA_MonthlyGraphic | raw }}
+    </div>
+
+{% endblock %}

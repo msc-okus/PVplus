@@ -100,11 +100,9 @@ export default class extends Controller {
             $(this.aktDep2Target).prop('disabled', false);
             $(this.aktDep3Target).prop('disabled', false);
             if ($dataGapEvaluation.val() === '10') {
-                console.log( $(this.aktDep1Target) );
                 if ($(this.aktDep1Target).prop('value') === '') $(this.aktDep1Target).val('10');
                 if ($(this.aktDep2Target).prop('value') === '') $(this.aktDep2Target).val('10');
                 if ($(this.aktDep3Target).prop('value') === '') $(this.aktDep3Target).val('10');
-                console.log($(this.aktDep1Target).val());
             }
         }
         else {

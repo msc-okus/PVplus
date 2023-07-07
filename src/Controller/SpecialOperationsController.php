@@ -16,6 +16,9 @@ use App\Service\Reports\ReportsMonthlyService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Omines\DataTablesBundle\Adapter\ArrayAdapter;
+use Omines\DataTablesBundle\Column\TextColumn;
+use Omines\DataTablesBundle\DataTableFactory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,6 +30,8 @@ use App\Service\UploaderHelper;
 use App\Helper\G4NTrait;
 class SpecialOperationsController extends AbstractController
 {
+    use G4NTrait;
+
     #[IsGranted(['ROLE_G4N'])]
     #[Route(path: '/special/operations/bavelse/report', name: 'bavelse_report')]
     public function bavelseExport(Request $request, ExportService $bavelseExport, AnlagenRepository $anlagenRepository, AvailabilityByTicketService $availabilityByTicket): Response
@@ -71,9 +76,9 @@ class SpecialOperationsController extends AbstractController
      */
     #[IsGranted(['ROLE_G4N', 'ROLE_BETA'])]
     #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
-    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly): Response
+    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly, DataTableFactory $dataTableFactory): Response
     {
-        $output = null;
+        $output = $table = null;
         $startDay = $request->request->get('start-day');
         $endDay = $request->request->get('end-day');
         $month = $request->request->get('month');
@@ -91,12 +96,16 @@ class SpecialOperationsController extends AbstractController
             $output = $reportsMonthly->buildMonthlyReportNewByDate($anlage, $startDay, $endDay, $month, $year);
         }
 
-        return $this->render('report/reportMonthlyNew.html.twig', [
+        $reportName = 'report/reportMonthlyDataTables.html.twig';
+        $reportName = 'report/reportMonthlyNew.html.twig';
+
+        return $this->render($reportName, [
             'headline'      => $headline,
             'anlagen'       => $anlagen,
             'anlage'        => $anlage,
             'report'        => $output,
             'status'        => $anlageId,
+            'datatable'     => $table,
         ]);
 
     }
@@ -191,13 +200,16 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
+    /**
+     * @throws Exception
+     */
     #[Route(path: '/special/operations/import_excel', name: 'import_excel')]
     public function importExcel(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, MessageBusInterface $messageBus, LogMessagesService $logMessages, $uploadsPath): Response
     {
         $form = $this->createForm(ImportExcelFormType::class);
         $form->handleRequest($request);
 
-        $output = null;
+        $output = '';
 
         // Start individual part
         $headline = '';
@@ -218,18 +230,17 @@ class SpecialOperationsController extends AbstractController
                     $i = 0;
                     $ts = 0;
 
-                    foreach( $xlsx->rows($ts) as $r ) {
-                        if($i == 0) {
-                            $data_fields = $r;
+                    foreach ( $xlsx->rows($ts) as $row ) {
+                        if ($i == 0) {
+                            $data_fields = $row;
                             $indexStamp = array_search('stamp', $data_fields);
                             $indexEzevu = array_search('e_z_evu', $data_fields);
-                            //echo $indexEzevu.'<br><br>';
-                        }else{
-                            $eZEvu = ($r[$indexEzevu] != '') ? $r[$indexEzevu] : NULL;
+                        } else {
+                            $eZEvu = ($row[$indexEzevu] != '') ? $row[$indexEzevu] : NULL;
                             $stmt= $conn->prepare(
                                 "UPDATE $dataBaseNTable SET $data_fields[$indexEzevu]=? WHERE $data_fields[$indexStamp]=?"
                             );
-                            $stmt->execute([$eZEvu, $r[$indexStamp]]);
+                            $stmt->execute([$eZEvu, $row[$indexStamp]]);
                         }
 
                         $i++;
@@ -237,7 +248,8 @@ class SpecialOperationsController extends AbstractController
                     unlink($uploadsPath . '/xlsx/1/'.$newFile);
 
                 } else {
-                    echo SimpleXLSX::parseError();
+                    $output .= "No valid XLSX File.<br>";
+                    $output .= "(" . SimpleXLSX::parseError() . ")";
                 }
             }
         }

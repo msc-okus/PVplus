@@ -1,8 +1,8 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Cumulative Forecast with g4n</h3>
-    <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Yearly expected vs. actuals</span>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Cumulative Forecast</h3>
+    <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Yearly planned simulation values vs. Actuals</span>
     <table style="width: 100%">
         <tr>
             <td colspan="2" style="text-align: left">
@@ -34,13 +34,13 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Forecast g4n - P50</td>
+                        <td class="tr_first_column" style="text-align: right">Plant Simulation - P50</td>
                         {% for data in forecast_G4N_table.forcast_plan_G4NP50 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Forecast g4n - P90</td>
+                        <td class="tr_first_column" style="text-align: right">Plant Simulation - P90</td>
                         {% for data in forecast_G4N_table.forcast_plan_G4NP90 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}

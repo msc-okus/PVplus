@@ -360,7 +360,7 @@ class ReportsMonthlyService
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
 
-            $dayValues[$i]['datum'] = $day->format('Y-m-d');
+            $dayValues[$i]['datum'] = $day->format('y-m-d');
             foreach($prArray as $key => $value) {
                 $dayValues[$i][$key] = $value;
             }
@@ -419,7 +419,7 @@ class ReportsMonthlyService
         $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
 
         // Summe / Total Row
-        $i = sizeof($dayValues)+1;
+        $i = $daysInMonth+1;
         $dayValues[$i]['datum'] = 'Total';
         foreach($prSumArray as $key => $value) {
             $dayValues[$i][$key] = $value;

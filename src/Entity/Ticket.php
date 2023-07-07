@@ -249,12 +249,12 @@ class Ticket
     }
     public function isNeedsProofTAM(): ?bool
     {
-        return $this->needsProof;
+        return $this->ProofAM;
     }
 
     public function setNeedsProofTAM(?bool $needsProof): self
     {
-        $this->needsProof = $needsProof;
+        $this->ProofAM = $needsProof;
 
         return $this;
     }

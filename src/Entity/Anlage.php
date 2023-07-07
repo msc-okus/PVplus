@@ -16,8 +16,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @ApiResource(
@@ -488,7 +490,10 @@ class Anlage
     private bool $hasStrings = false;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private bool $hasPPC = false;
+    private ?bool $hasPPC = false;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $usePPC = false;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private bool $hasPannelTemp = false;
@@ -959,10 +964,10 @@ class Anlage
         }
     }
 
-    public function setAnlIrChange(string $anlIrChange): self
+    public function setAnlIrChange(string $irrChange): self
     {
         $weatherStation = $this->getWeatherStation();
-        $weatherStation->setChangeSensor($IrChange);
+        $weatherStation->setChangeSensor($irrChange);
 
         return $this;
     }
@@ -2992,6 +2997,18 @@ class Anlage
         return $this;
     }
 
+    public function getUsePPC(): ?bool
+    {
+        return $this->usePPC;
+    }
+
+    public function setUsePPC(bool $usePPC): self
+    {
+        $this->usePPC = $usePPC;
+
+        return $this;
+    }
+
     public function getHasPannelTemp(): ?bool
     {
         return $this->hasPannelTemp;
@@ -3306,6 +3323,7 @@ class Anlage
      * Function to calculate the Pnom for every inverter, returns a Array with the Pnom for all inverters.
      *
      * return array: Index = Inverter, value = Pnom of this Inverter
+     * @throws InvalidArgumentException
      */
     public function getPnomInverterArray(): array
     {
@@ -3337,7 +3355,7 @@ class Anlage
                 break;
         }
 
-        return $dcPNomPerInvereter ;
+        return $dcPNomPerInvereter;
     }
 
     public function isExcludeFromExpCalc(): ?bool
@@ -3619,6 +3637,16 @@ class Anlage
         return $this->sensors;
     }
 
+    /**
+     * @return Collection<int, AnlageSensors>
+     */
+    public function getSensorsInUse(): Collection
+    {
+        $criteria = AnlagenRepository::sensorsInUse();
+
+        return $this->sensors->matching($criteria);
+    }
+
     public function addSensor(AnlageSensors $sensor): static
     {
         if (!$this->sensors->contains($sensor)) {
@@ -3640,6 +3668,10 @@ class Anlage
 
         return $this;
     }
+
+    /**
+     * New Algorithme for TicketGeneration
+     */
     public function isNewAlgorythm(): ?bool
     {
         return $this->newAlgorythm;
@@ -3649,4 +3681,30 @@ class Anlage
     {
         $this->newAlgorythm = $newAlgorythm;
     }
+
+    public function getMinIrrThreshold(): mixed
+    {
+        return min($this->getThreshold1PA0(), $this->getThreshold1PA1(), $this->getThreshold1PA2(), $this->getThreshold1PA3());
+    }
+
+    public function getPrFormular0Image(): string
+    {
+        return '/images/formulas/' . $this->getPrFormular0() . '.png';
+    }
+
+    public function getPrFormular1Image(): string
+    {
+        return '/images/formulas/' . $this->getPrFormular1() . '.png';
+    }
+
+    public function getPrFormular2Image(): string
+    {
+        return '/images/formulas/' . $this->getPrFormular2() . '.png';
+    }
+
+    public function getPrFormular3Image(): string
+    {
+        return '/images/formulas/' . $this->getPrFormular3() . '.png';
+    }
+
 }

@@ -1,0 +1,59 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Technical PR & Availability</h3>
+    <div class="grid-x">
+        <div class="cell">
+            <table class="asset_report_table_operations_data" >
+                <thead>
+                    <tr>
+                        <th class="table-center"></th>
+                        <th class="table-center" colspan="2" style="text-align: center">PR & PA - default (OpenBook)<sup>*3</sup> </th>
+                        {% if anlage.settings.disableDep1 != true %}<th class="table-center" colspan="2" style="text-align: center">PR & PA - O&M<sup>*4</sup></th>{% endif %}
+                        {% if anlage.settings.disableDep2 != true %}<th class="table-center" colspan="2" style="text-align: center">PR & PA - EPC<sup>*5</sup></th>{% endif %}
+                        {% if anlage.settings.disableDep3 != true %}<th class="table-center" colspan="2" style="text-align: center">PR & PA - AM<sup>*6</sup></th>{% endif %}
+                    </tr>
+                    <tr>
+                        <th class="table-center"> Date</th>
+                        <th class="table-center"  style="text-align: center">PR</th>
+                        <th class="table-center"  style="text-align: center">PA</th>
+                        {% if anlage.settings.disableDep1 != true %}
+                            <th class="table-center"  style="text-align: center">PR</th>
+                            <th class="table-center"  style="text-align: center">PA</th>
+                        {% endif %}
+                        {% if anlage.settings.disableDep2 != true %}
+                            <th class="table-center"  style="text-align: center">PR</th>
+                            <th class="table-center"  style="text-align: center">PA</th>
+                        {% endif %}
+                        {% if anlage.settings.disableDep3 != true %}
+                            <th class="table-center"  style="text-align: center">PR</th>
+                            <th class="table-center"  style="text-align: center">PA</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in monthlyTableForPRAndPA %}
+                        <tr>
+                            <td class="tr_next_columns">{{ dataMonthArray[loop.index0]  }}</td>
+                            <td class="tr_next_columns">{{ row.Dep0PR }}</td>
+                            <td class="tr_next_columns">{{ row.Dep0PA }}</td>
+                            {% if anlage.settings.disableDep1 != true %}
+                                <td class="tr_next_columns">{{ row.Dep1PR }}</td>
+                                <td class="tr_next_columns">{{ row.Dep1PA }}</td>
+                            {% endif %}
+                            {% if anlage.settings.disableDep2 != true %}
+                                <td class="tr_next_columns">{{ row.Dep2PR }}</td>
+                                <td class="tr_next_columns">{{ row.Dep2PA }}</td>
+                            {% endif %}
+                            {% if anlage.settings.disableDep3 != true %}
+                                <td class="tr_next_columns">{{ row.Dep3PR }}</td>
+                                <td class="tr_next_columns">{{ row.Dep3PA }}</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+{% endblock %}

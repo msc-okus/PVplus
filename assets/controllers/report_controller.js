@@ -26,12 +26,10 @@ export default class extends Controller {
 
     async handleAnlageInput(){
         let id = $(this.anlageTarget).val();
-        console.log(id);
         let date = await $.ajax({
             url: '/reporting/anlageinfo/'.id,
             method: 'GET',
         });
-        console.log(date);
     }
 
     handleInput() {

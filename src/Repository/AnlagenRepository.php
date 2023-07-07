@@ -61,6 +61,13 @@ class AnlagenRepository extends ServiceEntityRepository
         ;
     }
 
+    public static function sensorsInUse(): Criteria
+    {
+        return Criteria::create()
+            ->andWhere(Criteria::expr()->eq('useToCalc', true))
+            ;
+    }
+
     public static function lastOpenWeatherCriteria(): Criteria
     {
         return Criteria::create()

@@ -21,6 +21,8 @@ use App\Repository\PVSystDatenRepository;
 use DateTime;
 use PDO;
 
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\Cache\CacheInterface;
 use function Symfony\Component\String\u;
 
 class FunctionsService
@@ -38,7 +40,8 @@ class FunctionsService
         private ForcastRepository $forcastRepo,
         private ForcastDayRepository $forcastDayRepo,
         private MonthlyDataRepository $monthlyDataRepo,
-        private WeatherFunctionsService $weatherFunctions)
+        private WeatherFunctionsService $weatherFunctions,
+        private CacheInterface $cache)
     {
     }
 
@@ -444,7 +447,7 @@ class FunctionsService
         if ($anlage->getHasPPC()){
             $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
                     FROM ".$weatherStation->getDbNameWeather()." w  
-                    RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
+                    LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
                     WHERE w.stamp BETWEEN '$from' AND '$to' AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
@@ -567,7 +570,7 @@ class FunctionsService
         if ($anlage->getHasPPC()){
             $sql = "SELECT COUNT(w.db_id) AS anzahl 
                     FROM ". $weatherStation->getDbNameWeather(). " w  
-                    RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
+                    LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
                     WHERE w.stamp BETWEEN '$from' and '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is null)";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
@@ -578,7 +581,7 @@ class FunctionsService
 
             $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
                     FROM ".$weatherStation->getDbNameWeather()." w  
-                    RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
+                    LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
                     WHERE w.stamp BETWEEN '$from' AND '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is  null)";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
@@ -968,7 +971,7 @@ class FunctionsService
                         $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
                     }
 
-                    $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $tempFrom->format("Y-m-d H:i"), $tempTo->format("Y-m-d H:i"));
+                    $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $tempFrom->format("Y-m-d H:i"), $tempTo->format("Y-m-d H:i"), false, $anlage);
                     if ($anlage->getIsOstWestAnlage()) {
                         $irrTemp = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
                     } else {
@@ -1086,37 +1089,42 @@ class FunctionsService
         return $_html;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function readInverters(string $invS, Anlage $anlage): array
     {
-        $returnArray = [];
-        $maxInv = count($this->getNameArray($anlage));
-        $invS = u($invS)->replace(' ', '');
-        $tempArray = u($invS)->split(',');
+        return $this->cache->get('inverters_'.md5($invS.$anlage->getAnlId()), function() use ($invS, $anlage) {
+            $returnArray = [];
+            $maxInv = count($this->getNameArray($anlage));
+            $invS = u($invS)->replace(' ', '');
+            $tempArray = u($invS)->split(',');
 
-        if ($invS != '*') {
-            foreach ($tempArray as $item) {
-                if (u($item)->containsAny('-')) {
-                    $nums[] = u($item)->split('-');
-                    $from = (int) ((string) $nums[0][0]);
-                    $to = (int) ((string) $nums[0][1]);
-                    $i = $from;
-                    while ($i <= $to) {
-                        $returnArray[] = (string) u($i);
-                        ++$i;
+            if ($invS != '*') {
+                foreach ($tempArray as $item) {
+                    if (u($item)->containsAny('-')) {
+                        $nums[] = u($item)->split('-');
+                        $from = (int) ((string) $nums[0][0]);
+                        $to = (int) ((string) $nums[0][1]);
+                        $i = $from;
+                        while ($i <= $to) {
+                            $returnArray[] = (string) u($i);
+                            ++$i;
+                        }
+                        unset($nums);
+                    } else {
+                        $returnArray[] = (string) $item;
                     }
-                    unset($nums);
-                } else {
-                    $returnArray[] = (string) $item;
+                }
+            } else {
+                $i = 1;
+                while ($i <= $maxInv) {
+                    $returnArray[] = (string) $i;
+                    ++$i;
                 }
             }
-        } else {
-            $i = 1;
-            while ($i <= $maxInv) {
-                $returnArray[] = (string) $i;
-                ++$i;
-            }
-        }
 
-        return $returnArray;
+            return $returnArray;
+        });
     }
 }

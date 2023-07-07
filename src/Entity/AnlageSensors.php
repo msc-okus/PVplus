@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\AnlageSensorsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 #[ORM\Entity(repositoryClass: AnlageSensorsRepository::class)]
 class AnlageSensors
@@ -22,17 +23,29 @@ class AnlageSensors
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true)]
     private ?string $type = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true)]
     private ?string $orientation = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $virtualSensor = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?bool $useToCalc = false;
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $vcomId = null;
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $vcomAbbr = null;
+
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $startDateSensor;
+
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $endDateSensor;
 
     public function getId(): ?int
     {
@@ -80,7 +93,7 @@ class AnlageSensors
         return $this->type;
     }
 
-    public function setType(string $type): static
+    public function setType(?string $type): static
     {
         $this->type = $type;
 
@@ -99,7 +112,31 @@ class AnlageSensors
         return $this;
     }
 
-    public function getVcomId(): ?string
+    public function getVirtualSensor(): ?string
+    {
+        return $this->virtualSensor;
+    }
+
+    public function setVirtualSensor(string $virtualSensor): static
+    {
+        $this->virtualSensor = $virtualSensor;
+
+        return $this;
+    }
+
+    public function getUseToCalc(): ?bool
+    {
+        return $this->useToCalc;
+    }
+
+    public function setUseToCalc(?bool $useToCalc): static
+    {
+        $this->useToCalc = $useToCalc;
+
+        return $this;
+    }
+
+    function getVcomId(): ?string
     {
         return $this->vcomId;
     }
@@ -119,6 +156,32 @@ class AnlageSensors
     public function setVcomAbbr(?string $vcomAbbr): static
     {
         $this->vcomAbbr = $vcomAbbr;
+
+        return $this;
+    }
+
+    public function getStartDateSensor(): ?\DateTimeInterface
+    {
+        return $this->startDateSensor;
+    }
+
+    public function setstartDateSensor(?\DateTimeInterface $startDateSensor = null): self
+    {
+
+        $this->startDateSensor = $startDateSensor;
+
+        return $this;
+    }
+
+    public function getEndDateSensor(): ?\DateTimeInterface
+    {
+        return $this->endDateSensor;
+    }
+
+    public function setEndDateSensor(?\DateTimeInterface $endDateSensor = null): self
+    {
+
+        $this->endDateSensor = $endDateSensor;
 
         return $this;
     }

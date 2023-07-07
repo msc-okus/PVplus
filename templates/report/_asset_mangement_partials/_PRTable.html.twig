@@ -11,7 +11,7 @@
     {% if report != null %}
         <div class="grid-x">
             <div class="cell">
-                <h3 style="color: {{ anlage.eigner.fontColor2 }};">PR Calculations table</h3>
+                <h3 style="color: {{ anlage.eigner.fontColor2 }};">PR Calculations table (Check the Comments page for the formulas)</h3>
                 <table class="asset_report_table_operations_data" style="width: 100%!important; height: 90%!important;margin-bottom: 10px">
                     {% for day in report.days %}
                     {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
@@ -20,10 +20,10 @@
                     <tr class="left">
                         <th class="table-center"></th>
                         <th class="table-center" colspan="4" style="text-align: center">Power & Irradiation</th>
-                        <th class="table-center" colspan="5" style="text-align: center">PR & PA - default (OpenBook)</th>
-                        {% if anlage.settings.disableDep1 != true %}<th class="table-center" colspan="5" style="text-align: center">PR & PA - O&M</th>{% endif %}
-                        {% if anlage.settings.disableDep2 != true %}<th class="table-center" colspan="5" style="text-align: center">PR & PA - EPC</th>{% endif %}
-                        {% if anlage.settings.disableDep3 != true %}<th class="table-center" colspan="5" style="text-align: center">PR & PA - AM</th>{% endif %}
+                        <th class="table-center" colspan="5" style="text-align: center">PR & PA - default (OpenBook)<sup>*3</sup> </th>
+                        {% if anlage.settings.disableDep1 != true %}<th class="table-center" colspan="5" style="text-align: center">PR & PA - O&M<sup>*4</sup></th>{% endif %}
+                        {% if anlage.settings.disableDep2 != true %}<th class="table-center" colspan="5" style="text-align: center">PR & PA - EPC<sup>*5</sup></th>{% endif %}
+                        {% if anlage.settings.disableDep3 != true %}<th class="table-center" colspan="5" style="text-align: center">PR & PA - AM<sup>*6</sup></th>{% endif %}
                     </tr>
                     <tr>
                         <th class="table-center">Datum</th>
