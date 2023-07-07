@@ -16,8 +16,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @ApiResource(
@@ -962,10 +964,10 @@ class Anlage
         }
     }
 
-    public function setAnlIrChange(string $anlIrChange): self
+    public function setAnlIrChange(string $irrChange): self
     {
         $weatherStation = $this->getWeatherStation();
-        $weatherStation->setChangeSensor($IrChange);
+        $weatherStation->setChangeSensor($irrChange);
 
         return $this;
     }
@@ -3321,6 +3323,7 @@ class Anlage
      * Function to calculate the Pnom for every inverter, returns a Array with the Pnom for all inverters.
      *
      * return array: Index = Inverter, value = Pnom of this Inverter
+     * @throws InvalidArgumentException
      */
     public function getPnomInverterArray(): array
     {
@@ -3352,7 +3355,7 @@ class Anlage
                 break;
         }
 
-        return $dcPNomPerInvereter ;
+        return $dcPNomPerInvereter;
     }
 
     public function isExcludeFromExpCalc(): ?bool

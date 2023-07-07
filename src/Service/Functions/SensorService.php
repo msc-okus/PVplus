@@ -136,6 +136,13 @@ class SensorService
 
         return $sensorData;
     }
+
+    /**
+     * @param array|null $oldWeather
+     * @param array|null $newWeather
+     * @param array|null $sensorData
+     * @return array
+     */
     private function corrIrr(?array $oldWeather, ?array $newWeather, ?array $sensorData): array
     {
         // korrigiere Horizontal Irradiation

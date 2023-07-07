@@ -15,9 +15,13 @@ use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Repository\TimesConfigRepository;
+use App\Service\Functions\IrradiationService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use PDO;
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class AvailabilityByTicketService
 {
@@ -36,6 +40,8 @@ class AvailabilityByTicketService
         private AvailabilityService $availabilityService,
         private WeatherFunctionsService $weatherFunctionsService,
         private ReplaceValuesTicketRepository $replaceValuesTicketRepo,
+        private IrradiationService $irradiationService,
+        private CacheInterface $cache
     )
     {}
 
@@ -47,7 +53,7 @@ class AvailabilityByTicketService
      * @param string|DateTime $date
      * @param int $department (for wich department (0 = Technische PA, 1 = O&M, 2 = EPC, 3 = AM)
      * @return string
-     * @throws \Exception
+     * @throws \Exception|InvalidArgumentException
      */
     public function checkAvailability(Anlage|int $anlage, string|DateTime $date, int $department = 0): string
     {
@@ -214,6 +220,7 @@ class AvailabilityByTicketService
      * @param array $inverterPowerDc
      * @param int $department
      * @return array
+     * @throws InvalidArgumentException
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig, array $inverterPowerDc, int $department = 0): array
     {
@@ -242,7 +249,7 @@ class AvailabilityByTicketService
 
         // get plant data and irradiation data
         $istData = $this->getIstData($anlage, $from, $to);
-        $einstrahlungen = $this->getIrrData($anlage, $from, $to);
+        $einstrahlungen = $this->irradiationService->getIrrData($anlage, $from, $to);
 
         // Aus IstDaten und IstStrahlungsdaten die Tages-Verfügbarkeit je Inverter berechnen
         if (count($einstrahlungen) > 0) {
@@ -256,8 +263,9 @@ class AvailabilityByTicketService
                 foreach ($commIssus as $commIssu) {
                     $c5From = $commIssu->getBegin()->getTimestamp();
                     $c5To = $commIssu->getEnd()->getTimestamp();
+                    $inverters = $this->functions->readInverters($commIssu->getInverter(), $anlage);
                     for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
-                        foreach ($this->functions->readInverters($commIssu->getInverter(), $anlage) as $inverter) {
+                        foreach ($inverters as $inverter) {
                             $inverter = trim($inverter, ' ');
                             $commIssuArray[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                         }
@@ -273,8 +281,9 @@ class AvailabilityByTicketService
             foreach ($perfTicketsSkips as $perfTicketsSkip){
                 $skipFrom = $perfTicketsSkip->getBegin()->getTimestamp();
                 $skipTo = $perfTicketsSkip->getEnd()->getTimestamp();
+                $inverters = $this->functions->readInverters($perfTicketsSkip->getInverter(), $anlage);
                 for ($skipStamp = $skipFrom; $skipStamp < $skipTo; $skipStamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
-                    foreach ($this->functions->readInverters($perfTicketsSkip->getInverter(), $anlage) as $inverter) {
+                    foreach ($inverters as $inverter) {
                         $inverter = trim($inverter, ' ');
                         $skipTiAndTitheoArray[$inverter][date('Y-m-d H:i:00', $skipStamp)] = true;
                     }
@@ -286,9 +295,9 @@ class AvailabilityByTicketService
             foreach ($this->case5Repository->findAllCase5($anlage, $from, $to) as $case) {
                 $c5From = strtotime($case['stampFrom']);
                 $c5To = strtotime($case['stampTo']);
+                $inverters = $this->functions->readInverters($case['inverter'], $anlage);
                 for ($c5Stamp = $c5From; $c5Stamp <= $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
-                    // foreach (explode(',', $case['inverter'], 999) as $inverter) {
-                    foreach ($this->functions->readInverters($case['inverter'], $anlage) as $inverter) {
+                    foreach ($inverters as $inverter) {
                         $inverter = trim($inverter, ' ');
                         $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                     }
@@ -304,8 +313,9 @@ class AvailabilityByTicketService
             foreach ($case5Tickets as $case5Ticket){
                 $c5From = $case5Ticket->getBegin()->getTimestamp();
                 $c5To = $case5Ticket->getEnd()->getTimestamp();
+                $inverters = $this->functions->readInverters($case5Ticket->getInverter(), $anlage);
                 for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
-                    foreach ($this->functions->readInverters($case5Ticket->getInverter(), $anlage) as $inverter) {
+                    foreach ($inverters as $inverter) {
                         $inverter = trim($inverter, ' ');
                         $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                     }
@@ -318,8 +328,9 @@ class AvailabilityByTicketService
             foreach ($this->case6Repository->findAllCase6($anlage, $from, $to) as $case) {
                 $c6From = strtotime($case['stampFrom']);
                 $c6To = strtotime($case['stampTo']);
+                $inverters = $this->functions->readInverters($case['inverter'], $anlage);
                 for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
-                    foreach ($this->functions->readInverters($case['inverter'], $anlage) as $inverter) {
+                    foreach ($inverters as $inverter) {
                         $inverter = trim($inverter, ' ');
                         $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
                     }
@@ -341,12 +352,15 @@ class AvailabilityByTicketService
             }
             unset($case6Tickets);
 
+            $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
+
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];
                 $strahlung = $einstrahlung['irr'] < 0 ? 0 : $einstrahlung['irr'];
                 $startInverter = 1;
                 $availabilityPlantByStamp['case0'] = $availabilityPlantByStamp['case1'] = $availabilityPlantByStamp['case2'] = $availabilityPlantByStamp['case3'] = 0;
                 $availabilityPlantByStamp['case5'] = $availabilityPlantByStamp['case6'] = $availabilityPlantByStamp['control'] = 0;
+                $availabilityByStamp[$stamp] = 0;
                 for ($inverter = $startInverter; $inverter <= $anzInverter; ++$inverter) {
                     // Nur beim ersten durchlauf, Werte setzen, damit nicht 'undefined'
                     if (!isset($availability[$inverter]['case0']))      $availability[$inverter]['case0'] = 0;
@@ -444,7 +458,8 @@ class AvailabilityByTicketService
                     }
 
                     ## virtual Value for PA speichern (by stamp and plant)
-                    $availabilityByStamp[$stamp] = $this->calcInvAPart1($anlage, $availabilityPlantByStamp, $department) / 100;
+                    $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$inverter] > 0) ? $inverterPowerDc[$inverter] / $anlage->getPnom() : 1;
+                    $availabilityByStamp[$stamp] += ($this->calcInvAPart1($anlage, $availabilityPlantByStamp, $department) / 100) * $invWeight;
 
                 }
             }
@@ -463,6 +478,7 @@ class AvailabilityByTicketService
      * ti = case1 + case2<br>
      * ti,theo = control<br>
      * tFM = case5<br>.
+     * @throws NonUniqueResultException
      */
     public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null, int $department = 0): float
     {
@@ -531,107 +547,7 @@ class AvailabilityByTicketService
         return $istData;
     }
 
-    private function getIrrData(Anlage $anlage, $from, $to): array
-    {
-        $conn = self::getPdoConnection();
-        $irrData = [];
-        $sql_einstrahlung = 'SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed FROM (db_dummysoll a left JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to'";
-        $resultEinstrahlung = $conn->query($sql_einstrahlung);
 
-        if ($resultEinstrahlung->rowCount() > 0) {
-            while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = $row['stamp'];
-                if ($anlage->getIsOstWestAnlage()) {
-                    $strahlung = ((float)$row['g_upper'] * $anlage->getPowerEast() + (float)$row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
-                } else {
-                    $strahlung = (float)$row['g_upper'];
-                }
-                $irrData[$stamp]['stamp'] = $stamp;
-                $irrData[$stamp]['irr'] = $strahlung;
-            }
-        }
-        unset($result);
-        $conn = null;
-
-        $irrData = self::correctIrrByTicket($anlage, $from, $to, $irrData);
-
-        return $irrData;
-    }
-
-    private function correctIrrByTicket(Anlage $anlage, string $from, string $to, array $irrData): array
-    {
-        $startDate = date_create($from);
-        $endDate = date_create($to);
-        // Suche alle Tickets (Ticketdates) die in den Zeitraum fallen
-        // Es werden Nur Tickets mit Sensor Bezug gesucht (Performance Tickets mit ID = 72, 73, 71
-        $ticketArray = $this->ticketDateRepo->performanceTickets($anlage, $startDate, $endDate);
-
-        // Dursuche alle Tickets in Schleife
-        // berechne Wert aus Original Daten und Subtrahiere vom Wert
-        // berechne ersatz Wert und Addiere zum entsprechenden Wert
-        /** @var TicketDate $ticket */
-        foreach ($ticketArray as $ticket){ #loop über query result
-            // Start und End Zeitpunkt ermitteln, es sollen keine Daten gesucht werden die auserhalb des Übergebenen Zeitaums liegen.
-            // Ticket kann ja schon vor dem Zeitraum gestartet oder danach erst beendet werden
-            $tempoStartDate = $startDate > $ticket->getBegin() ? $startDate : $ticket->getBegin();
-            $tempoEndDate = $endDate < $ticket->getEnd() ? $endDate :$ticket->getEnd();
-
-            switch ($ticket->getAlertType()) {
-                // Exclude Sensors
-                case '70':
-                    // Funktionier in der ersten Version nur für Leek und Kampen
-                    // es fehlt die Möglichkeit die gemittelte Strahlung, automatisiert aus den Sensoren zu berechnen
-                    // ToDo: Sensor Daten müssen zur Wetter DB umgezogen werden, dann Code anpassen
-
-                    // Search for sensor (irr) values in ac_ist database
-                    $sensorValues = $this->weatherFunctionsService->getSensors($anlage, $tempoStartDate, $tempoEndDate);
-                    // ermitteln welche Sensoren excludiert werden sollen
-                    $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
-                    foreach ($sensorValues as $date => $sensorValue) {
-                        foreach ($anlage->getSensorsInUse() as $sensor) {
-                            if (!str_contains($ticket->getSensors(), $sensor->getNameShort())) {
-                                switch ($sensor->getVirtualSensor()) {
-                                    case 'irr-hori':
-                                        $mittelwertPyrHoriArray[] = $sensorValue[$sensor->getNameShort()];
-                                        break;
-                                    case 'irr':
-                                        $mittelwertPyroArray[] = $sensorValue[$sensor->getNameShort()];
-                                        break;
-                                    case 'irr-east':
-                                        $mittelwertPyroEastArray[] = $sensorValue[$sensor->getNameShort()];
-                                        break;
-                                    case 'irr-west':
-                                        $mittelwertPyroWestArray[] = $sensorValue[$sensor->getNameShort()];
-                                        break;
-                                }
-                            }
-                            // erechne neuen Mittelwert aus den Sensoren die genutzt werden sollen
-                            if ($anlage->getIsOstWestAnlage()) {
-                                $irrData[$date]['irr'] = (self::mittelwert($mittelwertPyroEastArray) * $anlage->getPowerEast() + self::mittelwert($mittelwertPyroWestArray) * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
-                            } else {
-                                $irrData[$date]['irr'] = self::mittelwert($mittelwertPyroArray);
-                            }
-                        }
-                    }
-                    break;
-
-               // Replace Sensors
-               case '71':
-                   $replaceArray = $this->replaceValuesTicketRepo->getIrrArray($anlage, $tempoStartDate, $tempoEndDate);
-                   foreach ($replaceArray as $replace) {
-                       if ($anlage->getIsOstWestAnlage()) {
-                           $irrData[$replace['stamp']]['irr'] = ($replace['irrEast'] * $anlage->getPowerEast() + $replace['irrWest'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
-                       } else {
-                        $irrData[$replace['stamp']]['irr'] = $replace['irrModul'];
-                       }
-                   }
-                   break;
-               }
-           }
-
-
-           return $irrData;
-       }
 
        /**
         * Berechnet die PA TEIL 1 (OHNE GEWICHTUNG)
