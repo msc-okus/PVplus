@@ -40,14 +40,19 @@ class ImportToolsController extends BaseController
             $importToolsModel->path = (string)$anlage->getPathToImportScript();
 
             // Start recalculation
+            if ($form->get('importType')->getData() != null) {
+                $importToolsModel->importType = (string)$form->get('importType')->getData();
+                } else {
+                $output .= 'Please select what you like to import.<br>';
+            }
+
             if ($form->get('function')->getData() != null) {
                 switch ($form->get('function')->getData()) {
                     case 'api-import-data':
-
                         $output = '<h3>Import API Data:</h3>';
                         $job = 'Import API Data – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
                         $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
-                        $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $logId);
+                        $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId);
                         $messageBus->dispatch($message);
                         $output .= 'Command was send to messenger! Will be processed in background.<br>';
                         break;
