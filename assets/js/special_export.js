@@ -44,9 +44,31 @@ $(document).ready( async function (tableSelector) {
                 title:'Monthly Report',
                 filename:'monthly report',
                 footer:true,
-                autoFilter:true,
+              //  autoFilter:true,
                 sheetName: 'Monthly report',
+                exportOptions:{
+                    format: {
+                        body: function (data, row, column, node) {
+
+                            if(column !== 0) {
+
+
+                                var arr = data.split(',');
+                                //subsequently replace all the periods with spaces
+                                arr[0] = arr[0].toString().replace(/[\.]/g, " ");
+                                //join the pieces together with a period if not empty
+
+                                return arr[0] + '.' + arr[1];
+
+                            }
+                            return data;
+
+                        }
+                    }
+                }
             }
+
+
         ]
     });
 
