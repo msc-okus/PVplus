@@ -96,7 +96,6 @@ class SpecialOperationsController extends AbstractController
             $output = $reportsMonthly->buildMonthlyReportNewByDate($anlage, $startDay, $endDay, $month, $year);
         }
 
-        $reportName = 'report/reportMonthlyDataTables.html.twig';
         $reportName = 'report/reportMonthlyNew.html.twig';
 
         return $this->render($reportName, [

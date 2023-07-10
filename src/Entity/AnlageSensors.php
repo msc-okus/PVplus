@@ -105,7 +105,7 @@ class AnlageSensors
         return $this->orientation;
     }
 
-    public function setOrientation(string $orientation): static
+    public function setOrientation(?string $orientation): static
     {
         $this->orientation = $orientation;
 

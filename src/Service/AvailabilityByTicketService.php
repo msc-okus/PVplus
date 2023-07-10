@@ -353,16 +353,18 @@ class AvailabilityByTicketService
             unset($case6Tickets);
 
             $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
+            $theoPowerByPA = 0;
 
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];
-                $strahlung = $einstrahlung['irr'] < 0 ? 0 : $einstrahlung['irr'];
+                $strahlung = max($einstrahlung['irr'], 0);
                 $startInverter = 1;
-                $availabilityPlantByStamp['case0'] = $availabilityPlantByStamp['case1'] = $availabilityPlantByStamp['case2'] = $availabilityPlantByStamp['case3'] = 0;
-                $availabilityPlantByStamp['case5'] = $availabilityPlantByStamp['case6'] = $availabilityPlantByStamp['control'] = 0;
+
                 $availabilityByStamp[$stamp] = 0;
                 for ($inverter = $startInverter; $inverter <= $anzInverter; ++$inverter) {
                     // Nur beim ersten durchlauf, Werte setzen, damit nicht 'undefined'
+                    $availabilityPlantByStamp['case0'] = $availabilityPlantByStamp['case1'] = $availabilityPlantByStamp['case2'] = $availabilityPlantByStamp['case3'] = 0;
+                    $availabilityPlantByStamp['case5'] = $availabilityPlantByStamp['case6'] = $availabilityPlantByStamp['control'] = 0;
                     if (!isset($availability[$inverter]['case0']))      $availability[$inverter]['case0'] = 0;
                     if (!isset($availability[$inverter]['case1']))      $availability[$inverter]['case1'] = 0;
                     if (!isset($availability[$inverter]['case2']))      $availability[$inverter]['case2'] = 0;
@@ -459,10 +461,10 @@ class AvailabilityByTicketService
 
                     ## virtual Value for PA speichern (by stamp and plant)
                     $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$inverter] > 0) ? $inverterPowerDc[$inverter] / $anlage->getPnom() : 1;
-                    $availabilityByStamp[$stamp] += ($this->calcInvAPart1($anlage, $availabilityPlantByStamp, $department) / 100) * $invWeight;
-
+                    $availabilityByStamp[$stamp] += ($this->calcInvAPart1($anlage, $availabilityPlantByStamp, $department) / 100) * $invWeight ;
                 }
             }
+
         }
         unset($resultEinstrahlung);
 
@@ -579,7 +581,7 @@ class AvailabilityByTicketService
         // calculate pa depending on the chose formular
         switch ($formel) {
             case 1: // PA = ti / (ti,theo - tiFM)
-                if ($row['case1'] + $row['case2'] + $row['case5'] != 0 && $row['control'] != 0) {
+                if ($row['case1'] + $row['case2'] + $row['case5'] != 0 && $row['control'] - $row['case5'] != 0) {
                     if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
                         // Sonderfall wenn Dividend und Divisor = 0 => dann ist PA per definition 100%
                         $paInvPart1 = 100;

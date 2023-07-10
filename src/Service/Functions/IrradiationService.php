@@ -12,6 +12,8 @@ use App\Service\WeatherFunctionsService;
 use DateTime;
 use PDO;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class IrradiationService
 {
@@ -22,35 +24,40 @@ class IrradiationService
         private TicketDateRepository $ticketDateRepo,
         private ReplaceValuesTicketRepository $replaceValuesTicketRepo,
         private WeatherFunctionsService $weatherFunctionsService,
+        private CacheInterface $cache
     )
     {
 
     }
+
+    /**
+     * @throws InvalidArgumentException
+     */
     public function getIrrData(Anlage $anlage, $from, $to): array
     {
-        $conn = self::getPdoConnection();
-        $irrData = [];
-        $sql_einstrahlung = 'SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed FROM (db_dummysoll a left JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to'";
-        $resultEinstrahlung = $conn->query($sql_einstrahlung);
+        return $this->cache->get('irrData_'.md5($from.$to.$anlage->getAnlId()), function() use ($from, $to, $anlage) {
+            $conn = self::getPdoConnection();
+            $irrData = [];
+            $sql_einstrahlung = 'SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to'";
+            $resultEinstrahlung = $conn->query($sql_einstrahlung);
 
-        if ($resultEinstrahlung->rowCount() > 0) {
-            while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = $row['stamp'];
-                if ($anlage->getIsOstWestAnlage()) {
-                    $strahlung = ((float)$row['g_upper'] * $anlage->getPowerEast() + (float)$row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
-                } else {
-                    $strahlung = (float)$row['g_upper'];
+            if ($resultEinstrahlung->rowCount() > 0) {
+                while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
+                    $stamp = $row['stamp'];
+                    if ($anlage->getIsOstWestAnlage()) {
+                        $strahlung = ((float)$row['g_upper'] * $anlage->getPowerEast() + (float)$row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                    } else {
+                        $strahlung = (float)$row['g_upper'];
+                    }
+                    $irrData[$stamp]['stamp'] = $stamp;
+                    $irrData[$stamp]['irr'] = $strahlung;
                 }
-                $irrData[$stamp]['stamp'] = $stamp;
-                $irrData[$stamp]['irr'] = $strahlung;
             }
-        }
-        unset($result);
-        $conn = null;
+            unset($result);
+            $conn = null;
 
-        $irrData = self::correctIrrByTicket($anlage, $from, $to, $irrData);
-
-        return $irrData;
+            return self::correctIrrByTicket($anlage, $from, $to, $irrData);
+        });
     }
 
     private function correctIrrByTicket(Anlage $anlage, string $from, string $to, array $irrData): array
@@ -58,7 +65,7 @@ class IrradiationService
         $startDate = date_create($from);
         $endDate = date_create($to);
         // Suche alle Tickets (Ticketdates) die in den Zeitraum fallen
-        // Es werden Nur Tickets mit Sensor Bezug gesucht (Performance Tickets mit ID = 72, 73, 71
+        // Es werden Nur Tickets mit Sensor Bezug gesucht (Performance Tickets mit ID = 71, 72, 73
         $ticketArray = $this->ticketDateRepo->performanceTickets($anlage, $startDate, $endDate);
 
         // Dursuche alle Tickets in Schleife

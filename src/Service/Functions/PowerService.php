@@ -165,7 +165,7 @@ class PowerService
                 }
             }
             unset($res);
-            $powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
+            #$powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
             $powerEvu = $this->correctGridByTicket($anlage, $powerEvu, $from, $to); // Function not fianly tested
         } else {
             $powerEvu = null;

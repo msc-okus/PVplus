@@ -123,39 +123,24 @@ class PRCalulationService
             // PlantAvailability berechnen FIRST
             // pro Tag
             // FIRST
-            $availability = $this->availabilityService->calcAvailability($anlage, date_create($day.' 00:00'), date_create($day.' 23:59'));
+            $availability = $this->availabilityByTicket->calcAvailability($anlage, date_create($day.' 00:00'), date_create($day.' 23:59'), null, 0);
+
             // SECOND
-            $availabilitySecond = $this->anlageAvailabilityRepo->sumAvailabilitySecondPerDay($anlage->getAnlId(), $day);
-            if (!$availabilitySecond) {
-                $availabilitySecond = 0;
-            }
+            $availabilitySecond = 0; // $this->anlageAvailabilityRepo->sumAvailabilitySecondPerDay($anlage->getAnlId(), $day);
 
             // pro Monat
             $startMonth = date('Y-m-01 00:00', strtotime($to));
-            $anzPRRecordsPerMonth = -999; //$this->PRRepository->anzRecordsPRPerPac($anlage->getAnlId(), $startMonth, $to);
-            if ($anzPRRecordsPerMonth == 0) {
-                $anzPRRecordsPerMonth = 1;
-            }
             // FIRST
-            $availabilityPerMonth = -999; //$this->availabilityService->calcAvailability($anlage, date_create($startMonth), date_create($to));
+            $availabilityPerMonth = $this->availabilityByTicket->calcAvailability($anlage, date_create($startMonth), date_create($to));
             // SECOND
-            $availabilitySecondPerMonth = -999; //$this->PRRepository->sumAvailabilitySecondPerPac($anlage->getAnlId(), $startMonth, $to);
-            $availabilitySecondPerMonth = $availabilitySecondPerMonth / $anzPRRecordsPerMonth;
+            $availabilitySecondPerMonth = 0; //$this->PRRepository->sumAvailabilitySecondPerPac($anlage->getAnlId(), $startMonth, $to);
 
             // pro Jahr
             // FIRST
-            $anzPRRecordsPerYear = -999; //$this->PRRepository->anzRecordsPRPerYear($anlage->getAnlId(), $year, $to);
-            $availabilityPerYear = -999; //$this->availabilityService->calcAvailability($anlage, date_create("$year-01-01 00:00"), date_create($to));
-            if ($anzPRRecordsPerYear == 0) {
-                $anzPRRecordsPerYear = 1;
-            }
+            $availabilityPerYear = $this->availabilityByTicket->calcAvailability($anlage, date_create("$year-01-01 00:00"), date_create($to));
+
             // SECOND
             $availabilityPerYearSecond = -999; //$this->PRRepository->sumAvailabilitySecondPerYear($anlage->getAnlId(), $year, $to);
-            if ($availabilityPerYearSecond == null) {
-                $availabilityPerYearSecond = '';
-            } else {
-                $availabilityPerYearSecond = $availabilityPerYearSecond / $anzPRRecordsPerYear;
-            }
 
             // auf Basis des PAC (Productions Start Datum)
             // FIRST und SECOND
