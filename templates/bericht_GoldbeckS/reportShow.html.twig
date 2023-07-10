@@ -1,0 +1,46 @@
+{% extends "base.html.twig" %}
+
+{% block title %}
+bericht_GS
+{% endblock %}
+
+{% block body %}
+<h1 class="text-center">Generate Report GS</h1>
+
+        <div id="loading"  class = "reveal large text-center"  data-reveal>
+          <h2>This might take several minutes.Please be Patient ...</h2>
+        </div>
+
+
+        {% if filename is not null%}
+            <div class="grid-x grid-margin-x">
+                <div class="cell small-4 large-offset-2">
+                    <a class="button" href="{{ path('app_generate_gr_save_report',{'filename':filename}) }}" ><i class="fa fa-file-download"></i><span> {{ filename }}</span></a>
+                </div>
+                <div class="cell small-4 large-offset-2">
+                    <a class="button" href="{{ path('app_generate_gr_save_report') }}" >Generate new Report</a>
+                </div>
+            </div>
+         {% else%}
+             <form method="post"  >
+                 <div class="grid-x grid-margin-x">
+                     <div class="cell large-4 ">
+                         <select name="ts" id="ts">
+                             <option value="1">TS1</option>
+                             <option value="2">TS2</option>
+                             <option value="3">TS3</option>
+                             <option value="4">TS4</option>
+                         </select>
+                     </div>
+                     <div class="cell large-4">
+                         <input type="date" id="report" name="day" value={{ yesterday }} max={{ yesterday }}>
+                     </div>
+                     <div class="cell large-2">
+                         <button class="button" type="submit" data-open="loading" >Generate</button>
+                     </div>
+
+                 </div>
+             </form>
+        {% endif %}
+{% endblock %}
+
