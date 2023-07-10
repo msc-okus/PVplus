@@ -6,13 +6,13 @@
 
 {% block styles %}
     {{  parent() }}
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.css"/>
+    {{ encore_entry_link_tags('special_export') }}
     <link href="{{ absolute_url(asset('css/monthly_report_inline.css')) }}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.js"></script>
+    {{ encore_entry_script_tags('special_export') }}
 {% endblock %}
 
 {% block body %}
@@ -26,62 +26,63 @@
     <hr>
     {% if report != null %}
         <div class="grid-x">
-        <div class="cell">
+            <div id="special_export_buttons"></div>
+            <div class="cell">
 
-            <table class="basetable monthtable" style="width: 100%; height: 100%">
-                {% for day in report.days %}
+                <table id="special_export" class="basetable monthtable" style="width: 100%; height: 100%">
+                    {% for day in report.days %}
                     {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
                     {% if loop.first %}
-                        <thead>
-                        <tr class="left">
-                            <th class="border-right-2"></th>
-                            <th class="border-right-2" colspan="4">Power & Irradiation</th>
-                            <th class="border-right-2" colspan="5">PR & PA – default (OpenBook)</th>
-                            {% if anlage.settings.disableDep1 != true %}<th class="border-right-2" colspan="5">PR & PA – O&M</th>{% endif %}
-                            {% if anlage.settings.disableDep2 != true %}<th class="border-right-2" colspan="5">PR & PA – EPC</th>{% endif %}
-                            {% if anlage.settings.disableDep3 != true %}<th class="border-right-2" colspan="5">PR & PA – AM</th>{% endif %}
-                        </tr>
-                        <tr>
-                            <th class="border-right-2">Datum</th>
-                            <th>Irr</th>
-                            <th>Grid</th>
-                            <th>Inverter</th>
-                            <th class="border-right-2">G4N Expected</th>
+                    <thead>
+                    <tr class="left">
+                        <th class="border-right-2"></th>
+                        <th class="border-right-2" colspan="4">Power & Irradiation</th>
+                        <th class="border-right-2" colspan="5">PR & PA – default (OpenBook)</th>
+                        {% if anlage.settings.disableDep1 != true %}<th class="border-right-2" colspan="5">PR & PA – O&M</th>{% endif %}
+                        {% if anlage.settings.disableDep2 != true %}<th class="border-right-2" colspan="5">PR & PA – EPC</th>{% endif %}
+                        {% if anlage.settings.disableDep3 != true %}<th class="border-right-2" colspan="5">PR & PA – AM</th>{% endif %}
+                    </tr>
+                    <tr>
+                        <th class="border-right-2">Datum</th>
+                        <th>Irr</th>
+                        <th>Grid</th>
+                        <th>Inverter</th>
+                        <th class="border-right-2">G4N Expected</th>
 
+                        <th>Power Theo.</th>
+                        <th>PR Grid</th>
+                        <th>PR Inv.</th>
+                        <th>PR Exp.</th>
+                        <th class="border-right-2">PA</th>
+
+                        {% if anlage.settings.disableDep1 != true %}
                             <th>Power Theo.</th>
                             <th>PR Grid</th>
                             <th>PR Inv.</th>
                             <th>PR Exp.</th>
                             <th class="border-right-2">PA</th>
+                        {% endif %}
 
-                            {% if anlage.settings.disableDep1 != true %}
-                                <th>Power Theo.</th>
-                                <th>PR Grid</th>
-                                <th>PR Inv.</th>
-                                <th>PR Exp.</th>
-                                <th class="border-right-2">PA</th>
-                            {% endif %}
-
-                            {% if anlage.settings.disableDep2 != true %}
+                        {% if anlage.settings.disableDep2 != true %}
                             <th>Power Theo.</th>
                             <th>PR Grid</th>
                             <th>PR Inverter</th>
                             <th>PR Exp.</th>
                             <th class="border-right-2">PA</th>
-                            {% endif %}
+                        {% endif %}
 
-                            {% if anlage.settings.disableDep3 != true %}
+                        {% if anlage.settings.disableDep3 != true %}
                             <th>Power Theo.</th>
                             <th>PR Grid</th>
                             <th>PR Inv.</th>
                             <th>PR Exp.</th>
                             <th class="border-right-2">PA</th>
-                            {% endif %}
+                        {% endif %}
 
 
-                        </tr>
-                        </thead>
-                        <tbody>
+                    </tr>
+                    </thead>
+                    <tbody>
                     {% endif %}
                     <tr {{ trstyle }}>
                         <td class="border-right-2">{{ day["datum"] }}</td>
@@ -122,10 +123,10 @@
                             <td class="border-right-2">{{ day["pa3"]|number_format(2,',','.') }}</td>
                         {% endif %}
                     </tr>
-                {% endfor %}
-            </tbody>
-    </table>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
     {% endif %}
 {% endblock %}
