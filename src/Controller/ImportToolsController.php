@@ -50,7 +50,7 @@ class ImportToolsController extends BaseController
                 switch ($form->get('function')->getData()) {
                     case 'api-import-data':
                         $output = '<h3>Import API Data:</h3>';
-                        $job = 'Import API Data – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
+                        $job = 'Import API Data('.$importToolsModel->importType.') – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
                         $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
                         $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId);
                         $messageBus->dispatch($message);
