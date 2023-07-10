@@ -4,9 +4,16 @@ import $ from 'jquery';
 import '../styles/special_export.scss';
 import JSZip from 'jszip';
 window.JSZip= JSZip;
+import  pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 import 'datatables.net-buttons-zf/js/buttons.foundation';
+import 'datatables.net-buttons/js/buttons.colVis.mjs';
+import 'datatables.net-buttons/js/buttons.html5.mjs';
+import 'datatables.net-buttons/js/buttons.print.mjs';
 import 'datatables.net-responsive/js/dataTables.responsive';
 import 'datatables.net-responsive-zf/js/responsive.foundation';
+import 'datatables.net-select-zf/js/select.foundation';
 import DataTables from 'datatables.net-zf';
 
 
@@ -19,7 +26,8 @@ $(document).ready( async function (tableSelector) {
         paging:false,
         searching:false,
         info:false,
-        responsive:true
+        responsive:true,
+        ordering:false
 
     });
 
