@@ -209,9 +209,11 @@ class TicketController extends BaseController
 
             }
             else{
+
                 $date = new ticketDate();
                 $date->copyTicket($ticket);
                 $ticket->addDate($date);
+                $date->setTicket($ticket);
                 $ticket->setNeedsProof(true);
                 $ticket->setNeedsProofEPC(true);
                 $ticket->setNeedsProofTAM(true);
