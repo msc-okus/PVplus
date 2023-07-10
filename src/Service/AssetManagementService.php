@@ -282,7 +282,24 @@ class AssetManagementService
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
 
         $reportParts['PRTable'] = $pdf->createPage($html, $fileroute, "PRTable", false);// we will store this later in the entity
+        $html = $this->twig->render('report/InverterRank.html.twig', [
+            'month' => $reportMonth,
+            'monthName' => $output['month'],
+            'year' => $reportYear,
+            'dataMonthArray' => $content['dataMonthArray'],
+            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+            'dataCfArray' => $content['dataCfArray'],
+            'reportmonth' => $content['reportmonth'],
+            'montharray' => $content['monthArray'],
+            'anlage'        => $anlage,
+            'InverterPRRankTables' => $content['InverterPRRankTables'],
+            'InverterPRRankGraphics' => $content['InverterPRRankGraphics'],
 
+        ]);
+        $html = str_replace('src="//', 'src="https://', $html);
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+
+        $reportParts['InverterRank'] = $pdf->createPage($html, $fileroute, "InverterRank", false);// we will store this later in the entity
 
         $html = $this->twig->render('report/asset_report_part_6.html.twig', [
             'anlage' => $anlage,
@@ -519,6 +536,130 @@ class AssetManagementService
      */
     public function buildAssetReport(Anlage $anlage, array $report, ?int $logId = null): array
     {
+
+        $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
+        $orderedArray = [];
+        $pr_rank_graph = [];
+        $index = 0;
+        $index2 = 0;
+        while (count($inverterPRArray['power']) !== 0){
+            $keys = array_keys($inverterPRArray['power'], min($inverterPRArray['power']));
+
+            foreach($keys as $key ){
+                $orderedArray[$index2][$index]['name'] = $inverterPRArray['name'][$key];
+                $orderedArray[$index2][$index]['powerYield'] = $inverterPRArray['powerYield'][$key];
+                $orderedArray[$index2][$index]['Pnom'] = $inverterPRArray['Pnom'][$key];
+                $orderedArray[$index2][$index]['power'] = $inverterPRArray['power'][$key];
+                $orderedArray[$index2][$index]['avgPower'] = $inverterPRArray['powerAVG'];
+                $orderedArray[$index2][$index]['avgIrr'] = $inverterPRArray['avgIrr'][$key];
+                $orderedArray[$index2][$index]['theoPower'] = $inverterPRArray['theoPower'][$key];
+                $orderedArray[$index2][$index]['invPR'] = $inverterPRArray['invPR'][$key];
+                $orderedArray[$index2][$index]['calcPR'] = $inverterPRArray['calcPR'][$key];
+                $graphDataPR[$index2]['name'][] = $inverterPRArray['name'][$key];
+                $graphDataPR[$index2]['PR'][]= $inverterPRArray['invPR'][$key];
+                $graphDataPR[$index2]['power'][]= $inverterPRArray['power'][$key];
+                $graphDataPR[$index2]['yield'] = $inverterPRArray['calcPR'][$key];
+                unset($inverterPRArray['power'][$key]);
+                $index = $index + 1;
+                if ($index >= 30){
+                    $index = 0;
+                    $index2 = $index2 + 1;
+                }
+            }
+        }
+
+        foreach($graphDataPR as $key => $data) {
+            $chart = new ECharts(); // We must use AMCharts
+            $chart->tooltip->show = false;
+            $chart->tooltip->trigger = 'item';
+            $chart->xAxis = [
+                'type' => 'category',
+                'axisLabel' => [
+                    'show' => true,
+                    'margin' => '10',
+                    'rotate' => 45
+                ],
+                'splitArea' => [
+                    'show' => true,
+                ],
+                'data' => $data['name'],
+            ];
+            $chart->yAxis = [
+                [
+                    'type' => 'value',
+                    'min' => 0,
+                    'name' => 'kWh/kWp',
+                    'nameLocation' => 'middle',
+                ],
+                [
+                    'type' => 'value',
+                    'min' => 0,
+                    'max' => 100,
+                    'alignTicks' => true,
+                    'name' => '[%]',
+                    'nameLocation' => 'middle',
+
+                ]
+            ];
+            $chart->series =
+                [
+                    [
+                        'name' => 'specific yield',
+                        'type' => 'bar',
+                        'data' => $data['power'],
+                        'visualMap' => 'false',
+
+                    ],
+                    [
+                        'name' => 'Inverter PR',
+                        'type' => 'line',
+                        'data' => $data['PR'],
+                        'visualMap' => 'false',
+                        'lineStyle' => [
+                            'color' => 'green'
+                        ],
+                        'yAxisIndex' => 1,
+                        'markLine' => [
+                            'data' => [
+                                [
+                                    'name' => 'calculated PR',
+                                    'yAxis' => $data['yield'],
+                                    'lineStyle' => [
+                                        'type' => 'solid',
+                                        'width' => 3,
+                                        'color' => 'red'
+                                    ]
+                                ]
+                            ],
+                            'symbol' => 'none',
+                        ]
+                    ],
+                ];
+            $option = [
+                'textStyle' => [
+                    'fontFamily' => 'monospace',
+                    'fontsize' => '14'
+                ],
+                'animation' => false,
+                'tooltip' => [
+                    'show' => true,
+                ],
+                'legend' => [
+                    'show' => true,
+                    'left' => 'top',
+                    'top' => 20,
+                ],
+                'grid' => [
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '80%',
+                    'left' => 100,
+                    'bottom' => 100,
+                ],
+            ];
+            $chart->setOption($option);
+            $pr_rank_graph[] = $chart->render('pr_graph_'.$key, ['style' => 'height: 450px; width:700px;']);
+        }
         $this->logMessages->updateEntry($logId, 'working', 10);
         $month = $report['reportMonth'];
         for ($i = 0; $i < 12; ++$i) {
@@ -986,19 +1127,19 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Production ACT / Plant Simulation - P50',
+                    'name' => 'Production ACT / Forecast - P50',
                     'type' => 'line',
                     'data' => $tbody_forecast_PVSYSTP50,
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Production ACT / Plant Simulation - P90',
+                    'name' => 'Production ACT / Forecast - P90',
                     'type' => 'line',
                     'data' => $tbody_forecast_PVSYSTP90,
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Plant Simulation - P50',
+                    'name' => 'Forecast - P50',
                     'type' => 'line',
                     'data' => $tbody_forecast_plan_PVSYSTP50,
                     'visualMap' => 'false',
@@ -1007,7 +1148,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Plant Simulation - P90',
+                    'name' => 'Forecast - P90',
                     'type' => 'line',
                     'data' => $tbody_forecast_plan_PVSYSTP90,
                     'visualMap' => 'false',
@@ -1120,7 +1261,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Plant Simulation - P50',
+                    'name' => 'Forecast - P50',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP50,
                     'visualMap' => 'false',
@@ -1129,7 +1270,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Plant Simulation - P90',
+                    'name' => 'Forecast - P90',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP90,
                     'visualMap' => 'false',
@@ -1527,7 +1668,7 @@ class AssetManagementService
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Plant Simulation',
+                            'name' => 'Forecast',
                             'type' => 'bar',
                             'data' => [
                                 $expectedPvSyst[$report['reportMonth'] - 1],
@@ -2709,7 +2850,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'forecast g4n[%]',
+                    'name' => 'forecast[%]',
                     'type' => 'bar',
                     'data' => [$percentageTable['forecast']],
                     'visualMap' => 'false',
@@ -2923,7 +3064,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Forecast g4n[%]',
+                    'name' => 'Forecast[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
@@ -2997,7 +3138,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Forecast g4n[%]',
+                    'name' => 'Forecast[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
@@ -3157,7 +3298,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Forecast g4n[%]',
+                        'name' => 'Forecast[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
@@ -3232,7 +3373,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Forecast g4n[%]',
+                        'name' => 'Forecast[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
@@ -4187,7 +4328,7 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Actual plus Forecast g4n',
+                    'name' => 'Actual plus Forecast',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_G4N'],
                     'visualMap' => 'false',
@@ -4199,13 +4340,13 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Expected g4n plus Forecast g4n',
+                    'name' => 'Expected g4n plus Forecast',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_Forecast'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Forecast g4n P50',
+                    'name' => 'Forecast P50',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['g4n_plan_proceeds_EXP_P50'],
                     'visualMap' => 'false',
@@ -4284,7 +4425,7 @@ class AssetManagementService
                         'visualMap' => 'false',
                     ],
                     [
-                        'name' => 'Difference ACT to forecast g4n',
+                        'name' => 'Difference ACT to forecast',
                         'type' => 'line',
                         'data' => $difference_prod_to_forecast,
                         'visualMap' => 'false',
@@ -4302,7 +4443,7 @@ class AssetManagementService
                         'visualMap' => 'false',
                     ],
                     [
-                        'name' => 'Difference ACT to forecast g4n',
+                        'name' => 'Difference ACT to forecast',
                         'type' => 'line',
                         'data' => $difference_prod_to_forecast,
                         'visualMap' => 'false',
@@ -4382,7 +4523,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Forecast g4n',
+                    'name' => 'Forecast',
                     'type' => 'bar',
                     'data' => $incomePerMonth['gvn_plan_proceeds_EXP'],
                     'visualMap' => 'false',
@@ -4508,7 +4649,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Forecast g4n - proceeds',
+                    'name' => 'Forecast - proceeds',
                     'type' => 'bar',
                     'data' => $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'],
                     'visualMap' => 'false',
@@ -4760,6 +4901,7 @@ class AssetManagementService
         $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))), "year");
 
 
+
         // end Chart Losses compared cummulated
         $output = [
             'plantId' => $plantId,
@@ -4853,7 +4995,9 @@ class AssetManagementService
             'percentageTableMonth' => $percentageTable,
             'monthlyTableForPRAndPA' => $monthlyTableForPRAndPA,
             'PA_MonthlyGraphic' => $PA_MonthlyGraphic,
-            'PR_MonthlyGraphic' => $PR_MonthlyGraphic
+            'PR_MonthlyGraphic' => $PR_MonthlyGraphic,
+            'InverterPRRankTables' => $orderedArray,
+            'InverterPRRankGraphics' => $pr_rank_graph,
         ];
 
         return $output;
@@ -4938,6 +5082,33 @@ class AssetManagementService
             'OMCLosses'     => $sumLossesMonthOMC
         ];
         return $kwhLossesMonthTable;
+    }
+    private function calcPRInvArray(Anlage $anlage, $month, $year){
+        // now we will cheat the data in but in the future we will use the params to retrieve the data
+        $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
+        $invArray = $anlage->getInverterFromAnlage();
+
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
+        $invPnomArray = $anlage->getPnomInverterArray();
+        $invNr = count($invArray);
+        $contractualPR = $anlage->getContractualPR();
+        $powerSum = 0;
+        for ($index = 1; $index <= $invNr; $index++) {
+            $prValues = $this->PRCalulation->calcPRByInverterAM($anlage, $index, new \DateTime($year."-".$month."-"."01"), new \DateTime($year."-".$month."-".$daysInMonth));
+            $invPnom = $invPnomArray[$index];
+            $power = $prValues['powerAct'];
+            $PRArray['name'][] = $invArray[$index];
+            $PRArray['power'][] = $power;
+            $PRArray['Pnom'][] = $invPnom;
+            $PRArray['powerYield'][] = $power / $invPnom;
+            $PRArray['avgIrr'][] = $prValues['irradiation'];
+            $PRArray['theoPower'][] = $prValues['powerTheo'];
+            $PRArray['invPR'][] = $prValues['prDep3Act'];
+            $PRArray['calcPR'][] = $contractualPR;
+            $powerSum = $powerSum + $power;
+        }
+        $PRArray['powerAVG'] = $powerSum / $invNr;
+        return $PRArray;
     }
 
 }

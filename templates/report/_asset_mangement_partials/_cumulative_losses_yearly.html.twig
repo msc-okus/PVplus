@@ -28,7 +28,7 @@
                             {% endfor %}
                         </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right;width:150px">Diff ACT to g4n forecast</td>
+                        <td class="tr_first_column" style="text-align: right;width:150px">Diff ACT to forecast</td>
                         {% for data in losses_t1.difference_act_forecast %}
                             <td class="tr_next_columns" >{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}

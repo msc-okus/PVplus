@@ -36,6 +36,12 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
+            ->add('InvRank', SwitchType::class, [
+                'label' => 'Inverter Ranking by PR',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ])
             ->add('PRPATable', SwitchType::class, [
                 'label' => 'Technical PR and Availability',
                 'required' => false,

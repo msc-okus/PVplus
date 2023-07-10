@@ -172,7 +172,7 @@ class PowerService
         }
 
         if ($inverterID !== null){
-            $sqlPartInverter = "AND group_dc = $inverterID";
+            $sqlPartInverter = "AND group_dc = $inverterID"; // we must change this
         } else {
             $sqlPartInverter = "";
         }
@@ -187,7 +187,7 @@ class PowerService
         unset($res);
 
         if ($inverterID !== null){
-            $sqlPartInverter = "AND inv = $inverterID";
+            $sqlPartInverter = "AND unit = $inverterID";
         } else {
             $sqlPartInverter = "";
         }

@@ -798,7 +798,7 @@ class PRCalulationService
         $result['prDefaultEvu'] = $result['prDep0Evu']; // OpenBook / default PR
         $result['prDefaultAct'] = $result['prDep0Act']; // OpenBook / default PR
         $result['prDefaultExp'] = $result['prDep0Exp']; // OpenBook / default PR
-        $result['prDefaultEGridExt'] = $result['prDep0EGridExt']; // OpenBook / default PR
+        $result['prDefaultEGridExt'] = $result['prDirradiationep0EGridExt']; // OpenBook / default PR
         $result['prEvu'] = $result['prDep2Evu']; // EPC PR
         $result['prAct'] = $result['prDep2Act']; // EPC PR
         $result['prExp'] = $result['prDep2Exp']; // EPC PR
@@ -808,6 +808,45 @@ class PRCalulationService
         $result['tCellAvgNrel'] = (float) $weather['temp_cell_corr'];
         $result['tCellAvgMultiIrr'] = (float) $weather['temp_cell_multi_irr'];
 
+        return $result;
+    }
+
+
+    public function calcPRByInverterAM(Anlage $anlage, int $inverterID, DateTime $startDate, DateTime $endDate = null): array{
+        $result = [];
+        $inverterPowerDc = $anlage->getPnomInverterArray();
+        // PR für einen Tag (wenn $endDate = null) oder für beliebigen Zeitraum (auch für Rumpfmonate in epc Berichten) berechnen
+        $localStartDate = $startDate->format('Y-m-d 00:00');
+        if ($endDate === null) {
+            $localEndDate = $startDate->format('Y-m-d 23:59');
+        } else {
+            $localEndDate = $endDate->format('Y-m-d 23:59');
+        }
+
+        $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), $inverterID, 3);
+        $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
+        if (is_array($weather)) {
+            $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate), $inverterID);
+        }
+        if ($anlage->getIsOstWestAnlage()) {
+            $irr = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
+        } else {
+            $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
+        }
+        $power = $this->powerServicer->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate), $inverterID);
+
+        $result['powerTheo'] = match($anlage->getPrFormular3()) {
+            'Lelystad'  => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'Veendam'   => $weather['theoPowerPA3'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
+            default     => $inverterPowerDc[$inverterID] * $irr    // all others calc by Pnom and Irr.
+        };
+        $irr = $this->functions->checkAndIncludeMonthlyCorrectionIrr($anlage, $irr, $localStartDate, $localEndDate);
+
+        if (!$anlage->getSettings()->isDisableDep3()) $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerAct'], $power['powerTheo'], $pa3) * 100;
+        else $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerAct'], $power['powerTheo'], $pa3) * 100;
+
+        $result['powerAct'] = $power['powerAct'];
+        $result['irradiation'] = $irr;
         return $result;
     }
 
