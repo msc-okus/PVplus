@@ -13,4 +13,6 @@ class ImportToolsModel
     public \DateTime $endDate;
 
     public string $path;
+
+    public string $importType;
 }
