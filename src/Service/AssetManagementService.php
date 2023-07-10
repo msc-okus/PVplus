@@ -587,17 +587,16 @@ class AssetManagementService
             $chart->yAxis = [
                 [
                     'type' => 'value',
-                    'min' => 0,
                     'name' => 'kWh/kWp',
-                    'nameLocation' => 'middle',
+                    'min' => 0,
+                    'position' => 'left'
                 ],
                 [
                     'type' => 'value',
-                    'min' => 0,
-                    'max' => 100,
-                    'alignTicks' => true,
                     'name' => '[%]',
-                    'nameLocation' => 'middle',
+                    'min' => 0,
+                    'max' => 105,
+                    'position' => 'right',
 
                 ]
             ];
@@ -622,12 +621,15 @@ class AssetManagementService
                         'markLine' => [
                             'data' => [
                                 [
-                                    'name' => 'calculated PR',
+                                    'name' => 'Yield',
                                     'yAxis' => $data['yield'],
                                     'lineStyle' => [
                                         'type' => 'solid',
                                         'width' => 3,
                                         'color' => 'red'
+                                    ],
+                                    'label' => [
+                                        'formatter' => '{b} : {c}'
                                     ]
                                 ]
                             ],
@@ -636,29 +638,33 @@ class AssetManagementService
                     ],
                 ];
             $option = [
+                'animation' => false,
+                'grid' => [
+                    'height' => '70%',
+                    'top' => 50,
+                    'width' => '70%',
+                    'right' => 100,
+                    'left' => 100,
+                    'bottom' => 100,
+                ],
+                'legend' => [
+                    'show' => true,
+                    'center' => 'top',
+                    'top' => 10,
+                ],
+                'tooltip' => [
+                    'show' => true,
+                ],
+                /*
                 'textStyle' => [
                     'fontFamily' => 'monospace',
                     'fontsize' => '14'
                 ],
-                'animation' => false,
-                'tooltip' => [
-                    'show' => true,
-                ],
-                'legend' => [
-                    'show' => true,
-                    'left' => 'top',
-                    'top' => 20,
-                ],
-                'grid' => [
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => '80%',
-                    'left' => 100,
-                    'bottom' => 100,
-                ],
+
+           */
             ];
             $chart->setOption($option);
-            $pr_rank_graph[] = $chart->render('pr_graph_'.$key, ['style' => 'height: 450px; width:700px;']);
+            $pr_rank_graph[] = $chart->render('pr_graph_'.$key, ['style' => 'height: 550px; width:900px;']);
         }
         $this->logMessages->updateEntry($logId, 'working', 10);
         $month = $report['reportMonth'];
@@ -1734,6 +1740,14 @@ class AssetManagementService
                             ],
                             'visualMap' => 'false',
                         ],
+                        [
+                            'name' => 'Forecast',
+                            'type' => 'bar',
+                            'data' => [
+                                $forecast[$report['reportMonth'] - 1],
+                            ],
+                            'visualMap' => 'false',
+                        ],
                     ];
             } else {
                 $chart->series =
@@ -1754,7 +1768,14 @@ class AssetManagementService
                             ],
                             'visualMap' => 'false',
                         ],
-
+                        [
+                            'name' => 'Forecast',
+                            'type' => 'bar',
+                            'data' => [
+                                $forecast[$report['reportMonth'] - 1],
+                            ],
+                            'visualMap' => 'false',
+                        ],
                     ];
             }
         }
@@ -1799,13 +1820,23 @@ class AssetManagementService
         else {
             $var = round((1 - $expectedPvSyst[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2);
         }
-        $operations_monthly_right_pvsyst_tr1 = [
-            $monthName.' '.$report['reportYear'],
-            $powerEvu[$report['reportMonth'] - 1],
-            $expectedPvSyst[$report['reportMonth'] - 1],
-            $powerEvu[$report['reportMonth'] - 1] - $expectedPvSyst[$report['reportMonth'] - 1],
-            $var,
-        ];
+        if($anlage->hasPVSYST()) {
+            $operations_monthly_right_pvsyst_tr1 = [
+                $monthName . ' ' . $report['reportYear'],
+                $powerEvu[$report['reportMonth'] - 1],
+                $expectedPvSyst[$report['reportMonth'] - 1],
+                $powerEvu[$report['reportMonth'] - 1] - $expectedPvSyst[$report['reportMonth'] - 1],
+                $var,
+            ];
+        } else{
+            $operations_monthly_right_pvsyst_tr1 = [
+                $monthName . ' ' . $report['reportYear'],
+                $powerEvu[$report['reportMonth'] - 1],
+                $forecast[$report['reportMonth'] - 1],
+                $powerEvu[$report['reportMonth'] - 1] - $forecast[$report['reportMonth'] - 1],
+                $var,
+            ];
+        }
 
         $start = $report['reportYear'].'-01-01 00:00';
 
@@ -1816,15 +1847,24 @@ class AssetManagementService
         } else {
             $powerEvuQ1 = $data2_grid_meter['powerAct'];
         }
-        if (($powerEvuQ1 > 0) && $anlage->hasPVSYST()) {
+        if ($powerEvuQ1 > 0 ) {
             $expectedPvSystQ1 = 0;
 
-
-            if ($month >= 3) {
-                $expectedPvSystQ1 = $tbody_a_production['expectedPvSyst'][0] + $tbody_a_production['expectedPvSyst'][1] + $tbody_a_production['expectedPvSyst'][2];
-            } else {
-                for ($i = 0; $i <= intval($report['reportMonth']); ++$i) {
-                    $expectedPvSystQ1 += $tbody_a_production['expectedPvSyst'][$i];
+            if ($anlage->hasPVSYST()) {
+                if ($month >= 3) {
+                    $expectedPvSystQ1 = $tbody_a_production['expectedPvSyst'][0] + $tbody_a_production['expectedPvSyst'][1] + $tbody_a_production['expectedPvSyst'][2];
+                } else {
+                    for ($i = 0; $i <= intval($report['reportMonth']); ++$i) {
+                        $expectedPvSystQ1 += $tbody_a_production['expectedPvSyst'][$i];
+                    }
+                }
+            }else{
+                if ($month >= 3) {
+                    $expectedPvSystQ1 = $forecast[0] + $forecast[1] + $forecast[2];
+                } else {
+                    for ($i = 0; $i <= intval($report['reportMonth']); ++$i) {
+                        $expectedPvSystQ1 += $forecast[$i];
+                    }
                 }
             }
 
@@ -1834,12 +1874,12 @@ class AssetManagementService
                 abs($powerEvuQ1 - $expectedPvSystQ1),
                 round((1 - $expectedPvSystQ1 / $powerEvuQ1) * 100, 2),
             ];
-        } else {
-            $operations_monthly_right_pvsyst_tr2 = [
+        }else{
+            $operations_monthly_right_pvsyst_tr1 = [
                 $powerEvuQ1,
-                0,
-                0,
-                0,
+                0.0,
+                0.0,
+                0.0,
             ];
         }
 
@@ -1853,12 +1893,22 @@ class AssetManagementService
             $powerEvuQ2 = $data2_grid_meter['powerAct'];
         }
 
-        if (( $powerEvuQ2 > 0) && $anlage->hasPVSYST()) {
-            if ($month >= 6) {
-                $expectedPvSystQ2 = $tbody_a_production['expectedPvSyst'][3] + $tbody_a_production['expectedPvSyst'][4] + $tbody_a_production['expectedPvSyst'][5];
-            } else {
-                for ($i = 3; $i <= intval($report['reportMonth']); ++$i) {
-                    $expectedPvSystQ2 += $tbody_a_production['expectedPvSyst'][$i];
+        if (( $powerEvuQ2 > 0)) {
+            if( $anlage->hasPVSYST()){
+                if ($month >= 6) {
+                    $expectedPvSystQ2 = $tbody_a_production['expectedPvSyst'][3] + $tbody_a_production['expectedPvSyst'][4] + $tbody_a_production['expectedPvSyst'][5];
+                } else {
+                    for ($i = 3; $i <= intval($report['reportMonth']); ++$i) {
+                        $expectedPvSystQ2 += $tbody_a_production['expectedPvSyst'][$i];
+                    }
+                }
+            }else{
+                if ($month >= 6) {
+                    $expectedPvSystQ2 = $forecast[3] + $forecast[3][4] + $forecast[3][5];
+                } else {
+                    for ($i = 3; $i <= intval($report['reportMonth']); ++$i) {
+                        $expectedPvSystQ2 += $forecast[3][$i];
+                    }
                 }
             }
 
@@ -1868,12 +1918,12 @@ class AssetManagementService
                 $powerEvuQ2 - $expectedPvSystQ2,
                 round((1 - $expectedPvSystQ2 / $powerEvuQ2) * 100, 2),
             ];
-        } else {
+        }else{
             $operations_monthly_right_pvsyst_tr3 = [
                 $powerEvuQ2,
-                0,
-                0,
-                0,
+                0.0,
+                0.0,
+                0.0,
             ];
         }
         // Parameter fuer die Berechnung Q3
@@ -1886,12 +1936,22 @@ class AssetManagementService
         } else {
             $powerEvuQ3 = $data2_grid_meter['powerAct'];
         }
-        if (( $powerEvuQ3 > 0) && $anlage->hasPVSYST()) {
-            if ($month >= 9) {
-                $expectedPvSystQ3 = $tbody_a_production['expectedPvSyst'][6] + $tbody_a_production['expectedPvSyst'][7] + $tbody_a_production['expectedPvSyst'][8];
-            } else {
-                for ($i = 6; $i <= intval($report['reportMonth']); ++$i) {
-                    $expectedPvSystQ3 += $tbody_a_production['expectedPvSyst'][$i];
+        if (( $powerEvuQ3 > 0) ) {
+            if($anlage->hasPVSYST()) {
+                if ($month >= 9) {
+                    $expectedPvSystQ3 = $tbody_a_production['expectedPvSyst'][6] + $tbody_a_production['expectedPvSyst'][7] + $tbody_a_production['expectedPvSyst'][8];
+                } else {
+                    for ($i = 6; $i <= intval($report['reportMonth']); ++$i) {
+                        $expectedPvSystQ3 += $tbody_a_production['expectedPvSyst'][$i];
+                    }
+                }
+            }else{
+                if ($month >= 9) {
+                    $expectedPvSystQ3 = $forecast[6] + $forecast[7] + $forecast[8];
+                } else {
+                    for ($i = 6; $i <= intval($report['reportMonth']); ++$i) {
+                        $expectedPvSystQ3 += $forecast[$i];
+                    }
                 }
             }
 
@@ -1901,7 +1961,7 @@ class AssetManagementService
                 $powerEvuQ3 - $expectedPvSystQ3,
                 round((1 - $expectedPvSystQ3 / $powerEvuQ3) * 100, 2),
             ];
-        } else {
+        }else{
             $operations_monthly_right_pvsyst_tr4 = [
                 $powerEvuQ3,
                 0,
@@ -1920,9 +1980,15 @@ class AssetManagementService
         } else {
             $powerEvuQ4 = $data2_grid_meter['powerAct'];
         }
-        if (($powerEvuQ4 > 0) && $anlage->hasPVSYST()) {
-            for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
-                $expectedPvSystQ4 += $tbody_a_production['expectedPvSyst'][$i];
+        if (($powerEvuQ4 > 0) ) {
+            if ($anlage->hasPVSYST()){
+                for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
+                    $expectedPvSystQ4 += $tbody_a_production['expectedPvSyst'][$i];
+                }
+            }else{
+                for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
+                    $expectedPvSystQ4 += $forecast[$i];
+                }
             }
 
             $operations_monthly_right_pvsyst_tr5 = [
@@ -1931,16 +1997,13 @@ class AssetManagementService
                 $powerEvuQ4 - $expectedPvSystQ4,
                 round((1 - $expectedPvSystQ4 / $powerEvuQ4) * 100, 2),
             ];
-        } else {
-
+        }else{
             $operations_monthly_right_pvsyst_tr5 = [
-                $powerEvuQ4,
-                0,
-                0,
-                0,
-            ];
-        }
-
+            $powerEvuQ4,
+            0.0,
+            0.0,
+            0.0,
+        ];}
         // Year to date
         $pacDate =  $anlage->getPacDate();
         if ($anlage->getUsePac() && $pacDate != null){
@@ -1957,31 +2020,29 @@ class AssetManagementService
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
         $powerEvuYtoD = $data2_grid_meter['powerEvu'];
 
-        if (($powerEvuYtoD > 0 && !($yearPacDate == $report['reportYear'] && $monthPacDate > $report['reportMonth'])) && $anlage->hasPVSYST()) {
+        if (($powerEvuYtoD > 0 && !($yearPacDate == $report['reportYear'] && $monthPacDate > $report['reportMonth'])) ) {
             // Part 1 Year to Date
             if ($yearPacDate == $report['reportYear']) {
                 $month = $monthPacDate;
             } else {
                 $month = '1';
             }
-
-            $resultErtrag_design = $this->pvSystMonthRepo->findOneByInterval($anlage, $month, $report['reportMonth']);
-            if ($resultErtrag_design) {
-                $expectedPvSystYtoDFirst = $resultErtrag_design['ertrag_design'];
+            if ($anlage->hasPVSYST()) {
+                $resultErtrag_design = $this->pvSystMonthRepo->findOneByInterval($anlage, $month, $report['reportMonth']);
+                if ($resultErtrag_design) {
+                    $expectedPvSystYtoDFirst = $resultErtrag_design['ertrag_design'];
+                }
+            }else{
+                $resultErtrag_design = 0;
+                for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
+                    $resultErtrag_design += $forecast[$i];
+                }
             }
-
             $operations_monthly_right_pvsyst_tr6 = [
                 $powerEvuQ1 + $powerEvuQ2 + $powerEvuQ3 + $powerEvuQ4,
                 $expectedPvSystYtoDFirst,
                 $powerEvuYtoD - $expectedPvSystYtoDFirst,
                 (1 - $expectedPvSystYtoDFirst / $powerEvuYtoD) * 100,
-            ];
-        } else {
-            $operations_monthly_right_pvsyst_tr6 = [
-                $powerEvuQ1 + $powerEvuQ2 + $powerEvuQ3 + $powerEvuQ4,
-                '0',
-                '0',
-                '0',
             ];
         }
 
@@ -1994,8 +2055,7 @@ class AssetManagementService
             0.00,
         ];
 
-       // dd($operations_monthly_right_pvsyst_tr1, $operations_monthly_right_pvsyst_tr2, $operations_monthly_right_pvsyst_tr3, $operations_monthly_right_pvsyst_tr4, $operations_monthly_right_pvsyst_tr5);
-        // Ende Tabelle rechts oben
+
         if ($powerEvu[$report['reportMonth'] - 1] > 0) {
             $var = (1 - $powerExpEvu[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100;
         }
@@ -3990,7 +4050,8 @@ class AssetManagementService
                         'lineStyle' => [
                         'type'  => 'solid',
                         'width' => 3,
-                        'color' => 'green'
+                        'color' => 'green',
+                        'label' => ['formatter' => '{b} : {c}']
                     ],
                     ]
                 ],
@@ -5087,7 +5148,6 @@ class AssetManagementService
         // now we will cheat the data in but in the future we will use the params to retrieve the data
         $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
         $invArray = $anlage->getInverterFromAnlage();
-
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
         $invPnomArray = $anlage->getPnomInverterArray();
         $invNr = count($invArray);

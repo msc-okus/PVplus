@@ -842,8 +842,8 @@ class PRCalulationService
         };
         $irr = $this->functions->checkAndIncludeMonthlyCorrectionIrr($anlage, $irr, $localStartDate, $localEndDate);
 
-        if (!$anlage->getSettings()->isDisableDep3()) $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerAct'], $power['powerTheo'], $pa3) * 100;
-        else $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerAct'], $power['powerTheo'], $pa3) * 100;
+        if (!$anlage->getSettings()->isDisableDep3()) $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerAct'], $result['powerTheo'], $pa3, $inverterID);
+        else $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerAct'], $result['powerTheo'], $pa3, $inverterID);
 
         $result['powerAct'] = $power['powerAct'];
         $result['irradiation'] = $irr;
@@ -867,15 +867,17 @@ class PRCalulationService
     }
 
     /**
+     * Return value is in percentage
      * @param Anlage $anlage
      * @param int $dep
      * @param float $irr
      * @param float $eGrid
      * @param float $theoPower
      * @param float $pa
+     * @param int|null $inverterID
      * @return float|null
      */
-    public function calcPrBySelectedAlgorithm(Anlage $anlage, int $dep, float $irr, float $eGrid, float $theoPower, float $pa): ?float
+    public function calcPrBySelectedAlgorithm(Anlage $anlage, int $dep, float $irr, float $eGrid, float $theoPower, float $pa, ?int $inverterID = null): ?float
     {
         $result = null;
         $algorithm = match ($dep) {
@@ -884,8 +886,14 @@ class PRCalulationService
             3 => $anlage->getPrFormular3(),
             default => $anlage->getPrFormular0(),
         };
+
         // ToDo: calculate number of years since plant ist ON
         $years = 1;
+        if ($inverterID === null) {
+            $pnom = $anlage->getPnom();
+        } else {
+            $pnom = $anlage->getPnomInverterArray()[$inverterID];
+        }
         switch ($algorithm) {
             case 'Groningen': // special for Groningen
                 if ($theoPower > 0) $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / ($theoPower / 1000 * $pa)) * (10 / 0.9945) : null;
@@ -900,23 +908,23 @@ class PRCalulationService
             case 'Ladenburg': // not tested (2023-03-22 MR)
                 if ($years && $years > 0){
                     // entspricht Standard PR plus degradation (Faktor = $years int)
-                    $powerTheo = $anlage->getPnom() * pow(1 - ($anlage->getDegradationPR()/100), $years) * $irr;
+                    $powerTheo = $pnom * pow(1 - ($anlage->getDegradationPR()/100), $years) * $irr;
                     $result = ($irr > 0) ? ($eGrid / $powerTheo) * 100 : null;
                 }
                 break;
             case 'Doellen': // not tested (2023-06-06 MR)
                 if ($years && $years > 0){
                     // entspricht Standard PR plus degradation in Zwei Faktoren (Faktor = $years int)
-                    $powerTheo = $anlage->getPnom() * pow(1 - $anlage->getDegradationPR(), $years) * (1 - $anlage->getDegradationPR() / 2) * $irr;
+                    $powerTheo = $pnom * pow(1 - $anlage->getDegradationPR(), $years) * (1 - $anlage->getDegradationPR() / 2) * $irr;
                     $result = ($irr > 0) ? ($eGrid / $powerTheo) * 100 : null;
                 }
                 break;
 
             default:
                 // wenn es keinen spezielen Algoritmus gibt
-                $result = ($irr > 0) ? ($eGrid / ($anlage->getPnom() * $irr)) * 100 : null;
-        }
 
+                $result = ($irr > 0) ? ($eGrid / ($pnom * $irr)) * 100 : null;
+        }
         return $result;
     }
 }
