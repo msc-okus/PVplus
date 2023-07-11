@@ -54,14 +54,14 @@ $(document).ready( async function (tableSelector) {
 
 
                                 var arr = data.split(',');
-                                //subsequently replace all the periods with spaces
-                                arr[0] = arr[0].toString().replace(/[\.]/g, " ");
-                                //join the pieces together with a period if not empty
 
+                                if (arr[0].includes('.')){
+                                    return arr[0].replace('.','') + '.' + arr[1];
+                                }
                                 return arr[0] + '.' + arr[1];
 
                             }
-                            return data;
+
 
                         }
                     }
