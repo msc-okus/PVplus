@@ -18,6 +18,7 @@ use App\Repository\TicketRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 use DateTime;
+use Psr\Cache\InvalidArgumentException;
 
 class WeatherFunctionsService
 {
@@ -56,6 +57,7 @@ class WeatherFunctionsService
      * @param Anlage $anlage
      * @param int|null $inverterID
      * @return array|null
+     * @throws InvalidArgumentException
      */
     public function getWeather(WeatherStation $weatherStation, $from, $to, bool $ppc, Anlage $anlage, ?int $inverterID = null): ?array
     {
@@ -70,7 +72,7 @@ class WeatherFunctionsService
         }
         unset($res);
 
-        if ($ppc){
+        if ($ppc && $anlage->getUsePPC()){
             $sqlPPCpart1 = " LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp ";
             $sqlPPCpart2 = " AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
                         AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null) ";

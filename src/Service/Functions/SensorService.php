@@ -105,18 +105,13 @@ class SensorService
                         $replaceArray['theoPowerPA2']   = ($replaceArray['irrModul'] * $anlage->getPnom()) / 4000 ;
                         $replaceArray['theoPowerPA3']   = ($replaceArray['irrModul'] * $anlage->getPnom()) / 4000 ;
                     }
-
-
                     $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData);
                     break;
                 // Replace Sensors
                 case '71':
                     $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempoStartDate->format('Y-m-d H:i'), $tempoEndDate->format('Y-m-d H:i'), false, $anlage);
                     $replaceArray = $this->replaceValuesTicketRepo->getSum($anlage, $tempoStartDate, $tempoEndDate);
-                    dump($tempWeatherArray, $replaceArray, $sensorData);
-
                     $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData);
-                    dump($sensorData);
                     break;
                 // Exclude from PR/Energy (exclude Irr and TheoPower)
                 case '72':
@@ -129,7 +124,6 @@ class SensorService
                     $sensorData['theoPowerPA1'] = $sensorData['theoPowerPA1'] - $tempWeatherArray['theoPowerPA1'];
                     $sensorData['theoPowerPA2'] = $sensorData['theoPowerPA2'] - $tempWeatherArray['theoPowerPA2'];
                     $sensorData['theoPowerPA3'] = $sensorData['theoPowerPA3'] - $tempWeatherArray['theoPowerPA3'];
-
                     break;
             }
         }
