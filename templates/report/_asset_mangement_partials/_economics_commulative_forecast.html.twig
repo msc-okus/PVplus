@@ -12,7 +12,7 @@
                     <tr style="font-weight: bold;">
                         <td class="tr_next_columns" style="background-color: #ededed; width: 300px!important;">Cumulated Forecast [EUR]</td>
                         {% set counter = 1 %}
-                        {% for data in dataMonthArrayFullYear %}
+                        {% for data in monthArray %}
                             {% if (counter < 7) %}
                                 <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
                             {% endif %}
@@ -81,7 +81,7 @@
                     <tr style="font-weight: bold;">
                         <td class="tr_next_columns" style="background-color: #ededed; width: 300px!important;">Cumulated Forecast [EUR]</td>
                         {% set counter = 1 %}
-                        {% for data in dataMonthArrayFullYear %}
+                        {% for data in monthArray %}
                             {% if (counter > 6) %}
                                 <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
                             {% endif %}

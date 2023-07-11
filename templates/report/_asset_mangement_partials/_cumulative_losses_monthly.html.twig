@@ -9,12 +9,12 @@
                     <thead>
                     <tr>
                         <th style="text-align: right;width:230px" rowspan="2">Monthly Losses - {{ year }}</th>
-                        {% for data in dataMonthArrayFullYear %}
+                        {% for data in monthArray %}
                             <th style="text-align: center;width: 6.5%"><div style="width: 100%">{{ data }}</div></th>
                         {% endfor %}
                     </tr>
                     <tr>
-                        {% for data in dataMonthArrayFullYear %}
+                        {% for data in monthArray %}
                             <th style="text-align: center"><div style="width: 100%">[kWh]</div></th>
                         {% endfor %}
                     </tr>

@@ -93,11 +93,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'pr0image' =>$anlage->getPrFormular0Image(),
             'pr1image' =>$anlage->getPrFormular1Image(),
@@ -114,11 +112,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'operations_right' => $content['operations_right'],
             'table_overview_monthly' => $content['table_overview_monthly']
@@ -133,11 +129,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'monthlyTableForPRAndPA' => $content['monthlyTableForPRAndPA'],
             'PA_MonthlyGraphic' => $content['PA_MonthlyGraphic'],
@@ -153,11 +147,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'operations_right_withForecast' => $content['operations_right_withForecast'],
             'table_overview_monthly' => $content['table_overview_monthly']
@@ -172,11 +164,9 @@ class AssetManagementService
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
                 'year' => $reportYear,
-                'dataMonthArray' => $content['dataMonthArray'],
-                'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
                 'dataCfArray' => $content['dataCfArray'],
                 'reportmonth' => $content['reportmonth'],
-                'montharray' => $content['monthArray'],
+                'monthArray' => $content['monthArray'],
                 //until here all the parameters must be used in all the renders
                 'forecast_PVSYST_table' => $content['forecast_PVSYST_table'],
                 'table_overview_monthly' => $content['table_overview_monthly'],
@@ -191,11 +181,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'forecast_G4N_table' => $content['forecast_G4N_table'],
             'forecast_G4N' => $content['forecast_G4N'],
@@ -211,11 +199,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'losses_t1' => $content['losses_t1'],
             'losses_year' => $content['losses_year'],
@@ -232,11 +218,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'operations_monthly_right_g4n_tr1' => $content['operations_monthly_right_g4n_tr1'],
             'operations_monthly_right_g4n_tr2' => $content['operations_monthly_right_g4n_tr2'],
@@ -270,11 +254,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             'anlage'        => $anlage,
             'report'        => $table,
         ]);
@@ -286,11 +268,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             'anlage'        => $anlage,
             'InverterPRRankTables' => $content['InverterPRRankTables'],
             'InverterPRRankGraphics' => $content['InverterPRRankGraphics'],
@@ -306,11 +286,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'table_overview_dayly' => $content['table_overview_dayly'],
 
@@ -325,11 +303,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'invNr' => count($content['plantAvailabilityMonth']),
             'operations_currents_dayly_table' => $content['operations_currents_dayly_table'],
@@ -343,11 +319,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'invNr' => count($content['plantAvailabilityMonth']),
             'operations_currents_dayly_table' => $content['operations_currents_dayly_table'],
@@ -362,11 +336,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'invNr' => count($content['plantAvailabilityMonth']),
             'operations_currents_dayly_table' => $content['operations_currents_dayly_table'],
@@ -381,11 +353,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'invNr' => count($content['plantAvailabilityMonth']),
             'Availability_Year_To_Date_Table' => $content['Availability_Year_To_Date_Table'],
@@ -406,11 +376,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'availabilityMonthTable' => $content['availabilityMonthTable'],
             'plant_availability' => $content['plant_availability'],
@@ -430,11 +398,9 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'invNr' => count($content['plantAvailabilityMonth']),
             'plantAvailabilityMonth' => $content['plantAvailabilityMonth'],
@@ -451,11 +417,9 @@ class AssetManagementService
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
                 'year' => $reportYear,
-                'dataMonthArray' => $content['dataMonthArray'],
-                'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
                 'dataCfArray' => $content['dataCfArray'],
                 'reportmonth' => $content['reportmonth'],
-                'montharray' => $content['monthArray'],
+                'monthArray' => $content['monthArray'],
                 //until here all the parameters must be used in all the renders
                 'invNr' => count($content['plantAvailabilityMonth']),
                 'plantAvailabilityMonth' => $content['plantAvailabilityMonth'],
@@ -536,8 +500,67 @@ class AssetManagementService
      */
     public function buildAssetReport(Anlage $anlage, array $report, ?int $logId = null): array
     {
+        /* codigo para la grafica de nube de puntos con linea de la media
+         * option = {
+  xAxis: {
+    data:["INV 1", 1, 2, 3, 4, 5, 6]
+  },
+  yAxis: {},
+  series: [
+    {
+      symbolSize: 5,
+      data: [
+        ["INV 1", 8.04],
+        [1, 6.95],
+        [1, 7.58],
+        [1, 8.81],
+        [2, 8.33],
+        [2, 7.66],
+        [2, 6.81],
+        [2, 6.33],
+        [2, 8.96],
+        [3, 6.82],
+        [3, 7.2],
+        [3, 7.2],
+        [3, 4.23],
+        [4, 7.83],
+        [4, 4.47],
+        [5, 3.33],
+        [5, 4.96],
+        [5, 7.24],
+        [5, 6.26],
+        [5, 8.84],
+        [6, 5.82],
+        [6, 5.68]
+      ],
+      type: 'scatter'
+    },
+    {
+      type: 'line',
+      smooth: true,
+      data: [
+              ["INV 1", 8.04],
+        [1, 6.95],
+        [2, 8.96],
+        [3, 4.23],
+        [4, 4.47],
+        [5, 8.84],
+        [6, 5.82],
+        ]
+    }
+  ]
+};
+         */
+        // Variables
+        $daysInReportMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
+        $monthArray = [
+            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+        ];
+        $plantSize = $anlage->getPnom();
+
 
         $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
+
         $orderedArray = [];
         $pr_rank_graph = [];
         $index = 0;
@@ -655,13 +678,6 @@ class AssetManagementService
                 'tooltip' => [
                     'show' => true,
                 ],
-                /*
-                'textStyle' => [
-                    'fontFamily' => 'monospace',
-                    'fontsize' => '14'
-                ],
-
-           */
             ];
             $chart->setOption($option);
             $pr_rank_graph[] = $chart->render('pr_graph_'.$key, ['style' => 'height: 550px; width:900px;']);
@@ -671,7 +687,6 @@ class AssetManagementService
         for ($i = 0; $i < 12; ++$i) {
             $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
         }
-        $plantSize = $anlage->getPnom();
         $plantId = $anlage->getAnlId();
         $monthName = date('F', mktime(0, 0, 0, $report['reportMonth'], 10));
         $currentMonth = date('m');
@@ -680,11 +695,6 @@ class AssetManagementService
             $report['reportMonth'] = str_replace(0, '', $report['reportMonth']);
         }
 
-        $daysInReportMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
-
-        $monthArray = [
-            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-        ];
 
         for ($i = 0; $i < 12; ++$i) {
             $monthExtendedArray[$i]['month'] = $monthArray[$i];
@@ -747,15 +757,9 @@ class AssetManagementService
             }
             (float) $powerExp[] = $data1_grid_meter['powerExp'];
             (float) $powerExternal[] = $data1_grid_meter['powerEGridExt'];
-            $dataMonthArray[] = $monthArray[$i - 1];
             $expectedPvSyst[] = $Ertrag_design;
 
         }
-
-        for ($i = 1; $i <= 12; ++$i) {
-            $dataMonthArrayFullYear[] = $monthArray[$i - 1];
-        }
-
         // fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,
@@ -790,7 +794,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => array_slice($dataMonthArray, 0, $report['reportMonth']),
+            'data' => array_slice($monthArray, 0, $report['reportMonth']),
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -800,6 +804,21 @@ class AssetManagementService
             'nameGap' => 80,
             'offset' => -20,
         ];
+        $series[] =[
+            'name' => 'Expected g4n',
+            'type' => 'bar',
+            'data' => $powerExp,
+            'visualMap' => 'false',
+        ];
+            $series[] = [
+                'name' => 'Yield',
+                'type' => 'bar',
+                'data' => $powerEvu,
+                'visualMap' => 'false',
+            ];
+
+        $chart->series = $series;
+/*
         if ($anlage->hasPVSYST() === true) {
             if ($anlage->hasGrid()) {
                 $chart->series =
@@ -872,7 +891,7 @@ class AssetManagementService
                     ];
             }
         }
-
+*/
         $option = [
             'textStyle' => [
                 'fontFamily' => 'monospace',
@@ -924,7 +943,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => array_slice($dataMonthArray, 0, $report['reportMonth']),
+            'data' => array_slice($monthArray, 0, $report['reportMonth']),
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -934,6 +953,35 @@ class AssetManagementService
             'nameGap' => 80,
             'offset' => -20,
         ];
+        $series[] = [   'name' => 'Yield ',
+            'type' => 'bar',
+            'data' => $powerEvu,
+            'visualMap' => 'false',
+            ];
+        $series[] = [
+            'name' => 'Expected g4n',
+            'type' => 'bar',
+            'data' => $powerExp,
+            'visualMap' => 'false',
+
+        ];
+        if ($anlage->hasPVSYST()){
+            $series[] = [
+                'name' => 'Forecast',
+                'type' => 'bar',
+                'data' => $expectedPvSyst,
+                'visualMap' => 'false',
+            ];
+        }else{
+            $series[] = [
+                'name' => 'Forecast',
+                'type' => 'bar',
+                'data' => $forecast,
+                'visualMap' => 'false',
+            ];
+        }
+        $chart->series = $series;
+        /*
         if ($anlage->hasPVSYST() === true) {
             if ($anlage->hasGrid()) {
                 $chart->series =
@@ -1028,7 +1076,7 @@ class AssetManagementService
                     ];
             }
         }
-
+        */
         $option = [
             'textStyle' => [
                 'fontFamily' => 'monospace',
@@ -1121,7 +1169,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArrayFullYear,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -1243,7 +1291,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArrayFullYear,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -1400,7 +1448,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -1499,7 +1547,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -2853,16 +2901,27 @@ class AssetManagementService
         for($index = 0; $index < $month -1; $index++){
             $ActualPowerYear = $ActualPowerYear + $tbody_a_production['powerAct'][$index];
         }
-
-        $percentageTable = [
-            'G4NExpected' =>  100 ,
-            'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
-            'forecast' =>  (int)($forecast[$month-2] * 100 / $G4NmonthExpected),
-            'ActualPower' => (int)($ActualPower * 100 / $G4NmonthExpected),
-            'SORLosses' => number_format(-($kwhLossesMonthTable['SORLosses']  * 100 / $G4NmonthExpected), 2),
-            'EFORLosses' => number_format(-($kwhLossesMonthTable['EFORLosses']  * 100 / $G4NmonthExpected), 2) ,
-            'OMCLosses' => number_format(-($kwhLossesMonthTable['OMCLosses']  * 100 / $G4NmonthExpected), 2)
-        ];
+        if ($G4NmonthExpected > 0) {
+            $percentageTable = [
+                'G4NExpected' => 100,
+                'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
+                'forecast' => (int)($forecast[$month - 2] * 100 / $G4NmonthExpected),
+                'ActualPower' => (int)($ActualPower * 100 / $G4NmonthExpected),
+                'SORLosses' => number_format(-($kwhLossesMonthTable['SORLosses'] * 100 / $G4NmonthExpected), 2),
+                'EFORLosses' => number_format(-($kwhLossesMonthTable['EFORLosses'] * 100 / $G4NmonthExpected), 2),
+                'OMCLosses' => number_format(-($kwhLossesMonthTable['OMCLosses'] * 100 / $G4NmonthExpected), 2)
+            ];
+        }else{
+            $percentageTable = [
+            'G4NExpected' => 0,
+                'PVSYSExpected' => 0,
+                'forecast' => 0,
+                'ActualPower' => 0,
+                'SORLosses' => 0,
+                'EFORLosses' => 0,
+                'OMCLosses' => 0
+                ];
+        }
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -2985,7 +3044,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
+                    'name' => 'Forecast[%]',
                     'type' => 'bar',
                     'data' => [$percentageTable['forecast']],
                     'visualMap' => 'false',
@@ -3283,7 +3342,7 @@ class AssetManagementService
         ];
 
         for($i = $report['reportMonth'] - 1; $i >= 0 ; $i--){
-            $invertedMonthArray[] = $dataMonthArray[$i];
+            $invertedMonthArray[] = $monthArray[$i];
             $kwhLosses = $this->calculateLosses($report['reportYear']."-".($i + 1)."-01",$report['reportYear']."-".($i + 1)."-".cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']),$anlage);
 
             if ($anlage->getTotalKpi() < 100)$tempExp = $tbody_a_production['powerExp'][$i] * ((100-$anlage->getTotalKpi())/100);
@@ -3894,7 +3953,7 @@ class AssetManagementService
         $monthlyTableForPRAndPA = [];
         $graphArrayPR = [];
         for($index = 1; $index <= $month - 1  ; $index++){
-            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $report['reportYear']);
+            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $index, (int)$report['reportYear']);
             $result = $this->PRCalulation->calcPR($anlage, new \DateTime($report['reportYear']."-".$index."-"."01"), new \DateTime($report['reportYear']."-".$index."-".$daysInMonth));
             $monthlyTableForPRAndPA[$index]['Dep0PA'] = round($result['pa0'], 2);
             $monthlyTableForPRAndPA[$index]['Dep1PA'] = round($result['pa1'], 2);
@@ -3934,7 +3993,7 @@ class AssetManagementService
 
         $chart->xAxis = [
             'type' => 'category',
-            'data' => array_slice($dataMonthArray, 0, $report['reportMonth']),
+            'data' => array_slice($monthArray, 0, $report['reportMonth']),
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -3949,6 +4008,7 @@ class AssetManagementService
             'data' =>  $graphArrayPR['Dep0'],
             'label' => [
                 'show' => true,
+                'rotate' => 90
             ],
             'markLine' => [
                 'data' => [
@@ -3966,11 +4026,12 @@ class AssetManagementService
         ];
         if (!$anlage->getSettings()->isDisableDep1()) $series[] =
             [
-                'name' => $anlage->getSettings(),
+                'name' => 'O&M',
                 'type' => 'bar',
                 'data' =>  $graphArrayPR['Dep1'],
                 'label' => [
                     'show' => true,
+                    'rotate' => 90
                 ],
             ];
         if( !$anlage->getSettings()->isDisableDep2()) $series[] = [
@@ -3979,6 +4040,7 @@ class AssetManagementService
             'data' =>  $graphArrayPR['Dep2'],
             'label' => [
                 'show' => true,
+                'rotate' => 90
             ],
         ];
         if( !$anlage->getSettings()->isDisableDep3()) $series[] =   [
@@ -3987,6 +4049,7 @@ class AssetManagementService
             'data' =>  $graphArrayPR['Dep3'],
             'label' => [
                 'show' => true,
+                'rotate' => 90
             ],
         ];
         $chart->series = $series;
@@ -4019,14 +4082,14 @@ class AssetManagementService
 
         $chart->setOption($option);
 
-        $PR_MonthlyGraphic = $chart->render('PR_MonthlyGraphic', ['style' => 'height: 450px; width:700px;']);
+        $PR_MonthlyGraphic = $chart->render('PR_MonthlyGraphic', ['style' => 'height: 550px; width:900px;']);
 
         $chart = new ECharts(); // We must use AMCharts
         $chart->tooltip->show = false;
 
         $chart->xAxis = [
             'type' => 'category',
-            'data' => array_slice($dataMonthArray, 0, $report['reportMonth']),
+            'data' => array_slice($monthArray, 0, $report['reportMonth']),
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4042,6 +4105,7 @@ class AssetManagementService
             'data' =>  $graphArrayPA['Dep0'],
             'label' => [
                 'show' => true,
+                'rotate' => 90
             ],
             'markLine' => [
                 'data' => [
@@ -4060,11 +4124,12 @@ class AssetManagementService
         ];
         if (!$anlage->getSettings()->isDisableDep1()) $series[] =
             [
-                'name' => $anlage->getSettings(),
+                'name' => 'O&M',
                 'type' => 'bar',
                 'data' =>  $graphArrayPA['Dep1'],
                 'label' => [
                     'show' => true,
+                    'rotate' => 90
                 ],
             ];
         if( !$anlage->getSettings()->isDisableDep2()) $series[] = [
@@ -4073,6 +4138,7 @@ class AssetManagementService
             'data' =>  $graphArrayPA['Dep2'],
             'label' => [
                 'show' => true,
+                'rotate' => 90
             ],
         ];
         if( !$anlage->getSettings()->isDisableDep3()) $series[] =   [
@@ -4081,6 +4147,7 @@ class AssetManagementService
             'data' =>  $graphArrayPA['Dep3'],
             'label' => [
                 'show' => true,
+                'rotate' => 90
             ],
         ];
         $chart->series = $series;
@@ -4114,7 +4181,7 @@ class AssetManagementService
 
         $chart->setOption($option);
 
-        $PA_MonthlyGraphic = $chart->render('PA_MonthlyGraphic', ['style' => 'height: 450px; width:700px;']);
+        $PA_MonthlyGraphic = $chart->render('PA_MonthlyGraphic', ['style' => 'height: 550px; width:900px;']);
 
 
 
@@ -4378,7 +4445,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArrayFullYear,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4461,7 +4528,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4553,7 +4620,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4686,7 +4753,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4792,7 +4859,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4895,7 +4962,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4975,8 +5042,6 @@ class AssetManagementService
             'reportmonth' => $report['reportMonth'],
             'year' => $report['reportYear'],
             'monthArray' => $monthArray,
-            'dataMonthArray' => $dataMonthArray,
-            'dataMonthArrayFullYear' => $dataMonthArrayFullYear,
             'dataCfArray' => $dataCfArray,
             'operations_right' => $operations_right,
             'operations_right_withForecast'=>$operations_right_withForecast,
@@ -5144,7 +5209,7 @@ class AssetManagementService
         ];
         return $kwhLossesMonthTable;
     }
-    private function calcPRInvArray(Anlage $anlage, $month, $year){
+    private function calcPRInvArray(Anlage $anlage, $month, $year):Array {
         // now we will cheat the data in but in the future we will use the params to retrieve the data
         $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
         $invArray = $anlage->getInverterFromAnlage();

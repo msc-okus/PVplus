@@ -17,6 +17,7 @@ use App\Service\Charts\IrradiationChartService;
 use App\Service\FunctionsService;
 use App\Service\MessageService;
 use App\Service\PdfService;
+use App\Service\PRCalulationService;
 use App\Service\WeatherServiceNew;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,7 +40,8 @@ class DefaultJMController extends AbstractController
     public function __construct(
         private Environment $twig,
         private PdfService $pdf,
-        FunctionsService $functions
+        FunctionsService $functions,
+        private PRCalulationService $PRCalulation,
     )
     {
         $this->functions = $functions;
@@ -78,7 +80,7 @@ class DefaultJMController extends AbstractController
         $anlage = $ar->findIdLike("110")[0];
 
 
-        $inverterPRArray = $this->calcPRInvArray($anlage, "", "");
+        $inverterPRArray = $this->calcPRInvArrayDayly($anlage, "01", "2023");
         $orderedArray = [];
         dump($inverterPRArray);
         $index = 0;
@@ -108,7 +110,7 @@ class DefaultJMController extends AbstractController
             }
         }
 
-        //dd($graphDataPR['PR'],$graphDataPR['name']);
+        dd($graphDataPR['PR'],$graphDataPR['name']);
         foreach($graphDataPR as $key => $data) {
             $chart = new ECharts(); // We must use AMCharts
             $chart->tooltip->show = false;
@@ -232,80 +234,23 @@ class DefaultJMController extends AbstractController
         $this->pdf->createPage($html5, $fileroute, "MonthlyProd", true);// we will store this later in the entity
 
     }
-    private function calcPRInvArray($anlage, $month, $year){
+    private function calcPRInvArrayDayly(Anlage $anlage, $month, $year){
         // now we will cheat the data in but in the future we will use the params to retrieve the data
         $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
+        $invArray = $anlage->getInverterFromAnlage();
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
+        $invNr = count($invArray);
 
-        $PRArray['name'][] = "WR 1.1";
-        $PRArray['powerSum'][] = 27277.73;
-        $PRArray['Pnom'][] = 187.2;
-        $PRArray['power'][] = 145.71439;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 31824;
-        $PRArray['invPR'][] = 85.71;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 1.2";
-        $PRArray['powerSum'][] = 26591.67;
-        $PRArray['Pnom'][] = 187.2;
-        $PRArray['power'][] = 142.04954;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 31824;
-        $PRArray['invPR'][] = 83.56;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 1.3";
-        $PRArray['powerSum'][] = 27070.58;
-        $PRArray['Pnom'][] = 187.2;
-        $PRArray['power'][] = 144.60640;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 31824;
-        $PRArray['invPR'][] = 58.06;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 1.4";
-        $PRArray['powerSum'][] = 26591.67;
-        $PRArray['Pnom'][] = 187.2;
-        $PRArray['power'][] = 145.77768;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 31824;
-        $PRArray['invPR'][] = 85.75;
-        $PRArray['calcPR'][] = 84.27843;
-
-
-        $PRArray['name'][] = "WR 2.1";
-        $PRArray['powerSum'][] = 32006.48;
-        $PRArray['Pnom'][] = 222.3;
-        $PRArray['power'][] = 143.97877;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 37791;
-        $PRArray['invPR'][] = 84.69;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 2.2";
-        $PRArray['powerSum'][] = 31251.1;
-        $PRArray['Pnom'][] = 222.3;
-        $PRArray['power'][] = 140.58074;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 37791;
-        $PRArray['invPR'][] = 82.69;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 2.3";
-        $PRArray['powerSum'][] = 31573.98;
-        $PRArray['Pnom'][] = 222.3;
-        $PRArray['power'][] = 142.03319;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 37791;
-        $PRArray['invPR'][] = 83.55;
-        $PRArray['calcPR'][] = 84.27843;
+        for ($index = 1; $index <= $invNr; $index++) {
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $prValues = $this->PRCalulation->calcPRByInverterAM($anlage, $index, new \DateTime($year . "-" . $month . "-" . $day));
+                $PRArray['name'] = $invArray[$index];
+                $PRArray['invPR'][] = $prValues['prDep3Act'];
+            }
+            $megaArray[] = $PRArray;
+            unset($PRArray);
+        }
+        dd($megaArray);
         return $PRArray;
     }
 }

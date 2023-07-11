@@ -43,27 +43,22 @@
                             <td class="tr_next_columns">{{ percentageTableMonth['ActualPower'] |number_format(2, ',', '.') }}</td>
                         </tr>
                         <tr>
+
                             <td style="text-align: left" class="tr_next_columns"> Expected G4N </td>
                             <td class="tr_next_columns">{{ monthlyLossesHelpTable['ExpectedG4N'] |number_format(2, ',', '.') }}</td>
                             <td class="tr_next_columns">{{ percentageTableMonth['G4NExpected'] |number_format(2, ',', '.') }}</td>
                         </tr>
                         {% if (anlage.hasPVSYST == true) %}
-                            <tr>
-                                <td style="text-align: center" class="tr_next_columns" rowspan="2"> Planned Values</td>
-                                <td style="text-align: left" class="tr_next_columns"> Forecast g4n </td>
-                                <td class="tr_next_columns">{{ monthlyLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
-                                <td class="tr_next_columns">{{ percentageTableMonth['forecast'] |number_format(2, ',', '.') }}</td>
-                            </tr>
                         <tr>
-
-                            <td style="text-align: left" class="tr_next_columns"> Plant Simulation</td>
+                            <td style="text-align: center" class="tr_next_columns" > Planned Values</td>
+                            <td style="text-align: left" class="tr_next_columns"> Forecast</td>
                             <td class="tr_next_columns">{{ monthlyLossesHelpTable['ExpectedPVSYS'] |number_format(2, ',', '.') }}</td>
                             <td class="tr_next_columns">{{ percentageTableMonth['PVSYSExpected'] |number_format(2, ',', '.') }}</td>
                         </tr>
                         {% else %}
                             <tr>
                                 <td style="text-align: center" class="tr_next_columns" > Planned Values</td>
-                                <td style="text-align: left" class="tr_next_columns"> Forecast g4n </td>
+                                <td style="text-align: left" class="tr_next_columns"> Forecast </td>
                                 <td class="tr_next_columns">{{ monthlyLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
                                 <td class="tr_next_columns">{{ percentageTableMonth['forecast'] |number_format(2, ',', '.') }}</td>
                             </tr>
@@ -87,103 +82,6 @@
                      </tbody>
                  </table>
              </tr>
-            {#
-            <tr>
-                <td >
-                    <table style="width: 50% !important; ">
-                        <thead>
-                            <th>Type of Ticket</th>
-                            <th>Losses in kWh </th>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td class="tr_next_columns">Planned Outage <sup><b> a</b></sup></td>
-                            <td class="tr_next_columns"> {{ monthlyLossesHelpTable['SORLosses'] |number_format(2, ',', '.') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
-                            <td class="tr_next_columns"> {{ monthlyLossesHelpTable['EFORLosses'] |number_format(2, ',', '.') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
-                            <td class="tr_next_columns"> {{ monthlyLossesHelpTable['OMCLosses'] |number_format(2, ',', '.') }}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-
-                </td>
-                <td>
-                    <table style="width: 50% !important; ">
-                        <thead>
-                        <th></th>
-                        <th>% relative to G4N Expected </th>
-                        </thead>
-                        <tbody>
-                        {% if (anlage.hasPVSYST == true) %}
-                            <tr>
-                                <td class="tr_next_columns">Expected PVSYS</td>
-                                <td class="tr_next_columns"> {{ percentageTableMonth['PVSYSExpected'] |number_format(2, ',', '.') }}</td>
-                            </tr>
-                        {% endif %}
-                        <tr>
-                            <td class="tr_next_columns">G4N Expected</td>
-                            <td class="tr_next_columns"> {{ percentageTableMonth['G4NExpected'] |number_format(2, ',', '.') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">G4N Simulation </td>
-                            <td class="tr_next_columns"> {{ percentageTableMonth['forecast'] |number_format(2, ',', '.') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">Actual </td>
-                            <td class="tr_next_columns"> {{ percentageTableMonth['ActualPower'] |number_format(2, ',', '.') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">Planned Outage <sup><b> a</b></sup></td>
-                            <td class="tr_next_columns"> {{ percentageTableMonth['SORLosses'] |number_format(2, ',', '.') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
-                            <td class="tr_next_columns"> {{ percentageTableMonth['EFORLosses'] |number_format(2, ',', '.') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
-                            <td class="tr_next_columns"> {{ percentageTableMonth['OMCLosses'] |number_format(2, ',', '.') }}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-            <tr >
-                <td  colspan="2">
-                    <table style="width: 25%!important;">
-                        <thead>
-                        <th></th>
-                        <th>kWh</th>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="tr_next_columns">Expected G4N </td>
-                                <td class="tr_next_columns"> {{ monthlyLossesHelpTable['ExpectedG4N'] |number_format(2, ',', '.') }}</td>
-                            </tr>
-                            <tr>
-                                <td class="tr_next_columns">G4N Simulation </td>
-                                <td class="tr_next_columns"> {{ monthlyLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
-                            </tr>
-                        {% if (anlage.hasPVSYST == true) %}
-                            <tr>
-                                <td class="tr_next_columns">Expected PVSYS</td>
-                                <td class="tr_next_columns"> {{ monthlyLossesHelpTable['ExpectedPVSYS'] |number_format(2, ',', '.') }}</td>
-                            </tr>
-                        {% endif %}
-                            <tr>
-                                <td class="tr_next_columns">Production</td>
-                                <td class="tr_next_columns"> {{ monthlyLossesHelpTable['Actual'] |number_format(2, ',', '.') }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-            #}
             <tr>
                 <td  colspan="2">
                     <div style="text-align: left; width: 25%!important; font-size: small">
