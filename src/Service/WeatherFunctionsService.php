@@ -18,6 +18,7 @@ use App\Repository\TicketRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 use DateTime;
+use Psr\Cache\InvalidArgumentException;
 
 class WeatherFunctionsService
 {
@@ -56,6 +57,7 @@ class WeatherFunctionsService
      * @param Anlage $anlage
      * @param int|null $inverterID
      * @return array|null
+     * @throws InvalidArgumentException
      */
     public function getWeather(WeatherStation $weatherStation, $from, $to, bool $ppc, Anlage $anlage, ?int $inverterID = null): ?array
     {
@@ -70,7 +72,7 @@ class WeatherFunctionsService
         }
         unset($res);
 
-        if ($ppc){
+        if ($ppc && $anlage->getUsePPC()){
             $sqlPPCpart1 = " LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp ";
             $sqlPPCpart2 = " AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
                         AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null) ";
@@ -86,19 +88,19 @@ class WeatherFunctionsService
         if($anlage->getIsOstWestAnlage()){
             if ($inverterID === null){
                 $sqlTheoPowerPart = "SUM(g_upper * $pNomEast * IF(g_upper > ".$anlage->getThreshold2PA3().", pa3, 1)) + 
-                            SUM(g_lower * $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA3().", pa3, 1)) as theo_power_pa3,
+                            SUM(g_lower * $pNomWest * IF(g_lower > ".$anlage->getThreshold2PA3().", pa3, 1)) as theo_power_pa3,
                             SUM(g_upper * $pNomEast * IF(g_upper > ".$anlage->getThreshold2PA2().", pa2, 1)) + 
-                            SUM(g_lower * $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA2().", pa2, 1)) as theo_power_pa2,
+                            SUM(g_lower * $pNomWest * IF(g_lower > ".$anlage->getThreshold2PA2().", pa2, 1)) as theo_power_pa2,
                             SUM(g_upper * $pNomEast * IF(g_upper > ".$anlage->getThreshold2PA1().", pa1, 1)) + 
-                            SUM(g_lower * $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA1().", pa1, 1)) as theo_power_pa1,
+                            SUM(g_lower * $pNomWest * IF(g_lower > ".$anlage->getThreshold2PA1().", pa1, 1)) as theo_power_pa1,
                             SUM(g_upper * $pNomEast * IF(g_upper > ".$anlage->getThreshold2PA0().", pa0, 1)) + 
-                            SUM(g_lower * $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA0().", pa0, 1)) as theo_power_pa0,";
+                            SUM(g_lower * $pNomWest * IF(g_lower > ".$anlage->getThreshold2PA0().", pa0, 1)) as theo_power_pa0,";
             } else {
                 $pNomInv = $inverterPowerDc[$inverterID];
-                $sqlTheoPowerPart = "SUM((g_upper + g_lower) * $pNomInv * IF(g_upper > ".$anlage->getThreshold2PA3().", pa3, 1)) as theo_power_pa3,
-                            SUM((g_upper + g_lower) * $pNomInv * IF(g_upper > ".$anlage->getThreshold2PA2().", pa2, 1))  as theo_power_pa2,
-                            SUM((g_upper + g_lower) * $pNomInv * IF(g_upper > ".$anlage->getThreshold2PA1().", pa1, 1))  as theo_power_pa1,
-                            SUM((g_upper + g_lower) * $pNomInv * IF(g_upper > ".$anlage->getThreshold2PA0().", pa0, 1))  as theo_power_pa0,";
+                $sqlTheoPowerPart = "SUM(((g_upper + g_lower) / 2) * $pNomInv * IF(g_upper > ".$anlage->getThreshold2PA3().", pa3, 1)) as theo_power_pa3,
+                            SUM(((g_upper + g_lower) / 2) * $pNomInv * IF(g_upper > ".$anlage->getThreshold2PA2().", pa2, 1))  as theo_power_pa2,
+                            SUM(((g_upper + g_lower) / 2) * $pNomInv * IF(g_upper > ".$anlage->getThreshold2PA1().", pa1, 1))  as theo_power_pa1,
+                            SUM(((g_upper + g_lower) / 2) * $pNomInv * IF(g_upper > ".$anlage->getThreshold2PA0().", pa0, 1))  as theo_power_pa0,";
             }
 
         } else {
@@ -129,7 +131,7 @@ class WeatherFunctionsService
                 FROM $dbTable s
                     $sqlPPCpart1
                 WHERE s.stamp >= '$from' AND s.stamp < '$to'
-                    $sqlPPCpart2
+                    $sqlPPCpart2;
             ";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {

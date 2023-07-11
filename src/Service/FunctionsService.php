@@ -21,6 +21,8 @@ use App\Repository\PVSystDatenRepository;
 use DateTime;
 use PDO;
 
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\Cache\CacheInterface;
 use function Symfony\Component\String\u;
 
 class FunctionsService
@@ -38,7 +40,8 @@ class FunctionsService
         private ForcastRepository $forcastRepo,
         private ForcastDayRepository $forcastDayRepo,
         private MonthlyDataRepository $monthlyDataRepo,
-        private WeatherFunctionsService $weatherFunctions)
+        private WeatherFunctionsService $weatherFunctions,
+        private CacheInterface $cache)
     {
     }
 
@@ -1086,37 +1089,42 @@ class FunctionsService
         return $_html;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function readInverters(string $invS, Anlage $anlage): array
     {
-        $returnArray = [];
-        $maxInv = count($this->getNameArray($anlage));
-        $invS = u($invS)->replace(' ', '');
-        $tempArray = u($invS)->split(',');
+        return $this->cache->get('inverters_'.md5($invS.$anlage->getAnlId()), function() use ($invS, $anlage) {
+            $returnArray = [];
+            $maxInv = count($this->getNameArray($anlage));
+            $invS = u($invS)->replace(' ', '');
+            $tempArray = u($invS)->split(',');
 
-        if ($invS != '*') {
-            foreach ($tempArray as $item) {
-                if (u($item)->containsAny('-')) {
-                    $nums[] = u($item)->split('-');
-                    $from = (int) ((string) $nums[0][0]);
-                    $to = (int) ((string) $nums[0][1]);
-                    $i = $from;
-                    while ($i <= $to) {
-                        $returnArray[] = (string) u($i);
-                        ++$i;
+            if ($invS != '*') {
+                foreach ($tempArray as $item) {
+                    if (u($item)->containsAny('-')) {
+                        $nums[] = u($item)->split('-');
+                        $from = (int) ((string) $nums[0][0]);
+                        $to = (int) ((string) $nums[0][1]);
+                        $i = $from;
+                        while ($i <= $to) {
+                            $returnArray[] = (string) u($i);
+                            ++$i;
+                        }
+                        unset($nums);
+                    } else {
+                        $returnArray[] = (string) $item;
                     }
-                    unset($nums);
-                } else {
-                    $returnArray[] = (string) $item;
+                }
+            } else {
+                $i = 1;
+                while ($i <= $maxInv) {
+                    $returnArray[] = (string) $i;
+                    ++$i;
                 }
             }
-        } else {
-            $i = 1;
-            while ($i <= $maxInv) {
-                $returnArray[] = (string) $i;
-                ++$i;
-            }
-        }
 
-        return $returnArray;
+            return $returnArray;
+        });
     }
 }

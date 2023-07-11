@@ -32,6 +32,7 @@ Encore
     .addEntry('user_edit', './assets/js/user_edit.js')
     .addEntry('download', './assets/js/download.js')
     .addEntry('tools', './assets/js/tools.js')
+    .addEntry('special_export', './assets/js/special_export.js')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

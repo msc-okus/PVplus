@@ -47,7 +47,16 @@
         "stimulus-reveal-controller": "^4.1.0",
         "stimulus-use": "^0.50.0",
         "sweetalert2": "^11.4.8",
-        "tailwindcss-stimulus-components": "^3.0.4"
+        "tailwindcss-stimulus-components": "^3.0.4",
+        "datatables.net-buttons-zf": "^2.3.6",
+        "datatables.net-dt": "^1.13.4",
+        "datatables.net-responsive-zf": "^2.4.1",
+        "datatables.net-select-zf": "^1.6.2",
+        "datatables.net-zf": "^1.13.4",
+        "jszip": "^3.10.1",
+        "pdfmake": "^0.2.7",
+        "sass-loader": "^13.0.0"
+
     },
     "browserslist": [
         "> 5%"

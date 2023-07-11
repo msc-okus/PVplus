@@ -12,6 +12,7 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
         bind:
+            $datfilePath: '%kernel.project_dir%/public/metodat'
             $uploadsPath: '%kernel.project_dir%/public/uploads'
             $tempPathBaseUrl: '%kernel.project_dir%/tempfiles'
             $filesystem: '@oneup_flysystem.public_uploads_filesystem_filesystem'

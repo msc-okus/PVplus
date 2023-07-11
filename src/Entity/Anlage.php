@@ -16,8 +16,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @ApiResource(
@@ -962,31 +964,31 @@ class Anlage
         }
     }
 
-    public function setAnlIrChange(string $anlIrChange): self
+    public function setAnlIrChange(string $irrChange): self
     {
         $weatherStation = $this->getWeatherStation();
-        $weatherStation->setChangeSensor($IrChange);
+        $weatherStation->setChangeSensor($irrChange);
 
         return $this;
     }
-
+    /** @deprecated  */
     public function getAnlDbUnit(): ?string
     {
         return $this->anlDbUnit;
     }
-
+    /** @deprecated  */
     public function setAnlDbUnit(?string $anlDbUnit): self
     {
         $this->anlDbUnit = $anlDbUnit;
 
         return $this;
     }
-
+    /** @deprecated  */
     public function getAnlView(): ?string
     {
         return $this->anlView;
     }
-
+    /** @deprecated  */
     public function setAnlView(string $anlView): self
     {
         $this->anlView = $anlView;
@@ -3321,6 +3323,7 @@ class Anlage
      * Function to calculate the Pnom for every inverter, returns a Array with the Pnom for all inverters.
      *
      * return array: Index = Inverter, value = Pnom of this Inverter
+     * @throws InvalidArgumentException
      */
     public function getPnomInverterArray(): array
     {
@@ -3352,7 +3355,37 @@ class Anlage
                 break;
         }
 
-        return $dcPNomPerInvereter ;
+        return $dcPNomPerInvereter;
+    }
+
+    public function getPnomControlSum(): float
+    {
+        $controlSumPNom = 0;
+
+        switch ($this->getConfigType()) {
+            case 1:
+            case 2:
+                foreach ($this->getGroups() as $inverter) {
+                    $sumPNom = 0;
+                    foreach ($inverter->getModules() as $module) {
+                        $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
+                    }
+                    $controlSumPNom += $sumPNom;
+                }
+                break;
+            case 3:
+            case 4:
+                foreach ($this->getGroups() as $groups) {
+                    $sumPNom = 0;
+                    foreach ($groups->getModules() as $module) {
+                        $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
+                    }
+                    $controlSumPNom += $sumPNom;
+                }
+                break;
+        }
+
+        return $controlSumPNom;
     }
 
     public function isExcludeFromExpCalc(): ?bool

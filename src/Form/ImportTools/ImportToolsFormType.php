@@ -55,6 +55,15 @@ class ImportToolsFormType extends AbstractType
             ]
         ];
 
+        $choiceFunctionType = [
+            'Import Type' => [
+                'Import all' => 'api-import-all',
+                'Import Weather only' => 'api-import-weather',
+                'Import PPC only' => 'api-import-ppc',
+                'Import PV-Ist only' => 'api-import-pvist',
+            ]
+        ];
+
         $builder
             ->add('anlage', EntityType::class, [
                 'label' => 'Please select a Plant',
@@ -74,6 +83,12 @@ class ImportToolsFormType extends AbstractType
             ])
             ->add('function', ChoiceType::class, [
                 'choices' => $choiceFunction,
+                'placeholder' => 'please Choose ...',
+                'mapped' => false,
+                'required' => true,
+            ])
+            ->add('importType', ChoiceType::class, [
+                'choices' => $choiceFunctionType,
                 'placeholder' => 'please Choose ...',
                 'mapped' => false,
                 'required' => true,
