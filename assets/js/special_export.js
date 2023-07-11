@@ -62,7 +62,7 @@ $(document).ready( async function (tableSelector) {
 
                             }
 
-
+                            return data
                         }
                     }
                 }
