@@ -505,7 +505,8 @@ class AssetManagementService
   xAxis: {
     data:["INV 1", 1, 2, 3, 4, 5, 6]
   },
-  yAxis: {},
+  yAxis: {
+        },
   series: [
     {
       symbolSize: 5,
