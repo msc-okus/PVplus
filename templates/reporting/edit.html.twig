@@ -1,16 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block body %}
-    <h1>Edit {{ report.reportType }} – {{ anlage.anlName }} Month: {{ report.month }} </h1>
-    {% include'reporting/_inc/_editForm.html.twig' %}
-{% endblock %}
-
-
 {% block title %}
-    {{  parent() }}Edit Report
+    {{  parent() }}edit report
 {% endblock %}
-
 
 {% block javascripts %}
 
+{% endblock %}
+
+{% block body %}
+    <h1>Edit {{ report.reportType }} – {{ anlage.anlName }} Month: {{ report.month }} </h1>
+    {% include'reporting/_inc/_editForm.html.twig' %}
 {% endblock %}
