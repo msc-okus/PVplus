@@ -31,7 +31,7 @@ class AssetManagementeReportFormType extends AbstractType
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('ProdWithForecast', SwitchType::class, [
-                'label' => 'Production vs Target vs Forecast',
+                'label' => 'Production vs Forecast vs Expected',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
