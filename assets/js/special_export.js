@@ -45,7 +45,7 @@ $(document).ready( async function (tableSelector) {
                             if(column !== 0) {
                                 let arr = data.split(',');
                                 if (arr[0].includes('.')){
-                                    return arr[0].replace('.','') + '.' + arr[1];
+                                    return arr[0].replaceAll('.','') + '.' + arr[1];
                                 }
                                 return arr[0] + '.' + arr[1];
                             }
