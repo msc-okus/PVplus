@@ -78,6 +78,12 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
+            ->add('EfficiencyRank', SwitchType::class, [
+                'label' => 'Efficiency Ranking',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ])
             ->add('DailyProd', SwitchType::class, [
                 'label' => 'Daily Production',
                 'required' => false,
@@ -85,29 +91,30 @@ class AssetManagementeReportFormType extends AbstractType
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('Availability', SwitchType::class, [
+                'label' => 'Ticket & Availability',
                 'required' => false,
                 'data' => true,
             ])
             ->add('AvYearlyOverview', SwitchType::class, [
-                'label' => 'Availability-Yearly Overview Heatmap Analysis',
+                'label' => 'Availability yearly heatmap',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('AvMonthlyOverview', SwitchType::class, [
-                'label' => 'Availability Analysis - Monthly Overview',
+                'label' => 'Monthly overview',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('AvYearlyTicketOverview', SwitchType::class, [
-                'label' => 'Availability Analysis - Yearly Overview',
+                'label' => ' Yearly overview',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('AvInv', SwitchType::class, [
-                'label' => 'Availability Inverter - Heatmap Analysis',
+                'label' => 'Availability inverter heatmap',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
@@ -118,13 +125,13 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => false,
             ])
             ->add('StringCurr', SwitchType::class, [
-                'label' => 'String Current - Heatmap Analysis',
+                'label' => 'String level heatmap',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('InvPow', SwitchType::class, [
-                'label' => 'Inverter Power DC - Heatmap Analysis',
+                'label' => 'Inverter level heatmap',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
