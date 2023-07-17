@@ -38,17 +38,25 @@ class WeatherFunctionsService
     }
 
     /**
-     * Function to retrieve WeatherData for the given Time (from - to)
+     * Function to retrieve WeatherData for the given Time (from - to)<br>
      * $from and $to are in string format.
      *
-     * $weather['airTempAvg']
-     * $weather['panelTempAvg']
-     * $weather['windSpeedAvg']
-     * $weather['horizontalIrr']
-     * $weather['horizontalIrrAvg']
-     * $weather['lowerIrr']
-     * $weather['temp_cell_corr']
-     * $weather['temp_cell_multi_irr']
+     * $weather['airTempAvg']<br>
+     * $weather['panelTempAvg']<br>
+     * $weather['windSpeedAvg']<br>
+     * $weather['horizontalIrr']<br>
+     * $weather['horizontalIrrAvg']<br>
+     * $weather['lowerIrr']<br>
+     * $weather['temp_cell_corr']<br>
+     * $weather['temp_cell_multi_irr']<br>
+     * $weather['theoPower'] Theoretical Energie RAW (Pnom * Irr)<br>
+     * $weather['theoPowerDeg'] Theoretical Energie RAW (Pnom * Irr)<br>
+     * $weather['theoPowerPA0'] Theoretical Energie for OpenBook<br>
+     * $weather['theoPowerPA1'] Theoretical Energie for Dep 1 (O&M)<br>
+     * $weather['theoPowerPA2'] Theoretical Energie for Dep 2 (EPC)<br>
+     * $weather['theoPowerPA3'] Theoretical Energie for Dep 3 (AM)<br>
+     * $weather['theoPowerTempCorr'] Theoretical Energie Tempertatur koriegiert<br>
+     * $weather['theoPowerTempCorr'] Theoretical Energie Tempertatur koriegiert + degradation<br>
      *
      * @param WeatherStation $weatherStation
      * @param $from
@@ -79,15 +87,30 @@ class WeatherFunctionsService
         } else {
             $sqlPPCpart1 = $sqlPPCpart2 = "";
         }
+        if ($inverterID === null) {
+            $pNom = $anlage->getPnom();
+        } else {
+            $inverterPowerDc = $anlage->getPnomInverterArray();
+            $pNom = $inverterPowerDc[$inverterID];
+        }
 
-        $pNom = $anlage->getPnom();
         $pNomEast = $anlage->getPowerEast();
         $pNomWest = $anlage->getPowerWest();
-        $inverterPowerDc = $anlage->getPnomInverterArray();
+
+        // Temperatur Korrektur Daten vorbereiten
+        $tModAn = $anlage->getTempCorrCellTypeAvg() > 0 ? $anlage->getTempCorrCellTypeAvg() : 25; // Nutze tCellAVG wenn vorhanden, ansonsten setze auf STC (25°)
+        $gamma = $anlage->getTempCorrGamma() / 100;
+        $tempCorrFunction = "(1 + $gamma * (temp_pannel - $tModAn))";
+        $degradation = pow(1 - $anlage->getDegradationPR() / 100, $anlage->getBetriebsJahre());
+
         // depending on $department generate correct SQL code to calculate
-        if($anlage->getIsOstWestAnlage()){
+        if ($anlage->getIsOstWestAnlage()){
             if ($inverterID === null){
                 $sqlTheoPowerPart = "
+                    SUM(g_upper * $pNomEast + g_lower * $pNomWest)  as theo_power_raw,
+                    SUM(g_upper * $pNomEast * $degradation + g_lower * $pNomWest * $degradation)  as theo_power_raw_deg,
+                    SUM(g_upper * temp_cell_corr * $pNomEast + g_lower * $tempCorrFunction * $pNomWest) as theo_power_temp_corr,
+                    SUM(g_upper * temp_cell_corr * $pNomEast + g_lower * $tempCorrFunction * $pNomWest * $degradation) as theo_power_temp_corr_deg,
                     SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA3().", pa3, 1)) + 
                     SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA3().", pa3, 1)) as theo_power_pa3,
                     SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA2().", pa2, 1)) + 
@@ -98,29 +121,31 @@ class WeatherFunctionsService
                     SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA0().", pa0, 1)) as theo_power_pa0,
                 ";
             } else {
-                $pNomInv = $inverterPowerDc[$inverterID];
                 $sqlTheoPowerPart = "
-                    SUM(((g_upper + g_lower) / 2) * $pNomInv * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA3().", pa3, 1)) as theo_power_pa3,
-                    SUM(((g_upper + g_lower) / 2) * $pNomInv * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA2().", pa2, 1))  as theo_power_pa2,
-                    SUM(((g_upper + g_lower) / 2) * $pNomInv * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA1().", pa1, 1))  as theo_power_pa1,
-                    SUM(((g_upper + g_lower) / 2) * $pNomInv * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA0().", pa0, 1))  as theo_power_pa0,
+                    SUM(((g_upper + g_lower) / 2) * $pNom)  as theo_power_raw,
+                    SUM(((g_upper + g_lower) / 2) * $pNom * $degradation)  as theo_power_raw_deg,
+                    SUM(((g_upper + g_lower) / 2) * $tempCorrFunction * $pNom) as theo_power_temp_corr,
+                    SUM(((g_upper + g_lower) / 2) * $tempCorrFunction * $pNom * $degradation) as theo_power_temp_corr_deg,
+                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA3().", pa3, 1)) as theo_power_pa3,
+                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA2().", pa2, 1))  as theo_power_pa2,
+                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA1().", pa1, 1))  as theo_power_pa1,
+                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > ".$anlage->getThreshold2PA0().", pa0, 1))  as theo_power_pa0,
                 ";
             }
 
         } else {
-            if ($inverterID === null) {
-                $sqlTheoPowerPart = "SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
-                            SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
-                            SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA1() . ", pa1, 1)) as theo_power_pa1,
-                            SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA0() . ", pa0, 1)) as theo_power_pa0,";
-            } else {
-                $pNomInv = $inverterPowerDc[$inverterID];
-                $sqlTheoPowerPart = "SUM(g_upper * $pNomInv * IF(g_upper > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
-                            SUM(g_upper * $pNomInv * IF(g_upper > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
-                            SUM(g_upper * $pNomInv * IF(g_upper > " . $anlage->getThreshold2PA1() . ", pa1, 1)) as theo_power_pa1,
-                            SUM(g_upper * $pNomInv * IF(g_upper > " . $anlage->getThreshold2PA0() . ", pa0, 1)) as theo_power_pa0,";
-            }
+            $sqlTheoPowerPart = "
+                SUM(g_upper * $pNom)  as theo_power_raw,
+                SUM(g_upper * $pNom * $degradation)  as theo_power_raw_deg,
+                SUM(g_upper * $tempCorrFunction * $pNom ) as theo_power_temp_corr,
+                SUM(g_upper * $tempCorrFunction * $pNom * $degradation) as theo_power_temp_corr_deg,
+                SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
+                SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
+                SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA1() . ", pa1, 1)) as theo_power_pa1,
+                SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA0() . ", pa0, 1)) as theo_power_pa0,
+            ";
         }
+
         if ($weather['anzahl'] > 0) {
             $sql = "SELECT 
                     SUM(g_lower) as irr_lower, 
@@ -137,7 +162,7 @@ class WeatherFunctionsService
                 WHERE s.stamp >= '$from' AND s.stamp < '$to'
                     $sqlPPCpart2;
             ";
-            dump($sql);
+            #dump($sql);
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -159,6 +184,10 @@ class WeatherFunctionsService
                 $weather['theoPowerPA1'] = $row['theo_power_pa1'] / 1000 / 4;
                 $weather['theoPowerPA2'] = $row['theo_power_pa2'] / 1000 / 4;
                 $weather['theoPowerPA3'] = $row['theo_power_pa3'] / 1000 / 4;
+                $weather['theoPower'] = $row['theo_power'] / 1000 / 4;
+                $weather['theoPowerDeg'] = $row['theo_power_deg'] / 1000 / 4;
+                $weather['theoPowerTempCorr'] = $row['theo_power_temp_corr'] / 1000 / 4;
+                $weather['theoPowerTempCorrDeg'] = $row['theo_power_temp_corr_deg'] / 1000 / 4;
             }
             unset($res);
         } else {
