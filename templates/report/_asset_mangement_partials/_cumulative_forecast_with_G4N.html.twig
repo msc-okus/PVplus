@@ -10,12 +10,12 @@
                     <thead>
                     <tr>
                         <th rowspan="2" style="text-align: right; ">Cumulative Forecast - {{ year }}</th>
-                        {% for data in dataMonthArrayFullYear %}
+                        {% for data in monthArray %}
                             <th style="text-align: center;width: 6.5%">{{ data }}</th>
                         {% endfor %}
                     </tr>
                     <tr>
-                        {% for data in dataMonthArrayFullYear %}
+                        {% for data in monthArray %}
                             <th style="text-align: center"><div style="width: 100%; height: 50%;">kWh</div></th>
                         {% endfor %}
                     </tr>

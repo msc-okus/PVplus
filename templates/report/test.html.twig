@@ -3,5 +3,7 @@
     {{ parent() }}
 {% endblock %}
 {% block content %}
-    {{ graph|raw }}
+    {% for graph in test %}
+        {% include 'report/_asset_mangement_partials/_inverter_rank_graph.html.twig'%}
+    {% endfor %}
 {% endblock %}

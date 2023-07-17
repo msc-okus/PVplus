@@ -21,6 +21,7 @@
 
         {{ form_row(assetForm.PRTable) }}
         {{ form_row(assetForm.InvRank) }}
+        {{ form_row(assetForm.EfficiencyRank) }}
         <div class="is-hidden">
             {{ form_row(assetForm.DailyProd) }}
         </div>
@@ -34,8 +35,8 @@
     </div>
     <div style="margin-left: 10px">{{ form_row(assetForm.AnalysisHeatmap) }} </div>
     <div style="margin-left: 60px">
-        {{ form_row(assetForm.StringCurr) }}
         {{ form_row(assetForm.InvPow) }}
+        {{ form_row(assetForm.StringCurr) }}
         {{ form_row(assetForm.AvYearlyOverview) }}
         {{ form_row(assetForm.AvInv) }}
     </div>

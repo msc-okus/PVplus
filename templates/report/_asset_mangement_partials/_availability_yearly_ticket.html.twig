@@ -74,14 +74,7 @@
                 </table>
 
             </td>
-            {#
-            <td style="width:25%">
-                {{ availability_Year_To_Date|raw }}
-            </td>
-            <td style="width:25%">
-                {{ failures_Year_To_Date|raw }}
-            </td>
-            #}
+
         </tr>
         <tr style="width: 50%">
             <td style="width: 50%">
@@ -111,32 +104,8 @@
                 </table>
 
             </td>
-            {#
-            <td style="width: 50%">
-                <table style="margin-top: 30px; width: 90%">
-                    <thead>
-                    <th>Type of Ticket</th>
-                    <th>Losses in kWh to G4N Expected</th>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td class="tr_next_columns">Planned Outage <sup><b> a</b></sup></td>
-                        <td class="tr_next_columns"> {{ kwhLossesYearTable['SORLosses'] |number_format(2, ',', '.') }}</td>
-                    </tr>
-                    <tr>
-                        <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
-                        <td class="tr_next_columns"> {{ kwhLossesYearTable['EFORLosses'] |number_format(2, ',', '.') }}</td>
-                    </tr>
-                    <tr>
-                        <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
-                        <td class="tr_next_columns"> {{ kwhLossesYearTable['OMCLosses'] |number_format(2, ',', '.') }}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </td>
-             #}
         </tr>
-        <tr style="width: s50%">
+        <tr style="width: 50%">
             <td>
                 <div style="text-align: left">
                     <sup><b>a</b></sup> Maintenance, SOR<br>
