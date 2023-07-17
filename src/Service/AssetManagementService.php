@@ -692,7 +692,7 @@ class AssetManagementService
                                     ]
                                 ],
                                 [
-                                    'name' => 'average',
+                                    'name' => 'average PR:',
                                     'yAxis' => $avgPr,
                                     'lineStyle' => [
                                         'type' => 'solid',
@@ -5025,7 +5025,11 @@ class AssetManagementService
         $efficiencyCount = 0;
         foreach($res->fetchAll(PDO::FETCH_ASSOC) as $result){
             if ($result['inverter'] != $inverter){
-                $output['avg'][$inverter] = round($efficiencySum / $efficiencyCount, 2);
+                if ($efficiencyCount > 0){
+                    $output['avg'][$inverter] = round($efficiencySum / $efficiencyCount, 2);
+                } else{
+                    $output['avg'][$inverter] = 0;
+                }
                 $inverter = $result['inverter'];
                 $index = 1;
                 $efficiencySum = 0;
