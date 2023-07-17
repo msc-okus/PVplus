@@ -17,6 +17,7 @@ use App\Service\Charts\IrradiationChartService;
 use App\Service\FunctionsService;
 use App\Service\MessageService;
 use App\Service\PdfService;
+use App\Service\PRCalulationService;
 use App\Service\WeatherServiceNew;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,15 +35,18 @@ use Twig\Environment;
  */
 class DefaultJMController extends AbstractController
 {
-    private functionsService $functions;
     use G4NTrait;
+    private PDO $conn;
     public function __construct(
         private Environment $twig,
         private PdfService $pdf,
-        FunctionsService $functions
+        private FunctionsService $functions,
+        private PRCalulationService $PRCalulation,
+
     )
     {
-        $this->functions = $functions;
+        $this->conn = self::getPdoConnection();
+
     }
     #[Route(path: '/default/j/m', name: 'default_j_m')]
     public function index() : Response
@@ -74,42 +78,38 @@ class DefaultJMController extends AbstractController
     }
     #[Route(path: '/test/pdf', name: 'default_pdf')]
     public function testpdf(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am){
-
         $anlage = $ar->findIdLike("110")[0];
-
-
-        $inverterPRArray = $this->calcPRInvArray($anlage, "", "");
+        $invArray = $anlage->getInverterFromAnlage();
+        $efficiencyArray= $this->calcPRInvArrayDayly($anlage, "01", "2023");
         $orderedArray = [];
-        dump($inverterPRArray);
         $index = 0;
         $index2 = 0;
-        while (count($inverterPRArray['invPR']) !== 0){
-            $keys = array_keys($inverterPRArray['invPR'], min($inverterPRArray['invPR']));
+        $index3 = 0;
+        while (count($efficiencyArray['avg']) !== 0){
+            $keys = array_keys($efficiencyArray['avg'], min($efficiencyArray['avg']));
             foreach($keys as $key ){
-                $orderedArray[$index2][$index]['name'] = $inverterPRArray['name'][$key];
-                $orderedArray[$index2][$index]['powerSum'] = $inverterPRArray['powerSum'][$key];
-                $orderedArray[$index2][$index]['Pnom'] = $inverterPRArray['Pnom'][$key];
-                $orderedArray[$index2][$index]['power'] = $inverterPRArray['power'][$key];
-                $orderedArray[$index2][$index]['avgPower'] = $inverterPRArray['avgPower'][$key];
-                $orderedArray[$index2][$index]['avgIrr'] = $inverterPRArray['avgIrr'][$key];
-                $orderedArray[$index2][$index]['theoPower'] = $inverterPRArray['theoPower'][$key];
-                $orderedArray[$index2][$index]['invPR'] = $inverterPRArray['invPR'][$key];
-                $orderedArray[$index2][$index]['calcPR'] = $inverterPRArray['calcPR'][$key];
-                $graphDataPR[$index2]['name'][] = $inverterPRArray['name'][$key];
-                $graphDataPR[$index2]['PR'][]= $inverterPRArray['invPR'][$key];
-                $graphDataPR[$index2]['power'][]= $inverterPRArray['power'][$key];
-                $graphDataPR[$index2]['yield'] = $inverterPRArray['calcPR'][$key];
-                unset($inverterPRArray['invPR'][$key]);
+               // $orderedArray[$index2]['avg'][$invArray[$key]][1] =$invArray[$key] ;
+                $orderedArray[$index2]['avg'][$index] = $efficiencyArray['avg'][$key];
+                $orderedArray[$index2]['names'][$index] = $invArray[$key];
+                foreach ($efficiencyArray['values'][$key] as $value){
+                    $orderedArray[$index2]['value'][$index3] = [$invArray[$key], $value];
+
+                    $index3 = $index3 + 1;
+                }
+
+                unset($efficiencyArray['values'][$key]);
+                unset($efficiencyArray['avg'][$key]);
                 $index = $index + 1;
-                if ($index > 50){
+                if ($index >= 30){
                     $index = 0;
                     $index2 = $index2 + 1;
+                    $index3 = 0;
                 }
+
             }
         }
+        foreach($orderedArray as $key => $data) {
 
-        //dd($graphDataPR['PR'],$graphDataPR['name']);
-        foreach($graphDataPR as $key => $data) {
             $chart = new ECharts(); // We must use AMCharts
             $chart->tooltip->show = false;
             $chart->tooltip->trigger = 'item';
@@ -118,61 +118,41 @@ class DefaultJMController extends AbstractController
                 'axisLabel' => [
                     'show' => true,
                     'margin' => '10',
+                    'rotate' => 45
                 ],
                 'splitArea' => [
                     'show' => true,
                 ],
-                'data' => $graphDataPR['name'],
+                'data' => $data['names'],
             ];
             $chart->yAxis = [
                 [
                     'type' => 'value',
-                    'min' => 0,
-                    'name' => 'kWh/kWp',
-                    'nameLocation' => 'middle',
-                ],
-                [
-                    'type' => 'value',
-                    'min' => 0,
+                    'min' => 50,
                     'max' => 100,
-                    'alignTicks' => true,
                     'name' => '[%]',
-                    'nameLocation' => 'middle',
 
-                ]
+                ],
+
             ];
             $chart->series =
                 [
                     [
-                        'name' => 'specific yield',
-                        'type' => 'bar',
-                        'data' => $data['power'],
+                        'name' => 'Daily Efficiency',
+                        'simbolSize' => 1,
+                        'type' => 'scatter',
+                        'data' => $data['value'],
                         'visualMap' => 'false',
-
                     ],
+
                     [
-                        'name' => 'Inverter PR',
+                        'name' => 'Average Efficiency',
                         'type' => 'line',
-                        'data' => $data['PR'],
-                        'visualMap' => 'false',
+                        'smooth' => true,
+                        'data' => $data['avg'],
                         'lineStyle' => [
                             'color' => 'green'
                         ],
-                        'yAxisIndex' => 1,
-                        'markLine' => [
-                            'data' => [
-                                [
-                                    'name' => 'calculated PR',
-                                    'yAxis' => $data['yield'],
-                                    'lineStyle' => [
-                                        'type' => 'solid',
-                                        'width' => 3,
-                                        'color' => 'red'
-                                    ]
-                                ]
-                            ],
-                            'symbol' => 'none',
-                        ]
                     ],
                 ];
             $option = [
@@ -184,7 +164,7 @@ class DefaultJMController extends AbstractController
                 'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
                 'title' => [
                     'fontFamily' => 'monospace',
-                    'text' => 'TEST',
+                    'text' => 'Inverter efficiency ranking',
                     'left' => 'center',
                     'top' => 10
                 ],
@@ -204,108 +184,50 @@ class DefaultJMController extends AbstractController
                 ],
             ];
             $chart->setOption($option);
-            $test[] = $chart->render('pr_graph_'.$key, ['style' => 'height: 450px; width:700px;']);
+            $test[] = $chart->render('pr_graph_'.$key, ['style' => 'height: 550; width:900px;']);
+
         }
         $html5 = $this->twig->render('report/test.html.twig', [
         'anlage' => $anlage,
         'monthName' => 'December',
         'year' => '2023',
 
-        'graph' => $test,
+        'test' => $test,
 
         ]);
-        $view = $this->renderView('report/test.html.twig', [
-            'anlage' => $anlage,
-            'monthName' => 'December',
-            'year' => '2023',
 
-            'graph' => $test,
 
-        ]);
-/*
-        return $this->render('reporting/showHtml.html.twig', [
-            'html' => $view,
-        ]);
-*/
         $html5 = str_replace('src="//', 'src="https://', $html5);
         $fileroute = "/test/AssetReport/waterfallgraphs/" ;
         $this->pdf->createPage($html5, $fileroute, "MonthlyProd", true);// we will store this later in the entity
 
     }
-    private function calcPRInvArray($anlage, $month, $year){
-        // now we will cheat the data in but in the future we will use the params to retrieve the data
-        $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
-
-        $PRArray['name'][] = "WR 1.1";
-        $PRArray['powerSum'][] = 27277.73;
-        $PRArray['Pnom'][] = 187.2;
-        $PRArray['power'][] = 145.71439;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 31824;
-        $PRArray['invPR'][] = 85.71;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 1.2";
-        $PRArray['powerSum'][] = 26591.67;
-        $PRArray['Pnom'][] = 187.2;
-        $PRArray['power'][] = 142.04954;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 31824;
-        $PRArray['invPR'][] = 83.56;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 1.3";
-        $PRArray['powerSum'][] = 27070.58;
-        $PRArray['Pnom'][] = 187.2;
-        $PRArray['power'][] = 144.60640;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 31824;
-        $PRArray['invPR'][] = 58.06;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 1.4";
-        $PRArray['powerSum'][] = 26591.67;
-        $PRArray['Pnom'][] = 187.2;
-        $PRArray['power'][] = 145.77768;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 31824;
-        $PRArray['invPR'][] = 85.75;
-        $PRArray['calcPR'][] = 84.27843;
-
-
-        $PRArray['name'][] = "WR 2.1";
-        $PRArray['powerSum'][] = 32006.48;
-        $PRArray['Pnom'][] = 222.3;
-        $PRArray['power'][] = 143.97877;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 37791;
-        $PRArray['invPR'][] = 84.69;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 2.2";
-        $PRArray['powerSum'][] = 31251.1;
-        $PRArray['Pnom'][] = 222.3;
-        $PRArray['power'][] = 140.58074;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 37791;
-        $PRArray['invPR'][] = 82.69;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 2.3";
-        $PRArray['powerSum'][] = 31573.98;
-        $PRArray['Pnom'][] = 222.3;
-        $PRArray['power'][] = 142.03319;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 37791;
-        $PRArray['invPR'][] = 83.55;
-        $PRArray['calcPR'][] = 84.27843;
-        return $PRArray;
+    private function calcPRInvArrayDayly(Anlage $anlage, $month, $year){
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
+        $begin = $year."-".$month."-01 00:00";
+        $end = $year."-".$month."-".$daysInMonth." 23:59";
+        $sql = 'SELECT stamp, (sum(wr_pac)/sum(wr_pdc) * 100) as efficiency, unit AS inverter  FROM '.$anlage->getDbNameIst()." WHERE stamp BETWEEN '$begin' AND '$end' GROUP BY UNIT, date_format(stamp, '%y%m%d')";
+        $res = $this->conn->query($sql);
+        $inverter = 1;
+        $index = 1;
+        $efficiencySum = 0;
+        $efficiencyCount = 0;
+        foreach($res->fetchAll(PDO::FETCH_ASSOC) as $result){
+            if ($result['inverter'] != $inverter){
+                $output['avg'][$inverter] = round($efficiencySum / $efficiencyCount, 2);
+                $inverter = $result['inverter'];
+                $index = 1;
+                $efficiencySum = 0;
+                $efficiencyCount = 0;
+            }
+            if ($result['efficiency'] <= 100 and $result['efficiency'] >= 0) {
+                $output['values'][$inverter][] = round($result['efficiency'], 2);
+                $efficiencyCount = $efficiencyCount + 1;
+                $efficiencySum = $efficiencySum + $result['efficiency'];
+                $index = $index + 1;
+            }
+        }
+        $output['avg'][$inverter ] = round($efficiencySum / $efficiencyCount, 2); //we make the last average outside of the loop
+        return $output;
     }
 }

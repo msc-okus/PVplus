@@ -34,7 +34,7 @@
                 <tbody>
                     {% for row in monthlyTableForPRAndPA %}
                         <tr>
-                            <td class="tr_next_columns">{{ dataMonthArray[loop.index0]  }}</td>
+                            <td class="tr_next_columns">{{ monthArray[loop.index0]  }}</td>
                             <td class="tr_next_columns">{{ row.Dep0PR }}</td>
                             <td class="tr_next_columns">{{ row.Dep0PA }}</td>
                             {% if anlage.settings.disableDep1 != true %}

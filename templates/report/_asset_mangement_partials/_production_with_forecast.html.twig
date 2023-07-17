@@ -71,7 +71,7 @@
                     <tr>
                         <th rowspan="2" class="table-center" style="width:150px!important">Production</th>
                         {% set counter = 1 %}
-                        {% for data in dataMonthArray %}
+                        {% for data in monthArray %}
                             <th style="text-align: center;width:6.5%">{{ data }}</th>
                             {% set counter = counter+1 %}
                         {% endfor %}
@@ -79,7 +79,7 @@
                     </tr>
 
                     <tr>
-                        {% for data in dataMonthArray %}
+                        {% for data in monthArray %}
                             <th style="text-align: center;width:6.5%">[kWh]</th>
                         {% endfor %}
                         <th style="text-align: center;width:6.5%">[kWh]</th>

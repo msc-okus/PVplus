@@ -1,9 +1,11 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3>Inverter Ranking</h3>
     <div style="height: 50%">
-        {{ graph|raw }}
+        {{ PA_MonthlyGraphic | raw }}
     </div>
 
+    <div style="height: 50%">
+        {{ PR_MonthlyGraphic | raw }}
+    </div>
 {% endblock %}
