@@ -1,5 +1,13 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}
+    {{  parent() }}special operations
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+
 {% block body %}
     <div class="grid-x">
         <div class="cell">
@@ -30,14 +38,4 @@
         </div>
     </div>
     {% endif %}
-
-{% endblock %}
-
-
-{% block title %}
-    {{  parent() }}Special Operations
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
 {% endblock %}
