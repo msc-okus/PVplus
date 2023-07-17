@@ -3652,7 +3652,7 @@ class AssetManagementService
                 $graphArrayPR['Dep2'][] = round($result['prDep2EGridExt'], 2);
                 $graphArrayPR['Dep3'][] = round($result['prDep3EGridExt'], 2);
             }
-            else {
+            else if ($anlage->getShowEvuDiag()){
                 $monthlyTableForPRAndPA[$index]['Dep0PR'] = round($result['prDep0Evu'], 2);
                 $monthlyTableForPRAndPA[$index]['Dep1PR'] = round($result['prDep1Evu'], 2);
                 $monthlyTableForPRAndPA[$index]['Dep2PR'] = round($result['prDep2Evu'], 2);
@@ -3661,6 +3661,15 @@ class AssetManagementService
                 $graphArrayPR['Dep1'][] = round($result['prDep1Evu'], 2);
                 $graphArrayPR['Dep2'][] = round($result['prDep2Evu'], 2);
                 $graphArrayPR['Dep3'][] = round($result['prDep3Evu'], 2);
+            }else{
+                $monthlyTableForPRAndPA[$index]['Dep0PR'] = round($result['prDep0Act'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep1PR'] = round($result['prDep1Act'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep2PR'] = round($result['prDep2Act'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep3PR'] = round($result['prDep3Act'], 2);
+                $graphArrayPR['Dep0'][] = round($result['prDep0Act'], 2);
+                $graphArrayPR['Dep1'][] = round($result['prDep1Act'], 2);
+                $graphArrayPR['Dep2'][] = round($result['prDep2Act'], 2);
+                $graphArrayPR['Dep3'][] = round($result['prDep3Act'], 2);
             }
 
         }

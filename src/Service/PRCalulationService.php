@@ -577,12 +577,9 @@ class PRCalulationService
 
 
         $result['powerAct'] = $power['powerAct'];
-        if($anlage->getUseGridMeterDayData()){
-            $result['powerEvu'] = $power['powerEvu'];
-        }
-        else{
-            $result['powerEvu'] = $power['powerAct'];
-        }
+
+        $result['powerEvu'] = $power['powerEvu'];
+
         $result['powerExp'] = $power['powerExpEvu'] > 0 ? $power['powerExpEvu'] : $power['powerExp'];
         $result['powerEGridExt'] = $power['powerEGridExt'];
 
@@ -604,14 +601,8 @@ class PRCalulationService
             default     => $anlage->getPnom() * $irr    // all others calc by Pnom and Irr.
         };
         $result['powerTheo'] = $result['powerTheoDep0'];
-
         $result['prDep0Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerAct'], $result['powerTheoDep0'], $pa0); //(($power['powerAct'] / $tempTheoPower) * 100;
-        if ($anlage->getUseGridMeterDayData()){
-            $result['prDep0Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerEvu'], $result['powerTheoDep0'], $pa0); //($power['powerEvu'] / $tempTheoPower) * 100;
-        }
-        else{
-            $result['prDep0Evu'] =  $result['prDep0Act'];
-        }
+        $result['prDep0Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerEvu'], $result['powerTheoDep0'], $pa0); //($power['powerEvu'] / $tempTheoPower) * 100;
         $result['prDep0Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerExp'], $result['powerTheoDep0'], $pa0); //(($result['powerExp'] / $tempTheoPower) * 100;
         $result['prDep0EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerEGridExt'], $result['powerTheoDep0'], $pa0); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
 
@@ -638,12 +629,7 @@ class PRCalulationService
         };
         //$result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerEvu'], $result['powerTheoDep2'], $pa2); //($power['powerEvu'] / $tempTheoPower) * 100;
         $result['prDep2Act'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerAct'],  $result['powerTheoDep2'], $pa2); //(($power['powerAct'] / $tempTheoPower) * 100;
-        if ($anlage->getUseGridMeterDayData()){
-            $result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerEvu'], $result['powerTheoDep2'], $pa2); //($power['powerEvu'] / $tempTheoPower) * 100;
-        }
-        else{
-            $result['prDep2Evu'] =  $result['prDep2Act'];
-        }
+        $result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerEvu'], $result['powerTheoDep2'], $pa2); //($power['powerEvu'] / $tempTheoPower) * 100;
         $result['prDep2Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerExp'], $result['powerTheoDep2'], $pa2); //(($result['powerExp'] / $tempTheoPower) * 100;
         $result['prDep2EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerEGridExt'], $result['powerTheoDep2'], $pa2); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
 
@@ -654,12 +640,7 @@ class PRCalulationService
         };
         //$result['prDep3Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerEvu'], $result['powerTheoDep3'], $pa3); //($power['powerEvu'] / $tempTheoPower) * 100;
         $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerAct'], $result['powerTheoDep3'], $pa3); //(($power['powerAct'] / $tempTheoPower) * 100;
-        if ($anlage->getUseGridMeterDayData()){
-            $result['prDep3Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerEvu'], $result['powerTheoDep3'], $pa3); //($power['powerEvu'] / $tempTheoPower) * 100;
-        }
-        else{
-            $result['prDep3Evu'] =  $result['prDep3Act'];
-        }
+        $result['prDep3Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerEvu'], $result['powerTheoDep3'], $pa3); //($power['powerEvu'] / $tempTheoPower) * 100;
         $result['prDep3Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerExp'], $result['powerTheoDep3'], $pa3); //(($result['powerExp'] / $tempTheoPower) * 100;
         $result['prDep3EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerEGridExt'], $result['powerTheoDep3'], $pa3); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
 
@@ -827,7 +808,16 @@ class PRCalulationService
     }
 
 
-    
+    /**
+     * we will use this function to calculate the PR inverter-based
+     * @param Anlage $anlage
+     * @param int $inverterID
+     * @param DateTime $startDate
+     * @param DateTime|null $endDate
+     * @return array
+     * @throws NonUniqueResultException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     public function calcPRByInverterAM(Anlage $anlage, int $inverterID, DateTime $startDate, DateTime $endDate = null): array{
         $result = [];
         $inverterPowerDc = $anlage->getPnomInverterArray();
@@ -865,7 +855,16 @@ class PRCalulationService
         $result['irradiation'] = $irr;
         return $result;
     }
-  
+
+    /**
+     * We use this function to
+     * @param Anlage $anlage
+     * @param int $inverterID
+     * @param DateTime $startDate
+     * @return array
+     * @throws NonUniqueResultException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     public function calcPRByInverterAMDay(Anlage $anlage, int $inverterID, DateTime $startDate): array{
         $result = [];
         $inverterPowerDc = $anlage->getPnomInverterArray();
