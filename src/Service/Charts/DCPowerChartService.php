@@ -287,7 +287,7 @@ class DCPowerChartService
 
             if ($resultExp->rowCount() > 0) {
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
                 } else {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
@@ -300,10 +300,9 @@ class DCPowerChartService
                 while ($rowExp = $resultExp->fetch(PDO::FETCH_ASSOC)) {
                     $stamp = $rowExp['stamp'];
                     ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
-                    $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
                     $counterInv = 1;
                     $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
-                    $dataArray['chart'][$counter]['expected'] = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] == 0 ? $rowExp['expected'] : $rowExp['expected'] / ($groups[$group]['GMAX'] - $groups[$group]['GMIN']);
+                    #$dataArray['chart'][$counter]['expected'] = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] == 0 ? $rowExp['expected'] : $rowExp['expected'] / ($groups[$group]['GMAX'] - $groups[$group]['GMIN']);
                     $dataArray['chart'][$counter]['expected'] = $expected;
                     while ($counterInv <= $maxInverter) {
                         $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC);
@@ -322,7 +321,7 @@ class DCPowerChartService
                     }
                     $dataArray['maxSeries'] = $maxInverter;
                     // add Irradiation
-                    if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                    if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                         $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
                     } else {
                         $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;

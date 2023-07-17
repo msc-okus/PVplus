@@ -1,6 +1,4 @@
 import $ from 'jquery';
-
-
 import '../styles/special_export.scss';
 import JSZip from 'jszip';
 window.JSZip= JSZip;
@@ -16,13 +14,9 @@ import 'datatables.net-responsive-zf/js/responsive.foundation';
 import 'datatables.net-select-zf/js/select.foundation';
 import DataTables from 'datatables.net-zf';
 
-
-
-
-
 $(document).ready( async function (tableSelector) {
 
-    var t= $('#special_export').DataTable({
+    let t= $('#special_export').DataTable({
         paging:false,
         searching:false,
         info:false,
@@ -34,7 +28,6 @@ $(document).ready( async function (tableSelector) {
 
     new $.fn.dataTable.Buttons( t, {
         buttons: [
-
             {
                 extend: 'excelHtml5',
                 text: 'Excel',
@@ -49,26 +42,18 @@ $(document).ready( async function (tableSelector) {
                 exportOptions:{
                     format: {
                         body: function (data, row, column, node) {
-
                             if(column !== 0) {
-
-
-                                var arr = data.split(',');
-
+                                let arr = data.split(',');
                                 if (arr[0].includes('.')){
                                     return arr[0].replace('.','') + '.' + arr[1];
                                 }
                                 return arr[0] + '.' + arr[1];
-
                             }
-
-
+                            return data
                         }
                     }
                 }
             }
-
-
         ]
     });
 

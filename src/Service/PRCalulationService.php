@@ -587,7 +587,7 @@ class PRCalulationService
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
 
-        $irr = $this->functions->checkAndIncludeMonthlyCorrectionIrr($anlage, $irr, $localStartDate, $localEndDate);
+        #$irr = $this->functions->checkAndIncludeMonthlyCorrectionIrr($anlage, $irr, $localStartDate, $localEndDate);
 
         $tempCorrection = 0; // not used at the Moment
 
@@ -797,6 +797,7 @@ class PRCalulationService
     }
 
 
+    
     public function calcPRByInverterAM(Anlage $anlage, int $inverterID, DateTime $startDate, DateTime $endDate = null): array{
         $result = [];
         $inverterPowerDc = $anlage->getPnomInverterArray();
@@ -834,6 +835,7 @@ class PRCalulationService
         $result['irradiation'] = $irr;
         return $result;
     }
+  
     public function calcPRByInverterAMDay(Anlage $anlage, int $inverterID, DateTime $startDate): array{
         $result = [];
         $inverterPowerDc = $anlage->getPnomInverterArray();
@@ -859,6 +861,7 @@ class PRCalulationService
 
         return $result;
     }
+
     /**
      * @deprecated use 'calcPrBySelectedAlgorithm()' instead
      * @param Anlage $anlage
