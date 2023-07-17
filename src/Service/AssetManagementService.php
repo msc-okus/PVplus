@@ -530,6 +530,7 @@ class AssetManagementService
 
 
         $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
+
         $invArray = $anlage->getInverterFromAnlage();
         $orderedArray = [];
         $pr_rank_graph = [];
