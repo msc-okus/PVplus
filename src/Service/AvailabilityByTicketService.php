@@ -296,7 +296,6 @@ class AvailabilityByTicketService
                     }
                 }
             }
-            dump($skipTiOnlyArray, $skipTiAndTitheoArray);
             unset($perfTicketsSkips);
 
             // suche Case 5 Fälle und schreibe diese in case5Array[inverter][stamp] = true|false
@@ -387,7 +386,8 @@ class AvailabilityByTicketService
 
                     // Wenn Strahlung keine Datenlücke hat dann:
                     if ($strahlung !== null) {
-                        $case0 = $case1 = $case2 = $case3 = $case4 = false;
+                        $case0 = $case1 = $case2 = $case3 = $case4  = $case5 = $case6 = false;
+                        $commIssu = $skipTi = $skipTiTheo = $skipTiFM = false;
                         // Schaue in Array nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
 
                         #($strahlung > $threshold1PA) && isset($case5Array[$inverter][$stamp]) ? $case5 = true : $case5 = false;
@@ -402,13 +402,6 @@ class AvailabilityByTicketService
                             $skipTi = isset($skipTiAndTitheoArray[$inverter][$stamp]) || isset($skipTiOnlyArray[$inverter][$stamp]);
                             $skipTiTheo = isset($skipTiAndTitheoArray[$inverter][$stamp]);
                             $skipTiFM = isset($skipTiOnlyArray[$inverter][$stamp]);
-                        } else {
-                            $case5 = false;
-                            $case6 = false;
-                            $commIssu = false;
-                            $skipTi = false;
-                            $skipTiTheo = false;
-                            $skipTiFM = false;
                         }
 
                         // Case 0 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
