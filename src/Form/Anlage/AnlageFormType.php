@@ -21,6 +21,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Security;
+use function Clue\StreamFilter\fun;
 
 class AnlageFormType extends AbstractType
 {
@@ -37,6 +38,12 @@ class AnlageFormType extends AbstractType
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
+
+        $anlage = $builder->getData();
+        if (!$anlage instanceof Anlage) {
+            throw new \RuntimeException('Invalid entity.');
+        }
+
 
         $prArray = self::prFormulars();
 
@@ -169,7 +176,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('anlBetrieb', null, [
                 'label' => 'In Betrieb seit:',
-                'help' => '[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt',
+                'help' => "[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt<br> In Betrieb seit ". $anlage->getBetriebsJahre()." Jahr(en).",
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])

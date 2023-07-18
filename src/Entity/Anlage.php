@@ -710,9 +710,14 @@ class Anlage
         return $this->anlBetrieb;
     }
 
-    public function getBetriebsJahre(): float
+    public function getBetriebsJahre(): ?float
     {
-        return  (int) date('Y') - (int) $this->getAnlBetrieb()->format('Y');
+        if ($this->getAnlBetrieb()) {
+            return  (int) date('Y') - (int) $this->getAnlBetrieb()->format('Y');
+        } else {
+            return false;
+        }
+
     }
 
     public function setAnlBetrieb(?DateTime $anlBetrieb): self

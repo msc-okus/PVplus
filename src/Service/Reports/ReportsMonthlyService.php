@@ -11,6 +11,7 @@ use App\Repository\Case5Repository;
 use App\Repository\PRRepository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
+use App\Repository\TicketDateRepository;
 use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
 use App\Service\ReportService;
@@ -18,6 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -38,7 +40,8 @@ class ReportsMonthlyService
         private FunctionsService $functions,
         private NormalizerInterface $serializer,
         private PRCalulationService $PRCalulation,
-        private ReportService $reportService)
+        private ReportService $reportService,
+        private TicketDateRepository $ticketDateRepo)
     {
     }
 
@@ -347,7 +350,7 @@ class ReportsMonthlyService
      * @param int $year
      * @return array
      *
-     * @throws Exception
+     * @throws Exception|InvalidArgumentException
      */
     public function buildMonthlyReportNew(Anlage $anlage, int $month = 0, int $year = 0): array
     {
@@ -388,6 +391,7 @@ class ReportsMonthlyService
 
     /**
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function buildMonthlyReportNewByDate(Anlage $anlage, ?int $startDay = null, ?int $endDay = null, int $month = 0, int $year = 0): array
     {
@@ -419,15 +423,18 @@ class ReportsMonthlyService
         $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
 
         // Summe / Total Row
-        $i = $daysInMonth+1;
+        $i = $daysInMonth + 1;
         $dayValues[$i]['datum'] = 'Total';
         foreach($prSumArray as $key => $value) {
             $dayValues[$i][$key] = $value;
         }
 
+        $tickets = $this->ticketDateRepo->performanceTickets($anlage, $fromDay, $toDay);
+
         return [
             'anlagenid' => $anlage->getAnlId(),
             'days' => $dayValues,
+            'tickets' => $tickets,
         ];
     }
 
