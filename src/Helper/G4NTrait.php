@@ -410,7 +410,7 @@ trait G4NTrait
     }
 
     /**
-     * Ermittelt aus dem übergebenen ARray den Mittelwert, wobei 0 Werte nicht in die Berechnung einfließen.
+     * Ermittelt aus dem übergebenen Array den Mittelwert, wobei 0 Werte nicht in die Berechnung einfließen.
      */
     public static function mittelwert(array $werte): ?float
     {
