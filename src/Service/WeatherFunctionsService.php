@@ -73,7 +73,7 @@ class WeatherFunctionsService
     public function getWeather(WeatherStation $weatherStation, $from, $to, bool $ppc, Anlage $anlage, ?int $inverterID = null): ?array
     {
         return $this->cache->get('getWeather_'.md5($weatherStation->getId().$from.$to.$ppc.$anlage->getAnlId()), function(CacheItemInterface $cacheItem) use ($weatherStation, $from, $to, $ppc, $anlage, $inverterID) {
-            $cacheItem->expiresAfter(900);
+            $cacheItem->expiresAfter(60);
             $conn = self::getPdoConnection();
             $weather = [];
             $dbTable = $weatherStation->getDbNameWeather();

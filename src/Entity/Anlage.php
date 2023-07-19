@@ -396,7 +396,8 @@ class Anlage
     private float|string|null $annualDegradation;
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $pldPR;
-
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $treatingDataGapsAsOutage = true;
     #[ORM\Column(type: 'string', length: 20)]
     private string $epcReportType = '';
 
@@ -2499,6 +2500,19 @@ class Anlage
         $this->pldPR = $pldPR;
 
         return $this;
+    }
+    public function isTreatingDataGapsAsOutage(): ?bool
+    {
+        return $this->treatingDataGapsAsOutage;
+    }
+    public function getTreatingDataGapsAsOutage(): ?bool
+    {
+        return $this->treatingDataGapsAsOutage;
+    }
+
+    public function setTreatingDataGapsAsOutage(?bool $treatingDataGapsAsOutage): void
+    {
+        $this->treatingDataGapsAsOutage = $treatingDataGapsAsOutage;
     }
 
     public function getEpcReportType(): ?string

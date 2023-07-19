@@ -620,6 +620,10 @@ class AnlageFormType extends AbstractType
                 'expanded'      => false,
                 'multiple'      => false,
             ])
+            ->add('treatingDataGapsAsOutage', SwitchType::class, [
+                'label' => 'Treat Data Gaps as Outage',
+                'help'  => '[treatingDataGapsAsOutage]',
+            ])
             ->add('prFormular0', ChoiceType::class, [
                 'label'         => 'PR Formular',
                 'help'          => '[paFormular0]',
