@@ -1,0 +1,53 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Inverter Ranking Summary</h3>
+
+    <div style="height: 50%;">
+        <table style="width: 50%;">
+        <thead>
+            <tr>
+                <th class="table-center">
+
+                </th>
+                <th class="table-center">
+                    Number of Inverters
+                </th>
+                <th class="table-center">
+                    Percentage
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+
+                <tr>
+                    <td class="tr_next_columns">
+                        INV PR > average
+                    </td>
+                    <td class="tr_next_columns">
+                        {{ prSumaryTable.1.InvCount }}
+                    </td>
+                    <td class="tr_next_columns">
+                        {{ prSumaryTable.1.percentage|number_format(2, ',', '.') }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tr_next_columns">
+                        INV PR < average
+                    </td>
+                    <td class="tr_next_columns">
+                        {{ prSumaryTable.2.InvCount }}
+                    </td>
+                    <td class="tr_next_columns">
+                        {{ prSumaryTable.2.percentage|number_format(2, ',', '.') }}
+                    </td>
+                </tr>
+
+        </tbody>
+    </table>
+    </div>
+
+    <div style="height: 50%; vertical-align: bottom">
+        {{ sumary_pie_graph|raw }}
+    </div>
+{% endblock %}

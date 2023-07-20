@@ -165,7 +165,7 @@ class DefaultJMController extends AbstractController
                 'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
                 'title' => [
                     'fontFamily' => 'monospace',
-                    'text' => 'TEST',
+                    'text' => 'Inverter efficiency ranking',
                     'left' => 'center',
                     'top' => 10
                 ],

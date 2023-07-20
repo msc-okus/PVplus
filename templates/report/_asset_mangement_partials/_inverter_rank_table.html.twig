@@ -14,6 +14,8 @@
             </tr>
         </thead>
         <tbody>
+
+
         {% for row in table %}
             <tr>
                 <td class="tr_next_columns">{{ row.name }}</td>
@@ -24,6 +26,7 @@
                 <td class="tr_next_columns">{{ row.invPR|number_format(2, ',', '.') }}</td>
             </tr>
         {% endfor %}
+
         </tbody>
     </table>
 

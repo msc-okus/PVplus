@@ -1,11 +1,9 @@
-<<<<<<< HEAD
 {% extends 'report/assetreport.base.html.twig' %}
 {% block javascripts %}
     {{ parent() }}
 {% endblock %}
 {% block content %}
-    {% for graph in test %}
-        {% include 'report/_asset_mangement_partials/_inverter_rank_graph.html.twig'%}
+    {% for graph in efficiencyRanking %}
+        {% include 'report/_asset_mangement_partials/_inverter_ranking_efficiency_graph.html.twig'%}
     {% endfor %}
-
 {% endblock %}
