@@ -85,6 +85,7 @@ class DefaultJMController extends AbstractController
         $index = 0;
         $index2 = 0;
         $index3 = 0;
+        dump($efficiencyArray);
         while (count($efficiencyArray['avg']) !== 0){
             $keys = array_keys($efficiencyArray['avg'], min($efficiencyArray['avg']));
             foreach($keys as $key ){
@@ -108,7 +109,6 @@ class DefaultJMController extends AbstractController
 
             }
         }
-
         foreach($orderedArray as $key => $data) {
 
             $chart = new ECharts(); // We must use AMCharts
@@ -129,7 +129,7 @@ class DefaultJMController extends AbstractController
             $chart->yAxis = [
                 [
                     'type' => 'value',
-                    'min' => 70,
+                    'min' => 50,
                     'max' => 100,
                     'name' => '[%]',
 
@@ -185,7 +185,7 @@ class DefaultJMController extends AbstractController
                 ],
             ];
             $chart->setOption($option);
-            $test = $chart->render('pr_graph_'.$key, ['style' => 'height: 550; width:900px;']);
+            $test[] = $chart->render('pr_graph_'.$key, ['style' => 'height: 550; width:900px;']);
 
         }
         $html5 = $this->twig->render('report/test.html.twig', [
@@ -193,16 +193,10 @@ class DefaultJMController extends AbstractController
         'monthName' => 'December',
         'year' => '2023',
 
-        'graph' => $test,
+        'test' => $test,
 
         ]);
-        $view = $this->renderView('report/test.html.twig', [
-            'anlage' => $anlage,
-            'monthName' => 'December',
-            'year' => '2023',
-            'graph' => $test,
 
-        ]);
 
         $html5 = str_replace('src="//', 'src="https://', $html5);
         $fileroute = "/test/AssetReport/waterfallgraphs/" ;
@@ -224,6 +218,8 @@ class DefaultJMController extends AbstractController
                 $output['avg'][$inverter] = round($efficiencySum / $efficiencyCount, 2);
                 $inverter = $result['inverter'];
                 $index = 1;
+                $efficiencySum = 0;
+                $efficiencyCount = 0;
             }
             if ($result['efficiency'] <= 100 and $result['efficiency'] >= 0) {
                 $output['values'][$inverter][] = round($result['efficiency'], 2);
