@@ -4022,7 +4022,6 @@ class AssetManagementService
 
         // beginn Chart Losses compared
         $chart = new ECharts();
-        // $chart->tooltip->show = true;
 
         $chart->xAxis = [
             'type' => 'category',
@@ -4170,7 +4169,7 @@ class AssetManagementService
             'animation' => false,
             'color' => ['#9dc3e6', '#92d050'],
             'title' => [
-                'text' => 'Commulative Losses Operating statement [EUR] ',
+                'text' => 'Cummulative Losses Operating statement [EUR] ',
                 'left' => 'center',
             ],
             'tooltip' => [
