@@ -153,9 +153,9 @@ class WeatherFunctionsService
 
             if ($weather['anzahl'] > 0) {
                 $sql = "SELECT 
-                    SUM(g_lower) as irr_lower, 
-                    SUM(g_upper) as irr_upper, 
-                    SUM(g_horizontal) as irr_horizontal, 
+                    SUM(IF(g_lower>0,g_lower,0)) as irr_lower, 
+                    SUM(IF(g_upper>0,g_upper,0)) as irr_upper, 
+                    SUM(IF(g_horizontal>0,g_horizontal,0)) as irr_horizontal, 
                     $sqlTheoPowerPart
                     AVG(temp_ambient) AS ambient_temp, 
                     AVG(temp_pannel) AS panel_temp, 

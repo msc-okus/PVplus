@@ -53,10 +53,12 @@ class IrradiationService
             if ($resultEinstrahlung->rowCount() > 0) {
                 while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
                     $stamp = $row['stamp'];
+                    $row['g_upper'] = (float) $row['g_upper'] > 0 ? (float) $row['g_upper'] : 0;
+                    $row['g_lower'] = (float) $row['g_lower'] > 0 ? (float) $row['g_lower'] : 0;
                     if ($anlage->getIsOstWestAnlage()) {
-                        $strahlung = ((float)$row['g_upper'] * $anlage->getPowerEast() + (float)$row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        $strahlung = ($row['g_upper'] * $anlage->getPowerEast() + $row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
                     } else {
-                        $strahlung = (float)$row['g_upper'];
+                        $strahlung = $row['g_upper'];
                     }
                     $irrData[$stamp]['stamp'] = $stamp;
                     $irrData[$stamp]['irr'] = $strahlung;
