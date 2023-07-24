@@ -80,6 +80,7 @@ class SpecialOperationsController extends AbstractController
 
     /**
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     #[IsGranted(['ROLE_G4N', 'ROLE_BETA'])]
     #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]

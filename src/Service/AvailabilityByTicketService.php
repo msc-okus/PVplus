@@ -369,13 +369,13 @@ class AvailabilityByTicketService
                 $strahlung = max($einstrahlung['irr'], 0);
                 $irrFlag = $einstrahlung['irr_flag'];
 
-                ##### Test implementierung #####
-                if ($department === 1){ // O&M
+                $conditionIrrCase1 = $strahlung <= $threshold2PA;
+                $conditionIrrCase2 = $strahlung > $threshold2PA;
+                if (($department === 0 && $anlage->isUsePAFlag0()) || ($department === 1 && $anlage->isUsePAFlag1()) ||
+                    ($department === 2 && $anlage->isUsePAFlag2()) || ($department === 3 && $anlage->isUsePAFlag3()))
+                {
                     $conditionIrrCase1 = !$irrFlag;
                     $conditionIrrCase2 = $irrFlag;
-                } else {
-                    $conditionIrrCase1 = $strahlung <= $threshold2PA;
-                    $conditionIrrCase2 = $strahlung > $threshold2PA;
                 }
 
                 $startInverter = 1;
