@@ -194,6 +194,8 @@ class TicketDateRepository extends ServiceEntityRepository
             case 3: // AssetManagemet should not set any outage to ForecMajour
                 $q->andWhere('t.kpiPaDep3 = 99');
                 break;
+            default:
+                $q->andWhere('t.kpiPaDep3 = 99');
         };
 
         return $q->getQuery()->getResult();
@@ -213,7 +215,9 @@ class TicketDateRepository extends ServiceEntityRepository
         $q = $this->createQueryBuilder('t')
             ->join('t.ticket', 'ticket')
             ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end AND :begin >= t.begin)')
-            ->andWhere('t.Anlage = :anlage');
+            ->andWhere('t.Anlage = :anlage')
+            ->andWhere('(t.alertType = 10 OR t.alertType = 20)')
+        ;
         if ($anlage->getTreatingDataGapsAsOutage()) {
             $q->andWhere('(t.dataGapEvaluation = 20 OR t.dataGapEvaluation = 0)');
         } else {

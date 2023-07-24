@@ -565,7 +565,7 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
             ])
             ->add('threshold1PA2', TextType::class, [
-                'label' => 'lower threshold [WaW/qmtt] ',
+                'label' => 'lower threshold [W/qm] ',
                 'help' => '[threshold1PA2] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])

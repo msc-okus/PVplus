@@ -121,7 +121,6 @@ class PowerService
             $ppcSQLpart1Meters 
             WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' 
                 AND '" . $to->format('Y-m-d H:i') . "' 
-                $ignorNegativEvuSQL 
                 $ppcSQLpart2";
 
                 $res = $conn->query($sql);

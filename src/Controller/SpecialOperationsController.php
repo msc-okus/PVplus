@@ -15,10 +15,12 @@ use App\Service\LogMessagesService;
 use App\Service\Reports\ReportsMonthlyService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use Exception;
 use Omines\DataTablesBundle\Adapter\ArrayAdapter;
 use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTableFactory;
+use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +34,10 @@ class SpecialOperationsController extends AbstractController
 {
     use G4NTrait;
 
+    /**
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
+     */
     #[IsGranted(['ROLE_G4N'])]
     #[Route(path: '/special/operations/bavelse/report', name: 'bavelse_report')]
     public function bavelseExport(Request $request, ExportService $bavelseExport, AnlagenRepository $anlagenRepository, AvailabilityByTicketService $availabilityByTicket): Response
@@ -54,6 +60,7 @@ class SpecialOperationsController extends AbstractController
         if ($submitted && isset($anlageId)) {
             $from = date_create($year.'-'.$month.'-01 00:01');
             $daysInMonth = $from->format('t');
+            $daysInMonth = 22;
             $to = date_create($year.'-'.($month).'-'.$daysInMonth.' 23:59');
             $output        = $bavelseExport->gewichtetTagesstrahlungAsTable($anlage, $from, $to);
             $availability  = "<h3>Plant Availability from " . $from->format('Y-m-d') . " to " . $to->format('Y-m-d') . ": " . $availabilityByTicket->calcAvailability($anlage, $from, $to, null, 2) . "</h3>";
