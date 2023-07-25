@@ -447,7 +447,7 @@ class AlertSystemService
         $return['Vol'] = "";
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
-        if ($irradiation < $irrLimit) $this->irr = true;
+        if ($irradiation !== null && $irradiation < $irrLimit) $this->irr = true;
         else $this->irr = false;
         if ($anlage->getHasPPC()) {
             $sqlPpc = 'SELECT * 
@@ -458,9 +458,9 @@ class AlertSystemService
                 $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
                 $return['ppc'] = ((($ppdData['p_set_rpc_rel'] !== null && $ppdData['p_set_rpc_rel'] < 100) || ($ppdData['p_set_gridop_rel'] !== null && $ppdData['p_set_gridop_rel'] < 100)));
             }
-            else $return['ppc'] = null;
+            else $return['ppc'] = false;
         }
-        else $return['ppc'] = null;
+        else $return['ppc'] = false;
 
             $sqlAct = 'SELECT b.unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)

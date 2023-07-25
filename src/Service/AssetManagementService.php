@@ -520,7 +520,6 @@ class AssetManagementService
      */
     public function buildAssetReport(Anlage $anlage, array $report, ?int $logId = null): array
     {
-
         // Variables
         $daysInReportMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
         $monthArray = [
@@ -913,11 +912,6 @@ class AssetManagementService
         $chart->setOption($option);
 
         $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:700px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         $chart = new ECharts(); // We must use AMCharts
         $chart->tooltip->show = false;
@@ -996,13 +990,6 @@ class AssetManagementService
         $operations_right_withForecast = $chart->render('operations_right_withForecast', ['style' => 'height: 450px; width:700px;']);
 
 
-
-        // End Production
-
-        // Begin Cumulative Forecast with PVSYST
-
-        // Forecast / degradation
-
         $degradation = $anlage->getLossesForecast();
         // Cumulative Forecast
         $powerSum[0] = $powerEvu[0];
@@ -1039,6 +1026,7 @@ class AssetManagementService
         ];
 
         // begin chart
+        $chart = new ECharts();
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -1118,11 +1106,6 @@ class AssetManagementService
         $chart->setOption($option);
 
         $forecast_PVSYST = $chart->render('forecast_PVSYST', ['style' => 'height: 450px; width:28cm;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         // End Cumulative Forecast with PVSYST
 
@@ -1161,6 +1144,7 @@ class AssetManagementService
         ];
 
         $this->logMessages->updateEntry($logId, 'working', 30);
+        $chart = new ECharts();
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -1240,11 +1224,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $forecast_G4N = $chart->render('forecast_G4N', ['style' => 'height: 450px; width:28cm;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
 
         for ($i = 0; $i < 12; ++$i) {
             if ($i < count($tbody_a_production['powerEvu'])) {
@@ -1354,7 +1334,7 @@ class AssetManagementService
             'difference_Inverter_to_Egrid' => $difference_Inverter_to_Egrid,
             'difference_act_forecast' => $difference_actual_forecast,
         ];
-
+        $chart = new ECharts();
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -1400,20 +1380,9 @@ class AssetManagementService
 
         $losses_year = $chart->render('losses_yearly', ['style' => 'height: 450px; width: 27cm']);
 
+        $this->logMessages->updateEntry($logId, 'working', 40);
 
-
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-
-        unset($option);
-        // End Cumulative Losses
-
-        // Start Monthley expected vs.actuals
-        // $chart->tooltip->show = true;
-
-        // $chart->tooltip->trigger = 'item';
+        $chart = new ECharts();
 
         $chart->xAxis = [
             'type' => 'category',
@@ -1434,9 +1403,9 @@ class AssetManagementService
             'min' => 0,
             'offset' => -20
         ];
-        $this->logMessages->updateEntry($logId, 'working', 40);
+
         $series = [];
-        $series[] = [
+        $series = [
             [
                 'name' => 'Yield ',
                 'type' => 'bar',
@@ -1453,26 +1422,16 @@ class AssetManagementService
                 ],
                 'visualMap' => 'false',
             ],
+            [
+                'name' => 'Forecast',
+                'type' => 'bar',
+                'data' => [
+                    $forecast[$report['reportMonth'] - 1],
+                ],
+                'visualMap' => 'false',
+            ]
         ];
-        if ($anlage->hasPVSYST()) {
-            $series[] = [
-                'name' => 'Forecast',
-                'type' => 'bar',
-                'data' => [
-                    $forecast[$report['reportMonth'] - 1],
-                ],
-                'visualMap' => 'false',
-            ];
-        }else{
-            $series[] =       [
-                'name' => 'Forecast',
-                'type' => 'bar',
-                'data' => [
-                    $forecast[$report['reportMonth'] - 1],
-                ],
-                'visualMap' => 'false',
-            ];
-        }
+
         $chart->series = $series;
 
 
@@ -1502,14 +1461,9 @@ class AssetManagementService
         ];
 
         $chart->setOption($option);
+
         $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 310px; width:100%;']);
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         if ($powerEvu[$report['reportMonth'] - 1] < 1){
             $var = 0;
@@ -1517,7 +1471,7 @@ class AssetManagementService
         else {
             $var = round((1 - $forecast[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2);
         }
-        if($anlage->hasPVSYST()) {
+
             $operations_monthly_right_pvsyst_tr1 = [
                 $monthName . ' ' . $report['reportYear'],
                 $powerEvu[$report['reportMonth'] - 1],
@@ -1525,15 +1479,7 @@ class AssetManagementService
                 $powerEvu[$report['reportMonth'] - 1] - $forecast[$report['reportMonth'] - 1],
                 $var,
             ];
-        } else{
-            $operations_monthly_right_pvsyst_tr1 = [
-                $monthName . ' ' . $report['reportYear'],
-                $powerEvu[$report['reportMonth'] - 1],
-                $forecast[$report['reportMonth'] - 1],
-                $powerEvu[$report['reportMonth'] - 1] - $forecast[$report['reportMonth'] - 1],
-                $var,
-            ];
-        }
+
 
         $start = $report['reportYear'].'-01-01 00:00';
 
@@ -2155,11 +2101,8 @@ class AssetManagementService
 
         $failures_Year_To_Date = [];
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
+
         $SOFErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 10, $anlage)[0][1];
         $EFORErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 20, $anlage)[0][1];
         $OMCErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1];
@@ -2335,12 +2278,9 @@ class AssetManagementService
                 ];
         }
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
         $this->logMessages->updateEntry($logId, 'working', 60);
+        $chart = new ECharts();
         $chart->yAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2475,11 +2415,8 @@ class AssetManagementService
             'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
             'OMCLosses' => number_format(-($kwhLossesYearTable['OMCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
         ];
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
+        $chart = new ECharts();
         $chart->yAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2628,11 +2565,8 @@ class AssetManagementService
             }
         }
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+        $this->logMessages->updateEntry($logId, 'working', 70);
+        $chart = new ECharts();
         $chart->yAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2646,7 +2580,7 @@ class AssetManagementService
             'data' => $invertedMonthArray,
 
         ];
-        $this->logMessages->updateEntry($logId, 'working', 70);
+
         $chart->xAxis = [
             'type' => 'value',
             'name' => '%',
@@ -2748,12 +2682,8 @@ class AssetManagementService
         $chart->setOption($option);
         $losseskwhchartYearMonthly = $chart->render('Year_losses_monthly', ['style' => 'height: 800px; width:28cm; ']);
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
+        $chart = new ECharts();
         // Actual
         $chart->series =
             [
@@ -2809,12 +2739,6 @@ class AssetManagementService
 
         $chart->setOption($option);
         $fails_month = $chart->render('fails_month', ['style' => 'height: 175px; width:300px; ']);
-
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         // fuer PA Report Month
         if ($anlage->getConfigType() == 1) {
@@ -3138,8 +3062,8 @@ class AssetManagementService
         }
         $monthlyTableForPRAndPA = [];
         $graphArrayPR = [];
-        for($index = 1; $index <= $month - 1  ; $index++){
-            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $index, (int)$report['reportYear']);
+        for($index = 1; $index <= $month ; $index++){
+            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $index , (int)$report['reportYear']);
             $result = $this->PRCalulation->calcPR($anlage, new \DateTime($report['reportYear']."-".$index."-"."01"), new \DateTime($report['reportYear']."-".$index."-".$daysInMonth));
             $monthlyTableForPRAndPA[$index]['Dep0PA'] = round($result['pa0'], 2);
             $monthlyTableForPRAndPA[$index]['Dep1PA'] = round($result['pa1'], 2);
@@ -3612,7 +3536,6 @@ class AssetManagementService
         for ($i = 1; $i < 12; ++$i) {
             $costSum[$i] = $costSum[$i - 1] + $economicsMandy[$i];
 
-            //$revenuesSumPVSYST[$i] = $economicsMandy[$i] + $revenuesSumPVSYST[$i - 1];
             if (($incomePerMonth['revenues_act'][$i] > 0) && ($i < $month - 1)) {
                 $revenuesSumG4N[$i] = ($revenuesSumG4N[$i-1] + $incomePerMonth['revenues_act'][$i]) - $costSum[$i];
                 $revenuesSumPVSYST[$i] = ($revenuesSumPVSYST[$i-1] + $incomePerMonth['revenues_act'][$i]) - $costSum[$i];
@@ -3634,6 +3557,8 @@ class AssetManagementService
             'PVSYST_plan_proceeds_P50' => $P50SumPVSYS,
             'g4n_plan_proceeds_EXP_P50' => $P50SumG4N,
         ];
+
+        $chart = new ECharts();
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -3710,13 +3635,10 @@ class AssetManagementService
         $chart->setOption($option);
 
         $economicsCumulatedForecastChart = $chart->render('economicsCumulatedForecastChart', ['style' => 'height: 380px; width:26cm;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
         // end Chart economics Cumulated Forecast
 
+        $chart = new ECharts();
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -3778,11 +3700,7 @@ class AssetManagementService
         ];
         $chart->setOption($option);
         $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:28cm;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
 
         $chart = new ECharts();
         $chart->xAxis = [
@@ -3856,10 +3774,8 @@ class AssetManagementService
         $chart->setOption($option);
 
         $income_per_month_chart = $chart->render('income_per_month_chart', ['style' => 'height: 350px; width:950px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        unset($option);
+
+        $chart = new ECharts();
         $chart->series =
             [
                 [
@@ -3910,11 +3826,6 @@ class AssetManagementService
         $chart->setOption($option);
         $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 210px; width:26cm; margin-left:80px;']);
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         $chart = new ECharts();
 
@@ -3989,15 +3900,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $operating_statement_chart = $chart->render('operating_statement_chart', ['style' => 'height: 350px; width:950px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
-        // end Operating Statement
-
-        // beginn Losses compared
         $this->logMessages->updateEntry($logId, 'working', 90);
         for ($i = 0; $i < 12; ++$i) {
             if ($i < $month - 1) {
@@ -4018,11 +3921,7 @@ class AssetManagementService
             'Difference_Profit_to_expected' => $Difference_Profit_to_EXP
         ];
 
-        // end Losses compared
-
-        // beginn Chart Losses compared
         $chart = new ECharts();
-
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -4087,11 +3986,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $losses_compared_chart = $chart->render('lossesCompared', ['style' => 'height: 350px; width:950px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
 
         // end Chart Losses compared
 
@@ -4122,11 +4017,7 @@ class AssetManagementService
 
         // beginn Chart Losses compared cummulated
         $chart = new ECharts();
-        // $chart->tooltip->show = true;
-
-        // $chart->tooltip->trigger = 'item';
-
-        $chart->xAxis = [
+          $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
                 'show' => true,
@@ -4192,11 +4083,7 @@ class AssetManagementService
             $acGroupsCleaned = $this->functions->getNameArray($anlage, 'dc', false);
         }
         $cumulated_losses_compared_chart = $chart->render('cumulatedlossesCompared', ['style' => 'height: 350px; width:950px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
 
         $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))));
         $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))), "year");
