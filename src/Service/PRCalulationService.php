@@ -572,9 +572,8 @@ class PRCalulationService
         // Wetter Daten ermitteln
         $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
         if (is_array($weather)) {
-            $weather2 = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate));
+            $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate));
         }
-
         // Leistungsdaten ermitteln
         $power = $this->powerServicer->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate));
 
@@ -589,6 +588,7 @@ class PRCalulationService
         } else {
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
+
         #$irr = $this->functions->checkAndIncludeMonthlyCorrectionIrr($anlage, $irr, $localStartDate, $localEndDate);
 
         $tempCorrection = 0; // not used at the Moment
@@ -816,7 +816,16 @@ class PRCalulationService
     }
 
 
-    
+    /**
+     * we will use this function to calculate the PR inverter-based
+     * @param Anlage $anlage
+     * @param int $inverterID
+     * @param DateTime $startDate
+     * @param DateTime|null $endDate
+     * @return array
+     * @throws NonUniqueResultException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     public function calcPRByInverterAM(Anlage $anlage, int $inverterID, DateTime $startDate, DateTime $endDate = null): array{
         $result = [];
         $inverterPowerDc = $anlage->getPnomInverterArray();
@@ -854,7 +863,16 @@ class PRCalulationService
         $result['irradiation'] = $irr;
         return $result;
     }
-  
+
+    /**
+     * We use this function to
+     * @param Anlage $anlage
+     * @param int $inverterID
+     * @param DateTime $startDate
+     * @return array
+     * @throws NonUniqueResultException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     public function calcPRByInverterAMDay(Anlage $anlage, int $inverterID, DateTime $startDate): array{
         $result = [];
         $inverterPowerDc = $anlage->getPnomInverterArray();

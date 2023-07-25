@@ -91,7 +91,6 @@ class AssetManagementeReportFormType extends AbstractType
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('Availability', SwitchType::class, [
-                'label' => 'Ticket & Availability',
                 'required' => false,
                 'data' => true,
             ])
@@ -158,3 +157,4 @@ class AssetManagementeReportFormType extends AbstractType
         ]);
     }
 }
+
