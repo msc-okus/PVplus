@@ -448,7 +448,6 @@ class AvailabilityByTicketService
                             }
                             // Case 3
                             if (($powerAc <= 0 && $powerAc !== null) && !$commIssu) {
-                                if($inverter == 34 && $department == 1) dump($powerAc);
                                 $case3 = true;
                                 ++$availability[$inverter]['case3'];
                                 ++$availabilityPlantByStamp['case3'];

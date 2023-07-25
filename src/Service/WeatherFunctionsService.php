@@ -150,7 +150,6 @@ class WeatherFunctionsService
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA0() . ", pa0, 1)) as theo_power_pa0,
             ";
             }
-
             if ($weather['anzahl'] > 0) {
                 $sql = "SELECT 
                     SUM(IF(g_lower>0,g_lower,0)) as irr_lower, 

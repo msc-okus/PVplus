@@ -184,28 +184,28 @@ class ReportEpcService
 
                 $currentMonthClass = '';
                 if (date_create($from) <= $date) {
-                    $prReal         = $prArray['prEvu']; // $this->format($pr->getPrEvuMonth());
-                    $prStandard     = $prArray['prDefaultEvu']; // $this->format($pr->getPrDefaultMonthEvu());
+                    $prReal         = $prArray['prDep2Evu']; // $this->format($pr->getPrEvuMonth());
+                    $prStandard     = $prArray['prDep0Evu']; // $this->format($pr->getPrDefaultMonthEvu());
                     switch ($n) {
                         case 1:
                         case $anzahlMonate:
                             $eGridReal      = $prArray['powerEvu'];
                             $irrMonth       = $prArray['irradiation'];
-                            $prAvailability = $prArray['availability'];
+                            $prAvailability = $prArray['pa2'];
                             if ($anlage->getUseGridMeterDayData()) {
                                 $eGridReal  = $prArray['powerEGridExt'];
-                                $prReal     = $prArray['prEGridExt'];
-                                $prStandard = $prArray['prDefaultEGridExt'];
+                                $prReal     = $prArray['prDep2EGridExt'];
+                                $prStandard = $prArray['prDep0EGridExt'];
                             }
                             break;
                         default:
                             $eGridReal      = $prArray['powerEvu']; // $pr->getPowerEvuMonth();
                             $irrMonth       = $prArray['irradiation']; // $pr->getIrrMonth();
-                            $prAvailability = $prArray['availability']; // $this->availabilityService->calcAvailability($anlage, date_create("$year-$month-01 00:00"), date_create("$year-$month-$days 23:59"));
+                            $prAvailability = $prArray['pa2']; // $this->availabilityService->calcAvailability($anlage, date_create("$year-$month-01 00:00"), date_create("$year-$month-$days 23:59"));
                             if ($anlage->getUseGridMeterDayData()) {
                                 $eGridReal  = $prArray['powerEGridExt']; // $this->gridMeterRepo->sumByDateRange($anlage, $from, $to);
-                                $prReal     = $prArray['prEGridExt']; // $pr->getPrEGridExtMonth();
-                                $prStandard = $prArray['prDefaultEGridExt']; // $this->format($pr->getPrDefaultMonthEGridExt());
+                                $prReal     = $prArray['prDep2EGridExt']; // $pr->getPrEGridExtMonth();
+                                $prStandard = $prArray['prDep0EGridExt']; // $this->format($pr->getPrDefaultMonthEGridExt());
                             }
                     }
                     #dd($prReal);
@@ -260,9 +260,8 @@ class ReportEpcService
                     $sumIrrMonth            += $irrMonth;
                     $sumEGridRealDesign     += $eGridReal - $ertragPvSyst;
                     ++$counter;
-                    if ($counter > 24) {
-                        $counter = 24;
-                    }
+                    if ($counter > 24) $counter = 24;
+
                 }
                 if ($run === 2) {// Monatswerte berechnen
                     if ($n === $anzahlMonate) {

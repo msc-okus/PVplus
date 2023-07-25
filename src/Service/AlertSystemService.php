@@ -732,7 +732,7 @@ class AlertSystemService
      * @param string|null $time
      * @return string
      */
-    private function checkSystemMulti(Anlage $anlage, ?string $time = null): string
+    public function checkSystemMulti(Anlage $anlage, ?string $time = null): string
     {
         if ($time === null) {
             $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
