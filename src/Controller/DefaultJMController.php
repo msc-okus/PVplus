@@ -59,9 +59,9 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, AlertSystemV2Service $service)
     {
-        $anlage = $anlagenRepository->findIdLike("184")[0];
-        $fromStamp = strtotime("2022-04-01 ");
-        $toStamp = strtotime("2022-12-31");
+        $anlage = $anlagenRepository->findIdLike("218")[0];
+        $fromStamp = strtotime("2023-06-15 00:00");
+        $toStamp = strtotime("2023-06-16 00:00");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
             $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
         }
@@ -71,8 +71,7 @@ class DefaultJMController extends AbstractController
 
     #[Route(path: '/test/read', name: 'default_read')]
     public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am){
-        $anlage = $ar->findIdLike("207")[0];
-        dd($anlage->getMinIrrThreshold());
+        $anlage = $ar->findIdLike("110")[0];
 
         return $this->render('base.html.twig');// this is suposed to never run so no problem
     }
@@ -85,18 +84,16 @@ class DefaultJMController extends AbstractController
         $index = 0;
         $index2 = 0;
         $index3 = 0;
+        dump($efficiencyArray);
         while (count($efficiencyArray['avg']) !== 0){
             $keys = array_keys($efficiencyArray['avg'], min($efficiencyArray['avg']));
             foreach($keys as $key ){
-               // $orderedArray[$index2]['avg'][$invArray[$key]][1] =$invArray[$key] ;
                 $orderedArray[$index2]['avg'][$index] = $efficiencyArray['avg'][$key];
                 $orderedArray[$index2]['names'][$index] = $invArray[$key];
                 foreach ($efficiencyArray['values'][$key] as $value){
                     $orderedArray[$index2]['value'][$index3] = [$invArray[$key], $value];
-
                     $index3 = $index3 + 1;
                 }
-
                 unset($efficiencyArray['values'][$key]);
                 unset($efficiencyArray['avg'][$key]);
                 $index = $index + 1;
@@ -105,12 +102,10 @@ class DefaultJMController extends AbstractController
                     $index2 = $index2 + 1;
                     $index3 = 0;
                 }
-
             }
         }
         foreach($orderedArray as $key => $data) {
-
-            $chart = new ECharts(); // We must use AMCharts
+            $chart = new ECharts();
             $chart->tooltip->show = false;
             $chart->tooltip->trigger = 'item';
             $chart->xAxis = [
@@ -131,7 +126,6 @@ class DefaultJMController extends AbstractController
                     'min' => 50,
                     'max' => 100,
                     'name' => '[%]',
-
                 ],
 
             ];

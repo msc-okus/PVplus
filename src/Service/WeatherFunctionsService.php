@@ -212,43 +212,42 @@ class WeatherFunctionsService
      * @param DateTime $stamp
      * @return float
      */
-    public function getIrrByStampForTicket(Anlage $anlage, DateTime $stamp): float
+    public function getIrrByStampForTicket(Anlage $anlage, DateTime $stamp): ?float
     {
         $conn = self::getPdoConnection();
-        $irr = 0;
-
+        $irr = null;
         $sqlw = 'SELECT g_lower, g_upper FROM ' . $anlage->getDbNameWeather() . " WHERE stamp = '" . $stamp->format('Y-m-d H:i') . "' ";
         $respirr = $conn->query($sqlw);
 
         if ($respirr->rowCount() > 0) {
             $pdataw = $respirr->fetch(PDO::FETCH_ASSOC);
-            $irrUpper = (float)$pdataw['g_upper'];
-            $irrLower = (float)$pdataw['g_lower'];
+            $irrUpper =  $pdataw['g_upper'] !== ''  ? (float)$pdataw['g_upper'] : null;
+            $irrLower =  $pdataw['g_lower'] !== ''  ? (float)$pdataw['g_lower'] : null;
             if ($irrUpper < 0) $irrUpper = 0;
             if ($irrLower < 0) $irrLower = 0;
-
             // Sensoren sind vertauscht, Werte tauschen
             if ($anlage->getWeatherStation()->getChangeSensor()) {
                 $irrHelp = $irrLower;
                 $irrLower = $irrUpper;
                 $irrUpper = $irrHelp;
             }
-            if ($anlage->getIsOstWestAnlage() && $anlage->getPowerEast() > 0 && $anlage->getPowerWest() > 0) {
-                $gwoben = $anlage->getPowerEast() / ($anlage->getPowerWest() + $anlage->getPowerEast());
-                $gwunten = $anlage->getPowerWest() / ($anlage->getPowerWest() + $anlage->getPowerEast());
+            if ($irrUpper !== null && $irrLower !== null) {
+                if ($anlage->getIsOstWestAnlage() && $anlage->getPowerEast() > 0 && $anlage->getPowerWest() > 0) {
+                    $gwoben = $anlage->getPowerEast() / ($anlage->getPowerWest() + $anlage->getPowerEast());
+                    $gwunten = $anlage->getPowerWest() / ($anlage->getPowerWest() + $anlage->getPowerEast());
 
-                $irr = $irrUpper * $gwoben + $irrLower * $gwunten;
-            } else {
-                if ($anlage->getWeatherStation()->getHasUpper() && !$anlage->getWeatherStation()->getHasLower()) {
-                    $irr = $irrUpper;
-                } elseif (!$anlage->getWeatherStation()->getHasUpper() && $anlage->getWeatherStation()->getHasLower()) {
-                    // Station hat nur unteren Sensor => Die Strahlung OHNE Gewichtung zurückgeben, Verluste werden dann über die Verschattung berechnet
-                    $irr = $irrLower;
+                    $irr = $irrUpper * $gwoben + $irrLower * $gwunten;
+                } else {
+                    if ($anlage->getWeatherStation()->getHasUpper() && !$anlage->getWeatherStation()->getHasLower()) {
+                        $irr = $irrUpper;
+                    } elseif (!$anlage->getWeatherStation()->getHasUpper() && $anlage->getWeatherStation()->getHasLower()) {
+                        // Station hat nur unteren Sensor => Die Strahlung OHNE Gewichtung zurückgeben, Verluste werden dann über die Verschattung berechnet
+                        $irr = $irrLower;
+                    }
                 }
             }
         }
         $conn = null;
-
         return $irr;
     }
 

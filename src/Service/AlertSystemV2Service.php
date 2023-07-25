@@ -379,11 +379,11 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-
-            if ( $plant_status['ppc'] != null && $plant_status['ppc'] === true)  $this->generateTickets(OMC, EXTERNAL_CONTROL, $anlage, ["*"], $time, "test");
-            if ( $plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', DATA_GAP, $anlage, $plant_status['Gap'], $time, "test");
-            if ( $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "test");
-            if ( $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', GRID_ERROR, $anlage, $plant_status['Vol'], $time, "test");
+            dump($time, $plant_status);
+            if ( $plant_status['ppc'] != null && !$plant_status['ppc'] )  $this->generateTickets(OMC, EXTERNAL_CONTROL, $anlage, ["*"], $time, "");
+            if ( !$plant_status['ppc'] && $plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', DATA_GAP, $anlage, $plant_status['Gap'], $time, "");
+            if ( !$plant_status['ppc'] &&  $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "");
+            if ( !$plant_status['ppc'] &&  $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', GRID_ERROR, $anlage, $plant_status['Vol'], $time, "");
         }
 
         $this->em->flush();
@@ -417,8 +417,10 @@ class AlertSystemV2Service
 
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
-        if ($irradiation < $irrLimit) $this->irr = true;
+
+        if ($irradiation !== null && $irradiation < $irrLimit) $this->irr = true;
         else $this->irr = false;
+
         if ($anlage->getHasPPC()) {
             $sqlPpc = 'SELECT * 
                         FROM ' . $anlage->getDbNamePPC() . " 
@@ -426,25 +428,28 @@ class AlertSystemV2Service
             $respPpc = $conn->query($sqlPpc);
             if ($respPpc->rowCount() === 1) {
                 $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
+
                 $return['ppc'] = ((($ppdData['p_set_rpc_rel'] !== null && $ppdData['p_set_rpc_rel'] < 100) || ($ppdData['p_set_gridop_rel'] !== null && $ppdData['p_set_gridop_rel'] < 100)));
             }
-            else $return['ppc'] = null;
+            else $return['ppc'] = false;
         }
-        else $return['ppc'] = null;
+        else $return['ppc'] = false;
 
 
-            $sqlAct = 'SELECT b.unit 
+            $sqlAct = 'SELECT b.unit as unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac <= '$powerThreshold' ";
             $resp = $conn->query($sqlAct);
             $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
 
 
-            $sqlNull = 'SELECT b.unit 
+            $sqlNull = 'SELECT b.unit as unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac is null ";
+            dump($sqlNull);
             $resp = $conn->query($sqlNull);
             $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
+            dump($resultNull);
             if ($anlage->isGridTicket()) {
                 $sqlVol = "SELECT b.unit 
                     FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
@@ -457,9 +462,7 @@ class AlertSystemV2Service
                 else {
                     foreach ($resultVol as $value) {
                         $return['Vol'][] =  $value['unit'];
-
                     }
-
                 }
             }
             else $return['Vol'] = [];

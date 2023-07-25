@@ -600,7 +600,6 @@ class PRCalulationService
             default     => $anlage->getPnom() * $irr    // all others calc by Pnom and Irr.
         };
         $result['powerTheo'] = $result['powerTheoDep0'];
-
         $result['prDep0Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerAct'], $result['powerTheoDep0'], $pa0); //(($power['powerAct'] / $tempTheoPower) * 100;
         $result['prDep0Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerEvu'], $result['powerTheoDep0'], $pa0); //($power['powerEvu'] / $tempTheoPower) * 100;
         $result['prDep0Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerExp'], $result['powerTheoDep0'], $pa0); //(($result['powerExp'] / $tempTheoPower) * 100;
@@ -803,7 +802,16 @@ class PRCalulationService
     }
 
 
-    
+    /**
+     * we will use this function to calculate the PR inverter-based
+     * @param Anlage $anlage
+     * @param int $inverterID
+     * @param DateTime $startDate
+     * @param DateTime|null $endDate
+     * @return array
+     * @throws NonUniqueResultException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     public function calcPRByInverterAM(Anlage $anlage, int $inverterID, DateTime $startDate, DateTime $endDate = null): array{
         $result = [];
         $inverterPowerDc = $anlage->getPnomInverterArray();
@@ -841,7 +849,16 @@ class PRCalulationService
         $result['irradiation'] = $irr;
         return $result;
     }
-  
+
+    /**
+     * We use this function to
+     * @param Anlage $anlage
+     * @param int $inverterID
+     * @param DateTime $startDate
+     * @return array
+     * @throws NonUniqueResultException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     public function calcPRByInverterAMDay(Anlage $anlage, int $inverterID, DateTime $startDate): array{
         $result = [];
         $inverterPowerDc = $anlage->getPnomInverterArray();

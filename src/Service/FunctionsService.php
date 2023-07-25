@@ -1105,6 +1105,7 @@ class FunctionsService
             $tempArray = u($invS)->split(',');
 
             if ($invS != '*') {
+
                 foreach ($tempArray as $item) {
                     if (u($item)->containsAny('-')) {
                         $nums[] = u($item)->split('-');
