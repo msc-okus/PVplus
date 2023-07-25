@@ -449,10 +449,11 @@ class ACPowerChartsService
      * erzeugt Daten für Gruppen Leistungsunterschiede Diagramm (Group Power Difference)
      * AC - Inverter.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      *
-     * @return array
+     * @return array|null AC4
      *
      * AC4
      */

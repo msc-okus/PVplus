@@ -194,6 +194,8 @@ class TicketDateRepository extends ServiceEntityRepository
             case 3: // AssetManagemet should not set any outage to ForecMajour
                 $q->andWhere('t.kpiPaDep3 = 99');
                 break;
+            default:
+                $q->andWhere('t.kpiPaDep3 = 99');
         };
 
         return $q->getQuery()->getResult();
@@ -214,7 +216,14 @@ class TicketDateRepository extends ServiceEntityRepository
             ->join('t.ticket', 'ticket')
             ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end AND :begin >= t.begin)')
             ->andWhere('t.Anlage = :anlage')
-            ->andWhere('t.dataGapEvaluation = 20')
+            ->andWhere('(t.alertType = 10 OR t.alertType = 20)')
+        ;
+        if ($anlage->getTreatingDataGapsAsOutage()) {
+            $q->andWhere('(t.dataGapEvaluation = 20 OR t.dataGapEvaluation = 0)');
+        } else {
+            $q->andWhere('t.dataGapEvaluation = 20');
+        }
+        $q
             ->andWhere('ticket.ignoreTicket = false')
             ->setParameter('begin', $begin)
             ->setParameter('end', $end)
@@ -241,6 +250,7 @@ class TicketDateRepository extends ServiceEntityRepository
             ->andWhere("t.Anlage = :anlage")
             ->andWhere("ticket.kpiStatus = 10")
             ->andWhere("ticket.alertType = '72'")  // Exclude from PR/Energy = 72
+            ->andWhere('ticket.ignoreTicket = false')
             ->setParameter('dep', '%'.$department.'0%')
             ->setParameter('begin', $startDate instanceof DateTime ? $startDate->format("Y-m-d H:i") : $startDate)
             ->setParameter('end', $endDate instanceof DateTime ? $endDate->format("Y-m-d H:i") : $endDate)
@@ -270,6 +280,7 @@ class TicketDateRepository extends ServiceEntityRepository
             ->andWhere("t.Anlage = :anlage")
             ->andWhere("ticket.kpiStatus = 10")
             ->andWhere("ticket.alertType = '72'")  // Exclude from PR/Energy = 72
+            ->andWhere('ticket.ignoreTicket = false')
             ->setParameter('begin', $startDate instanceof DateTime ? $startDate->format("Y-m-d H:i") : $startDate)
             ->setParameter('end', $endDate instanceof DateTime ? $endDate->format("Y-m-d H:i") : $endDate)
             ->setParameter('anlage', $anlage);
@@ -292,6 +303,7 @@ class TicketDateRepository extends ServiceEntityRepository
             ->andWhere("t.Anlage = :anlage")
             ->andWhere("ticket.kpiStatus = 10")
             ->andWhere("ticket.alertType IN ('70','71','72','73','74','75')")
+            ->andWhere('ticket.ignoreTicket = false')
             ->setParameter('begin', $startDate instanceof DateTime ? $startDate->format("Y-m-d H:i") : $startDate)
             ->setParameter('end', $endDate instanceof DateTime ? $endDate->format("Y-m-d H:i") : $endDate)
             ->setParameter('anlage', $anlage);

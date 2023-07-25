@@ -12,6 +12,7 @@ use App\Service\WeatherFunctionsService;
 use DateTime;
 use PDO;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -33,24 +34,39 @@ class IrradiationService
     /**
      * @throws InvalidArgumentException
      */
-    public function getIrrData(Anlage $anlage, $from, $to): array
+    public function getIrrData(Anlage $anlage, String $from, String $to): array
     {
-        return $this->cache->get('irrData_'.md5($from.$to.$anlage->getAnlId()), function() use ($from, $to, $anlage) {
+        return $this->cache->get('getIrrData_'.md5($anlage->getAnlId().$from.$to), function(CacheItemInterface $cacheItem) use ($from, $to, $anlage)
+        {
+            $cacheItem->expiresAfter(60); // Lifetime of cache Item
+
             $conn = self::getPdoConnection();
             $irrData = [];
-            $sql_einstrahlung = 'SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to'";
-            $resultEinstrahlung = $conn->query($sql_einstrahlung);
+            $sqlIrrFlag = "";
+            if ($anlage->getAnlId() == 181){ // Zwartowo
+                $sqlIrrFlag = ", b.irr_flag ";
+            }
+
+            $sqlEinstrahlung = "SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed $sqlIrrFlag FROM (db_dummysoll a left JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to'";
+            $resultEinstrahlung = $conn->query($sqlEinstrahlung);
 
             if ($resultEinstrahlung->rowCount() > 0) {
                 while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
                     $stamp = $row['stamp'];
+                    $row['g_upper'] = (float) $row['g_upper'] > 0 ? (float) $row['g_upper'] : 0;
+                    $row['g_lower'] = (float) $row['g_lower'] > 0 ? (float) $row['g_lower'] : 0;
                     if ($anlage->getIsOstWestAnlage()) {
-                        $strahlung = ((float)$row['g_upper'] * $anlage->getPowerEast() + (float)$row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        $strahlung = ($row['g_upper'] * $anlage->getPowerEast() + $row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
                     } else {
-                        $strahlung = (float)$row['g_upper'];
+                        $strahlung = $row['g_upper'];
                     }
                     $irrData[$stamp]['stamp'] = $stamp;
                     $irrData[$stamp]['irr'] = $strahlung;
+                    if (isset($row['irr_flag'])) {
+                        $irrData[$stamp]['irr_flag'] = (bool)$row['irr_flag'];
+                    } else {
+                        $irrData[$stamp]['irr_flag'] = true;
+                    }
                 }
             }
             unset($result);

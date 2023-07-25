@@ -21,6 +21,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Security;
+use function Clue\StreamFilter\fun;
 
 class AnlageFormType extends AbstractType
 {
@@ -37,6 +38,12 @@ class AnlageFormType extends AbstractType
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
+
+        $anlage = $builder->getData();
+        if (!$anlage instanceof Anlage) {
+            throw new \RuntimeException('Invalid entity.');
+        }
+
 
         $prArray = self::prFormulars();
 
@@ -169,7 +176,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('anlBetrieb', null, [
                 'label' => 'In Betrieb seit:',
-                'help' => '[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt',
+                'help' => "[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt<br> In Betrieb seit ". $anlage->getBetriebsJahre()." Jahr(en).",
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])
@@ -539,43 +546,59 @@ class AnlageFormType extends AbstractType
 
             ->add('threshold1PA0', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA0] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
+                'help' => '[threshold1PA0]<br>(increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA0', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA0] (increas ti, if irradiation > threshold2 and power > 0)',
+                'help' => '[threshold2PA0]<br>(increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA1', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA1] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
+                'help' => '[threshold1PA1]<br>(increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA1', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA1] (increas ti, if irradiation > threshold2 and power > 0)',
+                'help' => '[threshold2PA1]<br>(increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA2', TextType::class, [
-                'label' => 'lower threshold [WaW/qmtt] ',
-                'help' => '[threshold1PA2] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
+                'label' => 'lower threshold [W/qm] ',
+                'help' => '[threshold1PA2]<br>(increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA2', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA2] (increas ti, if irradiation > threshold2 and power > 0)',
+                'help' => '[threshold2PA2]<br>(increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA3', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA3] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
+                'help' => '[threshold1PA3]<br>(increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA3', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA3] (increas ti, if irradiation > threshold2 and power > 0)',
+                'help' => '[threshold2PA3]<br>(increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
+            ])
+            ->add('usePAFlag0', SwitchType::class, [
+                'label' => 'Use PA Flag from Sensors',
+                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+            ])
+            ->add('usePAFlag1', SwitchType::class, [
+                'label' => 'Use PA Flag from Sensors',
+                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+            ])
+            ->add('usePAFlag2', SwitchType::class, [
+                'label' => 'Use PA Flag from Sensors',
+                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+            ])
+            ->add('usePAFlag3', SwitchType::class, [
+                'label' => 'Use PA Flag from Sensors',
+                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('paFormular0', ChoiceType::class, [
                 'label'         => 'PA Formular',
@@ -612,6 +635,10 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => 'expected',
                 'expanded'      => false,
                 'multiple'      => false,
+            ])
+            ->add('treatingDataGapsAsOutage', SwitchType::class, [
+                'label' => 'Treat Data Gaps as Outage',
+                'help'  => '[treatingDataGapsAsOutage]',
             ])
             ->add('prFormular0', ChoiceType::class, [
                 'label'         => 'PR Formular',

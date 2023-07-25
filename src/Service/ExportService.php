@@ -10,7 +10,9 @@ use App\Repository\GridMeterDayRepository;
 use App\Repository\PRRepository;
 use App\Service\Functions\PowerService;
 use DateTime;
+use Doctrine\ORM\NonUniqueResultException;
 use PDO;
+use Psr\Cache\InvalidArgumentException;
 
 class ExportService
 {
@@ -28,6 +30,10 @@ class ExportService
     {
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
+     */
     public function gewichtetTagesstrahlungAsTable(Anlage $anlage, DateTime $from, DateTime $to): string
     {
         $tempArray = [];
@@ -87,7 +93,7 @@ class ExportService
                 $gewichteteStrahlung += $groupAC->getGewichtungAnlagenPR() * $irradiation;
                 $gewichteteStrahlungPpc += $groupAC->getGewichtungAnlagenPR() * $irradiationPpc;
             }
-            $availability = $this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), date('Y-m-d', $stamp));
+            $availability = $this->availabilityByTicket->calcAvailability($anlage, date_create(date('Y-m-d 00:00', $stamp)), date_create(date('Y-m-d 23:59', $stamp)), null, 2);
             $output .= '<td>'.round(self::mittelwert($tempArray), 3).'</td>';
             $output .= '<td>'.round($availability, 2).'</td>';
             $output .= '<td>'.round($gewichteteStrahlung / 1000 / 4, 4).'</td>';

@@ -21,6 +21,7 @@ use App\Repository\PVSystDatenRepository;
 use DateTime;
 use PDO;
 
+use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\CacheInterface;
 use function Symfony\Component\String\u;
@@ -1094,7 +1095,10 @@ class FunctionsService
      */
     public function readInverters(string $invS, Anlage $anlage): array
     {
-        return $this->cache->get('inverters_'.md5($invS.$anlage->getAnlId()), function() use ($invS, $anlage) {
+        return $this->cache->get('readInverters_'.md5($invS.$anlage->getAnlId()), function(CacheItemInterface $cacheItem) use ($invS, $anlage)
+        {
+            $cacheItem->expiresAfter(900); // Lifetime of cache Item
+
             $returnArray = [];
             $maxInv = count($this->getNameArray($anlage));
             $invS = u($invS)->replace(' ', '');

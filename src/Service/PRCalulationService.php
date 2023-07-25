@@ -18,6 +18,7 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\InvalidArgumentException;
 
 class PRCalulationService
 {
@@ -538,6 +539,7 @@ class PRCalulationService
      *  $result['tCellAvgMultiIrr'] (proof)<br>.
      *
      * @throws \Exception
+     * @throws InvalidArgumentException
      */
     public function calcPR(Anlage $anlage, DateTime $startDate, DateTime $endDate = null): array
     {
@@ -575,11 +577,8 @@ class PRCalulationService
         // Leistungsdaten ermitteln
         $power = $this->powerServicer->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate));
 
-
-        $result['powerAct'] = $power['powerAct'];
-
         $result['powerEvu'] = $power['powerEvu'];
-
+        $result['powerAct'] = $power['powerAct'];
         $result['powerExp'] = $power['powerExpEvu'] > 0 ? $power['powerExpEvu'] : $power['powerExp'];
         $result['powerEGridExt'] = $power['powerEGridExt'];
 
@@ -613,12 +612,7 @@ class PRCalulationService
         };
         //$result['prDep1Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerEvu'], $result['powerTheoDep1'], $pa1); //($power['powerEvu'] / $tempTheoPower) * 100;
         $result['prDep1Act'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerAct'], $result['powerTheoDep1'], $pa1); //(($power['powerAct'] / $tempTheoPower) * 100;
-        if ($anlage->getUseGridMeterDayData()){
-            $result['prDep1Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerEvu'], $result['powerTheoDep1'], $pa1); //($power['powerEvu'] / $tempTheoPower) * 100;
-        }
-        else{
-            $result['prDep1Evu'] =  $result['prDep1Act'];
-        }
+        $result['prDep1Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerEvu'], $result['powerTheoDep1'], $pa1); //($power['powerEvu'] / $tempTheoPower) * 100;
         $result['prDep1Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerExp'], $result['powerTheoDep1'], $pa1); //(($result['powerExp'] / $tempTheoPower) * 100;
         $result['prDep1EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerEGridExt'], $result['powerTheoDep1'], $pa1); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
 
@@ -643,7 +637,6 @@ class PRCalulationService
         $result['prDep3Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerEvu'], $result['powerTheoDep3'], $pa3); //($power['powerEvu'] / $tempTheoPower) * 100;
         $result['prDep3Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerExp'], $result['powerTheoDep3'], $pa3); //(($result['powerExp'] / $tempTheoPower) * 100;
         $result['prDep3EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerEGridExt'], $result['powerTheoDep3'], $pa3); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
-
 
         $anzCase5PerDay = $this->case5Repo->countCase5DayAnlage($anlage, $localStartDate, $localEndDate);
 
@@ -681,6 +674,7 @@ class PRCalulationService
      * @return array
      * @throws NonUniqueResultException
      * @throws \Exception
+     * @throws InvalidArgumentException
      */
     public function calcPRByInverter(Anlage $anlage, int $inverterID, DateTime $startDate, DateTime $endDate = null): array
     {
@@ -917,6 +911,7 @@ class PRCalulationService
      * @param float $pa
      * @param int|null $inverterID
      * @return float|null
+     * @throws InvalidArgumentException
      */
     public function calcPrBySelectedAlgorithm(Anlage $anlage, int $dep, float $irr, float $eGrid, float $theoPower, float $pa, ?int $inverterID = null): ?float
     {

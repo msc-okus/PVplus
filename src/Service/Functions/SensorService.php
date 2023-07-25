@@ -10,6 +10,7 @@ use App\Repository\TicketDateRepository;
 use App\Service\WeatherFunctionsService;
 use Doctrine\ORM\NonUniqueResultException;
 use DateTime;
+use Psr\Cache\InvalidArgumentException;
 
 class SensorService
 {
@@ -29,6 +30,7 @@ class SensorService
      * @param DateTime $endDate
      * @return array|null
      * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
      */
     public function correctSensorsByTicket(Anlage $anlage, array $sensorData, DateTime $startDate, DateTime $endDate): ?array
     {

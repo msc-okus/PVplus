@@ -121,7 +121,6 @@ class PowerService
             $ppcSQLpart1Meters 
             WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' 
                 AND '" . $to->format('Y-m-d H:i') . "' 
-                $ignorNegativEvuSQL 
                 $ppcSQLpart2";
 
                 $res = $conn->query($sql);
@@ -157,7 +156,7 @@ class PowerService
                         $ppcSQLpart2
                         GROUP BY s.unit LIMIT 1";
                 }
-
+                #dump($sql);
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -166,7 +165,7 @@ class PowerService
             }
             unset($res);
             #$powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
-            $powerEvu = $this->correctGridByTicket($anlage, $powerEvu, $from, $to); // Function not fianly tested
+            $powerEvu = $this->correctGridByTicket($anlage, $powerEvu, $from, $to);
         } else {
             $powerEvu = null;
         }
@@ -209,6 +208,7 @@ class PowerService
                 $ppcSQLpart1 
                 WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' AND s.wr_pac > 0 $ppcSQLpart2 $sqlPartInverter";
         $res = $conn->query($sql);
+
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $result['powerEvu']         = (float)$powerEvu;
