@@ -77,6 +77,11 @@ class AcGroupsListEmbeddedFormType extends AbstractType
                 'help' => '[tCellAvg]',
                 'empty_data' => '',
             ])
+            ->add('importId', TextType::class, [
+                'required' => false,
+                'help' => '[importId]',
+                'empty_data' => '',
+            ])
         ;
     }
 

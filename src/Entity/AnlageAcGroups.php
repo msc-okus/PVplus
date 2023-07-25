@@ -65,6 +65,9 @@ class AnlageAcGroups
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $pyro2 = null;
 
+    #[ORM\Column(type: 'string', length: 40, nullable: true)]
+    private ?string $importId;
+
     public function getId(): ?string
     {
         return $this->id;
@@ -254,4 +257,15 @@ class AnlageAcGroups
 
         return $this;
     }
+
+    public function getImportId(): ?string
+    {
+        return $this->importId;
+    }
+
+    public function setImportId(string $importId): void
+    {
+        $this->importId = $importId;
+    }
+
 }

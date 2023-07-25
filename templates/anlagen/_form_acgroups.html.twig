@@ -15,6 +15,7 @@
     <td>{{ form_widget(acgroup.powerWest) }}</td>
     <td>{{ form_widget(acgroup.gewichtungAnlagenPR) }}</td>
     <td>{{ form_widget(acgroup.tCellAvg) }}</td>
+    <td>{{ form_widget(acgroup.importId) }}</td>
     <td><a href="#" class="js-remove-acgroup"><span class="fa fa-minus-circle"></span></a></td>
 </tr>
 {% endmacro %}
@@ -53,6 +54,7 @@
                                     <th><small>Power West</small></th>
                                     <th><small>Gewichtung</small></th>
                                     <th><small>tCellAvg</small></th>
+                                    <th><small>Import ID (VCOM)</small></th>
                                     <th></th>
                                 </tr>
 
@@ -73,6 +75,7 @@
                                         <td>{{ form_widget(acgroup.powerWest) }}</td>
                                         <td>{{ form_widget(acgroup.gewichtungAnlagenPR) }}</td>
                                         <td>{{ form_widget(acgroup.tCellAvg) }}</td>
+                                        <td>{{ form_widget(acgroup.importId) }}</td>
                                         <td><a href="#" class="js-remove-acgroup"><span class="fa fa-minus-circle"></span></a></td>
                                     </tr>
                                 {% endfor %}
