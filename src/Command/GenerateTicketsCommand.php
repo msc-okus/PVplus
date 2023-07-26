@@ -4,8 +4,8 @@ namespace App\Command;
 
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-use App\Service\AlertSystemService;
-use App\Service\AlertSystemV2Service;
+use App\Service\TicketsGeneration\AlertSystemService;
+use App\Service\TicketsGeneration\AlertSystemV2Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
