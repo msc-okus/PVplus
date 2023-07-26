@@ -84,7 +84,7 @@ class DefaultJMController extends AbstractController
         $index = 0;
         $index2 = 0;
         $index3 = 0;
-        dump($efficiencyArray);
+        #dump($efficiencyArray);
         while (count($efficiencyArray['avg']) !== 0){
             $keys = array_keys($efficiencyArray['avg'], min($efficiencyArray['avg']));
             foreach($keys as $key ){

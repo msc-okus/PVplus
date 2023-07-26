@@ -900,17 +900,18 @@ class PRCalulationService
     }
 
     /**
-     * @deprecated use 'calcPrBySelectedAlgorithm()' instead
      * @param Anlage $anlage
      * @param float $irr
      * @param float $spezYield
      * @param float $eGrid
      * @param float $theoPowerFT
      * @param $pa
-     * @return float
+     * @return ?float
+     * @throws InvalidArgumentException
+     * @deprecated use 'calcPrBySelectedAlgorithm()' instead
      */
     #[Deprecated]
-    public function calcPrByValues(Anlage $anlage, float $irr, float $spezYield, float $eGrid, float $theoPowerFT, $pa): float
+    public function calcPrByValues(Anlage $anlage, float $irr, float $spezYield, float $eGrid, float $theoPowerFT, $pa): ?float
     {
         return $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $eGrid, $theoPowerFT, $pa);
     }
@@ -927,7 +928,7 @@ class PRCalulationService
      * @return float|null
      * @throws InvalidArgumentException
      */
-    public function calcPrBySelectedAlgorithm(Anlage $anlage, int $dep, float $irr, float $eGrid, float $theoPower, float $pa, ?int $inverterID = null): ?float
+    public function calcPrBySelectedAlgorithm(Anlage $anlage, int $dep, float $irr, float $eGrid, float $theoPower, ?float $pa, ?int $inverterID = null): ?float
     {
         $result = null;
         $algorithm = match ($dep) {
@@ -938,7 +939,7 @@ class PRCalulationService
         };
 
         // ToDo: calculate number of years since plant ist ON
-        $years = 1;
+        $years = $anlage->getBetriebsJahre();
         if ($inverterID === null) {
             $pnom = $anlage->getPnom();
         } else {
@@ -946,7 +947,7 @@ class PRCalulationService
         }
         switch ($algorithm) {
             case 'Groningen': // special for Groningen
-                if ($theoPower > 0) $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / ($theoPower / 1000 * $pa)) * (10 / 0.9945) : null;
+                if ($theoPower > 0 && $pa !== null) $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / ($theoPower / 1000 * $pa)) * (10 / 0.9945) : null;
                 break;
             case 'Veendam': // with availability
                 if ($theoPower > 0) $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / $theoPower) * 100 : null;
@@ -972,7 +973,6 @@ class PRCalulationService
 
             default:
                 // wenn es keinen spezielen Algoritmus gibt
-
                 $result = ($irr > 0) ? ($eGrid / ($pnom * $irr)) * 100 : null;
         }
         return $result;

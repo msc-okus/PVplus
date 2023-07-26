@@ -379,7 +379,7 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-            dump($time, $plant_status);
+            #dump($time, $plant_status);
             if ( $plant_status['ppc'] != null && !$plant_status['ppc'] )  $this->generateTickets(OMC, EXTERNAL_CONTROL, $anlage, ["*"], $time, "");
             if ( !$plant_status['ppc'] && $plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', DATA_GAP, $anlage, $plant_status['Gap'], $time, "");
             if ( !$plant_status['ppc'] &&  $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "");
@@ -446,10 +446,10 @@ class AlertSystemV2Service
             $sqlNull = 'SELECT b.unit as unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac is null ";
-            dump($sqlNull);
+            #dump($sqlNull);
             $resp = $conn->query($sqlNull);
             $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
-            dump($resultNull);
+            #dump($resultNull);
             if ($anlage->isGridTicket()) {
                 $sqlVol = "SELECT b.unit 
                     FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)

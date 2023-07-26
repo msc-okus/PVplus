@@ -224,7 +224,6 @@ class ReportingController extends AbstractController
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
     public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
     {
-
         /** @var AnlagenReports|null $report */
         $session            = $this->container->get('session');
         $searchstatus       = $session->get('search');

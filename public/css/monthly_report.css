@@ -20,7 +20,7 @@ body {
   padding-right: 1.3cm;
 }
 
-body div.report * {
+body div.report *, body * {
   font-family: 'Source Sans Pro', sans-serif;
 }
 
