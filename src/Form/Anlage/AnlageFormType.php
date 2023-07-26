@@ -682,12 +682,12 @@ class AnlageFormType extends AbstractType
             // ###############################################
 
             ->add('ActivateTicketSystem', SwitchType::class, [
-                'label' => 'Activate the Ticket System',
+                'label' => 'Activate ticket autogeneration',
                 'help' => '[ActivateTicketSystem]',
                 'attr' => ['data-plant-target' => 'activateTicket', 'data-action'=>'plant#activateTicket'],
             ])
             ->add('newAlgorythm', SwitchType::class, [
-                'label' => 'Use the new Algorithm ',
+                'label' => 'Use the new Algorithm',
                 'help' => 'The new algorithm prioritizes joining tickets that begin at the same time, and the old one joins tickets if the begin and end match',
                 'attr' => ['data-plant-target' => 'ticket'],
             ])
@@ -720,9 +720,8 @@ class AnlageFormType extends AbstractType
                 'attr' => ['data-plant-target' => 'ticket']
             ])
             ->add('kpiTicket', SwitchType::class, [
-                'label' => 'Activate kpi Ticket',
-                'help' => '[kpi Ticket]',
-                'attr' => ['data-plant-target' => 'ticket']
+                'label' => 'Activate Performace (KPI) Tickets',
+                'help' => '[kpiTicket]',
             ])
             ->add('gridTicket', SwitchType::class, [
                 'label' => 'Activate Grid Ticket',
