@@ -4,7 +4,7 @@ namespace App\Command;
 
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-use App\Service\AlertSystemService;
+use App\Service\TicketsGeneration\AlertSystemService;
 use App\Service\AlertSystemWeatherService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

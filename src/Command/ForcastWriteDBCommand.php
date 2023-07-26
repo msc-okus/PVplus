@@ -21,7 +21,7 @@ class ForcastWriteDBCommand extends Command {
     public function __construct(
         private AnlagenRepository $anlagenRepository,
         private KernelInterface $kernel,
-        private Service\ExpectedService $expectedService
+        private ExpectedService $expectedService
     ) {
         parent::__construct();
 
@@ -62,7 +62,7 @@ class ForcastWriteDBCommand extends Command {
         $datfile_name = "$df_gb-$df_gl.dat";
         $datfile = "$datfile_folder$datfile_name";
 
-        $datfiledata = new Service\Forecast\DatFileReaderService($datfile);
+        $datfiledata = new TicketsGeneration\Forecast\DatFileReaderService($datfile);
 
 
         if ($anlageId) {
@@ -70,7 +70,7 @@ class ForcastWriteDBCommand extends Command {
 
         if (count($datfiledata->current()) > 1) {
            # $reg_data = new Service\Forecast\APINasaGovService($input_gl, $input_gb, $startapidate, $endapidate);
-            $dec_data = new Service\Forecast\ForcastDEKService($input_gl, $input_gb, $input_mer, $input_mn, $input_ma, $input_ab, $datfiledata);
+            $dec_data = new TicketsGeneration\Forecast\ForcastDEKService($input_gl, $input_gb, $input_mer, $input_mn, $input_ma, $input_ab, $datfiledata);
            # print_R($reg_data->make_sortable_data('faktor'));
             $decarray = $dec_data->get_DEK_Data();
 
