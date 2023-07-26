@@ -889,7 +889,6 @@ class FunctionsService
             if ($anlage->getUseGridMeterDayData() === false) {
                 $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, $fromObj, $toObj);
                 $countMonthes = count($monthlyDatas);
-                #if ($countMonthes > 1) dump($monthlyDatas, $evu);
 
                 foreach ($monthlyDatas as $monthlyData) {
                     // calculate the first and the last day of the given month and year in $monthlyData
@@ -903,7 +902,7 @@ class FunctionsService
                     $epcEndMonth   = $anlage->getEpcReportEnd()->format('Ym') ===  $firstDayMonth->format('Ym');
                     $wholeMonth = ($toObj->getTimestamp() - $fromObj->getTimestamp()) / 86400 >= 28; // looks like this is not only one Day
                     $wholeReport = $anlage->getEpcReportStart()->format('Ymd') === $fromObj->format('Ymd') && $anlage->getEpcReportEnd()->format('Ymd') === $toObj->format('Ymd');
-                    #if ($countMonthes > 1) dump($wholeMonth);
+
                     if (($firstDayMonth->format("Y-m-d 00:00") === $from && $lastDayMonth->format("Y-m-d 23:59") === $to) || $epcStartMonth || $epcEndMonth || $wholeReport || $wholeMonth) {
                         if ($monthlyData->getExternMeterDataMonth() && $monthlyData->getExternMeterDataMonth() > 0) {
                             if ($epcStartMonth) {
@@ -922,13 +921,12 @@ class FunctionsService
                             } else {
                                 $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
                             }
-                            #if ($countMonthes > 1) dump($sql. "||| $countMonthes");
+
                             $res = $conn->query($sql);
                             if ($res->rowCount() == 1) {
                                 $row = $res->fetch(PDO::FETCH_ASSOC);
                                 $evu -= $row['power_evu'];
                                 $evu += $monthlyData->getExternMeterDataMonth();
-                                #if ($countMonthes > 1) dump($monthlyData->getMonth(), $row['power_evu'], $monthlyData->getExternMeterDataMonth());
                             }
                             unset($res);
                         }

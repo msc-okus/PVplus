@@ -114,7 +114,6 @@ class ExpectedService
                 $openWeather = false; ### temporäre deaktivierung OpenWeather
                 ###$openWeather = $this->openWeatherRepo->findTimeMatchingOpenWeather($anlage, date_create($stamp));
 
-                ###if ($openWeather) dump($openWeather->getTempC());
 
                 for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); ++$unit) {
                     // use plant based shadow loss (normaly - 0)

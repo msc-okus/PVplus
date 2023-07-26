@@ -208,14 +208,12 @@ class ReportEpcService
                                 $prStandard = $prArray['prDep0EGridExt']; // $this->format($pr->getPrDefaultMonthEGridExt());
                             }
                     }
-                    #dd($prReal);
                     $prRealprProg = $prReal;
                     $realDateTextEnd = date('My', strtotime("$year-$month-1"));
                     if (($month == $currentMonth && $year == $currentYear) && $run === 2) {
                         // für das Einfärben der Zeile des aktuellen Monats
                         $currentMonthClass  = 'current-month';
                         $prArrayFormel = $this->PRCalulation->calcPR($anlage, $anlage->getEpcReportStart(), date_create($to));
-                        #dd($prArrayFormel);
                         if ($anlage->getUseGridMeterDayData()) {
                             $formelEnergy   = $prArrayFormel['powerEGridExt'];
                             $formelPR       = $prArrayFormel['prDep2EGridExt'];
@@ -467,7 +465,6 @@ class ReportEpcService
             'endePac' => $anlage->getPacDateEnd()->format('d.m.Y'),
             'pld' => $anlage->getPldPR(),
         ];
-        #dd($report);
         return $report;
     }
 

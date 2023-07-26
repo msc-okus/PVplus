@@ -40,23 +40,22 @@
         "axios": "^1.2.1",
         "ckeditor4": "^4.20.1",
         "datatables": "^1.10.18",
-        "daterangepicker": "^3.1.0",
-        "foundation": "^4.2.1-1",
-        "foundation-sites": "^6.7.4",
-        "moments": "^0.0.2",
-        "stimulus-reveal-controller": "^4.1.0",
-        "stimulus-use": "^0.50.0",
-        "sweetalert2": "^11.4.8",
-        "tailwindcss-stimulus-components": "^3.0.4",
         "datatables.net-buttons-zf": "^2.3.6",
         "datatables.net-dt": "^1.13.4",
         "datatables.net-responsive-zf": "^2.4.1",
         "datatables.net-select-zf": "^1.6.2",
         "datatables.net-zf": "^1.13.4",
+        "daterangepicker": "^3.1.0",
+        "foundation": "^4.2.1-1",
+        "foundation-sites": "^6.7.4",
         "jszip": "^3.10.1",
+        "moments": "^0.0.2",
         "pdfmake": "^0.2.7",
-        "sass-loader": "^13.0.0"
-
+        "sass-loader": "^13.0.0",
+        "stimulus-reveal-controller": "^4.1.0",
+        "stimulus-use": "^0.50.0",
+        "sweetalert2": "^11.4.8",
+        "tailwindcss-stimulus-components": "^3.0.4"
     },
     "browserslist": [
         "> 5%"
