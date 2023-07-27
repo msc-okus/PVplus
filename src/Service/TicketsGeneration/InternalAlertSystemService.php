@@ -24,6 +24,8 @@ use phpDocumentor\Reflection\Types\Boolean;
 
 class InternalAlertSystemService
 {
+    use G4NTrait;
+
     /**
      * this method should be called to generate the tickets
      * no other method from this class should be called manually
@@ -31,20 +33,10 @@ class InternalAlertSystemService
      * @param string $from
      * @param string|null $to
      */
-    public function generateTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
+    public function generateTicketsInterval(Anlage $anlage, string $from): void
     {
-
         $fromStamp = strtotime($from);
-        if ($to != null) {
-
-            $toStamp = strtotime($to);
-            for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
-            }
-        }
-        else {
-            $this->checkSystem($anlage, date('Y-m-d H:i:00', $fromStamp));
-        }
+        $this->checkSystem($anlage, date('Y-m-d H:i:00', $fromStamp));
     }
 
     /**
@@ -59,11 +51,13 @@ class InternalAlertSystemService
             $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
         }
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
-        $time = G4NTrait::timeAjustment($time, -2);
+        $timeEnd = $time;
+        $timeBegin = G4NTrait::timeAjustment($time, -11.75);
 
-            //here we retrieve the values from the plant and set soma flags to generate tickets
-        $plant_status = self::RetrievePlant($anlage, $time);
+        //here we retrieve the values from the plant and set soma flags to generate tickets
 
+        $plant_status = self::RetrievePlant($anlage, $timeBegin, $timeEnd);
+        dd($plant_status);
 
         $this->em->flush();
 
@@ -75,13 +69,39 @@ class InternalAlertSystemService
      * @param $time
      * @return array
      */
-    private function RetrievePlant(Anlage $anlage, $time): array
+    private function RetrievePlant(Anlage $anlage, $beginTime, $endTime): array
     {
+        $conn = self::getPdoConnection();
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
-        $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
+        $beginTime = date('Y-m-d H:i:s', strtotime($beginTime) - $totalOffset);
+        $endTime = date('Y-m-d H:i:s', strtotime($endTime) - $totalOffset);
+        $sql = "SELECT *
+                FROM ". $anlage->getDbNameWeather()."
+                WHERE stamp BETWEEN '$beginTime' AND '$endTime'";
 
+        $resp = $conn->query($sql);
+
+        $plantStatus['countIrr']  = $resp->rowCount();
+
+        $sql = "SELECT *
+                FROM ". $anlage->getDbNameDcSoll()."
+                WHERE stamp BETWEEN '$beginTime' AND '$endTime' group by stamp";
+
+        $resp = $conn->query($sql);
+
+        $plantStatus['countExp']  = $resp->rowCount();
+
+        $sql = "SELECT *
+                FROM ". $anlage->getDbNamePPC()."
+                WHERE stamp BETWEEN '$beginTime' AND '$endTime' ";
+
+        $resp = $conn->query($sql);
+
+        $plantStatus['countPPC'] =  $resp->rowCount();
+
+        return $plantStatus;
     }
 
         //AUXILIAR FUNCTIONS
