@@ -18,6 +18,7 @@ use App\Service\FunctionsService;
 use App\Service\MessageService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
+use App\Service\TicketsGeneration\InternalAlertSystemService;
 use App\Service\WeatherServiceNew;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
@@ -57,14 +58,14 @@ class DefaultJMController extends AbstractController
     }
 
     #[Route(path: '/test/createticket', name: 'default_check')]
-    public function check(AnlagenRepository $anlagenRepository, AlertSystemV2Service $service)
+    public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
     {
         $anlage = $anlagenRepository->findIdLike("218")[0];
         $fromStamp = strtotime("2023-06-15 00:00");
-        $toStamp = strtotime("2023-06-16 00:00");
-        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-            $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
-        }
+
+
+        $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $fromStamp));
+
         dd("hello World");
     }
 
