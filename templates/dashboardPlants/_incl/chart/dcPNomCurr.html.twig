@@ -36,7 +36,7 @@
         // Create series
         function addSeries(xname,id) {
             var series = chart.series.push(new am4charts.LineSeries());
-            //
+           //
             series.dataFields.dateX = "date";
             series.dataFields.valueY = "pnomdc";
             series.name = xname;
@@ -80,31 +80,14 @@
             addSeries(xname,xname);
         }
 
-        // Export for series
-        chart.exporting.menu = new am4core.ExportMenu();
-        chart.exporting.menu.items[0].label = "Download";
-        chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
-        chart.exporting.adapter.add("data", function(data, target) {
-            // Assemble data from many series
-            var data = [];
-            chart.series.each(function(series) {
-                for(var i = 0; i < series.data.length; i++) {
-                    series.data[i].name = series.name;
-                    data.push(series.data[i]);
-                }
-            });
-            return { data: data };
-        });
-        //
-
         chart.cursor = new am4charts.XYCursor();
         chart.cursor.xAxis = dateAxis;
+        chart.exporting.menu = new am4core.ExportMenu();
         chart.scrollbarX = new am4core.Scrollbar();
         chart.scrollbarX.marginBottom = "20"
         chart.scrollbarY = new am4core.Scrollbar();
         chart.scrollbarY.marginLeft = "20";
-        // chart.exporting.menu = new am4core.ExportMenu();
-        // chart.exporting.menu.items[0].label = "Download";
+        chart.exporting.menu.items[0].label = "Download";
         chart.exporting.formatOptions.getKey("json").disabled = true;
         chart.exporting.formatOptions.getKey("html").disabled = true;
         chart.exporting.formatOptions.getKey("pdfdata").disabled = true;

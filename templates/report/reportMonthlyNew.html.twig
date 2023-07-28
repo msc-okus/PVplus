@@ -95,7 +95,7 @@
                         <td>{% if anlage.useGridMeterDayData %}{{ day["prDep0EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep0Evu"]|number_format(2,',','.') }}{% endif %}</td>
                         <td>{{ day["prDep0Act"]|number_format(2,',','.') }}</td>
                         <td>{{ day["prDep0Exp"]|number_format(2,',','.') }}</td>
-                        <td class="border-right-2">{{ day["pa0"]|number_format(2,',','.') }}</td>
+                        <td class="border-right-2">{{ day["pa0"]|number_format(3,',','.') }}</td>
 
 
                         {% if anlage.settings.disableDep1 != true %}
@@ -103,7 +103,7 @@
                             <td>{% if anlage.useGridMeterDayData %}{{ day["prDep1EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep1Evu"]|number_format(2,',','.') }}{% endif %}</td>
                             <td>{{ day["prDep1Act"]|number_format(2,',','.') }}</td>
                             <td>{{ day["prDep1Exp"]|number_format(2,',','.') }}</td>
-                            <td class="border-right-2">{{ day["pa1"]|number_format(2,',','.') }}</td>
+                            <td class="border-right-2">{{ day["pa1"]|number_format(3,',','.') }}</td>
                         {% endif %}
 
                         {% if anlage.settings.disableDep2 != true %}
@@ -111,7 +111,7 @@
                             <td>{% if anlage.useGridMeterDayData %}{{ day["prDep2EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep2Evu"]|number_format(2,',','.') }}{% endif %}</td>
                             <td>{{ day["prDep2Act"]|number_format(2,',','.') }}</td>
                             <td>{{ day["prDep2Exp"]|number_format(2,',','.') }}</td>
-                            <td class="border-right-2">{{ day["pa2"]|number_format(2,',','.') }}</td>
+                            <td class="border-right-2">{{ day["pa2"]|number_format(3,',','.') }}</td>
                         {% endif %}
 
                         {% if anlage.settings.disableDep3 != true %}
@@ -119,7 +119,7 @@
                             <td>{% if anlage.useGridMeterDayData %}{{ day["prDep3EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep3Evu"]|number_format(2,',','.') }}{% endif %}</td>
                             <td>{{ day["prDep3Act"]|number_format(2,',','.') }}</td>
                             <td>{{ day["prDep3Exp"]|number_format(2,',','.') }}</td>
-                            <td class="border-right-2">{{ day["pa3"]|number_format(2,',','.') }}</td>
+                            <td class="border-right-2">{{ day["pa3"]|number_format(3,',','.') }}</td>
                         {% endif %}
                     </tr>
                     {% endfor %}

@@ -1248,11 +1248,11 @@ class ReportingController extends AbstractController
      * generate PDF
      */
     #[Route(path: '/new_reporting/pdf/{id}', name: 'app_reporting_new_pdf')]
-    public function newShowReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, MonthlyService $reportsMonthly, $tempPathBaseUrl, $kernelProjectDir)
+    public function newShowReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, $tempPathBaseUrl, $kernelProjectDir)
     {
         /** @var AnlagenReports|null $report */
         $session = $this->container->get('session');
-        //$pdf = new PdfService($tempPathBaseUrl);
+        #$pdf = new PdfService($tempPathBaseUrl);
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');
@@ -1363,8 +1363,8 @@ class ReportingController extends AbstractController
                      'reportContentHeadline'    => count($reportArray['headline'])===1?$this->convertToarray($reportArray['headline']):$reportArray['headline'],
                      'reports'                  =>[
                         'energy_production'                     => count($reportArray['energyproduction'])===1?$this->convertToarray($reportArray['energyproduction']):$reportArray['energyproduction'],
-                        'performance_ratio_and_availability'    =>count($reportArray['performanceratioandavailability'])===1?$this->convertToarray($reportArray['performanceratioandavailability']):$reportArray['performanceratioandavailability'],
-                        'day_values'                            =>count($reportArray['dayvalues'])===1?$this->convertToarray($reportArray['dayvalues']):$reportArray['dayvalues'],
+                        'performance_ratio_and_availability'    => count($reportArray['performanceratioandavailability'])===1?$this->convertToarray($reportArray['performanceratioandavailability']):$reportArray['performanceratioandavailability'],
+                        'day_values'                            => count($reportArray['dayvalues'])===1?$this->convertToarray($reportArray['dayvalues']):$reportArray['dayvalues'],
                         'case5'                                 => count($reportArray['case5'])===1?$this->convertToarray($reportArray['case5']):$reportArray['case5'],
                         'irradiation_and_tempvalues'            => count($reportArray['irradiationandtempvalues'])===1?$this->convertToarray($reportArray['irradiationandtempvalues']):$this->arrayEqualizer($reportArray['irradiationandtempvalues']),
                         'day_chart_values'                      => count($reportArray['daychartvalues'])===1?$this->convertToarray($reportArray['daychartvalues']):$reportArray['daychartvalues'],

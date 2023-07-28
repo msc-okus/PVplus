@@ -4,8 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Anlage;
 use App\Form\Model\WeatherToolsModel;
+use App\Form\Tools\CalcToolsFormType;
 use App\Form\Tools\ImportExcelFormType;
+use App\Form\Tools\WeatherToolsFormType;
 use App\Message\Command\CalcExpected;
+use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Repository\AnlagenRepository;
 use App\Repository\TicketRepository;
 use App\Repository\WeatherStationRepository;
@@ -58,11 +61,14 @@ class SpecialOperationsController extends AbstractController
         $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
 
         if ($submitted && isset($anlageId)) {
-            $from = date_create($year.'-'.$month.'-01 00:01');
+            $from = date_create($year.'-'.$month.'-01 00:00');
             $daysInMonth = $from->format('t');
-            $daysInMonth = 22;
-            $to = date_create($year.'-'.($month).'-'.$daysInMonth.' 23:59');
+            #$daysInMonth = 22;
+            $to = date_create($year.'-'.$month.'-'.$daysInMonth.' 23:59');
+            #$to = date_create($year.'-'.$month.'-01 23:59');
             $output        = $bavelseExport->gewichtetTagesstrahlungAsTable($anlage, $from, $to);
+            #$output        = $bavelseExport->gewichtetBavelseValuesExport($anlage, $from, $to);
+
             $availability  = "<h3>Plant Availability from " . $from->format('Y-m-d') . " to " . $to->format('Y-m-d') . ": " . $availabilityByTicket->calcAvailability($anlage, $from, $to, null, 2) . "</h3>";
             $availability .= "<h3>Plant Availability from " . $anlage->getFacDateStart()->format('Y-m-d') . " to " . $to->format('Y-m-d') . ": " . $availabilityByTicket->calcAvailability($anlage, $anlage->getFacDateStart(), $to, null, 2) . "</h3>";
         }
@@ -164,6 +170,93 @@ class SpecialOperationsController extends AbstractController
         }
 
         return $this->render('tools/weatherStations.html.twig', [
+            'toolsForm'     => $form->createView(),
+            'output'        => $output,
+        ]);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
+     */
+    #[IsGranted(['ROLE_BETA'] )]
+    #[Route(path: '/special/operations/calctools', name: 'calc_tools')]
+    public function toolsCalc(Request $request, AnlagenRepository $anlagenRepo, AvailabilityByTicketService $availabilityByTicket, MessageBusInterface $messageBus, LogMessagesService $logMessages,): Response
+    {
+        $form = $this->createForm(CalcToolsFormType::class);
+        $form->handleRequest($request);
+        $output = null;
+
+        // Start individual part
+        $headline = '';
+
+        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
+            /* @var WeatherToolsModel $toolsModel
+             */
+            $toolsModel = $form->getData();
+            $toolsModel->endDate->add(new \DateInterval('P1D'));
+            $anlage = $anlagenRepo->findOneBy(['anlId' => $toolsModel->anlage]);
+
+
+            if ($form->get('function')->getData() != null) {
+                switch ($form->get('function')->getData()) {
+                    case 'updatePA':
+                        $output = '<h3>Recalculate Plant Availability:</h3>';
+                        $job = 'Update Plant Availability – from ' . $toolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $toolsModel->endDate->format('Y-m-d 00:00');
+                        $job .= " - " . $this->getUser()->getname();
+                        $logId = $logMessages->writeNewEntry($anlage, 'recalculate PA', $job);
+                        $message = new CalcPlantAvailabilityNew($anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
+                        $messageBus->dispatch($message);
+                        $output .= 'Command will be processed in background.<br> If calculation is DONE (green), you can start PA calculation.';
+                        break;
+                    case 'calcPA':
+                        $output  = "<h3>Plant Availability " . $anlage->getAnlName() . " from " . $toolsModel->startDate->format('Y-m-d') . " to " . $toolsModel->endDate->format('Y-m-d') . "</h3>";
+                        $output .= "
+                            <table style='width: 50%; text-align: left;'>
+                                <tr>
+                                    <th>
+                                        PA OpenBook
+                                    </th>
+                                    <th>
+                                        PA O&M
+                                    </th>
+                                    <th>
+                                        PA EPC
+                                    </th>
+                                    <th>
+                                        PA AM
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        ".round($availabilityByTicket->calcAvailability($anlage, $toolsModel->startDate, $toolsModel->endDate, null, 0), 3)."
+                                    </td>
+                                    <td>
+                                        ".round($availabilityByTicket->calcAvailability($anlage, $toolsModel->startDate, $toolsModel->endDate, null, 1), 3)."
+                                    </td>
+                                    <td>
+                                        ".round($availabilityByTicket->calcAvailability($anlage, $toolsModel->startDate, $toolsModel->endDate, null, 2), 3)."
+                                    </td>
+                                    <td>
+                                        ".round($availabilityByTicket->calcAvailability($anlage, $toolsModel->startDate, $toolsModel->endDate, null, 3), 3)."
+                                    </td>
+                                <tr>
+                            </table><hr>
+                         
+                        ";
+                        break;
+                    default:
+                        $output = "nothing to do.";
+                }
+            }
+        }
+
+        // Wenn Close geklickt wird, mache dies:
+        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        return $this->render('tools/index.html.twig', [
             'toolsForm'     => $form->createView(),
             'output'        => $output,
         ]);

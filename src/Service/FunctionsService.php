@@ -572,7 +572,7 @@ class FunctionsService
             $sql = "SELECT COUNT(w.db_id) AS anzahl 
                     FROM ". $weatherStation->getDbNameWeather(). " w  
                     LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
-                    WHERE w.stamp BETWEEN '$from' and '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is null)";
+                    WHERE w.stamp > '$from' AND w.stamp <= '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is null)";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -583,7 +583,7 @@ class FunctionsService
             $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
                     FROM ".$weatherStation->getDbNameWeather()." w  
                     LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
-                    WHERE w.stamp BETWEEN '$from' AND '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is  null)";
+                    WHERE w.stamp > '$from' AND w.stamp <= '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is  null)";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -604,7 +604,7 @@ class FunctionsService
         }
 
         // from -> to | without PPC
-        $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp BETWEEN '$from' and '$to'";
+        $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp > '$from' AND stamp <= '$to'";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -614,7 +614,7 @@ class FunctionsService
 
         $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
                 FROM $dbTable 
-                WHERE stamp BETWEEN '$from' and '$to'";
+                WHERE stamp > '$from' AND stamp <= '$to'";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);

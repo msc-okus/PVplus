@@ -24,6 +24,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use JetBrains\PhpStorm\NoReturn;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Knp\Snappy\Pdf;
+use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -126,6 +127,29 @@ class DefaultMREController extends BaseController
         $from = date_create("2022-08-01 00:00");
         $to = date_create("2022-08-31 23:55");
         $output = $exportService->getRawData($anlage, $from, $to);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => $anlage->getAnlName().' RawData Export',
+            'availabilitys' => '',
+            'output' => $output,
+        ]);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
+     */
+    #[Route(path: '/mr/export/bavelse/rawdata')]
+    public function exportBavelseRawDataExport(ExportService $exportService, AnlagenRepository $anlagenRepository): Response
+    {
+        $output = '';
+        /** @var Anlage $anlage */
+        $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
+        $from = $anlage->getEpcReportStart();
+        $to = $anlage->getEpcReportEnd();
+        $from = date_create("2022-01-01 00:00");
+        $to = date_create("2022-12-31 23:55");
+        $output = $exportService->gewichtetBavelseValuesExport($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => $anlage->getAnlName().' RawData Export',
