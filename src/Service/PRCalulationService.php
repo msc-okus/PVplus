@@ -950,11 +950,11 @@ class PRCalulationService
                 if ($theoPower > 0 && $pa !== null) $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / ($theoPower / 1000 * $pa)) * (10 / 0.9945) : null;
                 break;
             case 'Veendam': // with availability
-                if ($theoPower > 0) $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / $theoPower) * 100 : null;
+                if ($theoPower > 0) $result = $eGrid > 0 ? ($eGrid / $theoPower) * 100 : null;
                 break;
             case 'Lelystad': // with Temp Correction by NREL
                 // Sum of theo. power from the actual values (corrected with temperature correction)
-                if ($theoPower > 0) $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / $theoPower) * 100 : null;
+                if ($theoPower > 0) $result = $eGrid > 0 ? ($eGrid / $theoPower) * 100 : null;
                 break;
             case 'Ladenburg': // not tested (2023-03-22 MR)
                 if ($years && $years > 0){

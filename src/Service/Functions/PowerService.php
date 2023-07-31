@@ -118,14 +118,14 @@ class PowerService
                 $sql = "SELECT sum(prod_power) as power_grid 
             FROM " . $anlage->getDbNameMeters() . " s
             $ppcSQLpart1Meters 
-            WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' 
-                AND '" . $to->format('Y-m-d H:i') . "' 
+            WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' 
+                AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' 
                 $ppcSQLpart2";
 
                 $res = $conn->query($sql);
-                if ($res->rowCount() == 1) {
+                if ($res->rowCount() === 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);
-                    $powerEvu = $row['power_evu_ppc'];
+                    $powerEvu = $row['power_grid'];
                 }
             } else {
                 // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
@@ -155,7 +155,6 @@ class PowerService
                         $ppcSQLpart2
                         GROUP BY s.unit LIMIT 1";
                 }
-                #dump($sql);
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);

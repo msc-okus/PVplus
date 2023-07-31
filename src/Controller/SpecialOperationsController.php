@@ -20,8 +20,6 @@ use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
-use Omines\DataTablesBundle\Adapter\ArrayAdapter;
-use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTableFactory;
 use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -194,9 +192,8 @@ class SpecialOperationsController extends AbstractController
             /* @var WeatherToolsModel $toolsModel
              */
             $toolsModel = $form->getData();
-            $toolsModel->endDate->add(new \DateInterval('P1D'));
+            $toolsModel->endDate->add(new \DateInterval('P1D')); //->sub(new \DateInterval('PT1S'))
             $anlage = $anlagenRepo->findOneBy(['anlId' => $toolsModel->anlage]);
-
 
             if ($form->get('function')->getData() != null) {
                 switch ($form->get('function')->getData()) {
@@ -210,7 +207,7 @@ class SpecialOperationsController extends AbstractController
                         $output .= 'Command will be processed in background.<br> If calculation is DONE (green), you can start PA calculation.';
                         break;
                     case 'calcPA':
-                        $output  = "<h3>Plant Availability " . $anlage->getAnlName() . " from " . $toolsModel->startDate->format('Y-m-d') . " to " . $toolsModel->endDate->format('Y-m-d') . "</h3>";
+                        $output  = "<h3>Plant Availability " . $anlage->getAnlName() . " from " . $toolsModel->startDate->format('Y-m-d H:i') . " to " . $toolsModel->endDate->format('Y-m-d H:i') . "</h3>";
                         $output .= "
                             <table style='width: 50%; text-align: left;'>
                                 <tr>
