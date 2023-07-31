@@ -18,6 +18,7 @@ use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\Reports\ReportsMonthlyService;
+use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\WeatherFunctionsService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\NonUniqueResultException;
@@ -210,21 +211,23 @@ class DefaultMREController extends BaseController
 
     /**
      * @throws \Exception
+     * @throws InvalidArgumentException
      */
-    #[Route(path: '/test/monthly/{id}/{year}/{month}', defaults: ['id' => 108, 'year' => '2023', 'month' => '4'])]
-    public function testNewMonthly($id, $year, $month, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly, SensorService $sensorService): Response
+    #[Route(path: '/test/monthly/{id}/{year}/{month}', defaults: ['id' => 188, 'year' => '2023', 'month' => '4'])]
+    public function testNewMonthly($id, $year, $month, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, SensorService $sensorService): Response
     {
 
         $date = date_create("$year-$month-01 12:00");
         $daysInMonth = $date->format("t");
         $anlage = $anlagenRepository->find($id);
 
-        $output = $reportsMonthly->buildMonthlyReportNew($anlage, $month, $year);
+        $output = $reportsMonthly->createReportV2($anlage, $month, $year);
 
 
-        return $this->render('report/reportMonthlyNew.html.twig', [
-            'anlage'        => $anlage,
-            'report'        => $output,
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => $anlage->getAnlName().' Test new Monthly Report',
+            'availabilitys' => '',
+            'output' => $output,
         ]);
     }
 

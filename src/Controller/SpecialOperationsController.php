@@ -16,6 +16,7 @@ use App\Service\AvailabilityByTicketService;
 use App\Service\ExportService;
 use App\Service\LogMessagesService;
 use App\Service\Reports\ReportsMonthlyService;
+use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -88,7 +89,7 @@ class SpecialOperationsController extends AbstractController
      */
     #[IsGranted(['ROLE_G4N', 'ROLE_BETA'])]
     #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
-    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly, DataTableFactory $dataTableFactory): Response
+    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, DataTableFactory $dataTableFactory): Response
     {
         $output = $table = null;
         $startDay = $request->request->get('start-day');
@@ -105,12 +106,10 @@ class SpecialOperationsController extends AbstractController
 
         if ($submitted && isset($anlageId)) {
             $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-            $output = $reportsMonthly->buildMonthlyReportNewByDate($anlage, $startDay, $endDay, $month, $year);
+            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
         }
 
-        $reportName = 'report/reportMonthlyNew.html.twig';
-
-        return $this->render($reportName, [
+        return $this->render('special_operations/reportMonthlyNew.html.twig', [
             'headline'      => $headline,
             'anlagen'       => $anlagen,
             'anlage'        => $anlage,

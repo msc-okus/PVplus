@@ -6,11 +6,11 @@ require_once __DIR__.'/../../public/config.php';
 
 use App\Entity\Anlage;
 use DateTimeZone;
-use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use PDO;
 use PDOException;
 use Symfony\Component\Intl\Timezones;
+use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 
 trait G4NTrait
 {
