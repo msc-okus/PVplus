@@ -5,8 +5,10 @@ use App\Message\Command\ImportData;
 use App\Form\Model\ImportToolsModel;
 use App\Form\ImportTools\ImportToolsFormType;
 use App\Helper\G4NTrait;
+use App\Helper\ImportFunctionsTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\LogMessagesService;
+use PDO;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,12 +19,24 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ImportToolsController extends BaseController
 {
-
-    use G4NTrait;
+    use ImportFunctionsTrait;
 
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
     public function importManuel(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo): Response
     {
+        $pdo = self::getPdoConnection();
+        //Wenn der Import von Cron angestoßen wird.
+        $cron = $request->query->get('cron');
+        if($cron){
+            $time = time();
+            $time -= $time % 900;
+            $start = strtotime(date('Y-m-d H:i', $time - (4 * 3600)));
+            $end = $time;
+
+
+        }
+
+        //Wenn der Import aus dem Backend angestoßen wird
         $form = $this->createForm(ImportToolsFormType::class);
         $form->handleRequest($request);
 
@@ -37,10 +51,14 @@ class ImportToolsController extends BaseController
             $end = strtotime($importToolsModel->endDate->format('Y-m-d 23:59'));
             $importToolsModel->endDate->add(new \DateInterval('P1D'));
             $anlage = $anlagenRepo->findOneBy(['anlId' => $importToolsModel->anlage]);
+            $wetherStationId = $anlage->getWeatherStation();
+            $modules = $anlage->getModules();
+            $groups = $anlage->getGroups();
 
             $importToolsModel->path = (string)$anlage->getPathToImportScript();
             $importToolsModel->importType = (string)$form->get('importType')->getData();
-            // Start recalculation
+            $importToolsModel->hasPpc = 0;
+            // Start import
             if ($form->get('importType')->getData() == null) {
                 $output .= 'Please select what you like to import.<br>';
                 $break = 1;
@@ -51,6 +69,10 @@ class ImportToolsController extends BaseController
             if($hasPpc != 1 && (string) (string)$importToolsModel->importType == 'api-import-ppc'){
                 $output .= 'This plant has not PPC!<br>';
                 $break = 1;
+            }
+
+            if($hasPpc == 1){
+                $importToolsModel->hasPpc = 1;
             }
 
             if($break == 0){
