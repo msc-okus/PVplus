@@ -61,10 +61,10 @@ class DefaultJMController extends AbstractController
     public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
     {
         $anlage = $anlagenRepository->findIdLike("218")[0];
-        $fromStamp = strtotime("2023-06-15 00:00");
+        $fromStamp = strtotime("2023-06-15 12:00");
+        $toStamp = strtotime("2023-06-16 00:00");
 
-
-        $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $fromStamp));
+        $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $fromStamp), date('Y-m-d H:i:00', $toStamp));
 
         dd("hello World");
     }

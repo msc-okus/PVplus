@@ -21,7 +21,16 @@ use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 use phpDocumentor\Reflection\Types\Boolean;
+define('EFOR', '10');
+define('SOR', '20');
+define('OMC', '30');
 
+define('DATA_GAP', 10);
+define('INVERTER_ERROR', 20);
+define('GRID_ERROR', 30);
+define('WEATHER_STATION_ERROR', 40);
+define('EXTERNAL_CONTROL', 50); // Regelung vom Direktvermarketr oder Netztbetreiber
+define('POWER_DIFF', 60);
 class AlertSystemV2Service
 {
     use G4NTrait;
@@ -39,16 +48,7 @@ class AlertSystemV2Service
         private StatusRepository        $statusRepo,
         private TicketRepository        $ticketRepo)
     {
-        define('EFOR', '10');
-        define('SOR', '20');
-        define('OMC', '30');
 
-        define('DATA_GAP', 10);
-        define('INVERTER_ERROR', 20);
-        define('GRID_ERROR', 30);
-        define('WEATHER_STATION_ERROR', 40);
-        define('EXTERNAL_CONTROL', 50); // Regelung vom Direktvermarketr oder Netztbetreiber
-        define('POWER_DIFF', 60);
     }
 
     /**
@@ -60,7 +60,6 @@ class AlertSystemV2Service
      */
     public function generateTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
-
         $fromStamp = strtotime($from);
         if ($to != null) {
 
@@ -797,7 +796,7 @@ class AlertSystemV2Service
     private function generateTicketsMulti($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
 
-        $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie);
+        $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie, $inverter);
 
         if ($ticketOld !== null) {
             if ($ticketOld->getInverter() == $inverter) {
