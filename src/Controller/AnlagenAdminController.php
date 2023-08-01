@@ -25,7 +25,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
-
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 /**
  * @IsGranted("ROLE_G4N")
  */
@@ -101,7 +106,7 @@ class AnlagenAdminController extends BaseController
     }
 
     #[Route(path: '/admin/anlagen/edit/{id}', name: 'app_admin_anlagen_edit')]
-    public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
+    public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, UploaderHelper $uploaderHelper ): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageFormType::class, $anlage, [
@@ -110,15 +115,57 @@ class AnlagenAdminController extends BaseController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() || $form->get('savecreatedb')->isClicked())) {
 
+            // Forecast Tab Field Check
+            if($form['useDayForecast']->getData() === true) {
+                $checkfields = true;
+                if ($form->get('bezMeridan')->isEmpty()) {
+                    $this->addFlash('warning', 'Field Bezugs Meridan fail.');
+                    $checkfields = false;
+                }
+                if ($form->get('modNeigung')->isEmpty()) {
+                    $this->addFlash('warning', 'Field Modul Neigung fail.');
+                    $checkfields = false;
+                }
+                if ($form->get('albeto')->isEmpty()) {
+                    $this->addFlash('warning', 'Field Albeto fail.');
+                    $checkfields = false;
+                }
+                if ($form->get('modAzimut')->isEmpty()) {
+                    $this->addFlash('warning', 'Field Modul Azimut fail.');
+                    $checkfields = false;
+                }
+
+                if ($checkfields === false){
+                    return $this->render('anlagen/edit.html.twig', [
+                        'anlageForm' => $form->createView(),
+                        'anlage' => $anlage,
+                    ]);
+                }
+
+            }
+
+            $uploadedDatFile = $form['datFilename']->getData();
+
+            if ($uploadedDatFile) {
+                $uploadsPath = "/metodat";
+                $newFile = $uploaderHelper->uploadAllFile($uploadedDatFile,$uploadsPath,'dat');
+                if ($newFile) {
+                    $anlage->setDatFilename($newFile);
+                }
+            }
+
             $successMessage = 'Plant data saved!';
+
             if ($form->get('savecreatedb')->isClicked()) {
                 if ($this->createDatabasesForPlant($anlage)) {
                     $successMessage = 'Plant data saved and DB created.';
                 }
             }
+
             $em->persist($anlage);
             $em->flush();
             $this->addFlash('success', $successMessage);
+
             if ($form->get('saveclose')->isClicked()) {
                 return $this->redirectToRoute('app_admin_anlagen_list');
             }
@@ -128,6 +175,7 @@ class AnlagenAdminController extends BaseController
 
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
+
 
         return $this->render('anlagen/edit.html.twig', [
             'anlageForm' => $form->createView(),
@@ -222,9 +270,10 @@ class AnlagenAdminController extends BaseController
         }
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
-
             return $this->redirectToRoute('app_admin_anlagen_list');
+
         }
+
         if ($imageuploaded != null) {
             return $this->render('anlagen/editconfig.html.twig', [
                 'anlageForm' => $form->createView(),
@@ -241,6 +290,53 @@ class AnlagenAdminController extends BaseController
                 'isupload' => $isupload,
             ]);
         }
+    }
+
+    #[Route(path: '/admin/anlagen/download/{id}/{dir}/{file}', name: 'download_file', methods: ['GET','POST'])]
+    public function downloadFileAction($id, $dir, $file, AnlagenRepository $anlagenRepository, KernelInterface $kernel) {
+        $anlage = $anlagenRepository->find($id);
+        $form = $this->createForm(AnlageDcGroupsFormType::class, $anlage, [
+            'anlagenId' => $id,
+        ]);
+
+        $datfile_folder = $kernel->getProjectDir()."/public/uploads"; //
+        $filename = $file;
+        $dwnlink = $datfile_folder.'/'.$dir.'/'.$filename;
+
+        if (file_exists($dwnlink)) {
+            $response = new BinaryFileResponse($dwnlink);
+            $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $filename);
+            $this->addFlash('success', 'File was downloaded.');
+            return $response;
+        } else {
+            $this->addFlash('warning', 'File not found.');
+            return $this->render('anlagen/edit.html.twig', [
+                'anlageForm' => $form->createView(),
+                'anlage' => $anlage,
+            ]);
+        }
+
+    }
+    #[Route(path: '/admin/anlagen/buildforcast/{id}', name: 'app_admin_anlagen_build_forecast', methods: ['GET','POST'])]
+    public function buildForcast($id, Request $request,  AnlagenRepository $anlagenRepository, KernelInterface $kernel): RedirectResponse|Response
+    {
+
+        $anlage = $anlagenRepository->find($id);
+        $response = new Response();
+        $response->setStatusCode(200);
+
+        $application = new Application($kernel);
+        $application->setAutoExit(false);
+
+        $input = new ArrayInput(array(
+            'command' => 'pvp:forcastwritedb',
+            '-a'  => $id,
+        ));
+
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+        return $response;
+
     }
 
     #[Route(path: '/admin/anlagen/editdcgroups/{id}', name: 'app_admin_anlagen_edit_dcgroups')]

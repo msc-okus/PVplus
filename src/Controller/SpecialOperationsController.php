@@ -212,6 +212,7 @@ class SpecialOperationsController extends AbstractController
             if ($uploadedFile) {
                 // Here we upload the file and read it
                 $newFile = $uploaderHelper->uploadFile($uploadedFile, '/xlsx/1', 'xlsx');
+
                 $conn = self::getPdoConnection();
 
                 if ( $xlsx = simpleXLSX::parse($uploadsPath . '/xlsx/1/'.$newFile) ) {

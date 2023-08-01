@@ -611,6 +611,24 @@ class Anlage
     private Collection $sensors;
 
 
+    #[ORM\Column(name: 'bez_meridan', type: 'string', length: 20, nullable: false)]
+    private string $bezMeridan = '';
+
+
+    #[ORM\Column(name: 'mod_neigung', type: 'string', length: 20, nullable: false)]
+    private string $modNeigung = '';
+
+
+    #[ORM\Column(name: 'mod_azimut', type: 'string', length: 20, nullable: false)]
+    private string $modAzimut = '';
+
+
+    #[ORM\Column(name: 'albeto', type: 'string', length: 20, nullable: false)]
+    private string $albeto = '';
+
+    #[ORM\Column(name: 'dat_filename', type: 'string')]
+    private $datFilename;
+
     /**
      * @return string|null
      */
@@ -658,6 +676,70 @@ class Anlage
         $this->dayLightData = new ArrayCollection();
         $this->sensors = new ArrayCollection();
     }
+
+
+    public function getDatFilename()
+    {
+        return $this->datFilename;
+    }
+
+
+    public function setDatFilename($datFilename): void
+    {
+        $this->datFilename = $datFilename;
+    }
+
+
+
+    public function getBezMeridan(): string
+    {
+        return $this->bezMeridan;
+    }
+
+
+    public function setBezMeridan(string $bezMeridan): void
+    {
+        $this->bezMeridan = $bezMeridan;
+    }
+
+
+    public function getModNeigung(): string
+    {
+        return $this->modNeigung;
+    }
+
+
+    public function setModNeigung(string $modNeigung): void
+    {
+        $this->modNeigung = $modNeigung;
+    }
+
+
+    public function getModAzimut(): string
+    {
+        return $this->modAzimut;
+    }
+
+
+    public function setModAzimut(string $modAzimut): void
+    {
+        $this->modAzimut = $modAzimut;
+    }
+
+
+    public function getAlbeto(): string
+    {
+        return $this->albeto;
+    }
+
+
+    public function setAlbeto(string $albeto): void
+    {
+        $this->albeto = $albeto;
+    }
+
+
+
 
     public function getAnlId(): string
     {
@@ -3381,7 +3463,9 @@ class Anlage
         return $this;
     }
 
-
+  public function getFildForcastDat() {
+        return $this->getDatFilename();
+  }
     public function isDay(?DateTime $stamp = null): bool
     {
         if (!$stamp) $stamp = new DateTime();
