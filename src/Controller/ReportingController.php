@@ -451,7 +451,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['InvRank']){
+                            if ($data['InvRank'] && $files['InverterRank']){
                                 $pageCount = $pdf->setSourceFile($files['InverterRank']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -459,7 +459,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['EfficiencyRank']){
+                            if ($data['EfficiencyRank'] && $files['InverterEfficiencyRank']){
                                 $pageCount = $pdf->setSourceFile($files['InverterEfficiencyRank']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -536,7 +536,7 @@ class ReportingController extends AbstractController
                     }
 
                     return $this->renderForm('report/_form.html.twig', [
-                        'assetForm' => $form->createView(),
+                        'assetForm' => $form,
                         'anlage' => $anlage
                     ]);
 
