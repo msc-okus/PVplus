@@ -17,7 +17,7 @@ class APINasaGovService {
      * @param string $startdate
      * @param string $enddate
      */
-    private function __construct($input_gl,$input_gb,$startdate,$enddate) {
+    public function __construct($input_gl,$input_gb,$startdate,$enddate) {
         $this->lat = $input_gb;
         $this->lon = $input_gl;
         $this->start = $startdate;
@@ -26,6 +26,7 @@ class APINasaGovService {
     // Curl ini
     public function get_json_data_curl() {
         // Curl response from NASA Gov - ALLSKY_SFC_SW_DWN
+        set_time_limit(550); //
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => 'https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude='.$this->lon.'&latitude='.$this->lat.'&start='.$this->start.'&end='.$this->ende.'&format=JSON&user=DAV',

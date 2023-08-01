@@ -61,10 +61,10 @@ class DatFileReaderService {
         foreach ($this->data as $key => $value) {
             if ($key > $this->position) {
 
-                (array_key_exists(4,$value)) ? $gh = (int)$value[4] : $gh = "NN";
-                (array_key_exists(5,$value)) ? $dh = (int)$value[5] : $dh = "NN";
-                (array_key_exists(8,$value)) ? $ta = (int)$value[8] : $ta = "NN";
-                (array_key_exists(11,$value)) ? $ff = (int)$value[11] : $ff = "NN";
+                (array_key_exists(4,$value)) ? $gh = (int)$value[4] : $gh = "0.0";
+                (array_key_exists(5,$value)) ? $dh = (int)$value[5] : $dh = "0.0";
+                (array_key_exists(8,$value)) ? $ta = (int)$value[8] : $ta = "0.0";
+                (array_key_exists(11,$value)) ? $ff = (int)$value[11] : $ff = "0.0";
 
                 if ($gh !="NN" and $dh != "NN"){
                     $gdir = $gh - $dh;

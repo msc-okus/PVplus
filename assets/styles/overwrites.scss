@@ -310,6 +310,7 @@
         background-color: $g4n-gray;
         padding-bottom: 2rem;
         padding-top: 2rem;
+        min-height: calc(100vh - 200px);
 
         .no-margin {
             margin: 0 !important;
