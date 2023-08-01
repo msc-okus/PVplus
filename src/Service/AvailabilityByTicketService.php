@@ -625,6 +625,7 @@ class AvailabilityByTicketService
                     $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control']) * 100;
                 }
                 break;
+
             case 3: // PA = (ti + tiFM) / ti,theo
                 if ($row['case1'] + $row['case2']  + $row['case5'] != 0 && $row['control'] != 0) {
                     $paInvPart1 = (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
