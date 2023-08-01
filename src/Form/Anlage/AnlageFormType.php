@@ -21,6 +21,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 use function Clue\StreamFilter\fun;
 
 class AnlageFormType extends AbstractType
@@ -62,6 +64,7 @@ class AnlageFormType extends AbstractType
         ];
 
         $paFormulars = self::paFormulars();
+
 
         $tooltipTextPlantType = "
                                     <ul>
@@ -506,25 +509,76 @@ class AnlageFormType extends AbstractType
                 'label' => 'Anlage hat Pannel Temperatur',
                 'help' => '[hasPannelTemp]',
             ])
+            // ###############################################
+            // ###          FORECAST                      ####
+            // ###############################################
             ->add('useDayForecast', SwitchType::class, [
-                'label' => 'use Forecast by Day',
-                'help' => '[useDayForecast]',
+                'label' => 'Use forecast by day for this plant',
+                'help' => '[On / Off]',
                 'required' => false,
             ])
             ->add('degradationForecast', TextType::class, [
-                'label' => 'Degradation, only Forecast [%]',
-                'help' => '[degradationForecast]',
+                'label' => 'Degradation, only forecast [%]',
+                'help' => '[Degradation forecast in %]',
                 'label_html' => true,
                 'required' => false,
-                'empty_data' => '0',
+                'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
             ])
             ->add('lossesForecast', TextType::class, [
-                'label' => 'Losses, only Forecast [%]',
-                'help' => '[lossesForecast]',
+                'label' => 'Losses, only forecast [%]',
+                'help' => '[Losses forecast in %]',
                 'label_html' => true,
                 'required' => false,
-                'empty_data' => '0',
+                'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
             ])
+            ->add('bezMeridan', TextType::class, [
+                'label' => 'Reference meridian',
+                'help' => '[Reference meridian for mitteleuropa are 15]',
+                'label_html' => true,
+                'required' => true,
+                'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2]
+            ])
+            ->add('modNeigung', TextType::class, [
+                'label' => 'Module alignment',
+                'help' => '[Module alignment in degrees , example 30]',
+                'label_html' => true,
+                'required' => true,
+                'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2]
+            ])
+            ->add('modAzimut', TextType::class, [
+                'label' => 'Modul azimut',
+                'help' => '[Modul azimut in degrees for S=180 O=90 W=180 ]',
+                'label_html' => true,
+                'required' => true,
+                'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
+            ])
+            ->add('albeto', TextType::class, [
+                'label' => 'Albedo',
+                'help' => '[The albedo are 0.15 for grass or 0.3 for roof]',
+                'label_html' => true,
+                'required' => true,
+                'empty_data' => '',
+                'attr' => ['maxlength' => 4]
+            ])
+            ->add('datFilename', FileType::class, [
+                'label' => 'Upload the Metonorm *dat file',
+                'mapped' => false,
+                'help' => '[The generated meteonorm dat file]',
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5120k',
+                        'mimeTypes' => [ ],
+                        'mimeTypesMessage' => 'Please upload a valid dat document',
+                    ])
+                ],
+                'required' => false,
+            ])
+
             ->add('dataSourceAM', CKEditorType::class, [
                 'label' => 'Summary DataSources AM Report',
                 'empty_data' => 'Module Inclination: <br>Module Name: <br>Module Type: <br>Module Performance: <br>Number of Modules: <br>Inverter Name: <br>Inverter Type: <br>Number of Inverters:',
@@ -538,7 +592,6 @@ class AnlageFormType extends AbstractType
                 'label' => 'Has Frequency',
                 'help' => '[hasFrequency]',
             ])
-
 
             // ###############################################
             // ###            Availability                ####

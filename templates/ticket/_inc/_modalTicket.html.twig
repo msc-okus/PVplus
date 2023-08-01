@@ -7,10 +7,10 @@
      data-append-to="div#modal-form{{ modalId }}"
 >
     <h1>{{ modalTitel }}{% if (modalId != 0)%} - {{ modalId }}{% endif %}</h1>
-    <div class="grid-x grid-padding-y" data-action="async:submitted->ticket-edit#reload">
+    <div class="grid-x grid-padding-y">
         <div class="cell modal-body"
                 data-ticket-edit-target="modalBody"
-                data-action="submit->ticket-edit#submitForm"
+                data-action="modal-form#submitForm"
         >
             {{ modalContent|default('Loading...') }}
         </div>

@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Asset\Context\RequestStackContext;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class UploaderHelper
 {
@@ -23,11 +24,12 @@ class UploaderHelper
 
     private LoggerInterface $logger;
 
-    public function __construct(FilesystemInterface $filesystem, RequestStackContext $requestStackContext, LoggerInterface $logger)
+    public function __construct(FilesystemInterface $filesystem, RequestStackContext $requestStackContext, LoggerInterface $logger,KernelInterface $kernel)
     {
         $this->filesystem = $filesystem;
         $this->requestStackContext = $requestStackContext;
         $this->logger = $logger;
+        $this->kernel = $kernel;
     }
 
     public function uploadImage(UploadedFile $uploadedFile, $id, string $type): array
@@ -118,6 +120,43 @@ class UploaderHelper
         $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.$file->guessExtension();
 
         $stream = fopen($file->getPathname(), 'r');
+        $result = $this->filesystem->writeStream(
+            $directory.'/'.$newFilename,
+            $stream,
+            [
+                'visibility' => $isPublic ? AdapterInterface::VISIBILITY_PUBLIC : AdapterInterface::VISIBILITY_PRIVATE,
+            ]
+        );
+
+        if ($result === false) {
+            throw new \Exception(sprintf('Could not write uploaded file "%s"', $newFilename));
+        }
+
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+
+        return $newFilename;
+    }
+
+    public function uploadAllFile(File $file, string $directory, bool $isPublic): string
+    {
+        if ($file instanceof UploadedFile) {
+            $originalFilename = $file->getClientOriginalName();
+        } else {
+            $originalFilename = $file->getFilename();
+        }
+
+        $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'.'.pathinfo($originalFilename, PATHINFO_EXTENSION);
+
+        $datfile_folder = $this->kernel->getProjectDir()."/public/uploads/"; //
+
+        if (file_exists($datfile_folder.'/'.$directory.'/'.$newFilename)) {
+         $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.pathinfo($originalFilename, PATHINFO_EXTENSION);
+        }
+
+        $stream = fopen($file->getPathname(), 'r');
+
         $result = $this->filesystem->writeStream(
             $directory.'/'.$newFilename,
             $stream,

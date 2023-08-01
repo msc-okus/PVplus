@@ -39,10 +39,12 @@ services:
         autoconfigure: false
         tags: [ { name: messenger.message_handler, bus: event.bus } ]
 
-
     Symfony\Component\Asset\Context\RequestStackContext: '@assets.context'
 
     App\Serializer\AdminGroupsContextBuilder:
         decorates: 'api_platform.serializer.context_builder'
         arguments: [ '@App\Serializer\AdminGroupsContextBuilder.inner' ]
         autoconfigure: false
+
+    App\Command\ForcastWriteDBCommand:
+        tags: [ { name: 'console.command', command: 'pvp:forcastwritedb' } ]
