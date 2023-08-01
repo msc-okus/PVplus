@@ -306,7 +306,9 @@ class TicketDateRepository extends ServiceEntityRepository
             ->andWhere('ticket.ignoreTicket = false')
             ->setParameter('begin', $startDate instanceof DateTime ? $startDate->format("Y-m-d H:i") : $startDate)
             ->setParameter('end', $endDate instanceof DateTime ? $endDate->format("Y-m-d H:i") : $endDate)
-            ->setParameter('anlage', $anlage);
+            ->setParameter('anlage', $anlage)
+            ->addSelect('ticket')
+        ;
 
         return $q->getQuery()->getResult();
     }

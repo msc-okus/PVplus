@@ -100,7 +100,6 @@ class ReportingController extends AbstractController
         switch ($reportType) {
             case 'monthly':
                 // old Version $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
-                dump($aktAnlagen[0], $reportMonth, $reportYear);
                 $output = $reportsMonthly->createReportV2($aktAnlagen[0], $reportMonth, $reportYear);
                 break;
             case 'epc':
@@ -537,7 +536,7 @@ class ReportingController extends AbstractController
                     }
 
                     return $this->renderForm('report/_form.html.twig', [
-                        'assetForm' => $form,
+                        'assetForm' => $form->createView(),
                         'anlage' => $anlage
                     ]);
 
@@ -548,6 +547,18 @@ class ReportingController extends AbstractController
     }
 
 
+    /**
+     * @param $id
+     * @param ReportEpcService $reportEpcService
+     * @param ReportService $reportService
+     * @param ReportsRepository $reportsRepository
+     * @param ReportsMonthlyService $reportsMonthly
+     * @return RedirectResponse|void
+     * @throws ContainerExceptionInterface
+     * @throws ExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @deprecated
+     */
     #[Route(path: '/reporting/excel/{id}', name: 'app_reporting_excel')]
     public function showReportAsExcel($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, ReportsMonthlyService $reportsMonthly)
     {
@@ -635,26 +646,11 @@ class ReportingController extends AbstractController
             $searchtype     = $session->get('type');
             $anlageq        = $session->get('anlage');
             $searchmonth    = $session->get('month');
-            $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABSOLUTE_PATH);
-            $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+            #$route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABSOLUTE_PATH);
+            #$route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
 
             $report = $reportsRepository->find($id);
-            $month = $report->getMonth();
-            $year = $report->getYear();
-            $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
             $anlage = $report->getAnlage();
-            $currentDate = date('Y-m-d H-i');
-            $headline = [
-                [
-                    'projektNr'     => $anlage->getProjektNr(),
-                    'anlage'        => $anlage->getAnlName(),
-                    'eigner'        => $anlage->getEigner()->getFirma(),
-                    'date'          => $currentDate,
-                    'kwpeak'        => $anlage->getKwPeak(),
-                    'reportCreationDate' => $reportCreationDate,
-                    'epcNote'       => $anlage->getEpcReportNote(),
-                ],
-            ];
 
             $reportArray = $report->getContentArray();
             switch ($report->getReportType()) {
@@ -799,6 +795,11 @@ class ReportingController extends AbstractController
         ]);
     }
 
+
+    ##########################################################
+    ##########################################################
+    ##########################################################
+    ##########################################################
     /**
      * generate an Excel table based on the report data
      */

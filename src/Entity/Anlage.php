@@ -485,7 +485,7 @@ class Anlage
     private bool $useLowerIrrForExpected = false;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private string $epcReportNote;
+    private ?string $epcReportNote;
 
     #[ORM\Column(type: 'integer')]
     private int $configType;

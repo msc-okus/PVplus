@@ -4,6 +4,7 @@ namespace App\Service\Reports;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
+use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
@@ -11,6 +12,7 @@ use App\Repository\PRRepository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
+use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
@@ -20,6 +22,7 @@ use Exception;
 use Hisune\EchartsPHP\ECharts;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -44,9 +47,11 @@ class ReportsMonthlyV2Service
         private NormalizerInterface $serializer,
         private PRCalulationService $PRCalulation,
         private ReportService $reportService,
+        private TicketRepository $ticketRepo,
         private TicketDateRepository $ticketDateRepo,
         private Environment $twig,
-        private PdfService $pdf,)
+        private PdfService $pdf,
+        private TranslatorInterface $translator)
     {
     }
 
@@ -68,7 +73,8 @@ class ReportsMonthlyV2Service
         $report['overviews'] = $this->buidOverview($anlage, null, null, $reportMonth, $reportYear);
         $report['days'] = $this->buildTable($anlage, null, null, $reportMonth, $reportYear);
         $report['chart1'] = $this->buildChart($anlage, $report['days']);
-        $report['tickets'] = [];
+        $report['tickets'] = $this->buildPerformanceTicketsOverview($anlage, null, null, $reportMonth, $reportYear);
+        $report['legend'] = null;
 
         $pathToPdf = "";
         /*try {
@@ -260,6 +266,31 @@ class ReportsMonthlyV2Service
         }
 
         return $dayValues;
+    }
+
+    private function buildPerformanceTicketsOverview(Anlage $anlage, ?int $startDay = null, ?int $endDay = null, int $month = 0, int $year = 0): array
+    {
+        if ($startDay === null) $startDay = 1;
+        $daysInMonth = (int)date('t', strtotime("$year-$month-01"));
+        if ($endDay  !== null && $endDay < $daysInMonth) {
+            $daysInMonth = $endDay;
+        }
+        $from = date_create("$year-$month-$startDay 00:00");
+        $to = date_create("$year-$month-$daysInMonth 23:59");
+        #$tickets = $this->ticketRepo->findBy(['anlage' => $anlage->getAnlId(), 'kpiStatus' => '10', 'alertType' => '72']);
+
+        $tickets = $this->ticketDateRepo->performanceTickets($anlage, $from, $to);
+        $ticketsOverview = [];
+        /** @var TicketDate $ticket */
+        $counter = 1;
+        foreach ($tickets as $ticket){
+            $ticketsOverview[$counter]['start'] = $ticket->getBegin()->format("d.m.y H:i");
+            $ticketsOverview[$counter]['end'] = $ticket->getEnd()->format("d.m.y H:i");
+            $ticketsOverview[$counter]['type'] = $this->translator->trans("ticket.error.category.".$ticket->getAlertType());
+            $ticketsOverview[$counter]['editor'] = $ticket->getTicket()->getEditor();
+            ++$counter;
+        }
+        return $ticketsOverview;
     }
 
     /**
