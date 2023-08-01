@@ -757,7 +757,7 @@ trait ImportFunctionsTrait
      * @param bool $ignoreZero
      * @return float|null
      */
-    function mittelwert(array $werte, bool $ignoreZero = true): ?float
+    public function mittelwert(array $werte, bool $ignoreZero = true): ?float
     {
         $divisor = $divident = 0;
         foreach ($werte as $wert) {
@@ -896,15 +896,11 @@ trait ImportFunctionsTrait
     }
 
     //Liest die Sensoren der Anlage aus dem Backend
-    function getAnlageSensors(string $anlId): array
+    function getAnlageSensors($conn, string $anlId): array
     {
-        $conn = getPdoConnectionAnlage();
-
-        $sql = "SELECT * FROM pvp_base.anlage_sensors  WHERE anlage_id = " . $anlId . ";";
-
-        $result = $conn->query($sql);
-
-        return $result->fetchAll(PDO::FETCH_OBJ);
+        $query = "SELECT * FROM pvp_base.anlage_sensors  WHERE anlage_id  = ".$anlId;
+        $stmt = $conn->executeQuery($query);
+        return $stmt->fetchAll();
     }
 
     function getACGroups($conn, string $anlId): array
@@ -923,108 +919,109 @@ trait ImportFunctionsTrait
             $gmPyHori = $gmPyHoriAnlage = $gmPyWest = $gmPyWestAnlage = $gmPyEast = $gmPyEastAnlage = [];
             $result = [];
             for ($i = 0; $i < $length; $i++) {
-                if ($anlageSensors[$i]->virtual_sensor == 'irr-hori' && $anlageSensors[$i]->use_to_calc == 1) {
+                if ($anlageSensors[$i]['virtual_sensor'] == 'irr-hori' && $anlageSensors[$i]['use_to_calc'] == 1) {
                     $start = 0;
                     $end = 0;
-                    if ($anlageSensors[$i]->start_date_sensor != null) {
-                        $start = strtotime($anlageSensors[$i]->start_date_sensor);
+                    if ($anlageSensors[$i]['start_date_sensor'] != null) {
+                        $start = strtotime($anlageSensors[$i]['start_date_sensor']);
                     }
-                    if ($anlageSensors[$i]->end_date_sensor != null) {
-                        $end = strtotime($anlageSensors[$i]->end_date_sensor);
+                    if ($anlageSensors[$i]['end_date_sensor'] != null) {
+                        $end = strtotime($anlageSensors[$i]['end_date_sensor']);
                     }
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                        array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr], 0));
-                        $gmPyHoriAnlage[$anlageSensors[$i]->name_short] = max($sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr], 0);
+                        array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0));
+                        $gmPyHoriAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0);
                     }
 
                 }
 
-                if ($anlageSensors[$i]->virtual_sensor == 'irr-west' && $anlageSensors[$i]->use_to_calc == 1) {
+                if ($anlageSensors[$i]['virtual_sensor'] == 'irr-west' && $anlageSensors[$i]['use_to_calc'] == 1) {
                     $start = 0;
                     $end = 0;
-                    if ($anlageSensors[$i]->start_date_sensor != null) {
-                        $start = strtotime($anlageSensors[$i]->start_date_sensor);
+                    if ($anlageSensors[$i]['start_date_sensor'] != null) {
+                        $start = strtotime($anlageSensors[$i]['start_date_sensor']);
                     }
-                    if ($anlageSensors[$i]->end_date_sensor != null) {
-                        $end = strtotime($anlageSensors[$i]->end_date_sensor);
+                    if ($anlageSensors[$i]['end_date_sensor'] != null) {
+                        $end = strtotime($anlageSensors[$i]['end_date_sensor']);
                     }
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                        array_push($gmPyWest, max($sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr], 0));
-                        $gmPyWestAnlage[$anlageSensors[$i]->name_short] = max($sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr], 0);
+                        array_push($gmPyWest, max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0));
+                        $gmPyWestAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0);
                     }
 
                 }
 
-                if ($anlageSensors[$i]->virtual_sensor == 'irr-east' && $anlageSensors[$i]->use_to_calc == 1) {
+                if ($anlageSensors[$i]['virtual_sensor'] == 'irr-east' && $anlageSensors[$i]['use_to_calc'] == 1) {
                     $start = 0;
                     $end = 0;
-                    if ($anlageSensors[$i]->start_date_sensor != null) {
-                        $start = strtotime($anlageSensors[$i]->start_date_sensor);
+                    if ($anlageSensors[$i]['start_date_sensor'] != null) {
+                        $start = strtotime($anlageSensors[$i]['start_date_sensor']);
                     }
-                    if ($anlageSensors[$i]->end_date_sensor != null) {
-                        $end = strtotime($anlageSensors[$i]->end_date_sensor);
+                    if ($anlageSensors[$i]['end_date_sensor'] != null) {
+                        $end = strtotime($anlageSensors[$i]['end_date_sensor']);
                     }
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                        array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr], 0));
-                        $gmPyEastAnlage[$anlageSensors[$i]->name_short] = max($sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr], 0);
+                        array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0));
+                        $gmPyEastAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0);
                     }
 
                 }
             }
 
             $result[0] = [
-                'irrHorizontal' => mittelwert($gmPyHori),
+                'irrHorizontal' => $this->mittelwert($gmPyHori),
                 'irrHorizontalAnlage' => $gmPyHoriAnlage,
-                'irrLower' => mittelwert($gmPyWest),
+                'irrLower' => $this->mittelwert($gmPyWest),
                 'irrLowerAnlage' => $gmPyWestAnlage,
-                'irrUpper' => mittelwert($gmPyEast),
+                'irrUpper' => $this->mittelwert($gmPyEast),
                 'irrUpperAnlage' => $gmPyEastAnlage,
             ];
         } else {
             $gmPyHori = $gmPyHoriAnlage = $gmPyEast = $gmPyEastAnlage = [];
 
             for ($i = 0; $i < $length; $i++) {
-                if ($anlageSensors[$i]->virtual_sensor == 'irr-hori' && $anlageSensors[$i]->use_to_calc == 1) {
+                if ($anlageSensors[$i]['virtual_sensor'] == 'irr-hori' && $anlageSensors[$i]['use_to_calc'] == 1) {
+                    
                     $start = 0;
                     $end = 0;
-                    if ($anlageSensors[$i]->start_date_sensor != null) {
-                        $start = strtotime($anlageSensors[$i]->start_date_sensor);
+                    if ($anlageSensors[$i]['start_date_sensor'] != null) {
+                        $start = strtotime($anlageSensors[$i]['start_date_sensor']);
                     }
-                    if ($anlageSensors[$i]->end_date_sensor != null) {
-                        $end = strtotime($anlageSensors[$i]->end_date_sensor);
+                    if ($anlageSensors[$i]['end_date_sensor'] != null) {
+                        $end = strtotime($anlageSensors[$i]['end_date_sensor']);
                     }
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                        array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr], 0));
-                        $gmPyHoriAnlage[$anlageSensors[$i]->name_short] = max($sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr], 0);
+                        array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0));
+                        $gmPyHoriAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0);
                     }
 
                 }
 
-                if ($anlageSensors[$i]->virtual_sensor == 'irr' && $anlageSensors[$i]->use_to_calc == 1) {
+                if ($anlageSensors[$i]['virtual_sensor'] == 'irr' && $anlageSensors[$i]['use_to_calc'] == 1) {
                     $start = 0;
                     $end = 0;
-                    if ($anlageSensors[$i]->start_date_sensor != null) {
-                        $start = strtotime($anlageSensors[$i]->start_date_sensor);
+                    if ($anlageSensors[$i]['start_date_sensor'] != null) {
+                        $start = strtotime($anlageSensors[$i]['start_date_sensor']);
                     }
-                    if ($anlageSensors[$i]->end_date_sensor != null) {
-                        $end = strtotime($anlageSensors[$i]->end_date_sensor);
+                    if ($anlageSensors[$i]['end_date_sensor'] != null) {
+                        $end = strtotime($anlageSensors[$i]['end_date_sensor']);
                     }
                     $now = strtotime($date);
-                    array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr], 0));
-                    $gmPyEastAnlage[$anlageSensors[$i]->name_short] = max($sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr], 0);
+                    array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0));
+                    $gmPyEastAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0);
                 }
 
             }
             $result[0] = [
-                'irrHorizontal' => mittelwert($gmPyHori),
+                'irrHorizontal' => $this->mittelwert($gmPyHori),
                 'irrHorizontalAnlage' => $gmPyHoriAnlage,
                 'irrLower' => 0,
                 'irrLowerAnlage' => [],
-                'irrUpper' => mittelwert($gmPyEast),
+                'irrUpper' => $this->mittelwert($gmPyEast),
                 'irrUpperAnlage' => $gmPyEastAnlage,
             ];
         }
@@ -1032,81 +1029,81 @@ trait ImportFunctionsTrait
         //mNodulTemp, ambientTemp, windSpeed
         $tempModule = $tempAmbientArray = $tempAnlage = $windSpeedEWD = $windSpeedEWS = $windAnlage = [];
         for ($i = 0; $i < $length; $i++) {
-            if ($anlageSensors[$i]->virtual_sensor == 'temp-modul' && $anlageSensors[$i]->use_to_calc == 1) {
+            if ($anlageSensors[$i]['virtual_sensor'] == 'temp-modul' && $anlageSensors[$i]['use_to_calc'] == 1) {
                 $start = 0;
                 $end = 0;
-                if ($anlageSensors[$i]->start_date_sensor != null) {
-                    $start = strtotime($anlageSensors[$i]->start_date_sensor);
+                if ($anlageSensors[$i]['start_date_sensor'] != null) {
+                    $start = strtotime($anlageSensors[$i]['start_date_sensor']);
                 }
-                if ($anlageSensors[$i]->end_date_sensor != null) {
-                    $end = strtotime($anlageSensors[$i]->end_date_sensor);
+                if ($anlageSensors[$i]['end_date_sensor'] != null) {
+                    $end = strtotime($anlageSensors[$i]['end_date_sensor']);
                 }
                 $now = strtotime($date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                    array_push($tempModule, $sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr]);
-                    $tempAnlage[$anlageSensors[$i]->name_short] = $sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr];
+                    array_push($tempModule, $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']]);
+                    $tempAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']];
                 }
 
             }
-            if ($anlageSensors[$i]->virtual_sensor == 'temp-ambient' && $anlageSensors[$i]->use_to_calc == 1) {
+            if ($anlageSensors[$i]['virtual_sensor'] == 'temp-ambient' && $anlageSensors[$i]['use_to_calc'] == 1) {
                 $start = 0;
                 $end = 0;
-                if ($anlageSensors[$i]->start_date_sensor != null) {
-                    $start = strtotime($anlageSensors[$i]->start_date_sensor);
+                if ($anlageSensors[$i]['start_date_sensor'] != null) {
+                    $start = strtotime($anlageSensors[$i]['start_date_sensor']);
                 }
-                if ($anlageSensors[$i]->end_date_sensor != null) {
-                    $end = strtotime($anlageSensors[$i]->end_date_sensor);
+                if ($anlageSensors[$i]['end_date_sensor'] != null) {
+                    $end = strtotime($anlageSensors[$i]['end_date_sensor']);
                 }
                 $now = strtotime($date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                    array_push($tempAmbientArray, $sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr]);
-                    $tempAnlage[$anlageSensors[$i]->name_short] = $sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr];
+                    array_push($tempAmbientArray, $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']]);
+                    $tempAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']];
                 }
 
             }
-            if ($anlageSensors[$i]->virtual_sensor == 'wind-direction' && $anlageSensors[$i]->use_to_calc == 1) {
+            if ($anlageSensors[$i]['virtual_sensor'] == 'wind-direction' && $anlageSensors[$i]['use_to_calc'] == 1) {
                 $start = 0;
                 $end = 0;
-                if ($anlageSensors[$i]->start_date_sensor != null) {
-                    $start = strtotime($anlageSensors[$i]->start_date_sensor);
+                if ($anlageSensors[$i]['start_date_sensor'] != null) {
+                    $start = strtotime($anlageSensors[$i]['start_date_sensor']);
                 }
-                if ($anlageSensors[$i]->end_date_sensor != null) {
-                    $end = strtotime($anlageSensors[$i]->end_date_sensor);
+                if ($anlageSensors[$i]['end_date_sensor'] != null) {
+                    $end = strtotime($anlageSensors[$i]['end_date_sensor']);
                 }
                 $now = strtotime($date);
-                $x = (string)$anlageSensors[$i]->start_date_sensor;
-                $y = (string)$anlageSensors[$i]->end_date_sensor;
+                $x = (string)$anlageSensors[$i]['start_date_sensor'];
+                $y = (string)$anlageSensors[$i]['end_date_sensor'];
                 #echo "Sensor Start $date = $now /BE $x = $start \n\n";
                 #echo "Sensor End $date = $now /BE $y = $end \n";
                 if (($now >= $start && ($end == 0 || $now < $end)) || ($start == 0 && $end == 0)) {
-                    array_push($windSpeedEWD, $sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr]);
-                    $windAnlage[$anlageSensors[$i]->name_short] = $sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr];
+                    array_push($windSpeedEWD, $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']]);
+                    $windAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']];
                 }
 
             }
-            if ($anlageSensors[$i]->virtual_sensor == 'wind-speed' && $anlageSensors[$i]->use_to_calc == 1) {
+            if ($anlageSensors[$i]['virtual_sensor'] == 'wind-speed' && $anlageSensors[$i]['use_to_calc'] == 1) {
                 $start = 0;
                 $end = 0;
-                if ($anlageSensors[$i]->start_date_sensor != null) {
-                    $start = strtotime($anlageSensors[$i]->start_date_sensor);
+                if ($anlageSensors[$i]['start_date_sensor'] != null) {
+                    $start = strtotime($anlageSensors[$i]['start_date_sensor']);
                 }
-                if ($anlageSensors[$i]->end_date_sensor != null) {
-                    $end = strtotime($anlageSensors[$i]->end_date_sensor);
+                if ($anlageSensors[$i]['end_date_sensor'] != null) {
+                    $end = strtotime($anlageSensors[$i]['end_date_sensor']);
                 }
                 $now = strtotime($date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                    array_push($windSpeedEWS, $sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr]);
-                    $windAnlage[$anlageSensors[$i]->name_short] = $sensors[$date][$anlageSensors[$i]->vcom_id][$anlageSensors[$i]->vcom_abbr];
+                    array_push($windSpeedEWS, $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']]);
+                    $windAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']];
                 }
             }
         }
 
         $result[1] = [
-            'tempPanel' => mittelwert($tempModule),
-            'tempAmbient' => mittelwert($tempAmbientArray),
+            'tempPanel' => $this->mittelwert($tempModule),
+            'tempAmbient' => $this->mittelwert($tempAmbientArray),
             'anlageTemp' => $tempAnlage,
-            'windDirection' => mittelwert($windSpeedEWD),
-            'windSpeed' => mittelwert($windSpeedEWS),
+            'windDirection' => $this->mittelwert($windSpeedEWD),
+            'windSpeed' => $this->mittelwert($windSpeedEWS),
             'anlageWind' => $windAnlage,
         ];
 

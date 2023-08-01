@@ -44,11 +44,12 @@ class ImportToolsController extends BaseController
             for ($i = 0; $i <= count($readyToImport)-1; $i++) {
                 $plantId = $readyToImport[$i]['anlage_id'];
                 $anlage = $anlagenRepo->findOneByIdAndJoin($plantId);
-                $wetherStationId = $anlage->getWeatherStation()->getId();
+                $weatherDbIdent = $anlage->getWeatherStation()->getId();
                 $modules = $anlage->getModules();
                 $groups = $anlage->getGroups();
                 $systemKey = $anlage->getCustomPlantId();
                 $acGroups = self::getACGroups($conn, $plantId);
+                $isEastWest = $anlage->getIsOstWestAnlage();
                 $tempCorrParams['tempCellTypeAvg']  = (float)$anlage->temp_corr_cell_type_avg;
                 $tempCorrParams['gamma']            = (float)$anlage->temp_corr_gamma;
                 $tempCorrParams['a']                = (float)$anlage->temp_corr_a;
@@ -56,14 +57,89 @@ class ImportToolsController extends BaseController
                 $tempCorrParams['deltaTcnd']        = (float)$anlage->temp_corr_delta_tcnd;
 
                 $dcPNormPerInvereter = self::getDcPNormPerInvereter($conn, $groups->toArray(), $modules->toArray());
+
                 $owner = $anlage->getEigner();
                 $mcUser = $owner->getSettings()->getMcUser();
                 $mcPassword = $owner->getSettings()->getMcPassword();
                 $mcToken = $owner->getSettings()->getMcToken();
 
-                #$bulkMeaserments = MeteoControlService::getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end);
-                print_r($dcPNormPerInvereter);
+                $bulkMeaserments = MeteoControlService::getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end);
 
+                if ($bulkMeaserments) {
+                    $basics = $bulkMeaserments['basics'];
+                    $inverters = $bulkMeaserments['inverters'];
+                    $sensors = $bulkMeaserments['sensors'];
+                    $stringBoxes = $bulkMeaserments['stringboxes'];
+                    $anlageSensors = self::getAnlageSensors($conn, $plantId);
+
+                    for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
+                        $stamp = date('Y-m-d H:i', $timestamp);
+                        $date = date('c', $timestamp);
+
+                        $eZEvu = $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
+                        $tempAnlageArray = $windAnlageArray = $irrAnlageArrayGMO = $irrAnlageArray = [];
+
+                        if (array_key_exists($date, $basics)) {
+                            $irrAnlageArrayGMO['G_M0'] = $basics[$date]['G_M0'] > 0 ? round($basics[$date]['G_M0'], 4) : 0;   //
+                            $eZEvu = round($basics[$date]['E_Z_EVU'], 0);
+                        }
+
+                        if (is_array($sensors) && array_key_exists($date, $sensors)) {
+                            $length = count($anlageSensors);
+
+                            $checkSensors = self::checkSensors($anlageSensors, $length, (bool)$isEastWest, $sensors, $date);
+
+
+                            $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
+                            $irrHorizontal = $checkSensors[0]['irrHorizontal'];
+                            $irrLower = $checkSensors[0]['irrLower'];
+                            $irrUpper = $checkSensors[0]['irrUpper'];
+
+                            $tempPanel = $checkSensors[1]['tempPanel'];
+
+                            $tempAmbient = $checkSensors[1]['tempAmbient'];
+
+                            $tempAnlageArray = $checkSensors[1]['anlageTemp'];
+
+                            $wSEwd = $checkSensors[1]['windDirection'];
+
+                            $windSpeed = $checkSensors[1]['windSpeed'];
+
+                            $windAnlageArray = $checkSensors[1]['anlageWind'];
+
+                        }
+                        $data_pv_weather[] = [
+                            'anl_intnr' => $weatherDbIdent,
+                            'anl_id' => 0,
+                            'stamp' => $stamp,
+                            'at_avg' => $tempAmbient,
+                            'temp_ambient' => $tempAmbient,
+                            'pt_avg' => $tempPanel,
+                            'temp_pannel' => $tempPanel,
+                            'gi_avg' => $irrLower,
+                            'g_lower' => $irrLower,
+                            'gmod_avg' => $irrUpper,
+                            'g_upper' => $irrUpper,
+                            'g_horizontal' => $irrHorizontal,
+                            'rso' => '0',
+                            'gi' => '0',
+                            'wind_speed' => $windSpeed,
+                            'temp_cell_multi_irr' => NULL,
+                            'temp_cell_corr' => NULL,
+                            'ft_factor' => NULL,
+                            'irr_flag' => NULL
+                        ];
+
+                        $irrAnlage  = json_encode($irrAnlageArray);
+                        $tempAnlage = json_encode($tempAnlageArray);
+                        $windAnlage = json_encode($windAnlageArray);
+                    }
+                }
+                #print_r($anlageSensors);
+                echo "<br>$plantId<pre>";
+                print_r($data_pv_weather);
+                echo '</pre>';
+                sleep(5);
             }
 
 
