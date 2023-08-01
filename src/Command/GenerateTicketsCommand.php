@@ -45,7 +45,6 @@ class GenerateTicketsCommand extends Command
         $plantid = $input->getArgument('plantid');
         $optionFrom = $input->getOption('from');
         $optionTo = $input->getOption('to');
-
         $time = time();
         $time = $time - ($time % 900);
         if ($optionFrom) {

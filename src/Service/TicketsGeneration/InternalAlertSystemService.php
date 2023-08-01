@@ -25,6 +25,7 @@ use phpDocumentor\Reflection\Types\Boolean;
 class InternalAlertSystemService
 {
     use G4NTrait;
+    private $ticketArray;
 
     /**
      * this method should be called to generate the tickets
@@ -33,34 +34,40 @@ class InternalAlertSystemService
      * @param string $from
      * @param string|null $to
      */
-    public function generateTicketsInterval(Anlage $anlage, string $from): void
+    public function generateTicketsInterval(Anlage $anlage, string $from, string $to = null): void
     {
-        $fromStamp = strtotime($from);
-        $this->checkSystem($anlage, date('Y-m-d H:i:00', $fromStamp));
+        $this->checkSystem($anlage,  $from,  $to);
     }
 
     /**
      * Generate tickets for the given time
      * @param Anlage $anlage
-     * @param string|null $time
+     * @param string $from
+     * @param string $to
      * @return string
      */
-    public function checkSystem(Anlage $anlage, ?string $time = null): string
+    public function checkSystem(Anlage $anlage, string $from, string $to  ): string
     {
-        if ($time === null) {
-            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
-        }
-        // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
-        $timeEnd = $time;
-        $timeBegin = G4NTrait::timeAjustment($time, -11.75);
 
-        //here we retrieve the values from the plant and set soma flags to generate tickets
-
-        $plant_status = self::RetrievePlant($anlage, $timeBegin, $timeEnd);
-        dd($plant_status);
-
-        $this->em->flush();
-
+        $fromStamp = strtotime($from);
+        $toStamp = strtotime($to);
+            for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+                $plant_status = self::RetrievePlant($anlage, date('Y-m-d H:i:00', $stamp));
+                $ticketArray[date('Y-m-d H:i:00', $stamp)]['countIrr'] = $plant_status['countIrr'];
+                $ticketArray[date('Y-m-d H:i:00', $stamp)]['countExp'] = $plant_status['countExp'];
+                $ticketArray[date('Y-m-d H:i:00', $stamp)]['countPPC'] = $plant_status['countPPC'];
+            }
+            foreach ($ticketArray as $key => $value){
+                $previousQuarter = date('Y-m-d H:i:00', strtotime($key) - 900);
+                $nextQuarter = date('Y-m-d H:i:00', strtotime($key) + 900);
+                if ($value['countIrr'] == true){
+                    if (isset($ticketArray[$previousQuarter]['countIrr']) && $ticketArray[$previousQuarter]['countIrr'] === false){
+                        $ticket = new Ticket();
+                    }
+                }
+                dump($key);
+            }
+        dd($ticketArray);
         return 'success';
     }
     /**
@@ -69,37 +76,36 @@ class InternalAlertSystemService
      * @param $time
      * @return array
      */
-    private function RetrievePlant(Anlage $anlage, $beginTime, $endTime): array
+    private function RetrievePlant(Anlage $anlage, $time): array
     {
         $conn = self::getPdoConnection();
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
-        $beginTime = date('Y-m-d H:i:s', strtotime($beginTime) - $totalOffset);
-        $endTime = date('Y-m-d H:i:s', strtotime($endTime) - $totalOffset);
+        $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameWeather()."
-                WHERE stamp BETWEEN '$beginTime' AND '$endTime'";
+                WHERE stamp = '$time' ";
 
         $resp = $conn->query($sql);
 
-        $plantStatus['countIrr']  = $resp->rowCount();
+        $plantStatus['countIrr']  = $resp->rowCount() === 0;
 
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameDcSoll()."
-                WHERE stamp BETWEEN '$beginTime' AND '$endTime' group by stamp";
+                WHERE stamp = '$time'";
 
         $resp = $conn->query($sql);
 
-        $plantStatus['countExp']  = $resp->rowCount();
+        $plantStatus['countExp']  = $resp->rowCount() !== count($anlage->getInverterFromAnlage());
 
         $sql = "SELECT *
                 FROM ". $anlage->getDbNamePPC()."
-                WHERE stamp BETWEEN '$beginTime' AND '$endTime' ";
+                WHERE stamp = '$time' ";
 
         $resp = $conn->query($sql);
 
-        $plantStatus['countPPC'] =  $resp->rowCount();
+        $plantStatus['countPPC'] =  $resp->rowCount() === 0;
 
         return $plantStatus;
     }
