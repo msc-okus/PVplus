@@ -626,23 +626,23 @@ class Anlage
     private Collection $sensors;
 
 
-    #[ORM\Column(name: 'bez_meridan', type: 'string', length: 20, nullable: false)]
-    private string $bezMeridan = '';
+    #[ORM\Column(name: 'bez_meridan', type: 'string', length: 20, nullable: true)]
+    private ?string $bezMeridan = '';
 
 
-    #[ORM\Column(name: 'mod_neigung', type: 'string', length: 20, nullable: false)]
-    private string $modNeigung = '';
+    #[ORM\Column(name: 'mod_neigung', type: 'string', length: 20, nullable: true)]
+    private ?string $modNeigung = '';
 
 
-    #[ORM\Column(name: 'mod_azimut', type: 'string', length: 20, nullable: false)]
-    private string $modAzimut = '';
+    #[ORM\Column(name: 'mod_azimut', type: 'string', length: 20, nullable: true)]
+    private ?string $modAzimut = '';
 
 
-    #[ORM\Column(name: 'albeto', type: 'string', length: 20, nullable: false)]
-    private string $albeto = '';
+    #[ORM\Column(name: 'albeto', type: 'string', length: 20, nullable: true)]
+    private ?string $albeto = '';
 
-    #[ORM\Column(name: 'dat_filename', type: 'string')]
-    private $datFilename;
+    #[ORM\Column(name: 'dat_filename', type: 'string', nullable: true)]
+    private ?string $datFilename;
 
     /**
      * @return string|null

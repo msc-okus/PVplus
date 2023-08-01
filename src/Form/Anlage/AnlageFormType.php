@@ -522,7 +522,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[Degradation forecast in %]',
                 'label_html' => true,
                 'required' => false,
-                'empty_data' => '',
+                'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
             ])
             ->add('lossesForecast', TextType::class, [
@@ -530,7 +530,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[Losses forecast in %]',
                 'label_html' => true,
                 'required' => false,
-                'empty_data' => '',
+                'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
             ])
             ->add('bezMeridan', TextType::class, [
@@ -538,31 +538,28 @@ class AnlageFormType extends AbstractType
                 'help' => '[Reference meridian for mitteleuropa are 15]',
                 'label_html' => true,
                 'required' => true,
-                'empty_data' => '',
+                'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2]
             ])
             ->add('modNeigung', TextType::class, [
                 'label' => 'Module alignment',
                 'help' => '[Module alignment in degrees , example 30]',
                 'label_html' => true,
-                'required' => true,
-                'empty_data' => '',
+                'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2]
             ])
             ->add('modAzimut', TextType::class, [
                 'label' => 'Modul azimut',
                 'help' => '[Modul azimut in degrees for S=180 O=90 W=180 ]',
                 'label_html' => true,
-                'required' => true,
-                'empty_data' => '',
+                'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
             ])
             ->add('albeto', TextType::class, [
                 'label' => 'Albedo',
                 'help' => '[The albedo are 0.15 for grass or 0.3 for roof]',
                 'label_html' => true,
-                'required' => true,
-                'empty_data' => '',
+                'empty_data' => '0',
                 'attr' => ['maxlength' => 4]
             ])
             ->add('datFilename', FileType::class, [

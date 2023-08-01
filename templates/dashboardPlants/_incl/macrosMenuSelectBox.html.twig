@@ -2,10 +2,7 @@
 {% macro showACPnom(form, aktAnlage) %}
     <option value="acpnom" {% if form.selectedChart == 'acpnom' %}selected{% endif %}>AC Power - Inverter normalized [kW/kWp]</option>
 {% endmacro %}
-{# INV AC Pnom Diagramme #}
-{% macro showDCPnomCurr(form, aktAnlage) %}
-    <option value="dcpnomcurr" {% if form.selectedChart == 'dcpnomcurr' %}selected{% endif %}>DC Current - Inverter normalized [A/Impp]</option>
-{% endmacro %}
+
 {# INV PR Heatmap Diagramme #}
 {% macro showHeatmap(form, aktAnlage) %}
     <option value="heatmap" {% if form.selectedChart == 'heatmap' %}selected{% endif %}>Inverter PR Heatmap [%]</option>
@@ -175,10 +172,13 @@
 {% macro currentDcInverter(form, aktAnlage) %}
     {% if aktAnlage.configType == 1 %}
         <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, Inverter&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option>
+        <option value="dcpnomcurr" {% if form.selectedChart == 'dcpnomcurr' %}selected{% endif %}>DC Current - Inverter normalized [A/Impp] {% if is_granted('ROLE_DEV') %}[Curr 3.A]{% endif %}</option>
     {% elseif aktAnlage.configType == 2 %}
         <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, Inverter&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option>
+        <option value="dcpnomcurr" {% if form.selectedChart == 'dcpnomcurr' %}selected{% endif %}>DC Current - Inverter normalized [A/Impp] {% if is_granted('ROLE_DEV') %}[Curr 3.A]{% endif %}</option>
     {% elseif aktAnlage.configType == 3 %}
         <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, SCB Groups&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option>
+        <option value="dcpnomcurr" {% if form.selectedChart == 'dcpnomcurr' %}selected{% endif %}>DC Current - Inverter normalized [A/Impp] {% if is_granted('ROLE_DEV') %}[Curr 3.A]{% endif %}</option>
     {% elseif aktAnlage.configType == 4 %}
         {# <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, SCB&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option> #}
     {% endif %}

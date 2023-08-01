@@ -346,9 +346,8 @@
                 <optgroup label="DC Current">
                     {% if aktAnlage.settings.chartCurr1 %}{{ currentDcOverview(form, aktAnlage) }}{% endif %}    {# Curr1 #}
                     {% if aktAnlage.settings.chartCurr2 %}{{ currentDcGroup(form, aktAnlage) }}{% endif %}       {# Curr2 #}
-                    <!--{{ currentDcInverter(form, aktAnlage) }}    {# Curr3 #}-->
-                    <!--{{ currentDcString(form, aktAnlage) }}      {# Curr4 #}-->
-                    {% if aktAnlage.settings.chartCurr3 %}{{ showDCPnomCurr(form, aktAnlage) }}{% endif %}       {# LineChart #}
+                    {% if aktAnlage.settings.chartCurr3 %}{{ currentDcInverter(form, aktAnlage) }}{% endif%}     {# Curr3 und Curr 3A#}
+                    <!--{{ currentDcString(form, aktAnlage) }} -->     {# Curr4 #}
                 </optgroup>
 
                 <optgroup label="DC Voltage">
