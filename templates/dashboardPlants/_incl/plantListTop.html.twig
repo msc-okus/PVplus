@@ -66,12 +66,12 @@
                         <div class="cell small-8">
                             <h1>{{ anlage.anlName }} {% if is_granted('ROLE_G4N') %}<small>Type: {{ anlage.configType }}</small>{% endif %}</h1>
                             <small>({{ (anlage.pnom)|number_format(1, ',', '.') }} kWp)</small>
-                            <br><small>Plant ID: {{ anlage.anlId}} {% if is_granted('ROLE_G4N') %}/ {{ anlage.anlIntnr}} / {% if anlage.weatherStation.databaseIdent is defined %}{{ anlage.weatherStation.databaseIdent }}{% endif %}{% endif %}</small>
+                            <br><small>Plant ID: {{ anlage.anlId}} {% if is_granted('ROLE_G4N') %}/ {{ anlage.anlIntnr}} / {% if anlage.weatherStation.databaseIdent is defined %}{{ anlage.weatherStation.databaseIdent }} / {% endif %}{{ anlage.customPlantId }}{% endif %}</small>
                         </div>
                         <div class="cell small-4 text-right">
                             {% if openWeather is defined %}
                                 {% if openWeather %}
-                                    <img height='40' width='40' style='margin-top: -9px;' data-tooltip data-placement='top' data-original-title='{{ openWeather.description }}' title='{{ openWeather.description }}' src='{{ asset('images/openWeatherIconsOld/') }}{{ openWeather.iconWeather }}.png' />
+                                    <img height='40' width='40' style='margin-top: -9px;' data-tooltip data-placement='top' data-original-title='{{ openWeather.description }}' title='{{ openWeather.description }}' src='{{ asset('images/openWeatherIconsOld/') }}{{ openWeather.iconWeather }}.png'  alt=""/>
                                     <small>{{ openWeather.tempC }}&deg;C&nbsp;&nbsp;</small>
                                 {% endif %}
                             {% endif %}

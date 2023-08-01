@@ -17,6 +17,7 @@ use App\Service\PdfService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\Reports\ReportEpcService;
 use App\Service\Reports\ReportsMonthlyService;
+use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,8 +29,16 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Psr\Cache\InvalidArgumentException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use setasign\Fpdi\Fpdi;
+use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
+use setasign\Fpdi\PdfParser\Filter\FilterException;
+use setasign\Fpdi\PdfParser\PdfParserException;
+use setasign\Fpdi\PdfParser\Type\PdfTypeException;
+use setasign\Fpdi\PdfReader\PdfReaderException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -54,6 +63,7 @@ class ReportingController extends AbstractController
     /**
      * @throws ExceptionInterface
      * @throws \Doctrine\Instantiator\Exception\ExceptionInterface
+     * @throws InvalidArgumentException
      */
     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
     public function createReport(
@@ -62,7 +72,7 @@ class ReportingController extends AbstractController
         ReportsRepository $reportsRepository,
         AnlagenRepository $anlagenRepo,
         ReportEpcService $reportEpc,
-        ReportsMonthlyService $reportsMonthly,
+        ReportsMonthlyV2Service $reportsMonthly,
         AssetManagementService $assetManagement,
         ReportEpcPRNewService $reportEpcNew,
         LogMessagesService $logMessages,
@@ -89,7 +99,8 @@ class ReportingController extends AbstractController
 
         switch ($reportType) {
             case 'monthly':
-                $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
+                // old Version $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
+                $output = $reportsMonthly->createReportV2($aktAnlagen[0], $reportMonth, $reportYear);
                 break;
             case 'epc':
                 $output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
@@ -103,8 +114,7 @@ class ReportingController extends AbstractController
                     $report = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
                     $em->persist($report);
                     $em->flush();
-                }
-                else {
+                } else {
                     $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
                     $messageBus->dispatch($message);
@@ -221,10 +231,19 @@ class ReportingController extends AbstractController
         return new Response(null, 204);
     }
 
+    /**
+     * @throws ExceptionInterface
+     * @throws PdfReaderException
+     * @throws CrossReferenceException
+     * @throws PdfParserException
+     * @throws ContainerExceptionInterface
+     * @throws PdfTypeException
+     * @throws NotFoundExceptionInterface
+     * @throws FilterException
+     */
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
     public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
     {
-
         /** @var AnlagenReports|null $report */
         $session            = $this->container->get('session');
         $searchstatus       = $session->get('search');
@@ -241,6 +260,7 @@ class ReportingController extends AbstractController
         $anlage             = $report->getAnlage();
         $currentDate        = date('Y-m-d H-i');
         $reportArray        = $report->getContentArray();
+
         switch ($report->getReportType()) {
             case 'epc-report':
                 $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
@@ -291,7 +311,7 @@ class ReportingController extends AbstractController
                         exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
                         break;
                     case 'yieldGuarantee':
-                        dd($reportArray);
+
                         $result = $this->renderView('report/epcReport.html.twig', [
                             'anlage'            => $anlage,
                             'monthsTable'       => $reportArray['monthTable'],
@@ -322,13 +342,14 @@ class ReportingController extends AbstractController
                 break;
             case 'monthly-report':
                 //standard G4N Report (an O&M Goldbeck angelehnt)
-                switch ($report->getReportTypeVersion()) {
-                    case 1: // Version 1 -> Calulation on demand, store to serialized array and buil pdf and xls from this Data
-                        $reportsMonthly->exportReportToPDF($anlage, $report);
-                        break;
-                    default: // old Version
-                        $output = $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0, 0, true);
+                $pdf = new Fpdi();
+                $pageCount = $pdf->setSourceFile($report->getFile());
+                for ($i = 1; $i <= $pageCount; $i++) {
+                    $pdf->AddPage("L");
+                    $tplId = $pdf->importPage($i);
+                    $pdf->useTemplate($tplId);
                 }
+                $pdf->Output("D", "Monthly_Reporting_".$report->getAnlage()->getAnlName() . "_" . $report->getMonth() . "_" . $report->getYear() . ".pdf");
                 break;
 
             case 'am-report':
@@ -339,45 +360,28 @@ class ReportingController extends AbstractController
                     $output = $report->getContentArray();
                     $form = $this->createForm(AssetManagementeReportFormType::class);
                     $form->handleRequest($request);
-                    $data = $_GET['asset_managemente_report_form'];
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
                         $files = $report->getPdfParts();
                         $pdf = new Fpdi();
                         // this is the header and we will always want to include it
-                        $pageCount =  $pdf->setSourceFile($files[0]);
+                        $pageCount = $pdf->setSourceFile($files['head']);
                         for ($i=0; $i < $pageCount; $i++) {
                             $pdf->AddPage("L");
                             $tplId = $pdf->importPage($i+1);
                             $pdf->useTemplate($tplId);
                         }
-                        if ($data['Production']) {
+                        if($data['TechnicalPV']){
                             if ($data['ProdCap']) {
-                                $pageCount = $pdf->setSourceFile($files[1]);
+                                $pageCount = $pdf->setSourceFile($files['ProductionCapFactor']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['CumulatForecastPVSYS']) {
-                                $pageCount = $pdf->setSourceFile($files[2]);
-                                for ($i = 0; $i < $pageCount; $i++) {
-                                    $pdf->AddPage("L");
-                                    $tplId = $pdf->importPage($i + 1);
-                                    $pdf->useTemplate($tplId);
-                                }
-                            }
-                            if ($data['CumulatForecastG4N']) {
-                                $pageCount = $pdf->setSourceFile($files[3]);
-                                for ($i = 0; $i < $pageCount; $i++) {
-                                    $pdf->AddPage("L");
-                                    $tplId = $pdf->importPage($i + 1);
-                                    $pdf->useTemplate($tplId);
-                                }
-                            }
-                            if ($data['CumulatLosses']) {
-                                $pageCount = $pdf->setSourceFile($files[4]);
+                            if ($data['PRPATable']) {
+                                $pageCount = $pdf->setSourceFile($files['PRPATable']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
@@ -385,7 +389,46 @@ class ReportingController extends AbstractController
                                 }
                             }
                             if ($data['MonthlyProd']) {
-                                $pageCount = $pdf->setSourceFile($files[5]);
+                                $pageCount = $pdf->setSourceFile($files['MonthlyProd']);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                        }
+                        if ($data['Production']) {
+                            if ($data['ProdWithForecast']){
+
+                                $pageCount = $pdf->setSourceFile($files['production_with_forecast']);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($anlage->hasPVSYST()) {
+                            if ($data['CumulatForecastPVSYS']) {
+                                $pageCount = $pdf->setSourceFile($files['CumForecastPVSYS']);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                        }
+                            else {
+                            if ($data['CumulatForecastG4N']) {
+                                $pageCount = $pdf->setSourceFile($files['CumForecastG4N']);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                        }
+                            if ($data['CumulatLosses']) {
+                                $pageCount = $pdf->setSourceFile($files['CumLosses']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
@@ -393,7 +436,7 @@ class ReportingController extends AbstractController
                                 }
                             }
                             if ($data['PRTable']){
-                                $pageCount = $pdf->setSourceFile($files[6]);
+                                $pageCount = $pdf->setSourceFile($files['PRTable']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
@@ -401,27 +444,43 @@ class ReportingController extends AbstractController
                                 }
                             }
                             if ($data['DailyProd']) {
-                                $pageCount = $pdf->setSourceFile($files[7]);
+                                $pageCount = $pdf->setSourceFile($files['DailyProd']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-
+                            if ($data['InvRank']){
+                                $pageCount = $pdf->setSourceFile($files['InverterRank']);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['EfficiencyRank']){
+                                $pageCount = $pdf->setSourceFile($files['InverterEfficiencyRank']);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
                         }
 
                         if ($data['Availability']){
-                            if ($data['AvMonthlyOverview']) {
-                                $pageCount = $pdf->setSourceFile($files[11]);
+
+                            if ($data['AvYearlyTicketOverview']) {
+                                $pageCount = $pdf->setSourceFile($files['AvailabilityYear']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['AvYearlyTicketOverview']) {
-                                $pageCount = $pdf->setSourceFile($files[12]);
+                            if ($data['AvMonthlyOverview']) {
+                                $pageCount = $pdf->setSourceFile($files['AvailabilityMonth']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
@@ -431,7 +490,7 @@ class ReportingController extends AbstractController
                         }
                         if($data['AnalysisHeatmap']){
                             if ($data['StringCurr']) {
-                                $pageCount = $pdf->setSourceFile($files[8]);
+                                $pageCount = $pdf->setSourceFile($files['String']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
@@ -439,7 +498,7 @@ class ReportingController extends AbstractController
                                 }
                             }
                             if ($data['InvPow']) {
-                                $pageCount = $pdf->setSourceFile($files[9]);
+                                $pageCount = $pdf->setSourceFile($files['Inverter']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
@@ -447,7 +506,7 @@ class ReportingController extends AbstractController
                                 }
                             }
                             if ($data['AvYearlyOverview']) {
-                                $pageCount = $pdf->setSourceFile($files[10]);
+                                $pageCount = $pdf->setSourceFile($files['AvailabilityYearOverview']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
@@ -455,7 +514,7 @@ class ReportingController extends AbstractController
                                 }
                             }
                             if ($data['AvInv']) {
-                                $pageCount = $pdf->setSourceFile($files[13]);
+                                $pageCount = $pdf->setSourceFile($files['AvailabilityByInverter']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
@@ -465,7 +524,7 @@ class ReportingController extends AbstractController
 
                         }
                         if ($data['Economics']) {
-                            $pageCount = $pdf->setSourceFile($files[14]);
+                            $pageCount = $pdf->setSourceFile($files['Economic']);
                             for ($i = 0; $i < $pageCount; $i++) {
                                 $pdf->AddPage("L");
                                 $tplId = $pdf->importPage($i + 1);
@@ -477,7 +536,7 @@ class ReportingController extends AbstractController
                     }
 
                     return $this->renderForm('report/_form.html.twig', [
-                        'assetForm' => $form,
+                        'assetForm' => $form->createView(),
                         'anlage' => $anlage
                     ]);
 
@@ -488,6 +547,18 @@ class ReportingController extends AbstractController
     }
 
 
+    /**
+     * @param $id
+     * @param ReportEpcService $reportEpcService
+     * @param ReportService $reportService
+     * @param ReportsRepository $reportsRepository
+     * @param ReportsMonthlyService $reportsMonthly
+     * @return RedirectResponse|void
+     * @throws ContainerExceptionInterface
+     * @throws ExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @deprecated
+     */
     #[Route(path: '/reporting/excel/{id}', name: 'app_reporting_excel')]
     public function showReportAsExcel($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, ReportsMonthlyService $reportsMonthly)
     {
@@ -575,39 +646,17 @@ class ReportingController extends AbstractController
             $searchtype     = $session->get('type');
             $anlageq        = $session->get('anlage');
             $searchmonth    = $session->get('month');
-            $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABSOLUTE_PATH);
-            $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+            #$route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABSOLUTE_PATH);
+            #$route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
 
             $report = $reportsRepository->find($id);
-            $month = $report->getMonth();
-            $year = $report->getYear();
-            $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
             $anlage = $report->getAnlage();
-            $currentDate = date('Y-m-d H-i');
-            $headline = [
-                [
-                    'projektNr'     => $anlage->getProjektNr(),
-                    'anlage'        => $anlage->getAnlName(),
-                    'eigner'        => $anlage->getEigner()->getFirma(),
-                    'date'          => $currentDate,
-                    'kwpeak'        => $anlage->getKwPeak(),
-                    'reportCreationDate' => $reportCreationDate,
-                    'epcNote'       => $anlage->getEpcReportNote(),
-                ],
-            ];
 
             $reportArray = $report->getContentArray();
             switch ($report->getReportType()) {
 
                 case 'monthly-report':
-                    switch ($report->getReportTypeVersion()) {
-                        case 1: // Version 1 -> Calulation on demand, store to serialized array and buil pdf and xls from this Data
-                            $reportout = new ReportMonthly($reportArray);
-                            $result = $reportout->run()->render('ReportMonthly', true);
-                            break;
-                        default: // old Version
-                            $result = $reportService->buildMonthlyReport($anlage, $reportArray, $reportCreationDate, 0, 0, false);
-                    }
+                    $result = $report->getRawReport();
                     break;
 
                 case 'am-report':
@@ -746,6 +795,11 @@ class ReportingController extends AbstractController
         ]);
     }
 
+
+    ##########################################################
+    ##########################################################
+    ##########################################################
+    ##########################################################
     /**
      * generate an Excel table based on the report data
      */
@@ -1211,11 +1265,11 @@ class ReportingController extends AbstractController
      * generate PDF
      */
     #[Route(path: '/new_reporting/pdf/{id}', name: 'app_reporting_new_pdf')]
-    public function newShowReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, MonthlyService $reportsMonthly, $tempPathBaseUrl, $kernelProjectDir)
+    public function newShowReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, $tempPathBaseUrl, $kernelProjectDir)
     {
         /** @var AnlagenReports|null $report */
         $session = $this->container->get('session');
-        //$pdf = new PdfService($tempPathBaseUrl);
+        #$pdf = new PdfService($tempPathBaseUrl);
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');
@@ -1326,8 +1380,8 @@ class ReportingController extends AbstractController
                      'reportContentHeadline'    => count($reportArray['headline'])===1?$this->convertToarray($reportArray['headline']):$reportArray['headline'],
                      'reports'                  =>[
                         'energy_production'                     => count($reportArray['energyproduction'])===1?$this->convertToarray($reportArray['energyproduction']):$reportArray['energyproduction'],
-                        'performance_ratio_and_availability'    =>count($reportArray['performanceratioandavailability'])===1?$this->convertToarray($reportArray['performanceratioandavailability']):$reportArray['performanceratioandavailability'],
-                        'day_values'                            =>count($reportArray['dayvalues'])===1?$this->convertToarray($reportArray['dayvalues']):$reportArray['dayvalues'],
+                        'performance_ratio_and_availability'    => count($reportArray['performanceratioandavailability'])===1?$this->convertToarray($reportArray['performanceratioandavailability']):$reportArray['performanceratioandavailability'],
+                        'day_values'                            => count($reportArray['dayvalues'])===1?$this->convertToarray($reportArray['dayvalues']):$reportArray['dayvalues'],
                         'case5'                                 => count($reportArray['case5'])===1?$this->convertToarray($reportArray['case5']):$reportArray['case5'],
                         'irradiation_and_tempvalues'            => count($reportArray['irradiationandtempvalues'])===1?$this->convertToarray($reportArray['irradiationandtempvalues']):$this->arrayEqualizer($reportArray['irradiationandtempvalues']),
                         'day_chart_values'                      => count($reportArray['daychartvalues'])===1?$this->convertToarray($reportArray['daychartvalues']):$reportArray['daychartvalues'],

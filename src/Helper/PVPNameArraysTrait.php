@@ -14,6 +14,52 @@ trait PVPNameArraysTrait
         $this->translator = $translator;
     }
 
+    public static function sensorTypes(): array
+    {
+        return [
+            'pyranometer'       => 'pyranometer',
+            'si-modul'          => 'si-modul',
+            'temperature'       => 'temperature',
+            'wind-speed'        => 'wind speed',
+            'wind-direction'    => 'wind direction',
+
+        ];
+    }
+
+    public static function sensorOriantation(): array
+    {
+        return [
+            'modul'         => 'modul',
+            'horizontal'    => 'horizontal',
+            'modul-east'    => 'modul-east',
+            'modul-west'    => 'modul-west',
+        ];
+    }
+
+    public static function virtualSensors(): array
+    {
+        $virtualSensors['irradiation'] = [
+            'irr'       => 'irr',
+            'irr-east'  => 'irr-east',
+            'irr-west'  => 'irr-west',
+            'irr-hori'  => 'irr-hori',
+        ];
+        $virtualSensors['temperature'] = [
+            'temp-ambient'      => 'temp-ambient',
+            'temp-modul'        => 'temp-modul',
+            'temp-modul-nrel'   => 'temp-modul-nrel',
+            'temp-inverter'     => 'temp-inverter',
+        ];
+        $virtualSensors['wind'] = [
+            'wind-speed'        => 'wind-speed',
+            'wind-direction'    => 'wind-direction',
+        ];
+
+        $virtualSensors['not-used'] = 'not used';
+
+        return $virtualSensors;
+    }
+
     public static function prFormulars(): array
     {
         return [
@@ -31,6 +77,7 @@ trait PVPNameArraysTrait
         return [
             'ti / (titheo - tiFM)'  => 1,
             'ti / titheo'           => 2,
+            'ti + tiFM / titheo'    => 3,
         ];
     }
 

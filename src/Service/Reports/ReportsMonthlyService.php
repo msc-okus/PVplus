@@ -11,6 +11,7 @@ use App\Repository\Case5Repository;
 use App\Repository\PRRepository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
+use App\Repository\TicketDateRepository;
 use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
 use App\Service\ReportService;
@@ -18,6 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -38,7 +40,8 @@ class ReportsMonthlyService
         private FunctionsService $functions,
         private NormalizerInterface $serializer,
         private PRCalulationService $PRCalulation,
-        private ReportService $reportService)
+        private ReportService $reportService,
+        private TicketDateRepository $ticketDateRepo)
     {
     }
 
@@ -347,7 +350,7 @@ class ReportsMonthlyService
      * @param int $year
      * @return array
      *
-     * @throws Exception
+     * @throws Exception|InvalidArgumentException
      */
     public function buildMonthlyReportNew(Anlage $anlage, int $month = 0, int $year = 0): array
     {
@@ -360,7 +363,7 @@ class ReportsMonthlyService
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
 
-            $dayValues[$i]['datum'] = $day->format('Y-m-d');
+            $dayValues[$i]['datum'] = $day->format('d');
             foreach($prArray as $key => $value) {
                 $dayValues[$i][$key] = $value;
             }
@@ -386,50 +389,6 @@ class ReportsMonthlyService
         ];
     }
 
-    /**
-     * @throws Exception
-     */
-    public function buildMonthlyReportNewByDate(Anlage $anlage, ?int $startDay = null, ?int $endDay = null, int $month = 0, int $year = 0): array
-    {
-        $dayValues = [];
-        if ($startDay === null) $startDay = 1;
-        $daysInMonth = (int)date('t', strtotime("$year-$month-01"));
-        if ($endDay  !== null && $endDay < $daysInMonth) {
-            $daysInMonth = $endDay;
-        }
-
-
-        // begin create Array for Day Values Table
-        for ($i = $startDay; $i <= $daysInMonth; ++$i) {
-            // Table
-            $day = new \DateTime("$year-$month-$i 12:00");
-            $prArray = $this->PRCalulation->calcPR($anlage, $day);
-
-            $dayValues[$i]['datum'] = $day->format('Y-m-d');
-            foreach($prArray as $key => $value) {
-                $dayValues[$i][$key] = $value;
-            }
-        }
-        unset($prArray);
-
-        // calculate PR and related data for the current month
-        $fromDay = new \DateTime("$year-$month-$startDay 00:00");
-        $toDay = new \DateTime("$year-$month-$daysInMonth 23:59");
-
-        $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
-
-        // Summe / Total Row
-        $i = sizeof($dayValues)+1;
-        $dayValues[$i]['datum'] = 'Total';
-        foreach($prSumArray as $key => $value) {
-            $dayValues[$i][$key] = $value;
-        }
-
-        return [
-            'anlagenid' => $anlage->getAnlId(),
-            'days' => $dayValues,
-        ];
-    }
 
     #[NoReturn]
     public function exportReportToPDF(Anlage $anlage, AnlagenReports $report): void

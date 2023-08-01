@@ -120,7 +120,7 @@ class ForcastDEKService {
                                 $RGESBIF_LOWER = round($DIRpoa + $DIFpoa + $REFpoa + $BACPOA_LOWER, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour für Bifacial Module
                                 break;
                         }
-                        
+
                     }
 
                    if ($RGES > 0 ) {

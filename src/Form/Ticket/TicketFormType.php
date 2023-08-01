@@ -87,6 +87,19 @@ class TicketFormType extends AbstractType
                     'data-ticket-edit-target' => 'formCategory',
                     'data-ticket-edit-edited-param' => 'false',
                 ],
+            ])
+            ->add('begin', DateTimeType::class, [
+                'label' => 'Begin',
+                'label_html' => true,
+                'required' => false,
+                'widget' => 'single_text',
+                'attr' => [
+                    'step' => 900,
+                    'data-action' => 'change->ticket-edit#beginCheck',
+                    'data-ticket-edit-target' => 'formBegin',
+                    //'max' => $isNewTicket ? $ticket->getBegin()->format("Y-m-d\TH:i") : ''
+                    'data-ticket-edit-edited-param' => 'false',
+                ],
             ]);
         } else {
             $builder->add('alertType', ChoiceType::class, [
@@ -100,9 +113,21 @@ class TicketFormType extends AbstractType
                 'attr' => [
                     'data-action' => 'change->ticket-edit#saveCheck',
                     'data-ticket-edit-target' => 'formCategory',
-                    'data-ticket-edit-edited-param' => 'true',
                 ],
-            ]);
+
+            ])
+                ->add('begin', DateTimeType::class, [
+                    'label' => 'Begin',
+                    'label_html' => true,
+                    'required' => false,
+                    'widget' => 'single_text',
+                    'attr' => [
+                        'step' => 900,
+                        'data-action' => 'change->ticket-edit#beginCheck',
+                        'data-ticket-edit-target' => 'formBegin',
+                        //'max' => $isNewTicket ? $ticket->getBegin()->format("Y-m-d\TH:i") : ''
+                    ],
+                ]);
         }
 
         $builder
@@ -114,18 +139,7 @@ class TicketFormType extends AbstractType
                     'readonly' => true,
                 ],
             ])
-            ->add('begin', DateTimeType::class, [
-                'label' => 'Begin',
-                'label_html' => true,
-                'required' => false,
-                'widget' => 'single_text',
-                'attr' => [
-                    'step' => 900,
-                    'data-action' => 'change->ticket-edit#saveCheck',
-                    'data-ticket-edit-target' => 'formBegin',
-                    //'max' => $isNewTicket ? $ticket->getBegin()->format("Y-m-d\TH:i") : ''
-                ],
-            ])
+
             ->add('end', DateTimeType::class, [
                 'label' => 'End',
                 'label_html' => true,

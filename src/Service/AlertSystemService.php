@@ -434,7 +434,7 @@ class AlertSystemService
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
         $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
-        $irrLimit = $anlage->getThreshold1PA0() != "0" ? (float)$anlage->getThreshold1PA0() : 20; // we get the irradiation limit from the plant config
+        $irrLimit = $anlage->getMinIrrThreshold() != "0" ? (float)$anlage->getMinIrrThreshold() : 20; // we get the irradiation limit from the plant config
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
         //we get the frequency values
@@ -447,7 +447,7 @@ class AlertSystemService
         $return['Vol'] = "";
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
-        if ($irradiation < $irrLimit) $this->irr = true;
+        if ($irradiation !== null && $irradiation < $irrLimit) $this->irr = true;
         else $this->irr = false;
         if ($anlage->getHasPPC()) {
             $sqlPpc = 'SELECT * 
@@ -458,9 +458,9 @@ class AlertSystemService
                 $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
                 $return['ppc'] = ((($ppdData['p_set_rpc_rel'] !== null && $ppdData['p_set_rpc_rel'] < 100) || ($ppdData['p_set_gridop_rel'] !== null && $ppdData['p_set_gridop_rel'] < 100)));
             }
-            else $return['ppc'] = null;
+            else $return['ppc'] = false;
         }
-        else $return['ppc'] = null;
+        else $return['ppc'] = false;
 
             $sqlAct = 'SELECT b.unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
@@ -526,7 +526,6 @@ class AlertSystemService
         $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie, $inverter);// we retrieve here the previous ticket (if any)
 
         //this could be the ticket from  the previous quarter or the last ticket from  the previous day
-        //if ($inverter == "19") dump($ticketOld);
         if ($ticketOld !== null) { // is there is a previous ticket we just extend it
             $ticketDate = $ticketOld->getDates()->last();
             $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
@@ -662,7 +661,6 @@ class AlertSystemService
     {
 
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        //if ($inverter == "19") dump($time, $errorCategory, $sungap);
         if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) return $this->getTicketYesterday($anlage, $time, $errorCategory,  $inverter);
         else return  $this->getLastTicketInverter($anlage, $time, $errorCategory, $inverter);
     }
@@ -677,7 +675,6 @@ class AlertSystemService
      */
     private function getLastTicketInverter($anlage, $time, $errorCategory, $inverter): mixed
     {
-        //if ($inverter == "19") dump("hoy");
         $ticket = $this->ticketRepo->findByAnlageInverterTime($anlage, $time, $errorCategory, $inverter); // we try to retrieve the ticket in the previous quarter
         return $ticket != null ? $ticket[0] : null;
     }
@@ -692,7 +689,6 @@ class AlertSystemService
      */
     private function getTicketYesterday($anlage, $time, $errorCategory, $inverter): mixed
     {
-        //if ($inverter == "19") dump("ayer");
         $today = date('Y-m-d', strtotime($time));
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
@@ -732,7 +728,7 @@ class AlertSystemService
      * @param string|null $time
      * @return string
      */
-   public function checkSystemMulti(Anlage $anlage, ?string $time = null): string
+    public function checkSystemMulti(Anlage $anlage, ?string $time = null): string
     {
         if ($time === null) {
             $time = $this->getLastQuarter(date('Y-m-d H:i:s'));

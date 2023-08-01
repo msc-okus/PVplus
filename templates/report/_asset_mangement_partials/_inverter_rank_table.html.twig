@@ -1,0 +1,33 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Inverter Ranking Table</h3>
+    <table>
+        <thead>
+            <tr>
+                <th class="table-center">Inverter</th>
+                <th class="table-center">Power[kWh]</th>
+                <th class="table-center">Inverter Pnom[kWp]</th>
+                <th class="table-center">Specific Yield[kWh/kWp]</th>
+                <th class="table-center">Power Theo.[kWh]</th>
+                <th class="table-center">Inverter PR[%]</th>
+            </tr>
+        </thead>
+        <tbody>
+
+
+        {% for row in table %}
+            <tr>
+                <td class="tr_next_columns">{{ row.name }}</td>
+                <td class="tr_next_columns">{{ row.power|number_format(2, ',', '.') }}</td>
+                <td class="tr_next_columns">{{ row.Pnom|number_format(2, ',', '.') }}</td>
+                <td class="tr_next_columns">{{ row.powerYield|number_format(2, ',', '.') }}</td>
+                <td class="tr_next_columns">{{ row.theoPower|number_format(2, ',', '.') }}</td>
+                <td class="tr_next_columns">{{ row.invPR|number_format(2, ',', '.') }}</td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+{% endblock %}

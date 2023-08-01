@@ -4,8 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Anlage;
 use App\Form\Model\WeatherToolsModel;
+use App\Form\Tools\CalcToolsFormType;
 use App\Form\Tools\ImportExcelFormType;
+use App\Form\Tools\WeatherToolsFormType;
 use App\Message\Command\CalcExpected;
+use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Repository\AnlagenRepository;
 use App\Repository\TicketRepository;
 use App\Repository\WeatherStationRepository;
@@ -13,9 +16,13 @@ use App\Service\AvailabilityByTicketService;
 use App\Service\ExportService;
 use App\Service\LogMessagesService;
 use App\Service\Reports\ReportsMonthlyService;
+use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use Exception;
+use Omines\DataTablesBundle\DataTableFactory;
+use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,6 +34,12 @@ use App\Service\UploaderHelper;
 use App\Helper\G4NTrait;
 class SpecialOperationsController extends AbstractController
 {
+    use G4NTrait;
+
+    /**
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
+     */
     #[IsGranted(['ROLE_G4N'])]
     #[Route(path: '/special/operations/bavelse/report', name: 'bavelse_report')]
     public function bavelseExport(Request $request, ExportService $bavelseExport, AnlagenRepository $anlagenRepository, AvailabilityByTicketService $availabilityByTicket): Response
@@ -47,10 +60,14 @@ class SpecialOperationsController extends AbstractController
         $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
 
         if ($submitted && isset($anlageId)) {
-            $from = date_create($year.'-'.$month.'-01 00:01');
+            $from = date_create($year.'-'.$month.'-01 00:00');
             $daysInMonth = $from->format('t');
-            $to = date_create($year.'-'.($month).'-'.$daysInMonth.' 23:59');
+            #$daysInMonth = 22;
+            $to = date_create($year.'-'.$month.'-'.$daysInMonth.' 23:59');
+            #$to = date_create($year.'-'.$month.'-01 23:59');
             $output        = $bavelseExport->gewichtetTagesstrahlungAsTable($anlage, $from, $to);
+            #$output        = $bavelseExport->gewichtetBavelseValuesExport($anlage, $from, $to);
+
             $availability  = "<h3>Plant Availability from " . $from->format('Y-m-d') . " to " . $to->format('Y-m-d') . ": " . $availabilityByTicket->calcAvailability($anlage, $from, $to, null, 2) . "</h3>";
             $availability .= "<h3>Plant Availability from " . $anlage->getFacDateStart()->format('Y-m-d') . " to " . $to->format('Y-m-d') . ": " . $availabilityByTicket->calcAvailability($anlage, $anlage->getFacDateStart(), $to, null, 2) . "</h3>";
         }
@@ -68,12 +85,13 @@ class SpecialOperationsController extends AbstractController
 
     /**
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     #[IsGranted(['ROLE_G4N', 'ROLE_BETA'])]
     #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
-    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly): Response
+    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, DataTableFactory $dataTableFactory): Response
     {
-        $output = null;
+        $output = $table = null;
         $startDay = $request->request->get('start-day');
         $endDay = $request->request->get('end-day');
         $month = $request->request->get('month');
@@ -88,15 +106,16 @@ class SpecialOperationsController extends AbstractController
 
         if ($submitted && isset($anlageId)) {
             $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-            $output = $reportsMonthly->buildMonthlyReportNewByDate($anlage, $startDay, $endDay, $month, $year);
+            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
         }
 
-        return $this->render('report/reportMonthlyNew.html.twig', [
+        return $this->render('special_operations/reportMonthlyNew.html.twig', [
             'headline'      => $headline,
             'anlagen'       => $anlagen,
             'anlage'        => $anlage,
             'report'        => $output,
             'status'        => $anlageId,
+            'datatable'     => $table,
         ]);
 
     }
@@ -153,6 +172,92 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
+     */
+    #[IsGranted(['ROLE_BETA'] )]
+    #[Route(path: '/special/operations/calctools', name: 'calc_tools')]
+    public function toolsCalc(Request $request, AnlagenRepository $anlagenRepo, AvailabilityByTicketService $availabilityByTicket, MessageBusInterface $messageBus, LogMessagesService $logMessages,): Response
+    {
+        $form = $this->createForm(CalcToolsFormType::class);
+        $form->handleRequest($request);
+        $output = null;
+
+        // Start individual part
+        $headline = '';
+
+        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
+            /* @var WeatherToolsModel $toolsModel
+             */
+            $toolsModel = $form->getData();
+            $toolsModel->endDate->add(new \DateInterval('P1D')); //->sub(new \DateInterval('PT1S'))
+            $anlage = $anlagenRepo->findOneBy(['anlId' => $toolsModel->anlage]);
+
+            if ($form->get('function')->getData() != null) {
+                switch ($form->get('function')->getData()) {
+                    case 'updatePA':
+                        $output = '<h3>Recalculate Plant Availability:</h3>';
+                        $job = 'Update Plant Availability – from ' . $toolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $toolsModel->endDate->format('Y-m-d 00:00');
+                        $job .= " - " . $this->getUser()->getname();
+                        $logId = $logMessages->writeNewEntry($anlage, 'recalculate PA', $job);
+                        $message = new CalcPlantAvailabilityNew($anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
+                        $messageBus->dispatch($message);
+                        $output .= 'Command will be processed in background.<br> If calculation is DONE (green), you can start PA calculation.';
+                        break;
+                    case 'calcPA':
+                        $output  = "<h3>Plant Availability " . $anlage->getAnlName() . " from " . $toolsModel->startDate->format('Y-m-d H:i') . " to " . $toolsModel->endDate->format('Y-m-d H:i') . "</h3>";
+                        $output .= "
+                            <table style='width: 50%; text-align: left;'>
+                                <tr>
+                                    <th>
+                                        PA OpenBook
+                                    </th>
+                                    <th>
+                                        PA O&M
+                                    </th>
+                                    <th>
+                                        PA EPC
+                                    </th>
+                                    <th>
+                                        PA AM
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        ".round($availabilityByTicket->calcAvailability($anlage, $toolsModel->startDate, $toolsModel->endDate, null, 0), 3)."
+                                    </td>
+                                    <td>
+                                        ".round($availabilityByTicket->calcAvailability($anlage, $toolsModel->startDate, $toolsModel->endDate, null, 1), 3)."
+                                    </td>
+                                    <td>
+                                        ".round($availabilityByTicket->calcAvailability($anlage, $toolsModel->startDate, $toolsModel->endDate, null, 2), 3)."
+                                    </td>
+                                    <td>
+                                        ".round($availabilityByTicket->calcAvailability($anlage, $toolsModel->startDate, $toolsModel->endDate, null, 3), 3)."
+                                    </td>
+                                <tr>
+                            </table><hr>
+                         
+                        ";
+                        break;
+                    default:
+                        $output = "nothing to do.";
+                }
+            }
+        }
+
+        // Wenn Close geklickt wird, mache dies:
+        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        return $this->render('tools/index.html.twig', [
+            'toolsForm'     => $form->createView(),
+            'output'        => $output,
+        ]);
+    }
+
 
     #[IsGranted(['ROLE_G4N'])]
     #[Route(path: '/special/operations/deletetickets', name: 'delete_tickets')]
@@ -191,13 +296,16 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
+    /**
+     * @throws Exception
+     */
     #[Route(path: '/special/operations/import_excel', name: 'import_excel')]
     public function importExcel(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, MessageBusInterface $messageBus, LogMessagesService $logMessages, $uploadsPath): Response
     {
         $form = $this->createForm(ImportExcelFormType::class);
         $form->handleRequest($request);
 
-        $output = null;
+        $output = '';
 
         // Start individual part
         $headline = '';
@@ -219,18 +327,17 @@ class SpecialOperationsController extends AbstractController
                     $i = 0;
                     $ts = 0;
 
-                    foreach( $xlsx->rows($ts) as $r ) {
-                        if($i == 0) {
-                            $data_fields = $r;
+                    foreach ( $xlsx->rows($ts) as $row ) {
+                        if ($i == 0) {
+                            $data_fields = $row;
                             $indexStamp = array_search('stamp', $data_fields);
                             $indexEzevu = array_search('e_z_evu', $data_fields);
-                            //echo $indexEzevu.'<br><br>';
-                        }else{
-                            $eZEvu = ($r[$indexEzevu] != '') ? $r[$indexEzevu] : NULL;
+                        } else {
+                            $eZEvu = ($row[$indexEzevu] != '') ? $row[$indexEzevu] : NULL;
                             $stmt= $conn->prepare(
                                 "UPDATE $dataBaseNTable SET $data_fields[$indexEzevu]=? WHERE $data_fields[$indexStamp]=?"
                             );
-                            $stmt->execute([$eZEvu, $r[$indexStamp]]);
+                            $stmt->execute([$eZEvu, $row[$indexStamp]]);
                         }
 
                         $i++;
@@ -238,7 +345,8 @@ class SpecialOperationsController extends AbstractController
                     unlink($uploadsPath . '/xlsx/1/'.$newFile);
 
                 } else {
-                    echo SimpleXLSX::parseError();
+                    $output .= "No valid XLSX File.<br>";
+                    $output .= "(" . SimpleXLSX::parseError() . ")";
                 }
             }
         }

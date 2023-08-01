@@ -36,6 +36,7 @@
         "nelmio/cors-bundle": "^2.1",
         "nexylan/slack-bundle": "^2.3.0",
         "nuzkito/chrome-html-to-pdf": "^2.0",
+        "omines/datatables-bundle": "*",
         "oneup/flysystem-bundle": "^3.0",
         "pagerfanta/doctrine-orm-adapter": "^3.7",
         "pagerfanta/twig": "^3.7",

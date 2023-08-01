@@ -1,0 +1,119 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% import _self as Macros %}
+{% macro grid(table_overview_monthly, anlage) %}
+    {% set gridsum = 0 %}
+    <tr>
+        <td class="tr_first_column" style="text-align: right;">Actual (Yield) <sup>*</sup></td>
+        {% for data in table_overview_monthly.powerEvu %}
+            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+            {% set gridsum = gridsum + data %}
+        {% endfor %}
+        <td class="tr_next_columns">{{ gridsum|number_format(0, ',', '.') }}</td>
+    </tr>
+{% endmacro %}
+{% macro expectedPvSyst(table_overview_monthly, anlage) %}
+    {% set pvsystsum = 0 %}
+    <tr>
+        <td class="tr_first_column" style="text-align: right;">Forecast </td>
+        {% for data in table_overview_monthly.forecast %}
+            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+            {% set pvsystsum = pvsystsum + data %}
+        {% endfor %}
+
+        <td class="tr_next_columns">{{ pvsystsum|number_format(0, ',', '.') }}</td>
+    </tr>
+{% endmacro %}
+{% macro forecast(table_overview_monthly, anlage) %}
+    {% set forecastsum = 0 %}
+    <tr>
+        <td class="tr_first_column" style="text-align: right;">Forecast</td>
+        {% for data in table_overview_monthly.forecast %}
+            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+            {% set forecastsum = forecastsum + data %}
+        {% endfor %}
+
+        <td class="tr_next_columns">{{ forecastsum|number_format(0, ',', '.') }}</td>
+    </tr>
+{% endmacro %}
+{% macro expectedG4N(table_overview_monthly, anlage) %}
+    {% set g4nsum = 0 %}
+    <tr>
+        <td class="tr_first_column" style="text-align: right;">Expected g4n</td>
+        {% for data in table_overview_monthly.powerExp %}
+            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+            {% set g4nsum = g4nsum + data %}
+        {% endfor %}
+        <td class="tr_next_columns">{{ g4nsum|number_format(0, ',', '.') }}</td>
+    </tr>
+{% endmacro %}
+
+{% macro inverterOut(table_overview_monthly, anlage) %}
+    {%  set invsum = 0 %}
+    <tr>
+        <td class="tr_first_column" style="text-align: right;">Actual(Yields)<sup>*</sup></td>
+        {% for data in table_overview_monthly.powerAct %}
+            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+            {%  set invsum = invsum + data %}
+        {% endfor %}
+        <td class="tr_next_columns">{{ invsum|number_format(0, ',', '.') }}</td>
+    </tr>
+{% endmacro %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Energy Production/Forecast/Expected</h3>
+    <span class="subheadline">Yearly expected vs. actuals</span>
+    <table >
+        <tr>
+            <td colspan="2" style="text-align: left">
+                <table class="asset_report_table_operations_data"  >
+                    <thead>
+                    <tr>
+                        <th rowspan="2" class="table-center" style="width:150px!important">Production</th>
+                        {% set counter = 1 %}
+                        {% for data in monthArray %}
+                            <th style="text-align: center;width:6.5%">{{ data }}</th>
+                            {% set counter = counter+1 %}
+                        {% endfor %}
+                        <th style="text-align: center;width:6.5%">Total</th>
+                    </tr>
+
+                    <tr>
+                        {% for data in monthArray %}
+                            <th style="text-align: center;width:6.5%">[kWh]</th>
+                        {% endfor %}
+                        <th style="text-align: center;width:6.5%">[kWh]</th>
+                    </tr>
+
+                    </thead>
+                    <tbody>
+                    {% set powerEvuTotal = 0 %}
+
+                    {% for data in table_overview_monthly.powerEvu %}
+                        {% set powerEvuTotal = powerEvuTotal+data %}
+                    {% endfor %}
+
+                    {{ Macros.grid(table_overview_monthly, anlage)}}
+                    {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
+                    {{ Macros.forecast(table_overview_monthly, anlage, powerEvuTotal) }}
+
+
+                    <tr>
+                        <td style="text-align: left;" colspan="8">
+                            <sup>*</sup>Grid Meter/Inverter Out. Depending on what data is available <br>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+
+            </td>
+        </tr>
+        <tr>
+
+            <td style="text-align: right!important;">
+                {{ operations_right_withForecast|raw }}
+            </td>
+        </tr>
+    </table>
+{%  endblock page %}

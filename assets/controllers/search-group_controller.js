@@ -33,6 +33,5 @@ export default class  extends Controller{
         const response= await  fetch(`${this.urlValue}?${params.toString()}`);
         this.bodytabTarget.innerHTML=await response.text();
 
-        console.log(this.valTarget.value);
     }
 }

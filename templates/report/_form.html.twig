@@ -3,17 +3,29 @@
 
 {{ form_start(assetForm) }}
 
-<div style="margin-left: 10px">{{ form_row(assetForm.Production) }} </div>
+    <div style="margin-left: 10px">{{ form_row(assetForm.TechnicalPV) }} </div>
     <div style="margin-left: 60px">
         {{ form_row(assetForm.ProdCap) }}
+        {{ form_row(assetForm.PRPATable) }}
+        {{ form_row(assetForm.MonthlyProd) }}
+    </div>
+    <div style="margin-left: 10px">{{ form_row(assetForm.Production) }} </div>
+    <div style="margin-left: 60px">
+        {{ form_row(assetForm.ProdWithForecast) }}
         {% if anlage.hasPVSYST == true %}
             {{ form_row(assetForm.CumulatForecastPVSYS) }}
+        {% else %}
+            {{ form_row(assetForm.CumulatForecastG4N) }}
         {% endif %}
-        {{ form_row(assetForm.CumulatForecastG4N) }}
         {{ form_row(assetForm.CumulatLosses) }}
-        {{ form_row(assetForm.MonthlyProd) }}
+
         {{ form_row(assetForm.PRTable) }}
-        {{ form_row(assetForm.DailyProd) }}
+        {{ form_row(assetForm.InvRank) }}
+        {{ form_row(assetForm.EfficiencyRank) }}
+        <div class="is-hidden">
+            {{ form_row(assetForm.DailyProd) }}
+        </div>
+
     </div>
 
     <div style="margin-left: 10px">{{ form_row(assetForm.Availability) }} </div>
@@ -23,8 +35,8 @@
     </div>
     <div style="margin-left: 10px">{{ form_row(assetForm.AnalysisHeatmap) }} </div>
     <div style="margin-left: 60px">
-        {{ form_row(assetForm.StringCurr) }}
         {{ form_row(assetForm.InvPow) }}
+        {{ form_row(assetForm.StringCurr) }}
         {{ form_row(assetForm.AvYearlyOverview) }}
         {{ form_row(assetForm.AvInv) }}
     </div>

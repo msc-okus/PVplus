@@ -14,6 +14,8 @@ class ToolsModel
 
     public string $preselect;
 
+    public string $function;
+
     public string $function1;
 
     public string $function2;

@@ -27,6 +27,7 @@ class ImportToolsController extends BaseController
         $form->handleRequest($request);
 
         $output = '';
+        $break = 0;
         // Wenn Calc gelickt wird mache dies:&& $form->get('calc')->isClicked() $form->isSubmitted() &&
         if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
             /* @var ImportToolsModel $importToolsModel */
@@ -38,25 +39,38 @@ class ImportToolsController extends BaseController
             $anlage = $anlagenRepo->findOneBy(['anlId' => $importToolsModel->anlage]);
 
             $importToolsModel->path = (string)$anlage->getPathToImportScript();
-
+            $importToolsModel->importType = (string)$form->get('importType')->getData();
             // Start recalculation
-            if ($form->get('function')->getData() != null) {
-                switch ($form->get('function')->getData()) {
-                    case 'api-import-data':
+            if ($form->get('importType')->getData() == null) {
+                $output .= 'Please select what you like to import.<br>';
+                $break = 1;
+            }
 
-                        $output = '<h3>Import API Data:</h3>';
-                        $job = 'Import API Data – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
-                        $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
-                        $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $logId);
-                        $messageBus->dispatch($message);
-                        $output .= 'Command was send to messenger! Will be processed in background.<br>';
-                        break;
-                    default:
-                        $output .= 'something went wrong!<br>';
+            $hasPpc = $anlage->getHasPPC();
+
+            if($hasPpc != 1 && (string) (string)$importToolsModel->importType == 'api-import-ppc'){
+                $output .= 'This plant has not PPC!<br>';
+                $break = 1;
+            }
+
+            if($break == 0){
+                if ($form->get('function')->getData() != null) {
+                    switch ($form->get('function')->getData()) {
+                        case 'api-import-data':
+                            $output = '<h3>Import API Data:</h3>';
+                            $job = 'Import API Data('.$importToolsModel->importType.') – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
+                            $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
+                            $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId);
+                            $messageBus->dispatch($message);
+                            $output .= 'Command was send to messenger! Will be processed in background.<br>';
+                            break;
+                        default:
+                            $output .= 'something went wrong!<br>';
+                    }
+
+                } else {
+                    $output .= 'Please select a function.<br>';
                 }
-
-            } else {
-                $output .= 'Please select a function.<br>';
             }
         }
 

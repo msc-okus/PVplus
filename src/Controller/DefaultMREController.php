@@ -18,12 +18,14 @@ use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\Reports\ReportsMonthlyService;
+use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\WeatherFunctionsService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\NonUniqueResultException;
 use JetBrains\PhpStorm\NoReturn;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Knp\Snappy\Pdf;
+use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -80,7 +82,7 @@ class DefaultMREController extends BaseController
     /**
      * @throws \Exception
      */
-    #[Route(path: '/mr/pa/test/{plant}/{year}/{month}/{day}', defaults: ['plant' => 110, 'year' => 2023, 'month' => 3, 'day' => 16])]
+    #[Route(path: '/mr/pa/test/{plant}/{year}/{month}/{day}', defaults: ['plant' => 108, 'year' => 2022, 'month' => 3, 'day' => 31])]
     public function testPA(int $plant, int $year, int $month, int $day, AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
@@ -126,6 +128,29 @@ class DefaultMREController extends BaseController
         $from = date_create("2022-08-01 00:00");
         $to = date_create("2022-08-31 23:55");
         $output = $exportService->getRawData($anlage, $from, $to);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => $anlage->getAnlName().' RawData Export',
+            'availabilitys' => '',
+            'output' => $output,
+        ]);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
+     */
+    #[Route(path: '/mr/export/bavelse/rawdata')]
+    public function exportBavelseRawDataExport(ExportService $exportService, AnlagenRepository $anlagenRepository): Response
+    {
+        $output = '';
+        /** @var Anlage $anlage */
+        $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
+        $from = $anlage->getEpcReportStart();
+        $to = $anlage->getEpcReportEnd();
+        $from = date_create("2023-01-01 00:00");
+        $to = date_create("2023-07-23 23:55");
+        $output = $exportService->gewichtetBavelseValuesExport($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => $anlage->getAnlName().' RawData Export',
@@ -186,21 +211,23 @@ class DefaultMREController extends BaseController
 
     /**
      * @throws \Exception
+     * @throws InvalidArgumentException
      */
-    #[Route(path: '/test/monthly/{id}/{year}/{month}', defaults: ['id' => 108, 'year' => '2023', 'month' => '4'])]
-    public function testNewMonthly($id, $year, $month, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly, SensorService $sensorService): Response
+    #[Route(path: '/test/monthly/{id}/{year}/{month}', defaults: ['id' => 188, 'year' => '2023', 'month' => '4'])]
+    public function testNewMonthly($id, $year, $month, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, SensorService $sensorService): Response
     {
 
         $date = date_create("$year-$month-01 12:00");
         $daysInMonth = $date->format("t");
         $anlage = $anlagenRepository->find($id);
 
-        $output = $reportsMonthly->buildMonthlyReportNew($anlage, $month, $year);
+        $output = $reportsMonthly->createReportV2($anlage, $month, $year);
 
 
-        return $this->render('report/reportMonthlyNew.html.twig', [
-            'anlage'        => $anlage,
-            'report'        => $output,
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => $anlage->getAnlName().' Test new Monthly Report',
+            'availabilitys' => '',
+            'output' => $output,
         ]);
     }
 

@@ -370,7 +370,7 @@ class ACPowerChartsService
                     $dataArray['offsetLegend'] = $groups[$group]['GMIN'] - 1;
             }
             // add Irradiation
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
             } else {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
@@ -385,10 +385,8 @@ class ACPowerChartsService
 
                 $dataArray['chart'][$counter]['date'] = self::timeAjustment(self::timeShift($anlage, $rowIst['stamp']), $anlage->getAnlZeitzone() * (-1));
 
-                $queryf = $hour ? "BETWEEN '$stampAdjust' AND '$stampAdjust2'" : "LIKE '$stampAdjust'";
-                $sqlSoll = 'SELECT a.stamp, sum(b.ac_exp_power) as soll FROM ( `db_dummysoll` a 
-                         LEFT JOIN (SELECT * FROM '.$anlage->getDbNameDcSoll().' WHERE '.$groupQuery.'  ) b ON a.stamp = b.stamp ) WHERE a.stamp 
-                         '.$queryf." GROUP BY date_format(a.stamp, '$form')";
+                $queryf = $hour ? "stamp BETWEEN '$stampAdjust' AND '$stampAdjust2'" : "stamp = '$stampAdjust'";
+                $sqlSoll = "SELECT stamp, sum(ac_exp_power) as soll FROM ".$anlage->getDbNameDcSoll()." WHERE $queryf AND $groupQuery GROUP BY date_format(stamp, '$form')";
 
                 $result = $conn->query($sqlSoll);
                 if ($hour) {
@@ -451,10 +449,11 @@ class ACPowerChartsService
      * erzeugt Daten für Gruppen Leistungsunterschiede Diagramm (Group Power Difference)
      * AC - Inverter.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      *
-     * @return array
+     * @return array|null AC4
      *
      * AC4
      */

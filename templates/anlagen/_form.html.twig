@@ -234,7 +234,7 @@
                         {# Spalte 1 #}
                         <div class="cell medium-6">
                             <fieldset class="fieldset">
-                                <legend>Anlagenleistung</legend>
+                                <legend>Anlagenleistung <small>({{ anlage.pnomControlSum }} kWp)</small></legend>
                                 <div class="grid-x grid-padding-x">
                                     <div class="cell medium-4">{{ form_row(anlageForm.pnom) }}</div>
                                     <div class="cell medium-4">{{ form_row(anlageForm.kwPeakPvSyst) }}</div>
@@ -253,27 +253,17 @@
 
                             <fieldset class="fieldset">
                                 <legend>Config</legend>
-                                <div class="grid-x">
-                                    <div class="cell medium-6"> {{ form_row(anlageForm.useGridMeterDayData) }}</div>
-                                    <div class="cell medium-6"> {{ form_row(anlageForm.hasDc) }}</div>
+                                <div class="grid-x small-up 1 medium-up-2 large-up-3">
+                                    <div class="cell"> {{ form_row(anlageForm.useGridMeterDayData) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasDc) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasStrings) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasPPC) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.usePPC) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasPannelTemp) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.useCosPhi) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasFrequency) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.ignoreNegativEvu) }}</div>
                                 </div>
-                                <div class="grid-x">
-                                    <div class="cell medium-6"> {{ form_row(anlageForm.hasStrings) }}</div>
-                                    <div class="cell medium-6"> {{ form_row(anlageForm.hasPPC) }}</div>
-                                </div>
-                                <div class="grid-x">
-                                    <div class="cell medium-6"> {{ form_row(anlageForm.hasPannelTemp) }}</div>
-                                    <div class="cell medium-6"> {{ form_row(anlageForm.useCosPhi) }}</div>
-                                </div>
-                                <div class="grid-x">
-                                    <div class="cell medium-6"> {{ form_row(anlageForm.hasFrequency) }}</div>
-                                    <div class="cell medium-6"> {{ form_row(anlageForm.ignoreNegativEvu) }}</div>
-                                </div>
-                                {#
-                                <div class="grid-x">
-                                    <div class="cell medium-6"> {{ form_row(anlageForm.dataFrom) }}</div>
-                                </div>
-                                #}
                             </fieldset>
                         </div>
 
@@ -427,6 +417,7 @@
                                             <legend>Technical</legend>
                                             {{ form_row(anlageForm.threshold1PA0) }}
                                             {{ form_row(anlageForm.threshold2PA0) }}
+                                            {{ form_row(anlageForm.usePAFlag0) }}
                                             {{ form_row(anlageForm.paFormular0) }}
                                         </fieldset>
                                     </div>
@@ -435,6 +426,7 @@
                                             <legend>Department 1 (O&M)</legend>
                                             {{ form_row(anlageForm.threshold1PA1) }}
                                             {{ form_row(anlageForm.threshold2PA1) }}
+                                            {{ form_row(anlageForm.usePAFlag1) }}
                                             {{ form_row(anlageForm.paFormular1) }}
                                         </fieldset>
                                     </div>
@@ -443,6 +435,7 @@
                                             <legend>Department 2 (EPC)</legend>
                                             {{ form_row(anlageForm.threshold1PA2) }}
                                             {{ form_row(anlageForm.threshold2PA2) }}
+                                            {{ form_row(anlageForm.usePAFlag2) }}
                                             {{ form_row(anlageForm.paFormular2) }}
                                         </fieldset>
                                     </div>
@@ -451,8 +444,14 @@
                                             <legend>Department 3 (AM)</legend>
                                             {{ form_row(anlageForm.threshold1PA3) }}
                                             {{ form_row(anlageForm.threshold2PA3) }}
+                                            {{ form_row(anlageForm.usePAFlag3) }}
                                             {{ form_row(anlageForm.paFormular3) }}
                                         </fieldset>
+                                    </div>
+                                </div>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-2">
+                                        {{ form_row(anlageForm.treatingDataGapsAsOutage) }}
                                     </div>
                                 </div>
                             </fieldset>

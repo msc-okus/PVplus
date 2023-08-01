@@ -14,25 +14,48 @@ class AssetManagementeReportFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('Production', SwitchType::class, [
+            ->add('TechnicalPV', SwitchType::class, [
+                'label' => 'Technical PV Performance',
                 'required' => false,
                 'data' => true,
-
+            ])
+            ->add('Production', SwitchType::class, [
+                'label' => 'Performance Analysis',
+                'required' => false,
+                'data' => true,
             ])
             ->add('ProdCap', SwitchType::class, [
-                'label' => 'Production & Capacity Factor',
+                'label' => 'Energy Production & Capacity Factor',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ])
+            ->add('ProdWithForecast', SwitchType::class, [
+                'label' => 'Production vs Forecast vs Expected',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ])
+            ->add('InvRank', SwitchType::class, [
+                'label' => 'Inverter Ranking by PR',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ])
+            ->add('PRPATable', SwitchType::class, [
+                'label' => 'Technical PR and Availability',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('CumulatForecastPVSYS', SwitchType::class, [
-                'label' => 'Cumulative Forecast - PVSYST',
+                'label' => 'Cumulative Forecast',
                 'required' => false,
-                'data' => false,
+                'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('CumulatForecastG4N', SwitchType::class, [
-                'label' => 'Cumulative Forecast - G4N',
+                'label' => 'Cumulative Forecast',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
@@ -55,10 +78,16 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
+            ->add('EfficiencyRank', SwitchType::class, [
+                'label' => 'Efficiency Ranking',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ])
             ->add('DailyProd', SwitchType::class, [
                 'label' => 'Daily Production',
                 'required' => false,
-                'data' => true,
+                'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('Availability', SwitchType::class, [
@@ -66,25 +95,25 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => true,
             ])
             ->add('AvYearlyOverview', SwitchType::class, [
-                'label' => 'Availability-Yearly Overview Heatmap Analysis',
+                'label' => 'Availability yearly heatmap',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('AvMonthlyOverview', SwitchType::class, [
-                'label' => 'Availability Analysis - Monthly Overview',
+                'label' => 'Monthly overview',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('AvYearlyTicketOverview', SwitchType::class, [
-                'label' => 'Availability Analysis - Yearly Overview',
+                'label' => ' Yearly overview',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('AvInv', SwitchType::class, [
-                'label' => 'Availability Inverter',
+                'label' => 'Availability inverter heatmap',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
@@ -95,13 +124,13 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => false,
             ])
             ->add('StringCurr', SwitchType::class, [
-                'label' => 'String Current Heatmap Analysis',
+                'label' => 'String level heatmap',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('InvPow', SwitchType::class, [
-                'label' => 'Inverter Power-DC Heatmap Analysis',
+                'label' => 'Inverter level heatmap',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
@@ -128,3 +157,4 @@ class AssetManagementeReportFormType extends AbstractType
         ]);
     }
 }
+

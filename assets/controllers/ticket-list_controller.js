@@ -54,7 +54,6 @@ export default class extends Controller {
         if ($(this.directionTarget).val() == '') {$(this.directionTarget).val('ASC');}
         else if ($(this.directionTarget).val() == 'ASC'){$(this.directionTarget).val('DESC');}
         else {$(this.directionTarget).val('ASC');}
-        console.log($(this.directionTarget).val());
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
 

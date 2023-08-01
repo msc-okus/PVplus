@@ -2,22 +2,19 @@
 
 @page {
   size: A4 landscape;
-  margin: 0;
 }
 
 @media print{
   html, body {
-    width: 297mm;
-    height: 210mm;
-  }
-  html *, body * {
-    font-family: 'Source Sans Pro', sans-serif;
+    width: 277mm;
+    height: 200mm;
+    padding: 0;
+    margin: 0;
   }
 }
 
 body {
-  padding-left: 1.3cm;
-  padding-right: 1.3cm;
+
 }
 
 body * {
@@ -25,8 +22,9 @@ body * {
 }
 
 .content_report{
-  height: 180mm!important;
-  width: 270mm!important;
+  height: 165mm!important;
+  width: 277mm!important;
+  overflow: hidden;
 }
 
 h1, h2, h3, h4 { color: #15508e!important; margin: 20px 0 5px 0;}
@@ -48,12 +46,12 @@ small { font-size: 80%; }
 .headline_customer{
   border-bottom: solid 2px #00386d;
   text-align: right;
-  width: 29.7cm!important;
+  width: 100% !important;
 }
 
 table {
   border-collapse: collapse;
-  width: auto !important;
+  width: 100% !important;
   /*margin-bottom: 1.5rem;*/
 }
 table * {
@@ -61,7 +59,7 @@ table * {
 }
 
 table td, table th {
-  border: none 0px;
+  border: none 0;
   padding: 2px 2px;
   border-collapse: collapse;
   font-size: 11px;

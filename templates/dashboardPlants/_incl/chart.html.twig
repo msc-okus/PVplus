@@ -1375,9 +1375,9 @@ and form.selectedChart != 'sollistirranalyse'%}
 {% elseif form.selectedChart == 'forecast_pr' %}
     {% include 'dashboardPlants/_incl/chart/forecast_pr.html.twig' %}
 {% elseif form.selectedChart == 'acpnom' %}
-    {% include 'dashboardPlants/_incl/chart/AcPNom.html.twig' %}
+    {% include 'dashboardPlants/_incl/chart/acPNom.html.twig' %}
 {% elseif form.selectedChart == 'dcpnomcurr' %}
-    {% include 'dashboardPlants/_incl/chart/DcPNomCurr.html.twig' %}
+    {% include 'dashboardPlants/_incl/chart/dcPNomCurr.html.twig' %}
 {% elseif form.selectedChart == 'heatmap' %}
     {% include 'dashboardPlants/_incl/chart/heatmap.html.twig' %}
 {% elseif form.selectedChart == 'tempheatmap' %}
@@ -1390,6 +1390,6 @@ and form.selectedChart != 'sollistirranalyse'%}
     {% include 'dashboardPlants/_incl/chart/sollisttempanalyse.html.twig' %}
 {% elseif form.selectedChart == 'sollistirranalyse' %}
     {% include 'dashboardPlants/_incl/chart/sollistirranalyse.html.twig' %}
-{% elseif form.selectedChart == 'ppcontrollerchart' %}
-    {% include 'dashboardPlants/_incl/chart/Ppcontroller1.html.twig' %}
+{# {% elseif form.selectedChart == 'ppcontrollerchart' %}
+    {% include 'dashboardPlants/_incl/chart/Ppcontroller1.html.twig' %} #}
 {% endif %}

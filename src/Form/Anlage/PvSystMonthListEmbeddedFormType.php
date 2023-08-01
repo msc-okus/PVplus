@@ -24,7 +24,7 @@ class PvSystMonthListEmbeddedFormType extends AbstractType
                 'required' => false,
             ])
             ->add('ertragDesign', TextType::class, [
-                'label' => 'Yield Design',
+                'label' => 'eGrid Design',
                 'empty_data' => '',
                 'required' => false,
             ])

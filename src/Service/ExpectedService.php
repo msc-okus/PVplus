@@ -46,7 +46,7 @@ class ExpectedService
         }
 
         $output = '';
-        if ($anlage->getGroups() && ! $anlage->isExcludeFromExpCalc()) {
+        if ($anlage->getGroups() && !$anlage->isExcludeFromExpCalc() && $anlage->getAnlBetrieb() !== null) {
             $conn = self::getPdoConnection();
             $arrayExpected = $this->calcExpected($anlage, $from, $to);
             if ($arrayExpected) {
@@ -114,7 +114,6 @@ class ExpectedService
                 $openWeather = false; ### temporäre deaktivierung OpenWeather
                 ###$openWeather = $this->openWeatherRepo->findTimeMatchingOpenWeather($anlage, date_create($stamp));
 
-                ###if ($openWeather) dump($openWeather->getTempC());
 
                 for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); ++$unit) {
                     // use plant based shadow loss (normaly - 0)

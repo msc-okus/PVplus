@@ -10,7 +10,10 @@ use App\Repository\GridMeterDayRepository;
 use App\Repository\PRRepository;
 use App\Service\Functions\PowerService;
 use DateTime;
+use Doctrine\ORM\NonUniqueResultException;
+use JetBrains\PhpStorm\NoReturn;
 use PDO;
+use Psr\Cache\InvalidArgumentException;
 
 class ExportService
 {
@@ -28,6 +31,129 @@ class ExportService
     {
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
+     */
+    public function gewichtetBavelseValuesExport(Anlage $anlage, DateTime $from, DateTime $to): string
+    {
+        $tempArray = [];
+        $availability = 0;
+        $outputArray = [];
+        $outputArray[0][1] = "";
+        $outputArray[1][1] = "Datum";
+        $colCounter = 2;
+        foreach ($anlage->getAcGroups() as $groupAC) {
+            $outputArray[0][$colCounter] = $groupAC->getAcGroupName();
+            $outputArray[1][$colCounter] = "Irr [kWh/qm] (all or east)"; ++$colCounter;
+            $outputArray[0][$colCounter] = '';
+            $outputArray[1][$colCounter] = "Irr [kWh/qm] (west)"; ++$colCounter;
+            $outputArray[0][$colCounter] = '';
+            $outputArray[1][$colCounter] = "Irr PPC [kWh/qm] (all or east)"; ++$colCounter;
+            $outputArray[0][$colCounter] = '';
+            $outputArray[1][$colCounter] = "Irr PPC [kWh/qm] (west)"; ++$colCounter;
+            $outputArray[0][$colCounter] = '';
+            $outputArray[1][$colCounter] = "gewichtete TheoPower mit TempCorr [kWh]"; ++$colCounter;
+            $outputArray[0][$colCounter] = '';
+            $outputArray[1][$colCounter] = "gewichtete TheoPower mit TempCorr PPC [kWh]"; ++$colCounter;
+        }
+
+        $outputArray[0][$colCounter] = '';
+        $outputArray[1][$colCounter] = "Mittelwert Luft Temp [°C]"; ++$colCounter;
+        #$outputArray[0][$colCounter] = '';
+        #$outputArray[1][$colCounter] = "Verfügbarkeit [%]"; ++$colCounter;
+        $outputArray[0][$colCounter] = '';
+        $outputArray[1][$colCounter] = "gewichtete Strahlung [kWh/qm]"; ++$colCounter;
+        $outputArray[0][$colCounter] = '';
+        $outputArray[1][$colCounter] = "gewichtete Strahlung PPC [kWh/qm]"; ++$colCounter;
+        $outputArray[0][$colCounter] = '';
+        $outputArray[1][$colCounter] = "gewichtete TheoPower mit TempCorr [kWh]"; ++$colCounter;
+        $outputArray[0][$colCounter] = '';
+        $outputArray[1][$colCounter] = "gewichtete TheoPower mit TempCorr PPC [kWh]"; ++$colCounter;
+        $outputArray[0][$colCounter] = '';
+        $outputArray[1][$colCounter] = "eGrid [kWh]"; ++$colCounter;
+        $outputArray[0][$colCounter] = '';
+        $outputArray[1][$colCounter] = "eGrid PPC [kWh]"; ++$colCounter;
+        $outputArray[0][$colCounter] = '';
+        $outputArray[1][$colCounter] = "Janitza [kWh]"; ++$colCounter;
+        $outputArray[0][$colCounter] = '';
+        $outputArray[1][$colCounter] = "Janitza PPC [kWh]"; ++$colCounter;
+
+        /* @var AnlageAcGroups $groupAC */
+
+        $rowCounter = 3;
+        $intervall = 3600 * 24;
+        for ($stamp = (int)$from->format('U'); $stamp <= (int)$to->format('U'); $stamp += $intervall) {
+            $gewichteteStrahlung = $gewichteteStrahlungPpc = $gewichteteTheoPower = $gewichteteTheoPowerPpc = $sumEvuPower = $sumEvuPowerPpc = 0;
+            $colCounter = 1;
+            $outputArray[$rowCounter][$colCounter] = date('Y-m-d H:i', $stamp+900); ++$colCounter;
+
+            // für jede AC Gruppe ermittele Wetterstation, lese Tageswert und gewichte diesen
+            foreach ($anlage->getAcGroups() as $groupAC) {
+                $weather = $this->functions->getWeatherNew($anlage, $groupAC->getWeatherStation(), date('Y-m-d H:i', $stamp), date('Y-m-d H:i', $stamp+$intervall));
+                $acPower = $this->powerService->getSumAcPowerBySection($anlage, date('Y-m-d H:i', $stamp), date('Y-m-d H:i', $stamp+$intervall), $groupAC->getAcGroup());
+                $tempArray[] = $weather['airTemp'];
+                if ($groupAC->getIsEastWestGroup()) {
+                    if ($weather['upperIrr'] > 0 && $weather['lowerIrr'] > 0) {
+                        $factorEast = $groupAC->getPowerEast() / $groupAC->getDcPowerInverter();
+                        $factorWest = $groupAC->getPowerWest() / $groupAC->getDcPowerInverter();
+                        $irradiation = $weather['upperIrr'] * $factorEast + $weather['lowerIrr'] * $factorWest;
+                        $irradiationPpc = $weather['upperIrrPpc'] * $factorEast + $weather['lowerIrrPpc'] * $factorWest;
+                    } elseif ($weather['upperIrr'] > 0) {
+                        $irradiation = $weather['upperIrr'];
+                        $irradiationPpc = $weather['upperIrrPpc'];
+                    } else {
+                        $irradiation = $weather['lowerIrr'];
+                        $irradiationPpc = $weather['lowerIrrPpc'];
+                    }
+                } else {
+                    $irradiation = $weather['upperIrr'];
+                    $irradiationPpc = $weather['upperIrrPpc'];
+                }
+                // TheoPower gewichtet berechnen
+                $outputArray[$rowCounter][$colCounter] = round($weather['upperIrr'] / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($weather['lowerIrrlowerIrr'] / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($weather['upperIrrPpc'] / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($weather['lowerIrrPpc'] / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($acPower['powerTheoFt'], 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($acPower['powerTheoFtPpc'], 6); ++$colCounter;
+
+                // Aufsummieren der gewichteten Werte zum Gesamtwert
+                $gewichteteTheoPower += $acPower['powerTheoFt'];
+                $gewichteteTheoPowerPpc += $acPower['powerTheoFtPpc'];
+                $sumEvuPower = $acPower['powerEvu'];
+                $sumEvuPowerPpc = $acPower['powerEvuPpc'];
+                $gewichteteStrahlung += $groupAC->getGewichtungAnlagenPR() * $irradiation;
+                $gewichteteStrahlungPpc += $groupAC->getGewichtungAnlagenPR() * $irradiationPpc;
+            }
+            $temp = self::mittelwert($tempArray);
+            unset($tempArray);
+            $availability = $this->availabilityByTicket->calcAvailability($anlage, date_create(date('Y-m-d H:i', $stamp)), date_create(date('Y-m-d H:i', $stamp+$intervall)), null, 2);
+            $eGrid = $this->powerService->getGridSum($anlage, date_create(date('Y-m-d H:i', $stamp)), date_create(date('Y-m-d H:i', $stamp+$intervall)));
+            $eGridPPC = $this->powerService->getGridSumPpc($anlage, date_create(date('Y-m-d H:i', $stamp)), date_create(date('Y-m-d H:i', $stamp+$intervall)));
+            $outputArray[$rowCounter][$colCounter] = $temp; ++$colCounter;
+            #$outputArray[$rowCounter][$colCounter] = $availability; ++$colCounter;
+            $outputArray[$rowCounter][$colCounter] = $gewichteteStrahlung / 1000 / 4; ++$colCounter;
+            $outputArray[$rowCounter][$colCounter] = $gewichteteStrahlungPpc / 1000 / 4; ++$colCounter;
+            $outputArray[$rowCounter][$colCounter] = $gewichteteTheoPower; ++$colCounter;
+            $outputArray[$rowCounter][$colCounter] = $gewichteteTheoPowerPpc; ++$colCounter;
+            $outputArray[$rowCounter][$colCounter] = $eGrid; ++$colCounter;
+            $outputArray[$rowCounter][$colCounter] = $eGridPPC; ++$colCounter;
+            $outputArray[$rowCounter][$colCounter] = $sumEvuPower; ++$colCounter;
+            $outputArray[$rowCounter][$colCounter] = $sumEvuPowerPpc; ++$colCounter;
+
+            ++$rowCounter;
+        }
+
+        self::exportCsv($anlage, $from, $outputArray);
+
+        return "fertig";
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
+     */
     public function gewichtetTagesstrahlungAsTable(Anlage $anlage, DateTime $from, DateTime $to): string
     {
         $tempArray = [];
@@ -87,7 +213,7 @@ class ExportService
                 $gewichteteStrahlung += $groupAC->getGewichtungAnlagenPR() * $irradiation;
                 $gewichteteStrahlungPpc += $groupAC->getGewichtungAnlagenPR() * $irradiationPpc;
             }
-            $availability = $this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), date('Y-m-d', $stamp));
+            $availability = $this->availabilityByTicket->calcAvailability($anlage, date_create(date('Y-m-d 00:00', $stamp)), date_create(date('Y-m-d 23:59', $stamp)), null, 2);
             $output .= '<td>'.round(self::mittelwert($tempArray), 3).'</td>';
             $output .= '<td>'.round($availability, 2).'</td>';
             $output .= '<td>'.round($gewichteteStrahlung / 1000 / 4, 4).'</td>';
@@ -352,5 +478,42 @@ class ExportService
         unset($res);
 
         return $output;
+    }
+
+    private function exportCsv(Anlage $anlage, DateTime $from, array $data): string
+    {
+        // Start the output buffer.
+        ob_start();
+
+        // Set PHP headers for CSV output.
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=csv_export.csv');
+
+        // Clean up output buffer before writing anything to CSV file.
+        ob_end_clean();
+
+        // Create a file pointer with PHP.
+        #$output = fopen('daten-'.$anlage->getAnlName().'-'.$from->format('Y-m').'.csv', 'a'); //
+        $output = fopen('php://output', 'w');
+
+        $i=1;
+        // Loop through the prepared data to output it to CSV file.
+        foreach ($data as $data_item) {
+            fputcsv(
+                $output,
+                $data_item,
+                ";", "\"", "\\","\n");
+
+            ++$i;
+            if ($i % 1000 == 0) {
+                #fclose($output);
+                #$output = fopen('daten '.$anlage->getAnlName().'-'.$from->format('Y-m').'.csv', 'a');
+            }
+        }
+
+        fclose($output);
+        unset ($output);
+
+        return "";
     }
 }

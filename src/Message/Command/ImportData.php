@@ -11,6 +11,7 @@ class ImportData
         private DateTime $startDate,
         private DateTime $endDate,
         private string $path,
+        private string $importType,
         private int $logId
     )
     {
@@ -34,6 +35,11 @@ class ImportData
     public function getPath(): string
     {
         return $this->path;
+    }
+
+    public function getImportType(): string
+    {
+        return $this->importType;
     }
 
     public function getlogId(): int

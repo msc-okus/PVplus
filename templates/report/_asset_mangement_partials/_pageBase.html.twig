@@ -2,7 +2,7 @@
     <div style="height: 13mm!important; width:100%!important; overflow: hidden">
         <table style="width: 100%; ">
             <tr style="border-bottom: solid 2px {{ anlage.eigner.fontColor2 }};">
-                <td style=" width: 254mm; text-align: left;" class=""><h1>{{ anlage.projektNr }} {{ anlage.anlName }} {{ monthName }} {{ year }}</h1></td>
+                <td style=" width: 254mm; text-align: left;" class=""><h1>{{ anlage.projektNr }} {{ anlage.anlName }} - {{ monthName }} {{ year }}</h1></td>
                 <td><img alt="Cutomer Logo" class="customer_logo" src="{{ absolute_url(asset(anlage.eigner.getCustomerLogo)) }}"></td>
 
             </tr>

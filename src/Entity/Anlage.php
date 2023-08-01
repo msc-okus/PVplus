@@ -16,8 +16,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @ApiResource(
@@ -343,6 +345,15 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $threshold2PA3 = '50';
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $usePAFlag0 = false;
+    #[ORM\Column(type: 'boolean')]
+    private bool $usePAFlag1 = false;
+    #[ORM\Column(type: 'boolean')]
+    private bool $usePAFlag2 = false;
+    #[ORM\Column(type: 'boolean')]
+    private bool $usePAFlag3 = false;
+
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $paFormular0 = '2'; // 2 = ti / titheo
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
@@ -394,7 +405,8 @@ class Anlage
     private float|string|null $annualDegradation;
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $pldPR;
-
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $treatingDataGapsAsOutage = true;
     #[ORM\Column(type: 'string', length: 20)]
     private string $epcReportType = '';
 
@@ -473,7 +485,7 @@ class Anlage
     private bool $useLowerIrrForExpected = false;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private string $epcReportNote;
+    private ?string $epcReportNote;
 
     #[ORM\Column(type: 'integer')]
     private int $configType;
@@ -488,7 +500,10 @@ class Anlage
     private bool $hasStrings = false;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private bool $hasPPC = false;
+    private ?bool $hasPPC = false;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $usePPC = false;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private bool $hasPannelTemp = false;
@@ -787,6 +802,16 @@ class Anlage
         return $this->anlBetrieb;
     }
 
+    public function getBetriebsJahre(): ?float
+    {
+        if ($this->getAnlBetrieb()) {
+            return  (int) date('Y') - (int) $this->getAnlBetrieb()->format('Y');
+        } else {
+            return false;
+        }
+
+    }
+
     public function setAnlBetrieb(?DateTime $anlBetrieb): self
     {
         $this->anlBetrieb = $anlBetrieb;
@@ -1041,31 +1066,31 @@ class Anlage
         }
     }
 
-    public function setAnlIrChange(string $anlIrChange): self
+    public function setAnlIrChange(string $irrChange): self
     {
         $weatherStation = $this->getWeatherStation();
-        $weatherStation->setChangeSensor($IrChange);
+        $weatherStation->setChangeSensor($irrChange);
 
         return $this;
     }
-
+    /** @deprecated  */
     public function getAnlDbUnit(): ?string
     {
         return $this->anlDbUnit;
     }
-
+    /** @deprecated  */
     public function setAnlDbUnit(?string $anlDbUnit): self
     {
         $this->anlDbUnit = $anlDbUnit;
 
         return $this;
     }
-
+    /** @deprecated  */
     public function getAnlView(): ?string
     {
         return $this->anlView;
     }
-
+    /** @deprecated  */
     public function setAnlView(string $anlView): self
     {
         $this->anlView = $anlView;
@@ -2178,6 +2203,48 @@ class Anlage
         return $this;
     }
 
+    public function isUsePAFlag0(): bool
+    {
+        return $this->usePAFlag0;
+    }
+
+    public function setUsePAFlag0(bool $usePAFlag0): void
+    {
+        $this->usePAFlag0 = $usePAFlag0;
+    }
+
+    public function isUsePAFlag1(): bool
+    {
+        return $this->usePAFlag1;
+    }
+
+    public function setUsePAFlag1(bool $usePAFlag1): void
+    {
+        $this->usePAFlag1 = $usePAFlag1;
+    }
+
+    public function isUsePAFlag2(): bool
+    {
+        return $this->usePAFlag2;
+    }
+
+    public function setUsePAFlag2(bool $usePAFlag2): void
+    {
+        $this->usePAFlag2 = $usePAFlag2;
+    }
+
+    public function isUsePAFlag3(): bool
+    {
+        return $this->usePAFlag3;
+    }
+
+    public function setUsePAFlag3(bool $usePAFlag3): void
+    {
+        $this->usePAFlag3 = $usePAFlag3;
+    }
+
+
+
     public function getPaFormular0(): ?string
     {
         if ($this->paFormular0 === null) return 1;
@@ -2566,6 +2633,19 @@ class Anlage
         $this->pldPR = $pldPR;
 
         return $this;
+    }
+    public function isTreatingDataGapsAsOutage(): ?bool
+    {
+        return $this->treatingDataGapsAsOutage;
+    }
+    public function getTreatingDataGapsAsOutage(): ?bool
+    {
+        return $this->treatingDataGapsAsOutage;
+    }
+
+    public function setTreatingDataGapsAsOutage(?bool $treatingDataGapsAsOutage): void
+    {
+        $this->treatingDataGapsAsOutage = $treatingDataGapsAsOutage;
     }
 
     public function getEpcReportType(): ?string
@@ -3074,6 +3154,18 @@ class Anlage
         return $this;
     }
 
+    public function getUsePPC(): ?bool
+    {
+        return $this->usePPC;
+    }
+
+    public function setUsePPC(bool $usePPC): self
+    {
+        $this->usePPC = $usePPC;
+
+        return $this;
+    }
+
     public function getHasPannelTemp(): ?bool
     {
         return $this->hasPannelTemp;
@@ -3388,6 +3480,7 @@ class Anlage
      * Function to calculate the Pnom for every inverter, returns a Array with the Pnom for all inverters.
      *
      * return array: Index = Inverter, value = Pnom of this Inverter
+     * @throws InvalidArgumentException
      */
     public function getPnomInverterArray(): array
     {
@@ -3419,7 +3512,37 @@ class Anlage
                 break;
         }
 
-        return $dcPNomPerInvereter ;
+        return $dcPNomPerInvereter;
+    }
+
+    public function getPnomControlSum(): float
+    {
+        $controlSumPNom = 0;
+
+        switch ($this->getConfigType()) {
+            case 1:
+            case 2:
+                foreach ($this->getGroups() as $inverter) {
+                    $sumPNom = 0;
+                    foreach ($inverter->getModules() as $module) {
+                        $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
+                    }
+                    $controlSumPNom += $sumPNom;
+                }
+                break;
+            case 3:
+            case 4:
+                foreach ($this->getGroups() as $groups) {
+                    $sumPNom = 0;
+                    foreach ($groups->getModules() as $module) {
+                        $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
+                    }
+                    $controlSumPNom += $sumPNom;
+                }
+                break;
+        }
+
+        return $controlSumPNom;
     }
 
     public function isExcludeFromExpCalc(): ?bool
@@ -3703,6 +3826,16 @@ class Anlage
         return $this->sensors;
     }
 
+    /**
+     * @return Collection<int, AnlageSensors>
+     */
+    public function getSensorsInUse(): Collection
+    {
+        $criteria = AnlagenRepository::sensorsInUse();
+
+        return $this->sensors->matching($criteria);
+    }
+
     public function addSensor(AnlageSensors $sensor): static
     {
         if (!$this->sensors->contains($sensor)) {
@@ -3724,6 +3857,10 @@ class Anlage
 
         return $this;
     }
+
+    /**
+     * New Algorithme for TicketGeneration
+     */
     public function isNewAlgorythm(): ?bool
     {
         return $this->newAlgorythm;
@@ -3733,4 +3870,30 @@ class Anlage
     {
         $this->newAlgorythm = $newAlgorythm;
     }
+
+    public function getMinIrrThreshold(): mixed
+    {
+        return min($this->getThreshold1PA0(), $this->getThreshold1PA1(), $this->getThreshold1PA2(), $this->getThreshold1PA3());
+    }
+
+    public function getPrFormular0Image(): string
+    {
+        return '/images/formulas/' . $this->getPrFormular0() . '.png';
+    }
+
+    public function getPrFormular1Image(): string
+    {
+        return '/images/formulas/' . $this->getPrFormular1() . '.png';
+    }
+
+    public function getPrFormular2Image(): string
+    {
+        return '/images/formulas/' . $this->getPrFormular2() . '.png';
+    }
+
+    public function getPrFormular3Image(): string
+    {
+        return '/images/formulas/' . $this->getPrFormular3() . '.png';
+    }
+
 }

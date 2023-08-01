@@ -23,6 +23,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
+use function Clue\StreamFilter\fun;
 
 class AnlageFormType extends AbstractType
 {
@@ -39,6 +40,12 @@ class AnlageFormType extends AbstractType
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
+
+        $anlage = $builder->getData();
+        if (!$anlage instanceof Anlage) {
+            throw new \RuntimeException('Invalid entity.');
+        }
+
 
         $prArray = self::prFormulars();
 
@@ -172,7 +179,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('anlBetrieb', null, [
                 'label' => 'In Betrieb seit:',
-                'help' => '[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt',
+                'help' => "[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt<br> In Betrieb seit ". $anlage->getBetriebsJahre()." Jahr(en).",
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])
@@ -487,11 +494,15 @@ class AnlageFormType extends AbstractType
                 'help' => '[hasStrings]',
             ])
             ->add('hasPPC', SwitchType::class, [
-                'label' => 'Anlage hat Power Plant Controller Daten',
+                'label' => 'Plant has PPC',
                 'help' => '[hasPPC]',
             ])
+            ->add('usePPC', SwitchType::class, [
+                'label' => 'Respect PPC Signal on calc',
+                'help' => '[usePPC]<br>Power, TheoPower, Irradiation will be excluded if PPC signal is lower 100',
+            ])
             ->add('ignoreNegativEvu', SwitchType::class, [
-                'label'     => 'Ignore negative EVU values on reporting',
+                'label'     => 'Ignore negative EVU values',
                 'help'      => '[ignoreNegativEvu]',
             ])
             ->add('hasPannelTemp', SwitchType::class, [
@@ -588,43 +599,59 @@ class AnlageFormType extends AbstractType
 
             ->add('threshold1PA0', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA0] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
+                'help' => '[threshold1PA0]<br>(increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA0', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA0] (increas ti, if irradiation > threshold2 and power > 0)',
+                'help' => '[threshold2PA0]<br>(increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA1', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA1] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
+                'help' => '[threshold1PA1]<br>(increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA1', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA1] (increas ti, if irradiation > threshold2 and power > 0)',
+                'help' => '[threshold2PA1]<br>(increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA2', TextType::class, [
-                'label' => 'lower threshold [WaW/qmtt] ',
-                'help' => '[threshold1PA2] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
+                'label' => 'lower threshold [W/qm] ',
+                'help' => '[threshold1PA2]<br>(increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA2', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA2] (increas ti, if irradiation > threshold2 and power > 0)',
+                'help' => '[threshold2PA2]<br>(increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA3', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA3] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
+                'help' => '[threshold1PA3]<br>(increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA3', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA3] (increas ti, if irradiation > threshold2 and power > 0)',
+                'help' => '[threshold2PA3]<br>(increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
+            ])
+            ->add('usePAFlag0', SwitchType::class, [
+                'label' => 'Use PA Flag from Sensors',
+                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+            ])
+            ->add('usePAFlag1', SwitchType::class, [
+                'label' => 'Use PA Flag from Sensors',
+                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+            ])
+            ->add('usePAFlag2', SwitchType::class, [
+                'label' => 'Use PA Flag from Sensors',
+                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+            ])
+            ->add('usePAFlag3', SwitchType::class, [
+                'label' => 'Use PA Flag from Sensors',
+                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('paFormular0', ChoiceType::class, [
                 'label'         => 'PA Formular',
@@ -661,6 +688,10 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => 'expected',
                 'expanded'      => false,
                 'multiple'      => false,
+            ])
+            ->add('treatingDataGapsAsOutage', SwitchType::class, [
+                'label' => 'Treat Data Gaps as Outage',
+                'help'  => '[treatingDataGapsAsOutage]',
             ])
             ->add('prFormular0', ChoiceType::class, [
                 'label'         => 'PR Formular',
@@ -704,12 +735,12 @@ class AnlageFormType extends AbstractType
             // ###############################################
 
             ->add('ActivateTicketSystem', SwitchType::class, [
-                'label' => 'Activate the Ticket System',
+                'label' => 'Activate ticket autogeneration',
                 'help' => '[ActivateTicketSystem]',
                 'attr' => ['data-plant-target' => 'activateTicket', 'data-action'=>'plant#activateTicket'],
             ])
             ->add('newAlgorythm', SwitchType::class, [
-                'label' => 'Use the new Algorithm ',
+                'label' => 'Use the new Algorithm',
                 'help' => 'The new algorithm prioritizes joining tickets that begin at the same time, and the old one joins tickets if the begin and end match',
                 'attr' => ['data-plant-target' => 'ticket'],
             ])
@@ -742,9 +773,8 @@ class AnlageFormType extends AbstractType
                 'attr' => ['data-plant-target' => 'ticket']
             ])
             ->add('kpiTicket', SwitchType::class, [
-                'label' => 'Activate kpi Ticket',
-                'help' => '[kpi Ticket]',
-                'attr' => ['data-plant-target' => 'ticket']
+                'label' => 'Activate Performace (KPI) Tickets',
+                'help' => '[kpiTicket]',
             ])
             ->add('gridTicket', SwitchType::class, [
                 'label' => 'Activate Grid Ticket',
@@ -752,7 +782,7 @@ class AnlageFormType extends AbstractType
                 'attr' => ['data-plant-target' => 'ticket']
             ])
             ->add('PowerThreshold', TextType::class, [
-                'label' => 'Ticket Expected limit',
+                'label' => 'Ticket Power minimum value',
                 'help' => '[PowerLimit]',
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '0',

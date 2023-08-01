@@ -11,17 +11,16 @@ use App\Repository\EconomicVarValuesRepository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
-use App\Service\Reports\ReportsMonthlyService;
+use App\Service\Reports\ReportsMonthlyV2Service;
 use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Hisune\EchartsPHP\Doc\IDE\XAxis;
 use Hisune\EchartsPHP\ECharts;
 use PDO;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
-use App\Service\PdfService;
 
 class AssetManagementService
 {
@@ -44,15 +43,16 @@ class AssetManagementService
         private Environment $twig,
         private PdfService $pdf,
         private LogMessagesService $logMessages,
-        private ReportsMonthlyService $reportsMonthly,
+        private ReportsMonthlyV2Service $reportsMonthly,
         private AnlagenRepository $anlagenRepository,
-    ) 
+    )
     {
         $this->conn = self::getPdoConnection();
     }
 
     /**
      * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null, ?int $logId = null): AnlagenReports
     {
@@ -84,96 +84,124 @@ class AssetManagementService
         $output['data'] = $data;
 
         $pdf = $this->pdf;
-
+        $reportParts = [];
         $content = $output;
         $this->logMessages->updateEntry($logId, 'working', 95);
-        $htmlhead = $this->twig->render('report/asset_report_header.html.twig', [
+        $html = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
+            'pr0image' =>$anlage->getPrFormular0Image(),
+            'pr1image' =>$anlage->getPrFormular1Image(),
+            'pr2image' =>$anlage->getPrFormular2Image(),
+            'pr3image' =>$anlage->getPrFormular3Image(),
 
         ]);
-        $htmlhead = str_replace('src="//', 'src="https://', $htmlhead);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[0] = $pdf->createPage($htmlhead, $fileroute, "head", false);// we will store this later in the entity
-        $html1 = $this->twig->render('report/asset_report_part_1.html.twig', [
+        $reportParts['head'] = $pdf->createPage($html, $fileroute, "head", false);// we will store this later in the entity
+
+        $html = $this->twig->render('report/asset_report_part_1.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'operations_right' => $content['operations_right'],
             'table_overview_monthly' => $content['table_overview_monthly']
 
         ]);
-        $html1 = str_replace('src="//', 'src="https://', $html1);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[1] = $pdf->createPage($html1, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
+        $reportParts['ProductionCapFactor'] = $pdf->createPage($html, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
 
-        if($anlage->hasPVSYST()) {
-            $html2 = $this->twig->render('report/asset_report_part_2.html.twig', [
-                'anlage' => $anlage,
-                'month' => $reportMonth,
-                'monthName' => $output['month'],
-                'year' => $reportYear,
-                'dataMonthArray' => $content['dataMonthArray'],
-                'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
-                'dataCfArray' => $content['dataCfArray'],
-                'reportmonth' => $content['reportmonth'],
-                'montharray' => $content['monthArray'],
-                //until here all the parameters must be used in all the renders
-                'forecast_PVSYST_table' => $content['forecast_PVSYST_table'],
-                'table_overview_monthly' => $content['table_overview_monthly'],
-                'forecast_PVSYST' => $content['forecast_PVSYST'],
-
-            ]);
-            $html2 = str_replace('src="//', 'src="https://', $html2);
-            $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-            $reportParts[2] = $pdf->createPage($html2, $fileroute, "CumForecastPVSYS", false);// we will store this later in the entity
-        }
-        $html3 = $this->twig->render('report/asset_report_part_3.html.twig', [
+        $html = $this->twig->render('report/asset_report_technicalPRPA.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
+            //until here all the parameters must be used in all the renders
+            'monthlyTableForPRAndPA' => $content['monthlyTableForPRAndPA'],
+            'PA_MonthlyGraphic' => $content['PA_MonthlyGraphic'],
+            'PR_MonthlyGraphic' => $content['PR_MonthlyGraphic'],
+
+        ]);
+        $html = str_replace('src="//', 'src="https://', $html);
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+        $reportParts['PRPATable'] = $pdf->createPage($html, $fileroute, "PRPATable", false);// we will store this later in the entity
+
+        $html = $this->twig->render('report/production_with_Forecast.html.twig', [
+            'anlage' => $anlage,
+            'month' => $reportMonth,
+            'monthName' => $output['month'],
+            'year' => $reportYear,
+            'dataCfArray' => $content['dataCfArray'],
+            'reportmonth' => $content['reportmonth'],
+            'monthArray' => $content['monthArray'],
+            //until here all the parameters must be used in all the renders
+            'operations_right_withForecast' => $content['operations_right_withForecast'],
+            'table_overview_monthly' => $content['table_overview_monthly']
+
+        ]);
+        $html = str_replace('src="//', 'src="https://', $html);
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+        $reportParts['production_with_forecast'] = $pdf->createPage($html, $fileroute, "production_with_forecast", false);// we will store this later in the entity
+        if($anlage->hasPVSYST()) {
+            $html = $this->twig->render('report/asset_report_part_2.html.twig', [
+                'anlage' => $anlage,
+                'month' => $reportMonth,
+                'monthName' => $output['month'],
+                'year' => $reportYear,
+                'dataCfArray' => $content['dataCfArray'],
+                'reportmonth' => $content['reportmonth'],
+                'monthArray' => $content['monthArray'],
+                //until here all the parameters must be used in all the renders
+                'forecast_PVSYST_table' => $content['forecast_PVSYST_table'],
+                'table_overview_monthly' => $content['table_overview_monthly'],
+                'forecast_PVSYST' => $content['forecast_PVSYST'],
+            ]);
+            $html = str_replace('src="//', 'src="https://', $html);
+            $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+            $reportParts['CumForecastPVSYS'] = $pdf->createPage($html, $fileroute, "CumForecastPVSYS", false);// we will store this later in the entity
+        }
+        $html = $this->twig->render('report/asset_report_part_3.html.twig', [
+            'anlage' => $anlage,
+            'month' => $reportMonth,
+            'monthName' => $output['month'],
+            'year' => $reportYear,
+            'dataCfArray' => $content['dataCfArray'],
+            'reportmonth' => $content['reportmonth'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'forecast_G4N_table' => $content['forecast_G4N_table'],
             'forecast_G4N' => $content['forecast_G4N'],
 
         ]);
-        $html3 = str_replace('src="//', 'src="https://', $html3);
+        $html = str_replace('src="//', 'src="https://', $html);
 
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[3] = $pdf->createPage($html3, $fileroute, "CumForecastG4N", false);// we will store this later in the entity
-        $html4 = $this->twig->render('report/asset_report_part_4.html.twig', [
+        $reportParts['CumForecastG4N'] = $pdf->createPage($html, $fileroute, "CumForecastG4N", false);// we will store this later in the entity
+        $html = $this->twig->render('report/asset_report_part_4.html.twig', [
 
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'losses_t1' => $content['losses_t1'],
             'losses_year' => $content['losses_year'],
@@ -181,20 +209,19 @@ class AssetManagementService
             'losses_monthly' => $content['losses_monthly'],
 
         ]);
-        $html4 = str_replace('src="//', 'src="https://', $html4);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[4] = $pdf->createPage($html4, $fileroute, "CumLosses", false);// we will store this later in the entity
+        $html = str_replace('src="//', 'src="https://', $html);
 
-        $html5 = $this->twig->render('report/asset_report_part_5.html.twig', [
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+        $reportParts['CumLosses'] = $pdf->createPage($html, $fileroute, "CumLosses", false);// we will store this later in the entity
+
+        $html = $this->twig->render('report/asset_report_part_5.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'operations_monthly_right_g4n_tr1' => $content['operations_monthly_right_g4n_tr1'],
             'operations_monthly_right_g4n_tr2' => $content['operations_monthly_right_g4n_tr2'],
@@ -214,118 +241,141 @@ class AssetManagementService
             'operations_monthly_right_iout_tr2' => $content['operations_monthly_right_iout_tr2'],
             'operations_monthly_right_iout_tr3' => $content['operations_monthly_right_iout_tr3'],
             'operations_monthly_right_iout_tr4' => $content['operations_monthly_right_iout_tr4'],
-            'operations_monthly_right_iout_tr5' => $content['operations_monthly_right_iout_tr5'],
+            'operations_monthly_right_iout_trlosses_year5' => $content['operations_monthly_right_iout_tr5'],
             'operations_monthly_right_iout_tr6' => $content['operations_monthly_right_iout_tr6'],
             'operations_monthly_right_iout_tr7' => $content['operations_monthly_right_iout_tr7'],
             'production_monthly_chart' => $content['production_monthly_chart']
         ]);
-        $html5 = str_replace('src="//', 'src="https://', $html5);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[5] = $pdf->createPage($html5, $fileroute, "MonthlyProd", false);// we will store this later in the entity
+        $reportParts['MonthlyProd'] = $pdf->createPage($html, $fileroute, "MonthlyProd", false);// we will store this later in the entity
 
-        $output = $this->reportsMonthly->buildMonthlyReportNew($anlage, $reportMonth, $reportYear);
-        $htmlTable = $this->twig->render('report/asset_report_PRTable.html.twig', [
+        $table = $this->reportsMonthly->buildTable($anlage, null, null, $reportMonth, $reportYear);
+        $html = $this->twig->render('report/asset_report_PRTable.html.twig', [
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             'anlage'        => $anlage,
-            'report'        => $output,
+            'report'        => $table,
         ]);
-        $htmlTable = str_replace('src="//', 'src="https://', $htmlTable);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
 
-        $reportParts[6] = $pdf->createPage($htmlTable, $fileroute, "PRTable", false);// we will store this later in the entity
+        $reportParts['PRTable'] = $pdf->createPage($html, $fileroute, "PRTable", false);// we will store this later in the entity
 
+        $html = $this->twig->render('report/InverterRank.html.twig', [
+            'month' => $reportMonth,
+            'monthName' => $output['month'],
+            'year' => $reportYear,
+            'dataCfArray' => $content['dataCfArray'],
+            'reportmonth' => $content['reportmonth'],
+            'monthArray' => $content['monthArray'],
+            'anlage'        => $anlage,
+            'InverterPRRankTables' => $content['InverterPRRankTables'],
+            'InverterPRRankGraphics' => $content['InverterPRRankGraphics'],
+            'prSumaryTable' => $content['prSumaryTable'],
+            'sumary_pie_graph' => $content['sumary_pie_graph']
 
-        $html6 = $this->twig->render('report/asset_report_part_6.html.twig', [
+        ]);
+        $html = str_replace('src="//', 'src="https://', $html);
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+
+        $reportParts['InverterRank'] = $pdf->createPage($html, $fileroute, "InverterRank", false);// we will store this later in the entity
+
+        $html = $this->twig->render('report/_inverter_efficiency_rank.html.twig', [
+            'month' => $reportMonth,
+            'monthName' => $output['month'],
+            'year' => $reportYear,
+            'dataCfArray' => $content['dataCfArray'],
+            'reportmonth' => $content['reportmonth'],
+            'monthArray' => $content['monthArray'],
+            'anlage'        => $anlage,
+            'efficiencyRanking' => $content['efficiencyRanking'],
+
+        ]);
+        $html = str_replace('src="//', 'src="https://', $html);
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+
+        $reportParts['InverterEfficiencyRank'] = $pdf->createPage($html, $fileroute, "InverterEfficiencyRank", false);// we will store this later in the entity
+
+        $html = $this->twig->render('report/asset_report_part_6.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'table_overview_dayly' => $content['table_overview_dayly'],
 
         ]);
-        $html6 = str_replace('src="//', 'src="https://', $html6);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[7] = $pdf->createPage($html6, $fileroute, "ProdExpvsAct", false);// we will store this later in the entity
+        $reportParts['DailyProd'] = $pdf->createPage($html, $fileroute, "ProdExpvsAct", false);// we will store this later in the entity
 
-        $html7 = $this->twig->render('report/asset_report_part_7.html.twig', [
+        $html = $this->twig->render('report/asset_report_part_7.html.twig', [
 
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'invNr' => count($content['plantAvailabilityMonth']),
             'operations_currents_dayly_table' => $content['operations_currents_dayly_table'],
             'acGroups' => $content['acGroups'],
         ]);
-        $html7 = str_replace('src="//', 'src="https://', $html7);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[8] = $pdf->createPage($html7, $fileroute, "String", false);// we will store this later in the entity
-        $html8 = $this->twig->render('report/asset_report_part_8.html.twig', [
+        $reportParts['String'] = $pdf->createPage($html, $fileroute, "String", false);// we will store this later in the entity
+        $html = $this->twig->render('report/asset_report_part_8.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'invNr' => count($content['plantAvailabilityMonth']),
             'operations_currents_dayly_table' => $content['operations_currents_dayly_table'],
             'acGroups' => $content['acGroups'],
         ]);
-        $html8 = str_replace('src="//', 'src="https://', $html8);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[9] = $pdf->createPage($html8, $fileroute, "Inverter", false);// we will store this later in the entity
-        $html9 = $this->twig->render('report/asset_report_part_9.html.twig', [
+        $reportParts['Inverter'] = $pdf->createPage($html, $fileroute, "Inverter", false);// we will store this later in the entity
+
+        $html = $this->twig->render('report/asset_report_part_9.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'invNr' => count($content['plantAvailabilityMonth']),
             'operations_currents_dayly_table' => $content['operations_currents_dayly_table'],
             'acGroups' => $content['acGroups'],
             'plantAvailabilityCurrentYear' => $content['plantAvailabilityCurrentYear'],
         ]);
-        $html9 = str_replace('src="//', 'src="https://', $html9);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[10] = $pdf->createPage($html9, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
-        $html10 = $this->twig->render('report/asset_report_part_10.html.twig', [
+        $reportParts['AvailabilityYearOverview'] = $pdf->createPage($html, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
+        $html = $this->twig->render('report/asset_report_part_10.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'invNr' => count($content['plantAvailabilityMonth']),
             'Availability_Year_To_Date_Table' => $content['Availability_Year_To_Date_Table'],
@@ -338,19 +388,17 @@ class AssetManagementService
             'PercentageTableYear' => $content['PercentageTableYear'],
             'losseskwhchartYearMonthly' => $content['losseskwhchartYearMonthly']
         ]);
-        $html10 = str_replace('src="//', 'src="https://', $html10);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[11] = $pdf->createPage($html10, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
-        $html11 =$this->twig->render('report/asset_report_part_11.html.twig', [
+        $reportParts['AvailabilityYear'] = $pdf->createPage($html, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
+        $html =$this->twig->render('report/asset_report_part_11.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'availabilityMonthTable' => $content['availabilityMonthTable'],
             'plant_availability' => $content['plant_availability'],
@@ -362,27 +410,25 @@ class AssetManagementService
             'monthlyLossesHelpTable' => $content['monthlyLossesHelpTable'],
             'percentageTableMonth' => $content['percentageTableMonth']
         ]);
-        $html11 = str_replace('src="//', 'src="https://', $html11);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[12] = $pdf->createPage($html11, $fileroute, "AvailabilityMonth", false);// we will store this later in the entity
-        $html12 = $this->twig->render('report/asset_report_part_12.html.twig', [
+        $reportParts['AvailabilityMonth'] = $pdf->createPage($html, $fileroute, "AvailabilityMonth", false);// we will store this later in the entity
+        $html = $this->twig->render('report/asset_report_part_12.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
-            'dataMonthArray' => $content['dataMonthArray'],
-            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
-            'montharray' => $content['monthArray'],
+            'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'invNr' => count($content['plantAvailabilityMonth']),
             'plantAvailabilityMonth' => $content['plantAvailabilityMonth'],
             'acGroups' => $content['acGroups']
         ]);
-        $html12 = str_replace('src="//', 'src="https://', $html12);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[13] = $pdf->createPage($html12, $fileroute, "AvailabilityByInverter", false);// we will store this later in the entity
+        $reportParts['AvailabilityByInverter'] = $pdf->createPage($html, $fileroute, "AvailabilityByInverter", false);// we will store this later in the entity
 
         if ($anlage->getEconomicVarNames() !== null) {
 
@@ -391,11 +437,9 @@ class AssetManagementService
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
                 'year' => $reportYear,
-                'dataMonthArray' => $content['dataMonthArray'],
-                'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
                 'dataCfArray' => $content['dataCfArray'],
                 'reportmonth' => $content['reportmonth'],
-                'montharray' => $content['monthArray'],
+                'monthArray' => $content['monthArray'],
                 //until here all the parameters must be used in all the renders
                 'invNr' => count($content['plantAvailabilityMonth']),
                 'plantAvailabilityMonth' => $content['plantAvailabilityMonth'],
@@ -414,9 +458,9 @@ class AssetManagementService
                 'cumulated_losses_compared_chart' => $content['cumulated_losses_compared_chart'],
 
             ]);
-            $html13 = str_replace('src="//', 'src="https://', $html13);
+            $html = str_replace('src="//', 'src="https://', $html);
             $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-            $reportParts[14] = $pdf->createPage($html13, $fileroute, "Economic", false);// we will store this later in the entity
+            $reportParts['Economic'] = $pdf->createPage($html, $fileroute, "Economic", false);// we will store this later in the entity
         }
 
         $report = new AnlagenReports();
@@ -476,12 +520,232 @@ class AssetManagementService
      */
     public function buildAssetReport(Anlage $anlage, array $report, ?int $logId = null): array
     {
+        // Variables
+        $daysInReportMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
+        $monthArray = [
+            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+        ];
+        $plantSize = $anlage->getPnom();
+
+
+        $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
+
+        $invArray = $anlage->getInverterFromAnlage();
+        $orderedArray = [];
+        $pr_rank_graph = [];
+        $index = 0;
+        $index2 = 0;
+        $sumPr = 0;
+        $avgPr = $inverterPRArray['PRAvg'];
+        $InverterOverAvgCount = 0;
+        $prSumaryTable = [];
+
+        while (count($inverterPRArray['powerYield']) !== 0){
+            $keys = array_keys($inverterPRArray['powerYield'], min($inverterPRArray['powerYield']));
+
+            foreach($keys as $key ){
+                $orderedArray[$index2][$index]['name'] = $inverterPRArray['name'][$key];
+                $orderedArray[$index2][$index]['powerYield'] = $inverterPRArray['powerYield'][$key];
+                $orderedArray[$index2][$index]['Pnom'] = $inverterPRArray['Pnom'][$key];
+                $orderedArray[$index2][$index]['power'] = $inverterPRArray['power'][$key];
+                $orderedArray[$index2][$index]['avgPower'] = $inverterPRArray['powerAVG'];
+                $orderedArray[$index2][$index]['avgIrr'] = $inverterPRArray['avgIrr'][$key];
+                $orderedArray[$index2][$index]['theoPower'] = $inverterPRArray['theoPower'][$key];
+                $orderedArray[$index2][$index]['invPR'] = $inverterPRArray['invPR'][$key];
+                $orderedArray[$index2][$index]['calcPR'] = $inverterPRArray['calcPR'][$key];
+                $graphDataPR[$index2]['name'][] = $inverterPRArray['name'][$key];
+                $graphDataPR[$index2]['PR'][]= $inverterPRArray['invPR'][$key];
+
+                $sumPr = $sumPr + $inverterPRArray['invPR'][$key];
+                $graphDataPR[$index2]['power'][]= $inverterPRArray['power'][$key];
+
+                if ($inverterPRArray['invPR'][$key] > $avgPr){
+                    $InverterOverAvgCount = $InverterOverAvgCount + 1;
+                }
+                $sumPr = $sumPr + $inverterPRArray['invPR'][$key];
+                $graphDataPR[$index2]['powerYield'][]= $inverterPRArray['powerYield'][$key];
+
+                $graphDataPR[$index2]['yield'] = $inverterPRArray['calcPR'][$key];
+                unset($inverterPRArray['powerYield'][$key]);
+                $index = $index + 1;
+                if ($index >= 30){
+                    $index = 0;
+                    $index2 = $index2 + 1;
+                }
+            }
+        }
+
+        $avgPr = round($sumPr / count($inverterPRArray['invPR']), 2);
+
+        $invPercentage = $InverterOverAvgCount / count($invArray) * 100;
+        $prSumaryTable[1]['InvCount'] = $InverterOverAvgCount;
+        $prSumaryTable[1]['percentage'] = $invPercentage;
+        $prSumaryTable[2]['InvCount'] = count($invArray) - $InverterOverAvgCount;
+        $prSumaryTable[2]['percentage'] = 100 - $invPercentage;
+        $chart = new ECharts(); // We must use AMCharts
+        $chart->tooltip->show = false;
+
+        $chart->series = [
+            [
+                'type' => 'pie',
+                'data' => [
+                    [
+                        'value' =>   $prSumaryTable[1]['percentage'],
+                        'name' => 'Inverters over average',
+                    ],
+                    [
+                        'value' => $prSumaryTable[2]['percentage'] ,
+                        'name' => 'Inverters under the average',
+                    ],
+
+                ],
+                'visualMap' => 'false',
+                'label' => [
+                    'show' => true,
+                ],
+                'itemStyle' => [
+                    'borderType' => 'solid',
+                    'borderWidth' => 1,
+                    'borderColor' => '#ffffff',
+                ],
+            ],
+        ];
+
+        $option = [
+            'animation' => false,
+            'color' => ['#00FF00', '#FF0000'],
+            'title' => [
+                'text' => '',
+                'left' => 'center',
+                'top' => 'top',
+                'textStyle' => ['fontSize' => 10],
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'orient' => 'horizontal',
+                'left' => 'left',
+                'bottom' => 0,
+                'padding' => 0, 90, 0, 0,
+            ],
+        ];
+
+        $chart->setOption($option);
+
+        $sumary_pie_graph = $chart->render('sumary_pie_graph'.$key, ['style' => 'height: 250px; width:500px;']);
+        foreach($graphDataPR as $key => $data) {
+            $chart = new ECharts(); // We must use AMCharts
+            $chart->tooltip->show = false;
+            $chart->tooltip->trigger = 'item';
+            $chart->xAxis = [
+                'type' => 'category',
+                'axisLabel' => [
+                    'show' => true,
+                    'margin' => '10',
+                    'rotate' => 45
+                ],
+                'splitArea' => [
+                    'show' => true,
+                ],
+                'data' => $data['name'],
+            ];
+            $chart->yAxis = [
+                [
+                    'type' => 'value',
+                    'name' => 'kWh/kWp',
+                    'min' => 0,
+                    'position' => 'left'
+                ],
+                [
+                    'type' => 'value',
+                    'name' => '[%]',
+                    'min' => 0,
+                    'max' => 105,
+                    'position' => 'right',
+
+                ]
+            ];
+            $chart->series =
+                [
+                    [
+                        'name' => 'Power Yield',
+                        'type' => 'bar',
+                        'data' => $data['powerYield'],
+                        'visualMap' => 'false',
+
+                    ],
+                    [
+                        'name' => 'Inverter PR',
+                        'type' => 'line',
+                        'data' => $data['PR'],
+                        'visualMap' => 'false',
+                        'lineStyle' => [
+                            'color' => 'green'
+                        ],
+                        'yAxisIndex' => 1,
+                        'markLine' => [
+                            'data' => [
+                                [
+                                    'name' => 'yield',
+                                    'name' => 'Contractual PR',
+                                    'yAxis' => $data['yield'],
+                                    'lineStyle' => [
+                                        'type' => 'solid',
+                                        'width' => 3,
+                                        'color' => 'red'
+                                    ],
+                                    'label' => [
+                                        'formatter' => '{b}:{c}'
+                                    ]
+                                ],
+                                [
+                                    'name' => 'average PR:',
+
+                                    'yAxis' => $avgPr,
+                                    'lineStyle' => [
+                                        'type' => 'solid',
+                                        'width' => 3,
+                                        'color' => 'yellow'
+                                    ],
+                                    'label' => [
+                                        'formatter' => '{b}:{c}'
+                                    ]
+                                ]
+                            ],
+                            'symbol' => 'none',
+
+                        ]
+                    ],
+                ];
+            $option = [
+                'animation' => false,
+                'grid' => [
+                    'height' => '70%',
+                    'top' => 50,
+                    'width' => '70%',
+                    'right' => 100,
+                    'left' => 100,
+                    'bottom' => 100,
+                ],
+                'legend' => [
+                    'show' => true,
+                    'center' => 'top',
+                    'top' => 10,
+                ],
+                'tooltip' => [
+                    'show' => true,
+                ],
+            ];
+            $chart->setOption($option);
+            $pr_rank_graph[] = $chart->render('pr_graph_'.$key, ['style' => 'height: 550px; width:900px;']);
+        }
         $this->logMessages->updateEntry($logId, 'working', 10);
         $month = $report['reportMonth'];
         for ($i = 0; $i < 12; ++$i) {
             $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
         }
-        $plantSize = $anlage->getPnom();
         $plantId = $anlage->getAnlId();
         $monthName = date('F', mktime(0, 0, 0, $report['reportMonth'], 10));
         $currentMonth = date('m');
@@ -490,11 +754,6 @@ class AssetManagementService
             $report['reportMonth'] = str_replace(0, '', $report['reportMonth']);
         }
 
-        $daysInReportMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
-
-        $monthArray = [
-            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-        ];
 
         for ($i = 0; $i < 12; ++$i) {
             $monthExtendedArray[$i]['month'] = $monthArray[$i];
@@ -557,21 +816,17 @@ class AssetManagementService
             }
             (float) $powerExp[] = $data1_grid_meter['powerExp'];
             (float) $powerExternal[] = $data1_grid_meter['powerEGridExt'];
-            $dataMonthArray[] = $monthArray[$i - 1];
             $expectedPvSyst[] = $Ertrag_design;
-
+            if ($anlage->hasPVSYST()){
+                $forecast = $expectedPvSyst;
+            }
         }
-
-        for ($i = 1; $i <= 12; ++$i) {
-            $dataMonthArrayFullYear[] = $monthArray[$i - 1];
-        }
-
         // fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,
             'powerAct' => $powerAct,
             'powerExp' => $powerExp,
-            'expectedPvSyst' => $expectedPvSyst,
+            //'expectedPvSyst' => $expectedPvSyst,
             'powerExpEvu' => $powerExpEvu,
             'powerExt' => $powerExternal,
             'forecast' => $forecast,
@@ -600,7 +855,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => array_slice($dataMonthArray, 0, $report['reportMonth']),
+            'data' => array_slice($monthArray, 0, $report['reportMonth']),
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -610,94 +865,20 @@ class AssetManagementService
             'nameGap' => 80,
             'offset' => -20,
         ];
-        if ($anlage->hasPVSYST() === true) {
-            if ($anlage->hasGrid()) {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Yield (Grid meter)',
-                            'type' => 'bar',
-                            'data' => $powerEvu,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Plant Simulation',
-                            'type' => 'bar',
-                            'data' => $expectedPvSyst,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => $powerExp,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Inverter out',
-                            'type' => 'bar',
-                            'data' => $powerAct,
-                            'visualMap' => 'false',
-                        ],
-                    ];
-            } else {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Plant Simulation',
-                            'type' => 'bar',
-                            'data' => $expectedPvSyst,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => $powerExp,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Inverter out',
-                            'type' => 'bar',
-                            'data' => $powerAct,
-                            'visualMap' => 'false',
-                        ],
-                    ];
-            }
-        } else {
-            if ($anlage->hasGrid()) {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Actual(Yield)',
-                            'type' => 'bar',
-                            'data' => $powerEvu,
-                            'visualMap' => 'false',
-                        ],
+        $series[] =[
+            'name' => 'Expected g4n',
+            'type' => 'bar',
+            'data' => $powerExp,
+            'visualMap' => 'false',
+        ];
+            $series[] = [
+                'name' => 'Yield',
+                'type' => 'bar',
+                'data' => $powerEvu,
+                'visualMap' => 'false',
+            ];
 
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => $powerExp,
-                            'visualMap' => 'false',
-                        ],
-                  ];
-            } else {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => $powerExp,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Actual(Yield)',
-                            'type' => 'bar',
-                            'data' => $powerAct,
-                            'visualMap' => 'false',
-                        ],
-                    ];
-            }
-        }
+        $chart->series = $series;
 
         $option = [
             'textStyle' => [
@@ -713,45 +894,108 @@ class AssetManagementService
                 'top' => 10
             ],
             'tooltip' => [
-                    'show' => true,
-                ],
+                'show' => true,
+            ],
             'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
             'grid' => [
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => '80%',
-                    'left' => 100,
-                ],
+                'height' => '80%',
+                'top' => 50,
+                'width' => '80%',
+                'left' => 100,
+            ],
         ];
 
         $chart->setOption($option);
 
         $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:700px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
-        // End Production
 
-        // Begin Cumulative Forecast with PVSYST
+        $chart = new ECharts(); // We must use AMCharts
+        $chart->tooltip->show = false;
+        $chart->tooltip->trigger = 'item';
 
-        // Forecast / degradation
+        $chart->xAxis = [
+            'type' => 'category',
+            'axisLabel' => [
+                'show' => true,
+                'margin' => '10',
+            ],
+            'splitArea' => [
+                'show' => true,
+            ],
+            'data' => array_slice($monthArray, 0, $report['reportMonth']),
+        ];
+        $chart->yAxis = [
+            'type' => 'value',
+            'min' => 0,
+            'name' => 'kWh',
+            'nameLocation' => 'middle',
+            'nameGap' => 80,
+            'offset' => -20,
+        ];
+        $series[] = [   'name' => 'Yield ',
+            'type' => 'bar',
+            'data' => $powerEvu,
+            'visualMap' => 'false',
+            ];
+        $series[] = [
+            'name' => 'Expected g4n',
+            'type' => 'bar',
+            'data' => $powerExp,
+            'visualMap' => 'false',
+
+        ];
+            $series[] = [
+                'name' => 'Forecast',
+                'type' => 'bar',
+                'data' => $forecast,
+                'visualMap' => 'false',
+            ];
+        $chart->series = $series;
+
+        $option = [
+            'textStyle' => [
+                'fontFamily' => 'monospace',
+                'fontsize' => '16'
+            ],
+            'animation' => false,
+            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
+            'title' => [
+                'fontFamily' => 'monospace',
+                'text' => 'Year '.$report['reportYear'],
+                'left' => 'center',
+                'top' => 10
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
+            'grid' => [
+                'height' => '80%',
+                'top' => 50,
+                'width' => '80%',
+                'left' => 100,
+            ],
+        ];
+
+        $chart->setOption($option);
+
+        $operations_right_withForecast = $chart->render('operations_right_withForecast', ['style' => 'height: 450px; width:700px;']);
+
 
         $degradation = $anlage->getLossesForecast();
         // Cumulative Forecast
         $powerSum[0] = $powerEvu[0];
         for ($i = 0; $i < 12; ++$i) {
             if ($i + 1 > $report['reportMonth']) {
-                if ($expectedPvSyst[$i]) {
-                    $powerSum[$i] = $expectedPvSyst[$i] + $powerSum[$i - 1];
-                } else {
-                    $powerSum[$i] = $forecast[$i] + $powerSum[$i - 1];
-                }
+                $powerSum[$i] = $forecast[$i] + $powerSum[$i - 1];
             } else {
                 $powerSum[$i] = $powerEvu[$i] + $powerSum[$i - 1];
             }
@@ -764,13 +1008,11 @@ class AssetManagementService
             }
         }
         // Forecast / PVSYST - P90
-        $PVSYSExpSum[0] = $expectedPvSyst[0];
+        $PVSYSExpSum[0] = $forecast[0];
         for ($i = 0; $i < 12; ++$i) {
-            if (!$expectedPvSyst[$i]) {
+
                 $PVSYSExpSum[$i] = $forecast[$i] + $PVSYSExpSum[$i - 1];
-            } else {
-                $PVSYSExpSum[$i] = $expectedPvSyst[$i] + $PVSYSExpSum[$i - 1];
-            }
+
             $tbody_forecast_plan_PVSYSTP50[] = $PVSYSExpSum[$i];
 
             $tbody_forecast_plan_PVSYSTP90[] = $PVSYSExpSum[$i] - ($PVSYSExpSum[$i] * $degradation / 100);
@@ -784,6 +1026,7 @@ class AssetManagementService
         ];
 
         // begin chart
+        $chart = new ECharts();
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -793,7 +1036,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArrayFullYear,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -805,19 +1048,19 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Production ACT / Plant Simulation - P50',
+                    'name' => 'Production ACT / Forecast - P50',
                     'type' => 'line',
                     'data' => $tbody_forecast_PVSYSTP50,
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Production ACT / Plant Simulation - P90',
+                    'name' => 'Production ACT / Forecast - P90',
                     'type' => 'line',
                     'data' => $tbody_forecast_PVSYSTP90,
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Plant Simulation - P50',
+                    'name' => 'Forecast - P50',
                     'type' => 'line',
                     'data' => $tbody_forecast_plan_PVSYSTP50,
                     'visualMap' => 'false',
@@ -826,7 +1069,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Plant Simulation - P90',
+                    'name' => 'Forecast - P90',
                     'type' => 'line',
                     'data' => $tbody_forecast_plan_PVSYSTP90,
                     'visualMap' => 'false',
@@ -840,34 +1083,29 @@ class AssetManagementService
             'animation' => false,
             'color' => ['#c55a11', '#0070c0', '#70ad47', '#ff0000'],
             'title' => [
-                'text' => 'Cumulative forecast plan PVSYST',
+                'text' => '',
                 'left' => 'center',
                 'top' => 10,
             ],
             'tooltip' => [
-                    'show' => true,
-                ],
+                'show' => true,
+            ],
             'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
             'grid' => [
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => '85%',
-                    'left' => 100,
-                ],
+                'height' => '80%',
+                'top' => 50,
+                'width' => '85%',
+                'left' => 100,
+            ],
         ];
 
         $chart->setOption($option);
 
         $forecast_PVSYST = $chart->render('forecast_PVSYST', ['style' => 'height: 450px; width:28cm;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         // End Cumulative Forecast with PVSYST
 
@@ -906,6 +1144,7 @@ class AssetManagementService
         ];
 
         $this->logMessages->updateEntry($logId, 'working', 30);
+        $chart = new ECharts();
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -915,7 +1154,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArrayFullYear,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -939,7 +1178,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Forecast g4n - P50',
+                    'name' => 'Forecast - P50',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP50,
                     'visualMap' => 'false',
@@ -948,7 +1187,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Forecast g4n - P90',
+                    'name' => 'Forecast - P90',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP90,
                     'visualMap' => 'false',
@@ -962,34 +1201,30 @@ class AssetManagementService
             'animation' => false,
             'color' => ['#c55a11', '#0070c0', '#70ad47', '#ff0000'],
             'title' => [
-                'text' => 'Cumulative forecast plan g4n',
+                'text' => '',
                 'left' => 'center',
                 'top' => 10,
             ],
             'tooltip' => [
-                    'show' => true,
-                ],
+                'show' => true,
+            ],
             'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
             'grid' => [
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => '85%',
-                    'left' => 100,
-                ],
+                'height' => '80%',
+                'top' => 50,
+                'width' => '85%',
+                'left' => 100,
+            ],
         ];
 
         $chart->setOption($option);
 
         $forecast_G4N = $chart->render('forecast_G4N', ['style' => 'height: 450px; width:28cm;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
 
         for ($i = 0; $i < 12; ++$i) {
             if ($i < count($tbody_a_production['powerEvu'])) {
@@ -998,12 +1233,12 @@ class AssetManagementService
                 } else {
                     if ($anlage->getShowEvuDiag()) {
                         if ($anlage->getUseGridMeterDayData()) {
-                            $diefference_prod_to_pvsyst[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                            $diefference_prod_to_pvsyst[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['forecast'][$i];
                         } else {
-                            $diefference_prod_to_pvsyst[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                            $diefference_prod_to_pvsyst[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['forecast'][$i];
                         }
                     } else {
-                        $diefference_prod_to_pvsyst[] = $tbody_a_production['powerAct'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                        $diefference_prod_to_pvsyst[] = $tbody_a_production['powerAct'][$i] - $tbody_a_production['forecast'][$i];
                     }
                 }
             } else {
@@ -1063,69 +1298,7 @@ class AssetManagementService
             'diefference_prod_to_egrid' => $diefference_prod_to_egrid,
             'difference_prod_to_forecast' => $difference_prod_to_forecast
         ];
-        $chart->xAxis = [
-            'type' => 'category',
-            'axisLabel' => [
-                'show' => true,
-                'margin' => '0',
-            ],
-            'splitArea' => [
-                'show' => true,
-            ],
-            'data' => $dataMonthArray,
-        ];
-        $chart->yAxis = [
-            'type' => 'value',
-            'name' => 'KWH',
-            'nameLocation' => 'middle',
-            'nameGap' => 80,
-        ];
-        $chart->series =
-            [
-                [
-                    'name' => 'Difference ACT to PVSYST',
-                    'type' => 'line',
-                    'data' => $diefference_prod_to_pvsyst,
-                    'visualMap' => 'false',
-                ],
-                [
-                    'name' => 'Difference ACT to expected g4n',
-                    'type' => 'line',
-                    'data' => $diefference_prod_to_expected_g4n,
-                    'visualMap' => 'false',
-                ],
-            ];
 
-        $option = [
-            'animation' => false,
-            'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
-            'title' => [
-                'text' => 'Monthly losses at plan values',
-                'left' => 'center',
-                'top' => 10,
-            ],
-            'tooltip' => [
-                    'show' => true,
-                ],
-            'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
-            'grid' => [
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => '100%',
-                    'left' => 100,
-                ],
-        ];
-
-        $chart->setOption($option);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
         $diffProdPVSYSSum[0] = $diefference_prod_to_pvsyst[0];
         $diffProdG4NSum[0] = $diefference_prod_to_expected_g4n[0];
         $diffProdEgridSum[0] = $diefference_prod_to_egrid[0];
@@ -1136,10 +1309,10 @@ class AssetManagementService
         $difference_actual_forecast[0] = $diffActForecastSum[0];
         for ($i = 1; $i < 12; ++$i) {
 
-                $diffProdPVSYSSum[$i] = $diefference_prod_to_pvsyst[$i] + $diffProdPVSYSSum[$i - 1];
-                $diffProdG4NSum[$i] = $diefference_prod_to_expected_g4n[$i] + $diffProdG4NSum[$i - 1];
-                $diffProdEgridSum[$i] = $diefference_prod_to_egrid[$i ] + $diffProdEgridSum[$i - 1];
-                $diffActForecastSum[$i] = $diffActForecastSum[$i - 1]+($tbody_a_production['powerAct'][$i] - $forecast[$i]);
+            $diffProdPVSYSSum[$i] = $diefference_prod_to_pvsyst[$i] + $diffProdPVSYSSum[$i - 1];
+            $diffProdG4NSum[$i] = $diefference_prod_to_expected_g4n[$i] + $diffProdG4NSum[$i - 1];
+            $diffProdEgridSum[$i] = $diefference_prod_to_egrid[$i ] + $diffProdEgridSum[$i - 1];
+            $diffActForecastSum[$i] = $diffActForecastSum[$i - 1]+($tbody_a_production['powerAct'][$i] - $forecast[$i]);
 
 
             if ($i +1  > $report['reportMonth']) {
@@ -1161,7 +1334,7 @@ class AssetManagementService
             'difference_Inverter_to_Egrid' => $difference_Inverter_to_Egrid,
             'difference_act_forecast' => $difference_actual_forecast,
         ];
-
+        $chart = new ECharts();
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -1171,90 +1344,13 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
             'name' => 'KWH',
-            'nameLocation' => 'middle',
-            'nameGap' => 70,
         ];
-        if ($anlage->hasPVSYST()) {
-            if ($anlage->hasGrid()) {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Difference ACT to Plant Simulation',
-                            'type' => 'line',
-                            'data' => $difference_Egrid_to_PVSYST,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference ACT to expected g4n',
-                            'type' => 'line',
-                            'data' => $difference_Egrid_to_Expected_G4n,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference ACT to Grid',
-                            'type' => 'line',
-                            'data' => $difference_Inverter_to_Egrid,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference ACT to forecast',
-                            'type' => 'line',
-                            'data' => $difference_actual_forecast,
-                            'visualMap' => 'false',
-                        ]
-                    ];
-            } else {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Difference ACT to Plant Simulation',
-                            'type' => 'line',
-                            'data' => $difference_Egrid_to_PVSYST,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference ACT to expected g4n',
-                            'type' => 'line',
-                            'data' => $difference_Egrid_to_Expected_G4n,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference ACT to forecast',
-                            'type' => 'line',
-                            'data' => $difference_actual_forecast,
-                            'visualMap' => 'false',
-                        ]
-                    ];
-            }
-        } else {
-            if ($anlage->hasGrid()) {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Difference ACT to expected g4n',
-                            'type' => 'line',
-                            'data' => $difference_Egrid_to_Expected_G4n,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference ACT to Grid',
-                            'type' => 'line',
-                            'data' => $difference_Inverter_to_Egrid,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference ACT to forecast',
-                            'type' => 'line',
-                            'data' => $difference_actual_forecast,
-                            'visualMap' => 'false',
-                        ]
-                    ];
-            } else {
+
                 $chart->series =
                     [
                         [
@@ -1270,57 +1366,29 @@ class AssetManagementService
                             'visualMap' => 'false',
                         ]
                     ];
-            }
-        }
 
         $option = [
             'animation' => false,
-            'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
-            'title' => [
-                'text' => 'Cumulative losses',
-                'left' => 'center',
-                'top' => 10,
-            ],
-            'tooltip' => [
-                    'show' => true,
-                ],
-            'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
             'grid' => [
-                    'height' => '70%',
-                    'top' => 50,
-                    'width' => '90%',
-                ],
+                'height' => '70%',
+                'top' => 50,
+                'bottom' => 0,
+                'width' => '85%',
+            ],
         ];
-
         $chart->setOption($option);
 
-        $losses_year = $chart->render('losses_yearly', ['style' => 'height: 450px; width: 23cm;']);
+        $losses_year = $chart->render('losses_yearly', ['style' => 'height: 450px; width: 27cm']);
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
+        $this->logMessages->updateEntry($logId, 'working', 40);
 
-        unset($option);
-        // End Cumulative Losses
-
-        // Start Monthley expected vs.actuals
-        // $chart->tooltip->show = true;
-
-        // $chart->tooltip->trigger = 'item';
+        $chart = new ECharts();
 
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
-                'show' => false,
-                'margin' => '10',
-            ],
-            'splitArea' => [
                 'show' => true,
+                'margin' => '10',
             ],
             'data' => [],
             'scale' => true,
@@ -1328,130 +1396,45 @@ class AssetManagementService
         ];
         $chart->yAxis = [
             'type' => 'value',
-            'name' => 'KWH',
+            'name' => 'kWh',
             'nameLocation' => 'middle',
             'nameGap' => 80,
             'scale' => true,
             'min' => 0,
+            'offset' => -20
         ];
-        $this->logMessages->updateEntry($logId, 'working', 40);
-        if ($anlage->hasPVSYST()) {
-            if ($anlage->hasGrid()) {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Yield (Grid meter)',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerEvu[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Plant Simulation',
-                            'type' => 'bar',
-                            'data' => [
-                                $expectedPvSyst[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerExp[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Inverter out',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerAct[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                    ];
-            } else {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Plant Simulation',
-                            'type' => 'bar',
-                            'data' => [
-                                $expectedPvSyst[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerExp[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Inverter out',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerAct[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                    ];
-            }
-        } else {
-            if ($anlage->hasGrid()) {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Yield (Grid meter)',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerEvu[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerExp[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Inverter out',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerAct[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                    ];
-            } else {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerExp[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Inverter out',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerAct[$report['reportMonth'] - 1],
-                            ],
-                            'visualMap' => 'false',
-                        ],
-                    ];
-            }
-        }
+
+        $series = [];
+        $series = [
+            [
+                'name' => 'Yield ',
+                'type' => 'bar',
+                'data' => [
+                    $powerAct[$report['reportMonth'] - 1],
+                ],
+                'visualMap' => 'false',
+            ],
+            [
+                'name' => 'Expected g4n',
+                'type' => 'bar',
+                'data' => [
+                    $powerExp[$report['reportMonth'] - 1],
+                ],
+                'visualMap' => 'false',
+            ],
+            [
+                'name' => 'Forecast',
+                'type' => 'bar',
+                'data' => [
+                    $forecast[$report['reportMonth'] - 1],
+                ],
+                'visualMap' => 'false',
+            ]
+        ];
+
+        $chart->series = $series;
+
+
         $option = [
             'yaxis' => ['scale' => false, 'min' => 0],
             'animation' => false,
@@ -1462,44 +1445,41 @@ class AssetManagementService
                 'top' => 10,
             ],
             'tooltip' => [
-                    'show' => true,
-                ],
+                'show' => true,
+            ],
             'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
             'grid' => [
-                    'height' => '100%',
-                    'top' => 80,
-                    'left' => 90,
-                    'width' => '80%',
-                ],
+                'height' => '100%',
+                'top' => 80,
+                'left' => 90,
+                'width' => '80%',
+            ],
         ];
 
         $chart->setOption($option);
+
         $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 310px; width:100%;']);
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         if ($powerEvu[$report['reportMonth'] - 1] < 1){
             $var = 0;
         }
         else {
-            $var = round((1 - $expectedPvSyst[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2);
+            $var = round((1 - $forecast[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2);
         }
-        $operations_monthly_right_pvsyst_tr1 = [
-            $monthName.' '.$report['reportYear'],
-            $powerEvu[$report['reportMonth'] - 1],
-            $expectedPvSyst[$report['reportMonth'] - 1],
-            $powerEvu[$report['reportMonth'] - 1] - $expectedPvSyst[$report['reportMonth'] - 1],
-            $var,
-        ];
+
+            $operations_monthly_right_pvsyst_tr1 = [
+                $monthName . ' ' . $report['reportYear'],
+                $powerEvu[$report['reportMonth'] - 1],
+                $forecast[$report['reportMonth'] - 1],
+                $powerEvu[$report['reportMonth'] - 1] - $forecast[$report['reportMonth'] - 1],
+                $var,
+            ];
+
 
         $start = $report['reportYear'].'-01-01 00:00';
 
@@ -1510,30 +1490,29 @@ class AssetManagementService
         } else {
             $powerEvuQ1 = $data2_grid_meter['powerAct'];
         }
-        if (($powerEvuQ1 > 0) && $anlage->hasPVSYST()) {
+        if ($powerEvuQ1 > 0 ) {
             $expectedPvSystQ1 = 0;
 
 
-            if ($month >= 3) {
-                $expectedPvSystQ1 = $tbody_a_production['expectedPvSyst'][0] + $tbody_a_production['expectedPvSyst'][1] + $tbody_a_production['expectedPvSyst'][2];
-            } else {
-                for ($i = 0; $i <= intval($report['reportMonth']); ++$i) {
-                    $expectedPvSystQ1 += $tbody_a_production['expectedPvSyst'][$i];
+                if ($month >= 3) {
+                    $expectedPvSystQ1 = $forecast[0] + $forecast[1] + $forecast[2];
+                } else {
+                    for ($i = 0; $i <= intval($report['reportMonth']); ++$i) {
+                        $expectedPvSystQ1 += $forecast[$i];
+                    }
                 }
-            }
-
             $operations_monthly_right_pvsyst_tr2 = [
                 $powerEvuQ1,
                 $expectedPvSystQ1,
                 abs($powerEvuQ1 - $expectedPvSystQ1),
                 round((1 - $expectedPvSystQ1 / $powerEvuQ1) * 100, 2),
             ];
-        } else {
-            $operations_monthly_right_pvsyst_tr2 = [
+        }else{
+            $operations_monthly_right_pvsyst_tr1 = [
                 $powerEvuQ1,
-                '0',
-                '0',
-                '0',
+                0.0,
+                0.0,
+                0.0,
             ];
         }
 
@@ -1547,14 +1526,16 @@ class AssetManagementService
             $powerEvuQ2 = $data2_grid_meter['powerAct'];
         }
 
-        if (( $powerEvuQ2 > 0) && $anlage->hasPVSYST()) {
-            if ($month >= 6) {
-                $expectedPvSystQ2 = $tbody_a_production['expectedPvSyst'][3] + $tbody_a_production['expectedPvSyst'][4] + $tbody_a_production['expectedPvSyst'][5];
-            } else {
-                for ($i = 3; $i <= intval($report['reportMonth']); ++$i) {
-                    $expectedPvSystQ2 += $tbody_a_production['expectedPvSyst'][$i];
+        if (( $powerEvuQ2 > 0)) {
+
+                if ($month >= 6) {
+                    $expectedPvSystQ2 = $forecast[3] + $forecast[3][4] + $forecast[3][5];
+                } else {
+                    for ($i = 3; $i <= intval($report['reportMonth']); ++$i) {
+                        $expectedPvSystQ2 += $forecast[3][$i];
+                    }
                 }
-            }
+
 
             $operations_monthly_right_pvsyst_tr3 = [
                 $powerEvuQ2,
@@ -1562,12 +1543,12 @@ class AssetManagementService
                 $powerEvuQ2 - $expectedPvSystQ2,
                 round((1 - $expectedPvSystQ2 / $powerEvuQ2) * 100, 2),
             ];
-        } else {
+        }else{
             $operations_monthly_right_pvsyst_tr3 = [
                 $powerEvuQ2,
-                '0',
-                '0',
-                '0',
+                0.0,
+                0.0,
+                0.0,
             ];
         }
         // Parameter fuer die Berechnung Q3
@@ -1580,14 +1561,16 @@ class AssetManagementService
         } else {
             $powerEvuQ3 = $data2_grid_meter['powerAct'];
         }
-        if (( $powerEvuQ3 > 0) && $anlage->hasPVSYST()) {
-            if ($month >= 9) {
-                $expectedPvSystQ3 = $tbody_a_production['expectedPvSyst'][6] + $tbody_a_production['expectedPvSyst'][7] + $tbody_a_production['expectedPvSyst'][8];
-            } else {
-                for ($i = 6; $i <= intval($report['reportMonth']); ++$i) {
-                    $expectedPvSystQ3 += $tbody_a_production['expectedPvSyst'][$i];
+        if (( $powerEvuQ3 > 0) ) {
+
+                if ($month >= 9) {
+                    $expectedPvSystQ3 = $forecast[6] + $forecast[7] + $forecast[8];
+                } else {
+                    for ($i = 6; $i <= intval($report['reportMonth']); ++$i) {
+                        $expectedPvSystQ3 += $forecast[$i];
+                    }
                 }
-            }
+
 
             $operations_monthly_right_pvsyst_tr4 = [
                 $powerEvuQ3,
@@ -1595,12 +1578,12 @@ class AssetManagementService
                 $powerEvuQ3 - $expectedPvSystQ3,
                 round((1 - $expectedPvSystQ3 / $powerEvuQ3) * 100, 2),
             ];
-        } else {
+        }else{
             $operations_monthly_right_pvsyst_tr4 = [
                 $powerEvuQ3,
-                '0',
-                '0',
-                '0',
+                0,
+                0,
+                0,
             ];
         }
 
@@ -1614,10 +1597,12 @@ class AssetManagementService
         } else {
             $powerEvuQ4 = $data2_grid_meter['powerAct'];
         }
-        if (($powerEvuQ4 > 0) && $anlage->hasPVSYST()) {
-            for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
-                $expectedPvSystQ4 += $tbody_a_production['expectedPvSyst'][$i];
-            }
+        if (($powerEvuQ4 > 0) ) {
+
+                for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
+                    $expectedPvSystQ4 += $forecast[$i];
+                }
+
 
             $operations_monthly_right_pvsyst_tr5 = [
                 $powerEvuQ4,
@@ -1625,21 +1610,18 @@ class AssetManagementService
                 $powerEvuQ4 - $expectedPvSystQ4,
                 round((1 - $expectedPvSystQ4 / $powerEvuQ4) * 100, 2),
             ];
-        } else {
-
+        }else{
             $operations_monthly_right_pvsyst_tr5 = [
-                $powerEvuQ4,
-                '0',
-                '0',
-                '0',
-            ];
-        }
-
+            $powerEvuQ4,
+            0.0,
+            0.0,
+            0.0,
+        ];}
         // Year to date
         $pacDate =  $anlage->getPacDate();
         if ($anlage->getUsePac() && $pacDate != null){
-        $monthPacDate = $pacDate->format('m');
-        $yearPacDate = $pacDate->format('Y');
+            $monthPacDate = $pacDate->format('m');
+            $yearPacDate = $pacDate->format('Y');
         }
         else{
             $monthPacDate = $anlage->getAnlBetrieb()->format('m');
@@ -1651,7 +1633,7 @@ class AssetManagementService
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
         $powerEvuYtoD = $data2_grid_meter['powerEvu'];
 
-        if (($powerEvuYtoD > 0 && !($yearPacDate == $report['reportYear'] && $monthPacDate > $report['reportMonth'])) && $anlage->hasPVSYST()) {
+        if (($powerEvuYtoD > 0 && !($yearPacDate == $report['reportYear'] && $monthPacDate > $report['reportMonth'])) ) {
             // Part 1 Year to Date
             if ($yearPacDate == $report['reportYear']) {
                 $month = $monthPacDate;
@@ -1659,23 +1641,16 @@ class AssetManagementService
                 $month = '1';
             }
 
-            $resultErtrag_design = $this->pvSystMonthRepo->findOneByInterval($anlage, $month, $report['reportMonth']);
-            if ($resultErtrag_design) {
-                $expectedPvSystYtoDFirst = $resultErtrag_design['ertrag_design'];
-            }
+            $expectedPvSystYtoDFirst = 0;
+                for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
+                    $expectedPvSystYtoDFirst += $forecast[$i];
+                }
 
             $operations_monthly_right_pvsyst_tr6 = [
                 $powerEvuQ1 + $powerEvuQ2 + $powerEvuQ3 + $powerEvuQ4,
                 $expectedPvSystYtoDFirst,
                 $powerEvuYtoD - $expectedPvSystYtoDFirst,
                 (1 - $expectedPvSystYtoDFirst / $powerEvuYtoD) * 100,
-            ];
-        } else {
-            $operations_monthly_right_pvsyst_tr6 = [
-                $powerEvuQ1 + $powerEvuQ2 + $powerEvuQ3 + $powerEvuQ4,
-                '0',
-                '0',
-                '0',
             ];
         }
 
@@ -1687,7 +1662,8 @@ class AssetManagementService
             0.00,
             0.00,
         ];
-        // Ende Tabelle rechts oben
+
+
         if ($powerEvu[$report['reportMonth'] - 1] > 0) {
             $var = (1 - $powerExpEvu[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100;
         }
@@ -1697,7 +1673,7 @@ class AssetManagementService
             $powerEvu[$report['reportMonth'] - 1],
             $powerExpEvu[$report['reportMonth'] - 1],
             $powerEvu[$report['reportMonth'] - 1] - $powerExpEvu[$report['reportMonth'] - 1],
-           $var,
+            $var,
         ];
 
         // Parameter fuer die Berechnung Q1
@@ -1940,39 +1916,38 @@ class AssetManagementService
         $start = $report['reportYear'].'-'.$report['reportMonth'].'-01 00:00';
         $end = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth.' 23:59';
 
-        $output = $this->DownloadAnalyseService->getAllSingleSystemData($anlage, "2023",$report['reportMonth'] , 2);
+        //$output = $this->DownloadAnalyseService->getAllSingleSystemData($anlage, "2023",$report['reportMonth'] , 2);
         $dcData = $this->DownloadAnalyseService->getDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
         $dcDataExpected = $this->DownloadAnalyseService->getEcpectedDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
 
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
 
 
-            for ($i = 0; $i < $daysInMonth ; ++$i) {
-                $year = $report['reportYear'];
-                $month = $report['reportMonth'];
-                $days = $i + 1;
-                $day = new \DateTime("$year-$month-$days");
-                $output2 = $this->PRCalulation->calcPR($anlage, $day);
-                $table_overview_dayly[] =
-                    [
-                        'date' => $day->format('M-d'),
-                        'irradiation' => (float) $output2['irradiation'],
-                        'powerEGridExtMonth' => (float) $output2['powerEGridExt'],
-                        'PowerEvuMonth' => (float) $output2['powerEvu'],
-                        'powerActMonth' => (float) $output2['powerAct'],
-                        'powerDctMonth' => (float) $dcData[$i]['actdc'],
-                        'powerExpMonth' => (float) $output2['powerExp'],
-                        'powerExpDctMonth' => (float) $dcDataExpected[$i]['expdc'],
-                        'prEGridExtMonth' => (float) $output2['prEGridExt'],
-                        'prEvuMonth' => (float) $output2['prEvu'],
-                        'prActMonth' => (float) $output2['prAct'],
-                        'prExpMonth' => (float) $output2['prExp'],
-                        'plantAvailability' => (float) $output2['availability'],
-                        'plantAvailabilitySecond' => (float) $output2['availability2'],
-                        'panneltemp' => 0,
-                        //(float) $output[$i]->getpanneltemp()
-                    ];
-            }
+        for ($i = 0; $i < $daysInMonth ; ++$i) {
+            $year = $report['reportYear'];
+            $month = $report['reportMonth'];
+            $days = $i + 1;
+            $day = new \DateTime("$year-$month-$days");
+            $output2 = $this->PRCalulation->calcPR($anlage, $day);
+            $table_overview_dayly[] =
+                [
+                    'date' => $day->format('M-d'),
+                    'irradiation' => (float) $output2['irradiation'],
+                    'powerEGridExtMonth' => (float) $output2['powerEGridExt'],
+                    'PowerEvuMonth' => (float) $output2['powerEvu'],
+                    'powerActMonth' => (float) $output2['powerAct'],
+                    'powerDctMonth' => (float) $dcData[$i]['actdc'],
+                    'powerExpMonth' => (float) $output2['powerExp'],
+                    'powerExpDctMonth' => (float) $dcDataExpected[$i]['expdc'],
+                    'prEGridExtMonth' => (float) $output2['prEGridExt'],
+                    'prEvuMonth' => (float) $output2['prEvu'],
+                    'prActMonth' => (float) $output2['prAct'],
+                    'prExpMonth' => (float) $output2['prExp'],
+                    'plantAvailability' => (float) $output2['availability'],
+                    'plantAvailabilitySecond' => (float) $output2['availability2'],
+                    'panneltemp' => 0,
+                ];
+        }
 
         if ($anlage->getConfigType() == 1) {
             // Type 1 is the only one where acGrops are NOT the Inverter
@@ -2007,20 +1982,16 @@ class AssetManagementService
         $dataGaps   = (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-01-01', $endate, $anlage)[0][1];
         $totalErrors = $SOFErrors + $EFORErrors + $OMCErrors;
         // here we calculate the ammount of quarters to calculate the relative percentages
-        $sumquarters = 0;
-        for ($month = 1; $month <= (int) $report['reportMonth']; ++$month) {
-            $begin = $report['reportYear'].'-'.$month.'-'.'01 00:00:00';
-            $lastDayOfMonth = date('t', strtotime($begin));
-            $end = $report['reportYear'].'-'.$month.'-'.$lastDayOfMonth.' 23:55:00';
-            $sqlw = 'SELECT count(db_id) as quarters
+        $begin = $report['reportYear'].'-01-'.'01 00:00:00';
+        $lastDayOfMonth = date('t', strtotime($begin));
+        $end = $report['reportYear'].'-'.$report['reportMonth'].'-'.$lastDayOfMonth.' 23:55:00';
+        $sqlw = 'SELECT count(db_id) as quarters
                     FROM  '.$anlage->getDbNameWeather()."  
                     WHERE stamp BETWEEN '$begin' AND '$end' AND (g_lower + g_upper)/2 > '".$anlage->getThreshold2PA()."'";// hay que cambiar aqui para que la radiacion sea mayor que un valor
 
-            $resw = $this->conn->query($sqlw);
-            
-            $quartersInMonth = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
-            $sumquarters = $sumquarters + $quartersInMonth;
-        }
+        $resw = $this->conn->query($sqlw);
+        $sumquarters = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
+
         $sumLossesYearSOR = 0;
         $sumLossesYearEFOR = 0;
         $sumLossesYearOMC = 0;
@@ -2052,8 +2023,6 @@ class AssetManagementService
 
                     if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
                     else $exp = 0;
-                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                    else $actual = 0;
                     $sumLossesYearSOR = $sumLossesYearSOR + $exp;
                 } else if ($date->getAlertType() == 20) {
                     $sqlActual = "SELECT sum(wr_pac) as power
@@ -2067,8 +2036,7 @@ class AssetManagementService
 
                     if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
                     else $exp = 0;
-                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                    else $actual = 0;
+
                     $sumLossesYearEFOR = $sumLossesYearEFOR + $exp;
                 } else if ($date->getAlertType() == 30) {
                     $sqlActual = "SELECT sum(wr_pac) as power
@@ -2082,8 +2050,6 @@ class AssetManagementService
 
                     if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
                     else $exp = 0;
-                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                    else $actual = 0;
                     $sumLossesYearOMC = $sumLossesYearEFOR + $exp;
                 }
             }
@@ -2105,15 +2071,6 @@ class AssetManagementService
         if ($EFORErrors > 0)$actualGapPorcent = 100 - (($EFORErrors - $dataGaps) / $EFORErrors) * 100;
         else $actualGapPorcent = 0;
 
-        if ($totalErrors != 0) {
-            $failRelativeSOFPorcent = 100 - (($totalErrors - $SOFErrors) / $totalErrors) * 100;
-            $failRelativeEFORPorcent = 100 - (($totalErrors - $EFORErrors) / $totalErrors) * 100;
-            $failRelativeOMCPorcent = 100 - (($totalErrors - $OMCErrors) / $totalErrors) * 100;
-        } else {
-            $failRelativeSOFPorcent = 0;
-            $failRelativeEFORPorcent = 0;
-            $failRelativeOMCPorcent = 0;
-        }
         $kwhLossesYearTable = [
             'SORLosses'     => $sumLossesYearSOR ,
             'EFORLosses'    => $sumLossesYearEFOR,
@@ -2140,136 +2097,12 @@ class AssetManagementService
             'EFORQuarters' => $EFORErrors,
             'OMCQuarters' => $OMCErrors,
         ];
+        $availability_Year_To_Date = [];
+
+        $failures_Year_To_Date = [];
 
 
 
-        // we can add the values we generate for the table of the errors to generate the pie graphic directly
-        $chart->series = [
-            [
-                'type' => 'pie',
-                'data' => [
-                    [
-                        'value' => $actualAvailabilityPorcent,
-                        'name' => 'PA',
-                    ],
-                    [
-                        'value' => $actualSOFPorcent,
-                        'name' => 'SOF',
-                    ],
-                    [
-                        'value' => $actualEFORPorcent,
-                        'name' => 'EFOR',
-                    ],
-                    [
-                        'value' => $actualOMCPorcent,
-                        'name' => 'OMC',
-                    ],
-                ],
-                'visualMap' => 'false',
-                'label' => [
-                    'show' => false,
-                ],
-                'itemStyle' => [
-                    'borderType' => 'solid',
-                    'borderWidth' => 1,
-                    'borderColor' => '#ffffff',
-                ],
-            ],
-        ];
-
-        $option = [
-            'animation' => false,
-            'color' => ['#9dc3e6', '#f3a672', '#ff0000', '#c5e0b4'],
-            'title' => [
-                'text' => 'Availability: Year to date',
-                'left' => 'center',
-                'top' => 'top',
-                'textStyle' => ['fontSize' => 10],
-            ],
-            'tooltip' => [
-                    'show' => true,
-                ],
-            'legend' => [
-                    'show' => true,
-                    'orient' => 'horizontal',
-                    'left' => 'left',
-                    'bottom' => 0,
-                    'padding' => 0, 90, 0, 0,
-                ],
-        ];
-
-        $chart->setOption($option);
-        $availability_Year_To_Date = $chart->render('availability_Year_To_Date', ['style' => 'height: 175px; width:300px; ']);
-
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
-
-        // Failures: Year to date
-        // $chart->tooltip->show = true;
-        // $chart->tooltip->trigger = 'item';
-        $chart->series =
-            [
-                [
-                    'type' => 'pie',
-                    'data' => [
-                        [
-                            'value' => $failRelativeSOFPorcent,
-                            'name' => 'SOF',
-                        ],
-                        [
-                            'value' => $failRelativeEFORPorcent,
-                            'name' => 'EFOR',
-                        ],
-                        [
-                            'value' => $failRelativeOMCPorcent,
-                            'name' => 'OMC',
-                        ],
-                    ],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => false,
-                    ],
-                    'itemStyle' => [
-                        'borderType' => 'solid',
-                        'borderWidth' => 1,
-                        'borderColor' => '#ffffff',
-                    ],
-                ],
-            ];
-
-        $option = [
-            'animation' => false,
-            'color' => ['#9dc3e6', '#ffa4a4', '#ffc000'],
-            'title' => [
-                'text' => 'Failure - Year to date',
-                'left' => 'center',
-                'top' => 10,
-                'textStyle' => ['fontSize' => 10],
-            ],
-            'tooltip' => [
-                    'show' => true,
-                ],
-            'legend' => [
-                    'show' => true,
-                    'orient' => 'horizontal',
-                    'left' => 'left',
-                    'bottom' => 0,
-                    'padding' => 0, 90, 0, 0,
-                ],
-        ];
-
-
-        $chart->setOption($option);
-        $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 175px; width:300px; ']);
-
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
         $SOFErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 10, $anlage)[0][1];
         $EFORErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 20, $anlage)[0][1];
         $OMCErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1];
@@ -2317,8 +2150,6 @@ class AssetManagementService
 
                     if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
                     else $exp = 0;
-                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                    else $actual = 0;
                     $sumLossesMonthSOR = $sumLossesMonthSOR + $exp;
                 } else if ($date->getAlertType() == 20) {
                     $sqlActual = "SELECT sum(wr_pac) as power
@@ -2332,8 +2163,6 @@ class AssetManagementService
 
                     if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
                     else $exp = 0;
-                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                    else $actual = 0;
                     $sumLossesMonthEFOR = $sumLossesMonthEFOR + $exp;
                 } else if ($date->getAlertType() == 30) {
                     $sqlActual = "SELECT sum(wr_pac) as power
@@ -2347,8 +2176,6 @@ class AssetManagementService
 
                     if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
                     else $exp = 0;
-                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                    else $actual = 0;
                     $sumLossesMonthOMC = $sumLossesMonthEFOR + $exp;
                 }
             }
@@ -2406,63 +2233,7 @@ class AssetManagementService
             $failRelativeOMCPorcentMonth = 0;
         }
 
-        $chart->series =
-            [
-                [
-                    'type' => 'pie',
-                    'data' => [
-                        [
-                            'value' => $actualAvailabilityPorcent,
-                            'name' => 'PA',
-                        ],
-                        [
-                            'value' => $actualSOFPorcentMonth,
-                            'name' => 'SOF',
-                        ],
-                        [
-                            'value' => $actualEFORPorcentMonth,
-                            'name' => 'EFOR',
-                        ],
-                        [
-                            'value' => $actualOMCPorcentMonth,
-                            'name' => 'OMC',
-                        ],
-                    ],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => false,
-                    ],
-                    'itemStyle' => [
-                        'borderType' => 'solid',
-                        'borderWidth' => 1,
-                        'borderColor' => '#ffffff',
-                    ],
-                ],
-            ];
-
-        $option = [
-            'animation' => false,
-            'color' => ['#c5e0b4', '#ed7d31', '#941651', '#ffc000'],
-            'title' => [
-                'text' => 'Plant availability: '.$monthName.' '.$report['reportYear'],
-                'left' => 'center',
-                'top' => 'top',
-                'textStyle' => ['fontSize' => 10],
-            ],
-            'tooltip' => [
-                    'show' => true,
-                ],
-            'legend' => [
-                    'show' => true,
-                    'orient' => 'horizontal',
-                    'left' => 'left',
-                    'bottom' => 0,
-                    'padding' => 0, 90, 0, 0,
-                ],
-        ];
-
-        $chart->setOption($option);
-        $plant_availability = $chart->render('plant_availability', ['style' => 'height: 175px; width:300px; ']);
+        $plant_availability = [];
 
 
         //Tables for the kwh losses with bar graphs
@@ -2470,50 +2241,46 @@ class AssetManagementService
         if ($anlage->hasPVSYST()){
             $PVSYSTyearExpected = 1;
             for($index = 0; $index < $month -1; $index++){
-                $PVSYSTyearExpected = $PVSYSTyearExpected + $tbody_a_production['expectedPvSyst'][$index];
+                $PVSYSTyearExpected = $PVSYSTyearExpected + $tbody_a_production['forecast'][$index];
             }
         }
 
-        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2] * ((100 - $anlage->getTotalKpi()) / 100);
+        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2] * ((100 - $anlage->getTotalKpi())/100);
         $G4NyearExpected = 1;
         for($index = 0; $index < $month -1; $index++){
             $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExp'][$index] * ((100-$anlage->getTotalKpi())/100));
         }
 
-        $ActualPower = $tbody_a_production['powerAct'][$month-2];
+        $ActualPower = $powerEvu[$month-2];
         $ActualPowerYear = 1;
         for($index = 0; $index < $month -1; $index++){
-            $ActualPowerYear = $ActualPowerYear + $tbody_a_production['powerAct'][$index];
+            $ActualPowerYear = $ActualPowerYear + $powerEvu[$index];
         }
-
         if ($G4NmonthExpected > 0) {
             $percentageTable = [
                 'G4NExpected' => 100,
-                'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
+                'PVSYSExpected' => (int)($tbody_a_production['forecast'][$month - 2] * 100 / $G4NmonthExpected),
                 'forecast' => (int)($forecast[$month - 2] * 100 / $G4NmonthExpected),
                 'ActualPower' => (int)($ActualPower * 100 / $G4NmonthExpected),
                 'SORLosses' => number_format(-($kwhLossesMonthTable['SORLosses'] * 100 / $G4NmonthExpected), 2),
                 'EFORLosses' => number_format(-($kwhLossesMonthTable['EFORLosses'] * 100 / $G4NmonthExpected), 2),
                 'OMCLosses' => number_format(-($kwhLossesMonthTable['OMCLosses'] * 100 / $G4NmonthExpected), 2)
             ];
-        } else { // somthing is wrong with the expected
+        }else{
             $percentageTable = [
-                'G4NExpected' => 0,
+            'G4NExpected' => 0,
                 'PVSYSExpected' => 0,
                 'forecast' => 0,
                 'ActualPower' => 0,
                 'SORLosses' => 0,
                 'EFORLosses' => 0,
-                'OMCLosses' => 0,
-            ];
+                'OMCLosses' => 0
+                ];
         }
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
         $this->logMessages->updateEntry($logId, 'working', 60);
+        $chart = new ECharts();
         $chart->yAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2531,82 +2298,8 @@ class AssetManagementService
             'nameLocation' => 'middle',
             'nameGap' => 80,
         ];
-        if ($anlage->hasPVSYST() === true) {
-                $chart->series =[
-                    [
-                        'name' => 'Expected G4N[%]',
-                        'type' => 'bar',
-                        'data' => [$percentageTable['G4NExpected']] ,
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'Actual[%]',
-                        'type' => 'bar',
-                        'data' => [$percentageTable['ActualPower']],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'G4N Simulation[%]',
-                        'type' => 'bar',
-                        'data' => [$percentageTable['forecast']],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'Plant Simulation[%]',
-                        'type' => 'bar',
-                        'data' => [$percentageTable['PVSYSExpected']] ,
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'SOR Losses[%] - Planned Outage',
-                        'type' => 'bar',
-                        'data' => [$percentageTable['SORLosses']],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
 
-                    ],
-                    [
-                        'name' => 'EFOR Losses[%] - Unplanned Outage',
-                        'type' => 'bar',
-                        'data' => [$percentageTable['EFORLosses']],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'OMC Losses[%] - Grid Error/Grid Off',
-                        'type' => 'bar',
-                        'data' => [$percentageTable['OMCLosses']],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ]
-                ];
-        }
-        else {
+
             $chart->series =[
                 [
                     'name' => 'Expected G4N[%]',
@@ -2629,7 +2322,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
+                    'name' => 'Forecast[%]',
                     'type' => 'bar',
                     'data' => [$percentageTable['forecast']],
                     'visualMap' => 'false',
@@ -2670,7 +2363,7 @@ class AssetManagementService
                     ],
                 ]
             ];
-        }
+
 
         $option = [
             'color' => ['#f1975a', '#698ed0', '#b7b7b7', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
@@ -2705,7 +2398,7 @@ class AssetManagementService
 
         $monthlyLossesHelpTable = [
             'ExpectedG4N' => $G4NmonthExpected,
-            'ExpectedPVSYS' => $expectedPvSyst[$report['reportMonth'] - 1],
+            'ExpectedPVSYS' => $forecast[$report['reportMonth'] - 1],
             'Forecast' => $forecast[$month-2],
             'Actual' => $ActualPower,
             'SORLosses' => $kwhLossesMonthTable['SORLosses'],
@@ -2722,11 +2415,8 @@ class AssetManagementService
             'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
             'OMCLosses' => number_format(-($kwhLossesYearTable['OMCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
         ];
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
+        $chart = new ECharts();
         $chart->yAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2745,7 +2435,7 @@ class AssetManagementService
             'nameGap' => 80,
             'offset' => -20,
         ];
-        if ($anlage->hasPVSYST() === true) {
+
             $chart->series =[
                 [
                     'name' => 'Expected G4N[%]',
@@ -2768,81 +2458,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Forecast g4n[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['forecast']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'Plant Simulation[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['PVSYSExpected']] ,
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'SOR Losses[%] - Planned outage',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['SORLosses']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'EFOR Losses[%] - Unplanned Outage',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['EFORLosses']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'OMC Losses[%] - Grid Error/Grid Off',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['OMCLosses']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ]
-            ];
-        }
-        else {
-            $chart->series =[
-                [
-                    'name' => 'Expected G4N[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['G4NExpected']] ,
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'Actual[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['ActualPower']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'Forecast g4n[%]',
+                    'name' => 'Forecast[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
@@ -2882,7 +2498,7 @@ class AssetManagementService
                     ],
                 ]
             ];
-        }
+
 
 
         $option = [
@@ -2903,7 +2519,6 @@ class AssetManagementService
                 'show' => true,
                 'right' => 'right',
                 'top' => 50,
-                //'padding' => -10 ,
             ],
             'grid' => [
                 'height' => '80%',
@@ -2927,7 +2542,7 @@ class AssetManagementService
         ];
 
         for($i = $report['reportMonth'] - 1; $i >= 0 ; $i--){
-            $invertedMonthArray[] = $dataMonthArray[$i];
+            $invertedMonthArray[] = $monthArray[$i];
             $kwhLosses = $this->calculateLosses($report['reportYear']."-".($i + 1)."-01",$report['reportYear']."-".($i + 1)."-".cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']),$anlage);
 
             if ($anlage->getTotalKpi() < 100)$tempExp = $tbody_a_production['powerExp'][$i] * ((100-$anlage->getTotalKpi())/100);
@@ -2936,7 +2551,6 @@ class AssetManagementService
                 $table_percentage_monthly['Actual'][] = (int)($tbody_a_production['powerAct'][$i] * 100 / $tempExp);
                 $table_percentage_monthly['ExpectedG4N'][] = 100;
                 $table_percentage_monthly['Forecast'][] = (int)($tbody_a_production['forecast'][$i] * 100 / $tempExp);
-                $table_percentage_monthly['expectedPvSyst'][] = (int)($tbody_a_production['expectedPvSyst'][$i] * 100 / $tempExp);
                 $table_percentage_monthly['SORLosses'][] = number_format(-($kwhLosses['SORLosses'] * 100 / $tempExp), 2);
                 $table_percentage_monthly['EFORLosses'][] = number_format(-($kwhLosses['EFORLosses'] * 100 / $tempExp), 2);
                 $table_percentage_monthly['OMCLosses'][] = number_format(-($kwhLosses['OMCLosses'] * 100 / $tempExp), 2);
@@ -2945,18 +2559,14 @@ class AssetManagementService
                 $table_percentage_monthly['Actual'][] = 0;
                 $table_percentage_monthly['ExpectedG4N'][] = 0;
                 $table_percentage_monthly['Forecast'][] = 0;
-                $table_percentage_monthly['expectedPvSyst'][] = 0;
                 $table_percentage_monthly['SORLosses'][] = 0;
                 $table_percentage_monthly['EFORLosses'][] = 0;
                 $table_percentage_monthly['OMCLosses'][] = 0;
             }
         }
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+        $this->logMessages->updateEntry($logId, 'working', 70);
+        $chart = new ECharts();
         $chart->yAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2970,14 +2580,14 @@ class AssetManagementService
             'data' => $invertedMonthArray,
 
         ];
-        $this->logMessages->updateEntry($logId, 'working', 70);
+
         $chart->xAxis = [
             'type' => 'value',
             'name' => '%',
             'nameLocation' => 'middle',
             'nameGap' => 80,
         ];
-        if ($anlage->hasPVSYST() === true) {
+
             $chart->series =
                 [
 
@@ -3002,82 +2612,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Forecast g4n[%]',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['Forecast'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'Plant Simulation[%]',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['expectedPvSyst'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'SOR Losses[%] - Planned outage',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['SORLosses'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'EFOR Losses[%] - Unplanned Outage',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['EFORLosses'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'OMC Losses[%] - Grid Error/Grid Off',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['OMCLosses'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                ];
-        }
-        else {
-            $chart->series =
-                [
-                    [
-                        'name' => 'Expected g4n[%]',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['ExpectedG4N'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'Actual[%]',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['Actual'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'Forecast g4n[%]',
+                        'name' => 'Forecast[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
@@ -3117,7 +2652,7 @@ class AssetManagementService
                         ],
                     ],
                 ];
-        }
+
 
         $option = [
             'color' => ['#f1975a', '#698ed0', '#b7b7b7', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
@@ -3147,12 +2682,8 @@ class AssetManagementService
         $chart->setOption($option);
         $losseskwhchartYearMonthly = $chart->render('Year_losses_monthly', ['style' => 'height: 800px; width:28cm; ']);
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
+        $chart = new ECharts();
         // Actual
         $chart->series =
             [
@@ -3195,25 +2726,19 @@ class AssetManagementService
                 'textStyle' => ['fontSize' => 10],
             ],
             'tooltip' => [
-                    'show' => true,
-                ],
+                'show' => true,
+            ],
             'legend' => [
-                    'show' => true,
-                    'orient' => 'horizontal',
-                    'left' => 'left',
-                    'bottom' => 0,
-                    'padding' => 0, 90, 0, 0,
-                ],
+                'show' => true,
+                'orient' => 'horizontal',
+                'left' => 'left',
+                'bottom' => 0,
+                'padding' => 0, 90, 0, 0,
+            ],
         ];
 
         $chart->setOption($option);
         $fails_month = $chart->render('fails_month', ['style' => 'height: 175px; width:300px; ']);
-
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         // fuer PA Report Month
         if ($anlage->getConfigType() == 1) {
@@ -3491,7 +3016,7 @@ class AssetManagementService
                             'act_power_dc' => $dcIst[$j]['act_power_dc'],
                             'act_current_dc' => $dcIst[$j]['act_current_dc'],
                             'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 ,
-                            'diff_power_dc' =>  ($value[$i]['exp_power_dc'] > 0) ? (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 : 0 , // if we have no expected set to 0
+                            'diff_power_dc' =>  (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 ,
                         ];
 
                         if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
@@ -3535,10 +3060,260 @@ class AssetManagementService
         if ($dcExpDcIst) {
             $outTableCurrentsPower[] = $dcExpDcIst;
         }
+        $monthlyTableForPRAndPA = [];
+        $graphArrayPR = [];
+        for($index = 1; $index <= $month ; $index++){
+            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $index , (int)$report['reportYear']);
+            $result = $this->PRCalulation->calcPR($anlage, new \DateTime($report['reportYear']."-".$index."-"."01"), new \DateTime($report['reportYear']."-".$index."-".$daysInMonth));
+            $monthlyTableForPRAndPA[$index]['Dep0PA'] = round($result['pa0'], 2);
+            $monthlyTableForPRAndPA[$index]['Dep1PA'] = round($result['pa1'], 2);
+            $monthlyTableForPRAndPA[$index]['Dep2PA'] = round($result['pa2'], 2);
+            $monthlyTableForPRAndPA[$index]['Dep3PA'] = round($result['pa3'], 2);
+            $graphArrayPA['Dep0'][] = round($result['pa0'], 2);
+            $graphArrayPA['Dep1'][] = round($result['pa1'], 2);
+            $graphArrayPA['Dep2'][] = round($result['pa2'], 2);
+            $graphArrayPA['Dep3'][] = round($result['pa3'], 2);
+
+            if ($anlage->getUseGridMeterDayData())
+            {
+                $monthlyTableForPRAndPA[$index]['Dep0PR'] = round($result['prDep0EGridExt'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep1PR'] = round($result['prDep1EGridExt'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep2PR'] = round($result['prDep2EGridExt'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep3PR'] = round($result['prDep3EGridExt'], 2);
+                $graphArrayPR['Dep0'][] = round($result['prDep0EGridExt'], 2);
+                $graphArrayPR['Dep1'][] = round($result['prDep1EGridExt'], 2);
+                $graphArrayPR['Dep2'][] = round($result['prDep2EGridExt'], 2);
+                $graphArrayPR['Dep3'][] = round($result['prDep3EGridExt'], 2);
+            }
+            else if ($anlage->getShowEvuDiag()){
+                $monthlyTableForPRAndPA[$index]['Dep0PR'] = round($result['prDep0Evu'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep1PR'] = round($result['prDep1Evu'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep2PR'] = round($result['prDep2Evu'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep3PR'] = round($result['prDep3Evu'], 2);
+                $graphArrayPR['Dep0'][] = round($result['prDep0Evu'], 2);
+                $graphArrayPR['Dep1'][] = round($result['prDep1Evu'], 2);
+                $graphArrayPR['Dep2'][] = round($result['prDep2Evu'], 2);
+                $graphArrayPR['Dep3'][] = round($result['prDep3Evu'], 2);
+            }else{
+                $monthlyTableForPRAndPA[$index]['Dep0PR'] = round($result['prDep0Act'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep1PR'] = round($result['prDep1Act'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep2PR'] = round($result['prDep2Act'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep3PR'] = round($result['prDep3Act'], 2);
+                $graphArrayPR['Dep0'][] = round($result['prDep0Act'], 2);
+                $graphArrayPR['Dep1'][] = round($result['prDep1Act'], 2);
+                $graphArrayPR['Dep2'][] = round($result['prDep2Act'], 2);
+                $graphArrayPR['Dep3'][] = round($result['prDep3Act'], 2);
+            }
+
+        }
+
+        $chart = new ECharts(); // We must use AMCharts
+        $chart->tooltip->show = false;
+
+        $chart->xAxis = [
+            'type' => 'category',
+            'data' => array_slice($monthArray, 0, $report['reportMonth']),
+        ];
+        $chart->yAxis = [
+            'type' => 'value',
+            'name' => '%',
+            'min' => 0,
+            'max' => 100,
+        ];
+        $series = [];
+        $series[] =  [
+            'name' => 'Open Book',
+            'type' => 'bar',
+            'data' =>  $graphArrayPR['Dep0'],
+            'label' => [
+                'show' => true,
+                'rotate' => 90
+            ],
+            'markLine' => [
+                'data' => [
+                    [
+                        'yAxis' => $anlage-> getContractualPR(),
+                        'lineStyle' => [
+                            'type'  => 'solid',
+                            'width' => 3,
+                            'color' => 'green'
+                        ]
+                    ]
+                ],
+                'symbol' => 'none',
+        ]
+        ];
+        if (!$anlage->getSettings()->isDisableDep1()) $series[] =
+            [
+                'name' => 'O&M',
+                'type' => 'bar',
+                'data' =>  $graphArrayPR['Dep1'],
+                'label' => [
+                    'show' => true,
+                    'rotate' => 90
+                ],
+            ];
+        if( !$anlage->getSettings()->isDisableDep2()) $series[] = [
+            'name' => 'EPC',
+            'type' => 'bar',
+            'data' =>  $graphArrayPR['Dep2'],
+            'label' => [
+                'show' => true,
+                'rotate' => 90
+            ],
+        ];
+        if( !$anlage->getSettings()->isDisableDep3()) $series[] =   [
+            'name' => 'AM',
+            'type' => 'bar',
+            'data' =>  $graphArrayPR['Dep3'],
+            'label' => [
+                'show' => true,
+                'rotate' => 90
+            ],
+        ];
+        $chart->series = $series;
+
+
+        $option = [
+            'animation' => false,
+            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
+            'title' => [
+                'fontFamily' => 'monospace',
+                'text' => 'Plant PR',
+                'left' => 'center',
+                'top' => 10
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
+            'grid' => [
+                'height' => '80%',
+                'top' => 50,
+                'width' => '80%',
+                'left' => 100,
+            ],
+        ];
+
+        $chart->setOption($option);
+
+        $PR_MonthlyGraphic = $chart->render('PR_MonthlyGraphic', ['style' => 'height: 550px; width:900px;']);
+
+        $chart = new ECharts(); // We must use AMCharts
+        $chart->tooltip->show = false;
+
+        $chart->xAxis = [
+            'type' => 'category',
+            'data' => array_slice($monthArray, 0, $report['reportMonth']),
+        ];
+        $chart->yAxis = [
+            'type' => 'value',
+            'name' => '%',
+            'min' => 0,
+            'max' => 100,
+        ];
+
+        $series = [];
+        $series[] =  [
+            'name' => 'Open Book',
+            'type' => 'bar',
+            'data' =>  $graphArrayPA['Dep0'],
+            'label' => [
+                'show' => true,
+                'rotate' => 90
+            ],
+            'markLine' => [
+                'data' => [
+                    [
+                        'yAxis' => $anlage->getContractualAvailability(),
+                        'lineStyle' => [
+                        'name' => '*',
+                        'type'  => 'solid',
+                        'width' => 3,
+                        'color' => 'green',
+                        'label' => [
+                            'formatter' => '{c} {b} *'
+                        ]
+                    ],
+                    ]
+                ],
+                'symbol' => 'none'
+            ]
+        ];
+        if (!$anlage->getSettings()->isDisableDep1()) $series[] =
+            [
+                'name' => 'O&M',
+                'type' => 'bar',
+                'data' =>  $graphArrayPA['Dep1'],
+                'label' => [
+                    'show' => true,
+                    'rotate' => 90
+                ],
+            ];
+        if( !$anlage->getSettings()->isDisableDep2()) $series[] = [
+            'name' => 'EPC',
+            'type' => 'bar',
+            'data' =>  $graphArrayPA['Dep2'],
+            'label' => [
+                'show' => true,
+                'rotate' => 90
+            ],
+        ];
+        if( !$anlage->getSettings()->isDisableDep3()) $series[] =   [
+            'name' => 'AM',
+            'type' => 'bar',
+            'data' =>  $graphArrayPA['Dep3'],
+            'label' => [
+                'show' => true,
+                'rotate' => 90
+            ],
+        ];
+        $chart->series = $series;
+
+
+
+        $option = [
+            'animation' => false,
+            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
+            'title' => [
+                'fontFamily' => 'monospace',
+                'text' => 'Plant PA',
+                'left' => 'center',
+                'top' => 10
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
+            'grid' => [
+                'height' => '80%',
+                'top' => 50,
+                'width' => '80%',
+                'left' => 100,
+            ],
+        ];
+
+        $chart->setOption($option);
+
+        $PA_MonthlyGraphic = $chart->render('PA_MonthlyGraphic', ['style' => 'height: 550px; width:900px;']);
+
+
+
+
 
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {
+
+
             $ecoVarValues = $this->ecoVarValueRepo->findByAnlageYear($anlage, $report['reportYear']);
             $var1['name'] = $resultEconomicsNames->getVar1();
             $var2['name'] = $resultEconomicsNames->getVar2();
@@ -3713,7 +3488,7 @@ class AssetManagementService
             }
             else $Ertrag_design = 0;
             $monthleyFeedInTarif = $kwhPrice[$i];
-            
+
             if ($anlage->getShowEvuDiag()) {
                 (float) $power = $data1_grid_meter['powerEvu'];
             } else if ($anlage->getUseGridMeterDayData()){
@@ -3761,7 +3536,6 @@ class AssetManagementService
         for ($i = 1; $i < 12; ++$i) {
             $costSum[$i] = $costSum[$i - 1] + $economicsMandy[$i];
 
-            //$revenuesSumPVSYST[$i] = $economicsMandy[$i] + $revenuesSumPVSYST[$i - 1];
             if (($incomePerMonth['revenues_act'][$i] > 0) && ($i < $month - 1)) {
                 $revenuesSumG4N[$i] = ($revenuesSumG4N[$i-1] + $incomePerMonth['revenues_act'][$i]) - $costSum[$i];
                 $revenuesSumPVSYST[$i] = ($revenuesSumPVSYST[$i-1] + $incomePerMonth['revenues_act'][$i]) - $costSum[$i];
@@ -3783,6 +3557,8 @@ class AssetManagementService
             'PVSYST_plan_proceeds_P50' => $P50SumPVSYS,
             'g4n_plan_proceeds_EXP_P50' => $P50SumG4N,
         ];
+
+        $chart = new ECharts();
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -3792,7 +3568,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArrayFullYear,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -3803,7 +3579,7 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Actual plus Forecast g4n',
+                    'name' => 'Actual plus Forecast',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_G4N'],
                     'visualMap' => 'false',
@@ -3815,13 +3591,13 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Expected g4n plus Forecast g4n',
+                    'name' => 'Expected g4n plus Forecast',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_Forecast'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Forecast g4n P50',
+                    'name' => 'Forecast P50',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['g4n_plan_proceeds_EXP_P50'],
                     'visualMap' => 'false',
@@ -3843,119 +3619,24 @@ class AssetManagementService
                 'left' => 'center',
             ],
             'tooltip' => [
-                    'show' => true,
-                ],
+                'show' => true,
+            ],
             'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
             'grid' => [
-                    'height' => '70%',
-                    'top' => 50,
-                    'width' => '80%',
-                ],
+                'height' => '70%',
+                'top' => 50,
+                'width' => '80%',
+            ],
         ];
         $chart->setOption($option);
 
         $economicsCumulatedForecastChart = $chart->render('economicsCumulatedForecastChart', ['style' => 'height: 380px; width:26cm;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
         // end Chart economics Cumulated Forecast
-
-        $chart->xAxis = [
-            'type' => 'category',
-            'axisLabel' => [
-                'show' => true,
-                'margin' => '10',
-            ],
-            'splitArea' => [
-                'show' => true,
-            ],
-            'data' => $dataMonthArray,
-        ];
-        $chart->yAxis = [
-            'type' => 'value',
-            'name' => 'KWH',
-            'nameLocation' => 'middle',
-            'nameGap' => 70,
-        ];
-        if ($anlage->hasPVSYST()) {
-
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Difference ACT to PVSYST',
-                            'type' => 'line',
-                            'data' => $diefference_prod_to_pvsyst,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference ACT to expected g4n',
-                            'type' => 'line',
-                            'data' => $diefference_prod_to_expected_g4n,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference ACT to forecast g4n',
-                            'type' => 'line',
-                            'data' => $difference_prod_to_forecast,
-                            'visualMap' => 'false',
-                        ],
-                    ];
-
-        } else {
-
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Difference ACT to expected g4n',
-                            'type' => 'line',
-                            'data' => $diefference_prod_to_expected_g4n,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference ACT to forecast g4n',
-                            'type' => 'line',
-                            'data' => $difference_prod_to_forecast,
-                            'visualMap' => 'false',
-                        ],
-                    ];
-
-
-        }
-
-        $option = [
-            'animation' => false,
-            'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
-            'title' => [
-                'text' => 'Monthly losses at plan values',
-                'left' => 'center',
-            ],
-            'tooltip' => [
-                    'show' => true,
-                ],
-            'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
-            'grid' => [
-                    'height' => '70%',
-                    'top' => 50,
-                    'width' => '90%',
-                ],
-        ];
-        $chart->setOption($option);
-        $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:23cm;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         $chart = new ECharts();
         $chart->xAxis = [
@@ -3967,7 +3648,71 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
+        ];
+        $chart->yAxis = [
+            'type' => 'value',
+            'name' => 'KWH',
+            'nameLocation' => 'middle',
+            'nameGap' => 70,
+        ];
+
+
+            $chart->series =
+                [
+                    [
+                        'name' => 'Difference ACT to expected g4n',
+                        'type' => 'line',
+                        'data' => $diefference_prod_to_expected_g4n,
+                        'visualMap' => 'false',
+                    ],
+                    [
+                        'name' => 'Difference ACT to forecast',
+                        'type' => 'line',
+                        'data' => $difference_prod_to_forecast,
+                        'visualMap' => 'false',
+                    ],
+                ];
+
+
+
+        $option = [
+            'animation' => false,
+            'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
+            'title' => [
+                'text' => '',
+                'left' => 'center',
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
+            'grid' => [
+                'height' => '70%',
+                'top' => 50,
+                'bottom' => 0,
+                'width' => '90%',
+            ],
+        ];
+        $chart->setOption($option);
+        $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:28cm;']);
+
+
+        $chart = new ECharts();
+        $chart->xAxis = [
+            'type' => 'category',
+            'axisLabel' => [
+                'show' => true,
+                'margin' => '10',
+            ],
+            'splitArea' => [
+                'show' => true,
+            ],
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -3998,7 +3743,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Forecast g4n',
+                    'name' => 'Forecast',
                     'type' => 'bar',
                     'data' => $incomePerMonth['gvn_plan_proceeds_EXP'],
                     'visualMap' => 'false',
@@ -4013,26 +3758,24 @@ class AssetManagementService
                 'left' => 'center',
             ],
             'tooltip' => [
-                    'show' => true,
-                ],
+                'show' => true,
+            ],
             'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
             'grid' => [
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => '90%',
-                ],
+                'height' => '80%',
+                'top' => 50,
+                'width' => '90%',
+            ],
         ];
         $chart->setOption($option);
 
         $income_per_month_chart = $chart->render('income_per_month_chart', ['style' => 'height: 350px; width:950px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        unset($option);
+
+        $chart = new ECharts();
         $chart->series =
             [
                 [
@@ -4070,24 +3813,19 @@ class AssetManagementService
             ],
 
             'tooltip' => [
-                    'show' => true,
-                ],
+                'show' => true,
+            ],
             'legend' => [
-                    'show' => true,
-                    'orient' => 'vertical',
-                    'top' => 30,
-                    'right' => 40,
-                ],
+                'show' => true,
+                'orient' => 'vertical',
+                'top' => 30,
+                'right' => 40,
+            ],
         ];
 
         $chart->setOption($option);
         $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 210px; width:26cm; margin-left:80px;']);
 
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         $chart = new ECharts();
 
@@ -4100,7 +3838,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4124,7 +3862,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Forecast g4n - proceeds',
+                    'name' => 'Forecast - proceeds',
                     'type' => 'bar',
                     'data' => $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'],
                     'visualMap' => 'false',
@@ -4145,32 +3883,24 @@ class AssetManagementService
                 'left' => 'center',
             ],
             'tooltip' => [
-                    'show' => true,
-                ],
+                'show' => true,
+            ],
             'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
             'grid' => [
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => '90%',
-                ],
+                'height' => '80%',
+                'top' => 50,
+                'width' => '90%',
+            ],
         ];
 
         $chart->setOption($option);
 
         $operating_statement_chart = $chart->render('operating_statement_chart', ['style' => 'height: 350px; width:950px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
-        // end Operating Statement
-
-        // beginn Losses compared
         $this->logMessages->updateEntry($logId, 'working', 90);
         for ($i = 0; $i < 12; ++$i) {
             if ($i < $month - 1) {
@@ -4191,12 +3921,7 @@ class AssetManagementService
             'Difference_Profit_to_expected' => $Difference_Profit_to_EXP
         ];
 
-        // end Losses compared
-
-        // beginn Chart Losses compared
         $chart = new ECharts();
-        // $chart->tooltip->show = true;
-
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -4206,7 +3931,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4244,28 +3969,24 @@ class AssetManagementService
                 'left' => 'center',
             ],
             'tooltip' => [
-                    'show' => true,
-                ],
+                'show' => true,
+            ],
             'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
             'grid' => [
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => '90%',
-                ],
+                'height' => '80%',
+                'top' => 50,
+                'width' => '90%',
+            ],
         ];
 
         $chart->setOption($option);
 
         $losses_compared_chart = $chart->render('lossesCompared', ['style' => 'height: 350px; width:950px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
 
         // end Chart Losses compared
 
@@ -4290,17 +4011,13 @@ class AssetManagementService
             'Difference_Profit_ACT_to_PVSYST_plan_cum' => $PVSYSDiffSum,
             'Difference_Profit_ACT_to_g4n_plan_cum' => $G4NDiffSum,
             'Difference_Profit_to_expected' => $G4NEXPDiffSum
-            ];
+        ];
 
         // end Table Losses compared cummulated
 
         // beginn Chart Losses compared cummulated
         $chart = new ECharts();
-        // $chart->tooltip->show = true;
-
-        // $chart->tooltip->trigger = 'item';
-
-        $chart->xAxis = [
+          $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
                 'show' => true,
@@ -4309,7 +4026,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => $dataMonthArray,
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4343,22 +4060,22 @@ class AssetManagementService
             'animation' => false,
             'color' => ['#9dc3e6', '#92d050'],
             'title' => [
-                'text' => 'Commulative Losses Operating statement [EUR] ',
+                'text' => 'Cummulative Losses Operating statement [EUR] ',
                 'left' => 'center',
             ],
             'tooltip' => [
-                    'show' => true,
-                ],
+                'show' => true,
+            ],
             'legend' => [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20,
-                ],
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
             'grid' => [
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => '90%',
-                ],
+                'height' => '80%',
+                'top' => 50,
+                'width' => '90%',
+            ],
         ];
 
         $chart->setOption($option);
@@ -4366,14 +4083,118 @@ class AssetManagementService
             $acGroupsCleaned = $this->functions->getNameArray($anlage, 'dc', false);
         }
         $cumulated_losses_compared_chart = $chart->render('cumulatedlossesCompared', ['style' => 'height: 350px; width:950px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+
 
         $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))));
         $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))), "year");
+
+        $efficiencyArray= $this->calcPRInvArrayDayly($anlage, "01", "2023");
+        $orderedEfficiencyArray = [];
+        $index = 0;
+        $index2 = 0;
+        $index3 = 0;
+        while (count($efficiencyArray['avg']) !== 0){
+            $keys = array_keys($efficiencyArray['avg'], min($efficiencyArray['avg']));
+            foreach($keys as $key ){
+                $orderedEfficiencyArray[$index2]['avg'][$index] = $efficiencyArray['avg'][$key];
+                $orderedEfficiencyArray[$index2]['names'][$index] = $invArray[$key];
+                foreach ($efficiencyArray['values'][$key] as $value){
+                    $orderedEfficiencyArray[$index2]['value'][$index3] = [$invArray[$key], $value];
+
+                    $index3 = $index3 + 1;
+                }
+
+                unset($efficiencyArray['values'][$key]);
+                unset($efficiencyArray['avg'][$key]);
+                $index = $index + 1;
+                if ($index >= 30){
+                    $index = 0;
+                    $index2 = $index2 + 1;
+                    $index3 = 0;
+                }
+
+            }
+        }
+        $efficiencyRanking[] = [];
+        foreach($orderedEfficiencyArray as $key => $data) {
+
+            $chart = new ECharts(); // We must use AMCharts
+            $chart->tooltip->show = false;
+            $chart->tooltip->trigger = 'item';
+            $chart->xAxis = [
+                'type' => 'category',
+                'axisLabel' => [
+                    'show' => true,
+                    'margin' => '10',
+                    'rotate' => 45
+                ],
+                'splitArea' => [
+                    'show' => true,
+                ],
+                'data' => $data['names'],
+            ];
+            $chart->yAxis = [
+                [
+                    'type' => 'value',
+                    'min' => 50,
+                    'max' => 100,
+                    'name' => '[%]',
+
+                ],
+
+            ];
+            $chart->series =
+                [
+                    [
+                        'name' => 'Daily Efficiency',
+                        'simbolSize' => 1,
+                        'type' => 'scatter',
+                        'data' => $data['value'],
+                        'visualMap' => 'false',
+                    ],
+
+                    [
+                        'name' => 'Average Efficiency',
+                        'type' => 'line',
+                        'smooth' => true,
+                        'data' => $data['avg'],
+                        'lineStyle' => [
+                            'color' => 'green'
+                        ],
+                    ],
+                ];
+            $option = [
+                'textStyle' => [
+                    'fontFamily' => 'monospace',
+                    'fontsize' => '16'
+                ],
+                'animation' => false,
+                'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
+                'title' => [
+                    'fontFamily' => 'monospace',
+                    'text' => 'Inverter efficiency ranking',
+                    'left' => 'center',
+                    'top' => 10
+                ],
+                'tooltip' => [
+                    'show' => true,
+                ],
+                'legend' => [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20,
+                ],
+                'grid' => [
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '80%',
+                    'left' => 100,
+                ],
+            ];
+            $chart->setOption($option);
+            $efficiencyRanking[$key] = $chart->render('efficiency_rank_'.$key, ['style' => 'height: 550; width:900px;']);
+
+        }
 
 
         // end Chart Losses compared cummulated
@@ -4388,10 +4209,9 @@ class AssetManagementService
             'reportmonth' => $report['reportMonth'],
             'year' => $report['reportYear'],
             'monthArray' => $monthArray,
-            'dataMonthArray' => $dataMonthArray,
-            'dataMonthArrayFullYear' => $dataMonthArrayFullYear,
             'dataCfArray' => $dataCfArray,
             'operations_right' => $operations_right,
+            'operations_right_withForecast'=>$operations_right_withForecast,
             'degradation' => $degradation,
             'forecast_PVSYST_table' => $forecast_PVSYST_table,
             'forecast_G4N_table' => $forecast_G4N_table,
@@ -4466,7 +4286,14 @@ class AssetManagementService
             'losseskwhchartYearMonthly' => $losseskwhchartYearMonthly,
             'PercentageTableYear' => $percentageTableYear,
             'percentageTableMonth' => $percentageTable,
-
+            'monthlyTableForPRAndPA' => $monthlyTableForPRAndPA,
+            'PA_MonthlyGraphic' => $PA_MonthlyGraphic,
+            'PR_MonthlyGraphic' => $PR_MonthlyGraphic,
+            'InverterPRRankTables' => $orderedArray,
+            'InverterPRRankGraphics' => $pr_rank_graph,
+            'efficiencyRanking' => $efficiencyRanking,
+            'prSumaryTable' => $prSumaryTable,
+            'sumary_pie_graph' => $sumary_pie_graph
         ];
 
         return $output;
@@ -4552,4 +4379,66 @@ class AssetManagementService
         ];
         return $kwhLossesMonthTable;
     }
+    private function calcPRInvArray(Anlage $anlage, $month, $year):Array {
+        // now we will cheat the data in but in the future we will use the params to retrieve the data
+        $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
+        $invArray = $anlage->getInverterFromAnlage();
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
+        $invPnomArray = $anlage->getPnomInverterArray();
+        $invNr = count($invArray);
+        $contractualPR = $anlage->getContractualPR();
+        $powerSum = 0;
+        $prSum = 0;
+        for ($index = 1; $index <= $invNr; $index++) {
+            $prValues = $this->PRCalulation->calcPRByInverterAM($anlage, $index, new \DateTime($year."-".$month."-"."01"), new \DateTime($year."-".$month."-".$daysInMonth));
+            $invPnom = $invPnomArray[$index];
+            $power = $prValues['powerAct'];
+            $PRArray['name'][] = $invArray[$index];
+            $PRArray['power'][] = $power;
+            $PRArray['Pnom'][] = $invPnom;
+            $PRArray['powerYield'][] = $power / $invPnom;
+            $PRArray['avgIrr'][] = $prValues['irradiation'];
+            $PRArray['theoPower'][] = $prValues['powerTheo'];
+            $PRArray['invPR'][] = $prValues['prDep3Act'];
+            $PRArray['calcPR'][] = $contractualPR;
+            $powerSum = $powerSum + $power;
+            $prSum = $prSum + $prValues['prDep3Act'];
+        }
+        $PRArray['powerAVG'] = $powerSum / $invNr;
+        $PRArray['PRAvg'] = $prSum / $invNr;
+        return $PRArray;
+    }
+    private function calcPRInvArrayDayly(Anlage $anlage, $month, $year){
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
+        $begin = $year."-".$month."-01 00:00";
+        $end = $year."-".$month."-".$daysInMonth." 23:59";
+        $sql = 'SELECT stamp, (sum(wr_pac)/sum(wr_pdc) * 100) as efficiency, unit AS inverter  FROM '.$anlage->getDbNameIst()." WHERE stamp BETWEEN '$begin' AND '$end' GROUP BY UNIT, date_format(stamp, '%y%m%d')";
+        $res = $this->conn->query($sql);
+        $inverter = 1;
+        $index = 1;
+        $efficiencySum = 0;
+        $efficiencyCount = 0;
+        foreach($res->fetchAll(PDO::FETCH_ASSOC) as $result){
+            if ($result['inverter'] != $inverter){
+                if ($efficiencyCount > 0){
+                    $output['avg'][$inverter] = round($efficiencySum / $efficiencyCount, 2);
+                } else{
+                    $output['avg'][$inverter] = 0;
+                }
+                $inverter = $result['inverter'];
+                $index = 1;
+                $efficiencySum = 0;
+                $efficiencyCount = 0;
+            }
+            if ($result['efficiency'] <= 100 and $result['efficiency'] >= 0) {
+                $output['values'][$inverter][] = round($result['efficiency'], 2);
+                $efficiencyCount = $efficiencyCount + 1;
+                $efficiencySum = $efficiencySum + $result['efficiency'];
+                $index = $index + 1;
+            }
+        }
+        $output['avg'][$inverter ] = round($efficiencySum / $efficiencyCount, 2); //we make the last average outside of the loop
+        return $output;
+    }
+
 }

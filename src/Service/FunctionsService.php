@@ -21,6 +21,9 @@ use App\Repository\PVSystDatenRepository;
 use DateTime;
 use PDO;
 
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\Cache\CacheInterface;
 use function Symfony\Component\String\u;
 
 class FunctionsService
@@ -38,7 +41,8 @@ class FunctionsService
         private ForcastRepository $forcastRepo,
         private ForcastDayRepository $forcastDayRepo,
         private MonthlyDataRepository $monthlyDataRepo,
-        private WeatherFunctionsService $weatherFunctions)
+        private WeatherFunctionsService $weatherFunctions,
+        private CacheInterface $cache)
     {
     }
 
@@ -444,7 +448,7 @@ class FunctionsService
         if ($anlage->getHasPPC()){
             $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
                     FROM ".$weatherStation->getDbNameWeather()." w  
-                    RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
+                    LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
                     WHERE w.stamp BETWEEN '$from' AND '$to' AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
@@ -567,8 +571,8 @@ class FunctionsService
         if ($anlage->getHasPPC()){
             $sql = "SELECT COUNT(w.db_id) AS anzahl 
                     FROM ". $weatherStation->getDbNameWeather(). " w  
-                    RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
-                    WHERE w.stamp BETWEEN '$from' and '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is null)";
+                    LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
+                    WHERE w.stamp > '$from' AND w.stamp <= '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is null)";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -578,8 +582,8 @@ class FunctionsService
 
             $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
                     FROM ".$weatherStation->getDbNameWeather()." w  
-                    RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
-                    WHERE w.stamp BETWEEN '$from' AND '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is  null)";
+                    LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
+                    WHERE w.stamp > '$from' AND w.stamp <= '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is  null)";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -600,7 +604,7 @@ class FunctionsService
         }
 
         // from -> to | without PPC
-        $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp BETWEEN '$from' and '$to'";
+        $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp > '$from' AND stamp <= '$to'";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -610,7 +614,7 @@ class FunctionsService
 
         $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
                 FROM $dbTable 
-                WHERE stamp BETWEEN '$from' and '$to'";
+                WHERE stamp > '$from' AND stamp <= '$to'";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -885,7 +889,6 @@ class FunctionsService
             if ($anlage->getUseGridMeterDayData() === false) {
                 $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, $fromObj, $toObj);
                 $countMonthes = count($monthlyDatas);
-                #if ($countMonthes > 1) dump($monthlyDatas, $evu);
 
                 foreach ($monthlyDatas as $monthlyData) {
                     // calculate the first and the last day of the given month and year in $monthlyData
@@ -899,7 +902,7 @@ class FunctionsService
                     $epcEndMonth   = $anlage->getEpcReportEnd()->format('Ym') ===  $firstDayMonth->format('Ym');
                     $wholeMonth = ($toObj->getTimestamp() - $fromObj->getTimestamp()) / 86400 >= 28; // looks like this is not only one Day
                     $wholeReport = $anlage->getEpcReportStart()->format('Ymd') === $fromObj->format('Ymd') && $anlage->getEpcReportEnd()->format('Ymd') === $toObj->format('Ymd');
-                    #if ($countMonthes > 1) dump($wholeMonth);
+
                     if (($firstDayMonth->format("Y-m-d 00:00") === $from && $lastDayMonth->format("Y-m-d 23:59") === $to) || $epcStartMonth || $epcEndMonth || $wholeReport || $wholeMonth) {
                         if ($monthlyData->getExternMeterDataMonth() && $monthlyData->getExternMeterDataMonth() > 0) {
                             if ($epcStartMonth) {
@@ -918,13 +921,12 @@ class FunctionsService
                             } else {
                                 $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
                             }
-                            #if ($countMonthes > 1) dump($sql. "||| $countMonthes");
+
                             $res = $conn->query($sql);
                             if ($res->rowCount() == 1) {
                                 $row = $res->fetch(PDO::FETCH_ASSOC);
                                 $evu -= $row['power_evu'];
                                 $evu += $monthlyData->getExternMeterDataMonth();
-                                #if ($countMonthes > 1) dump($monthlyData->getMonth(), $row['power_evu'], $monthlyData->getExternMeterDataMonth());
                             }
                             unset($res);
                         }
@@ -968,7 +970,7 @@ class FunctionsService
                         $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
                     }
 
-                    $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $tempFrom->format("Y-m-d H:i"), $tempTo->format("Y-m-d H:i"));
+                    $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $tempFrom->format("Y-m-d H:i"), $tempTo->format("Y-m-d H:i"), false, $anlage);
                     if ($anlage->getIsOstWestAnlage()) {
                         $irrTemp = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
                     } else {
@@ -1086,37 +1088,46 @@ class FunctionsService
         return $_html;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function readInverters(string $invS, Anlage $anlage): array
     {
-        $returnArray = [];
-        $maxInv = count($this->getNameArray($anlage));
-        $invS = u($invS)->replace(' ', '');
-        $tempArray = u($invS)->split(',');
+        return $this->cache->get('readInverters_'.md5($invS.$anlage->getAnlId()), function(CacheItemInterface $cacheItem) use ($invS, $anlage)
+        {
+            $cacheItem->expiresAfter(900); // Lifetime of cache Item
 
-        if ($invS != '*') {
-            foreach ($tempArray as $item) {
-                if (u($item)->containsAny('-')) {
-                    $nums[] = u($item)->split('-');
-                    $from = (int) ((string) $nums[0][0]);
-                    $to = (int) ((string) $nums[0][1]);
-                    $i = $from;
-                    while ($i <= $to) {
-                        $returnArray[] = (string) u($i);
-                        ++$i;
+            $returnArray = [];
+            $maxInv = count($this->getNameArray($anlage));
+            $invS = u($invS)->replace(' ', '');
+            $tempArray = u($invS)->split(',');
+
+            if ($invS != '*') {
+
+                foreach ($tempArray as $item) {
+                    if (u($item)->containsAny('-')) {
+                        $nums[] = u($item)->split('-');
+                        $from = (int) ((string) $nums[0][0]);
+                        $to = (int) ((string) $nums[0][1]);
+                        $i = $from;
+                        while ($i <= $to) {
+                            $returnArray[] = (string) u($i);
+                            ++$i;
+                        }
+                        unset($nums);
+                    } else {
+                        $returnArray[] = (string) $item;
                     }
-                    unset($nums);
-                } else {
-                    $returnArray[] = (string) $item;
+                }
+            } else {
+                $i = 1;
+                while ($i <= $maxInv) {
+                    $returnArray[] = (string) $i;
+                    ++$i;
                 }
             }
-        } else {
-            $i = 1;
-            while ($i <= $maxInv) {
-                $returnArray[] = (string) $i;
-                ++$i;
-            }
-        }
 
-        return $returnArray;
+            return $returnArray;
+        });
     }
 }

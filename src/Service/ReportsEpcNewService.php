@@ -11,6 +11,7 @@ use App\Repository\PRRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Hisune\EchartsPHP\ECharts;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class ReportsEpcNewService
@@ -33,6 +34,7 @@ class ReportsEpcNewService
 
     /**
      * @throws \Exception
+     * @throws InvalidArgumentException
      */
     public function monthTable(Anlage $anlage, ?DateTime $date = null): array
     {
@@ -104,19 +106,12 @@ class ReportsEpcNewService
         $facStartDay = $anlage->getFacDateStart()->format('d');
         $facEndMonth = $anlage->getFacDate()->format('m');
         $facEndDay = $anlage->getFacDate()->format('d');
-
         $month = $startMonth;
         $year = $startYear;
-
         $daysInStartMonth = (int) $anlage->getFacDateStart()->format('j');
         $daysInEndMonth = (int) $anlage->getFacDate()->format('j');
-
         $endDateCurrentReportMonth = date_create("$reportYear-$reportMonth-$daysInReportMonth");
-
-        if (true) { // prüfe auf PVSYST verfügbar
-            $pvSystData = $anlage->getPvSystMonthsArray();
-        }
-
+        $pvSystData = $anlage->getPvSystMonthsArray();
         $availabilitySummeZeil2 = $this->availabilityByTicket->calcAvailability($anlage, $anlage->getFacDateStart(), $endDateCurrentReportMonth, null, 2);
 
         // ///////////////////////////
@@ -178,10 +173,10 @@ class ReportsEpcNewService
             $tableArray[$n]['L_irr'] = ($hasMonthData) ? $prArray['irradiation'] : $tableArray[$n]['D_irrDesign']; // Spalte L // Irradiation
             $tableArray[$n]['M_eGridYield'] = ($hasMonthData) ? $eGridReal : $pvSystData[$month - 1]['ertragDesign'] * $factor; // Spalte M // eGrid gemessen (je nach Konfiguration der Anlage aus dem Feld e_z_evu oder aus den Tageswerten der externen Grid Messung
             $tableArray[$n]['N_specificYield'] = $tableArray[$n]['M_eGridYield'] / $anlage->getPnom(); // Spalte N
-            $tableArray[$n]['O_availability'] = ($hasMonthData) ? $prArray['availability'] : ''; // Spalte O
+            $tableArray[$n]['O_availability'] = ($hasMonthData) ? $prArray['availability'] : null; // Spalte O
             $tableArray[$n]['P_part'] = 0; // Spalte P // muss in Runde 2 Berechnet werden
             $tableArray[$n]['Q_prReal_prProg'] = $this->PRCalulation->calcPrByValues($anlage, $tableArray[$n]['L_irr'], $tableArray[$n]['N_specificYield'], $tableArray[$n]['M_eGridYield'], $prArray['powerTheoTempCorr'], $tableArray[$n]['O_availability']); // Spalte Q // PR Real bzw PR prognostiziert wenn noch kein PR Real vorhanden
-            $tableArray[$n]['R_theorYield'] = $tableArray[$n]['L_irr'] * $anlage->getKwPeak(); // Spalte R // theoretical Energy ohne FT Korrektur
+            $tableArray[$n]['R_theorYield'] = $tableArray[$n]['L_irr'] * $anlage->getPnom(); // Spalte R // theoretical Energy ohne FT Korrektur
             $tableArray[$n]['S_theorYieldMT'] = $prArray['powerTheoTempCorr']; // Spalte S // theoretical Energy mit FT Korrektur
             $tableArray[$n]['T_irrMT'] = ''; // Spalte T // Irradiation mit FT Korrektur (haben wir noch nicht)
             $tableArray[$n]['U_prReal_withRisk'] = 0; // Spalte U // muss in Runde 2 Berechnet werden
@@ -208,7 +203,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme1]['K_irrFTDesign'] = ''; // Spalte K
             $tableArray[$zeileSumme1]['L_irr'] += $tableArray[$n]['L_irr']; // Spalte L // Irradiation
             $tableArray[$zeileSumme1]['M_eGridYield'] += $tableArray[$n]['M_eGridYield']; // Spalte QM // eGrid gemessen (je nach Konfiguration der Anlage aus dem Feld e_z_evu oder aus den Tageswerten der externen Grid Messung
-            $tableArray[$zeileSumme1]['N_specificYield'] = $tableArray[$zeileSumme1]['M_eGridYield'] / $anlage->getKwPeak(); // Spalte N
+            $tableArray[$zeileSumme1]['N_specificYield'] = $tableArray[$zeileSumme1]['M_eGridYield'] / $anlage->getPnom(); // Spalte N
             $tableArray[$zeileSumme1]['O_availability'] = ''; // Spalte O // eigentlich nicht berechenebar
             $tableArray[$zeileSumme1]['P_part'] = 0; // Spalte P // muss in Runde 2 Berechnet werden
             $tableArray[$zeileSumme1]['Q_prReal_prProg'] = ''; // wird etwas später berechnet da zu diesem Zeitpunkt einige Werte fehlen
@@ -224,7 +219,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme1]['AA_yieldEGridMinusGuranteed'] += $tableArray[$n]['AA_yieldEGridMinusGuranteed']; // Spalte AA
             $tableArray[$zeileSumme1]['AB_prRealMinusPrGura'] = (float) $tableArray[$zeileSumme1]['Q_prReal_prProg'] - (float) $tableArray[$zeileSumme1]['H_prGuarantie']; // Spalte AB
             $tableArray[$zeileSumme1]['AC_eGridDivExpected'] = 0; // Spalte AC // muss in Runde 2 Berechnet werden
-            $tableArray[$zeileSumme1]['Q_prReal_prProg'] = $this->PRCalulation->calcPrByValues($anlage, $tableArray[$zeileSumme1]['L_irr'], $tableArray[$zeileSumme1]['N_specificYield'], $tableArray[$zeileSumme1]['M_eGridYield'], $tableArray[$zeileSumme1]['S_theorYieldMT'], $tableArray[$zeileSumme2]['O_availability']); // Spalte Q // PR Real bzw PR prognostiziert, wenn noch kein PR Real vorhanden
+            $tableArray[$zeileSumme1]['Q_prReal_prProg'] = $this->PRCalulation->calcPrByValues($anlage, $tableArray[$zeileSumme1]['L_irr'], $tableArray[$zeileSumme1]['N_specificYield'], $tableArray[$zeileSumme1]['M_eGridYield'], $tableArray[$zeileSumme1]['S_theorYieldMT'], 100); // Spalte Q // PR Real bzw PR prognostiziert, wenn noch kein PR Real vorhanden
 
             $tableArray[$zeileSumme1]['current_month'] = 0;
             $tableArray[$zeileSumme1]['style'] = 'strong line';
@@ -241,7 +236,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme2]['K_irrFTDesign'] = ''; // Spalte K
             $tableArray[$zeileSumme2]['L_irr'] += ($hasMonthData) ? $tableArray[$n]['L_irr'] : 0; // Spalte L // Irradiation
             $tableArray[$zeileSumme2]['M_eGridYield'] += ($hasMonthData) ? $tableArray[$n]['M_eGridYield'] : 0; // Spalte M // eGrid gemessen (je nach Konfiguration der Anlage aus dem Feld e_z_evu oder aus den Tageswerten der externen Grid Messung
-            $tableArray[$zeileSumme2]['N_specificYield'] = $tableArray[$zeileSumme2]['M_eGridYield'] / $anlage->getKwPeak(); // Spalte N
+            $tableArray[$zeileSumme2]['N_specificYield'] = $tableArray[$zeileSumme2]['M_eGridYield'] / $anlage->getPnom(); // Spalte N
             $tableArray[$zeileSumme2]['O_availability'] = $availabilitySummeZeil2; // Spalte O
             $tableArray[$zeileSumme2]['P_part'] = ''; // Spalte P // muss in Runde 2 Berechnet werden
             $tableArray[$zeileSumme2]['Q_prReal_prProg'] = ''; // Spalte Q // wird etwas später berechnet da zu diesem Zeitpunkt einige Werte fehlen
@@ -274,7 +269,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme3]['K_irrFTDesign'] = ''; // Spalte K
             $tableArray[$zeileSumme3]['L_irr'] += ($hasMonthData) ? 0 : $tableArray[$n]['L_irr']; // Spalte L // Irradiation
             $tableArray[$zeileSumme3]['M_eGridYield'] += ($hasMonthData) ? 0 : $tableArray[$n]['M_eGridYield']; // Spalte M // eGrid gemessen (je nach Konfiguration der Anlage aus dem Feld e_z_evu oder aus den Tageswerten der externen Grid Messung
-            $tableArray[$zeileSumme3]['N_specificYield'] = $tableArray[$zeileSumme3]['M_eGridYield'] / $anlage->getKwPeak(); // Spalte N
+            $tableArray[$zeileSumme3]['N_specificYield'] = $tableArray[$zeileSumme3]['M_eGridYield'] / $anlage->getPnom(); // Spalte N
             $tableArray[$zeileSumme3]['O_availability'] = ''; // Spalte O
             $tableArray[$zeileSumme3]['P_part'] = 0; // Spalte P // muss in Runde 2 Berechnet werden
             $tableArray[$zeileSumme3]['Q_prReal_prProg'] = ''; // Spalte Q // wird etwas später berechnet da zu diesem Zeitpunkt einige Werte fehlen

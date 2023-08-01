@@ -9,7 +9,6 @@ use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\FunctionsService;
-use Hoa\Compiler\Visitor\Dump;
 use PDO;
 use DateTime;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
@@ -45,7 +44,7 @@ class PowerService
         if ($ppc){
             $sql = "SELECT sum(prod_power) as power_grid 
                 FROM ".$anlage->getDbNameMeters() . " s
-                RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+                LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
                 WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' 
                     AND '" . $to->format('Y-m-d H:i') . "' AND s.prod_power > 0 
                     AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
@@ -89,19 +88,21 @@ class PowerService
      * @param DateTime $from
      * @param DateTime $to
      * @param bool $ppc
+     * @param int|null $inverterID
      * @return array
      * @throws \Exception
      */
-    public function getSumAcPowerV2(Anlage $anlage, DateTime $from, DateTime $to, bool $ppc = false): array
+    public function getSumAcPowerV2(Anlage $anlage, DateTime $from, DateTime $to, bool $ppc = false, ?int $inverterID = null): array
     {
         $conn = self::getPdoConnection();
         $result = [];
         $powerEvu = $powerExp = $powerExpEvu = $powerEGridExt = $powerTheo = $tCellAvg = $tCellAvgMultiIrr = 0;
 
         $ignorNegativEvuSQL = $anlage->isIgnoreNegativEvu() ? 'AND e_z_evu > 0' : '';
-        $ppcSQLpart1 = $ppcSQLpart2 = '';
-        if ($ppc){
-            $ppcSQLpart1 = "RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
+        $ppcSQLpart1 = $ppcSQLpart2 = $ppcSQLpart1Meters = '';
+        if ($ppc && $anlage->getUsePPC()){
+            $ppcSQLpart1 = "LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
+            $ppcSQLpart1Meters = "LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
             $ppcSQLpart2 = " AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
                 AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)";
         }
@@ -111,57 +112,69 @@ class PowerService
 
         // EVU / Grid Leistung ermitteln –
         // dieser Wert soll der offiziele Grid Zähler Wert sein, wir in naher Zukunft durch die Daten aus 'meters' ersetzt werden müssen
-
-        if ($anlage == '97') {
-            // Bavelse Berg = Anlage ID 97
-            $sql = "SELECT sum(prod_power) as power_grid 
+        if ($inverterID === null) {
+            if ($anlage == '97') { // Power Data liegt in 'Meters' (db__pv_meters_xxx) Datei
+                // Bavelse Berg = Anlage ID 97
+                $sql = "SELECT sum(prod_power) as power_grid 
             FROM " . $anlage->getDbNameMeters() . " s
-            $ppcSQLpart1 
-            WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' 
-                AND '" . $to->format('Y-m-d H:i') . "' 
-                $ignorNegativEvuSQL 
+            $ppcSQLpart1Meters 
+            WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' 
+                AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' 
                 $ppcSQLpart2";
 
-            $res = $conn->query($sql);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $powerEvu = $row['power_evu_ppc'];
-            }
-        } else {
-
-            // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
-            if ($anlage->getUseGridMeterDayData()) {
-                // Berechnung der externen Zählerwerte unter Berücksichtigung der Manuel eingetragenen Monatswerte.
-                // Darüber kann eine Koorektur der Zählerwerte erfolgen.
-                // Wenn für einen Monat Manuel Zählerwerte eingegeben wurden, wird der Wert der Tageszählwer wieder subtrahiert und der Manuel eingebene Wert addiert.
-                $powerEGridExt = $this->gridMeterDayRepo->sumByDateRange($anlage, $from->format('Y-m-d H:i') , $to->format('Y-m-d H:i') );
-
-                if (!$powerEGridExt) $powerEGridExt = 0;
-
-                $powerEGridExt = $this->correctGridByTicket($anlage, $powerEGridExt, $from, $to); // Function not fianly tested
-            }
-
-            // EVU Leistung ermitteln –
-            // dieser Wert kann der offiziele Grid Zähler wert sein, kann aber auch nur ein interner Wert sein. Siehe Konfiguration $anlage->getUseGridMeterDayData()
-            if ($anlage->isIgnoreNegativEvu()) {
-                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp <= '" . $to->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                $res = $conn->query($sql);
+                if ($res->rowCount() === 1) {
+                    $row = $res->fetch(PDO::FETCH_ASSOC);
+                    $powerEvu = $row['power_grid'];
+                }
             } else {
-                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp <= '" . $to->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
-            }
+                // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
+                if ($anlage->getUseGridMeterDayData()) {
+                    // Berechnung der externen Zählerwerte unter Berücksichtigung der Manuel eingetragenen Monatswerte.
+                    // Darüber kann eine Koorektur der Zählerwerte erfolgen.
+                    // Wenn für einen Monat Manuel Zählerwerte eingegeben wurden, wird der Wert der Tageszählwer wieder subtrahiert und der Manuel eingebene Wert addiert.
+                    $powerEGridExt = $this->gridMeterDayRepo->sumByDateRange($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
+                    if (!$powerEGridExt) $powerEGridExt = 0;
+                    $powerEGridExt = $this->correctGridByTicket($anlage, $powerEGridExt, $from, $to); // Function not fianly tested
+                }
 
-            $res = $conn->query($sql);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $powerEvu = $row['power_evu'];
+                // EVU Leistung ermitteln –
+                // dieser Wert kann der offiziele Grid Zähler wert sein, kann aber auch nur ein interner Wert sein. Siehe Konfiguration $anlage->getUseGridMeterDayData()
+                if ($anlage->isIgnoreNegativEvu()) {
+                    $sql = 'SELECT sum(e_z_evu) as power_evu 
+                        FROM ' . $anlage->getDbNameAcIst() . " s
+                        $ppcSQLpart1 
+                        WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' AND s.e_z_evu > 0 
+                        $ppcSQLpart2
+                        GROUP BY s.unit LIMIT 1";
+                } else {
+                    $sql = 'SELECT sum(e_z_evu) as power_evu 
+                        FROM ' . $anlage->getDbNameAcIst() . " s
+                        $ppcSQLpart1 
+                        WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' 
+                        $ppcSQLpart2
+                        GROUP BY s.unit LIMIT 1";
+                }
+                $res = $conn->query($sql);
+                if ($res->rowCount() == 1) {
+                    $row = $res->fetch(PDO::FETCH_ASSOC);
+                    $powerEvu = $row['power_evu'];
+                }
             }
+            unset($res);
+            #$powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
+            $powerEvu = $this->correctGridByTicket($anlage, $powerEvu, $from, $to);
+        } else {
+            $powerEvu = null;
         }
-        unset($res);
 
-        $powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
-        $powerEvu = $this->correctGridByTicket($anlage, $powerEvu, $from, $to); // Function not fianly tested
-
+        if ($inverterID !== null){
+            $sqlPartInverter = "AND group_dc = $inverterID"; // we must change this
+        } else {
+            $sqlPartInverter = "";
+        }
         // Expected Leistung ermitteln
-        $sql = 'SELECT SUM(ac_exp_power) AS sum_power_ac, SUM(ac_exp_power_evu) AS sum_power_ac_evu FROM '.$anlage->getDbNameDcSoll()." WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp <= '" . $to->format('Y-m-d H:i') . "'";
+        $sql = 'SELECT SUM(ac_exp_power) AS sum_power_ac, SUM(ac_exp_power_evu) AS sum_power_ac_evu FROM '.$anlage->getDbNameDcSoll()." WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp <= '" . $to->format('Y-m-d H:i') . "' $sqlPartInverter";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -170,8 +183,16 @@ class PowerService
         }
         unset($res);
 
+        if ($inverterID !== null){
+            $sqlPartInverter = "AND unit = $inverterID";
+        } else {
+            $sqlPartInverter = "";
+        }
         // Theoretic Power (TempCorr)
-        $sql = 'SELECT SUM(theo_power) AS theo_power FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp <= '" . $to->format('Y-m-d H:i') . "' AND theo_power > 0";
+        $sql = 'SELECT SUM(theo_power) AS theo_power 
+                FROM '.$anlage->getDbNameAcIst()."  s
+                $ppcSQLpart1 
+                WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' AND s.theo_power > 0 $ppcSQLpart2 $sqlPartInverter";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -180,8 +201,12 @@ class PowerService
         unset($res);
 
         // Actual (Inverter Out) Leistung ermitteln
-        $sql = 'SELECT sum(wr_pac) as sum_power_ac, sum(theo_power) as theo_power FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp <= '" . $to->format('Y-m-d H:i') . "' AND wr_pac > 0";
+        $sql = 'SELECT sum(wr_pac) as sum_power_ac
+                FROM '.$anlage->getDbNameAcIst()." s
+                $ppcSQLpart1 
+                WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' AND s.wr_pac > 0 $ppcSQLpart2 $sqlPartInverter";
         $res = $conn->query($sql);
+
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $result['powerEvu']         = (float)$powerEvu;
@@ -205,12 +230,13 @@ class PowerService
      * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int|null $inverterID
      * @return array
      * @throws \Exception
      */
-    public function getSumAcPowerV2Ppc(Anlage $anlage, $from, $to): array
+    public function getSumAcPowerV2Ppc(Anlage $anlage, $from, $to, ?int $inverterID = null): array
     {
-        return $this->getSumAcPowerV2($anlage, $from, $to, true);
+        return $this->getSumAcPowerV2($anlage, $from, $to, true, $inverterID);
     }
 
 
@@ -234,7 +260,6 @@ class PowerService
             if ($anlage->getUseGridMeterDayData() === false) {
                 $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, $fromObj, $toObj);
                 $countMonthes = count($monthlyDatas);
-                #if ($countMonthes > 1) dump($monthlyDatas, $evu);
 
                 foreach ($monthlyDatas as $monthlyData) {
                     // calculate the first and the last day of the given month and year in $monthlyData
@@ -248,7 +273,7 @@ class PowerService
                     $epcEndMonth   = $anlage->getEpcReportEnd()->format('Ym') ===  $firstDayMonth->format('Ym');
                     $wholeMonth = ($toObj->getTimestamp() - $fromObj->getTimestamp()) / 86400 >= 28; // looks like this is not only one Day
                     $wholeReport = $anlage->getEpcReportStart()->format('Ymd') === $fromObj->format('Ymd') && $anlage->getEpcReportEnd()->format('Ymd') === $toObj->format('Ymd');
-                    #if ($countMonthes > 1) dump($wholeMonth);
+
                     if (($firstDayMonth->format("Y-m-d 00:00") === $from && $lastDayMonth->format("Y-m-d 23:59") === $to) || $epcStartMonth || $epcEndMonth || $wholeReport || $wholeMonth) {
                         if ($monthlyData->getExternMeterDataMonth() && $monthlyData->getExternMeterDataMonth() > 0) {
                             if ($epcStartMonth) {
@@ -267,13 +292,12 @@ class PowerService
                             } else {
                                 $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
                             }
-                            #if ($countMonthes > 1) dump($sql. "||| $countMonthes");
+
                             $res = $conn->query($sql);
                             if ($res->rowCount() == 1) {
                                 $row = $res->fetch(PDO::FETCH_ASSOC);
                                 $evu -= $row['power_evu'];
                                 $evu += $monthlyData->getExternMeterDataMonth();
-                                #if ($countMonthes > 1) dump($monthlyData->getMonth(), $row['power_evu'], $monthlyData->getExternMeterDataMonth());
                             }
                             unset($res);
                         }
@@ -313,9 +337,9 @@ class PowerService
 
             // Suche und summiere Werte in AC Ist Tabelle
             if ($anlage->isIgnoreNegativEvu()) {
-                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempoStartDate->format('Y-m-d H:i') . "' AND '" . $tempoEndDate->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
             } else {
-                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempoStartDate->format('Y-m-d H:i') . "' AND '" . $tempoEndDate->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
+                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
             }
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
@@ -374,7 +398,7 @@ class PowerService
         // EVU Leistung ermitteln – nur EVU aber PPC bereinigt
         $sql = "SELECT sum(e_z_evu) as power_evu_ppc
                 FROM " . $anlage->getDbNameAcIst() . " s
-                RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+                LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
                 WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.unit = $section AND s.e_z_evu > 0 AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is  null)";
         $res = $conn->query($sql);
         if ($res->rowCount() === 1) {
@@ -415,7 +439,7 @@ class PowerService
         if ($anlage->getHasPPC()) {
             $sql = "SELECT sum(theo_power) as theo_power, sum(theo_power_ft) as theo_power_ft 
                 FROM " . $anlage->getDbNameSection() . " s
-                RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+                LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
                 WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.section = $section AND s.theo_power_ft > 0 AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)";
             $res = $conn->query($sql);
             if ($res->rowCount() === 1) {

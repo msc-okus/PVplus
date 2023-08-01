@@ -3,15 +3,11 @@
 namespace App\Form\Anlage;
 
 use App\Entity\Anlage;
-use App\Entity\Eigner;
-use App\Form\GroupsAc\SensorsListEmbeddedFormType;
+use App\Form\GroupsAc\AcGroupsListEmbeddedFormType;
 use App\Helper\G4NTrait;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Security;
@@ -20,11 +16,8 @@ class AnlageAcGroupsFormType extends AbstractType
 {
     use G4NTrait;
 
-    private $security;
-
-    public function __construct(Security $security)
+    public function __construct(private Security $security)
     {
-        $this->security = $security;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -36,7 +29,7 @@ class AnlageAcGroupsFormType extends AbstractType
             // ###############################################
 
             ->add('acGroups', CollectionType::class, [
-                'entry_type' => SensorsListEmbeddedFormType::class,
+                'entry_type' => AcGroupsListEmbeddedFormType::class,
                 'allow_add' => true,
                 'allow_delete' => true,
                 'delete_empty' => true,

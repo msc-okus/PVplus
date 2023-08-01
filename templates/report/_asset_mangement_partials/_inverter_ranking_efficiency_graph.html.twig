@@ -1,0 +1,9 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3>Inverter Efficiency Ranking</h3>
+    <div style="height: 50%">
+        {{ graph|raw }}
+    </div>
+
+{% endblock %}

@@ -66,14 +66,14 @@ class IrradiationChartService
                 if (!($irr_upper + $irr_lower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                     switch ($mode) {
                         case 'all':
-                            $dataArray['chart'][$counter]['val1'] = $irr_upper; // upper pannel
-                            $dataArray['chart'][$counter]['val2'] = $irr_lower; // lower pannel
+                            $dataArray['chart'][$counter]['val1'] = $irr_upper > 0 ? $irr_upper: 0; // upper pannel
+                            $dataArray['chart'][$counter]['val2'] = $irr_lower > 0 ? $irr_lower : 0; // lower pannel
                             break;
                         case 'upper':
-                            $dataArray['chart'][$counter]['val1'] = $irr_upper; // upper pannel
+                            $dataArray['chart'][$counter]['val1'] = $irr_upper > 0 ? $irr_upper: 0; // upper pannel
                             break;
                         case 'lower':
-                            $dataArray['chart'][$counter]['val1'] = $irr_lower; // upper pannel
+                            $dataArray['chart'][$counter]['val1'] = $irr_lower > 0 ? $irr_lower : 0; // upper pannel
                             break;
                     }
                 }
@@ -128,6 +128,7 @@ class IrradiationChartService
                         $weatherRow = $resultWeather->fetch(PDO::FETCH_ASSOC);
                         if ($anlage->getIsOstWestAnlage()) {
                             $dataArray['chart'][$counter]['g4n'] = (((float) $weatherRow['g_upper'] * $anlage->getPowerEast() + (float) $weatherRow['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()));
+                            if ($dataArray['chart'][$counter]['g4n'] < 0) $dataArray['chart'][$counter]['g4n'] = 0;
                         } else {
                             if ($anlage->getWeatherStation()->getChangeSensor() == 'Yes') {
                                 $dataArray['chart'][$counter]['g4n'] = (float) $weatherRow['g_lower']; // getauscht, nutze unterene Sensor
