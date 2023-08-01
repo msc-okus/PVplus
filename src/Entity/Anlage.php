@@ -3724,7 +3724,7 @@ class Anlage
 
     public function getPowerThreshold(): ?string
     {
-        return $this->PowerThreshold;
+        return $this->PowerThreshold !== null ? $this->PowerThreshold : '0';
     }
 
     public function setPowerThreshold(?string $PowerThreshold): static
