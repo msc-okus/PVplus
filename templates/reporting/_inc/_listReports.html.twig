@@ -99,7 +99,7 @@
                                 #}
 
                                 {# edit report #}
-                                {% if is_granted('ROLE_G4N') or report.reportType == 'am-report' %}
+                                {% if is_granted('ROLE_G4N') and report.reportType != 'am-report' %}
                                     <a href="{{ path('app_reporting_html', { id: report.id}) }}" target="_blank" title="load html code into new window" class="hollow button tiny action-icon shadow">
                                         <span class="fas fa-code"></span>
                                     </a>
