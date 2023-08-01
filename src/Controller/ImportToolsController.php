@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\MeteoControlService;
 /**
  * @IsGranted("ROLE_G4N")
  */
@@ -28,16 +29,30 @@ class ImportToolsController extends BaseController
 
         //Wenn der Import von Cron angestoßen wird.
         $cron = $request->query->get('cron');
-        if ($cron) {
+        if ($cron == 1) {
             $time = time();
             $time -= $time % 900;
             $start = strtotime(date('Y-m-d H:i', $time - (4 * 3600)));
             $end = $time;
 
+            $anlage = $anlagenRepo->findOneByIdAndJoin(216);
+            $wetherStationId = $anlage->getWeatherStation();
+            $modules = $anlage->getModules();
+            $groups = $anlage->getGroups();
+            $systemKey = $anlage->getCustomPlantId();
 
+            #$dcPNormPerInvereter = self::getDcPNormPerInvereter($groups, $modules);
+            $owner = $anlage->getEigner();
+            $mcUser = $owner->getSettings()->getMcUser();
+            $mcPassword = $owner->getSettings()->getMcPassword();
+            $mcToken = $owner->getSettings()->getMcToken();
+
+            $bulkMeaserments = MeteoControlService::getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end);
+print_r($bulkMeaserments);
+            exit;
         }
 
-        if (!$cron) {
+        if ($cron != 1) {
             //Wenn der Import aus dem Backend angestoßen wird
             $form = $this->createForm(ImportToolsFormType::class);
             $form->handleRequest($request);
@@ -57,6 +72,8 @@ class ImportToolsController extends BaseController
                 $modules = $anlage->getModules();
                 $groups = $anlage->getGroups();
                 $dcPNormPerInvereter = self::getDcPNormPerInvereter($groups, $modules);
+                $owner = $anlage->getEigner();
+
 
                 $importToolsModel->path = (string)$anlage->getPathToImportScript();
                 $importToolsModel->importType = (string)$form->get('importType')->getData();
@@ -98,7 +115,6 @@ class ImportToolsController extends BaseController
                     }
                 }
             }
-
             // Wenn Close geklickt wird mache dies:
             if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
                 return $this->redirectToRoute('app_dashboard');
@@ -108,6 +124,9 @@ class ImportToolsController extends BaseController
                 'importToolsForm' => $form,
                 'output' => $output,
             ]);
+
         }
+
+        return $this->render('aaaaaa');
     }
 }

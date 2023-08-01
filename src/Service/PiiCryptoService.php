@@ -1,5 +1,5 @@
 <?php
-namespace App\ApiModule\Services;
+namespace App\Service;
 
 
 use App\ApiModule\Exceptions\SystemException;

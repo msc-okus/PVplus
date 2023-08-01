@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use App\Repository\OwnerSettingsRepository;
 use Doctrine\ORM\Mapping as ORM;
-use App\ApiModule\Services\PiiCryptoService;
+use App\Service\PiiCryptoService;
 
 
 #[ORM\Entity(repositoryClass: OwnerSettingsRepository::class)]
@@ -30,8 +30,8 @@ class OwnerSettings extends PiiCryptoService
     #[ORM\Column(length: 20, nullable: true, options: ['default' => 'O-Skadow'])]
     private ?string $mcUser = 'O-Skadow';
 
-    #[ORM\Column(length: 255, nullable: true, options: ['default' => 'Tr3z%2!x$5'])]
-    private ?string $mcPassword = 'Tr3z%2!x$5';
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $mcPassword;
 
     #[ORM\Column(length: 100, nullable: true, options: ['default' => '264b63333e951a6c327d627003f6a828'])]
     private ?string $mcToken = '264b63333e951a6c327d627003f6a828';
@@ -103,12 +103,12 @@ class OwnerSettings extends PiiCryptoService
 
     public function getMcPassword(): ?string
     {
-        return $this->decryptData($this->mcPassword);
+        return $this->unHashData($this->mcPassword);
     }
 
     public function setMcPassword(?string $mcPassword): self
     {
-        $this->mcPassword = $this->encryptData($mcPassword);
+        $this->mcPassword = $this->hashData($mcPassword);
 
         return $this;
     }
