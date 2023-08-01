@@ -186,6 +186,11 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => '[chartSensor4]'
             ])
 
+            ->add('symfonyImport', SwitchType::class, [
+                'label'     => 'Import Data with Symphony',
+                'help'      => '[Import Data with Symphony]'
+            ])
+
             ->add('epxCalculationByCurrent', SwitchType::class, [
                 'label'     => 'Calculate \'expected\' with (current * voltage)',
                 'help'      => '[epxCalculationByCurrent]'

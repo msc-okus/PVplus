@@ -156,6 +156,9 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $chartSensor4 = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $symfonyImport = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -662,4 +665,15 @@ class AnlageSettings
         return $this;
     }
 
+    public function isSymfonyImport(): ?bool
+    {
+        return $this->symfonyImport;
+    }
+
+    public function setSymfonyImport(?bool $symfonyImport): self
+    {
+        $this->symfonyImport = $symfonyImport;
+
+        return $this;
+    }
 }

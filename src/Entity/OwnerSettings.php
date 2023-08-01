@@ -30,8 +30,8 @@ class OwnerSettings extends PiiCryptoService
     #[ORM\Column(length: 20, nullable: true, options: ['default' => 'O-Skadow'])]
     private ?string $mcUser = 'O-Skadow';
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $mcPassword;
+    #[ORM\Column(length: 255, nullable: true, options: ['default' => 'Tr3z%2!x$5'])]
+    private ?string $mcPassword = 'Tr3z%2!x$5';
 
     #[ORM\Column(length: 100, nullable: true, options: ['default' => '264b63333e951a6c327d627003f6a828'])]
     private ?string $mcToken = '264b63333e951a6c327d627003f6a828';
@@ -103,7 +103,12 @@ class OwnerSettings extends PiiCryptoService
 
     public function getMcPassword(): ?string
     {
-        return $this->unHashData($this->mcPassword);
+        if($this->mcPassword != NULL){
+            return $this->unHashData($this->mcPassword);
+        }else{
+            return $this->mcPassword;
+        }
+
     }
 
     public function setMcPassword(?string $mcPassword): self

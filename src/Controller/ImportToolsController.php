@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\MeteoControlService;
+use Doctrine\ORM\EntityManagerInterface;
 /**
  * @IsGranted("ROLE_G4N")
  */
@@ -23,7 +24,7 @@ class ImportToolsController extends BaseController
     use ImportFunctionsTrait;
 
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
-    public function importManuel(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo): Response
+    public function importManuel(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface): Response
     {
         $pdoAnlageData = self::getPdoConnectionAnlage();
 
@@ -35,23 +36,40 @@ class ImportToolsController extends BaseController
             $start = strtotime(date('Y-m-d H:i', $time - (4 * 3600)));
             $end = $time;
 
-            $anlage = $anlagenRepo->findOneByIdAndJoin(216);
-            $wetherStationId = $anlage->getWeatherStation();
-            $modules = $anlage->getModules();
-            $groups = $anlage->getGroups();
-            $systemKey = $anlage->getCustomPlantId();
+            //getDB-Connection
+            $conn = $entityManagerInterface->getConnection();
+            //get all Plants for Import via via Cron
+            $readyToImport = self::getPlantsImportReady($conn);
 
-            #$dcPNormPerInvereter = self::getDcPNormPerInvereter($groups, $modules);
-            $owner = $anlage->getEigner();
-            $mcUser = $owner->getSettings()->getMcUser();
-            $mcPassword = $owner->getSettings()->getMcPassword();
-            $mcToken = $owner->getSettings()->getMcToken();
+            for ($i = 0; $i <= count($readyToImport)-1; $i++) {
+                $plantId = $readyToImport[$i]['anlage_id'];
+                $anlage = $anlagenRepo->findOneByIdAndJoin($plantId);
+                $wetherStationId = $anlage->getWeatherStation()->getId();
+                $modules = $anlage->getModules();
+                $groups = $anlage->getGroups();
+                $systemKey = $anlage->getCustomPlantId();
+                $acGroups = self::getACGroups($conn, $plantId);
+                $tempCorrParams['tempCellTypeAvg']  = (float)$anlage->temp_corr_cell_type_avg;
+                $tempCorrParams['gamma']            = (float)$anlage->temp_corr_gamma;
+                $tempCorrParams['a']                = (float)$anlage->temp_corr_a;
+                $tempCorrParams['b']                = (float)$anlage->temp_corr_b;
+                $tempCorrParams['deltaTcnd']        = (float)$anlage->temp_corr_delta_tcnd;
 
-            $bulkMeaserments = MeteoControlService::getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end);
-print_r($bulkMeaserments);
-            exit;
+                $dcPNormPerInvereter = self::getDcPNormPerInvereter($conn, $groups->toArray(), $modules->toArray());
+                $owner = $anlage->getEigner();
+                $mcUser = $owner->getSettings()->getMcUser();
+                $mcPassword = $owner->getSettings()->getMcPassword();
+                $mcToken = $owner->getSettings()->getMcToken();
+
+                #$bulkMeaserments = MeteoControlService::getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end);
+                print_r($dcPNormPerInvereter);
+
+            }
+
+
+
         }
-
+        exit;
         if ($cron != 1) {
             //Wenn der Import aus dem Backend angestoßen wird
             $form = $this->createForm(ImportToolsFormType::class);
@@ -129,4 +147,5 @@ print_r($bulkMeaserments);
 
         return $this->render('aaaaaa');
     }
+
 }

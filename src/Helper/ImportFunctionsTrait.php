@@ -48,26 +48,33 @@ trait ImportFunctionsTrait
     }
 
 
-    function getDcPNormPerInvereter(array $groups, array $modules): array
+    function getDcPNormPerInvereter($conn, array $groups, array $modules): array
     {
-        $conn = getPdoConnectionAnlage();
 
         $dcPNormPerInvereter = [];
         $pNormControlSum = 0;
 
-        foreach ($groups as $row) {
-            $index = $row->dc_group;
-            $groupId = $row->id;
-            $sql2 = "SELECT * FROM pvp_base.anlage_group_modules WHERE anlage_group_id = $groupId;";
-            $result2 = $conn->query($sql2);
+        for ($i = 0; $i <= count($groups)-1; $i++) {
+            $index = $groups[$i]->getdcGroup();
+            $groupId = $groups[$i]->getid();
+
+            $query = "SELECT * FROM `anlage_group_modules` where `anlage_group_id` = $groupId  ";
+            $stmt = $conn->executeQuery($query);
+            $result = $stmt->fetchAll();
             $sumPNorm = 0;
-            while ($row2 = $result2->fetch(PDO::FETCH_OBJ)) {
-                $sumPNorm += $row2->num_strings_per_unit * $row2->num_modules_per_string * $modules[$row2->module_type_id]->power;
+            $power = 0;
+
+            for ($k = 0; $k <= count($modules)-1; $k++) {
+                if($modules[$k]->getId() == $result[0]['module_type_id']){
+                    $power = $modules[$k]->getPower();
+                }
             }
+            $sumPNorm += $result[0]['num_strings_per_unit'] * $result[0]['num_modules_per_string'] * $power;
+
+
             $dcPNormPerInvereter[$index] = $sumPNorm;
             $pNormControlSum += $sumPNorm;
         }
-
         return $dcPNormPerInvereter;
     }
 
@@ -888,6 +895,7 @@ trait ImportFunctionsTrait
         $DBDataConnection = null;
     }
 
+    //Liest die Sensoren der Anlage aus dem Backend
     function getAnlageSensors(string $anlId): array
     {
         $conn = getPdoConnectionAnlage();
@@ -896,18 +904,14 @@ trait ImportFunctionsTrait
 
         $result = $conn->query($sql);
 
-        return $result->fetchAll(PDO::FETCH_OBJ);;
+        return $result->fetchAll(PDO::FETCH_OBJ);
     }
 
-    function getACGroups(string $anlId): array
+    function getACGroups($conn, string $anlId): array
     {
-        $conn = getPdoConnectionAnlage();
-
-        $sql = "SELECT * FROM pvp_base.anlage_groups_ac  WHERE anlage_id = " . $anlId . ";";
-
-        $result = $conn->query($sql);
-
-        return $result->fetchAll(PDO::FETCH_OBJ);;
+        $query = "SELECT * FROM `anlage_groups_ac` where `anlage_id` = ".$anlId;
+        $stmt = $conn->executeQuery($query);
+        return $stmt->fetchAll();
     }
 
     function checkSensors(array $anlageSensors, int $length, bool $istOstWest, $sensors, $date): array
@@ -1110,4 +1114,9 @@ trait ImportFunctionsTrait
 
     }
 
+    public function getPlantsImportReady($conn){
+        $query = "SELECT `anlage_id` FROM `anlage_settings` where `symfony_import` = 1  ";
+        $stmt = $conn->executeQuery($query);
+        return $stmt->fetchAll();
+    }
 }
