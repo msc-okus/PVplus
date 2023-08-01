@@ -419,7 +419,7 @@ class AvailabilityByTicketService
                                 ++$availabilityPlantByStamp['case0'];
                             }
                             // Case 1 (first part of ti)
-                            if ($conditionIrrCase1 && $case5 === false && $skipTi === false) {
+                            if ($conditionIrrCase1 && $skipTi === false) {
                                 $case1 = true;
                                 ++$availability[$inverter]['case1'];
                                 ++$availabilityPlantByStamp['case1'];
@@ -447,7 +447,7 @@ class AvailabilityByTicketService
                                 $case3Helper[$inverter] = 0;
                             }
                             // Case 3
-                            if (($powerAc <= 0 && $powerAc !== null) && !$commIssu) {
+                            if ($conditionIrrCase2 && ($powerAc <= 0 && $powerAc !== null) && !$commIssu) { // ohne case5
                                 $case3 = true;
                                 ++$availability[$inverter]['case3'];
                                 ++$availabilityPlantByStamp['case3'];
@@ -472,12 +472,12 @@ class AvailabilityByTicketService
                                 ++$availabilityPlantByStamp['control'];
                             }
                             // Case 5
-                            if (($case5 === true && $skipTiFM === false) || ($case5 === true && $case3 === true && !$skipTiFM)) {
+                            if (($conditionIrrCase2 === true && $case5 === true && $skipTiFM === false) || ($conditionIrrCase2 === true && $case5 === true && $case3 === true && !$skipTiFM)) {
                                 ++$availability[$inverter]['case5'];
                                 ++$availabilityPlantByStamp['case5'];
                             }
                             // Case 6
-                            if ($case6 === true && $case3 === false && $case0 === true) { //  && $case3 === false && $case0 === true
+                            if ($case6 === true && $case3 === false && $case0 === true) {
                                 ++$availability[$inverter]['case6'];
                                 ++$availabilityPlantByStamp['case6'];
                             }
