@@ -97,10 +97,10 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
-            'pr0image' =>$anlage->getPrFormular0Image(),
-            'pr1image' =>$anlage->getPrFormular1Image(),
-            'pr2image' =>$anlage->getPrFormular2Image(),
-            'pr3image' =>$anlage->getPrFormular3Image(),
+            'pr0image' => $anlage->getPrFormular0Image(),
+            'pr1image' => $anlage->getPrFormular1Image(),
+            'pr2image' => $anlage->getPrFormular2Image(),
+            'pr3image' => $anlage->getPrFormular3Image(),
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);

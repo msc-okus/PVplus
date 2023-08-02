@@ -358,20 +358,22 @@ class ReportingController extends AbstractController
                 if ($report) {
 
                     $output = $report->getContentArray();
-                    $form = $this->createForm(AssetManagementeReportFormType::class);
+                    $form = $this->createForm(AssetManagementeReportFormType::class,null,['param' => $report]);
                     $form->handleRequest($request);
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
                         $files = $report->getPdfParts();
                         $pdf = new Fpdi();
                         // this is the header and we will always want to include it
-                        $pageCount = $pdf->setSourceFile($files['head']);
-                        for ($i=0; $i < $pageCount; $i++) {
-                            $pdf->AddPage("L");
-                            $tplId = $pdf->importPage($i+1);
-                            $pdf->useTemplate($tplId);
+                        if ( $files['head']) {
+                            $pageCount = $pdf->setSourceFile($files['head']);
+                            for ($i = 0; $i < $pageCount; $i++) {
+                                $pdf->AddPage("L");
+                                $tplId = $pdf->importPage($i + 1);
+                                $pdf->useTemplate($tplId);
+                            }
                         }
-                        if($data['TechnicalPV']){
+                        if($data['TechnicalPV'] && $files['ProductionCapFactor']){
                             if ($data['ProdCap']) {
                                 $pageCount = $pdf->setSourceFile($files['ProductionCapFactor']);
                                 for ($i = 0; $i < $pageCount; $i++) {
@@ -380,7 +382,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['PRPATable']) {
+                            if ($data['PRPATable'] && $files['PRPATable']) {
                                 $pageCount = $pdf->setSourceFile($files['PRPATable']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -388,7 +390,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['MonthlyProd']) {
+                            if ($data['MonthlyProd'] && $files['MonthlyProd']) {
                                 $pageCount = $pdf->setSourceFile($files['MonthlyProd']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -398,8 +400,7 @@ class ReportingController extends AbstractController
                             }
                         }
                         if ($data['Production']) {
-                            if ($data['ProdWithForecast']){
-
+                            if ($data['ProdWithForecast'] && $files['production_with_forecast']){
                                 $pageCount = $pdf->setSourceFile($files['production_with_forecast']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -408,7 +409,7 @@ class ReportingController extends AbstractController
                                 }
                             }
                             if ($anlage->hasPVSYST()) {
-                            if ($data['CumulatForecastPVSYS']) {
+                            if ($data['CumulatForecastPVSYS'] && $files['CumForecastPVSYS']) {
                                 $pageCount = $pdf->setSourceFile($files['CumForecastPVSYS']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -418,7 +419,7 @@ class ReportingController extends AbstractController
                             }
                         }
                             else {
-                            if ($data['CumulatForecastG4N']) {
+                            if ($data['CumulatForecastG4N'] && $files['CumForecastG4N']) {
                                 $pageCount = $pdf->setSourceFile($files['CumForecastG4N']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -427,7 +428,7 @@ class ReportingController extends AbstractController
                                 }
                             }
                         }
-                            if ($data['CumulatLosses']) {
+                            if ($data['CumulatLosses'] && $files['CumLosses']) {
                                 $pageCount = $pdf->setSourceFile($files['CumLosses']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -435,7 +436,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['PRTable']){
+                            if ($data['PRTable'] && $files['PRTable']){
                                 $pageCount = $pdf->setSourceFile($files['PRTable']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -443,7 +444,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['DailyProd']) {
+                            if ($data['DailyProd'] && $files['DailyProd']) {
                                 $pageCount = $pdf->setSourceFile($files['DailyProd']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -471,7 +472,7 @@ class ReportingController extends AbstractController
 
                         if ($data['Availability']){
 
-                            if ($data['AvYearlyTicketOverview']) {
+                            if ($data['AvYearlyTicketOverview'] && $files['AvailabilityYear']) {
                                 $pageCount = $pdf->setSourceFile($files['AvailabilityYear']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -479,7 +480,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['AvMonthlyOverview']) {
+                            if ($data['AvMonthlyOverview'] && $files['AvailabilityMonth']) {
                                 $pageCount = $pdf->setSourceFile($files['AvailabilityMonth']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -489,7 +490,7 @@ class ReportingController extends AbstractController
                             }
                         }
                         if($data['AnalysisHeatmap']){
-                            if ($data['StringCurr']) {
+                            if ($data['StringCurr'] && $files['String']) {
                                 $pageCount = $pdf->setSourceFile($files['String']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -497,7 +498,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['InvPow']) {
+                            if ($data['InvPow'] && $files['Inverter']) {
                                 $pageCount = $pdf->setSourceFile($files['Inverter']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -505,7 +506,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['AvYearlyOverview']) {
+                            if ($data['AvYearlyOverview'] && $files['AvailabilityYearOverview']) {
                                 $pageCount = $pdf->setSourceFile($files['AvailabilityYearOverview']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -513,7 +514,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['AvInv']) {
+                            if ($data['AvInv'] && $files['AvailabilityByInverter']) {
                                 $pageCount = $pdf->setSourceFile($files['AvailabilityByInverter']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -523,7 +524,7 @@ class ReportingController extends AbstractController
                             }
 
                         }
-                        if ($data['Economics']) {
+                        if ($data['Economics'] && $files['Economic']) {
                             $pageCount = $pdf->setSourceFile($files['Economic']);
                             for ($i = 0; $i < $pageCount; $i++) {
                                 $pdf->AddPage("L");
