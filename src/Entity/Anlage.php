@@ -2557,7 +2557,7 @@ class Anlage
         $array = [];
         /** @var AnlagenPvSystMonth $month */
         foreach ($this->getPvSystMonths() as $month) {
-            $array[] = [
+            $array[$month->getMonth()] = [
                 'prDesign' => $month->getPrDesign(),
                 'ertragDesign' => $month->getErtragDesign(),
                 'irrDesign' => $month->getIrrDesign(),

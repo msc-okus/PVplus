@@ -41,6 +41,9 @@ class AnlagenMonthlyData
     #[ORM\Column(type: 'string', length: 20)]
     private string $irrCorrectedValuMonth;
 
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $tModAvg = '0';
+
     #[ORM\Column(type: 'integer', length: 255)]
     private int $month;
 
@@ -123,6 +126,17 @@ class AnlagenMonthlyData
 
         return $this;
     }
+
+    public function getTModAvg(): float
+    {
+        return $this->tModAvg === null ? 0 : (float)$this->tModAvg;
+    }
+
+    public function setTModAvg(string|float $tModAvg): void
+    {
+        $this->tModAvg = $tModAvg;
+    }
+
 
     public function getMonth(): ?int
     {
