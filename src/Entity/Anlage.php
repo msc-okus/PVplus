@@ -3876,24 +3876,32 @@ class Anlage
         return min($this->getThreshold1PA0(), $this->getThreshold1PA1(), $this->getThreshold1PA2(), $this->getThreshold1PA3());
     }
 
-    public function getPrFormular0Image(): string
+    public function getPrformular0Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular0() . '.png';
+        $name = str_replace(':', '_', $this->prFormular0);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
     public function getPrFormular1Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular1() . '.png';
+        $name = str_replace(':', '_', $this->prFormular1);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
     public function getPrFormular2Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular2() . '.png';
+        $name = str_replace(':', '_', $this->prFormular2);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
     public function getPrFormular3Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular3() . '.png';
+        $name = str_replace(':', '_', $this->prFormular3);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
 }
