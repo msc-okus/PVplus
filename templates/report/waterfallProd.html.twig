@@ -1,0 +1,12 @@
+
+{% extends 'report/assetreport.base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+
+    {% include 'report/_asset_mangement_partials/_waterfall_help_table.html.twig'%}
+
+
+    {% include 'report/_asset_mangement_partials/_waterfall_graph.twig'%}
+{% endblock %}
