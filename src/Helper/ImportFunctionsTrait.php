@@ -873,7 +873,7 @@ trait ImportFunctionsTrait
      * @param false $convertToKWH
      * @return string|null
      */
-    function checkIfValueIsNotNull(?string $value, bool $convertToKWH = false): ?string
+    public function checkIfValueIsNotNull(?string $value, bool $convertToKWH = false): ?string
     {
         if ($value === "" || $value === null) {
             return null;
@@ -984,7 +984,7 @@ trait ImportFunctionsTrait
 
             for ($i = 0; $i < $length; $i++) {
                 if ($anlageSensors[$i]['virtual_sensor'] == 'irr-hori' && $anlageSensors[$i]['use_to_calc'] == 1) {
-                    
+
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]['start_date_sensor'] != null) {
@@ -1115,5 +1115,136 @@ trait ImportFunctionsTrait
         $query = "SELECT `anlage_id` FROM `anlage_settings` where `symfony_import` = 1  ";
         $stmt = $conn->executeQuery($query);
         return $stmt->fetchAll();
+    }
+
+    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $anlagenId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups):array
+    {
+
+        $i = 0;
+        foreach ($acGroups as $group_ac) {
+
+            $pvpGroupAc = $acGroups[$i]->ac_group_id;
+            $pvpGroupDc = $i + 1;
+            $pvpInverter = $i + 1;
+
+            if (is_array($inverters) && array_key_exists($date, $inverters)) {
+
+                $custInverterKennung = $acGroups[$i]['import_id'];
+                $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
+                $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
+                $currentAcP1 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']);
+                $currentAcP2 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC2']);
+                $currentAcP3 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC3']);
+                $voltageDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['U_DC']);
+                $voltageAc = NULL;
+                $voltageAcP1 = $inverters[$date][$custInverterKennung]['U_AC_L1L2'];
+                $voltageAcP2 = $inverters[$date][$custInverterKennung]['U_AC_L2L3'];
+                $voltageAcP3 = $inverters[$date][$custInverterKennung]['U_AC_L3L1'];
+                $blindLeistung = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['Q_AC']);
+                $frequenze = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['F_AC']);
+                $powerAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['P_AC'], true); // Umrechnung von Watt auf kWh
+                $temp = $this->mittelwert([$inverters[$date][$custInverterKennung]['T_WR1'], $inverters[$date][$custInverterKennung]['T_WR2'], $inverters[$date][$custInverterKennung]['T_WR3'], $inverters[$date][$custInverterKennung]['T_WR4']]);
+                $cosPhi = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['COS_PHI']);
+                if (is_numeric($currentDc) && is_numeric($voltageDc)) {
+                    $powerDc = $currentDc * $voltageDc / 1000 / 4;
+                } else {
+                    $powerDc = '';
+                }
+
+            } else {
+                $powerAc = $currentAc = $voltageAc = $powerDc = $voltageDc = $currentDc = $temp = null;
+                $cosPhi = $blindLeistung = $frequenze = $currentAcP1 = $currentAcP2 = $currentAcP3 = $voltageAcP1 = $voltageAcP2 = $voltageAcP3 = null;
+            }
+
+            $theoPower = 0;
+            $tempCorr = 0;
+            $dcCurrentMpp = $dcVoltageMpp = '{}';
+
+            $data_pv_ist[] = [
+                'anl_id' => $anlagenId,
+                'stamp' => $stamp,
+                'inv' => $pvpGroupAc,
+                'group_dc' => $pvpGroupDc,
+                'group_ac' => $pvpGroupAc,
+                'unit' => $pvpInverter,
+                'wr_num' => $pvpInverter,
+                'wr_idc' => ($currentDc != '') ? $currentDc : NULL,
+                'wr_pac' => ($powerAc != '') ? $powerAc : NULL,
+                'p_ac_blind' => ($blindLeistung != '') ? $blindLeistung : NULL,
+                'i_ac' => ($currentAc != '') ? $currentAc : NULL,
+                'i_ac_p1' => ($currentAcP1 != '') ? $currentAcP1 : NULL,
+                'i_ac_p2' => ($currentAcP2 != '') ? $currentAcP2 : NULL,
+                'i_ac_p3' => ($currentAcP3 != '') ? $currentAcP3 : NULL,
+                'u_ac' => ($voltageAc != '') ? $voltageAc : NULL,
+                'u_ac_p1' => ($voltageAcP1 != '') ? $voltageAcP1 : NULL,
+                'u_ac_p2' => ($voltageAcP2 != '') ? $voltageAcP2 : NULL,
+                'u_ac_p3' => ($voltageAcP3 != '') ? $voltageAcP3 : NULL,
+                'p_ac_apparent' => 0,
+                'frequency' => ($frequenze != '') ? $frequenze : NULL,
+                'wr_udc' => ($voltageDc != '') ? $voltageDc : NULL,
+                'wr_pdc' => ($powerDc != '') ? $powerDc : NULL,
+                'wr_temp' => ($temp != '') ? $temp : NULL,
+                'wr_cos_phi_korrektur' => ($cosPhi != '') ? $cosPhi : NULL,
+                'e_z_evu' => ($eZEvu != '') ? $eZEvu : NULL,
+                'temp_corr' => $tempCorr,
+                'theo_power' => $theoPower,
+                'temp_cell' => NULL,
+                'temp_cell_multi_irr' => NULL,
+                'wr_mpp_current' => $dcCurrentMpp,
+                'wr_mpp_voltage' => $dcVoltageMpp,
+                'irr_anlage' => $irrAnlage,
+                'temp_anlage' => $tempAnlage,
+                'temp_inverter' => $tempAnlage,
+                'wind_anlage' => $windAnlage,
+
+            ];
+            $i++;
+        }
+
+        $result[] = $data_pv_ist;
+
+        foreach ($groups as $group) {
+            $scbNo = $group->getImportId(); // $assign[0] = SCB # VCOM
+            $pvpInverter = $group->getUnitFirst(); // $assign[2] = Inverter PV+
+            $pvpGroupDc = $group->getDcGroup(); // $assign[3] = Gruppen Nr PV+
+            $pvpGroupAc = $group->getAcGroup(); // $assign[4] = AC Gruppen Nr
+            $currentDcSCB = 0;
+            $dcCurrentMppArray = [];
+            for ($n = 1; $n <= 9; $n++) {
+                $key = "I$n";
+                $dcCurrentMppArray[$key] = $stringBoxesTime[$scbNo][$key];
+                $currentDcSCB += ($stringBoxesTime[$scbNo][$key]);
+            }
+
+            $voltageDc = round($stringBoxesTime[$scbNo]['U_DC'], 4);
+            $powerDc = round($currentDcSCB * $voltageDc / 1000 / 4, 4); // Umrechnung von W auf kW/h
+
+            $dcCurrentMpp = json_encode($dcCurrentMppArray);
+            $dcVoltageMpp = "{}";
+
+            $data_pv_dcist[] = [
+                'anl_id' => $anlagenId,
+                'stamp' => $stamp,
+                'wr_group' => $pvpGroupDc,
+                'wr_num' => $pvpInverter,
+                'wr_idc' => $currentDc,
+                'wr_udc' => $voltageDc,
+                'wr_pdc' => $powerDc,
+                'wr_temp' => 0,
+                'wr_mpp_current' => $dcCurrentMpp,
+                'wr_mpp_voltage' => $dcVoltageMpp,
+                'group_ac' => $pvpGroupAc,
+            ];
+
+        }
+        /*
+        echo "<br><pre>";
+        print_r($data_pv_ist);
+        echo '</pre>';
+        exit;
+        */
+        $result[] = $data_pv_dcist;
+
+        return $result;
     }
 }

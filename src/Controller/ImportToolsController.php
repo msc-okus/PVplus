@@ -27,6 +27,7 @@ class ImportToolsController extends BaseController
     public function importManuel(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface): Response
     {
         $pdoAnlageData = self::getPdoConnectionAnlage();
+        $hasStringboxes = 0;
 
         //Wenn der Import von Cron angestoßen wird.
         $cron = $request->query->get('cron');
@@ -49,6 +50,7 @@ class ImportToolsController extends BaseController
                 $groups = $anlage->getGroups();
                 $systemKey = $anlage->getCustomPlantId();
                 $acGroups = self::getACGroups($conn, $plantId);
+                $anlagenTabelle = $anlage->anl_intnr;
                 $isEastWest = $anlage->getIsOstWestAnlage();
                 $tempCorrParams['tempCellTypeAvg']  = (float)$anlage->temp_corr_cell_type_avg;
                 $tempCorrParams['gamma']            = (float)$anlage->temp_corr_gamma;
@@ -65,11 +67,17 @@ class ImportToolsController extends BaseController
 
                 $bulkMeaserments = MeteoControlService::getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end);
 
+                $data_pv_ist = [];
+                $data_pv_dcist = [];
                 if ($bulkMeaserments) {
                     $basics = $bulkMeaserments['basics'];
                     $inverters = $bulkMeaserments['inverters'];
                     $sensors = $bulkMeaserments['sensors'];
-                    $stringBoxes = $bulkMeaserments['stringboxes'];
+
+                    if(is_array($bulkMeaserments['stringboxes'])) {
+                        $stringBoxes = $bulkMeaserments['stringboxes'];
+                        $hasStringboxes = 1;
+                    }
                     $anlageSensors = self::getAnlageSensors($conn, $plantId);
 
                     for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
@@ -133,11 +141,28 @@ class ImportToolsController extends BaseController
                         $irrAnlage  = json_encode($irrAnlageArray);
                         $tempAnlage = json_encode($tempAnlageArray);
                         $windAnlage = json_encode($windAnlageArray);
+
+                        if($hasStringboxes == 1){
+                            $stringBoxesTime = $stringBoxes[$date];
+                            $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $data_pv_ist, $data_pv_dcist);
+
+                            for ($j = 0; $j <= count($result[0])-1; $j++) {
+                                $data_pv_ist[] = $result[0][$j];
+                            }
+
+                            for ($j = 0; $j <= count($result[1])-1; $j++) {
+                                $data_pv_dcist[] = $result[1][$j];
+                            }
+
+                        }
                     }
                 }
                 #print_r($anlageSensors);
                 echo "<br>$plantId<pre>";
-                print_r($data_pv_weather);
+                echo 'PAVIST';
+                #print_r($data_pv_ist);
+                echo 'PVISTDC';
+                print_r($data_pv_dcist);
                 echo '</pre>';
                 sleep(5);
             }
