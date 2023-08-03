@@ -26,7 +26,7 @@ class ImportToolsController extends BaseController
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
     public function importManuel(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface): Response
     {
-        $pdoAnlageData = self::getPdoConnectionAnlage();
+        $pdoAnlageData = self::getPdoConnectionData();
         $hasStringboxes = 0;
 
         //Wenn der Import von Cron angestoßen wird.
@@ -36,21 +36,25 @@ class ImportToolsController extends BaseController
             $time -= $time % 900;
             $start = strtotime(date('Y-m-d H:i', $time - (4 * 3600)));
             $end = $time;
-
             //getDB-Connection
             $conn = $entityManagerInterface->getConnection();
             //get all Plants for Import via via Cron
             $readyToImport = self::getPlantsImportReady($conn);
 
+            sleep(5);
             for ($i = 0; $i <= count($readyToImport)-1; $i++) {
                 $plantId = $readyToImport[$i]['anlage_id'];
                 $anlage = $anlagenRepo->findOneByIdAndJoin($plantId);
-                $weatherDbIdent = $anlage->getWeatherStation()->getId();
+                $weather    = $anlage->getWeatherStation($anlage->getWeatherStation()->getId());
+                $weatherDbIdent = $weather->getDatabaseIdent();
+
                 $modules = $anlage->getModules();
                 $groups = $anlage->getGroups();
                 $systemKey = $anlage->getCustomPlantId();
                 $acGroups = self::getACGroups($conn, $plantId);
-                $anlagenTabelle = $anlage->anl_intnr;
+                $hasPpc = $anlage->getHasPPC();
+
+                $anlagenTabelle = $anlage->getAnlIntnr();
 
                 $isEastWest = $anlage->getIsOstWestAnlage();
                 $tempCorrParams['tempCellTypeAvg']  = (float)$anlage->temp_corr_cell_type_avg;
@@ -75,6 +79,7 @@ class ImportToolsController extends BaseController
                     $inverters = $bulkMeaserments['inverters'];
                     $sensors = $bulkMeaserments['sensors'];
 
+                    $hasStringboxes = 0;
                     if(is_array($bulkMeaserments['stringboxes'])) {
                         $stringBoxes = $bulkMeaserments['stringboxes'];
                         $hasStringboxes = 1;
@@ -145,6 +150,8 @@ class ImportToolsController extends BaseController
 
                         if($hasStringboxes == 1){
                             $stringBoxesTime = $stringBoxes[$date];
+
+                            //Anzahl der Units in einer Stringbox
                             $stringBoxUnits = $anlage->getSettings()->getStringboxesUnits();
 
                             $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
@@ -156,16 +163,52 @@ class ImportToolsController extends BaseController
                             for ($j = 0; $j <= count($result[1])-1; $j++) {
                                 $data_pv_dcist[] = $result[1][$j];
                             }
+                        }else{
+                            $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups);
+                            //built array for pvist
+                            for ($j = 0; $j <= count($result[0])-1; $j++) {
+                                $data_pv_ist[] = $result[0][$j];
+                            }
+                        }
 
+                        unset($result);
+                        //Anlage hat eigene DC-Ist Tabelle(Stringboxes)
+                        if($hasPpc){
+                            $ppcs = $bulkMeaserments['ppcs'];
+                            $idPpc = $anlage->getSettings()->getIdPpc();
+                            $result = self::getPpc($idPpc, $ppcs, $date, $stamp, $plantId, $anlagenTabelle);
+                            for ($j = 0; $j <= count($result[0])-1; $j++) {
+                                $data_ppc[] = $result[0][$j];
+                            }
                         }
                     }
+
+
                 }
+
+                if($hasPpc){
+                    $tableName = "db__pv_ppc_$anlagenTabelle".'_copy';
+                    self::insertData($tableName, $data_ppc);
+                    echo "<br>$tableName <br>";
+                }
+
+                if($hasStringboxes == 1){
+                    $tableName = "db__pv_dcist_$anlagenTabelle".'_copy';
+                    self::insertData($tableName, $data_pv_dcist);
+                    echo "<br>$tableName <br>";
+                }
+
+                $tableName = "db__pv_ws_$weatherDbIdent".'_copy';
+                self::insertData($tableName, $data_pv_weather);
+                echo "$tableName <br>";
+                $tableName = "db__pv_ist_$anlagenTabelle".'_copy';
+                self::insertData($tableName, $data_pv_ist);
+                echo "$tableName <br>";
                 #print_r($anlageSensors);
                 echo "<br>$plantId<pre>";
-                echo 'PAVIST';
-                #print_r($data_pv_ist);
-                echo 'PVISTDC';
-                print_r($data_pv_dcist);
+
+                echo 'PPC';
+                #print_r($data_ppc);
                 echo '</pre>';
                 sleep(5);
             }

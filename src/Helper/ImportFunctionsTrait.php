@@ -19,7 +19,7 @@ trait ImportFunctionsTrait
      * @param string|null $dbpass
      * @return PDO
      */
-    public static function getPdoConnectionAnlage(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
+    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
     {
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
@@ -47,7 +47,7 @@ trait ImportFunctionsTrait
         return $pdo;
     }
 
-
+    //???
     function getDcPNormPerInvereter($conn, array $groups, array $modules): array
     {
 
@@ -78,6 +78,7 @@ trait ImportFunctionsTrait
         return $dcPNormPerInvereter;
     }
 
+    //???
     /**
      * @param string|DateTime $dateTime
      * @return int
@@ -177,11 +178,11 @@ trait ImportFunctionsTrait
         return $nu;
     }
 
+    //insert all data with one query
     function insertData($tableName, $data): void
     {
-
-// obtain column template
-        $DBDataConnection = getPdoConnection();
+        // obtain column template
+        $DBDataConnection = $this->getPdoConnectionData();
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];
@@ -189,7 +190,7 @@ trait ImportFunctionsTrait
         unset($columns['db_id']);
 
 
-// multiple INSERT
+        // multiple INSERT
         $rows = count($data);
 
         $j = 0;
@@ -238,92 +239,7 @@ trait ImportFunctionsTrait
         }
     }
 
-    /**
-     * Neueste Version des Datenimports AC IST Daten, es werden berücksichtigt
-     * e_z_evu (Zählerstand Einspeisung Stromversoreger), Strahlungsdaten aus Anlage (JSON), dc_group (DC Gruppe)
-     * 'inv' für GruppeAC wird ersetzt durch ac_group (im Übergang werden beide Werte den selben Inhalt haben, später wird dann 'inv' nicht mehr genutzt)
-     * ACHTUNG: Werte aus e_z_evu und irr_anlage stehen bei jedem eintrag, dürfen aber NUR EINMAL pro Zeiteinheit ausgewertet werden
-     * Stand: August 2020 - MRE
-     * @param $stamp
-     * @param $pvpGroupDc
-     * @param $pvpInverter
-     * @param $powerDc
-     * @param $voltageDc
-     * @param $currentDc
-     * @param $temp
-     * @param $anlagenId
-     * @param $anlagenTabelle
-     * @param $dcCurrentMpp
-     * @param $dcVoltageMpp
-     */
-    function insertDataIntoPvIstDc($stamp, $pvpGroupDc, $pvpInverter, $powerDc, $voltageDc, $currentDc, $temp, $anlagenId, $anlagenTabelle, $dcCurrentMpp, $dcVoltageMpp)
-    {
-        $DBDataConnection = getPdoConnection();
-        $sql_sel_ins = "INSERT INTO db__pv_dcist_$anlagenTabelle SET 
-                    anl_id = $anlagenId, 
-                    stamp = '$stamp', 
-                    wr_group = $pvpGroupDc,
-                    wr_num = $pvpInverter, 
-                    wr_idc = $currentDc, 
-                    wr_udc = $voltageDc, 
-                    wr_pdc = $powerDc, 
-                    wr_temp = $temp, 
-                    wr_mpp_current = '$dcCurrentMpp',  
-                    wr_mpp_voltage = '$dcVoltageMpp'
-                   ON DUPLICATE KEY UPDATE 
-                    wr_idc = $currentDc, 
-                    wr_udc = $voltageDc, 
-                    wr_pdc = $powerDc, 
-                    wr_temp = $temp, 
-                    wr_mpp_current = '$dcCurrentMpp',  
-                    wr_mpp_voltage = '$dcVoltageMpp';";
 
-        $DBDataConnection->exec($sql_sel_ins);
-        $DBDataConnection = null;
-
-    }
-
-    /**
-     * @param $stamp
-     * @param $pvpGroupDc
-     * @param $pvpGroupAc
-     * @param $pvpInverter
-     * @param $powerDc
-     * @param $voltageDc
-     * @param $currentDc
-     * @param $temp
-     * @param $anlagenId
-     * @param $anlagenTabelle
-     * @param $dcCurrentMpp
-     * @param $dcVoltageMpp
-     */
-    function insertDataIntoPvIstDc2($stamp, $pvpGroupDc, $pvpGroupAc, $pvpInverter, $powerDc, $voltageDc, $currentDc, $temp, $anlagenId, $anlagenTabelle, $dcCurrentMpp, $dcVoltageMpp)
-    {
-        $DBDataConnection = getPdoConnection();
-        $sql_sel_ins = "INSERT INTO db__pv_dcist_$anlagenTabelle SET 
-                    anl_id = $anlagenId, 
-                    stamp = '$stamp', 
-                    wr_group = $pvpGroupDc,
-                    group_ac = '$pvpGroupAc',
-                    wr_num = $pvpInverter, 
-                    wr_idc = $currentDc, 
-                    wr_udc = $voltageDc, 
-                    wr_pdc = $powerDc, 
-                    wr_temp = $temp, 
-                    wr_mpp_current = '$dcCurrentMpp',  
-                    wr_mpp_voltage = '$dcVoltageMpp'
-                   ON DUPLICATE KEY UPDATE 
-                    wr_idc = $currentDc, 
-                    wr_udc = $voltageDc, 
-                    wr_pdc = $powerDc, 
-                    wr_temp = $temp, 
-                    wr_mpp_current = '$dcCurrentMpp',  
-                    wr_mpp_voltage = '$dcVoltageMpp';";
-
-        $DBDataConnection->exec($sql_sel_ins);
-        $DBDataConnection = null;
-
-    }
 
     /**
      * Umrechnung Globalstrahlung in Modulstrahlung
@@ -405,6 +321,7 @@ trait ImportFunctionsTrait
     }
 
 
+    //???
     /**
      * @param array $tempCorrParams // Parameter aus Anlage
      * @param float $tempCellTypeAvg // t_cell_avg
@@ -554,56 +471,7 @@ trait ImportFunctionsTrait
         return $_html;
     }
 
-    /**
-     * @param $ident
-     * @param $stamp
-     * @param string|null $gUpper
-     * @param string|null $gLower
-     * @param string|null $tempPanel
-     * @param string|null $tempAmbient
-     * @param string|null $windSpeed
-     * @param string|null $gHorizontal
-     * @param float|null $tCell
-     * @param float|null $tCellMulipliedIrr
-     * @param float|null $ftFactor
-     * @param bool|null $irrFlag
-     */
-    function insertWeatherToWeatherDb(
-        $ident, $stamp, ?string $gUpper = null, ?string $gLower = null, ?string $tempPanel = null,
-        ?string $tempAmbient = null, ?string $windSpeed = null, ?string $gHorizontal = null,
-        ?float $tCell = null, ?float $tCellMulipliedIrr = null, ?float $ftFactor = null, ?bool $irrFlag = null): void
-    {
-        $DBDataConnection = getPdoConnection();
-
-        $sql_insert = "INSERT INTO db__pv_ws_$ident 
-                    SET anl_intnr = '$ident', stamp = '$stamp', anl_id = '0',";
-        $sql_insert .= $tempAmbient ? "at_avg = '$tempAmbient', temp_ambient = '$tempAmbient'," : "at_avg = '', temp_ambient = '',";
-        $sql_insert .= $tempPanel ? "pt_avg = '$tempPanel', temp_pannel = '$tempPanel', " : "pt_avg = '', temp_pannel = '',";
-        $sql_insert .= $gUpper ? "gmod_avg = '$gUpper', g_upper = '$gUpper', " : "gmod_avg = '', g_upper = '', ";
-        $sql_insert .= $gLower ? "gi_avg = '$gLower', g_lower = '$gLower', " : "gi_avg = '', g_lower = '', ";
-        $sql_insert .= $gHorizontal ? "g_horizontal = '$gHorizontal', " : "g_horizontal = '', ";
-        $sql_insert .= $windSpeed ? "wind_speed = '$windSpeed', " : "wind_speed = '', ";
-        $sql_insert .= $tCellMulipliedIrr ? "temp_cell_multi_irr = '$tCellMulipliedIrr', " : "temp_cell_multi_irr = '', ";
-        $sql_insert .= $tCell ? "temp_cell_corr = '$tCell', " : "temp_cell_corr = '', ";
-        $sql_insert .= $ftFactor ? "ft_factor = '$ftFactor', " : "";
-        $sql_insert .= $irrFlag ? "irr_flag = '$irrFlag', " : "";
-        $sql_insert .= "rso = '0',  gi = '0' ON DUPLICATE KEY UPDATE ";
-        $sql_insert .= $tempAmbient ? "at_avg = '$tempAmbient', temp_ambient = '$tempAmbient'," : "at_avg = '', temp_ambient = '',";
-        $sql_insert .= $tempPanel ? "pt_avg = '$tempPanel', temp_pannel = '$tempPanel', " : "pt_avg = '', temp_pannel = '',";
-        $sql_insert .= $gUpper ? "gmod_avg = '$gUpper', g_upper = '$gUpper', " : "gmod_avg = '', g_upper = '', ";
-        $sql_insert .= $gLower ? "gi_avg = '$gLower', g_lower = '$gLower', " : "gi_avg = '', g_lower = '', ";
-        $sql_insert .= $gHorizontal ? "g_horizontal = '$gHorizontal', " : "g_horizontal = '', ";
-        $sql_insert .= $windSpeed ? "wind_speed = '$windSpeed', " : "wind_speed = '', ";
-        $sql_insert .= $tCellMulipliedIrr ? "temp_cell_multi_irr = '$tCellMulipliedIrr', " : "temp_cell_multi_irr = '', ";
-        $sql_insert .= $tCell ? "temp_cell_corr = '$tCell', " : "temp_cell_corr = '', ";
-        $sql_insert .= $ftFactor ? "ft_factor = '$ftFactor', " : "";
-        $sql_insert .= $irrFlag ? "irr_flag = '$irrFlag', " : "";
-        $sql_insert .= "rso = '0', gi = '0';";
-
-        $DBDataConnection->exec($sql_insert);
-        $DBDataConnection = null;
-    }
-
+    //???
     function insertDataIntoPPC_New($tableName, $data)
     {
 
@@ -730,6 +598,7 @@ trait ImportFunctionsTrait
         $DBDataConnection = null;
     }
 
+    //????
     /**
      * @param $meteringPointId
      * @param $customName
@@ -776,6 +645,7 @@ trait ImportFunctionsTrait
         return ($divisor > 0) ? $divident / $divisor : null;
     }
 
+    //???
     /**
      * Schreibt Eintraege, in die Tabelle 'log'.
      * Stand: August 2021 - GSCH
@@ -804,6 +674,7 @@ trait ImportFunctionsTrait
 
     }
 
+    //????
     /**
      * Kapt fehlehafte Spitzen fuer eZEvu und schreibt Eintrag, in die Tabelle 'log'
      * Stand: August 2021 - GSCH
@@ -886,6 +757,7 @@ trait ImportFunctionsTrait
         }
     }
 
+    //???
     function updatePvIst($stamp, $anlagenID, $anlagenTabelle, $eZEvu = '')
     {
         $DBDataConnection = getPdoConnection();
@@ -1117,10 +989,8 @@ trait ImportFunctionsTrait
         return $stmt->fetchAll();
     }
 
-    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $anlagenId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits):array
+    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits):array
     {
-echo $stringBoxUnits;
-exit;
         $i = 0;
         foreach ($acGroups as $group_ac) {
 
@@ -1129,7 +999,6 @@ exit;
             $pvpInverter = $i + 1;
 
             if (is_array($inverters) && array_key_exists($date, $inverters)) {
-
                 $custInverterKennung = $acGroups[$i]['import_id'];
                 $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
                 $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
@@ -1162,7 +1031,7 @@ exit;
             $dcCurrentMpp = $dcVoltageMpp = '{}';
 
             $data_pv_ist[] = [
-                'anl_id' => $anlagenId,
+                'anl_id' => $plantId,
                 'stamp' => $stamp,
                 'inv' => $pvpGroupAc,
                 'group_dc' => $pvpGroupDc,
@@ -1224,7 +1093,7 @@ exit;
             $dcVoltageMpp = "{}";
 
             $data_pv_dcist[] = [
-                'anl_id' => $anlagenId,
+                'anl_id' => $plantId,
                 'stamp' => $stamp,
                 'wr_group' => $pvpGroupDc,
                 'wr_num' => $pvpInverter,
@@ -1238,14 +1107,139 @@ exit;
             ];
 
         }
-        /*
-        echo "<br><pre>";
-        print_r($data_pv_ist);
-        echo '</pre>';
-        exit;
-        */
         $result[] = $data_pv_dcist;
+        return $result;
+    }
 
+    function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups):array
+    {
+        $i = 0;
+        foreach ($groups as $group) {
+            $pvpInverter = $group->getDcGroup();
+            $pvpGroupDc = $group->getDcGroup();
+            $pvpGroupAc = $group->getAcGroup();
+
+            if (is_array($inverters) && array_key_exists($date, $inverters)) {
+                $custInverterKennung = $group->getImportId();
+                $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
+                $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
+                $currentAcP1 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']);
+                $currentAcP2 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC2']);
+                $currentAcP3 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC3']);
+                $voltageDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['U_DC']);
+                $voltageAc = NULL;
+                $voltageAcP1 = $inverters[$date][$custInverterKennung]['U_AC_L1L2'];
+                $voltageAcP2 = $inverters[$date][$custInverterKennung]['U_AC_L2L3'];
+                $voltageAcP3 = $inverters[$date][$custInverterKennung]['U_AC_L3L1'];
+                $blindLeistung = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['Q_AC']);
+                $frequenze = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['F_AC']);
+                $powerAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['P_AC'], true); // Umrechnung von Watt auf kWh
+                $temp = $this->mittelwert([$inverters[$date][$custInverterKennung]['T_WR1'], $inverters[$date][$custInverterKennung]['T_WR2'], $inverters[$date][$custInverterKennung]['T_WR3'], $inverters[$date][$custInverterKennung]['T_WR4']]);
+                $cosPhi = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['COS_PHI']);
+                if (is_numeric($currentDc) && is_numeric($voltageDc)) {
+                    $powerDc = $currentDc * $voltageDc / 1000 / 4;
+                } else {
+                    $powerDc = '';
+                }
+
+                // tempCorr nach NREL und dann theoPower berechnen
+                // prüfe auf OST / WEST Sensoren und Strahlung ermitteln
+                /*
+                                $irr = ($irrUpper * $anlage->power_east + $irrLower * $anlage->power_west) / $anlage->power ;
+                                echo "($irrUpper * $anlage->power_east + $irrLower * $anlage->power_west) / $anlage->power<br>";
+                                $tempCorr = tempCorrection($tempCorrParams, $tempCorrParams['tempCellTypeAvg'], $windSpeed, $tempAmbient, $irr);
+                                $theoPower = (($irr / 1000) * $dcPNormPerInvereter[$pvpGroupDc] * $tempCorr) / 1000 / 4;
+                */
+                $dcCurrentMppArray = [];
+                for ($n = 1; $n <= 9; $n++) {
+                    $key = "I_DC$n";
+                    $dcCurrentMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
+                }
+                $dcCurrentMpp = json_encode($dcCurrentMppArray);
+
+                $dcVoltageMppArray = [];
+                for ($n = 1; $n <= 9; $n++) {
+                    $key = "U_DC$n";
+                    $dcVoltageMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
+                }
+                $dcVoltageMpp = json_encode($dcVoltageMppArray);
+            } else {
+                $powerAc = $currentAc = $voltageAc = $powerDc = $voltageDc = $currentDc = $temp = null;
+                $cosPhi = $blindLeistung = $frequenze = $currentAcP1 = $currentAcP2 = $currentAcP3 = $voltageAcP1 = $voltageAcP2 = $voltageAcP3 = null;
+                $dcCurrentMpp = $dcVoltageMpp = '{}';
+            }
+
+            $theoPower = 0;
+            $tempCorr = 0;
+
+            $data_pv_ist[] = [
+                'anl_id' => $plantId,
+                'stamp' => $stamp,
+                'inv' => $pvpGroupAc,
+                'group_dc' => $pvpGroupDc,
+                'group_ac' => $pvpGroupAc,
+                'unit' => $pvpInverter,
+                'wr_num' => $pvpInverter,
+                'wr_idc' => ($currentDc != '') ? $currentDc : NULL,
+                'wr_pac' => ($powerAc != '') ? $powerAc : NULL,
+                'p_ac_blind' => ($blindLeistung != '') ? $blindLeistung : NULL,
+                'i_ac' => ($currentAc != '') ? $currentAc : NULL,
+                'i_ac_p1' => ($currentAcP1 != '') ? $currentAcP1 : NULL,
+                'i_ac_p2' => ($currentAcP2 != '') ? $currentAcP2 : NULL,
+                'i_ac_p3' => ($currentAcP3 != '') ? $currentAcP3 : NULL,
+                'u_ac' => ($voltageAc != '') ? $voltageAc : NULL,
+                'u_ac_p1' => ($voltageAcP1 != '') ? $voltageAcP1 : NULL,
+                'u_ac_p2' => ($voltageAcP2 != '') ? $voltageAcP2 : NULL,
+                'u_ac_p3' => ($voltageAcP3 != '') ? $voltageAcP3 : NULL,
+                'p_ac_apparent' => 0,
+                'frequency' => ($frequenze != '') ? $frequenze : NULL,
+                'wr_udc' => ($voltageDc != '') ? $voltageDc : NULL,
+                'wr_pdc' => ($powerDc != '') ? $powerDc : NULL,
+                'wr_temp' => ($temp != '') ? $temp : NULL,
+                'wr_cos_phi_korrektur' => ($cosPhi != '') ? $cosPhi : NULL,
+                'e_z_evu' => ($eZEvu != '') ? $eZEvu : NULL,
+                'temp_corr' => $tempCorr,
+                'theo_power' => $theoPower,
+                'temp_cell' => NULL,
+                'temp_cell_multi_irr' => NULL,
+                'wr_mpp_current' => $dcCurrentMpp,
+                'wr_mpp_voltage' => $dcVoltageMpp,
+                'irr_anlage' => $irrAnlage,
+                'temp_anlage' => $tempAnlage,
+                'temp_inverter' => $tempAnlage,
+                'wind_anlage' => $windAnlage,
+
+            ];
+            $i++;
+        }
+        $result[] = $data_pv_ist;
+        return $result;
+    }
+
+    function getPpc($idPpc, $ppcs, $date, $stamp, $plantId, $anlagenTabelle){
+        $p_ac_inv = $pf_set = $p_set_gridop_rel = $p_set_rel = null;
+        $p_set_rpc_rel = $q_set_rel = $p_set_ctrl_rel = $p_set_ctrl_rel_mean = null;
+        if (isset($ppcs[$date])) {
+            $p_set_gridop_rel = $this->checkIfValueIsNotNull($ppcs[$date][$idPpc]['PPC_P_SET_GRIDOP_REL']); // Regelung durch Grid Operator
+            $p_set_rel = $this->checkIfValueIsNotNull($ppcs[$date][$idPpc]['PPC_P_SET_REL']);#
+            $p_set_rpc_rel = $this->checkIfValueIsNotNull($ppcs[$date][$idPpc]['PPC_P_SET_RPC_REL']); // Regelung durch Direktvermarkter
+        }
+
+        $data_ppc[] = [
+            'anl_id' => $plantId,
+            'anl_intnr' => $anlagenTabelle,
+            'stamp' => $stamp,
+            'p_ac_inv' => $p_ac_inv,
+            'q_ac_inv' => NULL,
+            'pf_set' => $pf_set,
+            'p_set_gridop_rel' => $p_set_gridop_rel,
+            'p_set_rel' => $p_set_rel,
+            'p_set_rpc_rel' => $p_set_rpc_rel,
+            'q_set_rel' => $q_set_rel,
+            'p_set_ctrl_rel' => $p_set_ctrl_rel,
+            'p_set_ctrl_rel_mean' => $p_set_ctrl_rel_mean,
+        ];
+        $result[] = $data_ppc;
         return $result;
     }
 }

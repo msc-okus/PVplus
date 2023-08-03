@@ -159,8 +159,11 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $symfonyImport = false;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $stringboxesUnits;
+    #[ORM\Column(nullable: true, options: ['default' => null])]
+    private ?int $stringboxesUnits = null;
+
+    #[ORM\Column(nullable: true, options: ['default' => null])]
+    private ?int $idPpc = null;
 
     public function getId(): ?int
     {
@@ -688,6 +691,18 @@ class AnlageSettings
     public function setStringboxesUnits(?int $stringboxesUnits): self
     {
         $this->stringboxesUnits = $stringboxesUnits;
+
+        return $this;
+    }
+
+    public function getIdPpc(): ?int
+    {
+        return $this->idPpc;
+    }
+
+    public function setIdPpc(?int $idPpc): self
+    {
+        $this->idPpc = $idPpc;
 
         return $this;
     }
