@@ -51,6 +51,7 @@ class ImportToolsController extends BaseController
                 $systemKey = $anlage->getCustomPlantId();
                 $acGroups = self::getACGroups($conn, $plantId);
                 $anlagenTabelle = $anlage->anl_intnr;
+
                 $isEastWest = $anlage->getIsOstWestAnlage();
                 $tempCorrParams['tempCellTypeAvg']  = (float)$anlage->temp_corr_cell_type_avg;
                 $tempCorrParams['gamma']            = (float)$anlage->temp_corr_gamma;
@@ -144,12 +145,14 @@ class ImportToolsController extends BaseController
 
                         if($hasStringboxes == 1){
                             $stringBoxesTime = $stringBoxes[$date];
-                            $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $data_pv_ist, $data_pv_dcist);
+                            $stringBoxUnits = $anlage->getSettings()->getStringboxesUnits();
 
+                            $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
+                            //built array for pvist
                             for ($j = 0; $j <= count($result[0])-1; $j++) {
                                 $data_pv_ist[] = $result[0][$j];
                             }
-
+                            //built array for pvist_dc
                             for ($j = 0; $j <= count($result[1])-1; $j++) {
                                 $data_pv_dcist[] = $result[1][$j];
                             }

@@ -159,6 +159,9 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $symfonyImport = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $stringboxesUnits;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -673,6 +676,18 @@ class AnlageSettings
     public function setSymfonyImport(?bool $symfonyImport): self
     {
         $this->symfonyImport = $symfonyImport;
+
+        return $this;
+    }
+
+    public function getStringboxesUnits(): ?int
+    {
+        return $this->stringboxesUnits;
+    }
+
+    public function setStringboxesUnits(?int $stringboxesUnits): self
+    {
+        $this->stringboxesUnits = $stringboxesUnits;
 
         return $this;
     }

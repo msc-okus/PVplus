@@ -1117,9 +1117,10 @@ trait ImportFunctionsTrait
         return $stmt->fetchAll();
     }
 
-    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $anlagenId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups):array
+    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $anlagenId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits):array
     {
-
+echo $stringBoxUnits;
+exit;
         $i = 0;
         foreach ($acGroups as $group_ac) {
 
@@ -1210,7 +1211,7 @@ trait ImportFunctionsTrait
             $pvpGroupAc = $group->getAcGroup(); // $assign[4] = AC Gruppen Nr
             $currentDcSCB = 0;
             $dcCurrentMppArray = [];
-            for ($n = 1; $n <= 9; $n++) {
+            for ($n = 1; $n <= $stringBoxUnits; $n++) {
                 $key = "I$n";
                 $dcCurrentMppArray[$key] = $stringBoxesTime[$scbNo][$key];
                 $currentDcSCB += ($stringBoxesTime[$scbNo][$key]);

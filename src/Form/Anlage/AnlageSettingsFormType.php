@@ -7,7 +7,7 @@ use App\Form\Type\SwitchType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 class AnlageSettingsFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options) {
@@ -186,14 +186,22 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => '[chartSensor4]'
             ])
 
+            ->add('epxCalculationByCurrent', SwitchType::class, [
+                'label'     => 'Calculate \'expected\' with (current * voltage)',
+                'help'      => '[epxCalculationByCurrent]'
+            ])
+
+            ###### Import ######
             ->add('symfonyImport', SwitchType::class, [
                 'label'     => 'Import Data with Symphony',
                 'help'      => '[Import Data with Symphony]'
             ])
 
-            ->add('epxCalculationByCurrent', SwitchType::class, [
-                'label'     => 'Calculate \'expected\' with (current * voltage)',
-                'help'      => '[epxCalculationByCurrent]'
+            ->add('stringboxesUnits', TextType::class, [
+                'label' => 'Stringboxes Units',
+                'help' => '[Stringboxes Units(für die Anzahl Schleifen beim Import in seperater DC Tabelle)]',
+                'empty_data' => '',
+                'required' => false,
             ])
         ;
     }
