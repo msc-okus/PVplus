@@ -626,23 +626,23 @@ class Anlage
     private Collection $sensors;
 
 
-    #[ORM\Column(name: 'bez_meridan', type: 'string', length: 20, nullable: false)]
-    private string $bezMeridan = '';
+    #[ORM\Column(name: 'bez_meridan', type: 'string', length: 20, nullable: true)]
+    private ?string $bezMeridan = '';
 
 
-    #[ORM\Column(name: 'mod_neigung', type: 'string', length: 20, nullable: false)]
-    private string $modNeigung = '';
+    #[ORM\Column(name: 'mod_neigung', type: 'string', length: 20, nullable: true)]
+    private ?string $modNeigung = '';
 
 
-    #[ORM\Column(name: 'mod_azimut', type: 'string', length: 20, nullable: false)]
-    private string $modAzimut = '';
+    #[ORM\Column(name: 'mod_azimut', type: 'string', length: 20, nullable: true)]
+    private ?string $modAzimut = '';
 
 
-    #[ORM\Column(name: 'albeto', type: 'string', length: 20, nullable: false)]
-    private string $albeto = '';
+    #[ORM\Column(name: 'albeto', type: 'string', length: 20, nullable: true)]
+    private ?string $albeto = '';
 
-    #[ORM\Column(name: 'dat_filename', type: 'string')]
-    private $datFilename;
+    #[ORM\Column(name: 'dat_filename', type: 'string', nullable: true)]
+    private ?string $datFilename;
 
     /**
      * @return string|null
@@ -2557,7 +2557,7 @@ class Anlage
         $array = [];
         /** @var AnlagenPvSystMonth $month */
         foreach ($this->getPvSystMonths() as $month) {
-            $array[] = [
+            $array[$month->getMonth()] = [
                 'prDesign' => $month->getPrDesign(),
                 'ertragDesign' => $month->getErtragDesign(),
                 'irrDesign' => $month->getIrrDesign(),
@@ -3876,24 +3876,32 @@ class Anlage
         return min($this->getThreshold1PA0(), $this->getThreshold1PA1(), $this->getThreshold1PA2(), $this->getThreshold1PA3());
     }
 
-    public function getPrFormular0Image(): string
+    public function getPrformular0Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular0() . '.png';
+        $name = str_replace(':', '_', $this->prFormular0);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
     public function getPrFormular1Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular1() . '.png';
+        $name = str_replace(':', '_', $this->prFormular1);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
     public function getPrFormular2Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular2() . '.png';
+        $name = str_replace(':', '_', $this->prFormular2);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
     public function getPrFormular3Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular3() . '.png';
+        $name = str_replace(':', '_', $this->prFormular3);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
 }

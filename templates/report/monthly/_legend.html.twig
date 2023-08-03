@@ -4,7 +4,7 @@
     {% if report != null %}
         {% if report.tickets != null %}
             <h3 style="color: {{ anlage.eigner.fontColor2 }};">Performance Tickets</h3>
-            <table class="basetable">
+            <table class="basetable" >
             <thead>
             <tr>
                 <th>Start Date</th>
@@ -27,6 +27,26 @@
             </tbody>
             </table>
         {% endif %}
+
+        <h3 style="color: {{ anlage.eigner.fontColor2 }};">Used PR Formulars</h3>
+        <table class="basetable" style="width: auto !important;">
+            <thead>
+            <tr>
+                <th style="width: 250px">Open Book</th>
+                {% if anlage.settings.disableDep1 != true %}<th style="width: 250px">{{ anlage.eigner.settings.nameDep1 }}</th>{% endif %}
+                {% if anlage.settings.disableDep2 != true %}<th style="width: 250px">{{ anlage.eigner.settings.nameDep2 }}</th>{% endif %}
+                {% if anlage.settings.disableDep3 != true %}<th style="width: 250px">{{ anlage.eigner.settings.nameDep3 }}</th>{% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><img src="{{ absolute_url(asset(anlage.prFormular0Image())) }}" alt="{{ anlage.prFormular0 }}" style="max-width: 240px;"></td>
+                {% if anlage.settings.disableDep1 != true %}<td><img src="{{ absolute_url(asset(anlage.prFormular1Image())) }}" alt="{{ anlage.prFormular1 }}" style="max-width: 240px;"></td>{% endif %}
+                {% if anlage.settings.disableDep2 != true %}<td><img src="{{ absolute_url(asset(anlage.prFormular2Image())) }}" alt="{{ anlage.prFormular2 }}" style="max-width: 240px;"></td>{% endif %}
+                {% if anlage.settings.disableDep3 != true %}<td><img src="{{ absolute_url(asset(anlage.prFormular3Image())) }}" alt="{{ anlage.prFormular3 }}" style="max-width: 240px;"></td>{% endif %}
+            </tr>
+            </tbody>
+        </table>
 
         {% if report.legend != null %}
             <h3 style="color: {{ anlage.eigner.fontColor2 }};">Legend</h3>

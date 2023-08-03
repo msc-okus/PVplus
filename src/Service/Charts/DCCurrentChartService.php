@@ -16,11 +16,11 @@ class DCCurrentChartService
     use G4NTrait;
 
     public function __construct(
-        private Security $security,
+        private Security                $security,
         private AnlagenStatusRepository $statusRepository,
-        private InvertersRepository $invertersRepo,
+        private InvertersRepository     $invertersRepo,
         private IrradiationChartService $irradiationChart,
-        private FunctionsService $functions)
+        private FunctionsService        $functions)
     {
     }
 
@@ -55,7 +55,7 @@ class DCCurrentChartService
         $dataArray['inverterArray'] = $nameArray;
         // SOLL Strom für diesen Zeitraum und diese Gruppe
         $sqlExp = 'SELECT a.stamp as stamp, sum(b.dc_exp_current) as expected
-                   FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM '.$anlage->getDbNameDcSoll()." WHERE $groupQuery) b ON a.stamp = b.stamp)
+                   FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM ' . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp)
                    WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
         $result = $conn->query($sqlExp);
         $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
@@ -70,7 +70,7 @@ class DCCurrentChartService
             $counter = 0;
             foreach ($expectedResult as $rowSoll) {
                 $stamp = $rowSoll['stamp'];
-                $stampAdjust = self::timeAjustment($stamp, (float) $anlage->getAnlZeitzone());
+                $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
@@ -98,13 +98,13 @@ class DCCurrentChartService
                 switch ($anlage->getConfigType()) {
                     case 1:
                     case 2:
-                        $sql = 'SELECT sum(wr_idc) as istCurrent, group_dc as dc_num FROM '.$anlage->getDbNameACIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
+                        $sql = 'SELECT sum(wr_idc) as istCurrent, group_dc as dc_num FROM ' . $anlage->getDbNameACIst() . ' WHERE ' . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
                         break;
                     case 3:
-                        $sql = 'SELECT sum(wr_idc) as istCurrent, wr_num as dc_num FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
+                        $sql = 'SELECT sum(wr_idc) as istCurrent, wr_num as dc_num FROM ' . $anlage->getDbNameDCIst() . ' WHERE ' . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
                         break;
                     case 4:
-                        $sql = 'SELECT sum(wr_idc) as istCurrent, wr_num as dc_num FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form');";
+                        $sql = 'SELECT sum(wr_idc) as istCurrent, wr_num as dc_num FROM ' . $anlage->getDbNameDCIst() . ' WHERE ' . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form');";
                         break;
                 }
 
@@ -163,7 +163,7 @@ class DCCurrentChartService
             $counter = 0;
             while ($rowSoll = $result->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowSoll['stamp'];
-                $stampAdjust = self::timeAjustment($stamp, (float) $anlage->getAnlZeitzone());
+                $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
@@ -174,15 +174,15 @@ class DCCurrentChartService
                         // ACHTUNG Strom und Spannungswerte werden im Moment (Sep2020) immer in der AC TAbelle gespeichert, auch wenn neues 'DC IST Schema' genutzt wird.
                         if ($hour) {
                             if ($anlage->getUseNewDcSchema()) {
-                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM '.$anlage->getDbNameDCIst()." WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND wr_group = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
+                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameDCIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND wr_group = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
                             } else {
-                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM '.$anlage->getDbNameACIst()." WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  AND group_dc = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
+                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameACIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  AND group_dc = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
                             }
                         } else {
                             if ($anlage->getUseNewDcSchema()) {
-                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM '.$anlage->getDbNameDCIst()." WHERE stamp = '$stampAdjust' AND wr_group = '$dcGroupKey'";
+                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' AND wr_group = '$dcGroupKey'";
                             } else {
-                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM '.$anlage->getDbNameACIst()." WHERE stamp = '$stampAdjust' AND group_dc = '$dcGroupKey'";
+                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameACIst() . " WHERE stamp = '$stampAdjust' AND group_dc = '$dcGroupKey'";
                             }
                         }
                         $resultIst = $conn->query($sql);
@@ -228,6 +228,7 @@ class DCCurrentChartService
         $dataArray['maxSeries'] = 0;
         switch ($anlage->getConfigType()) {
             case 3: // Groningen
+            case 4:
                 $nameArray = $this->functions->getNameArray($anlage, 'scb');
                 break;
             default:
@@ -237,7 +238,7 @@ class DCCurrentChartService
 
         // Strom für diesen Zeitraum und diesen Inverter
         $sql_strom = 'SELECT a.stamp as stamp, b.soll_imppwr as sollCurrent 
-                  FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameDcSoll()." WHERE wr_num = '$group') b ON a.stamp = b.stamp) 
+                  FROM (db_dummysoll a left JOIN (SELECT * FROM ' . $anlage->getDbNameDcSoll() . " WHERE wr_num = '$group') b ON a.stamp = b.stamp) 
                   WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY date_format(a.stamp, '$form')";
         $result = $conn->query($sql_strom);
         if ($result->rowCount() > 0) {
@@ -250,7 +251,7 @@ class DCCurrentChartService
             $dataArray['offsetLegend'] = $dcGroups[$group]['GMIN'] - 1;
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $row['stamp'];
-                $stampAdjust = self::timeAjustment($stamp, (float) $anlage->getAnlZeitzone());
+                $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
@@ -267,15 +268,15 @@ class DCCurrentChartService
                     ++$mppCounter;
                     if ($hour) {
                         if ($anlage->getUseNewDcSchema()) {
-                            $sql = 'SELECT sum(wr_idc) as istCurrent FROM '.$anlage->getDbNameDCIst()." WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND wr_num = '$inverter' GROUP BY date_format(stamp, '$form')";
+                            $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameDCIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND wr_num = '$inverter' GROUP BY date_format(stamp, '$form')";
                         } else {
-                            $sql = 'SELECT sum(wr_idc) as istCurrent FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND unit = '$inverter' GROUP BY date_format(stamp, '$form')";
+                            $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND unit = '$inverter' GROUP BY date_format(stamp, '$form')";
                         }
                     } else {
                         if ($anlage->getUseNewDcSchema()) {
-                            $sql = 'SELECT wr_idc as istCurrent FROM '.$anlage->getDbNameDCIst()." WHERE stamp = '$stampAdjust' AND wr_num = '$inverter' GROUP BY date_format(stamp, '$form')";
+                            $sql = 'SELECT wr_idc as istCurrent FROM ' . $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' AND wr_num = '$inverter' GROUP BY date_format(stamp, '$form')";
                         } else {
-                            $sql = 'SELECT wr_idc as istCurrent FROM '.$anlage->getDbNameAcIst()." WHERE stamp = '$stampAdjust' AND unit = '$inverter' GROUP BY date_format(stamp, '$form')";
+                            $sql = 'SELECT wr_idc as istCurrent FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp = '$stampAdjust' AND unit = '$inverter' GROUP BY date_format(stamp, '$form')";
                         }
                     }
 
@@ -343,15 +344,15 @@ class DCCurrentChartService
 
         if ($hour) {
             if ($anlage->getUseNewDcSchema()) {
-                $sql_strom = 'SELECT a.stamp as stamp, sum(b.wr_mpp_current) AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameDCIst()." WHERE wr_num = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+                $sql_strom = 'SELECT a.stamp as stamp, sum(b.wr_mpp_current) AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM ' . $anlage->getDbNameDCIst() . " WHERE wr_num = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
             } else {
-                $sql_strom = 'SELECT a.stamp as stamp, sum(b.wr_mpp_current) AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+                $sql_strom = 'SELECT a.stamp as stamp, sum(b.wr_mpp_current) AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM ' . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
             }
         } else {
             if ($anlage->getUseNewDcSchema()) {
-                $sql_strom = 'SELECT a.stamp as stamp, b.wr_mpp_current AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameDCIst()." WHERE wr_num = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
+                $sql_strom = 'SELECT a.stamp as stamp, b.wr_mpp_current AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM ' . $anlage->getDbNameDCIst() . " WHERE wr_num = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
             } else {
-                $sql_strom = 'SELECT a.stamp as stamp, b.wr_mpp_current AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
+                $sql_strom = 'SELECT a.stamp as stamp, b.wr_mpp_current AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM ' . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
             }
         }
         $result = $conn->query($sql_strom);
@@ -359,7 +360,7 @@ class DCCurrentChartService
             if ($result->rowCount() > 0) {
                 $counter = 0;
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                    $stamp = self::timeAjustment($row['stamp'], (int) $anlage->getAnlZeitzone(), true);
+                    $stamp = self::timeAjustment($row['stamp'], (int)$anlage->getAnlZeitzone(), true);
                     // $stamp = $row['stamp'];
                     $mppCurrentJson = $row['mpp_current'];
                     if ($mppCurrentJson != '') {
@@ -389,20 +390,21 @@ class DCCurrentChartService
             return false;
         }
     }
+
     public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array
     {
         $conn = self::getPdoConnection();
         $dataArray = [];
         $nameArray = [];
         $group = 1;
-        $g=1;
+        $g = 1;
         $counter = 0;
         $counterInv = 0;
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
         $zenith = 90 + 50 / 60;
         $current_date = strtotime(str_replace("T", "", $from));
-        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
+        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
+        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
 
         // $sunArray = $this->WeatherServiceNew->getSunrise($anlage,$from);
         // $sunrise = $sunArray[$anlagename]['sunrise'];
@@ -417,12 +419,16 @@ class DCCurrentChartService
         $dcGroups = $anlage->getGroupsDc();
         $groupct = count($dcGroups);
 
-        if ($anlage->getUseNewDcSchema()) {
-            $groupdc = 'wr_group';
-            $nameArray = $this->functions->getNameArray($anlage, 'dc');
-        } else {
-            $groupdc = 'group_dc';
-            $nameArray = $this->functions->getNameArray($anlage, 'dc');
+        switch ($anlage->getConfigType()) {
+            case 3: // Groningen
+            case 4:
+                $groupdc = 'wr_group';
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                break;
+            default:
+                $groupdc = 'group_dc';
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                break;
         }
 
         /** @var AnlageGroupModules[] $modules */
@@ -434,11 +440,11 @@ class DCCurrentChartService
             }
             $mImpp[] = $mImppTemp;
         }
-   #
+        #
         ###    $  = $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
-   #
+        #
         if ($groupct) {
-            if ($sets == null) {
+            if ($sets === null) {
                 $min = 1;
                 $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
                 $max = (($max > 50) ? '50' : $max);
@@ -456,45 +462,45 @@ class DCCurrentChartService
             $max = 5;
             $sqladd = "AND $groupdc BETWEEN '$min' AND ' $max'";
         }
-                //
-                    if ($anlage->getUseNewDcSchema()) {
-                        $sql = "SELECT stamp as ts,wr_idc as istCurrent, $groupdc as inv FROM ".$anlage->getDbNameDCIst()." WHERE 
+        //
+        if ($anlage->getUseNewDcSchema()) {
+            $sql = "SELECT stamp as ts,wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameDCIst() . " WHERE 
                         stamp BETWEEN '$from' AND '$to' 
                         $sqladd
                         GROUP BY stamp, $groupdc ORDER BY NULL";
-                    } else {
-                        $sql = "SELECT stamp as ts,wr_idc as istCurrent, $groupdc as inv FROM ".$anlage->getDbNameACIst()." WHERE 
+        } else {
+            $sql = "SELECT stamp as ts,wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameACIst() . " WHERE 
                         stamp BETWEEN '$from' AND '$to' 
                         $sqladd
                         GROUP BY stamp, $groupdc ORDER BY NULL";
-                    }
+        }
+        $resultIst = $conn->query($sql);
 
-                $resultIst = $conn->query($sql);
+        if ($resultIst->rowCount() > 0) {
 
-                if ($resultIst->rowCount() > 0) {
+            while ($rowCurrIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = $rowCurrIst['ts'];
+                $e = strtotime($stamp);
+                $dataArray['chart'][$counter]['date'] = $stamp;
+                (($rowCurrIst['istCurrent']) ? $currentIst = round($rowCurrIst['istCurrent'], 2) : $currentIst = 0);
+                $currentGroupName = $dcGroups[$rowCurrIst['inv']]['GroupName'];
+                $currentImpp = $mImpp[$rowCurrIst['inv'] - 1]; // the array beginn at zero
+                $inv_num = $rowCurrIst['inv'];
 
-                    while ($rowCurrIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
-                        $stamp = $rowCurrIst['ts'];
-                        $e = strtotime($stamp);
-                        $dataArray['chart'][$counter]['date'] = $stamp;
-                        (($rowCurrIst['istCurrent']) ? $currentIst = round($rowCurrIst['istCurrent'], 2) : $currentIst = 0);
-                        $currentGroupName = $dcGroups[$rowCurrIst['inv']]['GroupName'];
-                        $currentImpp = $mImpp[$rowCurrIst['inv'] - 1]; // the array beginn at zero
-                        $inv_num = $rowCurrIst['inv'];
+                $value_dcpnom = $currentImpp > 0 ? round(($currentIst / $currentImpp), 2) : 0;
+                $dataArray['chart'][$counter]['xinv'] = $currentGroupName;
+                $dataArray['chart'][$counter]['pnomdc'] = $value_dcpnom;
+                ++$counter;
+            }
 
-                        $value_dcpnom = $currentImpp > 0 ? round(($currentIst / $currentImpp),2) : 0;
-                        $dataArray['chart'][$counter]['xinv'] = $currentGroupName;
-                        $dataArray['chart'][$counter]['pnomdc'] = $value_dcpnom;
-                        ++$counter;
-                    }
-
-                }
+        }
         // array for range slider
         $dataArray['minSeries'] = $min;
         $dataArray['maxSeries'] = $max;
         $dataArray['sumSeries'] = $groupct;
         $dataArray['SeriesNameArray'] = $nameArray;
         $dataArray['offsetLegend'] = 0;
+
         return $dataArray;
     }
 }

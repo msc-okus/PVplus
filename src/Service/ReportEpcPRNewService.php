@@ -17,37 +17,17 @@ class ReportEpcPRNewService
 {
     use G4NTrait;
 
-    private AnlagenRepository $anlageRepo;
-
-    private GridMeterDayRepository $gridMeterRepo;
-
-    private PRRepository $prRepository;
-
-    private MonthlyDataRepository $monthlyDataRepo;
-
-    private EntityManagerInterface $em;
-
-    private NormalizerInterface $serializer;
-
-    private FunctionsService $functions;
-
-    private PRCalulationService $PRCalulation;
-
-    private AvailabilityService $availabilityService;
-
-    public function __construct(AnlagenRepository $anlageRepo, GridMeterDayRepository $gridMeterRepo, PRRepository $prRepository,
-        MonthlyDataRepository $monthlyDataRepo, EntityManagerInterface $em, NormalizerInterface $serializer,
-        FunctionsService $functions, PRCalulationService $PRCalulation, AvailabilityService $availabilityService)
+    public function __construct(
+        private AnlagenRepository $anlageRepo,
+        private GridMeterDayRepository $gridMeterRepo,
+        private PRRepository $prRepository,
+        private MonthlyDataRepository $monthlyDataRepo,
+        private EntityManagerInterface $em,
+        private NormalizerInterface $serializer,
+        private FunctionsService $functions,
+        private PRCalulationService $PRCalulation,
+        private AvailabilityService $availabilityService)
     {
-        $this->anlageRepo = $anlageRepo;
-        $this->gridMeterRepo = $gridMeterRepo;
-        $this->prRepository = $prRepository;
-        $this->monthlyDataRepo = $monthlyDataRepo;
-        $this->em = $em;
-        $this->serializer = $serializer;
-        $this->functions = $functions;
-        $this->PRCalulation = $PRCalulation;
-        $this->availabilityService = $availabilityService;
     }
 
     public function createEpcReportNew(Anlage $anlage, DateTime $date): string
@@ -199,14 +179,14 @@ class ReportEpcPRNewService
             $tableArray[$n]['C_days_month'] = $daysInMonth;
             // DesignValues
             $tableArray[$n]['D_days_fac'] = $days;
-            $tableArray[$n]['E_IrrDesign'] = $pvSystData[$month - 1]['irrDesign'] * $factor;
+            $tableArray[$n]['E_IrrDesign'] = $pvSystData[$month]['irrDesign'] * $factor;
             $tableArray[$n]['F_refYieldDesign'] = $tableArray[$n]['E_IrrDesign'];
             $tableArray[$n]['G_theoEnergyDesign'] = $tableArray[$n]['F_refYieldDesign'] * $anlage->getKwPeakPvSyst();
-            $tableArray[$n]['H_eGridDesign'] = $pvSystData[$month - 1]['ertragDesign'] * $factor;
+            $tableArray[$n]['H_eGridDesign'] = $pvSystData[$month]['ertragDesign'] * $factor;
             $tableArray[$n]['I_specificYieldDesign'] = $tableArray[$n]['H_eGridDesign'] / $anlage->getKwPeakPvSyst();
             $tableArray[$n]['J_prDesign'] = $tableArray[$n]['H_eGridDesign'] / ($tableArray[$n]['E_IrrDesign'] * $anlage->getKwPeakPvSyst()) * 100;
-            $tableArray[$n]['K_tempAmbDesign'] = $pvSystData[$month - 1]['tempAmbDesign'];
-            $tableArray[$n]['L_tempAmbWeightedDesign'] = $pvSystData[$month - 1]['tempAmbWeightedDesign'];
+            $tableArray[$n]['K_tempAmbDesign'] = $pvSystData[$month]['tempAmbDesign'];
+            $tableArray[$n]['L_tempAmbWeightedDesign'] = $pvSystData[$month]['tempAmbWeightedDesign'];
             $tableArray[$n]['M_tempCompFactDesign'] = (1 + ($tableArray[$n]['L_tempAmbWeightedDesign'] - $anlage->getTempCorrCellTypeAvg()) * $anlage->getTempCorrGamma() / 100);
             $tableArray[$n]['N_effRefYieldDesign'] = $tableArray[$n]['F_refYieldDesign'] * $tableArray[$n]['M_tempCompFactDesign'];
             $tableArray[$n]['O_effTheoEnergyDesign'] = $tableArray[$n]['N_effRefYieldDesign'] * $anlage->getKwPeakPvSyst();
