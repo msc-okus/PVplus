@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Controller;
+use App\Helper\G4NTrait;
 use App\Message\Command\ImportData;
 use App\Form\Model\ImportToolsModel;
 use App\Form\ImportTools\ImportToolsFormType;
-use App\Helper\G4NTrait;
 use App\Helper\ImportFunctionsTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\LogMessagesService;
@@ -22,13 +22,23 @@ use Doctrine\ORM\EntityManagerInterface;
 class ImportToolsController extends BaseController
 {
     use ImportFunctionsTrait;
+    use G4NTrait;
 
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
     public function importManuel(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface): Response
     {
-        $pdoAnlageData = self::getPdoConnectionData();
         $hasStringboxes = 0;
+        //getDB-Connection
+        $conn = $entityManagerInterface->getConnection();
+        //get all Plants for Import via via Cron
+        $readyToImport = self::getPlantsImportReady($conn);
+        /*echo '<pre>';
+        print_r($readyToImport);
+        echo '</pre>';
 
+        $key = array_search('216', array_column($readyToImport, 'anlage_id'));
+        echo "<br>$key";
+        exit;*/
         //Wenn der Import von Cron angestoßen wird.
         $cron = $request->query->get('cron');
         if ($cron == 1) {
@@ -36,10 +46,7 @@ class ImportToolsController extends BaseController
             $time -= $time % 900;
             $start = strtotime(date('Y-m-d H:i', $time - (4 * 3600)));
             $end = $time;
-            //getDB-Connection
-            $conn = $entityManagerInterface->getConnection();
-            //get all Plants for Import via via Cron
-            $readyToImport = self::getPlantsImportReady($conn);
+
 
             sleep(5);
             for ($i = 0; $i <= count($readyToImport)-1; $i++) {
@@ -164,7 +171,10 @@ class ImportToolsController extends BaseController
                                 $data_pv_dcist[] = $result[1][$j];
                             }
                         }else{
-                            $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups);
+                            //Anzahl der Units in eines Inverters
+                            $invertersUnits = $anlage->getSettings()->getInvertersUnits();
+
+                            $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits);
                             //built array for pvist
                             for ($j = 0; $j <= count($result[0])-1; $j++) {
                                 $data_pv_ist[] = $result[0][$j];
@@ -189,21 +199,19 @@ class ImportToolsController extends BaseController
                 if($hasPpc){
                     $tableName = "db__pv_ppc_$anlagenTabelle".'_copy';
                     self::insertData($tableName, $data_ppc);
-                    echo "<br>$tableName <br>";
                 }
 
                 if($hasStringboxes == 1){
                     $tableName = "db__pv_dcist_$anlagenTabelle".'_copy';
                     self::insertData($tableName, $data_pv_dcist);
-                    echo "<br>$tableName <br>";
                 }
 
                 $tableName = "db__pv_ws_$weatherDbIdent".'_copy';
                 self::insertData($tableName, $data_pv_weather);
-                echo "$tableName <br>";
+
                 $tableName = "db__pv_ist_$anlagenTabelle".'_copy';
                 self::insertData($tableName, $data_pv_ist);
-                echo "$tableName <br>";
+
                 #print_r($anlageSensors);
                 echo "<br>$plantId<pre>";
 
@@ -213,10 +221,8 @@ class ImportToolsController extends BaseController
                 sleep(5);
             }
 
-
-
         }
-        exit;
+
         if ($cron != 1) {
             //Wenn der Import aus dem Backend angestoßen wird
             $form = $this->createForm(ImportToolsFormType::class);
@@ -233,16 +239,12 @@ class ImportToolsController extends BaseController
                 #$end = strtotime($importToolsModel->endDate->format('Y-m-d 23:59'));
                 $importToolsModel->endDate->add(new \DateInterval('P1D'));
                 $anlage = $anlagenRepo->findOneBy(['anlId' => $importToolsModel->anlage]);
-                $wetherStationId = $anlage->getWeatherStation();
-                $modules = $anlage->getModules();
-                $groups = $anlage->getGroups();
-                $dcPNormPerInvereter = self::getDcPNormPerInvereter($groups, $modules);
-                $owner = $anlage->getEigner();
 
-
+                $importToolsModel->anlage = $anlage;
                 $importToolsModel->path = (string)$anlage->getPathToImportScript();
                 $importToolsModel->importType = (string)$form->get('importType')->getData();
                 $importToolsModel->hasPpc = 0;
+                $importToolsModel->readyToImport = $readyToImport;
                 // Start import
                 if ($form->get('importType')->getData() == null) {
                     $output .= 'Please select what you like to import.<br>';
@@ -267,7 +269,7 @@ class ImportToolsController extends BaseController
                                 $output = '<h3>Import API Data:</h3>';
                                 $job = 'Import API Data(' . $importToolsModel->importType . ') – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
                                 $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
-                                $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId);
+                                $message = new ImportData($importToolsModel->anlage, $importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId, $importToolsModel->readyToImport);
                                 $messageBus->dispatch($message);
                                 $output .= 'Command was send to messenger! Will be processed in background.<br>';
                                 break;
@@ -292,7 +294,7 @@ class ImportToolsController extends BaseController
 
         }
 
-        return $this->render('aaaaaa');
+        return new Response('This is used for import via cron job.', 200, array('Content-Type' => 'text/html'));
     }
 
 }

@@ -409,21 +409,32 @@ trait G4NTrait
         return $_html;
     }
 
+
     /**
-     * Ermittelt aus dem übergebenen Array den Mittelwert, wobei 0 Werte nicht in die Berechnung einfließen.
+     * Erzeuge Mittelwert aus den übergebenen Werten, Nutze nur Werte für den Mittelwert die gräßer 0 sind
+     * @param array $werte
+     * @param bool $ignoreZero
+     * @return float|null
      */
-    public static function mittelwert(array $werte): ?float
+    public function mittelwert(array $werte, bool $ignoreZero = true): ?float
     {
         $divisor = $divident = 0;
         foreach ($werte as $wert) {
-            if ((float) $wert > 0) {
-                ++$divisor;
-                $divident += (float) $wert;
+            if ($ignoreZero) {
+                if ((float)$wert !== 0.0 && $wert !== null) {
+                    $divisor++;
+                    $divident += (float)$wert;
+                }
+            } else {
+                if ($wert !== null) {
+                    $divisor++;
+                    $divident += (float)$wert;
+                }
             }
         }
-
         return ($divisor > 0) ? $divident / $divisor : null;
     }
+
 
     /*
      *With this function we will remove the elements of the second array from the first one

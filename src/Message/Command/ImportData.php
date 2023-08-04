@@ -7,14 +7,21 @@ use DateTime;
 class ImportData
 {
     public function __construct(
+        private object $anlage,
         private int $anlageId,
         private DateTime $startDate,
         private DateTime $endDate,
         private string $path,
         private string $importType,
-        private int $logId
+        private int $logId,
+        private array $readyToImport
     )
     {
+    }
+
+    public function getAnlage(): object
+    {
+        return $this->anlage;
     }
 
     public function getAnlageId(): int
@@ -45,5 +52,10 @@ class ImportData
     public function getlogId(): int
     {
         return $this->logId;
+    }
+
+    public function getReadyToImport(): array
+    {
+        return $this->readyToImport;
     }
 }

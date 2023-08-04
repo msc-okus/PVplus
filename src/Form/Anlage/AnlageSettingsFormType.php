@@ -202,7 +202,14 @@ class AnlageSettingsFormType extends AbstractType
 
             ->add('stringboxesUnits', IntegerType::class, [
                 'label' => 'Stringboxes Units',
-                'help' => '[Stringboxes Units(für die Anzahl Schleifen beim Import in seperater DC Tabelle)]',
+                'help' => '[Stringboxes Units(für die Anzahl Schleifen beim Import)]',
+                'empty_data' => '',
+                'required' => false,
+            ])
+
+            ->add('invertersUnits', IntegerType::class, [
+                'label' => 'Inverters Units',
+                'help' => '[Inverters Units(für die Anzahl Schleifen beim Import)]',
                 'empty_data' => '',
                 'required' => false,
             ])

@@ -163,6 +163,9 @@ class AnlageSettings
     private ?int $stringboxesUnits = null;
 
     #[ORM\Column(nullable: true, options: ['default' => null])]
+    private ?int $invertersUnits = null;
+
+    #[ORM\Column(nullable: true, options: ['default' => null])]
     private ?int $idPpc = null;
 
     public function getId(): ?int
@@ -691,6 +694,18 @@ class AnlageSettings
     public function setStringboxesUnits(?int $stringboxesUnits): self
     {
         $this->stringboxesUnits = $stringboxesUnits;
+
+        return $this;
+    }
+
+    public function getInvertersUnits(): ?int
+    {
+        return $this->invertersUnits;
+    }
+
+    public function setInvertersUnits(?int $invertersUnits): self
+    {
+        $this->invertersUnits = $invertersUnits;
 
         return $this;
     }
