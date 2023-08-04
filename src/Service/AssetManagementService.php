@@ -217,6 +217,24 @@ class AssetManagementService
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['CumLosses'] = $pdf->createPage($html, $fileroute, "CumLosses", false);// we will store this later in the entity
 
+        $html = $this->twig->render('report/waterfallProd.html.twig', [
+            'anlage' => $anlage,
+            'month' => $reportMonth,
+            'monthName' => $output['month'],
+            'year' => $reportYear,
+            'dataCfArray' => $content['dataCfArray'],
+            'reportmonth' => $content['reportmonth'],
+            'monthArray' => $content['monthArray'],
+            //until here all the parameters must be used in all the renders
+            'waterfallHelpTable' => $content['waterfallHelpTable'],
+            'waterfallDiagram' => $content['waterfallDiagram']
+
+        ]);
+        $html = str_replace('src="//', 'src="https://', $html);
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+        $reportParts['waterfallProd'] = $pdf->createPage($html, $fileroute, "waterfallProd", true);// we will store this later in the entity
+
+
         $html = $this->twig->render('report/asset_report_part_5.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -435,7 +453,7 @@ class AssetManagementService
 
         if ($anlage->getEconomicVarNames() !== null) {
 
-            $html13 = $this->twig->render('report/asset_report_part_13.html.twig', [
+            $html = $this->twig->render('report/asset_report_part_13.html.twig', [
                 'anlage' => $anlage,
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
@@ -4231,36 +4249,152 @@ class AssetManagementService
         $sumEFOR = 0;
         $sumOMC = 0;
         $sumOthers = 0;
+        $sumCorrectedForecast = 0;
+        $sumTotalLosses = 0;
         for($i = 0; $i < $report['reportMonth'] ; $i++){
-            $waterfallDiagramHelpTable[$i]['forecast'] = $forecast[$i];
-            $sumForecast = $sumForecast + $forecast[$i];
-            $waterfallDiagramHelpTable[$i]['forecastIrr'] = $irradiation[$i];
-            $sumForecastIrr = $sumForecastIrr + $irradiation[$i];
-            $waterfallDiagramHelpTable[$i]['actual'] = $tbody_a_production['powerAct'][$i];
-            $sumActual = $sumActual + $tbody_a_production['powerAct'][$i];
-            $waterfallDiagramHelpTable[$i]['expected'] = $tbody_a_production['powerExp'][$i];
-            $sumExp = $sumExp + $tbody_a_production['powerExp'][$i];
-            $waterfallDiagramHelpTable[$i]['irradiation'] = $irradiation[$i];
-            $sumIrr = $sumIrr + $irradiation[$i];
-            $waterfallDiagramHelpTable[$i]['SORLosses'] = $kwhLosses[$i]['SORLosses'];
-            $sumSOR = $sumSOR + $kwhLosses[$i]['SORLosses'];
-            $waterfallDiagramHelpTable[$i]['EFORLosses'] = $kwhLosses[$i]['EFORLosses'];
-            $sumEFOR = $sumEFOR + $kwhLosses[$i]['EFORLosses'];
-            $waterfallDiagramHelpTable[$i]['OMCLosses'] = $kwhLosses[$i]['OMCLosses'];
-            $sumOMC = $sumOMC + $kwhLosses[$i]['OMCLosses'];
-            $sumLosses = $kwhLosses[$i]['SORLosses'] + $kwhLosses[$i]['EFORLosses'] + $kwhLosses[$i]['OMCLosses'];
-            $waterfallDiagramHelpTable[$i]['otherLosses'] = $tbody_a_production['powerExp'][$i] - $sumLosses;
-            $sumOthers = $sumOthers +       $waterfallDiagramHelpTable[$i]['otherLosses'];
+            $waterfallDiagramHelpTable[$i]['forecast'] = round($forecast[$i], 2);
+            $sumForecast = $sumForecast + $waterfallDiagramHelpTable[$i]['forecast'];
+            if($waterfallDiagramHelpTable[$i]['irradiation'] > 0) {
+                $irrCorrection = $irradiation[$i]['forecastIrr'] / $irradiation[$i]['irradiation'];
+            }
+            else{
+                $irrCorrection = 1 ;
+            }
+            $waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] * $irrCorrection, 2);
+            $sumCorrectedForecast = $sumCorrectedForecast + $waterfallDiagramHelpTable[$i]['correctedForecast'];
+
+            $waterfallDiagramHelpTable[$i]['forecastIrr'] = round($irradiation[$i], 2);
+            $sumForecastIrr = $sumForecastIrr + $waterfallDiagramHelpTable[$i]['forecastIrr'];
+            
+            $waterfallDiagramHelpTable[$i]['actual'] = round($tbody_a_production['powerAct'][$i], 2);
+            $sumActual = $sumActual + $waterfallDiagramHelpTable[$i]['actual'];
+    
+            $waterfallDiagramHelpTable[$i]['irradiation'] = round($waterfallDiagramHelpTable[$i]['forecastIrr'], 2);
+            $sumIrr = $sumIrr + $waterfallDiagramHelpTable[$i]['forecastIrr'];
+            
+            $waterfallDiagramHelpTable[$i]['SORLosses'] = round($kwhLosses[$i]['SORLosses'], 2);
+            $sumSOR = $sumSOR + $waterfallDiagramHelpTable[$i]['SORLosses'];
+            
+            $waterfallDiagramHelpTable[$i]['EFORLosses'] = round($kwhLosses[$i]['EFORLosses'], 2);
+            $sumEFOR = $sumEFOR + $waterfallDiagramHelpTable[$i]['EFORLosses'];
+            
+            $waterfallDiagramHelpTable[$i]['OMCLosses'] = round($kwhLosses[$i]['OMCLosses'], 2);
+            $sumOMC = $sumOMC + $waterfallDiagramHelpTable[$i]['OMCLosses'];
+
+            $sumLosses = $waterfallDiagramHelpTable[$i]['SORLosses'] + $waterfallDiagramHelpTable[$i]['EFORLosses'] + $waterfallDiagramHelpTable[$i]['OMCLosses'];
+
+            $waterfallDiagramHelpTable[$i]['otherLosses'] = round($tbody_a_production['powerExp'][$i] - $tbody_a_production['powerAct'][$i] - $sumLosses, 2);
+            $sumOthers = $sumOthers + $waterfallDiagramHelpTable[$i]['otherLosses'];
+
+            $waterfallDiagramHelpTable[$i]['totalLosses'] = round($waterfallDiagramHelpTable[$i]['otherLosses'] + $sumLosses, 2);
+            $sumTotalLosses = $sumTotalLosses + $waterfallDiagramHelpTable[$i]['totalLosses'];
+
+            $waterfallDiagramHelpTable[$i]['expected'] = round($tbody_a_production['powerExp'][$i], 2);
+            $sumExp = $sumExp + $waterfallDiagramHelpTable[$i]['expected'];
         }
+        $waterfallDiagramHelpTable[$i + 1]['correctedForecast'] = $sumCorrectedForecast;
         $waterfallDiagramHelpTable[$i + 1]['forecast'] = $sumForecast;
         $waterfallDiagramHelpTable[$i + 1]['forecastIrr'] = $sumForecastIrr;
         $waterfallDiagramHelpTable[$i + 1]['actual'] = $sumActual;
-        $waterfallDiagramHelpTable[$i + 1]['expected'] = $sumExp;
         $waterfallDiagramHelpTable[$i + 1]['irradiation'] = $sumIrr;
         $waterfallDiagramHelpTable[$i + 1]['SORLosses'] = $sumSOR;
         $waterfallDiagramHelpTable[$i + 1]['EFORLosses'] = $sumEFOR;
         $waterfallDiagramHelpTable[$i + 1]['OMCLosses'] = $sumOMC;
         $waterfallDiagramHelpTable[$i + 1]['otherLosses'] = $sumOthers;
+        $waterfallDiagramHelpTable[$i + 1]['expected'] = $sumExp;
+        $waterfallDiagramHelpTable[$i + 1]['totalLosses'] = $sumTotalLosses;
+
+        unset($data);
+        foreach ($waterfallDiagramHelpTable[(int)$report['reportMonth'] - 1] as $key => $value){
+            if ($key != "forecastIrr" && $key != "irradiation" && $key != "forecast" && $key != "totalLosses")$data[] = round($value, 2);
+        }
+        //dd($data, $waterfallDiagramHelpTable[(int)$report['reportMonth'] - 1]);
+        $positive = [];
+        $negative = [];
+        $help = [];
+        $sum = 0;
+
+        foreach ($data as $key => $item){
+            if ($item >= 0 ){
+                $positive[] = $item;
+
+                $negative[] = 0;
+            }
+            else{
+                $negative[] = -$item;
+                $positive[] = 0;
+            }
+
+            if ($key <= 1) $help[$key] = 0;
+
+            else if ($key === count($data)-1) $help[$key] = 0;
+            else{
+                $sum += $data[$key - 1];
+                if ($item < 0){
+                    $help[] = $sum + $item;
+                }
+                else{
+                    $help[] = $sum;
+                }
+            }
+        }
+        $chart = new ECharts();
+
+        $chart->xAxis = [
+            'type' => 'category',
+            'data' =>['Forecast', 'Actual', 'SOR Losses', ' EFOR Losses', 'OMC Losses', 'Other Losses', 'Expected'],
+        ];
+        $chart->yAxis = [
+            'type' => 'value',
+        ];
+        $chart->series =
+            [
+                [
+                    'type' => 'bar',
+                    'stack' => 'x',
+                    'itemStyle' => [
+                        'normal' => [
+                            'barBorderColor' => 'rgba(0,0,0,0)',
+                            'color' => 'rgba(0,0,0,0)'
+                        ],
+                        'emphasis' => [
+                            'barBorderColor' => 'rgba(0,0,0,0)',
+                            'color' => 'rgba(0,0,0,0)'
+                        ]
+                    ],
+                    'data' => $help,
+                ],
+                [
+                    'name' => 'positive',
+                    'type' => 'bar',
+                    'stack' => 'x',
+                    'data' => $positive,
+
+                    'label' => [
+                        'show' => true,
+                        'position' => 'top'
+                    ],
+
+                ],
+                [
+                    'name' => 'negative',
+                    'type' => 'bar',
+                    'stack' => 'x',
+                    'data' => $negative,
+                    'itemStyle'=>[
+                        'color'=>'#f33'
+                    ],
+
+                ],
+
+            ];
+
+        $option =[
+            'animation' => false,
+        ];
+        $chart->setOption($option);
+        $waterfallDiagram = $chart->render('waterfal', ['style' => 'height: 450px; width:28cm;']);
+
         // end Chart Losses compared cummulated
         $output = [
             'plantId' => $plantId,
@@ -4359,6 +4493,7 @@ class AssetManagementService
             'prSumaryTable' => $prSumaryTable,
             'sumary_pie_graph' => $sumary_pie_graph,
             'waterfallHelpTable' => $waterfallDiagramHelpTable,
+            'waterfallDiagram' => $waterfallDiagram
         ];
 
         return $output;
