@@ -74,7 +74,7 @@ class ForcastWriteDBCommand extends Command {
             $reg_array = $reg_data->make_sortable_data('faktor');
             $dec_array = $this->expectedService->calcExpectedforForecast($anlage, $decarray);
 
-#print_R($decarray);
+#print_R($decarray); // IR Values
 #print_R($dec_array);
 #print_R($reg_array);
 #exit;
@@ -94,7 +94,9 @@ class ForcastWriteDBCommand extends Command {
                 `pr_day` = :prday,
                 `pr_kumuliert` = :prkumuliert, 	
                 `pr_day_ft` = :prdayft,	
-                `pr_kumuliert_ft` = :prkumuliertft 	
+                `pr_kumuliert_ft` = :prkumuliertft,
+                `irrday` = :irrday, 	
+                `updated_at` = :updatedat
             ON DUPLICATE KEY UPDATE 
                 `anlage_id` = :anlageid,
                 `day` = :doy,
@@ -105,7 +107,8 @@ class ForcastWriteDBCommand extends Command {
                 `pr_day` = :prday,
                 `pr_kumuliert` = :prkumuliert, 	
                 `pr_day_ft` = :prdayft,	
-                `pr_kumuliert_ft` = :prkumuliertft 	
+                `irrday` = :irrday, 
+                `updated_at` = :updatedat
             ;
             ";
 
@@ -143,6 +146,11 @@ class ForcastWriteDBCommand extends Command {
                     if (array_key_exists('pr_theo_komu', $value)) {
                         $prkumuliertft = $value['pr_theo_ft_komu'];
                     }
+                    if (array_key_exists('irrday', $value)) {
+                        $irrday = $value['irrday'];
+                    }
+
+                    $updated = date ('Y-m-d H:i:s', time());
 
                     $faktorday = number_format($expEvuSumDay / $expTheoSumYear, 8, ".", "");
 
@@ -159,6 +167,8 @@ class ForcastWriteDBCommand extends Command {
                             'prkumuliert' => $prkumuliert,
                             'prdayft' => $prdayft,
                             'prkumuliertft' => $prkumuliertft,
+                            'irrday' => $irrday,
+                            'updatedat' => $updated,
                         ];
 
                         $em->getConnection()->executeQuery(
