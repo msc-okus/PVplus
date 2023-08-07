@@ -50,7 +50,7 @@ class AnlageForcastDay
     private string $irrday;
 
     #[ORM\Column(type: 'datetime')]
-    private string $updated_at ;
+    private $updated_at ;
 
     public function getId(): ?int
     {
