@@ -3,16 +3,21 @@ namespace App\Helper;
 
 require_once __DIR__.'/../../public/config.php';
 
-use App\Entity\Anlage;
-use DateTimeZone;
-use Doctrine\Common\Collections\ArrayCollection;
-use Exception;
+use App\Repository\AnlagenRepository;
+
+
 use PDO;
 use PDOException;
-use Symfony\Component\Intl\Timezones;
 
 trait ImportFunctionsTrait
 {
+    private AnlagenRepository $anlagenRepository;
+
+    public function __construct(AnlagenRepository $anlRepo)
+    {
+
+        $this->anlagenRepository = $anlRepo;
+    }
     /**
      * @param string|null $dbdsn
      * @param string|null $dbusr
@@ -40,11 +45,109 @@ trait ImportFunctionsTrait
             );
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            echo 'Error!: '.$e->getMessage().'<br/>';
+            echo 'Error!: ' . $e->getMessage() . '<br/>';
             exit;
         }
 
         return $pdo;
+    }
+
+    /**
+     * @param string|null $dbdsn
+     * @param string|null $dbusr
+     * @param string|null $dbpass
+     * @return PDO
+     */
+    public static function getPdoConnectionBase(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
+    {
+        // Config als Array
+        // Check der Parameter wenn null dann nehme default Werte als fallback
+        $config = [
+            'database_dsn' => $dbdsn === null ? $_ENV["BASE_DATABASE_URL"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
+            'database_user' => $dbusr === null ? 'pvpbase' : $dbusr,
+            'database_pass' => $dbpass === null ? $_ENV["BASE_DATABASE_PASSWORD"] : $dbpass,
+        ];
+
+        try {
+            $pdo = new PDO(
+                $config['database_dsn'],
+                $config['database_user'],
+                $config['database_pass'],
+                [
+                    PDO::ATTR_PERSISTENT => true
+                ]
+            );
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            echo 'Error!: ' . $e->getMessage() . '<br/>';
+            exit;
+        }
+
+        return $pdo;
+    }
+
+    //???
+    function getDcPNormPerInvereter($conn, array $groups, array $modules): array
+    {
+
+        $dcPNormPerInvereter = [];
+        $pNormControlSum = 0;
+
+        for ($i = 0; $i <= count($groups) - 1; $i++) {
+            $index = $groups[$i]->getdcGroup();
+            $groupId = $groups[$i]->getid();
+
+            $query = "SELECT * FROM `anlage_group_modules` where `anlage_group_id` = $groupId  ";
+            $stmt = $conn->query($query);
+            $result = $stmt->fetchAll();
+            $sumPNorm = 0;
+            $power = 0;
+
+            for ($k = 0; $k <= count($modules) - 1; $k++) {
+                if ($modules[$k]->getId() == $result[0]['module_type_id']) {
+                    $power = $modules[$k]->getPower();
+                }
+            }
+            $sumPNorm += $result[0]['num_strings_per_unit'] * $result[0]['num_modules_per_string'] * $power;
+
+
+            $dcPNormPerInvereter[$index] = $sumPNorm;
+            $pNormControlSum += $sumPNorm;
+        }
+        return $dcPNormPerInvereter;
+    }
+
+    //???
+
+    /**
+     * @param string|DateTime $dateTime
+     * @return int
+     */
+    function calcYearOfOperation(DateTime $currentDate, DateTime $installationDate): int
+    {
+        $years = ($currentDate->getTimestamp() - $installationDate->getTimestamp()) / (60 * 60 * 24 * 356);
+        #echo (int)$years.'<br>';
+
+        return (int)$years; //(int)$currentDate->format('Y') - (int)$installationDate->format('Y'); // betriebsjahre;
+    }
+
+
+    /**
+     * Funktion g4nTimeCET() um immer Winterzeit zu bekommen
+     *
+     * @return int
+     */
+    function g4nTimeCET()
+    {
+        if (date("I") == "1") {
+            //wir haben Sommerzeit
+            $_time = time() - 3600;
+        } else {
+            // wir haben Winterzeit
+            $_time = time();
+        }
+
+        return $_time;
     }
 
 
@@ -230,6 +333,7 @@ trait ImportFunctionsTrait
     }
 
     //???
+
     /**
      * Schreibt Eintraege, in die Tabelle 'log'.
      * Stand: August 2021 - GSCH
@@ -280,15 +384,15 @@ trait ImportFunctionsTrait
     //Liest die Sensoren der Anlage aus dem Backend
     function getAnlageSensors($conn, string $anlId): array
     {
-        $query = "SELECT * FROM pvp_base.anlage_sensors  WHERE anlage_id  = ".$anlId;
-        $stmt = $conn->executeQuery($query);
+        $query = "SELECT * FROM pvp_base.anlage_sensors  WHERE anlage_id  = " . $anlId;
+        $stmt = $conn->query($query);
         return $stmt->fetchAll();
     }
 
     function getACGroups($conn, string $anlId): array
     {
-        $query = "SELECT * FROM `anlage_groups_ac` where `anlage_id` = ".$anlId;
-        $stmt = $conn->executeQuery($query);
+        $query = "SELECT * FROM `anlage_groups_ac` where `anlage_id` = " . $anlId;
+        $stmt = $conn->query($query);
         return $stmt->fetchAll();
     }
 
@@ -493,13 +597,14 @@ trait ImportFunctionsTrait
 
     }
 
-    public function getPlantsImportReady($conn){
+    public function getPlantsImportReady($conn)
+    {
         $query = "SELECT `anlage_id` FROM `anlage_settings` where `symfony_import` = 1  ";
-        $stmt = $conn->executeQuery($query);
+        $stmt = $stmt = $conn->query($query);
         return $stmt->fetchAll();
     }
 
-    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits):array
+    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
     {
         $i = 0;
         foreach ($acGroups as $group_ac) {
@@ -621,7 +726,7 @@ trait ImportFunctionsTrait
         return $result;
     }
 
-    function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits):array
+    function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
     {
         $i = 0;
         foreach ($groups as $group) {
@@ -663,7 +768,7 @@ trait ImportFunctionsTrait
 
                 $dcCurrentMppArray = [];
                 $dcVoltageMppArray = [];
-                if($invertersUnits >= 1){
+                if ($invertersUnits >= 1) {
                     for ($n = 1; $n <= $invertersUnits; $n++) {
                         $key = "I_DC$n";
                         $dcCurrentMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
@@ -729,7 +834,8 @@ trait ImportFunctionsTrait
         return $result;
     }
 
-    function getPpc($idPpc, $ppcs, $date, $stamp, $plantId, $anlagenTabelle){
+    function getPpc($idPpc, $ppcs, $date, $stamp, $plantId, $anlagenTabelle)
+    {
         $p_ac_inv = $pf_set = $p_set_gridop_rel = $p_set_rel = null;
         $p_set_rpc_rel = $q_set_rel = $p_set_ctrl_rel = $p_set_ctrl_rel_mean = null;
         if (isset($ppcs[$date])) {
@@ -755,4 +861,5 @@ trait ImportFunctionsTrait
         $result[] = $data_ppc;
         return $result;
     }
+
 }

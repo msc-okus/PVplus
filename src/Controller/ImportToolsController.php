@@ -16,6 +16,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\MeteoControlService;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\ImportService;
 /**
  * @IsGranted("ROLE_G4N")
  */
@@ -25,7 +26,7 @@ class ImportToolsController extends BaseController
     use G4NTrait;
 
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
-    public function importManuel(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface): Response
+    public function importManuel(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
     {
         $hasStringboxes = 0;
         //getDB-Connection
@@ -52,173 +53,8 @@ class ImportToolsController extends BaseController
             for ($i = 0; $i <= count($readyToImport)-1; $i++) {
                 $plantId = $readyToImport[$i]['anlage_id'];
                 $anlage = $anlagenRepo->findOneByIdAndJoin($plantId);
-                $weather    = $anlage->getWeatherStation($anlage->getWeatherStation()->getId());
-                $weatherDbIdent = $weather->getDatabaseIdent();
-
-                $modules = $anlage->getModules();
-                $groups = $anlage->getGroups();
-                $systemKey = $anlage->getCustomPlantId();
-                $acGroups = self::getACGroups($conn, $plantId);
-                $hasPpc = $anlage->getHasPPC();
-
-                $anlagenTabelle = $anlage->getAnlIntnr();
-
-                $isEastWest = $anlage->getIsOstWestAnlage();
-                $tempCorrParams['tempCellTypeAvg']  = (float)$anlage->temp_corr_cell_type_avg;
-                $tempCorrParams['gamma']            = (float)$anlage->temp_corr_gamma;
-                $tempCorrParams['a']                = (float)$anlage->temp_corr_a;
-                $tempCorrParams['b']                = (float)$anlage->temp_corr_b;
-                $tempCorrParams['deltaTcnd']        = (float)$anlage->temp_corr_delta_tcnd;
-
-                $dcPNormPerInvereter = self::getDcPNormPerInvereter($conn, $groups->toArray(), $modules->toArray());
-
-                $owner = $anlage->getEigner();
-                $mcUser = $owner->getSettings()->getMcUser();
-                $mcPassword = $owner->getSettings()->getMcPassword();
-                $mcToken = $owner->getSettings()->getMcToken();
-
-                $bulkMeaserments = MeteoControlService::getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end);
-
-                $data_pv_ist = [];
-                $data_pv_dcist = [];
-                if ($bulkMeaserments) {
-                    $basics = $bulkMeaserments['basics'];
-                    $inverters = $bulkMeaserments['inverters'];
-                    $sensors = $bulkMeaserments['sensors'];
-
-                    $hasStringboxes = 0;
-                    if(is_array($bulkMeaserments['stringboxes'])) {
-                        $stringBoxes = $bulkMeaserments['stringboxes'];
-                        $hasStringboxes = 1;
-                    }
-                    $anlageSensors = self::getAnlageSensors($conn, $plantId);
-
-                    for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
-                        $stamp = date('Y-m-d H:i', $timestamp);
-                        $date = date('c', $timestamp);
-
-                        $eZEvu = $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
-                        $tempAnlageArray = $windAnlageArray = $irrAnlageArrayGMO = $irrAnlageArray = [];
-
-                        if (array_key_exists($date, $basics)) {
-                            $irrAnlageArrayGMO['G_M0'] = $basics[$date]['G_M0'] > 0 ? round($basics[$date]['G_M0'], 4) : 0;   //
-                            $eZEvu = round($basics[$date]['E_Z_EVU'], 0);
-                        }
-
-                        if (is_array($sensors) && array_key_exists($date, $sensors)) {
-                            $length = count($anlageSensors);
-
-                            $checkSensors = self::checkSensors($anlageSensors, $length, (bool)$isEastWest, $sensors, $date);
-
-
-                            $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
-                            $irrHorizontal = $checkSensors[0]['irrHorizontal'];
-                            $irrLower = $checkSensors[0]['irrLower'];
-                            $irrUpper = $checkSensors[0]['irrUpper'];
-
-                            $tempPanel = $checkSensors[1]['tempPanel'];
-
-                            $tempAmbient = $checkSensors[1]['tempAmbient'];
-
-                            $tempAnlageArray = $checkSensors[1]['anlageTemp'];
-
-                            $wSEwd = $checkSensors[1]['windDirection'];
-
-                            $windSpeed = $checkSensors[1]['windSpeed'];
-
-                            $windAnlageArray = $checkSensors[1]['anlageWind'];
-
-                        }
-                        $data_pv_weather[] = [
-                            'anl_intnr' => $weatherDbIdent,
-                            'anl_id' => 0,
-                            'stamp' => $stamp,
-                            'at_avg' => $tempAmbient,
-                            'temp_ambient' => $tempAmbient,
-                            'pt_avg' => $tempPanel,
-                            'temp_pannel' => $tempPanel,
-                            'gi_avg' => $irrLower,
-                            'g_lower' => $irrLower,
-                            'gmod_avg' => $irrUpper,
-                            'g_upper' => $irrUpper,
-                            'g_horizontal' => $irrHorizontal,
-                            'rso' => '0',
-                            'gi' => '0',
-                            'wind_speed' => $windSpeed,
-                            'temp_cell_multi_irr' => NULL,
-                            'temp_cell_corr' => NULL,
-                            'ft_factor' => NULL,
-                            'irr_flag' => NULL
-                        ];
-
-                        $irrAnlage  = json_encode($irrAnlageArray);
-                        $tempAnlage = json_encode($tempAnlageArray);
-                        $windAnlage = json_encode($windAnlageArray);
-
-                        if($hasStringboxes == 1){
-                            $stringBoxesTime = $stringBoxes[$date];
-
-                            //Anzahl der Units in einer Stringbox
-                            $stringBoxUnits = $anlage->getSettings()->getStringboxesUnits();
-
-                            $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
-                            //built array for pvist
-                            for ($j = 0; $j <= count($result[0])-1; $j++) {
-                                $data_pv_ist[] = $result[0][$j];
-                            }
-                            //built array for pvist_dc
-                            for ($j = 0; $j <= count($result[1])-1; $j++) {
-                                $data_pv_dcist[] = $result[1][$j];
-                            }
-                        }else{
-                            //Anzahl der Units in eines Inverters
-                            $invertersUnits = $anlage->getSettings()->getInvertersUnits();
-
-                            $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits);
-                            //built array for pvist
-                            for ($j = 0; $j <= count($result[0])-1; $j++) {
-                                $data_pv_ist[] = $result[0][$j];
-                            }
-                        }
-
-                        unset($result);
-                        //Anlage hat eigene DC-Ist Tabelle(Stringboxes)
-                        if($hasPpc){
-                            $ppcs = $bulkMeaserments['ppcs'];
-                            $idPpc = $anlage->getSettings()->getIdPpc();
-                            $result = self::getPpc($idPpc, $ppcs, $date, $stamp, $plantId, $anlagenTabelle);
-                            for ($j = 0; $j <= count($result[0])-1; $j++) {
-                                $data_ppc[] = $result[0][$j];
-                            }
-                        }
-                    }
-
-
-                }
-
-                if($hasPpc){
-                    $tableName = "db__pv_ppc_$anlagenTabelle".'_copy';
-                    self::insertData($tableName, $data_ppc);
-                }
-
-                if($hasStringboxes == 1){
-                    $tableName = "db__pv_dcist_$anlagenTabelle".'_copy';
-                    self::insertData($tableName, $data_pv_dcist);
-                }
-
-                $tableName = "db__pv_ws_$weatherDbIdent".'_copy';
-                self::insertData($tableName, $data_pv_weather);
-
-                $tableName = "db__pv_ist_$anlagenTabelle".'_copy';
-                self::insertData($tableName, $data_pv_ist);
-
-                #print_r($anlageSensors);
-                echo "<br>$plantId<pre>";
-
-                echo 'PPC';
-                #print_r($data_ppc);
-                echo '</pre>';
-                sleep(5);
+                #self::prepareForImport($plantId, $start, $end, '');
+                $importService->prepareForImport($plantId, $start, $end, '');
             }
 
         }
@@ -235,17 +71,13 @@ class ImportToolsController extends BaseController
                 /* @var ImportToolsModel $importToolsModel */
                 $importToolsModel = $form->getData();
 
-                #$start = strtotime($importToolsModel->startDate->format('Y-m-d 00:00'));
-                #$end = strtotime($importToolsModel->endDate->format('Y-m-d 23:59'));
                 $importToolsModel->endDate->add(new \DateInterval('P1D'));
                 $anlage = $anlagenRepo->findOneBy(['anlId' => $importToolsModel->anlage]);
 
-                $importToolsModel->anlage = $anlage;
                 $importToolsModel->path = (string)$anlage->getPathToImportScript();
                 $importToolsModel->importType = (string)$form->get('importType')->getData();
-                $importToolsModel->hasPpc = 0;
-                $importToolsModel->readyToImport = $readyToImport;
-                // Start import
+                $importToolsModel->readyToImport = (array)$readyToImport;
+                // Start recalculation
                 if ($form->get('importType')->getData() == null) {
                     $output .= 'Please select what you like to import.<br>';
                     $break = 1;
@@ -253,23 +85,19 @@ class ImportToolsController extends BaseController
 
                 $hasPpc = $anlage->getHasPPC();
 
-                if ($hasPpc != 1 && (string)(string)$importToolsModel->importType == 'api-import-ppc') {
+                if($hasPpc != 1 && (string) (string)$importToolsModel->importType == 'api-import-ppc'){
                     $output .= 'This plant has not PPC!<br>';
                     $break = 1;
                 }
 
-                if ($hasPpc == 1) {
-                    $importToolsModel->hasPpc = 1;
-                }
-
-                if ($break == 0) {
+                if($break == 0){
                     if ($form->get('function')->getData() != null) {
                         switch ($form->get('function')->getData()) {
                             case 'api-import-data':
                                 $output = '<h3>Import API Data:</h3>';
-                                $job = 'Import API Data(' . $importToolsModel->importType . ') – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
+                                $job = 'Import API Data('.$importToolsModel->importType.') – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
                                 $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
-                                $message = new ImportData($importToolsModel->anlage, $importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId, $importToolsModel->readyToImport);
+                                $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId, $readyToImport);
                                 $messageBus->dispatch($message);
                                 $output .= 'Command was send to messenger! Will be processed in background.<br>';
                                 break;
