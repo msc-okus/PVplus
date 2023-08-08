@@ -432,7 +432,7 @@ class AssetManagementService
 
         if ($anlage->getEconomicVarNames() !== null) {
 
-            $html13 = $this->twig->render('report/asset_report_part_13.html.twig', [
+            $html = $this->twig->render('report/asset_report_part_13.html.twig', [
                 'anlage' => $anlage,
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
