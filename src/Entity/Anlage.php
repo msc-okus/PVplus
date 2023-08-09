@@ -3445,6 +3445,7 @@ class Anlage
         return $this;
     }
 
+
     /**
      * @return Collection<int, DayLightData>
      */

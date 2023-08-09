@@ -33,6 +33,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 /**
  * @IsGranted("ROLE_G4N")
+ *
  */
 class AnlagenAdminController extends BaseController
 {

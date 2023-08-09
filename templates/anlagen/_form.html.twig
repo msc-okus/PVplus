@@ -154,7 +154,7 @@
         <div class="cell">
             <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
                 <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li>
-                {% if is_granted('ROLE_G4N') %}
+                {% if is_granted('ROLE_G4N') or is_granted('ROLE_OWNER_ADMIN') %}
                     <li class="tabs-title"><a data-tabs-target="plant-config" href="#plant-config">Plant configuration</a></li>
                     <li class="tabs-title"><a data-tabs-target="availability" href="#availability">PA & PR Setup</a></li>
                     <li class="tabs-title"><a data-tabs-target="ticket" href="#ticket">Ticket & Alert Setup</a></li>
@@ -210,14 +210,12 @@
                             <div class="cell medium-3">{{ form_row(anlageForm.anlZeitzone) }}</div>
                             <div class="cell medium-3">{{ form_row(anlageForm.anlBetrieb) }}</div>
                         </div>
-                        {% if is_granted('ROLE_ADMIN') %}
                         <div class="grid-x grid-padding-x">
                             <div class="cell medium-3">{{ form_row(anlageForm.anlInputDaily) }}</div>
                             <div class="cell medium-3">{{ form_row(anlageForm.useNewDcSchema) }}</div>
                             <div class="cell medium-3">{{ form_row(anlageForm.configType) }}</div>
                             <div class="cell medium-3">{{ form_row((anlageForm.pathToImportScript)) }}</div>
                         </div>
-                        {% endif %}
                     </fieldset>
                     <fieldset class="fieldset">
                         <legend>Konfiguration Wetter Daten</legend>
