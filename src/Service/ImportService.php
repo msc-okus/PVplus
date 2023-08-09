@@ -67,6 +67,7 @@ class ImportService
         $mcPassword = $owner->getSettings()->getMcPassword();
         $mcToken = $owner->getSettings()->getMcToken();
 
+        //get the Data from vcom
         $bulkMeaserments = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end);
 
 
@@ -187,7 +188,7 @@ class ImportService
 
         }
 
-
+        //write Data in the tables
         if ($hasPpc) {
             $tableName = "db__pv_ppc_$anlagenTabelle" . '_copy';
             self::insertData($tableName, $data_ppc);

@@ -117,8 +117,6 @@ trait ImportFunctionsTrait
         return $dcPNormPerInvereter;
     }
 
-    //???
-
     /**
      * @param string|DateTime $dateTime
      * @return int
@@ -167,8 +165,11 @@ trait ImportFunctionsTrait
     }
 
 
-    //insert all data with one query
-    function insertData($tableName, $data): void
+    /**
+     * @param string|null $tableName
+     * @param array|null $data
+     */
+    function insertData($tableName = NULL, $data = NULL): void
     {
         // obtain column template
         $DBDataConnection = $this->getPdoConnectionData();
@@ -382,6 +383,11 @@ trait ImportFunctionsTrait
     }
 
     //Liest die Sensoren der Anlage aus dem Backend
+    /**
+     * @param object $conn
+     * @param int $anlId
+     * @return array
+     */
     function getAnlageSensors($conn, string $anlId): array
     {
         $query = "SELECT * FROM pvp_base.anlage_sensors  WHERE anlage_id  = " . $anlId;
@@ -389,6 +395,12 @@ trait ImportFunctionsTrait
         return $stmt->fetchAll();
     }
 
+    //Liest die AC-Gruppen aus dem Backend aus
+    /**
+     * @param object $conn
+     * @param int $anlId
+     * @return array
+     */
     function getACGroups($conn, string $anlId): array
     {
         $query = "SELECT * FROM `anlage_groups_ac` where `anlage_id` = " . $anlId;
@@ -396,6 +408,15 @@ trait ImportFunctionsTrait
         return $stmt->fetchAll();
     }
 
+    //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu
+    /**
+     * @param array $anlageSensors
+     * @param int $length
+     * @param bool $istOstWest
+     * @param array $sensors
+     * @param date $date
+     * @return array
+     */
     function checkSensors(array $anlageSensors, int $length, bool $istOstWest, $sensors, $date): array
     {
         if ($istOstWest) {
@@ -597,6 +618,11 @@ trait ImportFunctionsTrait
 
     }
 
+    //Prüft welche Anlagen für den Import via Symfony freigeschaltet sind
+    /**
+     * @param object $conn
+     * @return array
+     */
     public function getPlantsImportReady($conn)
     {
         $query = "SELECT `anlage_id` FROM `anlage_settings` where `symfony_import` = 1  ";
@@ -604,11 +630,26 @@ trait ImportFunctionsTrait
         return $stmt->fetchAll();
     }
 
+    //importiert die Daten für Anlegen mit Stringboxes
+    /**
+     * @param datetime $stringBoxesTime
+     * @param array $acGroups
+     * @param array $inverters
+     * @param string $date
+     * @param int $plantId
+     * @param string $stamp
+     * @param float $eZEvu
+     * @param array $irrAnlage
+     * @param array $tempAnlage
+     * @param array $windAnlage
+     * @param object $groups
+     * @param int $stringBoxUnits
+     * @return array
+     */
     function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
     {
         $i = 0;
-        foreach ($acGroups as $group_ac) {
-
+        for ($i = 0; $i < count($acGroups); $i++) {
             $pvpGroupAc = $acGroups[$i]->ac_group_id;
             $pvpGroupDc = $i + 1;
             $pvpInverter = $i + 1;
@@ -726,6 +767,20 @@ trait ImportFunctionsTrait
         return $result;
     }
 
+    //importiert die Daten für Anlegen ohne Stringboxes
+    /**
+     * @param array $inverters
+     * @param string $date
+     * @param int $plantId
+     * @param string $stamp
+     * @param float $eZEvu
+     * @param array $irrAnlage
+     * @param array $tempAnlage
+     * @param array $windAnlage
+     * @param object $groups
+     * @param int $stringBoxUnits
+     * @return array
+     */
     function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
     {
         $i = 0;
@@ -834,6 +889,16 @@ trait ImportFunctionsTrait
         return $result;
     }
 
+    //importiert die Daten für Anlegen ohne Stringboxes
+    /**
+     * @param int $idPpc
+     * @param array $ppcs
+     * @param string $date
+     * @param string $stamp
+     * @param int $plantId
+     * @param string $anlagenTabelle
+     * @return array
+     */
     function getPpc($idPpc, $ppcs, $date, $stamp, $plantId, $anlagenTabelle)
     {
         $p_ac_inv = $pf_set = $p_set_gridop_rel = $p_set_rel = null;

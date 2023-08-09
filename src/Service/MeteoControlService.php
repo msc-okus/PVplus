@@ -53,7 +53,7 @@ class MeteoControlService
         if (is_int($from) && is_int($to)) {
             $from = urlencode(date('c', $from - 900));
             $to = urlencode(date('c', $to));
-            echo "CURLOPT_URL => https://api.meteocontrol.de/v2/systems/$key/sensors/$device/abbreviations/$abbrevationId/measurements?from=$from&to=$to&resolution=$resolution\n";
+            #echo "CURLOPT_URL => https://api.meteocontrol.de/v2/systems/$key/sensors/$device/abbreviations/$abbrevationId/measurements?from=$from&to=$to&resolution=$resolution\n";
 
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_USERPWD, $mcUser);
