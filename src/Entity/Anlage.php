@@ -550,6 +550,9 @@ class Anlage
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: DayLightData::class)]
     private Collection $dayLightData;
 
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageSunShading::class)]
+    private Collection $sunShadingData;
+
     #[ORM\Column(type: 'string', length: 20)]
     private string $freqTolerance = '2.0';
 
@@ -644,6 +647,8 @@ class Anlage
     #[ORM\Column(name: 'dat_filename', type: 'string', nullable: true)]
     private ?string $datFilename;
 
+
+
     /**
      * @return string|null
      */
@@ -689,6 +694,7 @@ class Anlage
         $this->anlageFiles = new ArrayCollection();
         $this->statuses = new ArrayCollection();
         $this->dayLightData = new ArrayCollection();
+        $this->sunShadingData = new ArrayCollection();
         $this->sensors = new ArrayCollection();
     }
 
@@ -3409,6 +3415,36 @@ class Anlage
 
         return $this;
     }
+    /**
+     * MS 08/2023 SunShadingData
+     */
+
+    public function getSunShadingData(): Collection
+    {
+        return $this->sunShadingData;
+    }
+
+    public function setSunShadingData(AnlageSunShading $sunShadingData): self
+    {
+        if (!$this->sunShadingData->contains($sunShadingData)){
+            $this->sunShadingData[] = $sunShadingData;
+            $sunShadingData->setAnlage($this);
+        }
+        return $this;
+    }
+
+    public function delSunShadingData(AnlageSunShading $sunShadingData): self
+    {
+        if ($this->sunShadingData->removeElement($sunShadingData)) {
+            // set the owning side to null (unless already changed)
+            if ($sunShadingData->getAnlage() === $this) {
+                $sunShadingData->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+
 
     /**
      * @return Collection<int, DayLightData>

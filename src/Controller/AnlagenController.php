@@ -5,13 +5,16 @@ namespace App\Controller;
 use App\Entity\EconomicVarNames;
 use App\Entity\Eigner;
 use App\Form\Anlage\AnlageCustomerFormType;
+use App\Form\Anlage\AnlageFormType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
+use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -117,6 +120,86 @@ class AnlagenController extends BaseController
         ]);
     }
 
+    //
+    #[Route(path: '/anlagen/setting/edit/{id}', name: 'app_anlagen_setting_edit')]
+    public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, UploaderHelper $uploaderHelper ): RedirectResponse|Response
+    {
+        $anlage = $anlagenRepository->find($id);
+        $form = $this->createForm(AnlageFormType::class, $anlage, [
+            'anlagenId' => $id,
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() || $form->get('savecreatedb')->isClicked())) {
+
+            // Forecast Tab Field Check
+            if($form['useDayForecast']->getData() === true) {
+                $checkfields = true;
+                if ($form->get('bezMeridan')->isEmpty()) {
+                    $this->addFlash('warning', 'Field Bezugs Meridan fail.');
+                    $checkfields = false;
+                }
+                if ($form->get('modNeigung')->isEmpty()) {
+                    $this->addFlash('warning', 'Field Modul Neigung fail.');
+                    $checkfields = false;
+                }
+                if ($form->get('albeto')->isEmpty()) {
+                    $this->addFlash('warning', 'Field Albeto fail.');
+                    $checkfields = false;
+                }
+                if ($form->get('modAzimut')->isEmpty()) {
+                    $this->addFlash('warning', 'Field Modul Azimut fail.');
+                    $checkfields = false;
+                }
+
+                if ($checkfields === false){
+                    return $this->render('anlagen/edit.html.twig', [
+                        'anlageForm' => $form->createView(),
+                        'anlage' => $anlage,
+                    ]);
+                }
+
+            }
+
+            $uploadedDatFile = $form['datFilename']->getData();
+
+            if ($uploadedDatFile) {
+                $uploadsPath = "/metodat";
+                $newFile = $uploaderHelper->uploadAllFile($uploadedDatFile,$uploadsPath,'dat');
+                if ($newFile) {
+                    $anlage->setDatFilename($newFile);
+                }
+            }
+
+            $successMessage = 'Plant data saved!';
+
+            if ($form->get('savecreatedb')->isClicked()) {
+                if ($this->createDatabasesForPlant($anlage)) {
+                    $successMessage = 'Plant data saved and DB created.';
+                }
+            }
+
+            $em->persist($anlage);
+            $em->flush();
+            $this->addFlash('success', $successMessage);
+
+            if ($form->get('saveclose')->isClicked()) {
+                return $this->redirectToRoute('app_anlagen_list');
+            }
+        }
+        if ($form->isSubmitted() && $form->get('close')->isClicked()) {
+            $this->addFlash('warning', 'Canceled. No data was saved.');
+
+            return $this->redirectToRoute('app_anlagen_list');
+        }
+
+
+        return $this->render('anlagen/edit.html.twig', [
+            'anlageForm' => $form->createView(),
+            'anlage' => $anlage,
+        ]);
+    }
+
+    //
     #[Route(path: '/anlagen/find', name: 'app_plants_find', methods: 'GET')]
     public function find(AnlagenRepository $anlagenRepository, Request $request): JsonResponse
     {

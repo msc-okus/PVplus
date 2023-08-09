@@ -5,6 +5,7 @@ namespace App\Form\Anlage;
 use App\Entity\Anlage;
 use App\Entity\Eigner;
 use App\Entity\WeatherStation;
+use App\Entity\AnlageSunShading;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
@@ -221,7 +222,6 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => '',
             ])
         ;
-
 
         $builder
             // ##### WeatherStation #######
