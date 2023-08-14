@@ -387,35 +387,5 @@ echo $x;
             'output'        => $output,
         ]);
     }
-
-    function zeitumstellung($jahr, $tz) {
-        $tz = timezone_open($tz);
-        $start_sommerzeit = date_create_from_format('Y-m-d H:i:s', $jahr . '-03-31 02:00:00', $tz)->modify('last Sunday');
-        $end_sommerzeit = date_create_from_format('Y-m-d H:i:s', $jahr . '-10-31 03:00:00', $tz)->modify('last Sunday');
-        $start_winterzeit = date_create_from_format('Y-m-d H:i:s', ($jahr + 1) . '-03-31 02:00:00', $tz)->modify('last Sunday');
-        $end_winterzeit = date_create_from_format('Y-m-d H:i:s', $jahr . '-10-31 03:00:00', $tz)->modify('last Sunday');
-
-        $jetzt = new DateTime();
-        $ist_sommerzeit = $jetzt >= $start_sommerzeit && $jetzt < $end_sommerzeit;
-        $ist_winterzeit = $jetzt >= $start_winterzeit || $jetzt < $end_winterzeit;
-
-        $sommerzeit = $start_sommerzeit->format('j.m.Y') . ' - ' . $end_sommerzeit->format('j.m.Y');
-        $winterzeit = $end_winterzeit->format('j.m.Y') . ' - ' . $start_winterzeit->format('j.m.Y');
-
-        if ($ist_sommerzeit) {
-            $sommerzeit = '<span style="color:LimeGreen">' . $sommerzeit . '</span>';
-        }
-        if ($ist_winterzeit) {
-            $winterzeit = '<span style="color:LimeGreen">' . $winterzeit . '</span>';
-        }
-
-        return ["Sommerzeit" => $sommerzeit, "Winterzeit" => $winterzeit];
-    }
-    function timezone($timezone = 'Asia/Almaty') {
-        $tz = new DateTimeZone($timezone);
-
-        $trans = $tz->getTransitions();
-
-        return ((count($trans) && $trans[count($trans) - 1]['ts'] > time()));
-    }
+    
 }
