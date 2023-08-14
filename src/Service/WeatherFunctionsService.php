@@ -11,6 +11,7 @@ use App\Repository\GridMeterDayRepository;
 use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
+use App\Repository\MonthlyDataRepository;
 use App\Repository\PVSystDatenRepository;
 use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
@@ -36,7 +37,8 @@ class WeatherFunctionsService
         private TicketRepository        $ticketRepo,
         private TicketDateRepository    $ticketDateRepo,
         private ReplaceValuesTicketRepository $replaceValuesTicketRepo,
-        private CacheInterface $cache)
+        private CacheInterface $cache,
+        private MonthlyDataRepository $monthlyDataRepo,)
     {
     }
 
@@ -103,9 +105,10 @@ class WeatherFunctionsService
             $pNomWest = $anlage->getPowerWest();
 
             // Temperatur Korrektur Daten vorbereiten
-            $tModAn = $anlage->getTempCorrCellTypeAvg() > 0 ? $anlage->getTempCorrCellTypeAvg() : 25; // Nutze tCellAVG wenn vorhanden, ansonsten setze auf STC (25°)
+            $tModAvg = 25; //$this->determineTModAvg($anlage, $from, $to);
             $gamma = $anlage->getTempCorrGamma() / 100;
-            $tempCorrFunction = "(1 + $gamma * (temp_pannel - $tModAn))";
+            $tempCorrFunctionNREL = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
+            $tempCorrFunctionIEC = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
             $degradation = pow(1 - $anlage->getDegradationPR() / 100, $anlage->getBetriebsJahre());
 
             // depending on $department generate correct SQL code to calculate
@@ -114,8 +117,8 @@ class WeatherFunctionsService
                     $sqlTheoPowerPart = "
                     SUM(g_upper * $pNomEast + g_lower * $pNomWest)  as theo_power_raw,
                     SUM(g_upper * $pNomEast * $degradation + g_lower * $pNomWest * $degradation)  as theo_power_raw_deg,
-                    SUM(g_upper * temp_cell_corr * $pNomEast + g_lower * $tempCorrFunction * $pNomWest) as theo_power_temp_corr,
-                    SUM(g_upper * temp_cell_corr * $pNomEast + g_lower * $tempCorrFunction * $pNomWest * $degradation) as theo_power_temp_corr_deg,
+                    SUM(g_upper * $tempCorrFunctionNREL * $pNomEast + g_lower * $tempCorrFunctionNREL * $pNomWest) as theo_power_temp_corr_nrel,
+                    SUM(g_upper * $tempCorrFunctionIEC * $pNomEast + g_lower * $tempCorrFunctionIEC * $pNomWest * $degradation) as theo_power_temp_corr_deg_iec,
                     SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) + 
                     SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
                     SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA2() . ", pa2, 1)) + 
@@ -129,8 +132,8 @@ class WeatherFunctionsService
                     $sqlTheoPowerPart = "
                     SUM(((g_upper + g_lower) / 2) * $pNom)  as theo_power_raw,
                     SUM(((g_upper + g_lower) / 2) * $pNom * $degradation)  as theo_power_raw_deg,
-                    SUM(((g_upper + g_lower) / 2) * $tempCorrFunction * $pNom) as theo_power_temp_corr,
-                    SUM(((g_upper + g_lower) / 2) * $tempCorrFunction * $pNom * $degradation) as theo_power_temp_corr_deg,
+                    SUM(((g_upper + g_lower) / 2) * $tempCorrFunctionNREL * $pNom) as theo_power_temp_corr_nrel,
+                    SUM(((g_upper + g_lower) / 2) * $tempCorrFunctionIEC * $pNom * $degradation) as theo_power_temp_corr_deg_iec,
                     SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
                     SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA2() . ", pa2, 1))  as theo_power_pa2,
                     SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA1() . ", pa1, 1))  as theo_power_pa1,
@@ -142,8 +145,8 @@ class WeatherFunctionsService
                 $sqlTheoPowerPart = "
                 SUM(g_upper * $pNom)  as theo_power_raw,
                 SUM(g_upper * $pNom * $degradation)  as theo_power_raw_deg,
-                SUM(g_upper * $tempCorrFunction * $pNom ) as theo_power_temp_corr,
-                SUM(g_upper * $tempCorrFunction * $pNom * $degradation) as theo_power_temp_corr_deg,
+                SUM(g_upper * $tempCorrFunctionNREL * $pNom ) as theo_power_temp_corr_mnrel,
+                SUM(g_upper * $tempCorrFunctionIEC * $pNom * $degradation) as theo_power_temp_corr_deg_iec,
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA1() . ", pa1, 1)) as theo_power_pa1,
@@ -161,11 +164,11 @@ class WeatherFunctionsService
                     AVG(wind_speed) as wind_speed ,
                     SUM(temp_cell_corr) as temp_cell_corr,
                     SUM(temp_cell_multi_irr) as temp_cell_multi_irr
-                FROM $dbTable s
-                    $sqlPPCpart1
-                WHERE s.stamp >= '$from' AND s.stamp < '$to'
-                    $sqlPPCpart2;
-            ";
+                    FROM $dbTable s
+                        $sqlPPCpart1
+                    WHERE s.stamp >= '$from' AND s.stamp < '$to'
+                        $sqlPPCpart2;
+                 ";
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -189,8 +192,8 @@ class WeatherFunctionsService
                     $weather['theoPowerPA3'] = $row['theo_power_pa3'] / 1000 / 4;
                     $weather['theoPower'] = $row['theo_power_raw'] / 1000 / 4;
                     $weather['theoPowerDeg'] = $row['theo_power_raw_deg'] / 1000 / 4;
-                    $weather['theoPowerTempCorr'] = $row['theo_power_temp_corr'] / 1000 / 4;
-                    $weather['theoPowerTempCorrDeg'] = $row['theo_power_temp_corr_deg'] / 1000 / 4;
+                    $weather['theoPowerTempCorr_NREL'] = $row['theo_power_temp_corr_nrel'] / 1000 / 4;
+                    $weather['theoPowerTempCorDeg_IEC'] = $row['theo_power_temp_corr_deg_iec'] / 1000 / 4;
                 }
                 unset($res);
             } else {
@@ -200,6 +203,45 @@ class WeatherFunctionsService
 
             return $weather;
         });
+    }
+
+    private function determineTModAvg(Anlage $anlage, string|DateTime $from, string|DateTime $to): float
+    {
+        if (is_string($from)) $from = date_create($from);
+        if (is_string($to)) $from = date_create($to);
+
+        $startMonth = 1;
+        $endMonth = 1;
+        $startYear = 2023;
+        $endYear = 2023;
+
+        return $this->cache->get('determineTModAvg'.md5($anlage->getAnlId().$startMonth.$endMonth.$startYear.$endYear), function(CacheItemInterface $cacheItem) use ($anlage, $startMonth, $endMonth, $startYear, $endYear) {
+            $cacheItem->expiresAfter(60);
+
+            // default value
+            $tModAvg = $anlage->getTempCorrCellTypeAvg() > 0 ? $anlage->getTempCorrCellTypeAvg() : 25; // Nutze tCellAVG wenn vorhanden, ansonsten setze auf STC (25°)
+
+            if ($startMonth === $endMonth && $startYear === $endYear) {
+                # Suche nach nachgerechneten monatswert für t_mod_avg, wenn gefunden nutze diesen
+                $monthlyRecalculatedData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $startYear, 'month' => $startMonth]);
+                if ($monthlyRecalculatedData !== null && $monthlyRecalculatedData->getTModAvg() > 0) {
+                    $tModAvg = $monthlyRecalculatedData->getTModAvg();
+                } else {
+                    # wenn nicht suche nach monats planwert für t_mod_avg, wenn gefunden nutze diesen
+                    $pvSystData = $anlage->getPvSystMonthsArray();
+                    if ($pvSystData !== null && $pvSystData[$startMonth]['tempAmbWeightedDesign'] > 0) {
+                        $tModAvg = $pvSystData[$startMonth]['tempAmbWeightedDesign'];
+                    }
+                }
+            } else {
+                # handling wenn Zeiträume größer einem Monat abgefragt werden
+
+            }
+            #in allen anderen Fällen nutze 25 (STC bedingung)
+
+            return $tModAvg;
+        });
+
     }
 
     /**

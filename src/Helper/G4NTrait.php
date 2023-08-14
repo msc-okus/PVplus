@@ -6,11 +6,11 @@ require_once __DIR__.'/../../public/config.php';
 
 use App\Entity\Anlage;
 use DateTimeZone;
-use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use PDO;
 use PDOException;
 use Symfony\Component\Intl\Timezones;
+use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 
 trait G4NTrait
 {
@@ -206,8 +206,8 @@ trait G4NTrait
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
             'database_dsn' => $dbdsn === null ? $_ENV["PLANT_DATABASE_URL"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
-            'database_user' => $dbusr === null ? 'pvpluy_2' : $dbusr,
-            'database_pass' => $dbpass === null ? 'XD4R5XyVHUkK9U5i' : $dbpass,
+            'database_user' => $dbusr === null ? $_ENV['PLANT_DATABASE_USER'] : $dbusr,
+            'database_pass' => $dbpass === null ? $_ENV['PLANT_DATABASE_PASSWORD'] : $dbpass,
         ];
 
         try {

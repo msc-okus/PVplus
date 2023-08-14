@@ -35,16 +35,7 @@ class AlertSystemV2Service
         private StatusRepository        $statusRepo,
         private TicketRepository        $ticketRepo)
     {
-        define('EFOR', '10');
-        define('SOR', '20');
-        define('OMC', '30');
 
-        define('DATA_GAP', 10);
-        define('INVERTER_ERROR', 20);
-        define('GRID_ERROR', 30);
-        define('WEATHER_STATION_ERROR', 40);
-        define('EXTERNAL_CONTROL', 50); // Regelung vom Direktvermarketr oder Netztbetreiber
-        define('POWER_DIFF', 60);
     }
 
     /**
@@ -159,10 +150,10 @@ class AlertSystemV2Service
 
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) { // we iterate over all the quarters of the day
             //we retrieve all the tickets that begin in this quarter
-            $ticketGap = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), DATA_GAP);
-            $ticketZero = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), INVERTER_ERROR);
-            $ticketGrid = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), GRID_ERROR);
-            $ticketExpected = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), POWER_DIFF);
+            $ticketGap = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), ticket::DATA_GAP);
+            $ticketZero = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), ticket::INVERTER_ERROR);
+            $ticketGrid = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), ticket::GRID_ERROR);
+            $ticketExpected = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), ticket::POWER_DIFF);
             //this for loop will iterate over the DataGaps Tickets to join them if they share begin-end date and the editor is AlertSystem
             for ($mainTicketGapIndex = 0; $mainTicketGapIndex < count($ticketGap); $mainTicketGapIndex++) {
                 $mainTicketGap = $ticketGap[$mainTicketGapIndex];
@@ -380,10 +371,10 @@ class AlertSystemV2Service
                 }
             }
             #dump($time, $plant_status);
-            if ( $plant_status['ppc'] != null && !$plant_status['ppc'] )  $this->generateTickets(OMC, EXTERNAL_CONTROL, $anlage, ["*"], $time, "");
-            if ( !$plant_status['ppc'] && $plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', DATA_GAP, $anlage, $plant_status['Gap'], $time, "");
-            if ( !$plant_status['ppc'] &&  $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "");
-            if ( !$plant_status['ppc'] &&  $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', GRID_ERROR, $anlage, $plant_status['Vol'], $time, "");
+            if ( $plant_status['ppc'] != null && !$plant_status['ppc'] )  $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "");
+            if ( !$plant_status['ppc'] && $plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "");
+            if ( !$plant_status['ppc'] &&  $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "");
+            if ( !$plant_status['ppc'] &&  $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "");
         }
 
         $this->em->flush();
@@ -411,10 +402,7 @@ class AlertSystemV2Service
         $voltLimit = 0;
         $conn = self::getPdoConnection();
 
-        if ($anlage->getPowerThreshold() != null) $powerThreshold = (int)$anlage->getPowerThreshold();
-        else $powerThreshold = 0;
-        $return['ppc'] = false;
-
+        $powerThreshold = (int) $anlage->getPowerThreshold();
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
 
@@ -430,10 +418,12 @@ class AlertSystemV2Service
                 $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
 
                 $return['ppc'] = ((($ppdData['p_set_rpc_rel'] !== null && $ppdData['p_set_rpc_rel'] < 100) || ($ppdData['p_set_gridop_rel'] !== null && $ppdData['p_set_gridop_rel'] < 100)));
+            } else {
+                $return['ppc'] = false;
             }
-            else $return['ppc'] = false;
+        } else {
+            $return['ppc'] = false;
         }
-        else $return['ppc'] = false;
 
 
             $sqlAct = 'SELECT b.unit as unit 
@@ -559,7 +549,7 @@ class AlertSystemV2Service
                 $ticket->setCreatedBy("AlertSystem");
                 $ticket->setUpdatedBy("AlertSystem");
                 $ticket->setProofAM(false);
-                if ($errorCategorie == EXTERNAL_CONTROL) {
+                if ($errorCategorie == ticket::EXTERNAL_CONTROL) {
                     $ticket->setInverter('*');
                     $ticketDate->setInverter('*');
                 } else {
@@ -581,7 +571,7 @@ class AlertSystemV2Service
                 $ticketDate->setEnd($end);
                 $ticket->setEnd($end);
                 //default values por the kpi evaluation
-                if ($errorType == EFOR) {
+                if ($errorType == ticket::EFOR) {
                     $ticketDate->setKpiPaDep1(10);
                     $ticketDate->setKpiPaDep2(10);
                     $ticketDate->setKpiPaDep3(10);
@@ -650,7 +640,7 @@ class AlertSystemV2Service
             $ticketDate->setEnd($end);
             $ticket->setEnd($end);
             //default values por the kpi evaluation
-            if ($errorType == EFOR) {
+            if ($errorType == ticket::EFOR) {
                 $ticketDate->setKpiPaDep1(10);
                 $ticketDate->setKpiPaDep2(10);
                 $ticketDate->setKpiPaDep3(10);
@@ -666,16 +656,21 @@ class AlertSystemV2Service
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']);
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) return $this->ticketRepo->findByAnlageTimeYesterday($anlage, $lastQuarterYesterday, $time, $errorCategory);
-        else return  $this->ticketRepo->findByAnlageTime($anlage, $time, $errorCategory);
+        if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) {
+            return $this->ticketRepo->findByAnlageTimeYesterday($anlage, $lastQuarterYesterday, $time, $errorCategory);
+        } else {
+            return $this->ticketRepo->findByAnlageTime($anlage, $time, $errorCategory);
+        }
     }
 
     private function getLastTicket($anlage, $time, $errorCategory, $inverter): mixed
     {
-
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) return $this->getTicketYesterday($anlage, $time, $errorCategory,  $inverter);
-        else return  $this->getLastTicketInverter($anlage, $time, $errorCategory, $inverter);
+        if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) {
+            return $this->getTicketYesterday($anlage, $time, $errorCategory, $inverter);
+        } else {
+            return $this->getLastTicketInverter($anlage, $time, $errorCategory, $inverter);
+        }
     }
 
     /**
@@ -756,21 +751,21 @@ class AlertSystemV2Service
 
 
                 $message = "Data gap in Inverter(s): " . $plant_status['Gap'];
-                $this->generateTicketsMulti('', DATA_GAP, $anlage, $plant_status['Gap'], $time, $message);
+                $this->generateTicketsMulti('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, $message);
 
                 $message = "Power Error in Inverter(s): " . $plant_status['Power0'];
-                $this->generateTicketsMulti(EFOR, INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, $message);
+                $this->generateTicketsMulti(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, $message);
 
                 $message = "Grid Error in Inverter(s): " . $plant_status['Vol'];
-                $this->generateTicketsMulti('', GRID_ERROR, $anlage, $plant_status['Vol'], $time, $message);
+                $this->generateTicketsMulti('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, $message);
 
             } else {
-                $errorType = OMC;
-                $errorCategorie = EXTERNAL_CONTROL;
-                $this->generateTicketsMulti(OMC, $errorCategorie, $anlage, '*', $time, "");
-                $this->generateTicketsMulti('', DATA_GAP, $anlage, '', $time, "");
-                $this->generateTicketsMulti(EFOR, INVERTER_ERROR, $anlage, '', $time, "");
-                $this->generateTicketsMulti('', GRID_ERROR, $anlage, '', $time, "");
+                $errorType = ticket::OMC;
+                $errorCategorie = ticket::EXTERNAL_CONTROL;
+                $this->generateTicketsMulti(ticket::OMC, $errorCategorie, $anlage, '*', $time, "");
+                $this->generateTicketsMulti('', ticket::DATA_GAP, $anlage, '', $time, "");
+                $this->generateTicketsMulti(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, '', $time, "");
+                $this->generateTicketsMulti('', ticket::GRID_ERROR, $anlage, '', $time, "");
             }
         }
 
@@ -787,10 +782,10 @@ class AlertSystemV2Service
      * @param $message
      * @return void
      */
-    private function generateTicketsMulti($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
+    private function generateTicketsMulti($errorType, $errorCategorie, $anlage, $inverter, $time, $message): void
     {
 
-        $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie);
+        $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie, $inverter);
 
         if ($ticketOld !== null) {
             if ($ticketOld->getInverter() == $inverter) {
@@ -831,7 +826,7 @@ class AlertSystemV2Service
                 $ticketDate->setAlertType($errorCategorie);
                 $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
                 $ticketDate->setErrorType($errorType);
-                if ($errorCategorie == EXTERNAL_CONTROL) {
+                if ($errorCategorie == ticket::EXTERNAL_CONTROL) {
                     $ticket->setInverter('*');
                     $ticketDate->setInverter('*');
                 } else {

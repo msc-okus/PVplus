@@ -17,30 +17,36 @@
                     <button class="toggle_visibility"
                             type="button"
                             data-action="toggle-by-class#togglePaNull">
-                        PA.0 hide/show
+                        PA 0 (OpenBook) hide/show
                     </button>
                 </td>
+                {% if not(aktAnlage.settings.disableDep1) %}
                 <td>
                     <button class="toggle_visibility"
                             type="button"
                             data-action="toggle-by-class#togglePaOne">
-                        PA.1 hide/show
+                        PA 1 ({{ aktAnlage.eigner.settings.nameDep1 }}) hide/show
                     </button>
                 </td>
+                {% endif %}
+                {% if not(aktAnlage.settings.disableDep2) %}
                 <td>
                     <button class="toggle_visibility"
                             type="button"
                             data-action="toggle-by-class#togglePaTwo">
-                        PA.2 hide/show
+                        PA 2 ({{ aktAnlage.eigner.settings.nameDep2 }}) hide/show
                     </button>
                 </td>
+                {% endif %}
+                {% if not(aktAnlage.settings.disableDep3) %}
                 <td>
                     <button class="toggle_visibility"
                             type="button"
                             data-action="toggle-by-class#togglePaThree">
-                        PA.3 hide/show
+                        PA 3 ({{ aktAnlage.eigner.settings.nameDep3 }}) hide/show
                     </button>
                 </td>
+                {% endif %}
             </tr>
         </table>
         <table id="statusTable" style="width: 100%;" data-show-hide-availabillity-target ="table1">
@@ -69,70 +75,70 @@
                     <td style="text-align: left;">{{ aktAnlage.inverterFromAnlage[stati.inverter] }} <br> ({{ stati.inverter }})</td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">PA.0 (Open Book) </span>
-                        <span data-toggle-one-target = "item" class="topline js-pa-1">PA.1 ({{ aktAnlage.eigner.settings.nameDep1 }})</span>
-                        <span data-toggle-two-target = "item" class="topline js-pa-2">PA.2 ({{ aktAnlage.eigner.settings.nameDep2 }})</span>
-                        <span data-toggle-three-target = "item" class="topline js-pa-3">PA.3 ({{ aktAnlage.eigner.settings.nameDep3 }})</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">PA.1 ({{ aktAnlage.eigner.settings.nameDep1 }})</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">PA.2 ({{ aktAnlage.eigner.settings.nameDep2 }})</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">PA.3 ({{ aktAnlage.eigner.settings.nameDep3 }})</span>{% endif %}
                     </td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">{{ stati.case00 }} / {{ stati.case00 / 4 }}</span>
-                        <span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case01 }} / {{ stati.case01 / 4 }}</span>
-                        <span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case02 }} / {{ stati.case02 / 4 }}</span>
-                        <span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case03 }} / {{ stati.case03 / 4 }}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case01 }} / {{ stati.case01 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case02 }} / {{ stati.case02 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case03 }} / {{ stati.case03 / 4 }}</span>{% endif %}
                     </td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">{{ stati.case10 }} / {{ stati.case10 / 4 }}</span>
-                        <span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case11 }} / {{ stati.case11 / 4 }}</span>
-                        <span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case12 }} / {{ stati.case12 / 4 }}</span>
-                        <span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case13 }} / {{ stati.case13 / 4 }}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case11 }} / {{ stati.case11 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case12 }} / {{ stati.case12 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case13 }} / {{ stati.case13 / 4 }}</span>{% endif %}
 
                     </td>
                     <td>
                         <span class="topline js-pa-0">{{ stati.case20 }} / {{ stati.case20 / 4 }}</span>
-                        <span class="topline js-pa-1">{{ stati.case21 }} / {{ stati.case21 / 4 }}</span>
-                        <span class="topline js-pa-2">{{ stati.case22 }} / {{ stati.case22 / 4 }}</span>
-                        <span class="topline js-pa-3">{{ stati.case23 }} / {{ stati.case23 / 4 }}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span class="topline js-pa-1">{{ stati.case21 }} / {{ stati.case21 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span class="topline js-pa-2">{{ stati.case22 }} / {{ stati.case22 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span class="topline js-pa-3">{{ stati.case23 }} / {{ stati.case23 / 4 }}</span>{% endif %}
                     </td>
                     <td>
                         <span class="topline js-pa-0">{{ stati.case30 }} / {{ stati.case30 / 4 }}</span>
-                        <span class="topline js-pa-1">{{ stati.case31 }} / {{ stati.case31 / 4 }}</span>
-                        <span class="topline js-pa-2">{{ stati.case32 }} / {{ stati.case32 / 4 }}</span>
-                        <span class="topline js-pa-3">{{ stati.case33 }} / {{ stati.case33 / 4 }}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span class="topline js-pa-1">{{ stati.case31 }} / {{ stati.case31 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span class="topline js-pa-2">{{ stati.case32 }} / {{ stati.case32 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span class="topline js-pa-3">{{ stati.case33 }} / {{ stati.case33 / 4 }}</span>{% endif %}
                     </td>
                     <td>
                         <span class="topline js-pa-0">{{ stati.case40 }} / {{ stati.case40 / 4 }}</span>
-                        <span class="topline js-pa-1">{{ stati.case41 }} / {{ stati.case41 / 4 }}</span>
-                        <span class="topline js-pa-2">{{ stati.case42 }} / {{ stati.case42 / 4 }}</span>
-                        <span class="topline js-pa-3">{{ stati.case43 }} / {{ stati.case43 / 4 }}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span class="topline js-pa-1">{{ stati.case41 }} / {{ stati.case41 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span class="topline js-pa-2">{{ stati.case42 }} / {{ stati.case42 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span class="topline js-pa-3">{{ stati.case43 }} / {{ stati.case43 / 4 }}</span>{% endif %}
                     </td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">{{ stati.case50 }} / {{ stati.case50 / 4 }}</span>
-                        <span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case51 }} / {{ stati.case51 / 4 }}</span>
-                        <span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case52 }} / {{ stati.case52 / 4 }}</span>
-                        <span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case53 }} / {{ stati.case53 / 4 }}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case51 }} / {{ stati.case51 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case52 }} / {{ stati.case52 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case53 }} / {{ stati.case53 / 4 }}</span>{% endif %}
                     </td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">{{ stati.case60 }} / {{ stati.case60 / 4 }}</span>
-                        <span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case61 }} / {{ stati.case61 / 4 }}</span>
-                        <span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case62 }} / {{ stati.case62 / 4 }}</span>
-                        <span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case63 }} / {{ stati.case63 / 4 }}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case61 }} / {{ stati.case61 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case62 }} / {{ stati.case62 / 4 }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case63 }} / {{ stati.case63 / 4 }}</span>{% endif %}
                     </td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">{{ stati.control0}} / {{ stati.control0 / 4}}</span>
-                        <span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.control1 }} / {{ stati.control1 / 4}}</span>
-                        <span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.control2 }} / {{ stati.control2 / 4}}</span>
-                        <span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.control3 }} / {{ stati.control3 / 4}}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.control1 }} / {{ stati.control1 / 4}}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.control2 }} / {{ stati.control2 / 4}}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.control3 }} / {{ stati.control3 / 4}}</span>{% endif %}
                     </td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">{{ stati.invAPart10|number_format(2, ',', '.') }}</span>
-                        <span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.invAPart11|number_format(2, ',', '.') }}</span>
-                        <span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.invAPart12|number_format(2, ',', '.') }}</span>
-                        <span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.invAPart13|number_format(2, ',', '.') }}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.invAPart11|number_format(2, ',', '.') }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.invAPart12|number_format(2, ',', '.') }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.invAPart13|number_format(2, ',', '.') }}</span>{% endif %}
                     </td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">{{ stati.invA0|number_format(4, ',', '.') }}</span>
-                        <span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.invA1|number_format(4, ',', '.') }}</span>
-                        <span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.invA2|number_format(4, ',', '.') }}</span>
-                        <span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.invA3|number_format(4, ',', '.') }}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.invA1|number_format(4, ',', '.') }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.invA2|number_format(4, ',', '.') }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.invA3|number_format(4, ',', '.') }}</span>{% endif %}
                     </td>
                 </tr>
                 {% set pa = pa + stati.invA2 %}
@@ -179,13 +185,14 @@
                 <dd>data gap<br>
                     <small></small></dd>
 
-                <dt>Case 1</dt>
+                <dt>Case 1 (t<sub>i</sub> - part 1)</dt>
                 <dd>irradiation below limit value<br>
                     <small>G [W/qm] > {{ aktAnlage.threshold1PA }} && G [W/qm] <= {{ aktAnlage.threshold2PA }}</small></dd>
 
-                <dt>Case 2 (t<sub>i</sub>)</dt>
+                <dt>Case 2 (t<sub>i</sub> - part 2)</dt>
                 <dd>inverter available under operating conditions<br>
                     <small>G [W/qm] > {{ aktAnlage.threshold2PA }}</small></dd>
+                <dd><br>(sum from case1 and case 2 are t<sub>i</sub>)</dd>
 
                 <dt>Case 3</dt>
                 <dd>inverter not available under operating conditions<br>

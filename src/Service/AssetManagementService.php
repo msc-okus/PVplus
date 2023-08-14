@@ -11,17 +11,16 @@ use App\Repository\EconomicVarValuesRepository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
-use App\Service\Reports\ReportsMonthlyService;
+use App\Service\Reports\ReportsMonthlyV2Service;
 use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Hisune\EchartsPHP\Doc\IDE\XAxis;
 use Hisune\EchartsPHP\ECharts;
 use PDO;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
-use App\Service\PdfService;
 
 class AssetManagementService
 {
@@ -44,7 +43,7 @@ class AssetManagementService
         private Environment $twig,
         private PdfService $pdf,
         private LogMessagesService $logMessages,
-        private ReportsMonthlyService $reportsMonthly,
+        private ReportsMonthlyV2Service $reportsMonthly,
         private AnlagenRepository $anlagenRepository,
     )
     {
@@ -53,6 +52,7 @@ class AssetManagementService
 
     /**
      * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null, ?int $logId = null): AnlagenReports
     {
@@ -250,7 +250,7 @@ class AssetManagementService
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['MonthlyProd'] = $pdf->createPage($html, $fileroute, "MonthlyProd", false);// we will store this later in the entity
 
-        $table = $this->reportsMonthly->buildMonthlyReportNew($anlage, $reportMonth, $reportYear);
+        $table = $this->reportsMonthly->buildTable($anlage, null, null, $reportMonth, $reportYear);
         $html = $this->twig->render('report/asset_report_PRTable.html.twig', [
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -259,7 +259,7 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
             'anlage'        => $anlage,
-            'report'        => $table,
+            'days'        => $table,
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
@@ -432,7 +432,7 @@ class AssetManagementService
 
         if ($anlage->getEconomicVarNames() !== null) {
 
-            $html13 = $this->twig->render('report/asset_report_part_13.html.twig', [
+            $html = $this->twig->render('report/asset_report_part_13.html.twig', [
                 'anlage' => $anlage,
                 'month' => $reportMonth,
                 'monthName' => $output['month'],

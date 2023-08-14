@@ -177,7 +177,7 @@ class ReportEpcService
                         $ertragPvSyst       = $anlage->getOneMonthPvSyst($month)->getErtragDesign();
                 }
                 $prGuarantie        = $prDesignPvSyst - ($anlage->getDesignPR() - $anlage->getContractualPR());
-                $spezErtragDesign   = $ertragPvSyst / $anlage->getKwPeakPvSyst();
+                $spezErtragDesign   = $ertragPvSyst / ($anlage->getKwPeakPvSyst() > 0 ? $anlage->getKwPeakPvSyst() : $anlage->getPnom());
 
                 /** @var AnlagenPR $pr */
                 $pr = $this->prRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create(date('Y-m-d', strtotime("$year-$month-$daysInMonth")))]);
@@ -265,7 +265,7 @@ class ReportEpcService
                     if ($n === $anzahlMonate) {
                         $realDateText .= $realDateTextEnd;
                     }
-                    $sumSpezErtragDesign = $sumErtragDesign / (float) $anlage->getKwPeakPvSyst();
+                    $sumSpezErtragDesign = $sumErtragDesign / ($anlage->getKwPeakPvSyst() > 0 ? $anlage->getKwPeakPvSyst() : $anlage->getPnom());
                     $anteil = ($sumSpezErtragDesign > 0) ? $spezErtragDesign / $sumSpezErtragDesign : 0;
                     $sumAnteil += $anteil;
                     $sumPrRealPrProg += $prRealprProg * $anteil;
@@ -308,7 +308,7 @@ class ReportEpcService
                 'irradiation'           => $this->format($sumIrrMonth),
                 'prDesign'              => $this->format($anlage->getDesignPR()),
                 'ertragDesign'          => $this->format($sumErtragDesign),
-                'spezErtragDesign'      => $this->format($sumErtragDesign / $anlage->getKwPeakPvSyst()),
+                'spezErtragDesign'      => $this->format($sumErtragDesign / ($anlage->getKwPeakPvSyst() > 0 ? $anlage->getKwPeakPvSyst() : $anlage->getPnom())),
                 'prGuar'                => $this->format($anlage->getContractualPR()),
                 'eGridReal'             => $this->format($sumEGridReal),
                 'eGridReal-Design'      => $this->format($sumEGridRealDesign),
@@ -332,7 +332,7 @@ class ReportEpcService
             'irradiation'           => $this->format($sumIrrMonth),
             'prDesign'              => $this->format($anlage->getDesignPR()),
             'ertragDesign'          => $this->format($sumErtragDesignReal),
-            'spezErtragDesign'      => $this->format($sumErtragDesignReal / $anlage->getKwPeakPvSyst()),
+            'spezErtragDesign'      => $this->format($sumErtragDesignReal / ($anlage->getKwPeakPvSyst() > 0 ? $anlage->getKwPeakPvSyst() : $anlage->getPnom())),
             'prGuar'                => $this->format($anlage->getContractualPR()),
             'eGridReal'             => $this->format($sumEGridRealReal),
             'eGridReal-Design'      => $this->format($sumEGridRealDesignReal),

@@ -485,7 +485,7 @@ class Anlage
     private bool $useLowerIrrForExpected = false;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private string $epcReportNote;
+    private ?string $epcReportNote;
 
     #[ORM\Column(type: 'integer')]
     private int $configType;
@@ -549,6 +549,9 @@ class Anlage
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: DayLightData::class)]
     private Collection $dayLightData;
+
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageSunShading::class)]
+    private Collection $sunShadingData;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $freqTolerance = '2.0';
@@ -627,6 +630,27 @@ class Anlage
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagePpcs::class, cascade: ['persist', 'remove'])]
     private Collection $ppcs;
+
+    #[ORM\Column(name: 'bez_meridan', type: 'string', length: 20, nullable: true)]
+    private ?string $bezMeridan = '';
+
+
+    #[ORM\Column(name: 'mod_neigung', type: 'string', length: 20, nullable: true)]
+    private ?string $modNeigung = '';
+
+
+    #[ORM\Column(name: 'mod_azimut', type: 'string', length: 20, nullable: true)]
+    private ?string $modAzimut = '';
+
+
+    #[ORM\Column(name: 'albeto', type: 'string', length: 20, nullable: true)]
+    private ?string $albeto = '';
+
+    #[ORM\Column(name: 'dat_filename', type: 'string', nullable: true)]
+    private ?string $datFilename;
+
+
+
     /**
      * @return string|null
      */
@@ -672,9 +696,74 @@ class Anlage
         $this->anlageFiles = new ArrayCollection();
         $this->statuses = new ArrayCollection();
         $this->dayLightData = new ArrayCollection();
+        $this->sunShadingData = new ArrayCollection();
         $this->sensors = new ArrayCollection();
         $this->ppcs = new ArrayCollection();
     }
+
+
+    public function getDatFilename()
+    {
+        return $this->datFilename;
+    }
+
+
+    public function setDatFilename($datFilename): void
+    {
+        $this->datFilename = $datFilename;
+    }
+
+
+
+    public function getBezMeridan(): string
+    {
+        return $this->bezMeridan;
+    }
+
+
+    public function setBezMeridan(string $bezMeridan): void
+    {
+        $this->bezMeridan = $bezMeridan;
+    }
+
+
+    public function getModNeigung(): string
+    {
+        return $this->modNeigung;
+    }
+
+
+    public function setModNeigung(string $modNeigung): void
+    {
+        $this->modNeigung = $modNeigung;
+    }
+
+
+    public function getModAzimut(): string
+    {
+        return $this->modAzimut;
+    }
+
+
+    public function setModAzimut(string $modAzimut): void
+    {
+        $this->modAzimut = $modAzimut;
+    }
+
+
+    public function getAlbeto(): string
+    {
+        return $this->albeto;
+    }
+
+
+    public function setAlbeto(string $albeto): void
+    {
+        $this->albeto = $albeto;
+    }
+
+
+
 
     public function getAnlId(): string
     {
@@ -2477,7 +2566,7 @@ class Anlage
         $array = [];
         /** @var AnlagenPvSystMonth $month */
         foreach ($this->getPvSystMonths() as $month) {
-            $array[] = [
+            $array[$month->getMonth()] = [
                 'prDesign' => $month->getPrDesign(),
                 'ertragDesign' => $month->getErtragDesign(),
                 'irrDesign' => $month->getIrrDesign(),
@@ -3329,6 +3418,36 @@ class Anlage
 
         return $this;
     }
+    /**
+     * MS 08/2023 SunShadingData
+     */
+
+    public function getSunShadingData(): Collection
+    {
+        return $this->sunShadingData;
+    }
+
+    public function setSunShadingData(AnlageSunShading $sunShadingData): self
+    {
+        if (!$this->sunShadingData->contains($sunShadingData)){
+            $this->sunShadingData[] = $sunShadingData;
+            $sunShadingData->setAnlage($this);
+        }
+        return $this;
+    }
+
+    public function delSunShadingData(AnlageSunShading $sunShadingData): self
+    {
+        if ($this->sunShadingData->removeElement($sunShadingData)) {
+            // set the owning side to null (unless already changed)
+            if ($sunShadingData->getAnlage() === $this) {
+                $sunShadingData->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+
 
     /**
      * @return Collection<int, DayLightData>
@@ -3506,7 +3625,9 @@ class Anlage
         return $this;
     }
 
-
+  public function getFildForcastDat() {
+        return $this->getDatFilename();
+  }
     public function isDay(?DateTime $stamp = null): bool
     {
         if (!$stamp) $stamp = new DateTime();
@@ -3726,7 +3847,7 @@ class Anlage
 
     public function getPowerThreshold(): ?string
     {
-        return $this->PowerThreshold;
+        return $this->PowerThreshold !== null ? $this->PowerThreshold : '0';
     }
 
     public function setPowerThreshold(?string $PowerThreshold): static
@@ -3834,24 +3955,32 @@ class Anlage
         return min($this->getThreshold1PA0(), $this->getThreshold1PA1(), $this->getThreshold1PA2(), $this->getThreshold1PA3());
     }
 
-    public function getPrFormular0Image(): string
+    public function getPrformular0Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular0() . '.png';
+        $name = str_replace(':', '_', $this->prFormular0);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
     public function getPrFormular1Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular1() . '.png';
+        $name = str_replace(':', '_', $this->prFormular1);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
     public function getPrFormular2Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular2() . '.png';
+        $name = str_replace(':', '_', $this->prFormular2);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
     public function getPrFormular3Image(): string
     {
-        return '/images/formulas/' . $this->getPrFormular3() . '.png';
+        $name = str_replace(':', '_', $this->prFormular3);
+        $name = str_replace('/', '_', $name);
+        return '/images/formulas/' . $name . '.png';
     }
 
 }

@@ -16,12 +16,11 @@ use App\Service\AvailabilityByTicketService;
 use App\Service\ExportService;
 use App\Service\LogMessagesService;
 use App\Service\Reports\ReportsMonthlyService;
+use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
-use Omines\DataTablesBundle\Adapter\ArrayAdapter;
-use Omines\DataTablesBundle\Column\TextColumn;
 use Omines\DataTablesBundle\DataTableFactory;
 use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -90,7 +89,7 @@ class SpecialOperationsController extends AbstractController
      */
     #[IsGranted(['ROLE_G4N', 'ROLE_BETA'])]
     #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
-    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly, DataTableFactory $dataTableFactory): Response
+    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, DataTableFactory $dataTableFactory): Response
     {
         $output = $table = null;
         $startDay = $request->request->get('start-day');
@@ -107,12 +106,10 @@ class SpecialOperationsController extends AbstractController
 
         if ($submitted && isset($anlageId)) {
             $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-            $output = $reportsMonthly->buildMonthlyReportNewByDate($anlage, $startDay, $endDay, $month, $year);
+            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
         }
 
-        $reportName = 'report/reportMonthlyNew.html.twig';
-
-        return $this->render($reportName, [
+        return $this->render('special_operations/reportMonthlyNew.html.twig', [
             'headline'      => $headline,
             'anlagen'       => $anlagen,
             'anlage'        => $anlage,
@@ -194,9 +191,8 @@ class SpecialOperationsController extends AbstractController
             /* @var WeatherToolsModel $toolsModel
              */
             $toolsModel = $form->getData();
-            $toolsModel->endDate->add(new \DateInterval('P1D'));
+            $toolsModel->endDate->add(new \DateInterval('P1D')); //->sub(new \DateInterval('PT1S'))
             $anlage = $anlagenRepo->findOneBy(['anlId' => $toolsModel->anlage]);
-
 
             if ($form->get('function')->getData() != null) {
                 switch ($form->get('function')->getData()) {
@@ -210,7 +206,7 @@ class SpecialOperationsController extends AbstractController
                         $output .= 'Command will be processed in background.<br> If calculation is DONE (green), you can start PA calculation.';
                         break;
                     case 'calcPA':
-                        $output  = "<h3>Plant Availability " . $anlage->getAnlName() . " from " . $toolsModel->startDate->format('Y-m-d') . " to " . $toolsModel->endDate->format('Y-m-d') . "</h3>";
+                        $output  = "<h3>Plant Availability " . $anlage->getAnlName() . " from " . $toolsModel->startDate->format('Y-m-d H:i') . " to " . $toolsModel->endDate->format('Y-m-d H:i') . "</h3>";
                         $output .= "
                             <table style='width: 50%; text-align: left;'>
                                 <tr>
@@ -324,6 +320,7 @@ class SpecialOperationsController extends AbstractController
             if ($uploadedFile) {
                 // Here we upload the file and read it
                 $newFile = $uploaderHelper->uploadFile($uploadedFile, '/xlsx/1', 'xlsx');
+
                 $conn = self::getPdoConnection();
 
                 if ( $xlsx = simpleXLSX::parse($uploadsPath . '/xlsx/1/'.$newFile) ) {

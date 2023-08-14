@@ -1,0 +1,18 @@
+{% extends 'report/new_report.base.html.twig' %}
+
+{% block header %}
+    {{ parent() }}
+    <style>
+        .monthtable td, .monthtable th {
+            padding: 2px;
+            line-height: 1.2;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% include('report/monthly/_overview.html.twig') %}
+    {% include('report/monthly/_table.html.twig') %}
+    {% include('report/monthly/_legend.html.twig') %}
+{% endblock content %}

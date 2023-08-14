@@ -17,6 +17,18 @@ use Symfony\Component\Serializer\Serializer;
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 class Ticket
 {
+
+    const EFOR = 10;
+    const SOR = 20;
+    const OMC = 30;
+
+    const DATA_GAP = 10;
+    const INVERTER_ERROR = 20;
+    const GRID_ERROR = 30;
+    const WEATHER_STATION_ERROR = 40;
+    const EXTERNAL_CONTROL = 50; // Regelung vom Direktvermarketr oder Netztbetreiber
+    const POWER_DIFF = 60;
+
     use TimestampableEntity;
     use BlameableEntity;
     use TicketTrait;
@@ -92,7 +104,7 @@ class Ticket
     private Collection $dates;
 
     #[ORM\Column(nullable: true)]
-    private ?bool $needsProof = null;
+    private ?bool $needsProof = null; // this is proof by TAM
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $openTicket;
@@ -249,12 +261,12 @@ class Ticket
     }
     public function isNeedsProofTAM(): ?bool
     {
-        return $this->ProofAM;
+        return $this->needsProof;
     }
 
     public function setNeedsProofTAM(?bool $needsProof): self
     {
-        $this->ProofAM = $needsProof;
+        $this->needsProof = $needsProof;
 
         return $this;
     }

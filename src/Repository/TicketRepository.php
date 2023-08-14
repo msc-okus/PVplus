@@ -17,15 +17,14 @@ use Symfony\Component\Security\Core\Security;
  */
 class TicketRepository extends ServiceEntityRepository
 {
-    private Security $security;
+
 
     public function __construct(
         ManagerRegistry $registry,
-        Security $security,
+        private Security $security,
         private AnlagenRepository $anlRepo)
     {
         parent::__construct($registry, Ticket::class);
-        $this->security = $security;
     }
 
     /**
@@ -72,7 +71,7 @@ class TicketRepository extends ServiceEntityRepository
     /**
      * Build query with all options, including 'has user rights to see'.
      *
-     * @param string|null $anlage
+     * @param Anlage|null $anlage
      * @param string|null $editor
      * @param string|null $id
      * @param string|null $prio
@@ -81,10 +80,15 @@ class TicketRepository extends ServiceEntityRepository
      * @param string|null $type
      * @param string|null $inverter
      * @param int $prooftam
+     * @param int $proofepc
+     * @param int $proofam
      * @param string $sort
      * @param string $direction
      * @param bool $ignore
      * @param string $TicketName
+     * @param int $kpistatus
+     * @param string $begin
+     * @param string $end
      * @return QueryBuilder
      */
     public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, string $sort = "", string $direction = "", bool $ignore = false, string $TicketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder

@@ -1,0 +1,77 @@
+{% extends 'report/_epc/_pageBase.html.twig' %}
+
+{% block page %}
+    {% if report != null %}
+        {% if report.tickets != null %}
+            <h3 style="color: {{ anlage.eigner.fontColor2 }};">Performance Tickets</h3>
+            <table class="basetable" >
+            <thead>
+            <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Type of Ticket</th>
+                <th>Editor</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for ticket in report.tickets %}
+                <tr>
+                    <td>{{ ticket.start }}</td>
+                    <td>{{ ticket['end'] }}</td>
+                    <td>{{ ticket['type'] }}</td>
+                    <td>{{ ticket['editor'] }}</td>
+                    <td></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+        {% endif %}
+
+        <h3 style="color: {{ anlage.eigner.fontColor2 }};">Used PR Formulars</h3>
+        <table class="basetable" style="width: auto !important;">
+            <thead>
+            <tr>
+                <th style="width: 250px">Open Book</th>
+                {% if anlage.settings.disableDep1 != true %}<th style="width: 250px">{{ anlage.eigner.settings.nameDep1 }}</th>{% endif %}
+                {% if anlage.settings.disableDep2 != true %}<th style="width: 250px">{{ anlage.eigner.settings.nameDep2 }}</th>{% endif %}
+                {% if anlage.settings.disableDep3 != true %}<th style="width: 250px">{{ anlage.eigner.settings.nameDep3 }}</th>{% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><img src="{{ absolute_url(asset(anlage.prFormular0Image())) }}" alt="{{ anlage.prFormular0 }}" style="max-width: 240px;"></td>
+                {% if anlage.settings.disableDep1 != true %}<td><img src="{{ absolute_url(asset(anlage.prFormular1Image())) }}" alt="{{ anlage.prFormular1 }}" style="max-width: 240px;"></td>{% endif %}
+                {% if anlage.settings.disableDep2 != true %}<td><img src="{{ absolute_url(asset(anlage.prFormular2Image())) }}" alt="{{ anlage.prFormular2 }}" style="max-width: 240px;"></td>{% endif %}
+                {% if anlage.settings.disableDep3 != true %}<td><img src="{{ absolute_url(asset(anlage.prFormular3Image())) }}" alt="{{ anlage.prFormular3 }}" style="max-width: 240px;"></td>{% endif %}
+            </tr>
+            </tbody>
+        </table>
+
+        {% if report.legend != null %}
+            <h3 style="color: {{ anlage.eigner.fontColor2 }};">Legend</h3>
+            <table class="basetable">
+                <thead>
+                    <tr>
+                        <th>Row</th>
+                        <th>Title</th>
+                        <th>Unit</th>
+                        <th>Description</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for legendRow in report.legend %}
+                    <tr>
+                        <td>{{ legendRow.row }}</td>
+                        <td>{{ legendRow.title }}</td>
+                        <td>{{ legendRow.unit }}</td>
+                        <td>{{ legendRow.description }}</td>
+                        <td>{{ legendRow.source }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endif %}
+{% endblock %}

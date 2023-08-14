@@ -17,6 +17,7 @@ use App\Service\PdfService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\Reports\ReportEpcService;
 use App\Service\Reports\ReportsMonthlyService;
+use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,8 +29,16 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Psr\Cache\InvalidArgumentException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use setasign\Fpdi\Fpdi;
+use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
+use setasign\Fpdi\PdfParser\Filter\FilterException;
+use setasign\Fpdi\PdfParser\PdfParserException;
+use setasign\Fpdi\PdfParser\Type\PdfTypeException;
+use setasign\Fpdi\PdfReader\PdfReaderException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -54,6 +63,7 @@ class ReportingController extends AbstractController
     /**
      * @throws ExceptionInterface
      * @throws \Doctrine\Instantiator\Exception\ExceptionInterface
+     * @throws InvalidArgumentException
      */
     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
     public function createReport(
@@ -62,7 +72,7 @@ class ReportingController extends AbstractController
         ReportsRepository $reportsRepository,
         AnlagenRepository $anlagenRepo,
         ReportEpcService $reportEpc,
-        ReportsMonthlyService $reportsMonthly,
+        ReportsMonthlyV2Service $reportsMonthly,
         AssetManagementService $assetManagement,
         ReportEpcPRNewService $reportEpcNew,
         LogMessagesService $logMessages,
@@ -89,7 +99,8 @@ class ReportingController extends AbstractController
 
         switch ($reportType) {
             case 'monthly':
-                $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
+                // old Version $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
+                $output = $reportsMonthly->createReportV2($aktAnlagen[0], $reportMonth, $reportYear);
                 break;
             case 'epc':
                 $output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
@@ -103,8 +114,7 @@ class ReportingController extends AbstractController
                     $report = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
                     $em->persist($report);
                     $em->flush();
-                }
-                else {
+                } else {
                     $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
                     $messageBus->dispatch($message);
@@ -221,6 +231,16 @@ class ReportingController extends AbstractController
         return new Response(null, 204);
     }
 
+    /**
+     * @throws ExceptionInterface
+     * @throws PdfReaderException
+     * @throws CrossReferenceException
+     * @throws PdfParserException
+     * @throws ContainerExceptionInterface
+     * @throws PdfTypeException
+     * @throws NotFoundExceptionInterface
+     * @throws FilterException
+     */
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
     public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
     {
@@ -240,6 +260,7 @@ class ReportingController extends AbstractController
         $anlage             = $report->getAnlage();
         $currentDate        = date('Y-m-d H-i');
         $reportArray        = $report->getContentArray();
+
         switch ($report->getReportType()) {
             case 'epc-report':
                 $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
@@ -321,13 +342,14 @@ class ReportingController extends AbstractController
                 break;
             case 'monthly-report':
                 //standard G4N Report (an O&M Goldbeck angelehnt)
-                switch ($report->getReportTypeVersion()) {
-                    case 1: // Version 1 -> Calulation on demand, store to serialized array and buil pdf and xls from this Data
-                        $reportsMonthly->exportReportToPDF($anlage, $report);
-                        break;
-                    default: // old Version
-                        $output = $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0, 0, true);
+                $pdf = new Fpdi();
+                $pageCount = $pdf->setSourceFile($report->getFile());
+                for ($i = 1; $i <= $pageCount; $i++) {
+                    $pdf->AddPage("L");
+                    $tplId = $pdf->importPage($i);
+                    $pdf->useTemplate($tplId);
                 }
+                $pdf->Output("D", "Monthly_Reporting_".$report->getAnlage()->getAnlName() . "_" . $report->getMonth() . "_" . $report->getYear() . ".pdf");
                 break;
 
             case 'am-report':
@@ -343,7 +365,7 @@ class ReportingController extends AbstractController
                         $files = $report->getPdfParts();
                         $pdf = new Fpdi();
                         // this is the header and we will always want to include it
-                        $pageCount =  $pdf->setSourceFile($files['head']);
+                        $pageCount = $pdf->setSourceFile($files['head']);
                         for ($i=0; $i < $pageCount; $i++) {
                             $pdf->AddPage("L");
                             $tplId = $pdf->importPage($i+1);
@@ -429,7 +451,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['InvRank']){
+                            if ($data['InvRank'] && $files['InverterRank']){
                                 $pageCount = $pdf->setSourceFile($files['InverterRank']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -437,7 +459,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['EfficiencyRank']){
+                            if ($data['EfficiencyRank'] && $files['InverterEfficiencyRank']){
                                 $pageCount = $pdf->setSourceFile($files['InverterEfficiencyRank']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -525,6 +547,18 @@ class ReportingController extends AbstractController
     }
 
 
+    /**
+     * @param $id
+     * @param ReportEpcService $reportEpcService
+     * @param ReportService $reportService
+     * @param ReportsRepository $reportsRepository
+     * @param ReportsMonthlyService $reportsMonthly
+     * @return RedirectResponse|void
+     * @throws ContainerExceptionInterface
+     * @throws ExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @deprecated
+     */
     #[Route(path: '/reporting/excel/{id}', name: 'app_reporting_excel')]
     public function showReportAsExcel($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, ReportsMonthlyService $reportsMonthly)
     {
@@ -612,39 +646,17 @@ class ReportingController extends AbstractController
             $searchtype     = $session->get('type');
             $anlageq        = $session->get('anlage');
             $searchmonth    = $session->get('month');
-            $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABSOLUTE_PATH);
-            $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+            #$route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABSOLUTE_PATH);
+            #$route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
 
             $report = $reportsRepository->find($id);
-            $month = $report->getMonth();
-            $year = $report->getYear();
-            $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
             $anlage = $report->getAnlage();
-            $currentDate = date('Y-m-d H-i');
-            $headline = [
-                [
-                    'projektNr'     => $anlage->getProjektNr(),
-                    'anlage'        => $anlage->getAnlName(),
-                    'eigner'        => $anlage->getEigner()->getFirma(),
-                    'date'          => $currentDate,
-                    'kwpeak'        => $anlage->getKwPeak(),
-                    'reportCreationDate' => $reportCreationDate,
-                    'epcNote'       => $anlage->getEpcReportNote(),
-                ],
-            ];
 
             $reportArray = $report->getContentArray();
             switch ($report->getReportType()) {
 
                 case 'monthly-report':
-                    switch ($report->getReportTypeVersion()) {
-                        case 1: // Version 1 -> Calulation on demand, store to serialized array and buil pdf and xls from this Data
-                            $reportout = new ReportMonthly($reportArray);
-                            $result = $reportout->run()->render('ReportMonthly', true);
-                            break;
-                        default: // old Version
-                            $result = $reportService->buildMonthlyReport($anlage, $reportArray, $reportCreationDate, 0, 0, false);
-                    }
+                    $result = $report->getRawReport();
                     break;
 
                 case 'am-report':
@@ -783,6 +795,11 @@ class ReportingController extends AbstractController
         ]);
     }
 
+
+    ##########################################################
+    ##########################################################
+    ##########################################################
+    ##########################################################
     /**
      * generate an Excel table based on the report data
      */

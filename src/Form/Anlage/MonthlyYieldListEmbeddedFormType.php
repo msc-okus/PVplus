@@ -56,6 +56,11 @@ class MonthlyYieldListEmbeddedFormType extends AbstractType
                 'empty_data'    => 0,
                 'required'  => false,
             ])
+            ->add('tModAvg', TextType::class, [
+                'label'         => 'T_mod_avg',
+                'empty_data'    => 0,
+                'required'  => false,
+            ])
         ;
         if ($isG4N) {
             $builder

@@ -1,0 +1,59 @@
+{% extends 'report/_epc/_pageBase.html.twig' %}
+
+{% block page %}
+    {% if report != null %}
+        {% set overviewsPower = report.overviews.power %}
+        {% set overviewsPR = report.overviews.pr %}
+
+        {# Overview #}
+        <h3 style="color: {{ anlage.eigner.fontColor2 }};">Power Overview</h3>
+        <table class="basetable" style="width: auto !important;">
+            <thead>
+            <tr>
+                <th>Period / Duration</th>
+                <th>Power Grid</th>
+                <th>Power Inverter</th>
+                <th>Power Expected (G4N)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for power in overviewsPower %}
+            <tr>
+                <td>{{ power.period }}</td>
+                <td>{{ power.grid|number_format(2,',','.') }}</td>
+                <td>{{ power.inverter|number_format(2,',','.') }}</td>
+                <td>{{ power.expected|number_format(2,',','.') }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <h3 style="color: {{ anlage.eigner.fontColor2 }};">Performance Ratio and Availability</h3>
+        <table class="basetable" style="width: auto !important;">
+            <thead>
+            <tr>
+                <th>Period / Duration</th>
+                <th>PR Grid</th>
+                <th>PR Inverter</th>
+                <th>PR Expected (G4N)</th>
+                <th>Availability</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for pr in overviewsPR %}
+                <tr>
+                    <td>{{ pr.period }}</td>
+                    <td>{{ pr.grid|number_format(2,',','.') }}</td>
+                    <td>{{ pr.inverter|number_format(2,',','.') }}</td>
+                    <td>{{ pr.expected|number_format(2,',','.') }}</td>
+                    <td>{{ pr.pa|number_format(3,',','.') }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {# Diagrams #}
+        <h3 style="color: {{ anlage.eigner.fontColor2 }};">Chart</h3>
+        {{ report.chart1|raw }}
+    {% endif %}
+{% endblock %}
