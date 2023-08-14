@@ -159,14 +159,14 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $symfonyImport = false;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $importType = null;
+
     #[ORM\Column(nullable: true, options: ['default' => null])]
     private ?int $stringboxesUnits = null;
 
     #[ORM\Column(nullable: true, options: ['default' => null])]
     private ?int $invertersUnits = null;
-
-    #[ORM\Column(nullable: true, options: ['default' => null])]
-    private ?int $idPpc = null;
 
     public function getId(): ?int
     {
@@ -686,6 +686,18 @@ class AnlageSettings
         return $this;
     }
 
+    public function getImportType(): ?string
+    {
+        return $this->importType;
+    }
+
+    public function setImportType(?string $importType): static
+    {
+        $this->importType = $importType;
+
+        return $this;
+    }
+
     public function getStringboxesUnits(): ?int
     {
         return $this->stringboxesUnits;
@@ -706,18 +718,6 @@ class AnlageSettings
     public function setInvertersUnits(?int $invertersUnits): self
     {
         $this->invertersUnits = $invertersUnits;
-
-        return $this;
-    }
-
-    public function getIdPpc(): ?int
-    {
-        return $this->idPpc;
-    }
-
-    public function setIdPpc(?int $idPpc): self
-    {
-        $this->idPpc = $idPpc;
 
         return $this;
     }

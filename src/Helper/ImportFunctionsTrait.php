@@ -4,8 +4,6 @@ namespace App\Helper;
 require_once __DIR__.'/../../public/config.php';
 
 use App\Repository\AnlagenRepository;
-
-
 use PDO;
 use PDOException;
 
@@ -391,6 +389,19 @@ trait ImportFunctionsTrait
     function getAnlageSensors($conn, string $anlId): array
     {
         $query = "SELECT * FROM pvp_base.anlage_sensors  WHERE anlage_id  = " . $anlId;
+        $stmt = $conn->query($query);
+        return $stmt->fetchAll();
+    }
+
+    //Liest die PPCs der Anlage aus dem Backend
+    /**
+     * @param object $conn
+     * @param int $anlId
+     * @return array
+     */
+    function getAnlagePpcs($conn, string $anlId): array
+    {
+        $query = "SELECT * FROM pvp_base.anlage_ppcs  WHERE anlage_id  = " . $anlId;
         $stmt = $conn->query($query);
         return $stmt->fetchAll();
     }
@@ -899,30 +910,32 @@ trait ImportFunctionsTrait
      * @param string $anlagenTabelle
      * @return array
      */
-    function getPpc($idPpc, $ppcs, $date, $stamp, $plantId, $anlagenTabelle)
+    function getPpc($anlagePpcs, $ppcs, $date, $stamp, $plantId, $anlagenTabelle)
     {
-        $p_ac_inv = $pf_set = $p_set_gridop_rel = $p_set_rel = null;
-        $p_set_rpc_rel = $q_set_rel = $p_set_ctrl_rel = $p_set_ctrl_rel_mean = null;
-        if (isset($ppcs[$date])) {
-            $p_set_gridop_rel = $this->checkIfValueIsNotNull($ppcs[$date][$idPpc]['PPC_P_SET_GRIDOP_REL']); // Regelung durch Grid Operator
-            $p_set_rel = $this->checkIfValueIsNotNull($ppcs[$date][$idPpc]['PPC_P_SET_REL']);#
-            $p_set_rpc_rel = $this->checkIfValueIsNotNull($ppcs[$date][$idPpc]['PPC_P_SET_RPC_REL']); // Regelung durch Direktvermarkter
-        }
+        foreach ($anlagePpcs as $anlagePpc) {
+            $p_ac_inv = $pf_set = $p_set_gridop_rel = $p_set_rel = null;
+            $p_set_rpc_rel = $q_set_rel = $p_set_ctrl_rel = $p_set_ctrl_rel_mean = null;
+            if (isset($ppcs[$date])) {
+                $p_set_gridop_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcom_id']]['PPC_P_SET_GRIDOP_REL']); // Regelung durch Grid Operator
+                $p_set_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcom_id']]['PPC_P_SET_REL']);#
+                $p_set_rpc_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcom_id']]['PPC_P_SET_RPC_REL']); // Regelung durch Direktvermarkter
+            }
 
-        $data_ppc[] = [
-            'anl_id' => $plantId,
-            'anl_intnr' => $anlagenTabelle,
-            'stamp' => $stamp,
-            'p_ac_inv' => $p_ac_inv,
-            'q_ac_inv' => NULL,
-            'pf_set' => $pf_set,
-            'p_set_gridop_rel' => $p_set_gridop_rel,
-            'p_set_rel' => $p_set_rel,
-            'p_set_rpc_rel' => $p_set_rpc_rel,
-            'q_set_rel' => $q_set_rel,
-            'p_set_ctrl_rel' => $p_set_ctrl_rel,
-            'p_set_ctrl_rel_mean' => $p_set_ctrl_rel_mean,
-        ];
+            $data_ppc[] = [
+                'anl_id' => $plantId,
+                'anl_intnr' => $anlagenTabelle,
+                'stamp' => $stamp,
+                'p_ac_inv' => $p_ac_inv,
+                'q_ac_inv' => NULL,
+                'pf_set' => $pf_set,
+                'p_set_gridop_rel' => ($p_set_gridop_rel != '') ? $p_set_gridop_rel : NULL,
+                'p_set_rel' => ($p_set_rel != '') ? $p_set_rel : NULL,
+                'p_set_rpc_rel' => ($p_set_rpc_rel != '') ? $p_set_rpc_rel : NULL,
+                'q_set_rel' => $q_set_rel,
+                'p_set_ctrl_rel' => $p_set_ctrl_rel,
+                'p_set_ctrl_rel_mean' => $p_set_ctrl_rel_mean,
+            ];
+        }
         $result[] = $data_ppc;
         return $result;
     }
