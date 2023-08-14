@@ -32,6 +32,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Helper\simpleXLSX;
 use App\Service\UploaderHelper;
 use App\Helper\G4NTrait;
+
 class SpecialOperationsController extends AbstractController
 {
     use G4NTrait;
@@ -302,6 +303,7 @@ class SpecialOperationsController extends AbstractController
     #[Route(path: '/special/operations/import_excel', name: 'import_excel')]
     public function importExcel(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, MessageBusInterface $messageBus, LogMessagesService $logMessages, $uploadsPath): Response
     {
+
         $form = $this->createForm(ImportExcelFormType::class);
         $form->handleRequest($request);
 
@@ -315,7 +317,31 @@ class SpecialOperationsController extends AbstractController
             $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageForm]);
             $anlageId = $anlage->getAnlagenId();
             $dataBaseNTable = $anlage->getDbNameIst();
+echo $dataBaseNTable;
 
+$timezones = \DateTimeZone::listIdentifiers();
+print_r($timezones);
+
+$timezone = new \DateTimeZone('Europe/Berlin');
+$transitions = $timezone->getTransitions();
+
+foreach($transitions as $transition) {
+    echo "Transition: " . date('Y-m-d H:i:s', $transition['ts']) . " (offset: " . $transition['offset'] . " seconds)<br>";
+}
+exit;
+            $plantoffset = new \DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
+$x =  (string)$plantoffset->getName();
+echo $x;
+            $datetime = new \DateTime(date('Y/m/d H:i:s'), new \DateTimeZone('Europe/Amsterdam'));
+            $offset = $datetime->getOffset();
+            if($datetime->format('I')) { // Check if DST is in effect
+                echo "<br>Test<br>";
+                $offset -= 3600; // Adjust offset by one hour if DST is in effect
+            }
+            $datetime->setTimezone(new \DateTimeZone('UTC'));
+            $datetime->modify("$offset seconds");
+            echo $datetime->format('Y-m-d H:i:s');
+            exit;
             $uploadedFile = $form['File']->getData();
             if ($uploadedFile) {
                 // Here we upload the file and read it
@@ -362,4 +388,34 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
+    function zeitumstellung($jahr, $tz) {
+        $tz = timezone_open($tz);
+        $start_sommerzeit = date_create_from_format('Y-m-d H:i:s', $jahr . '-03-31 02:00:00', $tz)->modify('last Sunday');
+        $end_sommerzeit = date_create_from_format('Y-m-d H:i:s', $jahr . '-10-31 03:00:00', $tz)->modify('last Sunday');
+        $start_winterzeit = date_create_from_format('Y-m-d H:i:s', ($jahr + 1) . '-03-31 02:00:00', $tz)->modify('last Sunday');
+        $end_winterzeit = date_create_from_format('Y-m-d H:i:s', $jahr . '-10-31 03:00:00', $tz)->modify('last Sunday');
+
+        $jetzt = new DateTime();
+        $ist_sommerzeit = $jetzt >= $start_sommerzeit && $jetzt < $end_sommerzeit;
+        $ist_winterzeit = $jetzt >= $start_winterzeit || $jetzt < $end_winterzeit;
+
+        $sommerzeit = $start_sommerzeit->format('j.m.Y') . ' - ' . $end_sommerzeit->format('j.m.Y');
+        $winterzeit = $end_winterzeit->format('j.m.Y') . ' - ' . $start_winterzeit->format('j.m.Y');
+
+        if ($ist_sommerzeit) {
+            $sommerzeit = '<span style="color:LimeGreen">' . $sommerzeit . '</span>';
+        }
+        if ($ist_winterzeit) {
+            $winterzeit = '<span style="color:LimeGreen">' . $winterzeit . '</span>';
+        }
+
+        return ["Sommerzeit" => $sommerzeit, "Winterzeit" => $winterzeit];
+    }
+    function timezone($timezone = 'Asia/Almaty') {
+        $tz = new DateTimeZone($timezone);
+
+        $trans = $tz->getTransitions();
+
+        return ((count($trans) && $trans[count($trans) - 1]['ts'] > time()));
+    }
 }
