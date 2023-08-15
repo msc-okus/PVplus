@@ -5,15 +5,16 @@
 
 {% block body %}
     <h1>User Login Log</h1>
-    {{ macrolibrary.searchbox(app.request.query.get('qp'), 'qp') }}
+    Search User Name{{ macrolibrary.searchbox(app.request.query.get('q'), 'q') }}
     <table class="table sortable">
         <thead>
         <tr>
-            <th {% if pagination.isSorted('userLogin.loggedAt') %} class="sorted"{% endif %}>
-                {{ knp_pagination_sortable(pagination, 'Logged at', ['log.loggedAt']) }}</th>
-            <th {% if pagination.isSorted('log.userId') %} class="sorted"{% endif %}>
-                {{ knp_pagination_sortable(pagination, 'User Id', ['log.userId']) }}</th>
-            <th>Description</th>
+            <th {% if pagination.isSorted('userlogin.loggedAt') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Logged At', ['userlogin.loggedAt']) }}</th>
+            <th {% if pagination.isSorted('userlogin.user.name') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'User Name', ['userlogin.user.name']) }}</th>
+            <th {% if pagination.isSorted('userlogin.userId') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'User Id', ['userlogin.userId']) }}</th>
             <th style="text-align: right;">Actions</th>
         </tr>
         </thead>
@@ -21,6 +22,7 @@
         {% for userlogin in pagination %}
             <tr>
                 <td>{{ userlogin.loggedAt|date }}</td>
+                <td>{{ userlogin.user.name }}</td>
                 <td>{{ userlogin.userId }}</td>
                 <td style="text-align: right;">
                     {# <a href="{{ path('app_anlagen_edit', { id: plant.anlId}) }}" title="Edit Legend" class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a>&nbsp;  #}

@@ -40,12 +40,20 @@ class UserLoginRepository extends ServiceEntityRepository
         }
     }
 
-    public function getWithSearchQueryBuilder(): array
+    public function getWithSearchQueryBuilder(?string $term): QueryBuilder
     {
-        return $this->createQueryBuilder('userlogin')
-            ->orderBy('userlogin.id', 'ASC')            ->getQuery()
-            ->getResult()
-       ;
+
+        $qb = $this->createQueryBuilder('userlogin')
+            ->innerJoin('userlogin.user', 'user');
+
+
+        if ($term) {
+            $qb->andWhere('user.name LIKE :term')
+                ->setParameter('term', '%'.$term.'%')
+            ;
+        }
+
+        return $qb;
     }
 
 //    /**

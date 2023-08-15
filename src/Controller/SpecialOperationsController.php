@@ -374,7 +374,8 @@ class SpecialOperationsController extends AbstractController
     public function userLoginReport(Request $request, PaginatorInterface $paginator, UserLoginRepository $userLogin): Response
     {
         $q = $request->query->get('q');
-        $queryBuilder = $userLogin->getWithSearchQueryBuilder();
+
+        $queryBuilder = $userLogin->getWithSearchQueryBuilder($q);
         $pagination = $paginator->paginate(
             $queryBuilder, /* query NOT result */
             $request->query->getInt('page', 1), /* page number */
