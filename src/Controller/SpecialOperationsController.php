@@ -10,7 +10,9 @@ use App\Form\Tools\WeatherToolsFormType;
 use App\Message\Command\CalcExpected;
 use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Repository\AnlagenRepository;
+use App\Repository\LogRepository;
 use App\Repository\TicketRepository;
+use App\Repository\UserLoginRepository;
 use App\Repository\WeatherStationRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\ExportService;
@@ -32,6 +34,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Helper\simpleXLSX;
 use App\Service\UploaderHelper;
 use App\Helper\G4NTrait;
+use App\Entity\UserLogin;
+use Knp\Component\Pager\PaginatorInterface;
+
 class SpecialOperationsController extends AbstractController
 {
     use G4NTrait;
@@ -362,4 +367,24 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
+    /**
+     * @throws Exception
+     */
+    #[Route(path: '/userloginreport', name: 'user_login_report')]
+    public function userLoginReport(Request $request, PaginatorInterface $paginator, UserLoginRepository $userLogin): Response
+    {
+        $q = $request->query->get('q');
+        $queryBuilder = $userLogin->getWithSearchQueryBuilder();
+        $pagination = $paginator->paginate(
+            $queryBuilder, /* query NOT result */
+            $request->query->getInt('page', 1), /* page number */
+            20                                         /* limit per page */
+        );
+
+
+
+        return $this->render('loguserlogin/list.html.twig', [
+            'pagination' => $pagination,
+        ]);
+    }
 }

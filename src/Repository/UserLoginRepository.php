@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\UserLogin;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * @extends ServiceEntityRepository<UserLogin>
@@ -37,6 +38,14 @@ class UserLoginRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function getWithSearchQueryBuilder(): array
+    {
+        return $this->createQueryBuilder('userlogin')
+            ->orderBy('userlogin.id', 'ASC')            ->getQuery()
+            ->getResult()
+       ;
     }
 
 //    /**
