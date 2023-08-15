@@ -44,7 +44,8 @@ class UserLoginRepository extends ServiceEntityRepository
     {
 
         $qb = $this->createQueryBuilder('userlogin')
-            ->innerJoin('userlogin.user', 'user');
+            ->innerJoin('userlogin.user', 'user')
+            ->orderBy('userlogin.loggedAt', "DESC");
 
 
         if ($term) {
