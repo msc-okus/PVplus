@@ -9,6 +9,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
 use App\Repository\EconomicVarValuesRepository;
 use App\Repository\PvSystMonthRepository;
+use App\Repository\ForcastDayRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\Functions\SensorService;
@@ -48,6 +49,7 @@ class AssetManagementService
         private AnlagenRepository $anlagenRepository,
         private SensorService $sensorService,
         private WeatherFunctionsService $weatherFunctions,
+        private ForcastDayRepository $forecastDayRepo,
     )
     {
         $this->conn = self::getPdoConnection();
@@ -68,7 +70,6 @@ class AssetManagementService
         }
         // then we generate our own report and try to persist it
         $output = $this->assetReport($anlage, $reportMonth, $reportYear, $logId);
-
         $data = [
             'Production' => true,
             'ProdCap' => true,
@@ -85,11 +86,12 @@ class AssetManagementService
             'InvPow' => true,
             'Economics' => true, ];
         $output['data'] = $data;
-
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $pdf = $this->pdf;
         $reportParts = [];
         $content = $output;
         $this->logMessages->updateEntry($logId, 'working', 95);
+        //rendering the header
         $html = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
             'anlage' => $anlage,
@@ -107,9 +109,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['head'] = $pdf->createPage($html, $fileroute, "head", false);// we will store this later in the entity
 
+        //Production vs Forecast vs Expected
         $html = $this->twig->render('report/asset_report_part_1.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -124,9 +126,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['ProductionCapFactor'] = $pdf->createPage($html, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
 
+        // Technical PR and Availability
         $html = $this->twig->render('report/asset_report_technicalPRPA.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -142,9 +144,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['PRPATable'] = $pdf->createPage($html, $fileroute, "PRPATable", false);// we will store this later in the entity
 
+        //Monthly Production
         $html = $this->twig->render('report/production_with_Forecast.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -159,8 +161,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['production_with_forecast'] = $pdf->createPage($html, $fileroute, "production_with_forecast", false);// we will store this later in the entity
+
+        //Cummulative Forecast
         if($anlage->hasPVSYST()) {
             $html = $this->twig->render('report/asset_report_part_2.html.twig', [
                 'anlage' => $anlage,
@@ -176,9 +179,10 @@ class AssetManagementService
                 'forecast_PVSYST' => $content['forecast_PVSYST'],
             ]);
             $html = str_replace('src="//', 'src="https://', $html);
-            $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
             $reportParts['CumForecastPVSYS'] = $pdf->createPage($html, $fileroute, "CumForecastPVSYS", false);// we will store this later in the entity
         }
+
+        //Cummulative Forecast
         $html = $this->twig->render('report/asset_report_part_3.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -193,11 +197,10 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['CumForecastG4N'] = $pdf->createPage($html, $fileroute, "CumForecastG4N", false);// we will store this later in the entity
-        $html = $this->twig->render('report/asset_report_part_4.html.twig', [
 
+        //Cummulative Losses
+        $html = $this->twig->render('report/asset_report_part_4.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -213,10 +216,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['CumLosses'] = $pdf->createPage($html, $fileroute, "CumLosses", false);// we will store this later in the entity
 
+        //Waterfall diagram
         $html = $this->twig->render('report/waterfallProd.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -231,10 +233,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts['waterfallProd'] = $pdf->createPage($html, $fileroute, "waterfallProd", true);// we will store this later in the entity
+        $reportParts['waterfallProd'] = $pdf->createPage($html, $fileroute, "waterfallProd", false);// we will store this later in the entity
 
-
+        //Monthly Production
         $html = $this->twig->render('report/asset_report_part_5.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -268,10 +269,10 @@ class AssetManagementService
             'production_monthly_chart' => $content['production_monthly_chart']
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['MonthlyProd'] = $pdf->createPage($html, $fileroute, "MonthlyProd", false);// we will store this later in the entity
-
         $table = $this->reportsMonthly->buildTable($anlage, null, null, $reportMonth, $reportYear);
+
+        //PR Table
         $html = $this->twig->render('report/asset_report_PRTable.html.twig', [
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -283,10 +284,9 @@ class AssetManagementService
             'days'        => $table,
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-
         $reportParts['PRTable'] = $pdf->createPage($html, $fileroute, "PRTable", false);// we will store this later in the entity
 
+        //Inverter Ranking
         $html = $this->twig->render('report/InverterRank.html.twig', [
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -302,10 +302,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-
         $reportParts['InverterRank'] = $pdf->createPage($html, $fileroute, "InverterRank", false);// we will store this later in the entity
 
+        //inverter efficiency rank
         $html = $this->twig->render('report/_inverter_efficiency_rank.html.twig', [
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -318,10 +317,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-
         $reportParts['InverterEfficiencyRank'] = $pdf->createPage($html, $fileroute, "InverterEfficiencyRank", false);// we will store this later in the entity
 
+        //Expected vs actual
         $html = $this->twig->render('report/asset_report_part_6.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -335,9 +333,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['DailyProd'] = $pdf->createPage($html, $fileroute, "ProdExpvsAct", false);// we will store this later in the entity
 
+        //String currents
         $html = $this->twig->render('report/asset_report_part_7.html.twig', [
 
             'anlage' => $anlage,
@@ -353,8 +351,9 @@ class AssetManagementService
             'acGroups' => $content['acGroups'],
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['String'] = $pdf->createPage($html, $fileroute, "String", false);// we will store this later in the entity
+
+        //Inverter power difference g4n
         $html = $this->twig->render('report/asset_report_part_8.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -369,9 +368,9 @@ class AssetManagementService
             'acGroups' => $content['acGroups'],
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['Inverter'] = $pdf->createPage($html, $fileroute, "Inverter", false);// we will store this later in the entity
 
+        //Availability year
         $html = $this->twig->render('report/asset_report_part_9.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -387,8 +386,9 @@ class AssetManagementService
             'plantAvailabilityCurrentYear' => $content['plantAvailabilityCurrentYear'],
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['AvailabilityYearOverview'] = $pdf->createPage($html, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
+
+        //Availability tickets
         $html = $this->twig->render('report/asset_report_part_10.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -410,8 +410,9 @@ class AssetManagementService
             'losseskwhchartYearMonthly' => $content['losseskwhchartYearMonthly']
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['AvailabilityYear'] = $pdf->createPage($html, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
+
+        //Availability by tickets monthly
         $html =$this->twig->render('report/asset_report_part_11.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -432,8 +433,9 @@ class AssetManagementService
             'percentageTableMonth' => $content['percentageTableMonth']
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['AvailabilityMonth'] = $pdf->createPage($html, $fileroute, "AvailabilityMonth", false);// we will store this later in the entity
+
+        //Availability heatmap
         $html = $this->twig->render('report/asset_report_part_12.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -448,11 +450,10 @@ class AssetManagementService
             'acGroups' => $content['acGroups']
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['AvailabilityByInverter'] = $pdf->createPage($html, $fileroute, "AvailabilityByInverter", false);// we will store this later in the entity
 
         if ($anlage->getEconomicVarNames() !== null) {
-
+            //Economics
             $html = $this->twig->render('report/asset_report_part_13.html.twig', [
                 'anlage' => $anlage,
                 'month' => $reportMonth,
@@ -480,7 +481,7 @@ class AssetManagementService
 
             ]);
             $html = str_replace('src="//', 'src="https://', $html);
-            $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+
             $reportParts['Economic'] = $pdf->createPage($html, $fileroute, "Economic", false);// we will store this later in the entity
         }
 
@@ -559,9 +560,10 @@ class AssetManagementService
             if ($anlage->getIsOstWestAnlage()) {
                 $irradiation[] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
             } else {
-                $irradiation[] = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
+                $irradiation[] = $weather['upperIrr'] / 4 / 1000; // Umrechnung zu kWh
             }
         }
+
         $daysInReportMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
         $monthArray = [
             'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
@@ -2446,6 +2448,7 @@ class AssetManagementService
             'EFORLosses' => $kwhLossesMonthTable['EFORLosses'],
             'OMCLosses' => $kwhLossesMonthTable['OMCLosses']
         ];
+        dd($monthlyLossesHelpTable);
 
         $percentageTableYear = [
             'G4NExpected' =>  100 ,
@@ -4240,6 +4243,7 @@ class AssetManagementService
 
         //Waterfall page generation
 
+
         $sumForecast = 0;
         $sumForecastIrr = 0;
         $sumActual = 0;
@@ -4251,27 +4255,35 @@ class AssetManagementService
         $sumOthers = 0;
         $sumCorrectedForecast = 0;
         $sumTotalLosses = 0;
+
         for($i = 0; $i < $report['reportMonth'] ; $i++){
+            if ($anlage->getUseDayForecast()){
+                $forecastIrr = $this->getForecastIrr( $anlage, $i + 1);
+            }
+            else{
+                $forecastIrr = $irradiation[$i];
+            }
+
             $waterfallDiagramHelpTable[$i]['forecast'] = round($forecast[$i], 2);
             $sumForecast = $sumForecast + $waterfallDiagramHelpTable[$i]['forecast'];
-            if($waterfallDiagramHelpTable[$i]['irradiation'] > 0) {
-                $irrCorrection = $irradiation[$i]['forecastIrr'] / $irradiation[$i]['irradiation'];
+            if( $irradiation[$i] > 0) {
+                $irrCorrection = $forecastIrr / $irradiation[$i];
             }
             else{
                 $irrCorrection = 1 ;
             }
-            $waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] * $irrCorrection, 2);
+            $waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] / $irrCorrection, 2);
             $sumCorrectedForecast = $sumCorrectedForecast + $waterfallDiagramHelpTable[$i]['correctedForecast'];
 
-            $waterfallDiagramHelpTable[$i]['forecastIrr'] = round($irradiation[$i], 2);
+            $waterfallDiagramHelpTable[$i]['forecastIrr'] = round($forecastIrr, 2);
             $sumForecastIrr = $sumForecastIrr + $waterfallDiagramHelpTable[$i]['forecastIrr'];
             
             $waterfallDiagramHelpTable[$i]['actual'] = round($tbody_a_production['powerAct'][$i], 2);
             $sumActual = $sumActual + $waterfallDiagramHelpTable[$i]['actual'];
-    
-            $waterfallDiagramHelpTable[$i]['irradiation'] = round($waterfallDiagramHelpTable[$i]['forecastIrr'], 2);
+
+            $waterfallDiagramHelpTable[$i]['irradiation'] = round( $irradiation[$i], 2);
             $sumIrr = $sumIrr + $waterfallDiagramHelpTable[$i]['forecastIrr'];
-            
+
             $waterfallDiagramHelpTable[$i]['SORLosses'] = round($kwhLosses[$i]['SORLosses'], 2);
             $sumSOR = $sumSOR + $waterfallDiagramHelpTable[$i]['SORLosses'];
             
@@ -4308,7 +4320,6 @@ class AssetManagementService
         foreach ($waterfallDiagramHelpTable[(int)$report['reportMonth'] - 1] as $key => $value){
             if ($key != "forecastIrr" && $key != "irradiation" && $key != "forecast" && $key != "totalLosses")$data[] = round($value, 2);
         }
-        //dd($data, $waterfallDiagramHelpTable[(int)$report['reportMonth'] - 1]);
         $positive = [];
         $negative = [];
         $help = [];
@@ -4369,7 +4380,6 @@ class AssetManagementService
                     'type' => 'bar',
                     'stack' => 'x',
                     'data' => $positive,
-
                     'label' => [
                         'show' => true,
                         'position' => 'top'
@@ -4639,6 +4649,17 @@ class AssetManagementService
         }
         $output['avg'][$inverter ] = round($efficiencySum / $efficiencyCount, 2); //we make the last average outside of the loop
         return $output;
+    }
+    private function getForecastIrr(Anlage $anlage, $month){
+        $forecast = $this->forecastDayRepo->findForcastDayByMonth($anlage, $month);
+        $sumIrrMonth = 0;
+
+        foreach($forecast as $data){
+            $sumIrrMonth = $sumIrrMonth + $data->getIrrday()/1000;
+        }
+
+        return $sumIrrMonth;
+
     }
 
 }

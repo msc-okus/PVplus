@@ -46,6 +46,9 @@ class AnlageForcastDay
     #[ORM\Column(type: 'string', length: 20)]
     private string $prKumuliertFt;
 
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $irrday;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -170,6 +173,18 @@ class AnlageForcastDay
 
         return $this;
     }
+
+    public function getIrrday(): string
+    {
+        return $this->irrday;
+    }
+
+    public function setIrrday(string $irrday): void
+    {
+        $this->irrday = $irrday;
+    }
+
+
 
     public function getExpectedDay(): ?float
     {

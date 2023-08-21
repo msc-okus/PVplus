@@ -468,6 +468,14 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
+                            if ($data['waterfallProd'] && $files['waterfallProd']){
+                                $pageCount = $pdf->setSourceFile($files['waterfallProd']);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
                         }
 
                         if ($data['Availability']){
