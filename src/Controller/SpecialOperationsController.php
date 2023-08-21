@@ -307,6 +307,7 @@ class SpecialOperationsController extends AbstractController
     #[Route(path: '/special/operations/import_excel', name: 'import_excel')]
     public function importExcel(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, MessageBusInterface $messageBus, LogMessagesService $logMessages, $uploadsPath): Response
     {
+
         $form = $this->createForm(ImportExcelFormType::class);
         $form->handleRequest($request);
 
@@ -320,7 +321,31 @@ class SpecialOperationsController extends AbstractController
             $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageForm]);
             $anlageId = $anlage->getAnlagenId();
             $dataBaseNTable = $anlage->getDbNameIst();
+echo $dataBaseNTable;
 
+$timezones = \DateTimeZone::listIdentifiers();
+print_r($timezones);
+
+$timezone = new \DateTimeZone('Europe/Berlin');
+$transitions = $timezone->getTransitions();
+
+foreach($transitions as $transition) {
+    echo "Transition: " . date('Y-m-d H:i:s', $transition['ts']) . " (offset: " . $transition['offset'] . " seconds)<br>";
+}
+exit;
+            $plantoffset = new \DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
+$x =  (string)$plantoffset->getName();
+echo $x;
+            $datetime = new \DateTime(date('Y/m/d H:i:s'), new \DateTimeZone('Europe/Amsterdam'));
+            $offset = $datetime->getOffset();
+            if($datetime->format('I')) { // Check if DST is in effect
+                echo "<br>Test<br>";
+                $offset -= 3600; // Adjust offset by one hour if DST is in effect
+            }
+            $datetime->setTimezone(new \DateTimeZone('UTC'));
+            $datetime->modify("$offset seconds");
+            echo $datetime->format('Y-m-d H:i:s');
+            exit;
             $uploadedFile = $form['File']->getData();
             if ($uploadedFile) {
                 // Here we upload the file and read it
