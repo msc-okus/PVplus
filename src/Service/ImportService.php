@@ -12,6 +12,8 @@ use App\Repository\PVSystDatenRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\MeteoControlService;
+use Symfony\Config\DoctrineConfig;
+use Doctrine\Persistence\ManagerRegistry;
 
 class ImportService
 {
@@ -25,18 +27,18 @@ class ImportService
         private FunctionsService $functions,
         private EntityManagerInterface $em,
         private AvailabilityService $availabilityService,
-        private MeteoControlService $meteoControlService
+        private MeteoControlService $meteoControlService,
+        private ManagerRegistry $doctrine,
     )
     { }
 
-    public function prepareForImport(Anlage|int $plantId, $start, $end, $importType)
+    public function prepareForImport(Anlage|int $plantId, $start, $end)
     {
         if (is_int($plantId)) {
             $anlage = $this->anlagenRepository->findOneByIdAndJoin($plantId);
         }
 
-
-        $conn = $this->getPdoConnectionBase();
+        $conn = $this->doctrine->getConnection();
 
         $weather = $anlage->getWeatherStation($anlage->getWeatherStation()->getId());
         $weatherDbIdent = $weather->getDatabaseIdent();
@@ -190,17 +192,6 @@ class ImportService
         }
 
         //write Data in the tables
-        if ($hasPpc) {
-            $tableName = "db__pv_ppc_$anlagenTabelle" . '_copy';
-            self::insertData($tableName, $data_ppc);
-        }
-
-
-        $tableName = "db__pv_ws_$weatherDbIdent" . '_copy';
-        self::insertData($tableName, $data_pv_weather);
-
-        $tableName = "db__pv_ist_$anlagenTabelle" . '_copy';
-        self::insertData($tableName, $data_pv_ist);
 
         switch ($importType) {
             case 'api-import-weather':

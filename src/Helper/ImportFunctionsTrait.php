@@ -4,8 +4,10 @@ namespace App\Helper;
 require_once __DIR__.'/../../public/config.php';
 
 use App\Repository\AnlagenRepository;
+use mysql_xdevapi\DatabaseObject;
 use PDO;
 use PDOException;
+use Symfony\Config\DoctrineConfig;
 
 trait ImportFunctionsTrait
 {
@@ -27,9 +29,9 @@ trait ImportFunctionsTrait
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
-            'database_dsn' => $dbdsn === null ? $_ENV["PLANT_DATABASE_URL"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
+            'database_dsn' => $dbdsn === null ? 'mysql:dbname=pvp_data;host='.$_ENV["host"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
             'database_user' => $dbusr === null ? 'pvpluy_2' : $dbusr,
-            'database_pass' => $dbpass === null ? $_ENV["PLANT_DATABASE_PASSWORD"] : $dbpass,
+            'database_pass' => $dbpass === null ? $_ENV["password_plant"] : $dbpass,
         ];
 
         try {
@@ -61,9 +63,9 @@ trait ImportFunctionsTrait
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
-            'database_dsn' => $dbdsn === null ? $_ENV["BASE_DATABASE_URL"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
+            'database_dsn' => $dbdsn === null ? 'mysql:dbname=pvp_base;host='.$_ENV["host"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
             'database_user' => $dbusr === null ? 'pvpbase' : $dbusr,
-            'database_pass' => $dbpass === null ? $_ENV["BASE_DATABASE_PASSWORD"] : $dbpass,
+            'database_pass' => $dbpass === null ? $_ENV["password_base"] : $dbpass,
         ];
 
         try {
