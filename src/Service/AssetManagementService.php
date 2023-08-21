@@ -11,6 +11,7 @@ use App\Repository\EconomicVarValuesRepository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
+use App\Service\Functions\SensorService;
 use App\Service\Reports\ReportsMonthlyV2Service;
 use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -45,6 +46,8 @@ class AssetManagementService
         private LogMessagesService $logMessages,
         private ReportsMonthlyV2Service $reportsMonthly,
         private AnlagenRepository $anlagenRepository,
+        private SensorService $sensorService,
+        private WeatherFunctionsService $weatherFunctions,
     )
     {
         $this->conn = self::getPdoConnection();
@@ -97,10 +100,10 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
-            'pr0image' =>$anlage->getPrFormular0Image(),
-            'pr1image' =>$anlage->getPrFormular1Image(),
-            'pr2image' =>$anlage->getPrFormular2Image(),
-            'pr3image' =>$anlage->getPrFormular3Image(),
+            'pr0image' => $anlage->getPrFormular0Image(),
+            'pr1image' => $anlage->getPrFormular1Image(),
+            'pr2image' => $anlage->getPrFormular2Image(),
+            'pr3image' => $anlage->getPrFormular3Image(),
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
@@ -213,6 +216,24 @@ class AssetManagementService
 
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['CumLosses'] = $pdf->createPage($html, $fileroute, "CumLosses", false);// we will store this later in the entity
+
+        $html = $this->twig->render('report/waterfallProd.html.twig', [
+            'anlage' => $anlage,
+            'month' => $reportMonth,
+            'monthName' => $output['month'],
+            'year' => $reportYear,
+            'dataCfArray' => $content['dataCfArray'],
+            'reportmonth' => $content['reportmonth'],
+            'monthArray' => $content['monthArray'],
+            //until here all the parameters must be used in all the renders
+            'waterfallHelpTable' => $content['waterfallHelpTable'],
+            'waterfallDiagram' => $content['waterfallDiagram']
+
+        ]);
+        $html = str_replace('src="//', 'src="https://', $html);
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+        $reportParts['waterfallProd'] = $pdf->createPage($html, $fileroute, "waterfallProd", true);// we will store this later in the entity
+
 
         $html = $this->twig->render('report/asset_report_part_5.html.twig', [
             'anlage' => $anlage,
@@ -521,6 +542,26 @@ class AssetManagementService
     public function buildAssetReport(Anlage $anlage, array $report, ?int $logId = null): array
     {
         // Variables
+
+        for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; ++$tempMonth) {
+
+            $startDate = new \DateTime($report['reportYear']."-$tempMonth-01 00:00");
+            $daysInThisMonth = $startDate->format("t");
+            $endDate = new \DateTime($report['reportYear']."-$tempMonth-$daysInThisMonth 00:00");
+
+            $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $startDate->format('Y-m-d H:i:s'), $endDate->format('Y-m-d H:i:s'), true, $anlage);
+            if (is_array($weather)) {
+                $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, $startDate, $endDate);
+            }
+
+
+            // Strahlungen berechnen – (upper = Ost / lower = West)
+            if ($anlage->getIsOstWestAnlage()) {
+                $irradiation[] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
+            } else {
+                $irradiation[] = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
+            }
+        }
         $daysInReportMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
         $monthArray = [
             'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
@@ -2543,7 +2584,7 @@ class AssetManagementService
 
         for($i = $report['reportMonth'] - 1; $i >= 0 ; $i--){
             $invertedMonthArray[] = $monthArray[$i];
-            $kwhLosses = $this->calculateLosses($report['reportYear']."-".($i + 1)."-01",$report['reportYear']."-".($i + 1)."-".cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']),$anlage);
+            $kwhLosses[$i] = $this->calculateLosses($report['reportYear']."-".($i + 1)."-01",$report['reportYear']."-".($i + 1)."-".cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']),$anlage);
 
             if ($anlage->getTotalKpi() < 100)$tempExp = $tbody_a_production['powerExp'][$i] * ((100-$anlage->getTotalKpi())/100);
 
@@ -2551,9 +2592,9 @@ class AssetManagementService
                 $table_percentage_monthly['Actual'][] = (int)($tbody_a_production['powerAct'][$i] * 100 / $tempExp);
                 $table_percentage_monthly['ExpectedG4N'][] = 100;
                 $table_percentage_monthly['Forecast'][] = (int)($tbody_a_production['forecast'][$i] * 100 / $tempExp);
-                $table_percentage_monthly['SORLosses'][] = number_format(-($kwhLosses['SORLosses'] * 100 / $tempExp), 2);
-                $table_percentage_monthly['EFORLosses'][] = number_format(-($kwhLosses['EFORLosses'] * 100 / $tempExp), 2);
-                $table_percentage_monthly['OMCLosses'][] = number_format(-($kwhLosses['OMCLosses'] * 100 / $tempExp), 2);
+                $table_percentage_monthly['SORLosses'][] = number_format(-($kwhLosses[$i]['SORLosses'] * 100 / $tempExp), 2);
+                $table_percentage_monthly['EFORLosses'][] = number_format(-($kwhLosses[$i]['EFORLosses'] * 100 / $tempExp), 2);
+                $table_percentage_monthly['OMCLosses'][] = number_format(-($kwhLosses[$i]['OMCLosses'] * 100 / $tempExp), 2);
             }
             else {
                 $table_percentage_monthly['Actual'][] = 0;
@@ -4197,6 +4238,163 @@ class AssetManagementService
         }
 
 
+        //Waterfall page generation
+
+        $sumForecast = 0;
+        $sumForecastIrr = 0;
+        $sumActual = 0;
+        $sumExp = 0;
+        $sumIrr = 0;
+        $sumSOR = 0;
+        $sumEFOR = 0;
+        $sumOMC = 0;
+        $sumOthers = 0;
+        $sumCorrectedForecast = 0;
+        $sumTotalLosses = 0;
+        for($i = 0; $i < $report['reportMonth'] ; $i++){
+            $waterfallDiagramHelpTable[$i]['forecast'] = round($forecast[$i], 2);
+            $sumForecast = $sumForecast + $waterfallDiagramHelpTable[$i]['forecast'];
+            if($waterfallDiagramHelpTable[$i]['irradiation'] > 0) {
+                $irrCorrection = $irradiation[$i]['forecastIrr'] / $irradiation[$i]['irradiation'];
+            }
+            else{
+                $irrCorrection = 1 ;
+            }
+            $waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] * $irrCorrection, 2);
+            $sumCorrectedForecast = $sumCorrectedForecast + $waterfallDiagramHelpTable[$i]['correctedForecast'];
+
+            $waterfallDiagramHelpTable[$i]['forecastIrr'] = round($irradiation[$i], 2);
+            $sumForecastIrr = $sumForecastIrr + $waterfallDiagramHelpTable[$i]['forecastIrr'];
+            
+            $waterfallDiagramHelpTable[$i]['actual'] = round($tbody_a_production['powerAct'][$i], 2);
+            $sumActual = $sumActual + $waterfallDiagramHelpTable[$i]['actual'];
+    
+            $waterfallDiagramHelpTable[$i]['irradiation'] = round($waterfallDiagramHelpTable[$i]['forecastIrr'], 2);
+            $sumIrr = $sumIrr + $waterfallDiagramHelpTable[$i]['forecastIrr'];
+            
+            $waterfallDiagramHelpTable[$i]['SORLosses'] = round($kwhLosses[$i]['SORLosses'], 2);
+            $sumSOR = $sumSOR + $waterfallDiagramHelpTable[$i]['SORLosses'];
+            
+            $waterfallDiagramHelpTable[$i]['EFORLosses'] = round($kwhLosses[$i]['EFORLosses'], 2);
+            $sumEFOR = $sumEFOR + $waterfallDiagramHelpTable[$i]['EFORLosses'];
+            
+            $waterfallDiagramHelpTable[$i]['OMCLosses'] = round($kwhLosses[$i]['OMCLosses'], 2);
+            $sumOMC = $sumOMC + $waterfallDiagramHelpTable[$i]['OMCLosses'];
+
+            $sumLosses = $waterfallDiagramHelpTable[$i]['SORLosses'] + $waterfallDiagramHelpTable[$i]['EFORLosses'] + $waterfallDiagramHelpTable[$i]['OMCLosses'];
+
+            $waterfallDiagramHelpTable[$i]['otherLosses'] = round($tbody_a_production['powerExp'][$i] - $tbody_a_production['powerAct'][$i] - $sumLosses, 2);
+            $sumOthers = $sumOthers + $waterfallDiagramHelpTable[$i]['otherLosses'];
+
+            $waterfallDiagramHelpTable[$i]['totalLosses'] = round($waterfallDiagramHelpTable[$i]['otherLosses'] + $sumLosses, 2);
+            $sumTotalLosses = $sumTotalLosses + $waterfallDiagramHelpTable[$i]['totalLosses'];
+
+            $waterfallDiagramHelpTable[$i]['expected'] = round($tbody_a_production['powerExp'][$i], 2);
+            $sumExp = $sumExp + $waterfallDiagramHelpTable[$i]['expected'];
+        }
+        $waterfallDiagramHelpTable[$i + 1]['correctedForecast'] = $sumCorrectedForecast;
+        $waterfallDiagramHelpTable[$i + 1]['forecast'] = $sumForecast;
+        $waterfallDiagramHelpTable[$i + 1]['forecastIrr'] = $sumForecastIrr;
+        $waterfallDiagramHelpTable[$i + 1]['actual'] = $sumActual;
+        $waterfallDiagramHelpTable[$i + 1]['irradiation'] = $sumIrr;
+        $waterfallDiagramHelpTable[$i + 1]['SORLosses'] = $sumSOR;
+        $waterfallDiagramHelpTable[$i + 1]['EFORLosses'] = $sumEFOR;
+        $waterfallDiagramHelpTable[$i + 1]['OMCLosses'] = $sumOMC;
+        $waterfallDiagramHelpTable[$i + 1]['otherLosses'] = $sumOthers;
+        $waterfallDiagramHelpTable[$i + 1]['expected'] = $sumExp;
+        $waterfallDiagramHelpTable[$i + 1]['totalLosses'] = $sumTotalLosses;
+
+        unset($data);
+        foreach ($waterfallDiagramHelpTable[(int)$report['reportMonth'] - 1] as $key => $value){
+            if ($key != "forecastIrr" && $key != "irradiation" && $key != "forecast" && $key != "totalLosses")$data[] = round($value, 2);
+        }
+        //dd($data, $waterfallDiagramHelpTable[(int)$report['reportMonth'] - 1]);
+        $positive = [];
+        $negative = [];
+        $help = [];
+        $sum = 0;
+
+        foreach ($data as $key => $item){
+            if ($item >= 0 ){
+                $positive[] = $item;
+
+                $negative[] = 0;
+            }
+            else{
+                $negative[] = -$item;
+                $positive[] = 0;
+            }
+
+            if ($key <= 1) $help[$key] = 0;
+
+            else if ($key === count($data)-1) $help[$key] = 0;
+            else{
+                $sum += $data[$key - 1];
+                if ($item < 0){
+                    $help[] = $sum + $item;
+                }
+                else{
+                    $help[] = $sum;
+                }
+            }
+        }
+        $chart = new ECharts();
+
+        $chart->xAxis = [
+            'type' => 'category',
+            'data' =>['Forecast', 'Actual', 'SOR Losses', ' EFOR Losses', 'OMC Losses', 'Other Losses', 'Expected'],
+        ];
+        $chart->yAxis = [
+            'type' => 'value',
+        ];
+        $chart->series =
+            [
+                [
+                    'type' => 'bar',
+                    'stack' => 'x',
+                    'itemStyle' => [
+                        'normal' => [
+                            'barBorderColor' => 'rgba(0,0,0,0)',
+                            'color' => 'rgba(0,0,0,0)'
+                        ],
+                        'emphasis' => [
+                            'barBorderColor' => 'rgba(0,0,0,0)',
+                            'color' => 'rgba(0,0,0,0)'
+                        ]
+                    ],
+                    'data' => $help,
+                ],
+                [
+                    'name' => 'positive',
+                    'type' => 'bar',
+                    'stack' => 'x',
+                    'data' => $positive,
+
+                    'label' => [
+                        'show' => true,
+                        'position' => 'top'
+                    ],
+
+                ],
+                [
+                    'name' => 'negative',
+                    'type' => 'bar',
+                    'stack' => 'x',
+                    'data' => $negative,
+                    'itemStyle'=>[
+                        'color'=>'#f33'
+                    ],
+
+                ],
+
+            ];
+
+        $option =[
+            'animation' => false,
+        ];
+        $chart->setOption($option);
+        $waterfallDiagram = $chart->render('waterfal', ['style' => 'height: 450px; width:28cm;']);
+
         // end Chart Losses compared cummulated
         $output = [
             'plantId' => $plantId,
@@ -4293,7 +4491,9 @@ class AssetManagementService
             'InverterPRRankGraphics' => $pr_rank_graph,
             'efficiencyRanking' => $efficiencyRanking,
             'prSumaryTable' => $prSumaryTable,
-            'sumary_pie_graph' => $sumary_pie_graph
+            'sumary_pie_graph' => $sumary_pie_graph,
+            'waterfallHelpTable' => $waterfallDiagramHelpTable,
+            'waterfallDiagram' => $waterfallDiagram
         ];
 
         return $output;
