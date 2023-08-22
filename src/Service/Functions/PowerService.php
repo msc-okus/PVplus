@@ -386,7 +386,7 @@ class PowerService
             $powerEGridExt = 0;
         }
 
-        // EVU Leistung ermitteln – kann aus unterschidlichen Quellen kommen
+        // EVU Leistung ermitteln – kann aus unterschiedlichen Quellen kommen
         $sql = 'SELECT sum(e_z_evu) as power_evu FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
