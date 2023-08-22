@@ -21,6 +21,15 @@ class OwnerSettingsFormType extends AbstractType
             ->add('nameDep3', TextType::class, [
 
             ])
+            ->add('mcUser', TextType::class, [
+
+            ])
+            ->add('mcPassword', TextType::class, [
+
+            ])
+            ->add('mcToken', TextType::class, [
+
+            ])
         ;
     }
 
