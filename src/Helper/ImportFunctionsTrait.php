@@ -7,16 +7,18 @@ use App\Repository\AnlagenRepository;
 use mysql_xdevapi\DatabaseObject;
 use PDO;
 use PDOException;
-use Symfony\Config\DoctrineConfig;
+
+
 
 trait ImportFunctionsTrait
 {
     private AnlagenRepository $anlagenRepository;
 
-    public function __construct(AnlagenRepository $anlRepo)
+    public function __construct(
+        AnlagenRepository $anlRepo)
     {
-
         $this->anlagenRepository = $anlRepo;
+
     }
     /**
      * @param string|null $dbdsn
@@ -24,14 +26,15 @@ trait ImportFunctionsTrait
      * @param string|null $dbpass
      * @return PDO
      */
-    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
+    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbpass = null): PDO
     {
+
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
-            'database_dsn' => $dbdsn === null ? 'mysql:dbname=pvp_data;host='.$_ENV["host"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
-            'database_user' => $dbusr === null ? 'pvpluy_2' : $dbusr,
-            'database_pass' => $dbpass === null ? $_ENV["password_plant"] : $dbpass,
+            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
+            'database_user' => 'pvpluy_2',
+            'database_pass' => $dbpass,
         ];
 
         try {
@@ -168,11 +171,14 @@ trait ImportFunctionsTrait
     /**
      * @param string|null $tableName
      * @param array|null $data
+     * @param string|null $host
+     * @param string|null $passwordPlant
      */
-    function insertData($tableName = NULL, $data = NULL): void
+    function insertData($tableName = NULL, $data = NULL, $host = null, $passwordPlant = null): void
     {
+
         // obtain column template
-        $DBDataConnection = $this->getPdoConnectionData();
+        $DBDataConnection = $this->getPdoConnectionData($host, $passwordPlant);
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];
