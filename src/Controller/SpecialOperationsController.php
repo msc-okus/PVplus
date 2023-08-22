@@ -10,7 +10,9 @@ use App\Form\Tools\WeatherToolsFormType;
 use App\Message\Command\CalcExpected;
 use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Repository\AnlagenRepository;
+use App\Repository\LogRepository;
 use App\Repository\TicketRepository;
+use App\Repository\UserLoginRepository;
 use App\Repository\WeatherStationRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\ExportService;
@@ -32,6 +34,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Helper\simpleXLSX;
 use App\Service\UploaderHelper;
 use App\Helper\G4NTrait;
+use App\Entity\UserLogin;
+use Knp\Component\Pager\PaginatorInterface;
+
 class SpecialOperationsController extends AbstractController
 {
     use G4NTrait;
@@ -302,6 +307,7 @@ class SpecialOperationsController extends AbstractController
     #[Route(path: '/special/operations/import_excel', name: 'import_excel')]
     public function importExcel(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, MessageBusInterface $messageBus, LogMessagesService $logMessages, $uploadsPath): Response
     {
+
         $form = $this->createForm(ImportExcelFormType::class);
         $form->handleRequest($request);
 
@@ -315,7 +321,31 @@ class SpecialOperationsController extends AbstractController
             $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageForm]);
             $anlageId = $anlage->getAnlagenId();
             $dataBaseNTable = $anlage->getDbNameIst();
+echo $dataBaseNTable;
 
+$timezones = \DateTimeZone::listIdentifiers();
+print_r($timezones);
+
+$timezone = new \DateTimeZone('Europe/Berlin');
+$transitions = $timezone->getTransitions();
+
+foreach($transitions as $transition) {
+    echo "Transition: " . date('Y-m-d H:i:s', $transition['ts']) . " (offset: " . $transition['offset'] . " seconds)<br>";
+}
+exit;
+            $plantoffset = new \DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
+$x =  (string)$plantoffset->getName();
+echo $x;
+            $datetime = new \DateTime(date('Y/m/d H:i:s'), new \DateTimeZone('Europe/Amsterdam'));
+            $offset = $datetime->getOffset();
+            if($datetime->format('I')) { // Check if DST is in effect
+                echo "<br>Test<br>";
+                $offset -= 3600; // Adjust offset by one hour if DST is in effect
+            }
+            $datetime->setTimezone(new \DateTimeZone('UTC'));
+            $datetime->modify("$offset seconds");
+            echo $datetime->format('Y-m-d H:i:s');
+            exit;
             $uploadedFile = $form['File']->getData();
             if ($uploadedFile) {
                 // Here we upload the file and read it
@@ -362,4 +392,25 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
+    /**
+     * @throws Exception
+     */
+    #[Route(path: '/userloginreport', name: 'user_login_report')]
+    public function userLoginReport(Request $request, PaginatorInterface $paginator, UserLoginRepository $userLogin): Response
+    {
+        $q = $request->query->get('q');
+
+        $queryBuilder = $userLogin->getWithSearchQueryBuilder($q);
+        $pagination = $paginator->paginate(
+            $queryBuilder, /* query NOT result */
+            $request->query->getInt('page', 1), /* page number */
+            20                                         /* limit per page */
+        );
+
+
+
+        return $this->render('loguserlogin/list.html.twig', [
+            'pagination' => $pagination,
+        ]);
+    }
 }

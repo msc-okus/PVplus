@@ -1,0 +1,66 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Losses Table</h3>
+    <div class="grid-x">
+        <div class="cell">
+            <table class="asset_report_table_operations_data" >
+                <thead>
+                    <tr>
+                        <th class="table-center" rowspan="2">Month</th>
+                        <th class="table-center">Forecast</th>
+                        <th class="table-center">Forecast Irradiation</th>
+                        <th class="table-center">Corrected Forecast</th>
+                        <th class="table-center">Actual</th>
+                        <th class="table-center">Irradiation</th>
+                        <th class="table-center">SOR Losses</th>
+                        <th class="table-center">EFOR Losses</th>
+                        <th class="table-center">OMC Losses</th>
+                        <th class="table-center">Other Losses</th>
+                        <th class="table-center">Total Losses</th>
+                        <th class="table-center">Expected</th>
+                    </tr>
+                    <tr>
+                        <th class="table-center">kWh</th>
+                        <th class="table-center">kWh/m<sup>2</sup></th>
+                        <th class="table-center">kWh</th>
+                        <th class="table-center">kWh</th>
+                        <th class="table-center">kWh/m<sup>2</sup></th>
+                        <th class="table-center">kWh</th>
+                        <th class="table-center">kWh</th>
+                        <th class="table-center">kWh</th>
+                        <th class="table-center">kWh</th>
+                        <th class="table-center">kWh</th>
+                        <th class="table-center">kWh</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in waterfallHelpTable %}
+
+                            <tr>
+                                {% if loop.last %}
+                                    <td class="tr_next_columns">Total</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ loop.index }}</td>
+                                {% endif %}
+                                <td class="tr_next_columns"> {{ row.forecast }}</td>
+                                <td class="tr_next_columns"> {{ row.forecastIrr }}</td>
+                                <td class="tr_next_columns"> {{ row.correctedForecast }}</td>
+                                <td class="tr_next_columns"> {{ row.actual }}</td>
+                                <td class="tr_next_columns"> {{ row.irradiation }}</td>
+                                <td class="tr_next_columns"> {{ row.SORLosses }}</td>
+                                <td class="tr_next_columns"> {{ row.EFORLosses }}</td>
+                                <td class="tr_next_columns"> {{ row.OMCLosses }}</td>
+                                <td class="tr_next_columns"> {{ row.otherLosses }}</td>
+                                <td class="tr_next_columns"> {{ row.totalLosses }}</td>
+                                <td class="tr_next_columns"> {{ row.expected }}</td>
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{%  endblock page %}
