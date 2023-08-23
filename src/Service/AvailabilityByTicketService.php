@@ -28,6 +28,11 @@ class AvailabilityByTicketService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private EntityManagerInterface $em,
         private AnlageAvailabilityRepository $availabilityRepository,
         private Case5Repository $case5Repository,
@@ -183,7 +188,7 @@ class AvailabilityByTicketService
             $this->em->flush();
 
             // Store results to Weather Database (VirtualValues !!)
-            $conn = self::getPdoConnection();
+            $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
             $sqlPa = match ($department) {
                 1 => "pa1",
                 2 => "pa2",
@@ -556,7 +561,7 @@ class AvailabilityByTicketService
 
     private function getIstData(Anlage $anlage, $from, $to): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $istData = [];
         $dbNameIst = $anlage->getDbNameIst();
         $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM $dbNameIst WHERE stamp BETWEEN '$from' AND '$to' ORDER BY stamp, unit";

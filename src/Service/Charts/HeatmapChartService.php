@@ -27,7 +27,12 @@ class HeatmapChartService
 
     private WeatherServiceNew $weatherService;
 
-    public function __construct(Security                $security,
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,Security                $security,
                                 AnlagenStatusRepository $statusRepository,
                                 InvertersRepository     $invertersRepo,
                                 IrradiationChartService $irradiationChart,
@@ -77,7 +82,7 @@ class HeatmapChartService
     {
         ini_set('memory_limit', '3G');
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $dataArray = [];
         $pnominverter = $anlage->getPnomInverterArray();
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.

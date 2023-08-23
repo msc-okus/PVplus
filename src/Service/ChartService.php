@@ -35,6 +35,11 @@ class ChartService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private Security $security,
         private AnlagenStatusRepository $statusRepository,
         private AnlageAvailabilityRepository $availabilityRepository,
@@ -602,7 +607,7 @@ class ChartService
      */
     public function getInverterPerformance(Anlage $anlage, $from, $to, $group): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $dataArray = [];
         $sql = 'SELECT stamp, sum(wr_pac) AS power_ac, sum(wr_pdc) AS power_dc, unit AS inverter  FROM '.$anlage->getDbNameIst()." WHERE stamp BETWEEN '$from' AND '$to' AND group_ac = '$group' GROUP by unit";
         $result = $conn->query($sql);
@@ -639,7 +644,7 @@ class ChartService
     public function getAirAndPanelTemp(Anlage $anlage, $from, $to, bool $hour): array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $dataArray = [];
         $counter = 0;
         /*

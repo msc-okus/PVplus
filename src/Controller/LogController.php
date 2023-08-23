@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\GetPdoService;
 
 use App\Repository\LogRepository;
 use Knp\Component\Pager\PaginatorInterface;

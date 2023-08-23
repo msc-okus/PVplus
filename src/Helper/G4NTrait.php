@@ -202,12 +202,14 @@ trait G4NTrait
      */
     public static function getPdoConnection(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
     {
+        echo "Data: $dbdsn, $dbusr, $dbpass<br>";
+
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
-            'database_dsn' => $dbdsn === null ? $_ENV["PLANT_DATABASE_URL"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
-            'database_user' => $dbusr === null ? $_ENV['PLANT_DATABASE_USER'] : $dbusr,
-            'database_pass' => $dbpass === null ? $_ENV['PLANT_DATABASE_PASSWORD'] : $dbpass,
+            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
+            'database_user' => $dbusr,
+            'database_pass' => $dbpass,
         ];
 
         try {
