@@ -18,7 +18,7 @@ trait PVPNameArraysTrait
     {
         return [
             'standart'              => 'standart',
-            'with-stringboxes'      => 'with Stringboxes',
+            'With Stringboxes'      => 'withStringboxes',
         ];
     }
 

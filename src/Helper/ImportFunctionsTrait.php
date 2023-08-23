@@ -176,7 +176,6 @@ trait ImportFunctionsTrait
      */
     function insertData($tableName = NULL, $data = NULL, $host = null, $passwordPlant = null): void
     {
-
         // obtain column template
         $DBDataConnection = $this->getPdoConnectionData($host, $passwordPlant);
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");

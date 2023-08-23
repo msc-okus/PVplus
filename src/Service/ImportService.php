@@ -158,14 +158,14 @@ class ImportService
                     $invertersUnits = $anlage->getSettings()->getInvertersUnits();
 
                     $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits);
+
                     //built array for pvist
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
                 }
 
-                if ($importType == 'with-stringboxes') {
-
+                if ($importType == 'withStringboxes') {
                     $stringBoxes = $bulkMeaserments['stringboxes'];
                     $stringBoxesTime = $stringBoxes[$date];
 
@@ -173,6 +173,7 @@ class ImportService
                     $stringBoxUnits = $anlage->getSettings()->getStringboxesUnits();
 
                     $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
+
                     //built array for pvist
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                         $data_pv_ist[] = $result[0][$j];
@@ -212,7 +213,7 @@ class ImportService
                 self::insertData($tableName, $data_ppc, $this->host, $this->passwordPlant);
                 break;
             case 'api-import-pvist':
-                if ($importType == 'with-stringboxes') {
+                if ($importType == 'withStringboxes') {
                     $tableName = "db__pv_dcist_$anlagenTabelle" . '_copy';
                     self::insertData($tableName, $data_pv_dcist, $this->host, $this->passwordPlant);
                 }
@@ -229,7 +230,7 @@ class ImportService
                     self::insertData($tableName, $data_ppc, $this->host, $this->passwordPlant);
                 }
 
-                if ($importType == 'with-stringboxes') {
+                if ($importType == 'withStringboxes') {
                     $tableName = "db__pv_dcist_$anlagenTabelle" . '_copy';
                     self::insertData($tableName, $data_pv_dcist, $this->host, $this->passwordPlant);
                 }
