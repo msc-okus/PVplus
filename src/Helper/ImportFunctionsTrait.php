@@ -32,9 +32,9 @@ trait ImportFunctionsTrait
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
-            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
+            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
             'database_user' => 'pvpluy_2',
-            'database_pass' => $dbpass,
+            'database_pass' => $dbpass
         ];
 
         try {
@@ -61,14 +61,14 @@ trait ImportFunctionsTrait
      * @param string|null $dbpass
      * @return PDO
      */
-    public static function getPdoConnectionBase(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
+    public static function getPdoConnectionBase(?string $dbdsn = null, ?string $dbpass = null): PDO
     {
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
-            'database_dsn' => $dbdsn === null ? 'mysql:dbname=pvp_base;host='.$_ENV["host"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
-            'database_user' => $dbusr === null ? 'pvpbase' : $dbusr,
-            'database_pass' => $dbpass === null ? $_ENV["password_base"] : $dbpass,
+            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
+            'database_user' =>  'pvpbase',
+            'database_pass' => $dbpass
         ];
 
         try {
