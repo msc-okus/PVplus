@@ -11,6 +11,11 @@ use DateTime;
 class GridService
 {
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private FunctionsService $functions
     )
     {
@@ -30,7 +35,7 @@ class GridService
      */
     public function getGridSum(Anlage $anlage, DateTime $from, DateTime $to, bool $ppc = false): float
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $power = 0;
 
         if ($ppc){

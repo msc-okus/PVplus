@@ -21,6 +21,11 @@ class AvailabilityService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private EntityManagerInterface $em,
         private AnlageAvailabilityRepository $availabilityRepository,
         private Case5Repository $case5Repository,
@@ -171,7 +176,7 @@ class AvailabilityService
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $case3Helper = [];
         $availability = [];
         $case5 = false;
@@ -377,7 +382,7 @@ class AvailabilityService
 
     private function getIstData(Anlage $anlage, $from, $to): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $istData = [];
         $dbNameIst = $anlage->getDbNameIst();
         // $sql = "SELECT a.stamp as stamp, wr_cos_phi_korrektur as cos_phi, b.unit as inverter, b.wr_pac as power_ac FROM (db_dummysoll a left JOIN $dbNameIst b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to' ORDER BY a.stamp, b.unit";
@@ -401,7 +406,7 @@ class AvailabilityService
 
     private function getIrrData(Anlage $anlage, $from, $to): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $irrData = [];
         $sql_einstrahlung = 'SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed FROM (db_dummysoll a left JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to'";
         $resultEinstrahlung = $conn->query($sql_einstrahlung);

@@ -22,6 +22,11 @@ class ImportService
 
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private PVSystDatenRepository $pvSystRepo,
         private AnlagenRepository $anlagenRepository,
         private AnlageAvailabilityRepository $anlageAvailabilityRepo,
@@ -30,10 +35,6 @@ class ImportService
         private AvailabilityService $availabilityService,
         private MeteoControlService $meteoControlService,
         private ManagerRegistry $doctrine,
-        private $host,
-        private $passwordBase,
-        private $passwordPlant,
-
     )
     {
 
@@ -158,14 +159,14 @@ class ImportService
                     $invertersUnits = $anlage->getSettings()->getInvertersUnits();
 
                     $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits);
+
                     //built array for pvist
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
                 }
 
-                if ($importType == 'with-stringboxes') {
-
+                if ($importType == 'withStringboxes') {
                     $stringBoxes = $bulkMeaserments['stringboxes'];
                     $stringBoxesTime = $stringBoxes[$date];
 
@@ -173,6 +174,7 @@ class ImportService
                     $stringBoxUnits = $anlage->getSettings()->getStringboxesUnits();
 
                     $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
+
                     //built array for pvist
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                         $data_pv_ist[] = $result[0][$j];
@@ -204,38 +206,38 @@ class ImportService
 
         switch ($importType) {
             case 'api-import-weather':
-                $tableName = "db__pv_ws_$weatherDbIdent" . '_copy';
-                self::insertData($tableName, $data_pv_weather, $this->host, $this->passwordPlant);
+                    $tableName = "db__pv_ws_$weatherDbIdent" . '_copy';
+                self::insertData($tableName, $data_pv_weather, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
             case 'api-import-ppc':
                 $tableName = "db__pv_ppc_$anlagenTabelle" . '_copy';
-                self::insertData($tableName, $data_ppc, $this->host, $this->passwordPlant);
+                self::insertData($tableName, $data_ppc, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
             case 'api-import-pvist':
-                if ($importType == 'with-stringboxes') {
+                if ($importType == 'withStringboxes') {
                     $tableName = "db__pv_dcist_$anlagenTabelle" . '_copy';
-                    self::insertData($tableName, $data_pv_dcist, $this->host, $this->passwordPlant);
+                    self::insertData($tableName, $data_pv_dcist, $this->host, $this->userPlant, $this->passwordPlant);
                 }
 
                 $tableName = "db__pv_ist_$anlagenTabelle" . '_copy';
-                self::insertData($tableName, $data_pv_ist, $this->host, $this->passwordPlant);
+                self::insertData($tableName, $data_pv_ist, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
             default:
                 $tableName = "db__pv_ws_$weatherDbIdent" . '_copy';
-                self::insertData($tableName, $data_pv_weather, $this->host, $this->passwordPlant);
+                self::insertData($tableName, $data_pv_weather, $this->host, $this->userPlant, $this->passwordPlant);
 
                 if ($hasPpc) {
                     $tableName = "db__pv_ppc_$anlagenTabelle" . '_copy';
-                    self::insertData($tableName, $data_ppc, $this->host, $this->passwordPlant);
+                    self::insertData($tableName, $data_ppc, $this->host, $this->userPlant, $this->passwordPlant);
                 }
 
-                if ($importType == 'with-stringboxes') {
+                if ($importType == 'withStringboxes') {
                     $tableName = "db__pv_dcist_$anlagenTabelle" . '_copy';
-                    self::insertData($tableName, $data_pv_dcist, $this->host, $this->passwordPlant);
+                    self::insertData($tableName, $data_pv_dcist, $this->host, $this->userPlant, $this->passwordPlant);
                 }
 
                 $tableName = "db__pv_ist_$anlagenTabelle" . '_copy';
-                self::insertData($tableName, $data_pv_ist, $this->host, $this->passwordPlant);
+                self::insertData($tableName, $data_pv_ist, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
         }
     }

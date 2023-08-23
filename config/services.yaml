@@ -5,7 +5,9 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     app.host: '%env(host)%'
+    app.user_base: '%env(user_base)%'
     app.password_base: '%env(password_base)%'
+    app.user_plant: '%env(user_plant)%'
     app.password_plant: '%env(password_plant)%'
 services:
     # default configuration for services in *this* file
@@ -19,6 +21,11 @@ services:
             $tempPathBaseUrl: '%kernel.project_dir%/tempfiles'
             $filesystem: '@oneup_flysystem.public_uploads_filesystem_filesystem'
             $kernelProjectDir: '%kernel.project_dir%'
+            $host: '%app.host%'
+            $userBase: '%app.user_base%'
+            $passwordBase: '%app.password_base%'
+            $userPlant: '%app.user_plant%'
+            $passwordPlant: '%app.password_plant%'
 
 
     # custom aliases for autowiring
@@ -50,9 +57,3 @@ services:
 
     App\Command\ForcastWriteDBCommand:
         tags: [ { name: 'console.command', command: 'pvp:forcastwritedb' } ]
-
-    App\Service\ImportService:
-        arguments:
-            $host: '%app.host%'
-            $passwordBase: '%app.password_base%'
-            $passwordPlant: '%app.password_plant%'

@@ -26,15 +26,15 @@ trait ImportFunctionsTrait
      * @param string|null $dbpass
      * @return PDO
      */
-    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbpass = null): PDO
+    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
     {
 
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
-            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
-            'database_user' => 'pvpluy_2',
-            'database_pass' => $dbpass,
+            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
+            'database_user' => $dbusr,
+            'database_pass' => $dbpass
         ];
 
         try {
@@ -66,9 +66,9 @@ trait ImportFunctionsTrait
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
-            'database_dsn' => $dbdsn === null ? 'mysql:dbname=pvp_base;host='.$_ENV["host"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
-            'database_user' => $dbusr === null ? 'pvpbase' : $dbusr,
-            'database_pass' => $dbpass === null ? $_ENV["password_base"] : $dbpass,
+            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
+            'database_user' =>  $dbusr,
+            'database_pass' => $dbpass
         ];
 
         try {
@@ -174,11 +174,10 @@ trait ImportFunctionsTrait
      * @param string|null $host
      * @param string|null $passwordPlant
      */
-    function insertData($tableName = NULL, $data = NULL, $host = null, $passwordPlant = null): void
+    function insertData($tableName = NULL, $data = NULL, $host = null, $userPlant = null, $passwordPlant = null): void
     {
-
         // obtain column template
-        $DBDataConnection = $this->getPdoConnectionData($host, $passwordPlant);
+        $DBDataConnection = $this->getPdoConnectionData($host, $userPlant, $passwordPlant);
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];

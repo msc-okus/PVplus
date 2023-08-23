@@ -202,12 +202,14 @@ trait G4NTrait
      */
     public static function getPdoConnection(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
     {
+        echo "Data: $dbdsn, $dbusr, $dbpass<br>";
+
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
-            'database_dsn' => $dbdsn === null ? $_ENV["PLANT_DATABASE_URL"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
-            'database_user' => $dbusr === null ? $_ENV['PLANT_DATABASE_USER'] : $dbusr,
-            'database_pass' => $dbpass === null ? $_ENV['PLANT_DATABASE_PASSWORD'] : $dbpass,
+            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
+            'database_user' => $dbusr,
+            'database_pass' => $dbpass,
         ];
 
         try {
@@ -409,35 +411,27 @@ trait G4NTrait
         return $_html;
     }
 
-
     /**
-     * Erzeuge Mittelwert aus den übergebenen Werten, Nutze nur Werte für den Mittelwert die gräßer 0 sind
-     * @param array $werte
-     * @param bool $ignoreZero
-     * @return float|null
+     * Ermittelt aus dem übergebenen Array den Mittelwert, wobei 0 Werte nicht in die Berechnung einfließen.
      */
-    public function mittelwert(array $werte, bool $ignoreZero = true): ?float
+    public static function mittelwert(?array $werte): ?float
     {
+        if ($werte === null) {
+            return null;
+        }
         $divisor = $divident = 0;
         foreach ($werte as $wert) {
-            if ($ignoreZero) {
-                if ((float)$wert !== 0.0 && $wert !== null) {
-                    $divisor++;
-                    $divident += (float)$wert;
-                }
-            } else {
-                if ($wert !== null) {
-                    $divisor++;
-                    $divident += (float)$wert;
-                }
+            if ((float) $wert > 0) {
+                ++$divisor;
+                $divident += (float) $wert;
             }
         }
+
         return ($divisor > 0) ? $divident / $divisor : null;
     }
 
-
     /*
-     *With this function we will remove the elements of the second array from the first one
+     * With this function we will remove the elements of the second array from the first one
      * we will return an array with 3 array
      * 1.- the elements left in the first array after the subtraction
      * 2.- the elements left in the second array after the subtraction

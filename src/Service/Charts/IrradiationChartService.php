@@ -13,6 +13,11 @@ class IrradiationChartService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private FunctionsService $functions,
         private InvertersRepository $invertersRep
     )
@@ -32,7 +37,7 @@ class IrradiationChartService
      */
     public function getIrradiation(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         if ($hour) {
@@ -97,7 +102,7 @@ class IrradiationChartService
      */
     public function getIrradiationPlant(Anlage $anlage, $from, $to, bool $hour): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         $dataArray['maxSeries'] = 0;

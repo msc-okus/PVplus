@@ -27,7 +27,12 @@ class SollIstHeatmapChartService
 
     private WeatherServiceNew $weatherService;
 
-    public function __construct(Security $security,
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,Security $security,
         AnlagenStatusRepository $statusRepository,
         InvertersRepository $invertersRepo,
         IrradiationChartService $irradiationChart,
@@ -89,7 +94,7 @@ class SollIstHeatmapChartService
         $from = date('Y-m-d H:00', $sunrise - 3600);
         $to = date('Y-m-d H:00', $sunset + 5400);
 
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $dataArray = [];
 
 // fix the sql Query with an select statement in the join this is much faster
