@@ -74,7 +74,7 @@ class HelpCommand extends Command
         $lastDayOfMonth = $from->format('t');
         $to = date_create("$reportYear-$reportMonth-$lastDayOfMonth 23:55");
 
-        $io->comment("Starte Hilfs Command: Export Bavelse ".$anlage->getAnlName());
+        $io->comment("Starte Hilfs Command: Export ".$anlage->getAnlName());
         #$ergebniss .= $this->reportEpc->createEpcReport($anlage, $reportDate);
         #$this->assetManagement->createAmReport($anlage, $reportMonth, $reportYear);
         $output = $this->exportService->gewichtetBavelseValuesExport($anlage, $from, $to);
