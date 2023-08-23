@@ -128,32 +128,36 @@ class ExportService
                     if (key_exists(date('Y-m-d H:i:00', $stamp), $acPowerArray[$groupAC->getAcGroup()])) {
                         $acPower = $acPowerArray[$groupAC->getAcGroup()][date('Y-m-d H:i:00', $stamp)];
                     } else {
-                        $acPower = ['powerTheo' => '', 'powerTheoPpc' => '', 'powerTheoFt' => '', 'powerTheoFtPpc' => '', 'powerEvu' => '', 'powerEvuPpc' => '' ];
+                        $acPower = ['powerTheo' => null, 'powerTheoPpc' => null, 'powerTheoFt' => null, 'powerTheoFtPpc' => null, 'powerEvu' => null, 'powerEvuPpc' => null];
                     }
                 }
                 $tempArray[] = $weather['airTemp'];
+                $upperIrr = key_exists('upperIrr', $weather) ? $weather['upperIrr'] : 0;
+                $lowerIrr = key_exists('lowerIrr', $weather) ? $weather['lowerIrr'] : 0;
+                $upperIrrPpc = key_exists('upperIrrPpc', $weather) ? $weather['upperIrrPpc'] : 0;
+                $lowerIrrPpc = key_exists('lowerIrrPpc', $weather) ? $weather['lowerIrrPpc'] : 0;
                 if ($groupAC->getIsEastWestGroup()) {
-                    if ($weather['upperIrr'] > 0 && $weather['lowerIrr'] > 0) {
+                    if ($upperIrr > 0 && $lowerIrr > 0) {
                         $factorEast = $groupAC->getPowerEast() / $groupAC->getDcPowerInverter();
                         $factorWest = $groupAC->getPowerWest() / $groupAC->getDcPowerInverter();
-                        $irradiation = $weather['upperIrr'] * $factorEast + $weather['lowerIrr'] * $factorWest;
-                        $irradiationPpc = $weather['upperIrrPpc'] * $factorEast + $weather['lowerIrrPpc'] * $factorWest;
-                    } elseif ($weather['upperIrr'] > 0) {
-                        $irradiation = $weather['upperIrr'];
-                        $irradiationPpc = $weather['upperIrrPpc'];
+                        $irradiation = $upperIrr * $factorEast + $lowerIrr * $factorWest;
+                        $irradiationPpc = $upperIrrPpc * $factorEast + $lowerIrrPpc * $factorWest;
+                    } elseif ($upperIrr > 0) {
+                        $irradiation = $upperIrr;
+                        $irradiationPpc = $upperIrrPpc;
                     } else {
-                        $irradiation = $weather['lowerIrr'];
-                        $irradiationPpc = $weather['lowerIrrPpc'];
+                        $irradiation = $lowerIrr;
+                        $irradiationPpc = $lowerIrrPpc;
                     }
                 } else {
-                    $irradiation = $weather['upperIrr'];
-                    $irradiationPpc = $weather['upperIrrPpc'];
+                    $irradiation = $upperIrr;
+                    $irradiationPpc = $upperIrrPpc;
                 }
                 // TheoPower gewichtet berechnen
-                $outputArray[$rowCounter][$colCounter] = round($weather['upperIrr'] / 1000 / 4, 6); ++$colCounter;
-                $outputArray[$rowCounter][$colCounter] = round($weather['lowerIrr'] / 1000 / 4, 6); ++$colCounter;
-                $outputArray[$rowCounter][$colCounter] = round($weather['upperIrrPpc'] / 1000 / 4, 6); ++$colCounter;
-                $outputArray[$rowCounter][$colCounter] = round($weather['lowerIrrPpc'] / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($upperIrr / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($lowerIrr / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($upperIrrPpc / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($lowerIrrPpc / 1000 / 4, 6); ++$colCounter;
                 $outputArray[$rowCounter][$colCounter] = key_exists('powerTheoFt', $acPower) ? round($acPower['powerTheoFt'], 6) : 0; ++$colCounter;
                 $outputArray[$rowCounter][$colCounter] = key_exists('powerTheoFtPpc', $acPower) ? round($acPower['powerTheoFtPpc'], 6) : 0; ++$colCounter;
 
@@ -232,13 +236,13 @@ class ExportService
             $res = $conn->query($sql);
             while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $row['stamp'];
-                $weather[$groupAC->getAcGroup()][$stamp]['lowerIrrPpc'] = round((float)$row['irr_lower'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['upperIrrPpc'] = round((float)$row['irr_upper'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['airTempPpc'] = round((float)$row['air_temp'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['panelTempPpc'] = round((float)$row['panel_temp'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['windSpeedPpc'] = round((float)$row['wind_speed'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrrPpc'] = round((float)$row['irr_horizontal'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrrAvgPpc'] = round((float)$row['irr_horizontal_avg'], 4);
+                $weather[$groupAC->getAcGroup()][$stamp]['lowerIrrPpc'] = (float)$row['irr_lower'];
+                $weather[$groupAC->getAcGroup()][$stamp]['upperIrrPpc'] = (float)$row['irr_upper'];
+                $weather[$groupAC->getAcGroup()][$stamp]['airTempPpc'] = (float)$row['air_temp'];
+                $weather[$groupAC->getAcGroup()][$stamp]['panelTempPpc'] = (float)$row['panel_temp'];
+                $weather[$groupAC->getAcGroup()][$stamp]['windSpeedPpc'] = (float)$row['wind_speed'];
+                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrrPpc'] = (float)$row['irr_horizontal'];
+                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrrAvgPpc'] = (float)$row['irr_horizontal_avg'];
             }
             unset($res);
 
@@ -248,14 +252,13 @@ class ExportService
             $res = $conn->query($sql);
             while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $row['stamp'];
-                $weather[$groupAC->getAcGroup()][$stamp]['lowerIrr'] = round((float)$row['irr_lower'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['upperIrr'] = round((float)$row['irr_upper'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['airTemp'] = round((float)$row['air_temp'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['panelTemp'] = round((float)$row['panel_temp'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['windSpeed'] = round((float)$row['wind_speed'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrr'] = round((float)$row['irr_horizontal'], 4);
-                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrrAvg'] = round((float)$row['irr_horizontal_avg'], 4);
-
+                $weather[$groupAC->getAcGroup()][$stamp]['lowerIrr'] = (float)$row['irr_lower'];
+                $weather[$groupAC->getAcGroup()][$stamp]['upperIrr'] = (float)$row['irr_upper'];
+                $weather[$groupAC->getAcGroup()][$stamp]['airTemp'] = (float)$row['air_temp'];
+                $weather[$groupAC->getAcGroup()][$stamp]['panelTemp'] = (float)$row['panel_temp'];
+                $weather[$groupAC->getAcGroup()][$stamp]['windSpeed'] = (float)$row['wind_speed'];
+                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrr'] = (float)$row['irr_horizontal'];
+                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrrAvg'] = (float)$row['irr_horizontal_avg'];
             }
             unset($res);
         }
@@ -289,7 +292,7 @@ class ExportService
             $res = $conn->query($sql);
             while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = date_create($row['stamp'])->format('Y-m-d H:i:00');
-                $result[$section][$stamp]['powerEvuPpc'] = $row['power_evu_ppc'];
+                $result[$section][$stamp]['powerEvuPpc'] = (float)$row['power_evu_ppc'];
             }
             unset($res);
 
@@ -298,8 +301,8 @@ class ExportService
             $res = $conn->query($sql);
             while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = date_create($row['stamp'])->format('Y-m-d H:i:00');
-                $result[$section][$stamp]['powerTheo'] = $row['theo_power'];
-                $result[$section][$stamp]['powerTheoFt'] = $row['theo_power_ft'];
+                $result[$section][$stamp]['powerTheo'] = (float)$row['theo_power'];
+                $result[$section][$stamp]['powerTheoFt'] = (float)$row['theo_power_ft'];
             }
             unset($res);
 
@@ -312,8 +315,8 @@ class ExportService
             $res = $conn->query($sql);
             while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = date_create($row['stamp'])->format('Y-m-d H:i:00');
-                $result[$section][$stamp]['powerTheoPpc'] = $row['theo_power'];
-                $result[$section][$stamp]['powerTheoFtPpc'] = $row['theo_power_ft'];
+                $result[$section][$stamp]['powerTheoPpc'] = (float)$row['theo_power'];
+                $result[$section][$stamp]['powerTheoFtPpc'] = (float)$row['theo_power_ft'];
             }
             unset($res);
         }
