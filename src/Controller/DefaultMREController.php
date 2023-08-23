@@ -149,7 +149,7 @@ class DefaultMREController extends BaseController
         $from = $anlage->getEpcReportStart();
         $to = $anlage->getEpcReportEnd();
         $from = date_create("2023-01-01 00:00");
-        $to = date_create("2023-07-23 23:55");
+        $to = date_create("2023-01-31 23:55");
         $output = $exportService->gewichtetBavelseValuesExport($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [

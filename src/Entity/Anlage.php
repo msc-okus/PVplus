@@ -1240,14 +1240,6 @@ class Anlage
         return $this->dbAnlagenData.'.db__pv_ws_'.$this->getNameWeather();
     }
 
-    #[Deprecated]
-    public function getDbNameWeatherOld()
-    {
-        $anlageDbWeather = $this->getNameWeather();
-
-        return 'db__pv_ws_'.$anlageDbWeather;
-    }
-
     public function getAcGroups(): Collection
     {
         return $this->acGroups;
