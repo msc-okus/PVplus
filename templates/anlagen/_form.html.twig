@@ -162,6 +162,7 @@
                         <li class="tabs-title"><a data-tabs-target="modules" href="#modules">Modules</a></li>
                     {% endif %}
                     <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
+                    <li class="tabs-title"><a data-tabs-target="import" href="#settings">Import</a></li>
                     <li class="tabs-title"><a data-tabs-target="forcast" href="#settings">Forecast</a></li>
                     <li class="tabs-title"><a data-tabs-target="timeing" href="#timeing">Time Configuration</a></li>
                     <li class="tabs-title"><a data-tabs-target="AssetManagement" href="#AssetManagement">AM Report Configuration</a></li>
@@ -664,6 +665,34 @@
 
                 {# Settings and Config #}
                 {{ include('anlagen/_incl/_settings.html.twig') }}
+
+                {# Import #}
+                <div class="tabs-panel" id="import">
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell medium-3">
+                            <fieldset class="fieldset" data-equalizer-watch>
+                                <legend>Import Settings</legend>
+                                <div class="grid-x grid-padding-x small-up-1 medium-up-2 large-up-3">
+                                    <table>
+                                        <tr>
+                                            <td><div class="cell"> {{ form_row(anlageForm.settings.symfonyImport) }}</div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div class="cell"> {{ form_row(anlageForm.settings.importType) }}</div></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="cell"> {{ form_row(anlageForm.settings.stringboxesUnits) }}</div>
+                                                <div class="cell"> {{ form_row(anlageForm.settings.invertersUnits) }}</div>
+                                            </td>
+                                        </tr>
+
+                                    </table>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
 
                 {# Timings #}
                 <div class="tabs-panel" id="timeing">

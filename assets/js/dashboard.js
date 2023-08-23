@@ -19,11 +19,6 @@ $(".js-submit-onchange").change(function () {
     $("#chart-control").submit();
 });
 
-$(".js-submit-onchange-select").change(function () {
-    $("#mysubmit").val('select');
-    $("#chart-control").submit();
-});
-
 $('#startDate').fdatepicker({
     language: 'en',
     weekStart: '1',
@@ -47,8 +42,10 @@ $(document).ready(function () {
         $.ajax({
             url: apiUrl
         }).then(function (data) {
+            //console.log(data);
             let from = new Date(data.stampFrom);
             let to = new Date(data.stampTo)
+            //console.log(to.getMinutes().toString().padStart(2, '0'));
             $("#case5id").val(data.id);
             $("#case5from").val(from.getHours().toString().padStart(2, '0') + ":" + from.getMinutes().toString().padStart(2, '0'));
             $("#case5to").val(to.getHours().toString().padStart(2, '0') + ":" + to.getMinutes().toString().padStart(2, '0'));
@@ -63,6 +60,7 @@ $(document).ready(function () {
         $.ajax({
             url: apiUrl
         }).then(function (data) {
+            //console.log(apiUrl);
         });
         $(this).closest('.js-case5-item')
             .remove();
