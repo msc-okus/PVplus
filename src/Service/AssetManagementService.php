@@ -4290,13 +4290,6 @@ class AssetManagementService
                     'type' => 'bar',
                     'stack' => 'x',
                     'data' => $positive,
-                    /*
-                    'label' => [
-                        'show' => true,
-                        'position' => 'top'
-                    ],
-                    */
-
                 ],
                 [
                     'name' => 'negative',
@@ -4426,7 +4419,6 @@ class AssetManagementService
      * @param $begin
      * @param $end
      * @param $anlage
-     * @return Array
      */
     #[ArrayShape(['SORLosses' => "int|mixed", 'EFORLosses' => "int|mixed", 'OMCLosses' => "int|mixed", 'ExpectedLosses' => "int|mixed", 'PPCLosses' => "int|mixed"])]
     public function calculateLosses($begin, $end, $anlage) :Array
@@ -4513,6 +4505,15 @@ class AssetManagementService
         ];
         return $kwhLossesMonthTable;
     }
+
+    /**
+     * @param Anlage $anlage
+     * @param $month
+     * @param $year
+     * @return Array
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
+     */
     private function calcPRInvArray(Anlage $anlage, $month, $year):Array {
         // now we will cheat the data in but in the future we will use the params to retrieve the data
         $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
@@ -4542,6 +4543,13 @@ class AssetManagementService
         $PRArray['PRAvg'] = $prSum / $invNr;
         return $PRArray;
     }
+
+    /**
+     * @param Anlage $anlage
+     * @param $month
+     * @param $year
+     * @return array
+     */
     private function calcPRInvArrayDayly(Anlage $anlage, $month, $year){
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
         $begin = $year."-".$month."-01 00:00";
@@ -4570,6 +4578,12 @@ class AssetManagementService
         $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0; //we make the last average outside of the loop
         return $output;
     }
+
+    /**
+     * @param Anlage $anlage
+     * @param $month
+     * @return float|int|mixed
+     */
     private function getForecastIrr(Anlage $anlage, $month){
         $forecast = $this->forecastDayRepo->findForcastDayByMonth($anlage, $month);
         $sumIrrMonth = 0;
@@ -4577,9 +4591,7 @@ class AssetManagementService
         foreach($forecast as $data){
             if ($data->getIrrday() > 0) $sumIrrMonth = $sumIrrMonth + $data->getIrrday()/1000;
         }
-
         return $sumIrrMonth;
-
     }
 
 }
