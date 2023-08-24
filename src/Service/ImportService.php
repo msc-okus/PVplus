@@ -206,37 +206,37 @@ class ImportService
 
         switch ($importType) {
             case 'api-import-weather':
-                    $tableName = "db__pv_ws_$weatherDbIdent" . '_copy';
+                    $tableName = "db__pv_ws_$weatherDbIdent";
                 self::insertData($tableName, $data_pv_weather, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
             case 'api-import-ppc':
-                $tableName = "db__pv_ppc_$anlagenTabelle" . '_copy';
+                $tableName = "db__pv_ppc_$anlagenTabelle";
                 self::insertData($tableName, $data_ppc, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
             case 'api-import-pvist':
                 if ($importType == 'withStringboxes') {
-                    $tableName = "db__pv_dcist_$anlagenTabelle" . '_copy';
+                    $tableName = "db__pv_dcist_$anlagenTabelle";
                     self::insertData($tableName, $data_pv_dcist, $this->host, $this->userPlant, $this->passwordPlant);
                 }
 
-                $tableName = "db__pv_ist_$anlagenTabelle" . '_copy';
+                $tableName = "db__pv_ist_$anlagenTabelle";
                 self::insertData($tableName, $data_pv_ist, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
             default:
-                $tableName = "db__pv_ws_$weatherDbIdent" . '_copy';
+                $tableName = "db__pv_ws_$weatherDbIdent";
                 self::insertData($tableName, $data_pv_weather, $this->host, $this->userPlant, $this->passwordPlant);
 
                 if ($hasPpc) {
-                    $tableName = "db__pv_ppc_$anlagenTabelle" . '_copy';
+                    $tableName = "db__pv_ppc_$anlagenTabelle";
                     self::insertData($tableName, $data_ppc, $this->host, $this->userPlant, $this->passwordPlant);
                 }
 
                 if ($importType == 'withStringboxes') {
-                    $tableName = "db__pv_dcist_$anlagenTabelle" . '_copy';
+                    $tableName = "db__pv_dcist_$anlagenTabelle";
                     self::insertData($tableName, $data_pv_dcist, $this->host, $this->userPlant, $this->passwordPlant);
                 }
 
-                $tableName = "db__pv_ist_$anlagenTabelle" . '_copy';
+                $tableName = "db__pv_ist_$anlagenTabelle";
                 self::insertData($tableName, $data_pv_ist, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
         }
