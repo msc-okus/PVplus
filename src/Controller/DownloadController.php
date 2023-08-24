@@ -306,7 +306,7 @@ class DownloadController extends AbstractController
             $report = '';
         }
 
-        return $this->render('downloadData/download.html.twig', [
+        return $this->render('downloadData/download_new.html.twig', [
             'downloadAnalysesExportForm' => $formPdfDownload->createView(),
             'downloadAnalysesForm' => $form->createView(),
             'report' => $report,
