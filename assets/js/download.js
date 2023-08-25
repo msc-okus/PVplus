@@ -28,15 +28,15 @@ $(document).ready( async function (tableSelector) {
         buttons: [
             {
                 extend: 'excelHtml5',
-                text: 'Excel',
+                text: 'Donwload as Excel',
                 className:'excelButton',
-                messageTop:' Monats Bericht',
+                messageTop:' Download Data',
                 messageBottom:null,
-                title:'Monthly Report',
-                filename:'monthly report',
+                title:'Download Data',
+                filename:'downloaddata',
                 footer:true,
                 //  autoFilter:true,
-                sheetName: 'Monthly report',
+                sheetName: 'Download Data',
                 exportOptions:{
                     format: {
                         body: function (data, row, column, node) {
@@ -54,6 +54,7 @@ $(document).ready( async function (tableSelector) {
             }
         ]
     });
+
     tx.buttons(0,null).container()
         .appendTo( $('#download_buttons' ));
 

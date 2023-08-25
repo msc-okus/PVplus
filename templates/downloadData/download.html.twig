@@ -87,7 +87,7 @@
                 {{ form_row(downloadAnalysesExportForm.year) }}
                 {{ form_row(downloadAnalysesExportForm.month) }}
                 {{ form_row(downloadAnalysesExportForm.day) }}
-                a<div id="download_buttons"></div>a
+                <div id="download_buttons"></div>
             </div>
 
         </div>
@@ -101,63 +101,63 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>IRR<br><br>[kWh/m2]</th></th>
+                                    <th>IRR <br><br> [kWh/m2]</th></th>
                                     {% if useGridMeterDayData %}
-                                        <th>Grid meter.<br>extern<br>[kWh]</th>
+                                        <th>Grid meter.<br> extern <br>[kWh]</th>
                                     {% endif %}
-                                    <th>Grid meter.<br><br>[kWh]</th>
-                                    <th>AC  Inv.<br>yield<br>[kWh]</th>
-                                    <th>DC  Inv.<br>power<br>[kWh]</th>
-                                    <th>AC Exp.<br>Inv. yield<br>[kWh]</th>
-                                    <th>DC Exp.<br>Inv. power<br>[kWh]</th>
+                                    <th>Grid meter. <br><br> [kWh]</th>
+                                    <th>AC  Inv. <br> yield <br>[kWh]</th>
+                                    <th>DC  Inv. <br> power <br>[kWh]</th>
+                                    <th>AC Exp. <br>Inv. yield <br>[kWh]</th>
+                                    <th>DC Exp. <br>Inv. power <br>[kWh]</th>
                                     {% if useGridMeterDayData %}
                                         <th>PR Grid meter<br>extern<br>[%]</th>
                                     {% endif %}
-                                    <th>PR Grid meter<br><br>[%]</th>
-                                    <th>PR AC<br>Inv.<br>[%]</th>
-                                    <th>PR Exp.<br>Inv.<br>[%]</th>
+                                    <th>PR Grid meter <br><br>[%]</th>
+                                    <th>PR AC <br> Inv. <br>[%]</th>
+                                    <th>PR Exp.<br> Inv. <br>[%]</th>
                                     {% if showAvailability %}
-                                        <th>PA<br><br>[%]</th>
+                                        <th>PA <br>  <br>[%]</th>
                                     {% endif %}
                                     {% if showAvailabilitySecond %}
-                                        <th>PA 2<br><br>[%]</th>
+                                        <th>PA 2 <br><br>[%]</th>
                                     {% endif %}
-                                    <th>Ø Temp<br>Panel<br>[°C]</th>
+                                    <th>Ø Temp <br>Panel <br>[°C]</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {% for key,value in report %}
                                 <tr>
                                     <td>{{ value.time }}</td>
-                                    <td>{{ value.irradiation }}</td>
+                                    <td>{{ value.irradiation|number_format(3,',','.') }}</td>
                                     {% if useGridMeterDayData %}
-                                        <td>{{ value.powerEGridExtMonth }}</td>
+                                        <td>{{ value.powerEGridExtMonth|number_format(3,',','.') }}</td>
                                     {% endif %}
-                                    <td>{{ value.PowerEvuMonth }}</td>
-                                    <td>{{ value.powerActMonth }}</td>
-                                    <td>{{ value.powerDctMonth }}</td>
-                                    <td>{{ value.powerExpMonth }}</td>
-                                    <td>{{ value.powerExpDctMonth }}</td>
+                                    <td>{{ value.PowerEvuMonth|number_format(3,',','.') }}</td>
+                                    <td>{{ value.powerActMonth|number_format(3,',','.') }}</td>
+                                    <td>{{ value.powerDctMonth|number_format(3,',','.') }}</td>
+                                    <td>{{ value.powerExpMonth|number_format(3,',','.') }}</td>
+                                    <td>{{ value.powerExpDctMonth|number_format(3,',','.') }}</td>
                                     {% if useGridMeterDayData %}
-                                        <td>{{ value.prEGridExtMonth }}</td>
+                                        <td>{{ value.prEGridExtMonth|number_format(3,',','.') }}</td>
                                     {% endif %}
-                                    <td>{{ value.prEvuMonth }}</td>
-                                    <td>{{ value.prActMonth }}</td>
-                                    <td>{{ value.prExpMonth }}</td>
+                                    <td>{{ value.prEvuMonth|number_format(3,',','.') }}</td>
+                                    <td>{{ value.prActMonth|number_format(3,',','.') }}</td>
+                                    <td>{{ value.prExpMonth|number_format(3,',','.')}}</td>
                                     {% if showAvailability %}
-                                        <td>{{ value.plantAvailability }}</td>
+                                        <td>{{ value.plantAvailability|number_format(3,',','.') }}</td>
                                     {% endif %}
                                     {% if showAvailabilitySecond %}
-                                        <td>{{ value.plantAvailabilitySecond }}</td>
+                                        <td>{{ value.plantAvailabilitySecond|number_format(3,',','.') }}</td>
                                     {% endif %}
-                                    <td>{{ value.panneltemp }}</td>
+                                    <td>{{ value.panneltemp|number_format(3,',','.') }}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>
                         </table>
                     {% endif %}
                     {% if tableType == 'daybase' %}
-                        <table id="download"  class="basetable monthtable" style="width: 100%; height: 100%">
+                        <table id = "download" class="basetable monthtable" style="width: 100%; height: 100%">
                             <thead>
                             <tr>
                                 <th>Date</th><th>IRR<br><br>[W/m2]</th><th>Grid meter<br>extern<br>[kWh]</th><th>AC  Inv.<br>yield<br>[kWh]</th><th>DC  Inv.<br>power<br>[kWh]</th><th>AC Exp.<br>Inv. yield<br>[kWh]</th><th>DC Exp.<br>Inv. power<br>[kWh]</th>
