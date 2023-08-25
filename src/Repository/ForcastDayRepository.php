@@ -25,7 +25,6 @@ class ForcastDayRepository extends ServiceEntityRepository
         $firstDayMonth = date('z', strtotime("2001-$month-01"));
         $daysInMonth = date('t', strtotime("2001-$month-01"));
         $lastDayMonth = date('z', strtotime("2001-$month-$daysInMonth"));
-
         $forecast = $this->createQueryBuilder('f')
             ->andWhere('f.anlage = :anlageId AND f.day <= :lastDay AND f.day >= :firstDay')
             ->setParameter('anlageId', $anlage->getAnlId())

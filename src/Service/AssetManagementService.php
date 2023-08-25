@@ -9,6 +9,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
 use App\Repository\EconomicVarValuesRepository;
 use App\Repository\PvSystMonthRepository;
+use App\Repository\ForcastDayRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\Functions\SensorService;
@@ -18,6 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Hisune\EchartsPHP\ECharts;
+use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -53,6 +55,7 @@ class AssetManagementService
         private AnlagenRepository $anlagenRepository,
         private SensorService $sensorService,
         private WeatherFunctionsService $weatherFunctions,
+        private ForcastDayRepository $forecastDayRepo,
     )
     {
         $this->conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
@@ -73,7 +76,6 @@ class AssetManagementService
         }
         // then we generate our own report and try to persist it
         $output = $this->assetReport($anlage, $reportMonth, $reportYear, $logId);
-
         $data = [
             'Production' => true,
             'ProdCap' => true,
@@ -90,11 +92,12 @@ class AssetManagementService
             'InvPow' => true,
             'Economics' => true, ];
         $output['data'] = $data;
-
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $pdf = $this->pdf;
         $reportParts = [];
         $content = $output;
         $this->logMessages->updateEntry($logId, 'working', 95);
+        //rendering the header
         $html = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
             'anlage' => $anlage,
@@ -112,9 +115,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['head'] = $pdf->createPage($html, $fileroute, "head", false);// we will store this later in the entity
 
+        //Production vs Forecast vs Expected
         $html = $this->twig->render('report/asset_report_part_1.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -129,9 +132,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['ProductionCapFactor'] = $pdf->createPage($html, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
 
+        // Technical PR and Availability
         $html = $this->twig->render('report/asset_report_technicalPRPA.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -147,9 +150,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['PRPATable'] = $pdf->createPage($html, $fileroute, "PRPATable", false);// we will store this later in the entity
 
+        //Monthly Production
         $html = $this->twig->render('report/production_with_Forecast.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -164,8 +167,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['production_with_forecast'] = $pdf->createPage($html, $fileroute, "production_with_forecast", false);// we will store this later in the entity
+
+        //Cummulative Forecast
         if($anlage->hasPVSYST()) {
             $html = $this->twig->render('report/asset_report_part_2.html.twig', [
                 'anlage' => $anlage,
@@ -181,9 +185,10 @@ class AssetManagementService
                 'forecast_PVSYST' => $content['forecast_PVSYST'],
             ]);
             $html = str_replace('src="//', 'src="https://', $html);
-            $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
             $reportParts['CumForecastPVSYS'] = $pdf->createPage($html, $fileroute, "CumForecastPVSYS", false);// we will store this later in the entity
         }
+
+        //Cummulative Forecast
         $html = $this->twig->render('report/asset_report_part_3.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -198,11 +203,10 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['CumForecastG4N'] = $pdf->createPage($html, $fileroute, "CumForecastG4N", false);// we will store this later in the entity
-        $html = $this->twig->render('report/asset_report_part_4.html.twig', [
 
+        //Cummulative Losses
+        $html = $this->twig->render('report/asset_report_part_4.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -218,10 +222,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['CumLosses'] = $pdf->createPage($html, $fileroute, "CumLosses", false);// we will store this later in the entity
 
+        //Waterfall diagram
         $html = $this->twig->render('report/waterfallProd.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -236,10 +239,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts['waterfallProd'] = $pdf->createPage($html, $fileroute, "waterfallProd", true);// we will store this later in the entity
+        $reportParts['waterfallProd'] = $pdf->createPage($html, $fileroute, "waterfallProd", false);// we will store this later in the entity
 
-
+        //Monthly Production
         $html = $this->twig->render('report/asset_report_part_5.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -273,10 +275,10 @@ class AssetManagementService
             'production_monthly_chart' => $content['production_monthly_chart']
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['MonthlyProd'] = $pdf->createPage($html, $fileroute, "MonthlyProd", false);// we will store this later in the entity
-
         $table = $this->reportsMonthly->buildTable($anlage, null, null, $reportMonth, $reportYear);
+
+        //PR Table
         $html = $this->twig->render('report/asset_report_PRTable.html.twig', [
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -288,10 +290,9 @@ class AssetManagementService
             'days'        => $table,
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-
         $reportParts['PRTable'] = $pdf->createPage($html, $fileroute, "PRTable", false);// we will store this later in the entity
 
+        //Inverter Ranking
         $html = $this->twig->render('report/InverterRank.html.twig', [
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -307,10 +308,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-
         $reportParts['InverterRank'] = $pdf->createPage($html, $fileroute, "InverterRank", false);// we will store this later in the entity
 
+        //inverter efficiency rank
         $html = $this->twig->render('report/_inverter_efficiency_rank.html.twig', [
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -323,10 +323,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-
         $reportParts['InverterEfficiencyRank'] = $pdf->createPage($html, $fileroute, "InverterEfficiencyRank", false);// we will store this later in the entity
 
+        //Expected vs actual
         $html = $this->twig->render('report/asset_report_part_6.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -340,9 +339,9 @@ class AssetManagementService
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['DailyProd'] = $pdf->createPage($html, $fileroute, "ProdExpvsAct", false);// we will store this later in the entity
 
+        //String currents
         $html = $this->twig->render('report/asset_report_part_7.html.twig', [
 
             'anlage' => $anlage,
@@ -358,8 +357,9 @@ class AssetManagementService
             'acGroups' => $content['acGroups'],
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['String'] = $pdf->createPage($html, $fileroute, "String", false);// we will store this later in the entity
+
+        //Inverter power difference g4n
         $html = $this->twig->render('report/asset_report_part_8.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -374,9 +374,9 @@ class AssetManagementService
             'acGroups' => $content['acGroups'],
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['Inverter'] = $pdf->createPage($html, $fileroute, "Inverter", false);// we will store this later in the entity
 
+        //Availability year
         $html = $this->twig->render('report/asset_report_part_9.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -392,8 +392,9 @@ class AssetManagementService
             'plantAvailabilityCurrentYear' => $content['plantAvailabilityCurrentYear'],
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['AvailabilityYearOverview'] = $pdf->createPage($html, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
+
+        //Availability tickets
         $html = $this->twig->render('report/asset_report_part_10.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -415,8 +416,9 @@ class AssetManagementService
             'losseskwhchartYearMonthly' => $content['losseskwhchartYearMonthly']
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['AvailabilityYear'] = $pdf->createPage($html, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
+
+        //Availability by tickets monthly
         $html =$this->twig->render('report/asset_report_part_11.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -437,8 +439,9 @@ class AssetManagementService
             'percentageTableMonth' => $content['percentageTableMonth']
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['AvailabilityMonth'] = $pdf->createPage($html, $fileroute, "AvailabilityMonth", false);// we will store this later in the entity
+
+        //Availability heatmap
         $html = $this->twig->render('report/asset_report_part_12.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -453,11 +456,10 @@ class AssetManagementService
             'acGroups' => $content['acGroups']
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts['AvailabilityByInverter'] = $pdf->createPage($html, $fileroute, "AvailabilityByInverter", false);// we will store this later in the entity
 
         if ($anlage->getEconomicVarNames() !== null) {
-
+            //Economics
             $html = $this->twig->render('report/asset_report_part_13.html.twig', [
                 'anlage' => $anlage,
                 'month' => $reportMonth,
@@ -485,7 +487,7 @@ class AssetManagementService
 
             ]);
             $html = str_replace('src="//', 'src="https://', $html);
-            $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+
             $reportParts['Economic'] = $pdf->createPage($html, $fileroute, "Economic", false);// we will store this later in the entity
         }
 
@@ -564,9 +566,10 @@ class AssetManagementService
             if ($anlage->getIsOstWestAnlage()) {
                 $irradiation[] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
             } else {
-                $irradiation[] = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
+                $irradiation[] = $weather['upperIrr'] / 4 / 1000; // Umrechnung zu kWh
             }
         }
+
         $daysInReportMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
         $monthArray = [
             'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
@@ -2034,72 +2037,42 @@ class AssetManagementService
         $sqlw = 'SELECT count(db_id) as quarters
                     FROM  '.$anlage->getDbNameWeather()."  
                     WHERE stamp BETWEEN '$begin' AND '$end' AND (g_lower + g_upper)/2 > '".$anlage->getThreshold2PA()."'";// hay que cambiar aqui para que la radiacion sea mayor que un valor
-
         $resw = $this->conn->query($sqlw);
         $sumquarters = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
 
         $sumLossesYearSOR = 0;
         $sumLossesYearEFOR = 0;
         $sumLossesYearOMC = 0;
-        foreach ($this->ticketDateRepo->getAllByInterval($report['reportYear'].'-01-01', $end,$anlage) as $date){
-            $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
-            $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
-            foreach($date->getInverterArray() as $inverter) {
-                if ($inverter != "*") {
-                    switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
+        for($i = $report['reportMonth'] - 1; $i >= 0 ; $i--){
+            $invertedMonthArray[] = $monthArray[$i];
+            $kwhLosses[$i] = $this->calculateLosses($report['reportYear']."-".($i + 1)."-01",$report['reportYear']."-".($i + 1)."-".cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']),$anlage);
 
-                        case 1 :
-                            $inverterQuery = " AND group_dc = $inverter";
-                            break;
-                        default:
-                            $inverterQuery = " AND group_ac = $inverter";
-                    }
-                }else $inverterQuery = "";
+            if ($anlage->getTotalKpi() < 100)$tempExp = $tbody_a_production['powerExp'][$i] * ((100-$anlage->getTotalKpi())/100);
 
-                if ($date->getAlertType() == 10) {
-                    $sqlActual = "SELECT sum(wr_pac) as power
-                            FROM " . $anlage->getDbNameIst() . " 
-                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  ". $inverterQuery;
-
-                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
-                            FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  ". $inverterQuery;
-                    $resAct = $this->conn->query($sqlActual);
-                    $resExp = $this->conn->query($sqlExpected);
-
-                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                    else $exp = 0;
-                    $sumLossesYearSOR = $sumLossesYearSOR + $exp;
-                } else if ($date->getAlertType() == 20) {
-                    $sqlActual = "SELECT sum(wr_pac) as power
-                            FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' ". $inverterQuery;
-                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
-                            FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' ".$inverterQuery;
-                    $resAct = $this->conn->query($sqlActual);
-                    $resExp = $this->conn->query($sqlExpected);
-
-                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                    else $exp = 0;
-
-                    $sumLossesYearEFOR = $sumLossesYearEFOR + $exp;
-                } else if ($date->getAlertType() == 30) {
-                    $sqlActual = "SELECT sum(wr_pac) as power
-                            FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
-                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
-                            FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
-                    $resAct = $this->conn->query($sqlActual);
-                    $resExp = $this->conn->query($sqlExpected);
-
-                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                    else $exp = 0;
-                    $sumLossesYearOMC = $sumLossesYearEFOR + $exp;
-                }
+            if ($tempExp > 0) {
+                $table_percentage_monthly['Actual'][] = (int)($tbody_a_production['powerAct'][$i] * 100 / $tempExp);
+                $table_percentage_monthly['ExpectedG4N'][] = 100;
+                $table_percentage_monthly['Forecast'][] = (int)($tbody_a_production['forecast'][$i] * 100 / $tempExp);
+                $table_percentage_monthly['SORLosses'][] = number_format(-($kwhLosses[$i]['SORLosses'] * 100 / $tempExp), 2);
+                $table_percentage_monthly['EFORLosses'][] = number_format(-($kwhLosses[$i]['EFORLosses'] * 100 / $tempExp), 2);
+                $table_percentage_monthly['OMCLosses'][] = number_format(-($kwhLosses[$i]['OMCLosses'] * 100 / $tempExp), 2);
+            }
+            else {
+                $table_percentage_monthly['Actual'][] = 0;
+                $table_percentage_monthly['ExpectedG4N'][] = 0;
+                $table_percentage_monthly['Forecast'][] = 0;
+                $table_percentage_monthly['SORLosses'][] = 0;
+                $table_percentage_monthly['EFORLosses'][] = 0;
+                $table_percentage_monthly['OMCLosses'][] = 0;
             }
         }
+
+        foreach($kwhLosses as $data){
+            $sumLossesYearSOR = $sumLossesYearSOR + $data['SORLosses'];
+            $sumLossesYearEFOR = $sumLossesYearEFOR + $data['EFORLosses'];
+            $sumLossesYearOMC = $sumLossesYearOMC + $data['OMCLosses'];
+        }
+
         if ($sumquarters > 0) {
             $actualAvailabilityPorcent = (($sumquarters - $totalErrors) / $sumquarters) * 100;
             $actualSOFPorcent = 100 - (($sumquarters - $SOFErrors) / $sumquarters) * 100;
@@ -2165,68 +2138,9 @@ class AssetManagementService
 
         $resw = $this->conn->query($sqlw);
 
-        $sumLossesMonthSOR = 0;
-        $sumLossesMonthEFOR = 0;
-        $sumLossesMonthOMC = 0;
-
-        foreach ($this->ticketDateRepo->getAllByInterval($begin, $end, $anlage) as $date){
-            $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
-            $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
-            foreach($date->getInverterArray() as $inverter) {
-                if($inverter != "*") {
-                    switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
-                        case 1 :
-                            $inverterQuery = " AND group_dc = '$inverter'";
-                            break;
-                        default:
-                            $inverterQuery = " AND group_ac = '$inverter'";
-                    }
-                }
-                else $inverterQuery = "";
-                if ($date->getAlertType() == 10) {
-                    $sqlActual = "SELECT sum(wr_pac) as power
-                            FROM " . $anlage->getDbNameIst() . " 
-                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
-
-                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
-                            FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
-                    $resAct = $this->conn->query($sqlActual);
-                    $resExp = $this->conn->query($sqlExpected);
-
-                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                    else $exp = 0;
-                    $sumLossesMonthSOR = $sumLossesMonthSOR + $exp;
-                } else if ($date->getAlertType() == 20) {
-                    $sqlActual = "SELECT sum(wr_pac) as power
-                            FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
-                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
-                            FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
-                    $resAct = $this->conn->query($sqlActual);
-                    $resExp = $this->conn->query($sqlExpected);
-
-                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                    else $exp = 0;
-                    $sumLossesMonthEFOR = $sumLossesMonthEFOR + $exp;
-                } else if ($date->getAlertType() == 30) {
-                    $sqlActual = "SELECT sum(wr_pac) as power
-                            FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
-                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
-                            FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
-                    $resAct = $this->conn->query($sqlActual);
-                    $resExp = $this->conn->query($sqlExpected);
-
-                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                    else $exp = 0;
-                    $sumLossesMonthOMC = $sumLossesMonthEFOR + $exp;
-                }
-            }
-        }
-
+        $sumLossesMonthSOR = $kwhLosses[$report['reportMonth'] - 1]['SORLosses'];
+        $sumLossesMonthEFOR = $kwhLosses[$report['reportMonth'] - 1]['EFORLosses'];
+        $sumLossesMonthOMC = $kwhLosses[$report['reportMonth'] - 1]['OMCLosses'];
         $quartersInMonth = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
         if ($quartersInMonth > 0) {
             $actualAvailabilityPorcentMonth = (($quartersInMonth - $totalErrorsMonth) / $quartersInMonth) * 100;
@@ -2587,29 +2501,6 @@ class AssetManagementService
             'OMCLosses' => $kwhLossesYearTable['OMCLosses'],
         ];
 
-        for($i = $report['reportMonth'] - 1; $i >= 0 ; $i--){
-            $invertedMonthArray[] = $monthArray[$i];
-            $kwhLosses[$i] = $this->calculateLosses($report['reportYear']."-".($i + 1)."-01",$report['reportYear']."-".($i + 1)."-".cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']),$anlage);
-
-            if ($anlage->getTotalKpi() < 100)$tempExp = $tbody_a_production['powerExp'][$i] * ((100-$anlage->getTotalKpi())/100);
-
-            if ($tempExp > 0) {
-                $table_percentage_monthly['Actual'][] = (int)($tbody_a_production['powerAct'][$i] * 100 / $tempExp);
-                $table_percentage_monthly['ExpectedG4N'][] = 100;
-                $table_percentage_monthly['Forecast'][] = (int)($tbody_a_production['forecast'][$i] * 100 / $tempExp);
-                $table_percentage_monthly['SORLosses'][] = number_format(-($kwhLosses[$i]['SORLosses'] * 100 / $tempExp), 2);
-                $table_percentage_monthly['EFORLosses'][] = number_format(-($kwhLosses[$i]['EFORLosses'] * 100 / $tempExp), 2);
-                $table_percentage_monthly['OMCLosses'][] = number_format(-($kwhLosses[$i]['OMCLosses'] * 100 / $tempExp), 2);
-            }
-            else {
-                $table_percentage_monthly['Actual'][] = 0;
-                $table_percentage_monthly['ExpectedG4N'][] = 0;
-                $table_percentage_monthly['Forecast'][] = 0;
-                $table_percentage_monthly['SORLosses'][] = 0;
-                $table_percentage_monthly['EFORLosses'][] = 0;
-                $table_percentage_monthly['OMCLosses'][] = 0;
-            }
-        }
 
         $this->logMessages->updateEntry($logId, 'working', 70);
         $chart = new ECharts();
@@ -4245,6 +4136,7 @@ class AssetManagementService
 
         //Waterfall page generation
 
+
         $sumForecast = 0;
         $sumForecastIrr = 0;
         $sumActual = 0;
@@ -4253,30 +4145,41 @@ class AssetManagementService
         $sumSOR = 0;
         $sumEFOR = 0;
         $sumOMC = 0;
+        $sumExpectedLosses = 0;
+        $sumPPCLosses = 0;
         $sumOthers = 0;
         $sumCorrectedForecast = 0;
         $sumTotalLosses = 0;
+
         for($i = 0; $i < $report['reportMonth'] ; $i++){
+            if ($anlage->getUseDayForecast()){
+                $forecastIrr = $this->getForecastIrr( $anlage, $i + 1);
+                if ($forecastIrr == null) $forecastIrr = $irradiation[$i];
+            }
+            else{
+                $forecastIrr = $irradiation[$i];
+            }
+
             $waterfallDiagramHelpTable[$i]['forecast'] = round($forecast[$i], 2);
             $sumForecast = $sumForecast + $waterfallDiagramHelpTable[$i]['forecast'];
-            if($waterfallDiagramHelpTable[$i]['irradiation'] > 0) {
-                $irrCorrection = $irradiation[$i]['forecastIrr'] / $irradiation[$i]['irradiation'];
+            if( $irradiation[$i] > 0) {
+                $irrCorrection = $forecastIrr / $irradiation[$i];
             }
             else{
                 $irrCorrection = 1 ;
             }
-            $waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] * $irrCorrection, 2);
+            $waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] / $irrCorrection, 2);
             $sumCorrectedForecast = $sumCorrectedForecast + $waterfallDiagramHelpTable[$i]['correctedForecast'];
 
-            $waterfallDiagramHelpTable[$i]['forecastIrr'] = round($irradiation[$i], 2);
+            $waterfallDiagramHelpTable[$i]['forecastIrr'] = round($forecastIrr, 2);
             $sumForecastIrr = $sumForecastIrr + $waterfallDiagramHelpTable[$i]['forecastIrr'];
             
             $waterfallDiagramHelpTable[$i]['actual'] = round($tbody_a_production['powerAct'][$i], 2);
             $sumActual = $sumActual + $waterfallDiagramHelpTable[$i]['actual'];
-    
-            $waterfallDiagramHelpTable[$i]['irradiation'] = round($waterfallDiagramHelpTable[$i]['forecastIrr'], 2);
+
+            $waterfallDiagramHelpTable[$i]['irradiation'] = round( $irradiation[$i], 2);
             $sumIrr = $sumIrr + $waterfallDiagramHelpTable[$i]['forecastIrr'];
-            
+
             $waterfallDiagramHelpTable[$i]['SORLosses'] = round($kwhLosses[$i]['SORLosses'], 2);
             $sumSOR = $sumSOR + $waterfallDiagramHelpTable[$i]['SORLosses'];
             
@@ -4286,7 +4189,15 @@ class AssetManagementService
             $waterfallDiagramHelpTable[$i]['OMCLosses'] = round($kwhLosses[$i]['OMCLosses'], 2);
             $sumOMC = $sumOMC + $waterfallDiagramHelpTable[$i]['OMCLosses'];
 
-            $sumLosses = $waterfallDiagramHelpTable[$i]['SORLosses'] + $waterfallDiagramHelpTable[$i]['EFORLosses'] + $waterfallDiagramHelpTable[$i]['OMCLosses'];
+
+            $waterfallDiagramHelpTable[$i]['PPCLosses'] = round($kwhLosses[$i]['PPCLosses'], 2);
+            $sumPPCLosses = $sumPPCLosses + $waterfallDiagramHelpTable[$i]['PPCLosses'];
+
+
+            $waterfallDiagramHelpTable[$i]['ExpectedLosses'] = round($kwhLosses[$i]['ExpectedLosses'], 2);
+            $sumExpectedLosses = $sumExpectedLosses + $waterfallDiagramHelpTable[$i]['ExpectedLosses'];
+
+            $sumLosses = $waterfallDiagramHelpTable[$i]['SORLosses'] + $waterfallDiagramHelpTable[$i]['EFORLosses'] + $waterfallDiagramHelpTable[$i]['OMCLosses'] + $waterfallDiagramHelpTable[$i]['ExpectedLosses'] + $waterfallDiagramHelpTable[$i]['PPCLosses'];
 
             $waterfallDiagramHelpTable[$i]['otherLosses'] = round($tbody_a_production['powerExp'][$i] - $tbody_a_production['powerAct'][$i] - $sumLosses, 2);
             $sumOthers = $sumOthers + $waterfallDiagramHelpTable[$i]['otherLosses'];
@@ -4305,6 +4216,8 @@ class AssetManagementService
         $waterfallDiagramHelpTable[$i + 1]['SORLosses'] = $sumSOR;
         $waterfallDiagramHelpTable[$i + 1]['EFORLosses'] = $sumEFOR;
         $waterfallDiagramHelpTable[$i + 1]['OMCLosses'] = $sumOMC;
+        $waterfallDiagramHelpTable[$i + 1]['PPCLosses'] = $sumPPCLosses;
+        $waterfallDiagramHelpTable[$i + 1]['ExpectedLosses'] = $sumExpectedLosses;
         $waterfallDiagramHelpTable[$i + 1]['otherLosses'] = $sumOthers;
         $waterfallDiagramHelpTable[$i + 1]['expected'] = $sumExp;
         $waterfallDiagramHelpTable[$i + 1]['totalLosses'] = $sumTotalLosses;
@@ -4313,7 +4226,6 @@ class AssetManagementService
         foreach ($waterfallDiagramHelpTable[(int)$report['reportMonth'] - 1] as $key => $value){
             if ($key != "forecastIrr" && $key != "irradiation" && $key != "forecast" && $key != "totalLosses")$data[] = round($value, 2);
         }
-        //dd($data, $waterfallDiagramHelpTable[(int)$report['reportMonth'] - 1]);
         $positive = [];
         $negative = [];
         $help = [];
@@ -4347,7 +4259,16 @@ class AssetManagementService
 
         $chart->xAxis = [
             'type' => 'category',
-            'data' =>['Forecast', 'Actual', 'SOR Losses', ' EFOR Losses', 'OMC Losses', 'Other Losses', 'Expected'],
+            'axisLabel' => [
+                'show' => true,
+                'margin' => '10',
+                'right' => '10',
+                'interval' => '0'
+            ],
+            'splitArea' => [
+                'show' => true,
+            ],
+            'data' =>['Forecast', 'Actual', 'SOR Losses', ' EFOR Losses', 'OMC Losses', 'Regulatory', 'Exp-Act Losses', 'Other Losses', 'Expected'],
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4374,12 +4295,6 @@ class AssetManagementService
                     'type' => 'bar',
                     'stack' => 'x',
                     'data' => $positive,
-
-                    'label' => [
-                        'show' => true,
-                        'position' => 'top'
-                    ],
-
                 ],
                 [
                     'name' => 'negative',
@@ -4396,9 +4311,10 @@ class AssetManagementService
 
         $option =[
             'animation' => false,
+
         ];
         $chart->setOption($option);
-        $waterfallDiagram = $chart->render('waterfal', ['style' => 'height: 450px; width:28cm;']);
+        $waterfallDiagram = $chart->render('waterfall', ['style' => 'height: 450px; width:28cm;']);
 
         // end Chart Losses compared cummulated
         $output = [
@@ -4508,13 +4424,15 @@ class AssetManagementService
      * @param $begin
      * @param $end
      * @param $anlage
-     * @return Array
      */
-    public function calculateLosses($begin, $end, $anlage):Array
+    #[ArrayShape(['SORLosses' => "int|mixed", 'EFORLosses' => "int|mixed", 'OMCLosses' => "int|mixed", 'ExpectedLosses' => "int|mixed", 'PPCLosses' => "int|mixed"])]
+    public function calculateLosses($begin, $end, $anlage) :Array
     {
         $sumLossesMonthSOR = 0;
         $sumLossesMonthEFOR = 0;
         $sumLossesMonthOMC = 0;
+        $sumLossesMonthExpected = 0;
+        $sumLossesMonthPPC = 0;
 
         foreach ($this->ticketDateRepo->getAllByInterval($begin, $end, $anlage) as $date){
             $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
@@ -4531,14 +4449,9 @@ class AssetManagementService
                 }
                 else $inverterQuery = "";
                 if ($date->getAlertType() == 10) {
-                    $sqlActual = "SELECT sum(wr_pac) as power
-                            FROM " . $anlage->getDbNameIst() . " 
-                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
-
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
-                    $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
                     if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
@@ -4546,13 +4459,9 @@ class AssetManagementService
 
                     $sumLossesMonthSOR = $sumLossesMonthSOR + $exp;
                 } else if ($date->getAlertType() == 20) {
-                    $sqlActual = "SELECT sum(wr_pac) as power
-                            FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
-                    $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
                     if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
@@ -4560,19 +4469,34 @@ class AssetManagementService
 
                     $sumLossesMonthEFOR = $sumLossesMonthEFOR + $exp;
                 } else if ($date->getAlertType() == 30) {
-                    $sqlActual = "SELECT sum(wr_pac) as power
-                            FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
-                    $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
                     if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
                     else $exp = 0;
                     $sumLossesMonthOMC = $sumLossesMonthEFOR + $exp;
+                } else if ($date->getAlertType() == 60) {
+                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                            FROM " . $anlage->getDbNameDcSoll() . "                      
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
+                    $resExp = $this->conn->query($sqlExpected);
+
+                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                    else $exp = 0;
+                    $sumLossesMonthExpected = $sumLossesMonthExpected + $exp;
+                } else if ($date->getAlertType() == 50) {
+                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                            FROM " . $anlage->getDbNameDcSoll() . "                      
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
+                    $resExp = $this->conn->query($sqlExpected);
+
+                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                    else $exp = 0;
+                    $sumLossesMonthPPC = $sumLossesMonthPPC + $exp;
                 }
+
             }
         }
 
@@ -4580,10 +4504,21 @@ class AssetManagementService
         $kwhLossesMonthTable = [
             'SORLosses'     => $sumLossesMonthSOR,
             'EFORLosses'    => $sumLossesMonthEFOR,
-            'OMCLosses'     => $sumLossesMonthOMC
+            'OMCLosses'     => $sumLossesMonthOMC,
+            'ExpectedLosses' => $sumLossesMonthExpected,
+            'PPCLosses'     => $sumLossesMonthPPC,
         ];
         return $kwhLossesMonthTable;
     }
+
+    /**
+     * @param Anlage $anlage
+     * @param $month
+     * @param $year
+     * @return Array
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
+     */
     private function calcPRInvArray(Anlage $anlage, $month, $year):Array {
         // now we will cheat the data in but in the future we will use the params to retrieve the data
         $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
@@ -4613,6 +4548,13 @@ class AssetManagementService
         $PRArray['PRAvg'] = $prSum / $invNr;
         return $PRArray;
     }
+
+    /**
+     * @param Anlage $anlage
+     * @param $month
+     * @param $year
+     * @return array
+     */
     private function calcPRInvArrayDayly(Anlage $anlage, $month, $year){
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
         $begin = $year."-".$month."-01 00:00";
@@ -4625,11 +4567,7 @@ class AssetManagementService
         $efficiencyCount = 0;
         foreach($res->fetchAll(PDO::FETCH_ASSOC) as $result){
             if ($result['inverter'] != $inverter){
-                if ($efficiencyCount > 0){
-                    $output['avg'][$inverter] = round($efficiencySum / $efficiencyCount, 2);
-                } else{
-                    $output['avg'][$inverter] = 0;
-                }
+                $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0;
                 $inverter = $result['inverter'];
                 $index = 1;
                 $efficiencySum = 0;
@@ -4642,8 +4580,23 @@ class AssetManagementService
                 $index = $index + 1;
             }
         }
-        $output['avg'][$inverter ] = round($efficiencySum / $efficiencyCount, 2); //we make the last average outside of the loop
+        $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0; //we make the last average outside of the loop
         return $output;
+    }
+
+    /**
+     * @param Anlage $anlage
+     * @param $month
+     * @return float|int|mixed
+     */
+    private function getForecastIrr(Anlage $anlage, $month){
+        $forecast = $this->forecastDayRepo->findForcastDayByMonth($anlage, $month);
+        $sumIrrMonth = 0;
+
+        foreach($forecast as $data){
+            if ($data->getIrrday() > 0) $sumIrrMonth = $sumIrrMonth + $data->getIrrday()/1000;
+        }
+        return $sumIrrMonth;
     }
 
 }
