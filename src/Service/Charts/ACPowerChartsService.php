@@ -170,11 +170,11 @@ class ACPowerChartsService
                             $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
                         }
                     }
-                    $irrSum += $hour ? $dataArray['chart'][$counter]['irradiation'] * 4 : $dataArray['chart'][$counter]['irradiation'];
+                    $irrSum += $hour ? $dataArray['chart'][$counter]['irradiation'] : $dataArray['chart'][$counter]['irradiation'] / 4;
                 }
                 ++$counter;
             }
-            $dataArray['irrSum'] = round($irrSum, 2);
+            $dataArray['irrSum'] = round($irrSum , 2);
             $dataArray['actSum'] = round($actSum, 2);
             $dataArray['expSum'] = round($expSum, 2);
             $dataArray['expEvuSum'] = round($expEvuSum, 2);

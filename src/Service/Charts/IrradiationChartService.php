@@ -47,10 +47,12 @@ class IrradiationChartService
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 // upper pannel
                 $irr_upper = (float) str_replace(',', '.', $ro['g_upper']);
+                if ($hour) $irr_upper = $irr_upper / 4;
                 if ($ro['g_upper'] = "") $irr_upper = null;
 
                 // lower pannel
                 $irr_lower = (float) str_replace(',', '.', $ro['g_lower']);
+                if ($hour) $irr_lower = $irr_lower / 4;
                 if ($ro['g_lower'] = "") $irr_lower = null;
 
                 $stamp = self::timeAjustment(strtotime($ro['stamp']), $anlage->getWeatherStation()->gettimeZoneWeatherStation());
