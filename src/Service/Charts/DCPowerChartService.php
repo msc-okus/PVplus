@@ -8,7 +8,6 @@ use App\Repository\AnlagenStatusRepository;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use PDO;
-use Symfony\Component\Security\Core\Security;
 
 class DCPowerChartService
 {
@@ -20,7 +19,6 @@ class DCPowerChartService
         private $passwordBase,
         private $userPlant,
         private $passwordPlant,
-        private Security $security,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository $invertersRepo,
         private IrradiationChartService $irradiationChart,
