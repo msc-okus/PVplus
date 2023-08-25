@@ -24,7 +24,12 @@ class UploaderHelper
 
     private LoggerInterface $logger;
 
-    public function __construct(FilesystemInterface $filesystem, RequestStackContext $requestStackContext, LoggerInterface $logger,KernelInterface $kernel)
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,FilesystemInterface $filesystem, RequestStackContext $requestStackContext, LoggerInterface $logger,KernelInterface $kernel)
     {
         $this->filesystem = $filesystem;
         $this->requestStackContext = $requestStackContext;

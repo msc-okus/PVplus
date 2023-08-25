@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\GetPdoService;
 
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\AnlageCase6;

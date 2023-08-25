@@ -26,14 +26,14 @@ trait ImportFunctionsTrait
      * @param string|null $dbpass
      * @return PDO
      */
-    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbpass = null): PDO
+    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
     {
 
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
             'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
-            'database_user' => 'pvpluy_2',
+            'database_user' => $dbusr,
             'database_pass' => $dbpass
         ];
 
@@ -61,13 +61,13 @@ trait ImportFunctionsTrait
      * @param string|null $dbpass
      * @return PDO
      */
-    public static function getPdoConnectionBase(?string $dbdsn = null, ?string $dbpass = null): PDO
+    public static function getPdoConnectionBase(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
     {
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
             'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
-            'database_user' =>  'pvpbase',
+            'database_user' =>  $dbusr,
             'database_pass' => $dbpass
         ];
 
@@ -174,10 +174,10 @@ trait ImportFunctionsTrait
      * @param string|null $host
      * @param string|null $passwordPlant
      */
-    function insertData($tableName = NULL, $data = NULL, $host = null, $passwordPlant = null): void
+    function insertData($tableName = NULL, $data = NULL, $host = null, $userPlant = null, $passwordPlant = null): void
     {
         // obtain column template
-        $DBDataConnection = $this->getPdoConnectionData($host, $passwordPlant);
+        $DBDataConnection = $this->getPdoConnectionData($host, $userPlant, $passwordPlant);
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];

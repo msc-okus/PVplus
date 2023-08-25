@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\GetPdoService;
 use App\Helper\G4NTrait;
 use App\Message\Command\ImportData;
 use App\Form\Model\ImportToolsModel;
@@ -17,7 +18,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\MeteoControlService;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\ImportService;
-
+/**
+ * @IsGranted("ROLE_G4N")
+ *
+ */
 class ImportToolsController extends BaseController
 {
     use ImportFunctionsTrait;

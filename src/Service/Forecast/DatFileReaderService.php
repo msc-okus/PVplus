@@ -22,7 +22,12 @@ class DatFileReaderService {
      * @param string $rowDelimiter
      * @param string $position
      */
-    public function __construct($filename, $delimiter = ",", $rowDelimiter = "r", $position = 0)  {
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,$filename, $delimiter = ",", $rowDelimiter = "r", $position = 0)  {
         $this->delimiter = $delimiter;
         $this->rowDelimiter = $rowDelimiter;
         $this->position = $position;

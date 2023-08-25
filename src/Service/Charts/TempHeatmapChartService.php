@@ -27,7 +27,12 @@ class TempHeatmapChartService
 
     private WeatherServiceNew $weatherService;
 
-    public function __construct(Security $security,
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,Security $security,
         AnlagenStatusRepository $statusRepository,
         InvertersRepository $invertersRepo,
         IrradiationChartService $irradiationChart,
@@ -99,7 +104,7 @@ class TempHeatmapChartService
         $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
         $to = self::timeAjustment($to, 1);
 
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $dataArray = [];
 
         switch ($anlage->getConfigType()) {
