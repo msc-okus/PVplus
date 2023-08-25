@@ -550,6 +550,9 @@ class Anlage
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: DayLightData::class)]
     private Collection $dayLightData;
 
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageSunShading::class)]
+    private Collection $sunShadingData;
+
     #[ORM\Column(type: 'string', length: 20)]
     private string $freqTolerance = '2.0';
 
@@ -625,6 +628,8 @@ class Anlage
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageSensors::class, cascade: ['persist', 'remove'])]
     private Collection $sensors;
 
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagePpcs::class, cascade: ['persist', 'remove'])]
+    private Collection $ppcs;
 
     #[ORM\Column(name: 'bez_meridan', type: 'string', length: 20, nullable: true)]
     private ?string $bezMeridan = '';
@@ -643,6 +648,8 @@ class Anlage
 
     #[ORM\Column(name: 'dat_filename', type: 'string', nullable: true)]
     private ?string $datFilename;
+
+
 
     /**
      * @return string|null
@@ -689,7 +696,9 @@ class Anlage
         $this->anlageFiles = new ArrayCollection();
         $this->statuses = new ArrayCollection();
         $this->dayLightData = new ArrayCollection();
+        $this->sunShadingData = new ArrayCollection();
         $this->sensors = new ArrayCollection();
+        $this->ppcs = new ArrayCollection();
     }
 
 
@@ -1229,14 +1238,6 @@ class Anlage
     public function getDbNameWeather(): string
     {
         return $this->dbAnlagenData.'.db__pv_ws_'.$this->getNameWeather();
-    }
-
-    #[Deprecated]
-    public function getDbNameWeatherOld()
-    {
-        $anlageDbWeather = $this->getNameWeather();
-
-        return 'db__pv_ws_'.$anlageDbWeather;
     }
 
     public function getAcGroups(): Collection
@@ -3409,6 +3410,36 @@ class Anlage
 
         return $this;
     }
+    /**
+     * MS 08/2023 SunShadingData
+     */
+
+    public function getSunShadingData(): Collection
+    {
+        return $this->sunShadingData;
+    }
+
+    public function setSunShadingData(AnlageSunShading $sunShadingData): self
+    {
+        if (!$this->sunShadingData->contains($sunShadingData)){
+            $this->sunShadingData[] = $sunShadingData;
+            $sunShadingData->setAnlage($this);
+        }
+        return $this;
+    }
+
+    public function delSunShadingData(AnlageSunShading $sunShadingData): self
+    {
+        if ($this->sunShadingData->removeElement($sunShadingData)) {
+            // set the owning side to null (unless already changed)
+            if ($sunShadingData->getAnlage() === $this) {
+                $sunShadingData->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+
 
     /**
      * @return Collection<int, DayLightData>
@@ -3852,6 +3883,46 @@ class Anlage
             // set the owning side to null (unless already changed)
             if ($sensor->getAnlage() === $this) {
                 $sensor->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AnlagePpcs>
+     */
+    public function getPpcs(): Collection
+    {
+        return $this->ppcs;
+    }
+
+    /**
+     * @return Collection<int, AnlagePpcs>
+     */
+    public function getPpcsInUse(): Collection
+    {
+        $criteria = AnlagenRepository::ppcsInUse();
+
+        return $this->ppcs->matching($criteria);
+    }
+
+    public function addPpc(AnlagePpcs $ppc): static
+    {
+        if (!$this->ppcs->contains($ppc)) {
+            $this->ppcs->add($ppc);
+            $ppc->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removePpc(AnlagePpcs $ppc): static
+    {
+        if ($this->ppcs->removeElement($ppc)) {
+            // set the owning side to null (unless already changed)
+            if ($ppc->getAnlage() === $this) {
+                $ppc->setAnlage(null);
             }
         }
 

@@ -22,7 +22,12 @@ class MessageService
 
     private $em;
 
-    public function __construct(EntityManagerInterface $em, MailerInterface $mailer, AnlageEventMailRepository $anlageEventMail)
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,EntityManagerInterface $em, MailerInterface $mailer, AnlageEventMailRepository $anlageEventMail)
     {
         $this->anlageEventMail = $anlageEventMail;
         $this->mailer = $mailer;

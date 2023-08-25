@@ -47,6 +47,7 @@
         "sensio/framework-extra-bundle": "^5.5",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.3",
+        "shuchkin/simplexlsx": "^0.8.33",
         "stakovicz/ux-collection": "^0.0.4",
         "stof/doctrine-extensions-bundle": "^1.7",
         "symfony/asset": "5.4.*",

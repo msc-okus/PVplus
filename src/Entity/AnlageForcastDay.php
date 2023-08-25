@@ -49,6 +49,9 @@ class AnlageForcastDay
     #[ORM\Column(type: 'string', length: 20)]
     private string $irrday;
 
+    #[ORM\Column(type: 'datetime')]
+    private $updated_at ;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -174,17 +177,29 @@ class AnlageForcastDay
         return $this;
     }
 
-    public function getIrrday(): string
+    public function getIrrday(): ?float
     {
-        return $this->irrday;
+        return (float) $this->irrday;
     }
 
-    public function setIrrday(string $irrday): void
+    public function setIrrday(int $irrday): self
     {
         $this->irrday = $irrday;
+
+        return $this;
     }
 
+    public function getUpdated_at(): ?\DateTimeInterface
+    {
+        return $this->updated_at;
+    }
 
+    public function setUpdated_at(\DateTimeInterface $updated_at): self
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
+    }
 
     public function getExpectedDay(): ?float
     {

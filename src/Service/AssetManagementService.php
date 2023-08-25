@@ -32,6 +32,11 @@ class AssetManagementService
     private PDO $conn;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private EntityManagerInterface $em,
         private PvSystMonthRepository $pvSystMonthRepo,
         private FunctionsService $functions,
@@ -53,7 +58,7 @@ class AssetManagementService
         private ForcastDayRepository $forecastDayRepo,
     )
     {
-        $this->conn = self::getPdoConnection();
+        $this->conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
     }
 
     /**

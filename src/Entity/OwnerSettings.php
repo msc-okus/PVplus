@@ -4,9 +4,11 @@ namespace App\Entity;
 
 use App\Repository\OwnerSettingsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Service\PiiCryptoService;
+
 
 #[ORM\Entity(repositoryClass: OwnerSettingsRepository::class)]
-class OwnerSettings
+class OwnerSettings extends PiiCryptoService
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -24,6 +26,15 @@ class OwnerSettings
 
     #[ORM\Column(length: 20, nullable: true, options: ['default' => 'AM'])]
     private ?string $nameDep3 = 'AM';
+
+    #[ORM\Column(length: 20, nullable: true, options: ['default' => 'O-Skadow'])]
+    private ?string $mcUser = 'O-Skadow';
+
+    #[ORM\Column(length: 255, nullable: true, options: ['default' => 'Tr3z%2!x$5'])]
+    private ?string $mcPassword = 'Tr3z%2!x$5';
+
+    #[ORM\Column(length: 100, nullable: true, options: ['default' => '264b63333e951a6c327d627003f6a828'])]
+    private ?string $mcToken = '264b63333e951a6c327d627003f6a828';
 
     public function getId(): ?int
     {
@@ -74,6 +85,47 @@ class OwnerSettings
     public function setNameDep3(?string $nameDep3): self
     {
         $this->nameDep3 = $nameDep3;
+
+        return $this;
+    }
+
+    public function getMcUser(): ?string
+    {
+        return $this->mcUser;
+    }
+
+    public function setMcUser(?string $mcUser): self
+    {
+        $this->mcUser = $mcUser;
+
+        return $this;
+    }
+
+    public function getMcPassword(): ?string
+    {
+        if($this->mcPassword != NULL){
+            return $this->unHashData($this->mcPassword);
+        }else{
+            return $this->mcPassword;
+        }
+
+    }
+
+    public function setMcPassword(?string $mcPassword): self
+    {
+        $this->mcPassword = $this->hashData($mcPassword);
+
+        return $this;
+    }
+
+    public function getMcToken(): ?string
+    {
+        return $this->mcToken;
+    }
+
+    public function setMcToken(?string $mcToken): self
+    {
+        $this->mcToken = $mcToken;
 
         return $this;
     }

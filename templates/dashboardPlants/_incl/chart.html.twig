@@ -150,7 +150,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series1.stroke = am4core.color("#057a07");
             series1.fill = am4core.color("#057a07");
             series1.strokeWidth = 1;
-            series1.defaultState.transitionDuration = 300;
+            series1.defaultState.transitionDuration = 0;
             series1.tensionX = 0.8;
             series1.connect = false;
 
@@ -162,7 +162,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series2.stroke = am4core.color("#d6a9e0");
             series2.fill = am4core.color("#d6a9e0");
             series2.strokeWidth = 1;
-            series2.defaultState.transitionDuration = 300;
+            series2.defaultState.transitionDuration = 0;
             series2.tensionX = 0.8;
             series2.connect = false;
 
@@ -174,7 +174,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series3.stroke = am4core.color("#a97335");
             series3.fill = am4core.color("#a97335");
             series3.strokeWidth = 1;
-            series3.defaultState.transitionDuration = 300;
+            series3.defaultState.transitionDuration = 0;
             series3.tensionX = 0.8;
             series3.connect = false;
 
@@ -233,7 +233,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series0.stroke = am4core.color("#016195");
             series0.fill = am4core.color("#016195");
             series0.strokeWidth = 1;
-            series0.defaultState.transitionDuration = 300;
+            series0.defaultState.transitionDuration = 0;
             series0.tensionX = 0.8;
 
             let series1 = chart.series.push(new am4charts.LineSeries());
@@ -244,7 +244,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series1.stroke = am4core.color("#057a07");
             series1.fill = am4core.color("#057a07");
             series1.strokeWidth = 1;
-            series1.defaultState.transitionDuration = 300;
+            series1.defaultState.transitionDuration = 0;
             series1.tensionX = 0.8;
 
             let series2 = chart.series.push(new am4charts.LineSeries());
@@ -255,7 +255,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series2.stroke = am4core.color("#d6a9e0");
             series2.fill = am4core.color("#d6a9e0");
             series2.strokeWidth = 1;
-            series2.defaultState.transitionDuration = 300;
+            series2.defaultState.transitionDuration = 0;
             series2.tensionX = 0.8;
 
             let series3 = chart.series.push(new am4charts.LineSeries());
@@ -266,7 +266,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series3.stroke = am4core.color("#a97335");
             series3.fill = am4core.color("#a97335");
             series3.strokeWidth = 1;
-            series3.defaultState.transitionDuration = 300;
+            series3.defaultState.transitionDuration = 0;
             series3.tensionX = 0.8;
 
             chart.cursor = new am4charts.XYCursor();
@@ -326,7 +326,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series0.stroke = am4core.color("#016195");
             series0.fill = am4core.color("#016195");
             series0.strokeWidth = 2;
-            series0.defaultState.transitionDuration = 300;
+            series0.defaultState.transitionDuration = 0;
             series0.tensionX = 0.8;
 
             // Create series
@@ -345,7 +345,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series.dataFields.valueY = "val" + seriesId;
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series.connect = false;
                 series = chart.series.push(series);
@@ -411,7 +411,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series0.stroke = am4core.color("#016195");
             series0.fill = am4core.color("#016195");
             series0.strokeWidth = 2;
-            series0.defaultState.transitionDuration = 300;
+            series0.defaultState.transitionDuration = 0;
             series0.tensionX = 0.8;
 
             // Create series
@@ -430,7 +430,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series.dataFields.valueY = "val" + seriesId;
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series.connect = false;
                 series = chart.series.push(series);
@@ -516,7 +516,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series = chart.series.push(series);
             }
@@ -591,7 +591,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series0.fill = am4core.color("#fdd400");
             series0.strokeWidth = 2;
             series0.sequencedInterpolation = false;
-            series0.defaultState.transitionDuration = 300;
+            series0.defaultState.transitionDuration = 0;
             series0.tensionX = 0.8;
 
             {% if (is_granted('ROLE_G4N')) %}
@@ -602,7 +602,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 seriesIrr.tooltipText = "Irradiation W/m²: {valueY} [/]";
                 seriesIrr.stroke = am4core.color("#950101");
                 seriesIrr.strokeWidth = 1;
-                //series5Irr.defaultState.transitionDuration = 50;
+                series5Irr.defaultState.transitionDuration = 0;
                 seriesIrr.tensionX = 0.8;
                 seriesIrr.hidden = true;
                 seriesIrr.yAxis = valueAxisIrr;
@@ -624,7 +624,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series.dataFields.dateX = "date";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series = chart.series.push(series);
             }
@@ -694,7 +694,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series = chart.series.push(series);
             }
@@ -764,7 +764,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series = chart.series.push(series);
             }
@@ -833,7 +833,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series = chart.series.push(series);
             }
@@ -1070,7 +1070,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series1.fill = "#fdd400";
             series1.strokeWidth = 1;
             series1.sequencedInterpolation = true;
-            series1.defaultState.transitionDuration = 300;
+            series1.defaultState.transitionDuration = 0;
             series1.tensionX = 0.8;
             series1.connect = false;
 
@@ -1085,7 +1085,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series2.fill = "#016195";
                 series2.strokeWidth = 1;
                 series2.sequencedInterpolation = true;
-                series2.defaultState.transitionDuration = 300;
+                series2.defaultState.transitionDuration = 0;
                 series2.tensionX = 0.8;
                 series2.connect = false;
             {% endif %}
@@ -1101,7 +1101,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series3.fill = "#950193";
                 series3.strokeWidth = 1;
                 series3.sequencedInterpolation = true;
-                series3.defaultState.transitionDuration = 300;
+                series3.defaultState.transitionDuration = 0;
                 series3.tensionX = 0.8;
                 series3.connect = false;
             {% endif %}
@@ -1116,7 +1116,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             windSpeed.fill = "#019524";
             windSpeed.strokeWidth = 1;
             windSpeed.sequencedInterpolation = true;
-            windSpeed.defaultState.transitionDuration = 300;
+            windSpeed.defaultState.transitionDuration = 0;
             windSpeed.tensionX = 0.8;
             windSpeed.connect = false;
 
@@ -1178,7 +1178,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series1.fill = "#fdd400";
             series1.strokeWidth = 1;
             series1.sequencedInterpolation = true;
-            series1.defaultState.transitionDuration = 300;
+            series1.defaultState.transitionDuration = 0;
             series1.tensionX = 0.8;
             series1.connect = false;
 
@@ -1193,7 +1193,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series2.fill = "#016195";
                 series2.strokeWidth = 1;
                 series2.sequencedInterpolation = true;
-                series2.defaultState.transitionDuration = 300;
+                series2.defaultState.transitionDuration = 0;
                 series2.tensionX = 0.8;
                 series2.connect = false;
             {% endif %}
@@ -1255,7 +1255,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series1.fill = "#fdd400";
             series1.strokeWidth = 1;
             series1.sequencedInterpolation = true;
-            series1.defaultState.transitionDuration = 300;
+            series1.defaultState.transitionDuration = 0;
             series1.tensionX = 0.8;
             series1.connect = false;
 
@@ -1315,7 +1315,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             series0.fill = am4core.color("#fdd400");
             series0.strokeWidth = 2;
             series0.sequencedInterpolation = false;
-            series0.defaultState.transitionDuration = 300;
+            series0.defaultState.transitionDuration = 0;
             series0.tensionX = 0.8;
             series0.connect = false;
 
@@ -1329,7 +1329,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series.tooltipText = nameX[seriesId] + ": {valueY} [/]";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series.connect = false;
                 chart.series.push(series);

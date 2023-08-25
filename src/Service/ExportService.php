@@ -20,6 +20,11 @@ class ExportService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private FunctionsService $functions,
         private PRRepository $PRRepository,
         private AnlageAvailabilityRepository $availabilityRepo,
@@ -37,10 +42,15 @@ class ExportService
      */
     public function gewichtetBavelseValuesExport(Anlage $anlage, DateTime $from, DateTime $to): string
     {
+        #########   SETTINGS   ###########
+        $interval = 900; // 3600 * 24;
+        $exportPA = false;
+        ##################################
+
         $tempArray = [];
         $availability = 0;
         $outputArray = [];
-        $outputArray[0][1] = "";
+        $outputArray[0][1] = "Sections";
         $outputArray[1][1] = "Datum";
         $colCounter = 2;
         foreach ($anlage->getAcGroups() as $groupAC) {
@@ -60,8 +70,12 @@ class ExportService
 
         $outputArray[0][$colCounter] = '';
         $outputArray[1][$colCounter] = "Mittelwert Luft Temp [°C]"; ++$colCounter;
-        #$outputArray[0][$colCounter] = '';
-        #$outputArray[1][$colCounter] = "Verfügbarkeit [%]"; ++$colCounter;
+        if ($exportPA) $outputArray[0][$colCounter] = '';
+        if ($exportPA) $outputArray[1][$colCounter] = "Verfügbarkeit [%]"; ++$colCounter;
+        $outputArray[0][$colCounter] = '';
+        $outputArray[1][$colCounter] = "PPC Grid [%]"; ++$colCounter;
+        $outputArray[0][$colCounter] = '';
+        $outputArray[1][$colCounter] = "PPC RPC [%]"; ++$colCounter;
         $outputArray[0][$colCounter] = '';
         $outputArray[1][$colCounter] = "gewichtete Strahlung [kWh/qm]"; ++$colCounter;
         $outputArray[0][$colCounter] = '';
@@ -82,57 +96,107 @@ class ExportService
         /* @var AnlageAcGroups $groupAC */
 
         $rowCounter = 3;
-        $intervall = 3600 * 24;
-        for ($stamp = (int)$from->format('U'); $stamp <= (int)$to->format('U'); $stamp += $intervall) {
+
+        if ($interval === 900){
+            $weatherArray = self::getWeather900($anlage, $from->format('Y-m-d H:i:00'), $to->format('Y-m-d H:i:00'));
+            $acPowerArray = self::getACPower900($anlage, $from->format('Y-m-d H:i:00'), $to->format('Y-m-d H:i:00'));
+            $eGridArray = self::getGridSum900($anlage, $from->format('Y-m-d H:i:00'), $to->format('Y-m-d H:i:00'));
+        } else {
+            $weatherArray = $weatherArray = $eGridArray = [];
+        }
+
+        $filename = 'daten-'.$anlage->getAnlName().'-'.$from->format('Y-m').'.csv';
+        $output = fopen($filename, 'w') or die("Can't open php://$filename");
+        header("Content-Type:application/csv");
+        header("Content-Disposition:attachment;filename=$filename");
+        $i = 0;
+
+        fputcsv($output, $outputArray[0],";", "\"", "\\","\n");
+        fputcsv($output, $outputArray[1],";", "\"", "\\","\n");
+
+        for ($stamp = (int)$from->format('U'); $stamp <= (int)$to->format('U'); $stamp += $interval) {
             $gewichteteStrahlung = $gewichteteStrahlungPpc = $gewichteteTheoPower = $gewichteteTheoPowerPpc = $sumEvuPower = $sumEvuPowerPpc = 0;
             $colCounter = 1;
             $outputArray[$rowCounter][$colCounter] = date('Y-m-d H:i', $stamp+900); ++$colCounter;
 
-            // für jede AC Gruppe ermittele Wetterstation, lese Tageswert und gewichte diesen
+            // für jede AC Gruppe ermittelte Wetterstation, lese Tageswert und gewichte diesen
             foreach ($anlage->getAcGroups() as $groupAC) {
-                $weather = $this->functions->getWeatherNew($anlage, $groupAC->getWeatherStation(), date('Y-m-d H:i', $stamp), date('Y-m-d H:i', $stamp+$intervall));
-                $acPower = $this->powerService->getSumAcPowerBySection($anlage, date('Y-m-d H:i', $stamp), date('Y-m-d H:i', $stamp+$intervall), $groupAC->getAcGroup());
+                if ($interval > 900) {
+                    $weather = $this->functions->getWeatherNew($anlage, $groupAC->getWeatherStation(), date('Y-m-d H:i:00', $stamp), date('Y-m-d H:i:00', $stamp));
+                    $acPower = $this->powerService->getSumAcPowerBySection($anlage, date('Y-m-d H:i:00', $stamp), date('Y-m-d H:i:00', $stamp), $groupAC->getAcGroup());
+                } else {
+                    if (key_exists(date('Y-m-d H:i:00', $stamp), $weatherArray[$groupAC->getAcGroup()])) {
+                        $weather = $weatherArray[$groupAC->getAcGroup()][date('Y-m-d H:i:00', $stamp)];
+                    } else {
+                        $weather = ['upperIrr' => null, 'upperIrrPpc' => null, 'lowerIrr' => null, 'lowerIrrPpc' => null, 'airTemp' => null];
+                    }
+                    if (key_exists(date('Y-m-d H:i:00', $stamp), $acPowerArray[$groupAC->getAcGroup()])) {
+                        $acPower = $acPowerArray[$groupAC->getAcGroup()][date('Y-m-d H:i:00', $stamp)];
+                    } else {
+                        $acPower = ['powerTheo' => null, 'powerTheoPpc' => null, 'powerTheoFt' => null, 'powerTheoFtPpc' => null, 'powerEvu' => null, 'powerEvuPpc' => null];
+                    }
+                }
                 $tempArray[] = $weather['airTemp'];
+                $upperIrr = key_exists('upperIrr', $weather) ? $weather['upperIrr'] : 0;
+                $lowerIrr = key_exists('lowerIrr', $weather) ? $weather['lowerIrr'] : 0;
+                $upperIrrPpc = key_exists('upperIrrPpc', $weather) ? $weather['upperIrrPpc'] : 0;
+                $lowerIrrPpc = key_exists('lowerIrrPpc', $weather) ? $weather['lowerIrrPpc'] : 0;
                 if ($groupAC->getIsEastWestGroup()) {
-                    if ($weather['upperIrr'] > 0 && $weather['lowerIrr'] > 0) {
+                    if ($upperIrr > 0 && $lowerIrr > 0) {
                         $factorEast = $groupAC->getPowerEast() / $groupAC->getDcPowerInverter();
                         $factorWest = $groupAC->getPowerWest() / $groupAC->getDcPowerInverter();
-                        $irradiation = $weather['upperIrr'] * $factorEast + $weather['lowerIrr'] * $factorWest;
-                        $irradiationPpc = $weather['upperIrrPpc'] * $factorEast + $weather['lowerIrrPpc'] * $factorWest;
-                    } elseif ($weather['upperIrr'] > 0) {
-                        $irradiation = $weather['upperIrr'];
-                        $irradiationPpc = $weather['upperIrrPpc'];
+                        $irradiation = $upperIrr * $factorEast + $lowerIrr * $factorWest;
+                        $irradiationPpc = $upperIrrPpc * $factorEast + $lowerIrrPpc * $factorWest;
+                    } elseif ($upperIrr > 0) {
+                        $irradiation = $upperIrr;
+                        $irradiationPpc = $upperIrrPpc;
                     } else {
-                        $irradiation = $weather['lowerIrr'];
-                        $irradiationPpc = $weather['lowerIrrPpc'];
+                        $irradiation = $lowerIrr;
+                        $irradiationPpc = $lowerIrrPpc;
                     }
                 } else {
-                    $irradiation = $weather['upperIrr'];
-                    $irradiationPpc = $weather['upperIrrPpc'];
+                    $irradiation = $upperIrr;
+                    $irradiationPpc = $upperIrrPpc;
                 }
                 // TheoPower gewichtet berechnen
-                $outputArray[$rowCounter][$colCounter] = round($weather['upperIrr'] / 1000 / 4, 6); ++$colCounter;
-                $outputArray[$rowCounter][$colCounter] = round($weather['lowerIrrlowerIrr'] / 1000 / 4, 6); ++$colCounter;
-                $outputArray[$rowCounter][$colCounter] = round($weather['upperIrrPpc'] / 1000 / 4, 6); ++$colCounter;
-                $outputArray[$rowCounter][$colCounter] = round($weather['lowerIrrPpc'] / 1000 / 4, 6); ++$colCounter;
-                $outputArray[$rowCounter][$colCounter] = round($acPower['powerTheoFt'], 6); ++$colCounter;
-                $outputArray[$rowCounter][$colCounter] = round($acPower['powerTheoFtPpc'], 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($upperIrr / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($lowerIrr / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($upperIrrPpc / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = round($lowerIrrPpc / 1000 / 4, 6); ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = key_exists('powerTheoFt', $acPower) ? round($acPower['powerTheoFt'], 6) : 0; ++$colCounter;
+                $outputArray[$rowCounter][$colCounter] = key_exists('powerTheoFtPpc', $acPower) ? round($acPower['powerTheoFtPpc'], 6) : 0; ++$colCounter;
 
                 // Aufsummieren der gewichteten Werte zum Gesamtwert
-                $gewichteteTheoPower += $acPower['powerTheoFt'];
-                $gewichteteTheoPowerPpc += $acPower['powerTheoFtPpc'];
-                $sumEvuPower = $acPower['powerEvu'];
-                $sumEvuPowerPpc = $acPower['powerEvuPpc'];
+                $gewichteteTheoPower += key_exists('powerTheoFt', $acPower) ? round($acPower['powerTheoFt'], 6) : 0;
+                $gewichteteTheoPowerPpc += key_exists('powerTheoFtPpc', $acPower) ? round($acPower['powerTheoFtPpc'], 6) : 0;
+                $sumEvuPower = key_exists('powerEvu', $acPower) ? round($acPower['powerEvu'], 6) : 0;
+                $sumEvuPowerPpc = key_exists('powerEvuPpc', $acPower) ? round($acPower['powerEvuPpc'], 6) : 0;
                 $gewichteteStrahlung += $groupAC->getGewichtungAnlagenPR() * $irradiation;
                 $gewichteteStrahlungPpc += $groupAC->getGewichtungAnlagenPR() * $irradiationPpc;
             }
             $temp = self::mittelwert($tempArray);
             unset($tempArray);
-            $availability = $this->availabilityByTicket->calcAvailability($anlage, date_create(date('Y-m-d H:i', $stamp)), date_create(date('Y-m-d H:i', $stamp+$intervall)), null, 2);
-            $eGrid = $this->powerService->getGridSum($anlage, date_create(date('Y-m-d H:i', $stamp)), date_create(date('Y-m-d H:i', $stamp+$intervall)));
-            $eGridPPC = $this->powerService->getGridSumPpc($anlage, date_create(date('Y-m-d H:i', $stamp)), date_create(date('Y-m-d H:i', $stamp+$intervall)));
+            $availability = $exportPA ? $this->availabilityByTicket->calcAvailability($anlage, date_create(date('Y-m-d H:i:00', $stamp)), date_create(date('Y-m-d H:i:00', $stamp+$interval)), null, 2) : -99; #;
+            if ($interval === 900) {
+                if (key_exists(date('Y-m-d H:i:00', $stamp),$eGridArray)) {
+                    $eGrid = key_exists('powerGrid', $eGridArray[date('Y-m-d H:i:00', $stamp)]) ? $eGridArray[date('Y-m-d H:i:00', $stamp)]['powerGrid'] : '';
+                    $eGridPPC = key_exists('powerGridPpc', $eGridArray[date('Y-m-d H:i:00', $stamp)]) ? $eGridArray[date('Y-m-d H:i:00', $stamp)]['powerGridPpc'] : '';
+                    $ppcGrid = key_exists('ppcGrid', $eGridArray[date('Y-m-d H:i:00', $stamp)]) ? $eGridArray[date('Y-m-d H:i:00', $stamp)]['ppcGrid'] : '';
+                    $ppcRpc = key_exists('ppcRpc', $eGridArray[date('Y-m-d H:i:00', $stamp)]) ? $eGridArray[date('Y-m-d H:i:00', $stamp)]['ppcRpc'] : '';
+                } else {
+                    $eGrid = 0;
+                    $eGridPPC = 0;
+                    $ppcGrid = '';
+                    $ppcRpc = '';
+                }
+            } else {
+                $eGrid = $this->powerService->getGridSum($anlage, date_create(date('Y-m-d H:i:00', $stamp)), date_create(date('Y-m-d H:i:00', $stamp+$interval)));
+                $eGridPPC = $this->powerService->getGridSumPpc($anlage, date_create(date('Y-m-d H:i:00', $stamp)), date_create(date('Y-m-d H:i:00', $stamp+$interval)));
+            }
             $outputArray[$rowCounter][$colCounter] = $temp; ++$colCounter;
-            #$outputArray[$rowCounter][$colCounter] = $availability; ++$colCounter;
+            if ($exportPA) $outputArray[$rowCounter][$colCounter] = $availability; ++$colCounter;
+            $outputArray[$rowCounter][$colCounter] = $ppcGrid; ++$colCounter;
+            $outputArray[$rowCounter][$colCounter] = $ppcRpc; ++$colCounter;
             $outputArray[$rowCounter][$colCounter] = $gewichteteStrahlung / 1000 / 4; ++$colCounter;
             $outputArray[$rowCounter][$colCounter] = $gewichteteStrahlungPpc / 1000 / 4; ++$colCounter;
             $outputArray[$rowCounter][$colCounter] = $gewichteteTheoPower; ++$colCounter;
@@ -142,12 +206,173 @@ class ExportService
             $outputArray[$rowCounter][$colCounter] = $sumEvuPower; ++$colCounter;
             $outputArray[$rowCounter][$colCounter] = $sumEvuPowerPpc; ++$colCounter;
 
-            ++$rowCounter;
+            #if ($interval > 900) ++$rowCounter;
+
+            fputcsv($output, $outputArray[$rowCounter], ";", "\"", "\\","\n");
+            unset($outputArray);
+            ++$i;
+            if ($i % 1000 == 0) {
+                fclose($output);
+                $output = fopen('daten-'.$anlage->getAnlName().'-'.$from->format('Y-m').'.csv', 'a') or die("Can't reopen file. ($i)");
+            }
+
         }
 
-        self::exportCsv($anlage, $from, $outputArray);
+        fclose($output) or die("Can't close php://output");
+        unset ($output);
 
         return "fertig";
+    }
+
+    private function getWeather900(Anlage $anlage, string $from, string $to): array
+    {
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $weather = [];
+
+        /** @var AnlageAcGroups $groupAC */
+        foreach ($anlage->getAcGroups() as $groupAC) {
+            $weatherStation = $groupAC->getWeatherStation();
+            $dbTable = $weatherStation->getDbNameWeather();
+
+            $sql = "SELECT w.stamp, g_lower as irr_lower, g_upper as irr_upper, g_horizontal as irr_horizontal, g_horizontal as irr_horizontal_avg, at_avg AS air_temp, pt_avg AS panel_temp, wind_speed as wind_speed 
+                    FROM $dbTable w  
+                    LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
+                    WHERE w.stamp > '$from' AND w.stamp <= '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is  null)";
+            $res = $conn->query($sql);
+            while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = $row['stamp'];
+                $weather[$groupAC->getAcGroup()][$stamp]['lowerIrrPpc'] = (float)$row['irr_lower'];
+                $weather[$groupAC->getAcGroup()][$stamp]['upperIrrPpc'] = (float)$row['irr_upper'];
+                $weather[$groupAC->getAcGroup()][$stamp]['airTempPpc'] = (float)$row['air_temp'];
+                $weather[$groupAC->getAcGroup()][$stamp]['panelTempPpc'] = (float)$row['panel_temp'];
+                $weather[$groupAC->getAcGroup()][$stamp]['windSpeedPpc'] = (float)$row['wind_speed'];
+                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrrPpc'] = (float)$row['irr_horizontal'];
+                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrrAvgPpc'] = (float)$row['irr_horizontal_avg'];
+            }
+            unset($res);
+
+            $sql = "SELECT stamp, g_lower as irr_lower, g_upper as irr_upper, g_horizontal as irr_horizontal, g_horizontal as irr_horizontal_avg, at_avg AS air_temp, pt_avg AS panel_temp, wind_speed as wind_speed 
+                        FROM $dbTable 
+                        WHERE stamp > '$from' AND stamp <= '$to'";
+            $res = $conn->query($sql);
+            while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = $row['stamp'];
+                $weather[$groupAC->getAcGroup()][$stamp]['lowerIrr'] = (float)$row['irr_lower'];
+                $weather[$groupAC->getAcGroup()][$stamp]['upperIrr'] = (float)$row['irr_upper'];
+                $weather[$groupAC->getAcGroup()][$stamp]['airTemp'] = (float)$row['air_temp'];
+                $weather[$groupAC->getAcGroup()][$stamp]['panelTemp'] = (float)$row['panel_temp'];
+                $weather[$groupAC->getAcGroup()][$stamp]['windSpeed'] = (float)$row['wind_speed'];
+                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrr'] = (float)$row['irr_horizontal'];
+                $weather[$groupAC->getAcGroup()][$stamp]['horizontalIrrAvg'] = (float)$row['irr_horizontal_avg'];
+            }
+            unset($res);
+        }
+        $conn = null;
+
+        return $weather;
+    }
+
+    private function getACPower900(Anlage $anlage, string $from, string $to): array
+    {
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $result = [];
+
+        foreach ($anlage->getAcGroups() as $acGroups) {
+            $section = $acGroups->getAcGroup();
+
+            // EVU Leistung ermitteln
+            $sql = 'SELECT stamp, e_z_evu as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '$from' AND stamp <= '$to' AND e_z_evu >= 0 AND unit = $section";
+            $res = $conn->query($sql);
+            while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = date_create($row['stamp'])->format('Y-m-d H:i:00');
+                $result[$section][$stamp]['powerEvu'] = $row['power_evu'];
+            }
+            unset($res);
+
+            // EVU Leistung ermitteln – nur EVU aber PPC bereinigt
+            $sql = "SELECT s.stamp, e_z_evu as power_evu_ppc
+            FROM " . $anlage->getDbNameAcIst() . " s
+            LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+            WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.unit = $section AND s.e_z_evu > 0 AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)";
+            $res = $conn->query($sql);
+            while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = date_create($row['stamp'])->format('Y-m-d H:i:00');
+                $result[$section][$stamp]['powerEvuPpc'] = (float)$row['power_evu_ppc'];
+            }
+            unset($res);
+
+            // Theo Power without PPC
+            $sql = "SELECT stamp, theo_power as theo_power, theo_power_ft as theo_power_ft FROM " . $anlage->getDbNameSection() . " WHERE stamp >= '$from' AND stamp <= '$to' AND `section` = $section AND theo_power_ft >= 0";
+            $res = $conn->query($sql);
+            while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = date_create($row['stamp'])->format('Y-m-d H:i:00');
+                $result[$section][$stamp]['powerTheo'] = (float)$row['theo_power'];
+                $result[$section][$stamp]['powerTheoFt'] = (float)$row['theo_power_ft'];
+            }
+            unset($res);
+
+            // Theo Power WITH PPC
+            $sql = "SELECT s.stamp, theo_power as theo_power, theo_power_ft as theo_power_ft 
+                FROM " . $anlage->getDbNameSection() . " s
+                    LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+                WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.section = $section AND s.theo_power_ft > 0 
+                    AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)";
+            $res = $conn->query($sql);
+            while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = date_create($row['stamp'])->format('Y-m-d H:i:00');
+                $result[$section][$stamp]['powerTheoPpc'] = (float)$row['theo_power'];
+                $result[$section][$stamp]['powerTheoFtPpc'] = (float)$row['theo_power_ft'];
+            }
+            unset($res);
+        }
+
+        return $result;
+    }
+
+    public function getGridSum900(Anlage $anlage, string $from, string $to): array
+    {
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $power = [];
+
+        $sql = "SELECT stamp, p_set_gridop_rel, p_set_rpc_rel 
+            FROM " . $anlage->getDbNamePPC() . "
+            WHERE stamp BETWEEN '$from' AND '$to'"
+        ;
+        $res = $conn->query($sql);
+        while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+            $stamp = date_create($row['stamp'])->format('Y-m-d H:i:00');
+            $power[$stamp]['ppcGrid'] = (float)$row['p_set_gridop_rel'];
+            $power[$stamp]['ppcRpc'] = (float)$row['p_set_rpc_rel'];
+        }
+        unset($res);
+
+        $sql = "SELECT s.stamp as stamp, prod_power as power_grid 
+            FROM " . $anlage->getDbNameMeters() . " s
+            LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+            WHERE s.stamp BETWEEN '$from' AND '$to' AND s.prod_power > 0 
+                AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
+                AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)"
+        ;
+
+        $res = $conn->query($sql);
+        while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+            $stamp = date_create($row['stamp'])->format('Y-m-d H:i:00');
+            $power[$stamp]['powerGridPpc'] = (float)$row['power_grid'];
+        }
+        unset($res);
+
+        $sql = "SELECT stamp as stamp, prod_power as power_grid 
+            FROM " . $anlage->getDbNameMeters() . " 
+            WHERE stamp BETWEEN '$from' AND '$to' AND prod_power > 0;"
+        ;
+        $res = $conn->query($sql);
+        while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+            $stamp = date_create($row['stamp'])->format('Y-m-d H:i:00');
+            $power[$stamp]['powerGrid'] = (float)$row['power_grid'];
+        }
+        unset($res);
+
+        return $power;
     }
 
     /**
@@ -319,7 +544,7 @@ class ExportService
      */
     public function getFacPRData(Anlage $anlage, DateTime $from, ?DateTime $to = null, string $target = 'array'): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
 
         $export = [];
         $fromSql = $from->format('Y-m-d 00:00');
@@ -366,7 +591,7 @@ class ExportService
 
     public function getFacPAData(Anlage $anlage, DateTime $from, DateTime $to = null): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
 
         $export = [];
         $fromSql = $from->format('Y-m-d 00:00');
@@ -395,7 +620,7 @@ class ExportService
 
     public function getRawData(Anlage $anlage, DateTime $from = null, DateTime $to = null): string
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $output = '';
         $fromSql = $from->format('Y-m-d 00:00');
         $toSql = $to->format('Y-m-d 23:59');

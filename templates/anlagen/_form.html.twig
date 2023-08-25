@@ -1,3 +1,4 @@
+{#
 <style>
     .sk-chase {
         width: 100px;
@@ -58,7 +59,7 @@
     }
 
 </style>
-
+#}
 {% import _self as formMacros %}
 
 {% macro addModule(module) %}
@@ -154,7 +155,7 @@
         <div class="cell">
             <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
                 <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li>
-                {% if is_granted('ROLE_G4N') %}
+                {% if is_granted('ROLE_G4N') or is_granted('ROLE_OWNER_ADMIN') %}
                     <li class="tabs-title"><a data-tabs-target="plant-config" href="#plant-config">Plant configuration</a></li>
                     <li class="tabs-title"><a data-tabs-target="availability" href="#availability">PA & PR Setup</a></li>
                     <li class="tabs-title"><a data-tabs-target="ticket" href="#ticket">Ticket & Alert Setup</a></li>
@@ -162,7 +163,9 @@
                         <li class="tabs-title"><a data-tabs-target="modules" href="#modules">Modules</a></li>
                     {% endif %}
                     <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
-                    <li class="tabs-title"><a data-tabs-target="forcast" href="#settings">Forecast</a></li>
+                    <li class="tabs-title"><a data-tabs-target="import" href="#import">Import</a></li>
+                    <li class="tabs-title"><a data-tabs-target="forecast" href="#forecast">Forecast</a></li>
+                    <li class="tabs-title"><a data-tabs-target="dayahead_forecast" href="#dayahead_forecast">Day-ahead Forecast</a></li>
                     <li class="tabs-title"><a data-tabs-target="timeing" href="#timeing">Time Configuration</a></li>
                     <li class="tabs-title"><a data-tabs-target="AssetManagement" href="#AssetManagement">AM Report Configuration</a></li>
                 {% endif %}
@@ -210,14 +213,12 @@
                             <div class="cell medium-3">{{ form_row(anlageForm.anlZeitzone) }}</div>
                             <div class="cell medium-3">{{ form_row(anlageForm.anlBetrieb) }}</div>
                         </div>
-                        {% if is_granted('ROLE_ADMIN') %}
                         <div class="grid-x grid-padding-x">
                             <div class="cell medium-3">{{ form_row(anlageForm.anlInputDaily) }}</div>
                             <div class="cell medium-3">{{ form_row(anlageForm.useNewDcSchema) }}</div>
                             <div class="cell medium-3">{{ form_row(anlageForm.configType) }}</div>
                             <div class="cell medium-3">{{ form_row((anlageForm.pathToImportScript)) }}</div>
                         </div>
-                        {% endif %}
                     </fieldset>
                     <fieldset class="fieldset">
                         <legend>Konfiguration Wetter Daten</legend>
@@ -341,37 +342,7 @@
                         </div>
                     </div>
                 </div>
-                {# Forecast Configuration Tab #}
-                <div class="tabs-panel" id="forcast">
-                    <div class="grid-x grid-padding-x">
-                        <div class="cell medium-6">
-                            <fieldset class="fieldset">
-                                <legend>Forecast Settings</legend>
-                                <div class="grid-x grid-margin-x">
-                                    <div class="cell medium-4">{{ form_row(anlageForm.useDayForecast) }}</div>
-                                    <div class="cell medium-4">{{ form_row(anlageForm.degradationForecast) }}</div>
-                                    <div class="cell medium-4">{{ form_row(anlageForm.lossesForecast) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.bezMeridan) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.modNeigung) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.modAzimut) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.albeto) }}</div>
-                                    <div class="cell medium-6">{{ form_row(anlageForm.datFilename) }}</div>
-                                    <div class="cell medium-6"><label for="dat_file">your  uploaded file</label><h5 id="dat_file">{{ anlage.getDatFilename }}</h5>
-                                        {% if (anlage.getDatFilename is not empty)  %}
-                                        <a href="{{ path('download_file',{'id': anlage.getAnlId,'dir': 'metodat','file': anlage.getDatFilename}) }}" title="download file"><i class="fa fa fa-download"></i></a>
-                                        {% endif %}
-                                    </div>
-                                    <div class="cell medium-12">
-                                     <div id="modal" {{ stimulus_controller('forecast-submit', { formUrl: path('app_admin_anlagen_build_forecast', { id: anlage.getAnlId} ) }) }} >
-                                       <button class="primary save button button" data-action="forecast-submit#openModal" {% if (anlage.getDatFilename is empty) or (anlage.getUseDayForecast == 0) %}disabled{% endif %}>Build Forecast</button>
-                                     </div>
-                                    </div>
-                                </div>
-                            </fieldset>
-                       </div>
-                   </div>
-                </div>
-                {# Ende Forecast Configuration Tab #}
+
                 {# Availability & PR #}
                 <div class="tabs-panel" id="availability">
                     <div class="grid-x">
@@ -666,6 +637,67 @@
 
                 {# Settings and Config #}
                 {{ include('anlagen/_incl/_settings.html.twig') }}
+
+                {# Import #}
+                <div class="tabs-panel" id="import">
+                    <div class="grid-x grid-margin-x ">
+                        <div class="cell">
+                            <fieldset class="fieldset">
+                                <legend>Import Settings</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell"> {{ form_row(anlageForm.settings.symfonyImport) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.settings.importType) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.settings.stringboxesUnits) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.settings.invertersUnits) }}</div>
+                                </div>
+                                <div class="cell medium-6">
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+
+                {# Forecast Configuration Tab #}
+                <div class="tabs-panel" id="forecast">
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell">
+                            <fieldset class="fieldset">
+                                <legend>Forecast Settings</legend>
+                                <div class="grid-x grid-margin-x">
+                                    <div class="cell medium-4">{{ form_row(anlageForm.useDayForecast) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.degradationForecast) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.lossesForecast) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.bezMeridan) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.modNeigung) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.modAzimut) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.albeto) }}</div>
+                                    <div class="cell medium-6">{{ form_row(anlageForm.datFilename) }}</div>
+                                    <div class="cell medium-6"><label for="dat_file">your  uploaded file</label><h5 id="dat_file">{{ anlage.getDatFilename }}</h5>
+                                        {% if (anlage.getDatFilename is not empty)  %}
+                                            <a href="{{ path('download_file',{'id': anlage.getAnlId,'dir': 'metodat','file': anlage.getDatFilename}) }}" title="download file"><i class="fa fa fa-download"></i></a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="cell medium-12">
+                                        <div id="modal" {{ stimulus_controller('forecast-submit', { formUrl: path('app_admin_anlagen_build_forecast', { id: anlage.getAnlId} ) }) }} >
+                                            <button class="primary save button button" data-action="forecast-submit#openModal" {% if (anlage.getDatFilename is empty) or (anlage.getUseDayForecast == 0) %}disabled{% endif %}>Build Forecast</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+
+                {# Day-Ahead Forecast #}
+                <div class="tabs-panel" id="dayahead_forecast">
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell medium-6">
+                            <fieldset class="fieldset">
+                                <legend>Day-ahead Forecast Settings</legend>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
 
                 {# Timings #}
                 <div class="tabs-panel" id="timeing">

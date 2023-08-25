@@ -104,7 +104,7 @@ class Ticket
     private Collection $dates;
 
     #[ORM\Column(nullable: true)]
-    private ?bool $needsProof = null;
+    private ?bool $needsProof = null; // this is proof by TAM
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $openTicket;
@@ -261,12 +261,12 @@ class Ticket
     }
     public function isNeedsProofTAM(): ?bool
     {
-        return $this->ProofAM;
+        return $this->needsProof;
     }
 
     public function setNeedsProofTAM(?bool $needsProof): self
     {
-        $this->ProofAM = $needsProof;
+        $this->needsProof = $needsProof;
 
         return $this;
     }

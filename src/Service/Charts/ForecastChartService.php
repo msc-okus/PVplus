@@ -16,6 +16,11 @@ class ForecastChartService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private ForcastRepository $forcastRepo,
         private ForcastDayRepository $forcastDayRepo,
         private InvertersRepository $invertersRepo,
@@ -47,7 +52,7 @@ class ForecastChartService
             $forcastArray[$forcast->getWeek()] = $forcast;
         }
 
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $sql = 'SELECT (dayofyear(stamp)-mod(dayofyear(stamp),7))+1 AS startDayWeek, sum(e_z_evu) AS sumEvu  
                 FROM '.$anlage->getDbNameAcIst()." 
                 WHERE stamp BETWEEN '".$facDateForecastMinusOneYear->format('Y-m-d')."' AND '".$to."' AND unit = 1 GROUP BY (dayofyear(stamp)-mod(dayofyear(stamp),7)) 
@@ -103,7 +108,7 @@ class ForecastChartService
         $actPerWeek = [];
         $dataArray = [];
 
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $currentYear = date('Y', strtotime($to));
         if ($anlage->getShowEvuDiag()) {
             $sql = 'SELECT (dayofyear(stamp)-mod(dayofyear(stamp),7))+1 AS startDayWeek, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
@@ -175,7 +180,7 @@ class ForecastChartService
 
         $form = '%y%m%d';
 
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $currentYear = date('Y', strtotime($to));
         if ($anlage->getShowEvuDiag()) {
             $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
@@ -245,7 +250,7 @@ class ForecastChartService
 
         $form = '%y%m%d';
 
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $currentYear = date('Y', strtotime($to));
         if ($anlage->getShowEvuDiag()) {
             $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  

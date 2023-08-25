@@ -15,6 +15,11 @@ class VoltageChartService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private Security $security,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository $invertersRepo,
@@ -37,7 +42,7 @@ class VoltageChartService
     public function getVoltage1(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $acGroups = $anlage->getGroupsAc();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
@@ -143,7 +148,7 @@ class VoltageChartService
         } else {
             $form = '%y%m%d%H%i';
         }
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $dcGroups = $anlage->getGroupsDc();
         $dataArray = [];
         // Spannung für diesen Zeitraum und diese Gruppe
@@ -217,7 +222,7 @@ class VoltageChartService
         } else {
             $form = '%y%m%d%H%i';
         }
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
 

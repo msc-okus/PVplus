@@ -99,7 +99,7 @@ class ImportToolsFormType extends AbstractType
             // #############################################
 
             ->add('calc', SubmitType::class, [
-                'label' => 'Start calculation',
+                'label' => 'Start import',
                 'attr' => ['class' => 'primary save'],
             ])
             ->add('close', SubmitType::class, [
