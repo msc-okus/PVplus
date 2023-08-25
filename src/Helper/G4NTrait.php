@@ -202,8 +202,6 @@ trait G4NTrait
      */
     public static function getPdoConnection(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
     {
-        echo "Data: $dbdsn, $dbusr, $dbpass<br>";
-
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
