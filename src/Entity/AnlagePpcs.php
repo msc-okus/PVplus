@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\AnlagePpcsRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 #[ORM\Entity(repositoryClass: AnlagePpcsRepository::class)]
 class AnlagePpcs
@@ -14,7 +13,7 @@ class AnlagePpcs
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Ppcs')]
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'ppcs')]
     private ?Anlage $anlage = null;
 
     #[ORM\Column(length: 20, nullable: true)]

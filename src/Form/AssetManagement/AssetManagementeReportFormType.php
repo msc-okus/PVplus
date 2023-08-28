@@ -195,7 +195,8 @@ class AssetManagementeReportFormType extends AbstractType
                 'disabled' => true,
             ]);
         }
-        if($reportParts['InvRank']) {
+
+        if($reportParts['InverterRank']) {
             $builder->add('InvRank', SwitchType::class, [
                 'label' => 'Inverter Ranking by PR',
                 'required' => false,
@@ -212,6 +213,7 @@ class AssetManagementeReportFormType extends AbstractType
                 'disabled' => true,
             ]);
         }
+
         if($reportParts['InverterEfficiencyRank']) {
             $builder->add('EfficiencyRank', SwitchType::class, [
                 'label' => 'Efficiency Ranking',
@@ -223,6 +225,23 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('EfficiencyRank', SwitchType::class, [
                 'label' => 'Efficiency Ranking (Unavailable)',
+                'required' => false,
+                'data' => false,
+                'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
+                'disabled' => true,
+            ]);
+        }
+        if($reportParts['waterfallProd']) {
+            $builder->add('waterfallProd', SwitchType::class, [
+                'label' => 'Waterfall Diagram',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ]);
+        }
+        else{
+            $builder->add('waterfallProd', SwitchType::class, [
+                'label' => 'Waterfall Diagram (Unavailable)',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
