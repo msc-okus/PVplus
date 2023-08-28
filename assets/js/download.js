@@ -16,7 +16,7 @@ import DataTables from 'datatables.net-zf';
 
 $(document).ready( async function (tableSelector) {
 
-    let tx= $('#download ').DataTable({
+    let t= $('#download ').DataTable({
         paging:false,
         searching:false,
         info:false,
@@ -24,7 +24,7 @@ $(document).ready( async function (tableSelector) {
         ordering:false
 
     });
-    new $.fn.dataTable.Buttons( tx, {
+    new $.fn.dataTable.Buttons( t, {
         buttons: [
             {
                 extend: 'excelHtml5',
@@ -55,7 +55,7 @@ $(document).ready( async function (tableSelector) {
         ]
     });
 
-    tx.buttons(0,null).container()
+    t.buttons(0,null).container()
         .appendTo( $('#download_buttons' ));
 
     const $month = $("#download_analyse_form_months");
