@@ -167,12 +167,12 @@
                             {% for key,value in report %}
                                 <tr>
                                     <td>{{ value.time }}</td>
-                                    <td>{{ value.irradiation }}</td>
-                                    <td>{{ value.powerEGridExt }}</td>
-                                    <td>{{ value.powerAc }}</td>
-                                    <td>{{ value.powerDc }}</td>
-                                    <td>{{ value.powerExpAc }}</td>
-                                    <td>{{ value.powerExpDc }}</td>
+                                    <td>{{ value.irradiation|number_format(3,',','.') }}</td>
+                                    <td>{{ value.powerEGridExt|number_format(3,',','.') }}</td>
+                                    <td>{{ value.powerAc|number_format(3,',','.') }}</td>
+                                    <td>{{ value.powerDc|number_format(3,',','.') }}</td>
+                                    <td>{{ value.powerExpAc|number_format(3,',','.') }}</td>
+                                    <td>{{ value.powerExpDc|number_format(3,',','.') }}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>
