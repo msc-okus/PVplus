@@ -35,24 +35,6 @@ class DownloadAnalyseFormExportType extends AbstractType
             ->add('month', HiddenType::class, [
             ])
             ->add('day', HiddenType::class, [
-            ])
-            ->add('documenttype', ChoiceType::class, [
-                'label' => 'select Document type',
-                'choices' => [
-                    'PDF' => 'pdf',
-                    'Excel' => 'excel',
-                ],
-                'required' => true,
-                'placeholder' => 'please Choose ...',
-            ])
-            ->setAction('/download/analyse/download/'.$options['anlagenid'])
-            // #############################################
-            // ###          STEUERELEMENTE              ####
-            // #############################################
-
-            ->add('export', SubmitType::class, [
-                'label' => 'Download',
-                'attr' => ['class' => 'primary save'],
             ]);
     }
 

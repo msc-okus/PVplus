@@ -73,7 +73,7 @@ class DownloadController extends AbstractController
         // das Formular für die Datumsselektion
         $form = $this->createForm(DownloadAnalyseFormType::class);
         $form->handleRequest($request);
-        $plantId = 91;
+
         if ($form->isSubmitted() && $form->get('calc')->isClicked()) { // 'calc' == generate Analyse
             /* @var DownloadAnalyseModel $downloadAnalyseModel */
             $downloadAnalyseModel = $form->getData();
@@ -153,7 +153,7 @@ class DownloadController extends AbstractController
                             'time' => $output->getstamp()->format('M'),
                             'irradiation' => (float) $output->getIrrMonth(),
                             'powerEGridExtMonth' => (float) $output->getpowerEGridExt(),
-                            'PowerEvuMonth' => (float) $output->getPowerEvuMonth(),
+                            'powerEvuMonth' => (float) $output->getPowerEvuMonth(),
                             'powerActMonth' => (float) $output->getpowerActMonth(),
                             'powerDctMonth' => (float) $dcData[$i]['actdc'],
                             'powerExpMonth' => (float) $output->getpowerExpMonth(),
@@ -191,7 +191,7 @@ class DownloadController extends AbstractController
                                 'time' => $output[$i]->getstamp()->format('M-d'),
                                 'irradiation' => (float) $output[$i]->getirradiation(),
                                 'powerEGridExtMonth' => (float) $output[$i]->getpowerEGridExt(),
-                                'PowerEvuMonth' => (float) $output[$i]->getPowerEvu(),
+                                'powerEvuMonth' => (float) $output[$i]->getPowerEvu(),
                                 'powerActMonth' => (float) $output[$i]->getpowerAct(),
                                 'powerDctMonth' => (float) $dcData[$i]['actdc'],
                                 'powerExpMonth' => (float) $output[$i]->getpowerExp(),
