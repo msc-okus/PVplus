@@ -5,7 +5,7 @@
     <thead>
     <tr class="left">
         <th class="border-right-2"></th>
-        <th class="border-right-2" colspan="4">Power & Irradiation  {% if anlage.useppc %}(PPC Corr.){% endif %}</th>
+        <th class="border-right-2" colspan="5">Power & Irradiation  {% if anlage.useppc %}(PPC Corr.){% endif %}</th>
         <th class="border-right-2" colspan="5">PR & PA – default (OpenBook)</th>
         {% if anlage.settings.disableDep1 != true %}<th class="border-right-2" colspan="5">PR & PA – O&M</th>{% endif %}
         {% if anlage.settings.disableDep2 != true %}<th class="border-right-2" colspan="5">PR & PA – EPC</th>{% endif %}
@@ -14,6 +14,7 @@
     <tr>
         <th class="border-right-2">Datum</th>
         <th>Irr</th>
+        <th>Irr NO PPC</th>
         <th>Grid</th>
         <th>Inverter</th>
         <th class="border-right-2">G4N Expected</th>
@@ -56,6 +57,7 @@
         <td class="border-right-2">{{ day["datum"] }}</td>
 
         <td>{{ day["irradiation"]|number_format(4,',','.') }}</td>
+        <td>{{ day["irradiationNoPpc"]|number_format(4,',','.') }}</td>
         <td>{% if anlage.useGridMeterDayData %}{{ day["powerEGridExt"]|number_format(2,',','.') }}{% else %}{{ day["powerEvu"]|number_format(2,',','.') }}{% endif %}</td>
         <td>{{ day["powerAct"]|number_format(2,',','.') }}</td>
         <td class="border-right-2">{{ day["powerExp"]|number_format(2,',','.') }}</td>
