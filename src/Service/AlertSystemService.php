@@ -373,7 +373,7 @@ class AlertSystemService
                 }
             }
 
-                if (count($array_gap) > 0) {
+                if (count($array_gap ) > 0) {
                     foreach ($array_gap as $inverter) {
                         if ($inverter != "") {
                             $message = "Data gap in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
@@ -381,7 +381,7 @@ class AlertSystemService
                         }
                     }
                 }
-                if (count($array_zero) > 0) {
+                if (count($array_zero) > 0 && ($anlage->isPpcBlockTicket() && $plant_status['ppc'])) {
                     foreach ($array_zero as $inverter) {
                         if ($inverter != "") {
                             $message = "Power Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
@@ -397,7 +397,6 @@ class AlertSystemService
                         }
                     }
                 }
-
                 if ($plant_status['ppc'])$this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, '*', $time, "");
 
         }
