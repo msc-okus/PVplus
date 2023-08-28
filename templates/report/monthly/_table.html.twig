@@ -3,7 +3,7 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Day Values</h3>
     {% if report != null %}
-       {% include "report/monthly/_tableSub.html.html.twig" %}
+       {% include "report/monthly/_tableSub.html.twig" %}
     {% else %}
         <h2>no Report (twig has no report variable)</h2>
     {% endif %}
