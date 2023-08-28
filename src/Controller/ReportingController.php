@@ -264,7 +264,7 @@ class ReportingController extends AbstractController
 
         switch ($report->getReportType()) {
             case 'epc-report':
-                $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
+                $pdfFilename = 'ZZZZZEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
                 switch ($anlage->getEpcReportType()) {
                     case 'prGuarantee' :
                         $headline = [
@@ -327,7 +327,7 @@ class ReportingController extends AbstractController
                 }
                 break;
             case 'epc-new-pr':
-                $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
+                $pdfFilename = 'QQQQQQEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
                 $result = $this->renderView('report/epcReportPR.html.twig', [
                     'anlage'        => $anlage,
                     'monthsTable'   => $reportArray['monthTable'],
@@ -1298,7 +1298,7 @@ class ReportingController extends AbstractController
 
         switch ($report->getReportType()) {
             case 'epc-report':
-                $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
+                $pdfFilename = 'XXXXXXEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
                 switch ($anlage->getEpcReportType()) {
                     case 'prGuarantee' :
                         $headline = [
@@ -1366,7 +1366,7 @@ class ReportingController extends AbstractController
                 }
                 break;
             case 'epc-new-pr':
-                $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
+                $pdfFilename = 'YYYYYEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
                 $result = $this->renderView('report/epcReportPR.html.twig', [
                     'anlage'        => $anlage,
                     'monthsTable'   => $reportArray['monthTable'],

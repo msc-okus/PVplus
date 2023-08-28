@@ -51,7 +51,6 @@ class ReportEpcService
     public function createEpcReport(Anlage $anlage, DateTime $date): string
     {
         $currentDate = date('Y-m-d H-i');
-        $pdfFilename = 'EPC Report '.$anlage->getAnlName().' - '.$currentDate.'.pdf';
         $error = false;
         $output = '';
         switch ($anlage->getEpcReportType()) {
