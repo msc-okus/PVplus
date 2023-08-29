@@ -41,24 +41,23 @@ class ImportService
         $this->em = $em;
     }
 
-    public function prepareForImport(Anlage|int $plantId, $start, $end)
+    public function prepareForImport(Anlage|int $anlage, $start, $end): void
     {
 
-        if (is_int($plantId)) {
-            $anlage = $this->anlagenRepository->findOneByIdAndJoin($plantId);
+        if (is_int($anlage)) {
+            $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
+        $plantId = $anlage->getAnlId();
 
         $conn = $this->doctrine->getConnection();
 
-        $weather = $anlage->getWeatherStation($anlage->getWeatherStation()->getId());
+        $weather = $anlage->getWeatherStation();
         $weatherDbIdent = $weather->getDatabaseIdent();
 
         $modules = $anlage->getModules();
         $groups = $anlage->getGroups();
         $systemKey = $anlage->getCustomPlantId();
         $acGroups = self::getACGroups($conn, $plantId);
-
-        $hasPpc = $anlage->getHasPPC();
 
         $importType = $anlage->getSettings()->getImportType();
 
@@ -187,7 +186,7 @@ class ImportService
 
                 unset($result);
                 //Anlage hatPPc
-                if ($hasPpc) {
+                if ($anlage->getHasPPC()) {
                     $ppcs = $bulkMeaserments['ppcs'];
 
                     $anlagePpcs = self::getAnlagePpcs($conn, $plantId);
@@ -198,8 +197,6 @@ class ImportService
                     }
                 }
             }
-
-
         }
 
         //write Data in the tables
@@ -226,7 +223,7 @@ class ImportService
                 $tableName = "db__pv_ws_$weatherDbIdent";
                 self::insertData($tableName, $data_pv_weather, $this->host, $this->userPlant, $this->passwordPlant);
 
-                if ($hasPpc) {
+                if ($anlage->getHasPPC()) {
                     $tableName = "db__pv_ppc_$anlagenTabelle";
                     self::insertData($tableName, $data_ppc, $this->host, $this->userPlant, $this->passwordPlant);
                 }

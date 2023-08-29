@@ -11,8 +11,6 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class GenerateTicketsHandler implements MessageHandlerInterface
 {
-
-
     public function __construct(
         private AlertSystemService $alertService,
         private AlertSystemv2Service $alertServiceV2,
