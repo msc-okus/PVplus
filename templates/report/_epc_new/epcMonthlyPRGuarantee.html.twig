@@ -1,0 +1,12 @@
+{% extends 'report/new_report.base.html.twig' %}
+
+{% block header %}
+    {{ parent() }}
+
+    <link href='/scss/report-epc.css' rel="stylesheet" type="text/css">
+    <link href='/public/css/epc_report.css' rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+    {% include('report/_epc_new/_pageBase.html.twig') %}
+{% endblock content %}

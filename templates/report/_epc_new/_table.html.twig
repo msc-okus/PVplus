@@ -1,0 +1,84 @@
+
+{% block page %}
+    <div class="grid-x grid-margin-x">
+        <div class="row">
+            <h3>Basic Values</h3>
+            <table>
+                <thead>
+                <tr>
+                    <td>Start FAC</td>
+                    <td>End FAC</td>
+                    <td>PLD [EUR/kWh]</td>
+                    <td>PR design [%]</td>
+                    <td>PR guaranteed</td>
+                    <td>Risk discount [%]</td>
+                    <td>Annual Degradation [%]</td>
+                    <td>Plant size as build [kWp]</td>
+                    <td>Plant size by PVSYST [kWp]</td>
+                </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>{{ header.0.startFac|number_format(2,',','.') }}</td>
+                        <td>{{ header.0.endeFac|number_format(2,',','.') }}</td>
+                        <td>{{ header.0.pld|number_format(2,',','.') }}</td>
+                        <td>{{ header.0.PRDesign|number_format(2,',','.') }}</td>
+                        <td>{{ header.0.PRgarantiert|number_format(2,',','.') }}</td>
+                        <td>{{ header.0.Risikoabschlag|number_format(2,',','.') }}</td>
+                        <td>{{ header.0.AnnualDegradation|number_format(2,',','.') }}</td>
+                        <td>{{ header.0.kwPeak|number_format(2,',','.') }}</td>
+                        <td>{{ header.0.kwPeakPvSyst|number_format(2,',','.') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="grid-x grid-margin-x">
+        <div class="row">
+            <div class="cell small-6">
+                {% if headline.reportStatus %}
+                    <h3>PR Forecast <small>{{ forecast.0.forecastDateText }}</small></h3>
+                    <table>
+                        <thead>
+                        <tr>
+                            <td>SPR<sub><small>Prog</small></sub> - PR<sub><small>Guar</small></sub> [%]</td>
+                            <td></td>
+                            <td>Total PLD [EUR]</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ forecast.0.PRDiffYear|number_format(2,',','.') }}</td>
+                                <td>{{ forecast.0.message }}</td>
+                                <td>{{ forecast.0.pld|number_format(2,',','.') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+            <div class="cell small-6">
+                <h3>PR Real <small>{{ forecast_real.0.forecastDateText }}</small></h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <td>PR<sub><small>Real</small></sub> - PR<sub><small>Guar</small></sub> [%]</td>
+                        <td>Availability</td>
+                        <td></td>
+                        <td>Total PLD [EUR]</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{{ forecast_real.0.PRDiffYear|number_format(2,',','.') }}</td>
+                        <td>{{ forecast_real.0.availability|number_format(2,',','.') }}</td>
+                        <td>{{ forecast_real.0.message }}</td>
+                        <td>{{ forecast_real.0.pld|number_format(2,',','.') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

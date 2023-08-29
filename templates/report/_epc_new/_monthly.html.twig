@@ -1,0 +1,83 @@
+
+{% block page %}
+    <div class="grid-x grid-margin-x">
+        <div class="cell">
+            <h3>Monthly Values</h3>
+            <table>
+                <thead>
+                <tr>
+                    <td>Month  <br><br></td>
+                    <td>Days<br><br></td>
+                    <td>Irradiation<br>weighted average<br>[kWh/m&sup2;]</td>
+                    <td>PR<sub><small>_Design_M</small></sub><br><br>[%]</td>
+                    <td>EGrid<sub><small>_Design_M</small></sub><br><br>[kWh]</td>
+                    <td>specif.<br>Yield<sub><small>_Design_M</small></sub><br>[kWh/kWp]</td>
+                    <td>PR<sub><small>_Guar_M</small></sub><br><br>[%]</td>
+                    <td>PR<sub><small>_Real_M</small></sub><br><br>[%]</td>
+                    <td>EGrid<sub><small>_Real_M</small></sub><br><br>[kWh]</td>
+                    <td>specif.<br>Yield<sub><small>_Real_M | Prog_M</small></sub><br>[kWh/kWp]</td>
+                    <td>PR<sub><small>_Real_M</small></sub> -<br>PR<sub><small>_Design_M</small></sub><br>[%]</td>
+                    <td>Availability<br>[%]</td>
+                    <td style="background-color: #767676;"></td>
+                    <td>EGrid<sub><small>_Real_M</small></sub> -<br>EGrid<sub><small>_Design_M</small></sub><br>[kWh]</td>
+                    <td>PR<sub><small>_Real_M</small></sub> - <br>PR<sub><small>_Guar_M</small></sub><br>[%]</td>
+                    <td>PR<sub><small>Real_M</small></sub> / <br>PR<sub><small>Prog_M</small></sub><br>[%]</td>
+                    <td>Ratio<br><br>[%]</td>
+                    <td>spec.<br>Yield<sub><small>_Guar_M</small></sub><br>[kWh/kWp]</td>
+                </tr>
+                </thead>
+
+                <tbody>
+                    {% for key,value in main %}
+                        {% if value.currentMonthClass == 'current-month' %}
+                            <tr class="current-month">
+                                <td>{{ value.month }}</td>
+                                <td>{{ value.days }}</td>
+                                <td>{{ value.irradiation|number_format(2,',','.') }}</td>
+                                <td>{{ value.prDesign|number_format(2,',','.') }}</td>
+                                <td>{{ value.ertragDesign|number_format(2,',','.') }}</td>
+                                <td>{{ value.spezErtragDesign|number_format(2,',','.') }}</td>
+                                <td>{{ value.prGuar|number_format(2,',','.') }}</td>
+                                <td>{{ value.prReal|number_format(2,',','.') }}</td>
+                                <td>{{ value.eGridReal|number_format(2,',','.') }}</td>
+                                <td>{{ value.spezErtrag|number_format(2,',','.') }}</td>
+                                <td>{{ value.prReal_prDesign|number_format(2,',','.') }}</td>
+                                <td>{{ value.availability|number_format(2,',','.') }}</td>
+                                <td style="background-color: #767676;"></td>
+                                <td>{{ value.eGridRealDesign }}</td>
+                                <td>{{ value.prReal_prGuar|number_format(2,',','.') }}</td>
+                                <td>{{ value.prReal_prProg|number_format(2,',','.') }}</td>
+                                <td>{{ value.anteil|number_format(2,',','.') }}</td>
+                                <td>{{ value.prReal_prGuar|number_format(2,',','.') }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td>{{ value.month }}</td>
+                                <td>{{ value.days }}</td>
+                                <td>{{ value.irradiation|number_format(2,',','.') }}</td>
+                                <td>{{ value.prDesign|number_format(2,',','.') }}</td>
+                                <td>{{ value.ertragDesign|number_format(2,',','.') }}</td>
+                                <td>{{ value.spezErtragDesign|number_format(2,',','.') }}</td>
+                                <td>{{ value.prGuar|number_format(2,',','.') }}</td>
+                                <td>{{ value.prReal|number_format(2,',','.') }}</td>
+                                <td>{{ value.eGridReal|number_format(2,',','.') }}</td>
+                                <td>{{ value.spezErtrag|number_format(2,',','.') }}</td>
+                                <td>{{ value.prReal_prDesign|number_format(2,',','.') }}</td>
+                                <td>{{ value.availability|number_format(2,',','.') }}</td>
+                                <td style="background-color: #767676;"></td>
+                                <td>{{ value.eGridRealDesign }}</td>
+                                <td>{{ value.prReal_prGuar|number_format(2,',','.') }}</td>
+                                <td>{{ value.prReal_prProg|number_format(2,',','.') }}</td>
+                                <td>{{ value.anteil|number_format(2,',','.') }}</td>
+                                <td>{{ value.prReal_prGuar|number_format(2,',','.') }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {{ dump( main ) }}
+        </div>
+    </div>
+    <div class='page-break'></div>
+
+{% endblock %}

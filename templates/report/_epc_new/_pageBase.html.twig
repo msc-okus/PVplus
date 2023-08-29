@@ -1,0 +1,39 @@
+<div>
+    {% block content %}
+
+
+        <table style="margin-top: 15px!important;">
+            <tr style="border-bottom: solid 2px #00386d;">
+                <td><img src="{{ absolute_url(asset('goldbeck/reports/asset_management/goldbecksolar_logo.svg')) }}" width="90px" ></td>
+                <td style=" width: 254mm;" class="text-left">
+                    <h1>{{ headline.projektNr }} {{ headline.anlage }}
+                        <small>({% if headline.kwpeak > 0 %}{{ headline.kwpeak|number_format(2, ',', '.') }}{% else %}{{ headline.power|number_format(2, ',', '.') }}{% endif%} kWp)</small>
+                    </h1>
+                </td>
+                <td> <img src="{{ absolute_url(asset('images/green4net.jpg')) }}" width="70px" alt=""></td>
+            </tr>
+        </table>
+
+
+
+        <div class="content_report">
+            {% include('report/_epc_new/_table.html.twig') %}
+            {% include('report/_epc_new/_formel.html.twig') %}
+            {% include('report/_epc_new/_chart.html.twig') %}
+            {% include('report/_epc_new/_monthly.html.twig') %}
+        </div>
+
+
+        <footer>
+            <div style="margin: 0px 30px !important; position: relative; top: 70px !important;">
+                <div style="font-size:9px !important; width: 520px !important;">
+                    Page: <span class="pageNumber"></span> of <span class="totalPages"></span>
+                    <span style="float: right !important;">Creation date: '.{{ headline.reportCreationDate}}.'</span>
+                </div>
+
+            </div>
+        </footer>
+    {% endblock %}
+
+
+</div>

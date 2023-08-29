@@ -1,0 +1,85 @@
+
+{% block page %}
+    <div class="grid-x grid-margin-x">
+        <div class="row">
+            <div class="cell small-6">
+                {% if ( formel.0.algorithmus != 'Groningen'  ) and ( formel.0.algorithmus != 'Veendam' ) and ( formel.0.algorithmus != 'Lelystad' ) %}
+                    <img src='/images/temp/prFormelStandard.png' style='max-width: 400px'>
+                    <table>
+                        <tr>
+                            <td style='text-align: center'>{{ formel.0.eGridReal|number_format(2,',','.') }} kWh</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align: center'>------------------------</td>
+                            <td style='text-align: center'>=</td>
+                            <td style='text-align: center'>{{ formel.0.prReal|number_format(2,',','.') }} %</td>
+                        </tr>
+                        <tr>
+                            <td style='text-align: center'>{{ formel.0.theoPower|number_format(2,',','.') }} kWh</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                {% endif %}
+                {% if ( formel.0.algorithmus == 'Groningen' ) %}
+                    <img src='/images/temp/prFormelGroningen.jpg' style='max-width: 400px'>
+                {% endif %}
+                {% if ( formel.0.algorithmus == 'Veendam' ) %}
+                    <img src='/images/temp/prFormelVeendam.png' style='max-width: 400px'>
+                    <table>
+                        <tr>
+                            <td style='text-align: center'>{{ formel.0.eGridReal|number_format(2,',','.') }} kWh</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align: center'>----------------------------</td>
+                            <td style='text-align: center'>x</td>
+                            <td style='text-align: center'>100</td>
+                            <td style='text-align: center'>=</td>
+                            <td style='text-align: center'>{{ formel.0.prReal|number_format(2,',','.') }} %</td>
+                        </tr>
+                        <tr>
+                            <td style='text-align: center'>{{ formel.0.theoPower|number_format(2,',','.') }} kWh * {{ formel.0.availability|number_format(2,',','.') }}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                {% endif %}
+                {% if ( formel.0.algorithmus == 'Lelystad' ) %}
+                    <img src='/images/temp/prFormelLelystad.png' style='max-width: 400px'>
+                    <table>
+                        <tr>
+                            <td style='text-align: center'>{{ formel.0.eGridReal|number_format(2,',','.') }} kWh</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align: center'>----------------------------</td>
+                            <td style='text-align: center'>x</td>
+                            <td style='text-align: center'>100</td>
+                            <td style='text-align: center'>=</td>
+                            <td style='text-align: center'>{{ formel.0.prReal|number_format(2,',','.') }} %</td>
+                        </tr>
+                        <tr>
+                            <td style='text-align: center'>{{ formel.0.theoPower|number_format(2,',','.') }} kWh * {{ formel.0.availability|number_format(2,',','.') }}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
