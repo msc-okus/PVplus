@@ -6,7 +6,7 @@
         am4core.options.queue = true;
         am4core.options.onlyShowOnViewport = true;
         //get The data
-        var data = {{ content.data|raw }};
+        let data = {{ content.data|raw }};
         // Create the Chart Instance
         let chart = am4core.create("amchart-holder", am4charts.XYChart);
         chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
@@ -35,20 +35,20 @@
 
         // Create series
         function addSeries(xname,id) {
-            var series = chart.series.push(new am4charts.LineSeries());
+            let series = chart.series.push(new am4charts.LineSeries());
            //
             series.dataFields.dateX = "date";
             series.dataFields.valueY = "pnomdc";
             series.name = xname;
 
-            var segment = series.segments.template;
+            let segment = series.segments.template;
             segment.interactionsEnabled = true;
             segment.showTooltipOn = true;
 
-            var hoverState = segment.states.create("hover");
+            let hoverState = segment.states.create("hover");
             hoverState.properties.strokeWidth = 3;
 
-            var dimmed = segment.states.create("dimmed");
+            let dimmed = segment.states.create("dimmed");
             dimmed.properties.stroke = am4core.color("#dadada");
 
             series.minBulletDistance = 10;
@@ -59,10 +59,10 @@
 
             series.data = data;
             series.events.on("beforedatavalidated", function(ev) {
-                var source = ev.target.data;
-                var data = [];
-                for(var i = 0; i < source.length; i++) {
-                    var row = source[i];
+                let source = ev.target.data;
+                let data = [];
+                for(let i = 0; i < source.length; i++) {
+                    let row = source[i];
                     if (row.xinv == id) {
                         data.push(row);
                     }
@@ -86,9 +86,9 @@
         chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
         chart.exporting.adapter.add("data", function(data, target) {
             // Assemble data from many series
-            var data = [];
+            let data = [];
             chart.series.each(function(series) {
-                for(var i = 0; i < series.data.length; i++) {
+                for(let i = 0; i < series.data.length; i++) {
                     series.data[i].name = series.name;
                     data.push(series.data[i]);
                 }
@@ -127,11 +127,11 @@
         chart.legend.labels.template.textDecoration = "none";
         chart.legend.valueLabels.template.textDecoration = "none";
 
-        var as = chart.legend.labels.template.states.getKey("active");
+        let as = chart.legend.labels.template.states.getKey("active");
         as.properties.textDecoration = "line-through";
         as.properties.fill = am4core.color("#000ll");
 
-        var as2 = chart.legend.valueLabels.template.states.getKey("active");
+        let as2 = chart.legend.valueLabels.template.states.getKey("active");
         as2.properties.textDecoration = "line-through";
         as2.properties.fill = am4core.color("#000zu");
 

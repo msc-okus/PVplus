@@ -1,6 +1,7 @@
 <?php
 
 namespace App\MessageHandler\Command;
+
 use App\Message\Command\ImportData;
 use App\Service\LogMessagesService;
 use App\Service\ExternFileService;
@@ -12,7 +13,7 @@ class ImportDataHandler implements MessageHandlerInterface
 {
     public function __construct(
         private ExternFileService  $externFileService,
-        private ImportService $importService,
+        private ImportService      $importService,
         private LogMessagesService $logMessages)
     {
     }
@@ -33,18 +34,19 @@ class ImportDataHandler implements MessageHandlerInterface
 
         $timeCounter = 0;
         $timeRange = $importData->getEndDate()->getTimestamp() - $importData->getStartDate()->getTimestamp();
-        for ($stamp = $importData->getStartDate()->getTimestamp(); $stamp <= $importData->getEndDate()->getTimestamp(); $stamp = $stamp + (24 * 3600)) {
-            $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
-            $timeCounter += 24 * 3600;
+        if ($readyToImport[$key]['anlage_id'] == $plantId) {
+            for ($stamp = $importData->getStartDate()->getTimestamp(); $stamp <= $importData->getEndDate()->getTimestamp(); $stamp += 24 * 3600) {
+                $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
+                $timeCounter += 24 * 3600;
 
-            if($readyToImport[$key]['anlage_id'] == $plantId){
-                $from = date('Y-m-d 00:00',$importData->getStartDate()->getTimestamp());
-                $to = date('Y-m-d 23:59',$importData->getEndDate()->getTimestamp());
 
-                $ff = explode(" ",$from);
-                $tt = explode(" ",$to);
-                $f = explode("-",$ff[0]);
-                $t = explode("-",$tt[0]);
+                $from = date('Y-m-d 00:00', $importData->getStartDate()->getTimestamp());
+                $to = date('Y-m-d 23:59', $importData->getEndDate()->getTimestamp());
+
+                $ff = explode(" ", $from);
+                $tt = explode(" ", $to);
+                $f = explode("-", $ff[0]);
+                $t = explode("-", $tt[0]);
                 $year = $f[0];
                 $startMonth = $f[1];
                 $startday = $f[2];
@@ -57,8 +59,8 @@ class ImportDataHandler implements MessageHandlerInterface
 
                         $from = strtotime($year . '-' . $month . '-' . $d . ' 00:15');
                         $to = strtotime($year . '-' . $month . '-' . $d . ' 23:59:59');
-                        if($year == date('Y') && $month == date('m') && $d == date('d')){
-                            $hour =date('H');
+                        if ($year == date('Y') && $month == date('m') && $d == date('d')) {
+                            $hour = date('H');
                             $minute = date('i');
                             $to = strtotime($year . '-' . $month . '-' . $d . " $hour:$minute:59");
                         }
@@ -74,9 +76,11 @@ class ImportDataHandler implements MessageHandlerInterface
                     }
                 }
 
-            }else{
-                $this->externFileService->callImportDataFromApiManuel($path, $importType, $importData->getStartDate()->getTimestamp(), $importData->getEndDate()->getTimestamp());
+
             }
+        } else {
+            $this->logMessages->updateEntry($logId, 'working', 50);
+            $this->externFileService->callImportDataFromApiManuel($path, $importType, $importData->getStartDate()->getTimestamp(), $importData->getEndDate()->getTimestamp());
         }
         $this->logMessages->updateEntry($logId, 'done');
     }

@@ -101,7 +101,7 @@ class PowerService
     {
         $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $result = [];
-        $powerEvu = $powerExp = $powerExpEvu = $powerEGridExt = $powerTheo = $tCellAvg = $tCellAvgMultiIrr = 0;
+        $powerEvu = $powerExp = $powerExpEvu = $powerEGridExt = $powerTheo = $powerTheoNoPpc = $tCellAvg = $tCellAvgMultiIrr = 0;
 
         $ignorNegativEvuSQL = $anlage->isIgnoreNegativEvu() ? 'AND e_z_evu > 0' : '';
         $ppcSQLpart1 = $ppcSQLpart2 = $ppcSQLpart1Meters = '';
@@ -205,6 +205,17 @@ class PowerService
         }
         unset($res);
 
+        // Theoretic Power (TempCorr)
+        $sql = 'SELECT SUM(theo_power) AS theo_power 
+                FROM '.$anlage->getDbNameAcIst()."  s 
+                WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' AND s.theo_power > 0 $sqlPartInverter";
+        $res = $conn->query($sql);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $powerTheoNoPpc = $row['theo_power'];
+        }
+        unset($res);
+
         // Actual (Inverter Out) Leistung ermitteln
         $sql = 'SELECT sum(wr_pac) as sum_power_ac
                 FROM '.$anlage->getDbNameAcIst()." s
@@ -214,14 +225,15 @@ class PowerService
 
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $result['powerEvu']         = (float)$powerEvu;
-            $result['powerAct']         = (float)$row['sum_power_ac'];
-            $result['powerExp']         = (float)$powerExp;
-            $result['powerExpEvu']      = (float)$powerExpEvu;
-            $result['powerEGridExt']    = (float)$powerEGridExt;
-            $result['powerTheo']        = (float)$powerTheo;
-            $result['tCellAvg']         = (float)$tCellAvg;
-            $result['tCellAvgMultiIrr'] = (float)$tCellAvgMultiIrr;
+            $result['powerEvu']         = (float) $powerEvu;
+            $result['powerAct']         = (float) $row['sum_power_ac'];
+            $result['powerExp']         = (float) $powerExp;
+            $result['powerExpEvu']      = (float) $powerExpEvu;
+            $result['powerEGridExt']    = (float) $powerEGridExt;
+            $result['powerTheo']        = (float) $powerTheo;
+            $result['powerTheoNoPpc']   = (float) $powerTheoNoPpc;
+            $result['tCellAvg']         = (float) $tCellAvg;
+            $result['tCellAvgMultiIrr'] = (float) $tCellAvgMultiIrr;
         }
         unset($res);
 

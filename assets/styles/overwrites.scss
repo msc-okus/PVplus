@@ -76,6 +76,8 @@
 /**************************************/
 
 
+@import "includes/waiting-icon"; // used for waiting icon on calculating forcast
+
 @include breakpoint(small up) {
     //Small and up styles
     .ajax-loader {

@@ -178,7 +178,7 @@ class ReportsMonthlyV2Service
         for ($n = 1; $n <= $days; ++$n) {
             $xAxis[] = $table[$n]['datum_alt'];
             $number = $anlage->getUseGridMeterDayData() ? $table[$n]['powerEGridExt'] : $table[$n]['powerEvu'];
-            $yAxis[] = number_format(round($number, 2),0,',','.');
+            $yAxis[] = round($number,2);
         }
         $chart = new ECharts();
 
@@ -224,8 +224,6 @@ class ReportsMonthlyV2Service
             ],
         ];
         $chart->setOption($options);
-
-        $string = $chart->render('chartPower', ['style' => 'height: 250px; margin-bottom: 40px;', 'renderer' => 'svg']);
 
         return $chart->render('chartPower', ['style' => 'height: 250px; margin-bottom: 40px;', 'renderer' => 'svg']);
     }

@@ -443,22 +443,20 @@ class DCCurrentChartService
             }
             $mImpp[] = $mImppTemp;
         }
-        #
-        ###    $  = $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
-        #
+
         if ($groupct) {
             if ($sets === null) {
                 $min = 1;
-                $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
+                $max = ($groupct > 100 ? (int)ceil($groupct / 10) : (int)ceil(($groupct + 0.5) / 2));
                 $max = (($max > 50) ? '50' : $max);
                 $sqladd = "AND $groupdc BETWEEN '$min' AND '$max'";
             } else {
                 $res = explode(',', $sets);
                 $min = (int)ltrim($res[0], "[");
                 $max = (int)rtrim($res[1], "]");
-                (($max > $groupct) ? $max = $groupct : $max = $max);
-                (($groupct > $min) ? $min = $min : $min = 1);
-                $sqladd = "AND $groupdc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '5' : $max) . "";
+                $max > $groupct ? $max = $groupct : $max = $max;
+                $groupct > $min ? $min = $min : $min = 1;
+                $sqladd = "AND $groupdc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '5' : $max) . " ";
             }
         } else {
             $min = 1;
@@ -467,16 +465,17 @@ class DCCurrentChartService
         }
         //
         if ($anlage->getUseNewDcSchema()) {
-            $sql = "SELECT stamp as ts,wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameDCIst() . " WHERE 
+            $sql = "SELECT stamp as ts, wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameDCIst() . " WHERE 
                         stamp BETWEEN '$from' AND '$to' 
                         $sqladd
                         GROUP BY stamp, $groupdc ORDER BY NULL";
         } else {
-            $sql = "SELECT stamp as ts,wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameACIst() . " WHERE 
+            $sql = "SELECT stamp as ts, wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameACIst() . " WHERE 
                         stamp BETWEEN '$from' AND '$to' 
                         $sqladd
                         GROUP BY stamp, $groupdc ORDER BY NULL";
         }
+
         $resultIst = $conn->query($sql);
 
         if ($resultIst->rowCount() > 0) {

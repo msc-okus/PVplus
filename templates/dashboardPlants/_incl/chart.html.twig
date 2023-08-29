@@ -594,29 +594,14 @@ and form.selectedChart != 'sollistirranalyse'%}
             series0.defaultState.transitionDuration = 0;
             series0.tensionX = 0.8;
 
-            {% if (is_granted('ROLE_G4N')) %}
-                let seriesIrr = chart.series.push(new am4charts.LineSeries());
-                seriesIrr.name = "Irradiation W/m²"
-                seriesIrr.dataFields.dateX = "date";
-                seriesIrr.dataFields.valueY = "irradiation";
-                seriesIrr.tooltipText = "Irradiation W/m²: {valueY} [/]";
-                seriesIrr.stroke = am4core.color("#950101");
-                seriesIrr.strokeWidth = 1;
-                series5Irr.defaultState.transitionDuration = 0;
-                seriesIrr.tensionX = 0.8;
-                seriesIrr.hidden = true;
-                seriesIrr.yAxis = valueAxisIrr;
-            {% endif %}
-
-
-
             // Create series
             let units = JSON.parse('{{ content.inverterArray | raw  }}');
-            function addSeries(seriesId) {
 
+            function addSeries(seriesId) {
                 // Create series Actual
                 let series = new am4charts.LineSeries();
                 let newSeriesId = seriesId + {{ content.offsetLegende }};
+                console.log(units[newSeriesId])
 
                 series.dataFields.valueY = units[newSeriesId];
                 series.name = units[newSeriesId];
@@ -632,6 +617,20 @@ and form.selectedChart != 'sollistirranalyse'%}
             for (let i = 1; i <= {{ content.maxSeries }}; i++) {
                 addSeries(i);
             }
+
+            {% if (is_granted('ROLE_G4N')) %}
+                let seriesIrr = chart.series.push(new am4charts.LineSeries());
+                seriesIrr.name = "Irradiation W/m²"
+                seriesIrr.dataFields.dateX = "date";
+                seriesIrr.dataFields.valueY = "irradiation";
+                seriesIrr.tooltipText = "Irradiation W/m²: {valueY} [/]";
+                seriesIrr.stroke = am4core.color("#950101");
+                seriesIrr.strokeWidth = 1;
+                seriesIrr.defaultState.transitionDuration = 0;
+                seriesIrr.tensionX = 0.8;
+                seriesIrr.hidden = true;
+                seriesIrr.yAxis = valueAxisIrr;
+            {% endif %}
 
             chart.cursor = new am4charts.XYCursor();
             chart.cursor.xAxis = dateAxis;
