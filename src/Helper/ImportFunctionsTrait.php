@@ -3,23 +3,13 @@ namespace App\Helper;
 
 require_once __DIR__.'/../../public/config.php';
 
-use App\Repository\AnlagenRepository;
-use mysql_xdevapi\DatabaseObject;
 use PDO;
 use PDOException;
 
 
-
 trait ImportFunctionsTrait
 {
-    private AnlagenRepository $anlagenRepository;
 
-    public function __construct(
-        AnlagenRepository $anlRepo)
-    {
-        $this->anlagenRepository = $anlRepo;
-
-    }
     /**
      * @param string|null $dbdsn
      * @param string|null $dbusr
@@ -149,22 +139,6 @@ trait ImportFunctionsTrait
         }
 
         return $_time;
-    }
-
-
-    /**
-     * Funktion g4nLog($meldung) zum schreiben eines Logfiles
-     *
-     * @param $meldung
-     * @param $logfile
-     */
-    function g4nLog($meldung, $logfile = 'logfile')
-    {
-        if ($meldung) {
-            $logdatei = fopen("./logs/" . $logfile . "-" . date("Y-m-d", time()) . ".txt", "a");
-            fputs($logdatei, date("H:i:s", time()) . ' -- ' . $meldung . "\n");
-            fclose($logdatei);
-        }
     }
 
 
@@ -432,7 +406,7 @@ trait ImportFunctionsTrait
      * @param int $length
      * @param bool $istOstWest
      * @param array $sensors
-     * @param date $date
+     * @param  $date
      * @return array
      */
     function checkSensors(array $anlageSensors, int $length, bool $istOstWest, $sensors, $date): array
@@ -650,7 +624,7 @@ trait ImportFunctionsTrait
 
     //importiert die Daten für Anlegen mit Stringboxes
     /**
-     * @param datetime $stringBoxesTime
+     * @param \DateTime $stringBoxesTime
      * @param array $acGroups
      * @param array $inverters
      * @param string $date

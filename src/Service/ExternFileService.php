@@ -100,12 +100,9 @@ class ExternFileService
         return $output;
     }
 
-    public function callImportDataFromApiManuel($path, $importType, $from, $to): string
+    public function callImportDataFromApiManuel($path, $importType, $from, $to, $logId = ''): void
     {
         $currentDir = __DIR__;
-        exec("php -dsafe_mode=Off $currentDir/../../../anlagen/goldbeck/$path/loadDataFromApi.php ".$from." ".$to." ".$importType);
-        $output = "Success";
-
-        return $output;
+        exec("php -dsafe_mode=Off $currentDir/../../../anlagen/goldbeck/$path/loadDataFromApi.php ".$from." ".$to." ".$importType." ".$logId);
     }
 }

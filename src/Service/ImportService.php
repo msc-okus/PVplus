@@ -12,6 +12,7 @@ use App\Repository\PVSystDatenRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\MeteoControlService;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Config\DoctrineConfig;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -41,6 +42,9 @@ class ImportService
         $this->em = $em;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function prepareForImport(Anlage|int $anlage, $start, $end): void
     {
 
