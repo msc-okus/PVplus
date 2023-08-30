@@ -205,9 +205,9 @@ trait G4NTrait
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
-            'database_dsn' => $dbdsn === null ? $_ENV["PLANT_DATABASE_URL"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
-            'database_user' => $dbusr === null ? $_ENV['PLANT_DATABASE_USER'] : $dbusr,
-            'database_pass' => $dbpass === null ? $_ENV['PLANT_DATABASE_PASSWORD'] : $dbpass,
+            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
+            'database_user' => $dbusr,
+            'database_pass' => $dbpass,
         ];
 
         try {
@@ -412,8 +412,11 @@ trait G4NTrait
     /**
      * Ermittelt aus dem übergebenen Array den Mittelwert, wobei 0 Werte nicht in die Berechnung einfließen.
      */
-    public static function mittelwert(array $werte): ?float
+    public static function mittelwert(?array $werte): ?float
     {
+        if ($werte === null) {
+            return null;
+        }
         $divisor = $divident = 0;
         foreach ($werte as $wert) {
             if ((float) $wert > 0) {
@@ -426,7 +429,7 @@ trait G4NTrait
     }
 
     /*
-     *With this function we will remove the elements of the second array from the first one
+     * With this function we will remove the elements of the second array from the first one
      * we will return an array with 3 array
      * 1.- the elements left in the first array after the subtraction
      * 2.- the elements left in the second array after the subtraction

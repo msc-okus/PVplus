@@ -16,6 +16,11 @@ class SollIstTempAnalyseChartService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private Security $security,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository $invertersRepo,
@@ -57,7 +62,7 @@ class SollIstTempAnalyseChartService
     {
         ini_set('memory_limit', '3G');
         $anlagename = $anlage->getAnlName();
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $dataArray = [];
         switch ($anlage->getConfigType()) {
             case 3:

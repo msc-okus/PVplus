@@ -10,7 +10,7 @@ class DummySollService
 
     public function createDummySoll($from = null): string
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         // Update Dummy DBs
         $output = "Start Dummy Data\n";
         if (!$from) {

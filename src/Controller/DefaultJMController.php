@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
 use App\Entity\Status;
@@ -45,7 +46,7 @@ class DefaultJMController extends AbstractController
 
     )
     {
-        $this->conn = self::getPdoConnection();
+        $this->conn = GetPdoService::getPdoConnection();
 
     }
     #[Route(path: '/default/j/m', name: 'default_j_m')]

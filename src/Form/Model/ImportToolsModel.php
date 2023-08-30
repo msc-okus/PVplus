@@ -15,4 +15,8 @@ class ImportToolsModel
     public string $path;
 
     public string $importType;
+
+    public int $hasPpc;
+
+    public array $readyToImport;
 }

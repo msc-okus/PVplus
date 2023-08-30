@@ -21,6 +21,11 @@ class IrradiationService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private TicketRepository $ticketRepo,
         private TicketDateRepository $ticketDateRepo,
         private ReplaceValuesTicketRepository $replaceValuesTicketRepo,
@@ -40,7 +45,7 @@ class IrradiationService
         {
             $cacheItem->expiresAfter(60); // Lifetime of cache Item
 
-            $conn = self::getPdoConnection();
+            $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
             $irrData = [];
             $sqlIrrFlag = "";
             if ($anlage->getAnlId() == 181){ // Zwartowo
