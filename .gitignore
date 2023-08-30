@@ -26,7 +26,6 @@ symfony.exe
 ###< liip/imagine-bundle ###
 /public/*.pdf
 /public/*.html
-/public/echarts
 /public/uploads/*
 ###> symfony/webpack-encore-bundle ###
 /node_modules/

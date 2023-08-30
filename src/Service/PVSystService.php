@@ -4,7 +4,12 @@ namespace App\Service;
 
 class PVSystService
 {
-    public function __construct()
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,)
     {
     }
 

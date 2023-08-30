@@ -12,6 +12,7 @@ use App\Repository\PVSystDatenRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\MeteoControlService;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Config\DoctrineConfig;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -22,6 +23,11 @@ class ImportService
 
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private PVSystDatenRepository $pvSystRepo,
         private AnlagenRepository $anlagenRepository,
         private AnlageAvailabilityRepository $anlageAvailabilityRepo,
@@ -30,34 +36,32 @@ class ImportService
         private AvailabilityService $availabilityService,
         private MeteoControlService $meteoControlService,
         private ManagerRegistry $doctrine,
-        private $host,
-        private $passwordBase,
-        private $passwordPlant,
-
     )
     {
 
         $this->em = $em;
     }
 
-    public function prepareForImport(Anlage|int $plantId, $start, $end)
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function prepareForImport(Anlage|int $anlage, $start, $end): void
     {
 
-        if (is_int($plantId)) {
-            $anlage = $this->anlagenRepository->findOneByIdAndJoin($plantId);
+        if (is_int($anlage)) {
+            $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
+        $plantId = $anlage->getAnlId();
 
         $conn = $this->doctrine->getConnection();
 
-        $weather = $anlage->getWeatherStation($anlage->getWeatherStation()->getId());
+        $weather = $anlage->getWeatherStation();
         $weatherDbIdent = $weather->getDatabaseIdent();
 
         $modules = $anlage->getModules();
         $groups = $anlage->getGroups();
         $systemKey = $anlage->getCustomPlantId();
         $acGroups = self::getACGroups($conn, $plantId);
-
-        $hasPpc = $anlage->getHasPPC();
 
         $importType = $anlage->getSettings()->getImportType();
 
@@ -186,7 +190,7 @@ class ImportService
 
                 unset($result);
                 //Anlage hatPPc
-                if ($hasPpc) {
+                if ($anlage->getHasPPC()) {
                     $ppcs = $bulkMeaserments['ppcs'];
 
                     $anlagePpcs = self::getAnlagePpcs($conn, $plantId);
@@ -197,46 +201,44 @@ class ImportService
                     }
                 }
             }
-
-
         }
 
         //write Data in the tables
 
         switch ($importType) {
             case 'api-import-weather':
-                $tableName = "db__pv_ws_$weatherDbIdent";
-                self::insertData($tableName, $data_pv_weather, $this->host, $this->passwordPlant);
+                    $tableName = "db__pv_ws_$weatherDbIdent";
+                self::insertData($tableName, $data_pv_weather, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
             case 'api-import-ppc':
                 $tableName = "db__pv_ppc_$anlagenTabelle";
-                self::insertData($tableName, $data_ppc, $this->host, $this->passwordPlant);
+                self::insertData($tableName, $data_ppc, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
             case 'api-import-pvist':
                 if ($importType == 'withStringboxes') {
                     $tableName = "db__pv_dcist_$anlagenTabelle";
-                    self::insertData($tableName, $data_pv_dcist, $this->host, $this->passwordPlant);
+                    self::insertData($tableName, $data_pv_dcist, $this->host, $this->userPlant, $this->passwordPlant);
                 }
 
                 $tableName = "db__pv_ist_$anlagenTabelle";
-                self::insertData($tableName, $data_pv_ist, $this->host, $this->passwordPlant);
+                self::insertData($tableName, $data_pv_ist, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
             default:
                 $tableName = "db__pv_ws_$weatherDbIdent";
-                self::insertData($tableName, $data_pv_weather, $this->host, $this->passwordPlant);
+                self::insertData($tableName, $data_pv_weather, $this->host, $this->userPlant, $this->passwordPlant);
 
-                if ($hasPpc) {
+                if ($anlage->getHasPPC()) {
                     $tableName = "db__pv_ppc_$anlagenTabelle";
-                    self::insertData($tableName, $data_ppc, $this->host, $this->passwordPlant);
+                    self::insertData($tableName, $data_ppc, $this->host, $this->userPlant, $this->passwordPlant);
                 }
 
                 if ($importType == 'withStringboxes') {
                     $tableName = "db__pv_dcist_$anlagenTabelle";
-                    self::insertData($tableName, $data_pv_dcist, $this->host, $this->passwordPlant);
+                    self::insertData($tableName, $data_pv_dcist, $this->host, $this->userPlant, $this->passwordPlant);
                 }
 
                 $tableName = "db__pv_ist_$anlagenTabelle";
-                self::insertData($tableName, $data_pv_ist, $this->host, $this->passwordPlant);
+                self::insertData($tableName, $data_pv_ist, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
         }
     }

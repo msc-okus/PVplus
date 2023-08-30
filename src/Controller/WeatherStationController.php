@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\GetPdoService;
 
 use App\Entity\WeatherStation;
 use App\Form\WeatherStation\WeatherStationFormType;
@@ -106,7 +107,7 @@ class WeatherStationController extends BaseController
      */
     public function createWeatherDatabase($databaseIdent): bool
     {
-        $pdo = self::getPdoConnection();
+        $pdo = GetPdoService::getPdoConnection();
         $sqlCreateWeatherDatabase = "
         CREATE TABLE IF NOT EXISTS `db__pv_ws_$databaseIdent` (
             `db_id` int(11) NOT NULL AUTO_INCREMENT,

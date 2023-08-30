@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\GetPdoService;
 use App\Entity\AnlagenReports;
 use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
@@ -462,6 +463,14 @@ class ReportingController extends AbstractController
                             }
                             if ($data['EfficiencyRank'] && $files['InverterEfficiencyRank']){
                                 $pageCount = $pdf->setSourceFile($files['InverterEfficiencyRank']);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['waterfallProd'] && $files['waterfallProd']){
+                                $pageCount = $pdf->setSourceFile($files['waterfallProd']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);

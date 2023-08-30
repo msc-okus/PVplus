@@ -15,35 +15,20 @@ class HeatmapChartService
 {
     use G4NTrait;
 
-    private Security $security;
-
-    private AnlagenStatusRepository $statusRepository;
-
-    private InvertersRepository $invertersRepo;
-
-    public functionsService $functions;
-
-    private IrradiationChartService $irradiationChart;
-
-    private WeatherServiceNew $weatherService;
-
-    public function __construct(Security                $security,
-                                AnlagenStatusRepository $statusRepository,
-                                InvertersRepository     $invertersRepo,
-                                IrradiationChartService $irradiationChart,
-                                DCPowerChartService     $DCPowerChartService,
-                                ACPowerChartsService    $ACPowerChartService,
-                                WeatherServiceNew       $weatherService,
-                                FunctionsService        $functions)
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
+        private AnlagenStatusRepository $statusRepository,
+        private InvertersRepository     $invertersRepo,
+        private IrradiationChartService $irradiationChart,
+        private DCPowerChartService     $DCPowerChartService,
+        private ACPowerChartsService    $ACPowerChartService,
+        private WeatherServiceNew       $weatherService,
+        private FunctionsService        $functions)
     {
-        $this->security = $security;
-        $this->statusRepository = $statusRepository;
-        $this->invertersRepo = $invertersRepo;
-        $this->functions = $functions;
-        $this->irradiationChart = $irradiationChart;
-        $this->DCPowerChartService = $DCPowerChartService;
-        $this->ACPowerChartService = $ACPowerChartService;
-        $this->WeatherServiceNew = $weatherService;
     }
 
     // Help Function for Array search
@@ -77,7 +62,7 @@ class HeatmapChartService
     {
         ini_set('memory_limit', '3G');
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $dataArray = [];
         $pnominverter = $anlage->getPnomInverterArray();
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
@@ -615,7 +616,7 @@ class AnlagenAdminController extends BaseController
                                   UNIQUE INDEX `stamp_section` (`stamp` ASC, `section` ASC));
                                 ";
 
-            $conn = self::getPdoConnection();
+            $conn = GetPdoService::getPdoConnection();
             $conn->exec($databaseAcIst);
             $conn->exec($databaseDcIst);
             // $conn->exec($databaseAcSoll);

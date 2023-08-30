@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
 use App\Form\Model\WeatherToolsModel;
@@ -351,7 +352,7 @@ echo $x;
                 // Here we upload the file and read it
                 $newFile = $uploaderHelper->uploadFile($uploadedFile, '/xlsx/1', 'xlsx');
 
-                $conn = self::getPdoConnection();
+                $conn = GetPdoService::getPdoConnection();
 
                 if ( $xlsx = simpleXLSX::parse($uploadsPath . '/xlsx/1/'.$newFile) ) {
                     $i = 0;

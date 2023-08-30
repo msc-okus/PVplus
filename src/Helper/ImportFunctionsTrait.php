@@ -3,37 +3,27 @@ namespace App\Helper;
 
 require_once __DIR__.'/../../public/config.php';
 
-use App\Repository\AnlagenRepository;
-use mysql_xdevapi\DatabaseObject;
 use PDO;
 use PDOException;
 
 
-
 trait ImportFunctionsTrait
 {
-    private AnlagenRepository $anlagenRepository;
 
-    public function __construct(
-        AnlagenRepository $anlRepo)
-    {
-        $this->anlagenRepository = $anlRepo;
-
-    }
     /**
      * @param string|null $dbdsn
      * @param string|null $dbusr
      * @param string|null $dbpass
      * @return PDO
      */
-    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbpass = null): PDO
+    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
     {
 
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
             'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
-            'database_user' => 'pvpluy_2',
+            'database_user' => $dbusr,
             'database_pass' => $dbpass
         ];
 
@@ -61,13 +51,13 @@ trait ImportFunctionsTrait
      * @param string|null $dbpass
      * @return PDO
      */
-    public static function getPdoConnectionBase(?string $dbdsn = null, ?string $dbpass = null): PDO
+    public static function getPdoConnectionBase(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
     {
         // Config als Array
         // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
             'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
-            'database_user' =>  'pvpbase',
+            'database_user' =>  $dbusr,
             'database_pass' => $dbpass
         ];
 
@@ -153,31 +143,15 @@ trait ImportFunctionsTrait
 
 
     /**
-     * Funktion g4nLog($meldung) zum schreiben eines Logfiles
-     *
-     * @param $meldung
-     * @param $logfile
-     */
-    function g4nLog($meldung, $logfile = 'logfile')
-    {
-        if ($meldung) {
-            $logdatei = fopen("./logs/" . $logfile . "-" . date("Y-m-d", time()) . ".txt", "a");
-            fputs($logdatei, date("H:i:s", time()) . ' -- ' . $meldung . "\n");
-            fclose($logdatei);
-        }
-    }
-
-
-    /**
      * @param string|null $tableName
      * @param array|null $data
      * @param string|null $host
      * @param string|null $passwordPlant
      */
-    function insertData($tableName = NULL, $data = NULL, $host = null, $passwordPlant = null): void
+    function insertData($tableName = NULL, $data = NULL, $host = null, $userPlant = null, $passwordPlant = null): void
     {
         // obtain column template
-        $DBDataConnection = $this->getPdoConnectionData($host, $passwordPlant);
+        $DBDataConnection = $this->getPdoConnectionData($host, $userPlant, $passwordPlant);
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];
@@ -432,7 +406,7 @@ trait ImportFunctionsTrait
      * @param int $length
      * @param bool $istOstWest
      * @param array $sensors
-     * @param date $date
+     * @param  $date
      * @return array
      */
     function checkSensors(array $anlageSensors, int $length, bool $istOstWest, $sensors, $date): array
@@ -650,7 +624,7 @@ trait ImportFunctionsTrait
 
     //importiert die Daten für Anlegen mit Stringboxes
     /**
-     * @param datetime $stringBoxesTime
+     * @param \DateTime $stringBoxesTime
      * @param array $acGroups
      * @param array $inverters
      * @param string $date

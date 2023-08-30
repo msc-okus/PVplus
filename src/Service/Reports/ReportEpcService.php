@@ -18,6 +18,7 @@ use App\Service\ReportsEpcNewService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -26,6 +27,11 @@ class ReportEpcService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private AnlagenRepository $anlageRepo,
         private GridMeterDayRepository $gridMeterRepo,
         private PRRepository $prRepository,
@@ -40,8 +46,8 @@ class ReportEpcService
     {}
 
     /**
-     * @throws ExceptionInterface
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function createEpcReport(Anlage $anlage, DateTime $date): string
     {
@@ -52,35 +58,11 @@ class ReportEpcService
         switch ($anlage->getEpcReportType()) {
             case 'prGuarantee' :
                 $reportArray = $this->reportPRGuarantee($anlage, $date);
-                $report = new EPCMonthlyPRGuaranteeReport([
-                    'headlines' => [
-                        [
-                            'projektNr' => $anlage->getProjektNr(),
-                            'anlage' => $anlage->getAnlName(),
-                            'eigner' => $anlage->getEigner()->getFirma(),
-                            'date' => $currentDate,
-                            'kwpeak' => $anlage->getPnom(),
-                            'finalReport' => $reportArray['finalReport'],
-                        ],
-                    ],
-                    'main' => $reportArray[0],
-                    'forecast' => $reportArray[1],
-                    'pld' => $reportArray[2],
-                    'header' => $reportArray[3],
-                    'legend' => $this->serializer->normalize($anlage->getLegendEpcReports()->toArray(), null, ['groups' => 'legend']),
-                    'forecast_real' => $reportArray['prForecast'],
-                    'formel' => $reportArray['formel'],
-                ]);
-                $output = $report->run()->render(true);
                 break;
             case 'yieldGuarantee':
                 $monthTable = $this->epcNew->monthTable($anlage, $date);
                 $reportArray['monthTable'] = $monthTable;
                 $reportArray['forcastTable'] = $this->epcNew->forcastTable($anlage, $monthTable, $date);
-
-                // $output = $this->functions->printArrayAsTable($reportArray['forcastTable']);
-                // $output .= $this->functions->print2DArrayAsTable($reportArray['monthTable']);
-
                 break;
             default:
                 $error = true;
@@ -114,7 +96,7 @@ class ReportEpcService
     }
 
     /**
-     * @throws Exception
+     * @throws Exception|InvalidArgumentException
      */
     public function reportPRGuarantee(Anlage $anlage, DateTime $date): array
     {

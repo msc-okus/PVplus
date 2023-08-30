@@ -19,6 +19,11 @@ class ExternFileService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private PVSystDatenRepository $pvSystRepo,
         private AnlagenRepository $anlagenRepository,
         private PRRepository $PRRepository,
@@ -95,12 +100,9 @@ class ExternFileService
         return $output;
     }
 
-    public function callImportDataFromApiManuel($path, $importType, $from, $to): string
+    public function callImportDataFromApiManuel($path, $importType, $from, $to, $logId = ''): void
     {
         $currentDir = __DIR__;
-        exec("php -dsafe_mode=Off $currentDir/../../../anlagen/goldbeck/$path/loadDataFromApi.php ".$from." ".$to." ".$importType);
-        $output = "Success";
-
-        return $output;
+        exec("php -dsafe_mode=Off $currentDir/../../../anlagen/goldbeck/$path/loadDataFromApi.php ".$from." ".$to." ".$importType." ".$logId);
     }
 }

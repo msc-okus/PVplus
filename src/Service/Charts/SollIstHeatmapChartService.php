@@ -15,35 +15,20 @@ class SollIstHeatmapChartService
 {
     use G4NTrait;
 
-    private Security $security;
-
-    private AnlagenStatusRepository $statusRepository;
-
-    private InvertersRepository $invertersRepo;
-
-    public functionsService $functions;
-
-    private IrradiationChartService $irradiationChart;
-
-    private WeatherServiceNew $weatherService;
-
-    public function __construct(Security $security,
-        AnlagenStatusRepository $statusRepository,
-        InvertersRepository $invertersRepo,
-        IrradiationChartService $irradiationChart,
-        DCPowerChartService $DCPowerChartService,
-        ACPowerChartsService $ACPowerChartService,
-        WeatherServiceNew $weatherService,
-        FunctionsService $functions)
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
+        private AnlagenStatusRepository $statusRepository,
+        private InvertersRepository $invertersRepo,
+        private IrradiationChartService $irradiationChart,
+        private DCPowerChartService $DCPowerChartService,
+        private ACPowerChartsService $ACPowerChartService,
+        private WeatherServiceNew $weatherService,
+        private FunctionsService $functions)
     {
-        $this->security = $security;
-        $this->statusRepository = $statusRepository;
-        $this->invertersRepo = $invertersRepo;
-        $this->functions = $functions;
-        $this->irradiationChart = $irradiationChart;
-        $this->DCPowerChartService = $DCPowerChartService;
-        $this->ACPowerChartService = $ACPowerChartService;
-        $this->WeatherServiceNew = $weatherService;
     }
 
     // Help Function for Array search
@@ -89,7 +74,7 @@ class SollIstHeatmapChartService
         $from = date('Y-m-d H:00', $sunrise - 3600);
         $to = date('Y-m-d H:00', $sunset + 5400);
 
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $dataArray = [];
 
 // fix the sql Query with an select statement in the join this is much faster

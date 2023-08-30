@@ -13,7 +13,6 @@ class ImportData
         private string $path,
         private string $importType,
         private int $logId,
-        private array $readyToImport
     )
     {
     }
@@ -46,10 +45,5 @@ class ImportData
     public function getlogId(): int
     {
         return $this->logId;
-    }
-
-    public function getReadyToImport(): array
-    {
-        return $this->readyToImport;
     }
 }

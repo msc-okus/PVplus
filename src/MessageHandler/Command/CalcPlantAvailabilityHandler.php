@@ -10,17 +10,12 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class CalcPlantAvailabilityHandler implements MessageHandlerInterface
 {
-    private LogMessagesService $logMessages;
-
-    private AvailabilityService $availabilityService;
-
-    private AnlagenRepository $anlagenRepository;
-
-    public function __construct(AvailabilityService $availabilityService, LogMessagesService $logMessages, AnlagenRepository $anlagenRepository)
+    public function __construct(
+        private AvailabilityService $availabilityService,
+        private LogMessagesService $logMessages,
+        private AnlagenRepository $anlagenRepository
+    )
     {
-        $this->logMessages = $logMessages;
-        $this->availabilityService = $availabilityService;
-        $this->anlagenRepository = $anlagenRepository;
     }
 
     /**

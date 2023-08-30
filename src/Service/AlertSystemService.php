@@ -25,6 +25,11 @@ class AlertSystemService
     private bool $irr = false;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private AnlagenRepository       $anlagenRepository,
         private WeatherServiceNew       $weather,
         private WeatherFunctionsService $weatherFunctions,
@@ -266,7 +271,7 @@ class AlertSystemService
     {
         $percentajeDiff = $anlage->getPercentageDiff();
         $invCount = count($anlage->getInverterFromAnlage());
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $powerArray = "";
 
@@ -428,7 +433,7 @@ class AlertSystemService
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
         //we get the frequency values
         $voltLimit = 0;
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
 
         $return['ppc'] = false;
         $return['Power0'] = "";
