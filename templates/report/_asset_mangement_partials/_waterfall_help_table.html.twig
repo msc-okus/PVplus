@@ -11,14 +11,14 @@
                         <th class="table-center" rowspan="2">Month</th>
                         <th class="table-center">Forecast</th>
                         <th class="table-center">Forecast Irradiation</th>
-                        <th class="table-center">Corrected Forecast</th>
+                        <th class="table-center">Corrected Forecast <sup>*</sup></th>
                         <th class="table-center">Actual</th>
                         <th class="table-center">Irradiation</th>
                         <th class="table-center">SOR Losses</th>
                         <th class="table-center">EFOR Losses</th>
                         <th class="table-center">OMC Losses</th>
                         <th class="table-center">Regulatory Losses</th>
-                        <th class="table-center">EXP-Losses</th>
+                        <th class="table-center">Gap Losses</th>
                         <th class="table-center">Other Losses</th>
                         <th class="table-center">Total Losses</th>
                         <th class="table-center">Expected</th>
@@ -58,7 +58,7 @@
                                 <td class="tr_next_columns"> {{ row.EFORLosses }}</td>
                                 <td class="tr_next_columns"> {{ row.OMCLosses }}</td>
                                 <td class="tr_next_columns"> {{ row.PPCLosses }}</td>
-                                <td class="tr_next_columns"> {{ row.ExpectedLosses }}</td>
+                                <td class="tr_next_columns"> {{ row.GapLosses }}</td>
                                 <td class="tr_next_columns"> {{ row.otherLosses }}</td>
                                 <td class="tr_next_columns"> {{ row.totalLosses }}</td>
                                 <td class="tr_next_columns"> {{ row.expected }}</td>
@@ -66,6 +66,13 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <div>
+
+            <p style="font-size: 12px">
+                <br>
+                <sup>*</sup> Corrected Forecast = Forecast * (Irradiation / Forecast Irradiation)
+            </p>
         </div>
     </div>
 

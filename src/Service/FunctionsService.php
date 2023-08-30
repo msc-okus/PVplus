@@ -302,7 +302,7 @@ class FunctionsService
     }
 
     /**
-     * Calculate forcast for given plant and given month. Base aare the data from entity 'AnlagenForecastDay'.
+     * Calculate forcast for given plant and given month. Base are the data from entity 'AnlagenForecastDay'.
      */
     public function getForcastByMonth(Anlage $anlage, int $month, ?int $betriebsJahre = null): float
     {
