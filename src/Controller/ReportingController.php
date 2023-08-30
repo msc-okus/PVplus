@@ -264,7 +264,7 @@ class ReportingController extends AbstractController
 
         switch ($report->getReportType()) {
             case 'epc-report':
-                $pdfFilename = 'ZZZZZEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
+                $pdfFilename = 'Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
                 switch ($anlage->getEpcReportType()) {
                     case 'prGuarantee' :
                         $headline =
@@ -284,7 +284,7 @@ class ReportingController extends AbstractController
                         ;
 
                         #$reportArray['formel'][0]['algorithmus'] = '';
-                        return $this->render('report/_epc_new/epcMonthlyPRGuarantee.html.twig', [
+                        $result = $this->render('report/_epc_new/epcMonthlyPRGuarantee.html.twig', [
                             'headline' => $headline,
                             'main'          => $reportArray[0],
                             'forecast'      => $reportArray[1],
@@ -293,7 +293,9 @@ class ReportingController extends AbstractController
                             'legend'        => $serializer->normalize($anlage->getLegendEpcReports()->toArray(), null, ['groups' => 'legend']),
                             'forecast_real' => $reportArray['prForecast'],
                             'formel'        => $reportArray['formel'],
+                            'anlage'        => $anlage
                         ]);
+                        $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                         break;
                     case 'yieldGuarantee':
 
@@ -311,7 +313,7 @@ class ReportingController extends AbstractController
                 }
                 break;
             case 'epc-new-pr':
-                $pdfFilename = 'QQQQQQEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
+                $pdfFilename = 'QEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
                 $result = $this->renderView('report/epcReportPR.html.twig', [
                     'anlage'        => $anlage,
                     'monthsTable'   => $reportArray['monthTable'],
@@ -1282,7 +1284,7 @@ class ReportingController extends AbstractController
 
         switch ($report->getReportType()) {
             case 'epc-report':
-                $pdfFilename = 'XXXXXXEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
+                $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
                 switch ($anlage->getEpcReportType()) {
                     case 'prGuarantee' :
                         $headline = [
@@ -1350,7 +1352,7 @@ class ReportingController extends AbstractController
                 }
                 break;
             case 'epc-new-pr':
-                $pdfFilename = 'YYYYYEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
+                $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
                 $result = $this->renderView('report/epcReportPR.html.twig', [
                     'anlage'        => $anlage,
                     'monthsTable'   => $reportArray['monthTable'],

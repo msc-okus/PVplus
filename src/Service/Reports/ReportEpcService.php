@@ -308,7 +308,7 @@ class ReportEpcService
         }
         // Real / Aktuell (nur bis zum aktuellen Monat, Bsp Sep20 bis Jan 20
         $report[0][] = [
-            'month'                 => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Real&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>'.$realDateText,
+            'month'                 => 'Real'.$realDateText,
             'days'                  => 'months: '.$monateReal,
             'irradiation'           => $this->format($sumIrrMonth),
             'prDesign'              => $this->format($anlage->getDesignPR()),

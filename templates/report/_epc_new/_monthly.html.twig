@@ -1,4 +1,4 @@
-
+{% extends 'report/_epc/_pageBase.html.twig' %}
 {% block page %}
     <div class="grid-x grid-margin-x">
         <div class="cell">
@@ -6,24 +6,24 @@
             <table>
                 <thead>
                 <tr>
-                    <td>Month  <br><br></td>
-                    <td>Days<br><br></td>
-                    <td>Irradiation<br>weighted average<br>[kWh/m&sup2;]</td>
-                    <td>PR<sub><small>_Design_M</small></sub><br><br>[%]</td>
-                    <td>EGrid<sub><small>_Design_M</small></sub><br><br>[kWh]</td>
-                    <td>specif.<br>Yield<sub><small>_Design_M</small></sub><br>[kWh/kWp]</td>
-                    <td>PR<sub><small>_Guar_M</small></sub><br><br>[%]</td>
-                    <td>PR<sub><small>_Real_M</small></sub><br><br>[%]</td>
-                    <td>EGrid<sub><small>_Real_M</small></sub><br><br>[kWh]</td>
-                    <td>specif.<br>Yield<sub><small>_Real_M | Prog_M</small></sub><br>[kWh/kWp]</td>
-                    <td>PR<sub><small>_Real_M</small></sub> -<br>PR<sub><small>_Design_M</small></sub><br>[%]</td>
-                    <td>Availability<br>[%]</td>
-                    <td style="background-color: #767676;"></td>
-                    <td>EGrid<sub><small>_Real_M</small></sub> -<br>EGrid<sub><small>_Design_M</small></sub><br>[kWh]</td>
-                    <td>PR<sub><small>_Real_M</small></sub> - <br>PR<sub><small>_Guar_M</small></sub><br>[%]</td>
-                    <td>PR<sub><small>Real_M</small></sub> / <br>PR<sub><small>Prog_M</small></sub><br>[%]</td>
-                    <td>Ratio<br><br>[%]</td>
-                    <td>spec.<br>Yield<sub><small>_Guar_M</small></sub><br>[kWh/kWp]</td>
+                    <th>Month  <br><br></th>
+                    <th>Days<br><br></th>
+                    <th>Irradiation<br>weighted average<br>[kWh/m&sup2;]</th>
+                    <th>PR<sub><small>_Design_M</small></sub><br><br>[%]</th>
+                    <th>EGrid<sub><small>_Design_M</small></sub><br><br>[kWh]</th>
+                    <th>specif.<br>Yield<sub><small>_Design_M</small></sub><br>[kWh/kWp]</th>
+                    <th>PR<sub><small>_Guar_M</small></sub><br><br>[%]</th>
+                    <th>PR<sub><small>_Real_M</small></sub><br><br>[%]</th>
+                    <th>EGrid<sub><small>_Real_M</small></sub><br><br>[kWh]</th>
+                    <th>specif.<br>Yield<sub><small>_Real_M | Prog_M</small></sub><br>[kWh/kWp]</th>
+                    <th>PR<sub><small>_Real_M</small></sub> -<br>PR<sub><small>_Design_M</small></sub><br>[%]</th>
+                    <th>Availability<br>[%]</th>
+                    <td style="background-color: #b4c6e7;"></th>
+                    <th>EGrid<sub><small>_Real_M</small></sub> -<br>EGrid<sub><small>_Design_M</small></sub><br>[kWh]</th>
+                    <th>PR<sub><small>_Real_M</small></sub> - <br>PR<sub><small>_Guar_M</small></sub><br>[%]</th>
+                    <th>PR<sub><small>Real_M</small></sub> / <br>PR<sub><small>Prog_M</small></sub><br>[%]</th>
+                    <th>Ratio<br><br>[%]</th>
+                    <th>spec.<br>Yield<sub><small>_Guar_M</small></sub><br>[kWh/kWp]</th>
                 </tr>
                 </thead>
 
@@ -48,7 +48,7 @@
                                 <td>{{ value.prReal_prGuar|number_format(2,',','.') }}</td>
                                 <td>{{ value.prReal_prProg|number_format(2,',','.') }}</td>
                                 <td>{{ value.anteil|number_format(2,',','.') }}</td>
-                                <td>{{ value.prReal_prGuar|number_format(2,',','.') }}</td>
+                                <td>{{ value.specPowerGuar|number_format(2,',','.') }}</td>
                             </tr>
                         {% else %}
                             <tr>
@@ -69,15 +69,12 @@
                                 <td>{{ value.prReal_prGuar|number_format(2,',','.') }}</td>
                                 <td>{{ value.prReal_prProg|number_format(2,',','.') }}</td>
                                 <td>{{ value.anteil|number_format(2,',','.') }}</td>
-                                <td>{{ value.prReal_prGuar|number_format(2,',','.') }}</td>
+                                <td>{{ value.specPowerGuar|number_format(2,',','.') }}</td>
                             </tr>
                         {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
-            {{ dump( main ) }}
         </div>
     </div>
-    <div class='page-break'></div>
-
 {% endblock %}

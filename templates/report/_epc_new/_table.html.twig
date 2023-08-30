@@ -1,20 +1,20 @@
-
+{% extends 'report/_epc/_pageBase.html.twig' %}
 {% block page %}
     <div class="grid-x grid-margin-x">
-        <div class="row">
+        <div class="cell">
             <h3>Basic Values</h3>
             <table>
                 <thead>
                 <tr>
-                    <td>Start FAC</td>
-                    <td>End FAC</td>
-                    <td>PLD [EUR/kWh]</td>
-                    <td>PR design [%]</td>
-                    <td>PR guaranteed</td>
-                    <td>Risk discount [%]</td>
-                    <td>Annual Degradation [%]</td>
-                    <td>Plant size as build [kWp]</td>
-                    <td>Plant size by PVSYST [kWp]</td>
+                    <th>Start FAC</th>
+                    <th>End FAC</th>
+                    <th>PLD [EUR/kWh]</th>
+                    <th>PR design [%]</th>
+                    <th>PR guaranteed</th>
+                    <th>Risk discount [%]</th>
+                    <th>Annual Degradation [%]</th>
+                    <th>Plant size as build [kWp]</th>
+                    <th>Plant size by PVSYST [kWp]</th>
                 </tr>
                 </thead>
 
@@ -35,49 +35,47 @@
         </div>
     </div>
     <div class="grid-x grid-margin-x">
-        <div class="row">
-            <div class="cell small-6">
-                {% if headline.reportStatus %}
-                    <h3>PR Forecast <small>{{ forecast.0.forecastDateText }}</small></h3>
-                    <table>
-                        <thead>
-                        <tr>
-                            <td>SPR<sub><small>Prog</small></sub> - PR<sub><small>Guar</small></sub> [%]</td>
-                            <td></td>
-                            <td>Total PLD [EUR]</td>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ forecast.0.PRDiffYear|number_format(2,',','.') }}</td>
-                                <td>{{ forecast.0.message }}</td>
-                                <td>{{ forecast.0.pld|number_format(2,',','.') }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                {% endif %}
-            </div>
-            <div class="cell small-6">
-                <h3>PR Real <small>{{ forecast_real.0.forecastDateText }}</small></h3>
+        <div class="cell small-6">
+            {% if headline.reportStatus %}
+                <h3>PR Forecast <small>{{ forecast.0.forecastDateText }}</small></h3>
                 <table>
                     <thead>
                     <tr>
-                        <td>PR<sub><small>Real</small></sub> - PR<sub><small>Guar</small></sub> [%]</td>
-                        <td>Availability</td>
-                        <td></td>
-                        <td>Total PLD [EUR]</td>
+                        <th>SPR<sub><small>Prog</small></sub> - PR<sub><small>Guar</small></sub> [%]</th>
+                        <th></th>
+                        <th>Total PLD [EUR]</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>{{ forecast_real.0.PRDiffYear|number_format(2,',','.') }}</td>
-                        <td>{{ forecast_real.0.availability|number_format(2,',','.') }}</td>
-                        <td>{{ forecast_real.0.message }}</td>
-                        <td>{{ forecast_real.0.pld|number_format(2,',','.') }}</td>
-                    </tr>
+                        <tr>
+                            <td>{{ forecast.0.PRDiffYear|number_format(2,',','.') }}</td>
+                            <td>{{ forecast.0.message }}</td>
+                            <td>{{ forecast.0.pld|number_format(2,',','.') }}</td>
+                        </tr>
                     </tbody>
                 </table>
-            </div>
+            {% endif %}
+        </div>
+        <div class="cell small-6">
+            <h3>PR Real <small>{{ forecast_real.0.forecastDateText }}</small></h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>PR<sub><small>Real</small></sub> - PR<sub><small>Guar</small></sub> [%]</th>
+                    <th>Availability</th>
+                    <th></th>
+                    <th>Total PLD [EUR]</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ forecast_real.0.PRDiffYear|number_format(2,',','.') }}</td>
+                    <td>{{ forecast_real.0.availability|number_format(2,',','.') }}</td>
+                    <td>{{ forecast_real.0.message }}</td>
+                    <td>{{ forecast_real.0.pld|number_format(2,',','.') }}</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
