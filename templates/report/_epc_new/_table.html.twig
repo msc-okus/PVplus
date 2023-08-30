@@ -113,16 +113,16 @@
     <div class="grid-x grid-margin-x">
         <div class="cell small-6">
             {% if ( formel.0.algorithmus != 'Groningen'  ) and ( formel.0.algorithmus != 'Veendam' ) and ( formel.0.algorithmus != 'Lelystad' ) %}
-                <img src='/images/temp/prFormelStandard.png' style='max-width: 400px'>
+                <img src='{{ absolute_url(asset('/images/temp/prFormelStandard.png')) }}' style='max-width: 400px'>
             {% endif %}
             {% if ( formel.0.algorithmus == 'Groningen' ) %}
-                <img src='/images/temp/prFormelGroningen.jpg' style='max-width: 400px'>
+                <img src='{{ absolute_url(asset('/images/temp/prFormelGroningen.jpg')) }}' style='max-width: 400px'>
             {% endif %}
             {% if ( formel.0.algorithmus == 'Veendam' ) %}
-                <img src='/images/temp/prFormelVeendam.png' style='max-width: 400px'>
+                <img src='{{ absolute_url(asset('/images/temp/prFormelVeendam.png')) }}' style='max-width: 400px'>
             {% endif %}
             {% if ( formel.0.algorithmus == 'Lelystad' ) %}
-                <img src='/images/temp/prFormelLelystad.png' style='max-width: 400px'>
+                <img src='{{ absolute_url(asset('/images/temp/prFormelLelystad.png')) }}' style='max-width: 400px'>
             {% endif %}
         </div>
 
