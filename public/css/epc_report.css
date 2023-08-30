@@ -22,7 +22,7 @@ body * {
 }
 
 .content_report{
-  height: 165mm!important;
+  //hheight: 165mm!important;
   width: 277mm!important;
   overflow: hidden;
 }
@@ -59,7 +59,7 @@ table * {
 }
 
 table td, table th {
-  border: none 0;
+  border: none 15px;
   padding: 2px 2px;
   border-collapse: collapse;
   font-size: 11px;

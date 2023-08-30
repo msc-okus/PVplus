@@ -1,12 +1,30 @@
-<div>
-    {% block content %}
+<div style="page-break-after: always; height: 100%!important;">
+    <div>
+        <table style="margin-top: 15px!important;">
+            <tr style="border-bottom: solid 2px #00386d;">
+                <td style=" width: 254mm;" class="text-left">
+                    <h1>{{ anlage.projektNr }} {{ anlage.anlName }}
+                        <small>({% if anlage.kwPeakPLDCalculation > 0 %}{{ anlage.kwPeakPLDCalculation|number_format(2, ',', '.') }}{% else %}{{ anlage.power|number_format(2, ',', '.') }}{% endif%} kWp)</small>
+                    </h1>
+                </td>
+                <td> <img class="customer_logo" src="{{ absolute_url(asset(anlage.eigner.getCustomerLogo)) }}" alt=""></td>
+            </tr>
+        </table>
+    </div>
+    <div class="">
+        {% block page %}
 
-        <div class="content_report">
-            {% include('report/_epc_new/_table.html.twig') %}
-            {% include('report/_epc_new/_formel.html.twig') %}
-            {% include('report/_epc_new/_chart.html.twig') %}
-            {% include('report/_epc_new/_monthly.html.twig') %}
-            {% include('report/_epc_new/_legend.html.twig') %}
-        </div>
-    {% endblock %}
+        {% endblock page %}
+    </div>
+    <div style="top: 25px; position: relative;">
+        <table style=" margin-bottom: 0; ">
+            <tr>
+                <td style="border-bottom: solid 2px #91bc5b; width: 266mm;"></td>
+                <td rowspan="2"><img class="g4n_logo" style="max-width: 30mm" src="{{ absolute_url(asset('/images/green4net.jpg')) }}" alt=""></td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
+    </div>
 </div>

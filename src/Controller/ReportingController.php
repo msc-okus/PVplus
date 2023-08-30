@@ -284,7 +284,7 @@ class ReportingController extends AbstractController
                         ;
 
                         #$reportArray['formel'][0]['algorithmus'] = '';
-                        $result = $this->render('report/_epc_new/epcMonthlyPRGuarantee.html.twig', [
+                        $result = $this->renderView('report/_epc_new/epcMonthlyPRGuarantee.html.twig', [
                             'headline' => $headline,
                             'main'          => $reportArray[0],
                             'forecast'      => $reportArray[1],
