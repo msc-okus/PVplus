@@ -4222,7 +4222,7 @@ class AssetManagementService
 
             $waterfallDiagramHelpTable[$i]['forecast'] = round($forecast[$i], 2);
             $sumForecast = $sumForecast + $waterfallDiagramHelpTable[$i]['forecast'];
-            if( $irradiation[$i] > 0) {
+            if( $irradiation[$i] > 0 && $forecastIrr > 0) {
                 $irrCorrection = $forecastIrr / $irradiation[$i];
             }
             else{
