@@ -3,8 +3,8 @@
 {% block header %}
     {{ parent() }}
 
-    <link href='/scss/report-epc.css' rel="stylesheet" type="text/css">
 
+    <link href="{{ absolute_url(asset('/css/epc_report.css')) }}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block content %}
