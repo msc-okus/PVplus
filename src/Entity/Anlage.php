@@ -649,6 +649,9 @@ class Anlage
     #[ORM\Column(name: 'dat_filename', type: 'string', nullable: true)]
     private ?string $datFilename;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $ppcBlockTicket = false;
+
 
 
     /**
@@ -3973,6 +3976,18 @@ class Anlage
         $name = str_replace(':', '_', $this->prFormular3);
         $name = str_replace('/', '_', $name);
         return '/images/formulas/' . $name . '.png';
+    }
+
+    public function isPpcBlockTicket(): ?bool
+    {
+        return $this->ppcBlockTicket;
+    }
+
+    public function setPpcBlockTicket(?bool $ppcBlockTicket): static
+    {
+        $this->ppcBlockTicket = $ppcBlockTicket;
+
+        return $this;
     }
 
 }

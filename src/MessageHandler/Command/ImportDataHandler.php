@@ -2,7 +2,10 @@
 
 namespace App\MessageHandler\Command;
 
+use App\Entity\Anlage;
+use App\Helper\G4NTrait;
 use App\Message\Command\ImportData;
+use App\Repository\AnlagenRepository;
 use App\Service\LogMessagesService;
 use App\Service\ExternFileService;
 use App\Service\ImportService;
@@ -14,10 +17,13 @@ class ImportDataHandler implements MessageHandlerInterface
     public function __construct(
         private ExternFileService  $externFileService,
         private ImportService      $importService,
-        private LogMessagesService $logMessages)
+        private LogMessagesService $logMessages,
+        private AnlagenRepository $anlagenRepo,
+    )
     {
     }
 
+    use G4NTrait;
     /**
      * @throws \Exception
      */
@@ -28,60 +34,40 @@ class ImportDataHandler implements MessageHandlerInterface
         $importType = $importData->getImportType();
         $logId = $importData->getlogId();
         $plantId = $importData->getAnlageId();
-        $readyToImport = $importData->getReadyToImport();
-
-        $key = array_search($plantId, array_column($readyToImport, 'anlage_id'));
+        /** @var $anlage Anlage */
+        $anlage = $this->anlagenRepo->find($importData->getAnlageId());
 
         $timeCounter = 0;
         $timeRange = $importData->getEndDate()->getTimestamp() - $importData->getStartDate()->getTimestamp();
-        if ($readyToImport[$key]['anlage_id'] == $plantId) {
-            for ($stamp = $importData->getStartDate()->getTimestamp(); $stamp <= $importData->getEndDate()->getTimestamp(); $stamp += 24 * 3600) {
-                $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
-                $timeCounter += 24 * 3600;
+        if ($anlage->getSettings()->isSymfonyImport()) {
+            for ($dayStamp = $importData->getStartDate()->getTimestamp(); $dayStamp <= $importData->getEndDate()->getTimestamp(); $dayStamp += 24*3600) {
+                $from = strtotime(date('Y-m-d 00:15', $dayStamp));
+                $to = strtotime(date('Y-m-d 23:59', $dayStamp));
 
-
-                $from = date('Y-m-d 00:00', $importData->getStartDate()->getTimestamp());
-                $to = date('Y-m-d 23:59', $importData->getEndDate()->getTimestamp());
-
-                $ff = explode(" ", $from);
-                $tt = explode(" ", $to);
-                $f = explode("-", $ff[0]);
-                $t = explode("-", $tt[0]);
-                $year = $f[0];
-                $startMonth = $f[1];
-                $startday = $f[2];
-                $endMonth = $t[1];
-                $endday = $t[2];
-
-                for ($month = $startMonth; $month <= $endMonth; $month++) {
-                    (is_null($endday)) ? $endday2 = (int)date('t', strtotime("$year-$month-1")) : $endday2 = $endday;
-                    for ($d = $startday; $d <= $endday2; $d++) {
-
-                        $from = strtotime($year . '-' . $month . '-' . $d . ' 00:15');
-                        $to = strtotime($year . '-' . $month . '-' . $d . ' 23:59:59');
-                        if ($year == date('Y') && $month == date('m') && $d == date('d')) {
-                            $hour = date('H');
-                            $minute = date('i');
-                            $to = strtotime($year . '-' . $month . '-' . $d . " $hour:$minute:59");
-                        }
-
-                        $minute = (int)date('i');
-                        while (($minute >= 28 && $minute < 33) || $minute >= 58 || $minute < 3) {
-
-                            sleep(20);
-                            $minute = (int)date('i');
-                        }
-                        $this->importService->prepareForImport($plantId, $from, $to, $importType);
-                        sleep(1);
-                    }
+                // Proof if date = today, if yes set $to to current DateTime
+                if ($importData->getEndDate()->format('Y') == date('Y') && $importData->getEndDate()->format('m') == date('m') && $importData->getEndDate()->format('d') == date('d')) {
+                    $hour = date('H');
+                    $minute = date('i');
+                    $to = strtotime($importData->getEndDate()->format("Y-m-d $hour:$minute"));
                 }
 
+                $minute = (int)date('i');
+                while (($minute >= 28 && $minute < 33) || $minute >= 58 || $minute < 3) {
+                    sleep(20);
+                    $minute = (int)date('i');
+                }
 
+                $this->importService->prepareForImport($plantId, $from, $to, $importType);
+
+                $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
+                $timeCounter += 24 * 3600;
+                sleep(1);
             }
         } else {
-            $this->logMessages->updateEntry($logId, 'working', 50);
-            $this->externFileService->callImportDataFromApiManuel($path, $importType, $importData->getStartDate()->getTimestamp(), $importData->getEndDate()->getTimestamp());
+            $this->logMessages->updateEntry($logId, 'working', 0);
+            $this->externFileService->callImportDataFromApiManuel($path, $importType, $importData->getStartDate()->getTimestamp(), $importData->getEndDate()->getTimestamp(), $logId);
+
         }
-        $this->logMessages->updateEntry($logId, 'done');
+        $this->logMessages->updateEntry($logId, 'done',100);
     }
 }

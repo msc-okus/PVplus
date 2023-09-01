@@ -375,11 +375,10 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-            #dump($time, $plant_status);
-            if ( $plant_status['ppc'] != null && !$plant_status['ppc'] )  $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "");
-            if ( !$plant_status['ppc'] && $plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "");
-            if ( !$plant_status['ppc'] &&  $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "");
-            if ( !$plant_status['ppc'] &&  $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "");
+            if ( $plant_status['ppc'] != null && $plant_status['ppc'] )  $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "");
+            if ( $plant_status['Gap'] != null && count($plant_status['Gap']) > 0 && ($anlage->isPpcBlockTicket() && !$plant_status['ppc'])) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "");
+            if ( $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "");
+            if ( $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "");
         }
 
         $this->em->flush();
@@ -441,10 +440,8 @@ class AlertSystemV2Service
             $sqlNull = 'SELECT b.unit as unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac is null ";
-            #dump($sqlNull);
             $resp = $conn->query($sqlNull);
             $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
-            #dump($resultNull);
             if ($anlage->isGridTicket()) {
                 $sqlVol = "SELECT b.unit 
                     FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)

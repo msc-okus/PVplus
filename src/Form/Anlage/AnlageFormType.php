@@ -9,6 +9,7 @@ use App\Entity\AnlageSunShading;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
+use Doctrine\DBAL\Types\BooleanType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -783,6 +784,12 @@ class AnlageFormType extends AbstractType
                 'help' => '[PowerLimit]',
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '0',
+            ])
+            ->add('ppcBlockTicket', SwitchType::class, [
+                'label' => 'PPC blocks the generation of inverter tickets',
+                'help' => '[ppcBlockTicket]',
+                'attr' => ['data-plant-target' => 'ticket'],
+                'empty_data' => 'false',
             ])
             // ###############################################
             // ###               Reports                  ####

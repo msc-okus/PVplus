@@ -40,50 +40,53 @@
                         <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedSOF'] - availabilityMonthTable['actualSOF']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left" class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup> <b>c</b></sup>  </td>
+                        <td style="text-align: left" class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> </td>
                         <td class="tr_next_columns"> {{ availabilityMonthTable['expectedEFOR'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ availabilityMonthTable['actualEFOR'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedEFOR'] - availabilityMonthTable['actualEFOR']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left" class="tr_next_columns">Grid Error/ Grid Off <sup><b> d</b></sup></td>
+                        <td style="text-align: left" class="tr_next_columns">Grid Error/ Grid Off <sup><b> c</b></sup></td>
                         <td class="tr_next_columns"> {{ availabilityMonthTable['expectedOMC'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ availabilityMonthTable['actualOMC'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedOMC'] - availabilityMonthTable['actualOMC']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
+                        <td style="text-align: left" class="tr_next_columns">Data Gaps</td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['expectedGaps'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['actualGaps'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedGaps'] - availabilityMonthTable['actualGaps']) |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
                         <td style="text-align: left" class="tr_next_columns"><b>Total</b></td>
                         <td  class="tr_next_columns">{{ (availabilityMonthTable['expectedAvailability']
-                            +  availabilityMonthTable['expectedSOF']
+                            + availabilityMonthTable['expectedSOF']
                             + availabilityMonthTable['expectedEFOR']
-                            + availabilityMonthTable['expectedOMC']) |number_format(2, ',', '.')}} </td>
+                            + availabilityMonthTable['expectedOMC']
+                            + availabilityMonthTable['expectedGaps']) |number_format(2, ',', '.')}} </td>
 
                         <td  class="tr_next_columns">{{ (availabilityMonthTable['actualAvailability']
-                            +  availabilityMonthTable['actualSOF']
+                            + availabilityMonthTable['actualSOF']
                             + availabilityMonthTable['actualEFOR']
-                            + availabilityMonthTable['actualOMC']) |number_format(2, ',', '.')}} </td>
+                            + availabilityMonthTable['actualOMC']
+                            + availabilityMonthTable['actualGaps']) |number_format(2, ',', '.')}} </td>
                         <td  class="tr_next_columns">{{ ((availabilityMonthTable['actualAvailability']
-                            +  availabilityMonthTable['actualSOF']
+                            + availabilityMonthTable['actualSOF']
                             + availabilityMonthTable['actualEFOR']
-                            + availabilityMonthTable['actualOMC']) -
+                            + availabilityMonthTable['actualOMC']
+                            + availabilityMonthTable['actualGaps']) -
                             (availabilityMonthTable['expectedAvailability']
-                            +  availabilityMonthTable['expectedSOF']
+                            + availabilityMonthTable['expectedSOF']
                             + availabilityMonthTable['expectedEFOR']
-                            + availabilityMonthTable['expectedOMC']))|number_format(2, ',', '.') }}
+                            + availabilityMonthTable['expectedOMC']
+                            + availabilityMonthTable['expectedGaps']))|number_format(2, ',', '.') }}
                         </td>
                     </tr>
                     </tbody>
                 </table>
 
             </td>
-            {#
-            <td style="width:25%">
-                {{ plant_availability|raw }}
-            </td>
-            <td style="width:25%">
-                {{ fails_month|raw }}
-            </td>
-            #}
+
 
         </tr>
         <tr style="width: 50%">
@@ -101,14 +104,19 @@
                         <td class="tr_next_columns"> {{ ticketCountTableMonth.SOFQuarters }}</td>
                     </tr>
                     <tr>
-                        <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
+                        <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup></td>
                         <td class="tr_next_columns"> {{ ticketCountTableMonth.EFORTickets }} </td>
                         <td class="tr_next_columns"> {{ ticketCountTableMonth.EFORQuarters }}</td>
                     </tr>
                     <tr>
-                        <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
+                        <td class="tr_next_columns">Grid Error/Grid Off <sup><b> c</b></sup></td>
                         <td class="tr_next_columns"> {{ ticketCountTableMonth.OMCTickets }} </td>
                         <td class="tr_next_columns"> {{ ticketCountTableMonth.OMCQuarters }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns"> Data Gaps</td>
+                        <td class="tr_next_columns"> {{ ticketCountTableMonth.GapTickets }} </td>
+                        <td class="tr_next_columns"> {{ ticketCountTableMonth.DataGaps }}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -119,8 +127,7 @@
                 <div style="text-align: left">
                     <sup><b>a</b></sup> Maintenance, SOR<br>
                     <sup><b>b</b></sup> Defects, EFOR<br>
-                    <sup><b>c</b></sup><b> From this EFOR errors {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps</b><br>
-                    <sup><b>d</b></sup> Availability is not effected, OMC
+                    <sup><b>c</b></sup> Availability is not effected, OMC
                 </div>
             </td>
         </tr>
