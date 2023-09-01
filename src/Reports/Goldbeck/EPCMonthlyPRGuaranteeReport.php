@@ -5,7 +5,7 @@ namespace App\Reports\Goldbeck;
 use koolreport\KoolReport;
 use koolreport\processes\Filter;
 
-class EPCMonthlyPRGuaranteeReport extends KoolReport
+class   EPCMonthlyPRGuaranteeReport extends KoolReport
 {
     use \koolreport\excel\BigSpreadsheetExportable;
     use \koolreport\cloudexport\Exportable;

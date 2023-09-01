@@ -2975,7 +2975,7 @@ table td .table-center, table th .table-center {
 table td {
   text-align: right;
 }
-table th {
+th {
   background-color: #b4c6e7 !important;
   font-weight: 600;
   text-align: left;

@@ -243,7 +243,7 @@ class ReportingController extends AbstractController
      * @throws FilterException
      */
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
-    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
+    public function showReportAsPdf(Request $request, $id, ReportEpcService $reportEpc, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
     {
         /** @var AnlagenReports|null $report */
         $session            = $this->container->get('session');
@@ -264,10 +264,10 @@ class ReportingController extends AbstractController
 
         switch ($report->getReportType()) {
             case 'epc-report':
-                $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
+                $pdfFilename = 'Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
                 switch ($anlage->getEpcReportType()) {
                     case 'prGuarantee' :
-                        $headline = [
+                        $headline =
                             [
                                 'projektNr'     => $anlage->getProjektNr(),
                                 'anlage'        => $anlage->getAnlName(),
@@ -278,10 +278,14 @@ class ReportingController extends AbstractController
                                 'epcNote'       => $anlage->getEpcReportNote(),
                                 'main_headline' => $report->getHeadline(),
                                 'reportStatus'  => $report->getReportStatus(),
-                            ],
-                        ];
-                        $report = new EPCMonthlyPRGuaranteeReport([
-                            'headlines'     => $headline,
+                                'month'         => $month,
+                                'year'          => $year
+                            ]
+                        ;
+
+                        #$reportArray['formel'][0]['algorithmus'] = '';
+                        $result = $this->renderView('report/_epc_new/epcMonthlyPRGuarantee.html.twig', [
+                            'headline' => $headline,
                             'main'          => $reportArray[0],
                             'forecast'      => $reportArray[1],
                             'pld'           => $reportArray[2],
@@ -289,27 +293,9 @@ class ReportingController extends AbstractController
                             'legend'        => $serializer->normalize($anlage->getLegendEpcReports()->toArray(), null, ['groups' => 'legend']),
                             'forecast_real' => $reportArray['prForecast'],
                             'formel'        => $reportArray['formel'],
+                            'anlage'        => $anlage
                         ]);
-                        $secretToken = '550725b81db78b424fbaf4b88d05efdfececf25c6ff81d8bcd0cbcb496c1e6a8';
-                        $settings = [
-                            // 'useLocalTempFolder' => true,
-                            'pageWaiting' => 'networkidle2', //load, domcontentloaded, networkidle0, networkidle2
-                        ];
-                        $report->run();
-                        $pdfOptions = [
-                            'format'                => 'A4',
-                            'landscape'             => true,
-                            'noRepeatTableFooter'   => false,
-                            'printBackground'       => true,
-                            'displayHeaderFooter'   => true,
-                        ];
-                        $report->cloudExport()
-                            ->chromeHeadlessio($secretToken)
-                            ->settings($settings)
-                            ->pdf($pdfOptions)
-                            ->toBrowser($pdfFilename);
-
-                        exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
+                        $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                         break;
                     case 'yieldGuarantee':
 
@@ -327,7 +313,7 @@ class ReportingController extends AbstractController
                 }
                 break;
             case 'epc-new-pr':
-                $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
+                $pdfFilename = 'QEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
                 $result = $this->renderView('report/epcReportPR.html.twig', [
                     'anlage'        => $anlage,
                     'monthsTable'   => $reportArray['monthTable'],
