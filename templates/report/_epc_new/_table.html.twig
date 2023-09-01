@@ -19,8 +19,8 @@
 
         <tbody>
             <tr>
-                <td>{{ header.0.startFac|number_format(2,',','.') }}</td>
-                <td>{{ header.0.endeFac|number_format(2,',','.') }}</td>
+                <td>{{ header.0.startFac|date("Y-m-d") }}</td>
+                <td>{{ header.0.endeFac|date("Y-m-d") }}</td>
                 <td>{{ header.0.pld|number_format(2,',','.') }}</td>
                 <td>{{ header.0.PRDesign|number_format(2,',','.') }}</td>
                 <td>{{ header.0.PRgarantiert|number_format(2,',','.') }}</td>
