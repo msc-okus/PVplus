@@ -550,8 +550,8 @@ class Anlage
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: DayLightData::class)]
     private Collection $dayLightData;
 
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageSunShading::class)]
-    private Collection $sunShadingData;
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageSunShading::class, cascade: ['persist', 'remove'])]
+    private Collection $anlageSunShading;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $freqTolerance = '2.0';
@@ -694,7 +694,7 @@ class Anlage
         $this->anlageFiles = new ArrayCollection();
         $this->statuses = new ArrayCollection();
         $this->dayLightData = new ArrayCollection();
-        $this->sunShadingData = new ArrayCollection();
+        $this->anlageSunShading = new ArrayCollection();
         $this->sensors = new ArrayCollection();
     }
 
@@ -3416,29 +3416,31 @@ class Anlage
         return $this;
     }
     /**
-     * MS 08/2023 SunShadingData
+     * MS 08/2023 sunShading
+     *
+     * @return Collection<int, AnlageSunShading>
      */
-
-    public function getSunShadingData(): Collection
+    public function getAnlageSunShading(): Collection
     {
-        return $this->sunShadingData;
+           return $this->anlageSunShading;#sunShadingData
+
     }
 
-    public function setSunShadingData(AnlageSunShading $sunShadingData): self
+    public function addAnlageSunShading(AnlageSunShading $anlageSunShading): self
     {
-        if (!$this->sunShadingData->contains($sunShadingData)){
-            $this->sunShadingData[] = $sunShadingData;
-            $sunShadingData->setAnlage($this);
+        if (!$this->anlageSunShading->contains($anlageSunShading)){
+            $this->anlageSunShading[] = $anlageSunShading;
+            $anlageSunShading->setAnlageId($this);
         }
         return $this;
     }
 
-    public function delSunShadingData(AnlageSunShading $sunShadingData): self
+    public function removeAnlageSunShading(AnlageSunShading $anlageSunShading): self
     {
-        if ($this->sunShadingData->removeElement($sunShadingData)) {
+        if ($this->anlageSunShading->removeElement($anlageSunShading)) {
             // set the owning side to null (unless already changed)
-            if ($sunShadingData->getAnlage() === $this) {
-                $sunShadingData->setAnlage(null);
+            if ($anlageSunShading->getAnlageId() === $this) {
+                $anlageSunShading->setAnlageId(null);
             }
         }
 

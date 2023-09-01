@@ -15,6 +15,7 @@ use App\Form\Anlage\AnlageSensorsFormType;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
+use App\Repository\AnlageSunShadingRepository;
 use App\Repository\EconomicVarNamesRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
@@ -106,6 +107,25 @@ class AnlagenAdminController extends BaseController
         ]);
     }
 
+    #[Route(path: '/admin/anlagen/delete/sunshading/{id}/{sadid}/{token}', name: 'app_admin_anlagen_delete_sun_shading')]
+    #[IsGranted(['ROLE_DEV'])]
+    public function delete_sunshading_model($id,$sadid, $token, EntityManagerInterface $em, Request $request, AnlageSunShadingRepository $anlageSunShadingRepository): Response
+    {
+
+        if ($this->isCsrfTokenValid('deletesunshadingmodel'.$sadid, $token)) {
+            $sunshadding = $anlageSunShadingRepository->find($sadid);
+            $em->remove($sunshadding);
+            $em->flush();
+            $this->addFlash('success', 'Data deleted !.');
+        } else {
+            $this->addFlash('warning', 'An error was detected');
+            return $this->redirectToRoute('app_admin_anlagen_list');
+        }
+
+        return $this->redirectToRoute('app_admin_anlagen_edit',['id' => $id]);
+
+    }
+
     #[Route(path: '/admin/anlagen/edit/{id}', name: 'app_admin_anlagen_edit')]
     public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, UploaderHelper $uploaderHelper ): RedirectResponse|Response
     {
@@ -114,6 +134,7 @@ class AnlagenAdminController extends BaseController
             'anlagenId' => $id,
         ]);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() || $form->get('savecreatedb')->isClicked())) {
 
             // Forecast Tab Field Check
@@ -176,6 +197,7 @@ class AnlagenAdminController extends BaseController
 
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
+
 
 
         return $this->render('anlagen/edit.html.twig', [

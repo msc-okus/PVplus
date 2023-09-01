@@ -1,0 +1,102 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/macros.library.html.twig' as macrolibrary %}
+
+{% block title %}
+    List Modules
+{% endblock %}
+
+{% block body %}
+    <style>
+        .data {
+            background-color: #d5dbdf;
+            padding: 2px;
+            margin: 2px;
+        }
+        .datacell {
+            border: 2px solid #00d0ff;
+            border-radius: 5px;
+        }
+    </style>
+    <h1>List Modules </h1>
+    {{ macrolibrary.searchbox(app.request.query.get('qw'), 'qw') }}
+<ul id="js-accordion" class="accordion" data-accordion data-allow-all-closed="true">
+        {% for modules in pagination %}
+            <li class="accordion-item js-modulesdb-item" data-accordion-item data-allow-all-closed="true">
+                <!-- Accordion tab title -->
+
+                <a href="#" class="accordion-title">Modul: <b>{{ modules.type }}</b> -  {{ modules.power }} Wp</a>
+
+                <div class="accordion-content" data-tab-content>
+                    <div class="js-use-modulesdb-item">
+
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-3 data datacell"><label>Id: {{ modules.id }}</label></div>
+                            <div class="cell medium-3 data datacell"><label>Type: {{ modules.type }}</label></div>
+                            <div class="cell medium-3 data datacell"><label>Power: {{ modules.power }} Wp</label></div>
+                            <div class="cell medium-2 "><label>&nbsp</label></div>
+                        </div>
+
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2 data datacell"><label>TempCoefCurrent: {{ modules.tempCoefCurrent }} A</label></div>
+                            <div class="cell medium-2 data datacell"><label>TempCoefVoltage: {{ modules.tempCoefVoltage }} V</label></div>
+                            <div class="cell medium-2 data datacell"><label>TempCoefVoltage: {{ modules.tempCoefVoltage }} V</label></div>
+                            <div class="cell medium-2 data datacell"><label>TempCoefPower: {{ modules.tempCoefPower }} W</label></div>
+                            <div class="cell medium-2 data datacell"><label>MaxImpp: {{ modules.maxImpp }} A</label></div>
+                            <div class="cell medium-2 "><label>&nbsp;</label></div>
+                        </div>
+
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2 data datacell"><label>MaxUmpp: {{ modules.maxUmpp }} V</label></div>
+                            <div class="cell medium-2 data datacell"><label>MaxPmpp: {{ modules.maxPmpp }} W</label></div>
+                            <div class="cell medium-2 data datacell"><label>OperatorCurrentA: {{ modules.operatorCurrentA }} A</label></div>
+                            <div class="cell medium-2 data datacell"><label>OperatorCurrentB: {{ modules.operatorCurrentB }} A</label></div>
+                            <div class="cell medium-2 data datacell"><label>OperatorCurrentC: {{ modules.operatorCurrentC }} A</label></div>
+                            <div class="cell medium-2 data datacell"><label>OperatorCurrentD: {{ modules.operatorCurrentD }} A</label></div>
+                        </div>
+
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2 data datacell"><label>OperatorCurrentE: {{ modules.operatorCurrentE }} A</label></div>
+                            <div class="cell medium-2 data datacell"><label>OperatorCurrentHighA: {{ modules.operatorCurrentHighA }} A</label></div>
+                            <div class="cell medium-2 data datacell"><label>OperatorPowerA: {{ modules.operatorPowerA }} W</label></div>
+                            <div class="cell medium-2 data datacell"><label>OperatorPowerB: {{ modules.operatorPowerB }} W</label></div>
+                            <div class="cell medium-2 data datacell"><label>OperatorPowerC: {{ modules.operatorPowerC }} W</label></div>
+                            <div class="cell medium-2 data datacell"><label>OperatorPowerD: {{ modules.operatorPowerD }} W</label></div>
+                        </div>
+
+                        <div class="grid-x grid-padding-x">
+                             <div class="cell medium-2 data datacell"><label>OperatorPowerE: {{ modules.operatorPowerE }} W</label></div>
+                             <div class="cell medium-2 data datacell"><label>OperatorPowerHighA: {{ modules.operatorPowerHighA }} W</label></div>
+                             <div class="cell medium-2 data datacell"><label>OperatorPowerHighB: {{ modules.operatorPowerHighB }} W</label></div>
+                             <div class="cell medium-2 data datacell"><label>OperatorVoltageA: {{ modules.operatorVoltageA }} V</label></div>
+                             <div class="cell medium-2 data datacell"><label>OperatorVoltageB: {{ modules.operatorVoltageB }} V</label></div>
+                             <div class="cell medium-2 "><label>&nbsp</label></div>
+                        </div>
+
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2 data datacell"><label>OperatorVoltageHightA: {{ modules.operatorVoltageHightA }} V</label></div>
+                            <div class="cell medium-2 data datacell"><label>OperatorVoltageHightB: {{ modules.operatorVoltageHightB }} V</label></div>
+                            <div class="cell medium-2 data datacell"><label>OperatorVoltageHightC: {{ modules.operatorVoltageHightC }} V</label></div>
+                            <div class="cell medium-2 data datacell"><label>BackSideFactor: {{ modules.backSideFactor }} </label></div>
+                            <div class="cell medium-2 data datacell"><label>Degradation: {{ modules.degradation }} % </label></div>
+                            <div class="cell medium-2 "><label>&nbsp;</label></div>
+                        </div>
+
+                        <div class="grid-x grid-padding-x">
+
+                            <div class="cell medium-6">
+                                <a href="{{ path('app_admin_moduldb_edit', { id: modules.id}) }}" class="hollow button tiny action-icon shadow">
+                                    <span class="fa fa-edit"></span>
+                                </a>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </li>
+        {% endfor %}
+</ul>
+    {{ knp_pagination_render(pagination) }}
+    <a class="button primary" href="{{ path('app_admin_moduldb_new') }}">Create New</a>
+{% endblock %}
