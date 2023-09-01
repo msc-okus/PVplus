@@ -163,7 +163,7 @@ class ReportEpcService
                 /** @var AnlagenPR $pr */
                 $pr = $this->prRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create(date('Y-m-d', strtotime("$year-$month-$daysInMonth")))]);
 
-                $currentMonthClass = '';
+                $class = '';
                 if (date_create($from) <= $date) {
                     $prReal         = $prArray['prDep2Evu']; // $this->format($pr->getPrEvuMonth());
                     $prStandard     = $prArray['prDep0Evu']; // $this->format($pr->getPrDefaultMonthEvu());
@@ -193,7 +193,7 @@ class ReportEpcService
                     $realDateTextEnd = date('My', strtotime("$year-$month-1"));
                     if (($month == $currentMonth && $year == $currentYear) && $run === 2) {
                         // für das Einfärben der Zeile des aktuellen Monats
-                        $currentMonthClass  = 'current-month';
+                        $class  = 'current-month';
                         $prArrayFormel = $this->PRCalulation->calcPR($anlage, $anlage->getEpcReportStart(), date_create($to));
                         if ($anlage->getUseGridMeterDayData()) {
                             $formelEnergy   = $prArrayFormel['powerEGridExt'];
@@ -274,7 +274,7 @@ class ReportEpcService
                         'anteil'            => $this->format($anteil * 100),
                         'specPowerGuar'     => $this->format($spezErtragDesign * (1 - ($anlage->getDesignPR() - $anlage->getContractualPR()) / 100)),
                         'specPowerRealProg' => $this->format($eGridReal / $anlage->getPnom()),
-                        'currentMonthClass' => $currentMonthClass,
+                        'currentMonthClass' => $class,
                     ];
                 }
                 ++$month;

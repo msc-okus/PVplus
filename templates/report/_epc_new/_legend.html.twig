@@ -1,59 +1,52 @@
-{% extends 'report/_epc_new/_pageBase.html.twig' %}
+{% extends 'report/_epc/_pageBase.html.twig' %}
 {% block page %}
-    <div class="grid-x grid-margin-x">
-        <div class="cell small-12">
-            <div class="grid-x grid-margin-x">
-                <div class="cell">
-                    <h3 >Legend</h3>
-                    {% if legend|length > 0 %}
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>Row</th>
-                                <th>Title</th>
-                                <th>Unit</th>
-                                <th>Description</th>
-                                <th>Source</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for legendRow in legend %}
-                                <tr>
-                                    <td>{{ legendRow.row }}</td>
-                                    <td>{{ legendRow.title }}</td>
-                                    <td>{{ legendRow.unit }}</td>
-                                    <td>{{ legendRow.description }}</td>
-                                    <td>{{ legendRow.source }}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    {% else %}
-                        <table class="basetable">
-                            <thead>
-                            <tr>
-                                <th>Row</th>
-                                <th>Title</th>
-                                <th>Unit</th>
-                                <th>Description</th>
-                                <th>Source</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td colspan="5">No data available in table</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    {% endif %}
-                </div>
-            </div>
 
-            <div class="grid-x grid-margin-x">
-                <div class="cell">
-                    <h3>Remarks</h3>
-                    {{ headline.epcNote }}
-                </div>
-            </div>
-    </div>
+    <h3 >Legend</h3>
+    {% if legend|length > 0 %}
+        <table>
+            <thead>
+            <tr>
+                <th>Row</th>
+                <th>Title</th>
+                <th>Unit</th>
+                <th>Description</th>
+                <th>Source</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for legendRow in legend %}
+                <tr>
+                    <td>{{ legendRow.row }}</td>
+                    <td>{{ legendRow.title }}</td>
+                    <td>{{ legendRow.unit }}</td>
+                    <td>{{ legendRow.description }}</td>
+                    <td>{{ legendRow.source }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <table class="basetable">
+            <thead>
+            <tr>
+                <th>Row</th>
+                <th>Title</th>
+                <th>Unit</th>
+                <th>Description</th>
+                <th>Source</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td colspan="5">No data available in table</td>
+            </tr>
+            </tbody>
+        </table>
+    {% endif %}
+
+
+
+    <h3>Remarks</h3>
+    {{ headline.epcNote }}
+
 {% endblock %}

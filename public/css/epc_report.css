@@ -4,79 +4,169 @@
   size: A4 landscape;
 }
 
+@media print{
+  html, body {
+    width: 277mm;
+    height: 200mm;
+    padding: 0;
+    margin: 0;
+  }
+}
 
 body {
-  margin: 0 25px 35px;
-  padding: 0;
-  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-  font-size: 12px;
-  height: 200mm;
-  width: 277mm;
-}
-.grid-margin-x table {
-  border-collapse: collapse;
-  width: auto !important;
-  margin-bottom: 0rem;
+
 }
 
-.grid-margin-x table {
-  border-collapse: collapse;
-  width: auto !important;
-  margin-bottom: 0.7rem;
+body * {
+  font-family: 'Source Sans Pro', sans-serif;
 }
-table * {
-  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+
+.content_report{
+  height: 165mm!important;
+  width: 277mm!important;
+  overflow: hidden;
 }
-.grid-margin-x table tbody tr:nth-child(even) {
-  border-bottom: 0;
-  background-color: #f1f1f1 !important;
+
+h1, h2, h3, h4 { color: #15508e!important; margin: 20px 0 5px 0;}
+h1 { font-size: 20px; }
+h2 { font-size: 18px;}
+h3 { font-size: 16px;}
+h4 { font-size: 14px;}
+
+.page-break { page-break-before: always; }
+small { font-size: 80%; }
+
+.subheadline{
+  margin-bottom: 20px;
+  display: block;
+  font-size:14px !important;
+  color: #2e639a;
 }
-.current-month td {
+
+table .current-month td {
   background-color: orange;
 }
-.grid-margin-x table .sum-forcast td,
-.grid-margin-x table .sum-real td {
+table .sum-forcast td,
+table .sum-real td{
   font-weight: bold;
 }
-.grid-margin-x table td, table th {
-  border: solid 1px gray;
-  padding: 2px 6px;
+
+.headline_customer{
+  border-bottom: solid 2px #00386d;
+  text-align: right;
+  width: auto !important;
+}
+
+table {
   border-collapse: collapse;
+  width: auto !important;
+  /*margin-bottom: 1.5rem;*/
 }
-.grid-margin-x table td small, table th small {
-  font-size: 80%;
+table * {
+
 }
-.grid-margin-x table td .table-center, table th .table-center {
+
+table td, table th {
+  border: none 0px;
+  padding: 2px 2px;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+table td small, table th small {
+  font-size: 10px;
+}
+table td .table-center, table th .table-center {
   text-align: center;
 }
-.grid-margin-x table td {
+
+table td {
   text-align: right;
 }
-.grid-margin-x table th {
-  background-color: #b4c6e7 !important;
-  font-weight: 600;
+table th {
+  background-color: #bdd7ee !important;
+  font-weight: bold;
+  text-align: right;
+  border: solid 1px #000;
+}
+.strong td {font-weight: bold; }
+.line { border-top: solid 2px #1e1e1e;}
+
+.basetable {
+  width: 100% !important;
+}
+.basetable.text-right td, .basetable.text-right th{text-align: right;}
+.basetable.text-left td, .basetable.text-left th{text-align: left;}
+.basetable.text-center td, .basetable.text-center th{text-align: center;}
+
+.basetable td, .basetable th, .pldtable td, .pldtable th {
+  border: solid 1px #9f9f9f;
+  padding: 4px;
   text-align: left;
 }
-.grid-margin-x table tr.total *, table th {
-  font-weight: bold;
-}
 
-.grid-margin-x table.data-month td, table.data-month th {
-  text-align: right;
-}
-
-.grid-margin-x > .small-6 {
-  width: calc(50% - 1rem);
-}
-
-.page_1{
-  text-align: left !important;
+.basetable th, .pldtable th {
   vertical-align: top;
-  border: none !important;
-  background-color: white;
+}
+.basetable tr:nth-child(even) { background-color: #eeeeee; }
+.basetable tr:nth-child(odd) { }
+
+.monthtable {
+}
+.monthtable td, .monthtable th{
+  text-align: right;
+  font-size: 8px;
+  padding: 3px 3px;
+}
+.monthtable th{
+  text-align: center;
+  vertical-align: middle;
+}
+.customer_logo{
+  height:40px !important;
 }
 
-.table_monthly{
-  width: 277mm !important;
-  font-size: 8px;
+.g4n_logo{
+  height:30px !important;
 }
+
+.text-left { text-align: left!important; }
+.text-right { text-align: right!important; }
+.text-center { text-align: center!important; }
+
+.dark-bg {background-color: #9f9f9f; width: 5px}
+.border-right-2 {border-right: solid 2px #9f9f9f !important;}
+.border-left-2 {border-left: solid 2px #9f9f9f !important;}
+
+.col-10 {width: 10%;}
+.col-20 {width: 20%;}
+.col-30 {width: 30%;}
+.col-40 {width: 40%;}
+.col-50 {width: 50%;}
+.col-60 {width: 60%;}
+.col-70 {width: 70%;}
+.col-80 {width: 80%;}
+.col-90 {width: 90%;}
+.cell {}
+.box {
+  border: solid 1px #9f9f9f;
+  padding: 4px;
+}
+
+.float-left {
+  float: left !important; }
+
+.float-right {
+  float: right !important; }
+
+.float-center {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+}
+.clearfix::before, .clearfix::after {
+  display: table;
+  content: ' '; }
+
+.clearfix::after {
+  clear: both; }

@@ -16,17 +16,11 @@
     "babdev/pagerfanta-bundle": {
         "version": "v3.7.0"
     },
-    "bacon/bacon-qr-code": {
-        "version": "2.0.3"
-    },
     "beberlei/doctrineextensions": {
         "version": "v1.3.0"
     },
     "behat/transliterator": {
         "version": "v1.3.0"
-    },
-    "box/spout": {
-        "version": "v3.1.0"
     },
     "chromeheadlessio/php-client": {
         "version": "1.0.0"
@@ -36,12 +30,6 @@
     },
     "composer/package-versions-deprecated": {
         "version": "1.11.99.3"
-    },
-    "daandesmedt/phpheadlesschrome": {
-        "version": "v1.1.0"
-    },
-    "dasprid/enum": {
-        "version": "1.0.3"
     },
     "doctrine/annotations": {
         "version": "1.0",
@@ -124,9 +112,6 @@
     "egulias/email-validator": {
         "version": "2.1.18"
     },
-    "endroid/qr-code": {
-        "version": "3.9.6"
-    },
     "ezyang/htmlpurifier": {
         "version": "v4.13.0"
     },
@@ -160,50 +145,11 @@
     "hisune/echarts-php": {
         "version": "1.0.12"
     },
-    "illuminate/bus": {
-        "version": "v8.29.0"
-    },
-    "illuminate/collections": {
-        "version": "v8.29.0"
-    },
-    "illuminate/container": {
-        "version": "v8.29.0"
-    },
-    "illuminate/contracts": {
-        "version": "v8.29.0"
-    },
-    "illuminate/events": {
-        "version": "v8.29.0"
-    },
-    "illuminate/filesystem": {
-        "version": "v8.29.0"
-    },
-    "illuminate/macroable": {
-        "version": "v8.29.0"
-    },
-    "illuminate/pipeline": {
-        "version": "v8.29.0"
-    },
-    "illuminate/support": {
-        "version": "v8.29.0"
-    },
-    "illuminate/view": {
-        "version": "v8.29.0"
-    },
     "imagine/imagine": {
         "version": "1.2.4"
     },
-    "its404/php-puppeteer": {
-        "version": "0.1.1"
-    },
     "jblond/twig-trans": {
         "version": "v1.0.2"
-    },
-    "jenssegers/blade": {
-        "version": "v1.4.0"
-    },
-    "khanamiryan/qrcode-detector-decoder": {
-        "version": "1.0.4"
     },
     "knplabs/knp-components": {
         "version": "v2.3.6"
@@ -222,93 +168,6 @@
         "files": [
             "config/packages/knp_snappy.yaml"
         ]
-    },
-    "koolreport/amazing": {
-        "version": "1.5.0"
-    },
-    "koolreport/barcode": {
-        "version": "2.0.0"
-    },
-    "koolreport/blade": {
-        "version": "1.0.0"
-    },
-    "koolreport/bootstrap3": {
-        "version": "1.1.0"
-    },
-    "koolreport/bootstrap4": {
-        "version": "1.5.0"
-    },
-    "koolreport/cache": {
-        "version": "1.2.0"
-    },
-    "koolreport/chartjs": {
-        "version": "2.5.0"
-    },
-    "koolreport/charttable": {
-        "version": "1.0.0"
-    },
-    "koolreport/cleandata": {
-        "version": "1.6.0"
-    },
-    "koolreport/cloudexport": {
-        "version": "3.0.0"
-    },
-    "koolreport/codeigniter": {
-        "version": "1.8.0"
-    },
-    "koolreport/core": {
-        "version": "5.0.1"
-    },
-    "koolreport/cube": {
-        "version": "3.2.0"
-    },
-    "koolreport/d3": {
-        "version": "1.5.0"
-    },
-    "koolreport/datagrid": {
-        "version": "5.0.2"
-    },
-    "koolreport/drilldown": {
-        "version": "3.1.0"
-    },
-    "koolreport/excel": {
-        "version": "8.0.1"
-    },
-    "koolreport/export": {
-        "version": "5.0.0"
-    },
-    "koolreport/inputs": {
-        "version": "5.6.0"
-    },
-    "koolreport/instant": {
-        "version": "3.7.0"
-    },
-    "koolreport/laravel": {
-        "version": "2.0.0"
-    },
-    "koolreport/morris_chart": {
-        "version": "2.2.0"
-    },
-    "koolreport/pivot": {
-        "version": "7.0.0"
-    },
-    "koolreport/pro": {
-        "version": "5.0.4"
-    },
-    "koolreport/querybuilder": {
-        "version": "2.5.3"
-    },
-    "koolreport/sparklines": {
-        "version": "1.5.0"
-    },
-    "koolreport/statistics": {
-        "version": "1.1.0"
-    },
-    "koolreport/visualquery": {
-        "version": "1.0.0"
-    },
-    "koolreport/yii2": {
-        "version": "1.0.0"
     },
     "laminas/laminas-code": {
         "version": "3.5.1"
@@ -350,14 +209,8 @@
     "markbaker/matrix": {
         "version": "1.2.3"
     },
-    "mikehaertl/php-shellcommand": {
-        "version": "1.6.3"
-    },
     "monolog/monolog": {
         "version": "2.1.0"
-    },
-    "myclabs/php-enum": {
-        "version": "1.8.0"
     },
     "nelmio/cors-bundle": {
         "version": "1.5",
@@ -370,9 +223,6 @@
         "files": [
             "config/packages/nelmio_cors.yaml"
         ]
-    },
-    "nesbot/carbon": {
-        "version": "2.45.1"
     },
     "nexylan/slack": {
         "version": "v3.2.0"
@@ -457,9 +307,6 @@
     },
     "phpstan/phpstan": {
         "version": "1.6.3"
-    },
-    "picqer/php-barcode-generator": {
-        "version": "v0.2.2"
     },
     "psr/cache": {
         "version": "1.0.1"
@@ -937,9 +784,6 @@
     },
     "twig/twig": {
         "version": "v3.0.3"
-    },
-    "voku/portable-ascii": {
-        "version": "1.5.6"
     },
     "webmozart/assert": {
         "version": "1.10.0"
