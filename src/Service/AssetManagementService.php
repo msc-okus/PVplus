@@ -410,10 +410,9 @@ class AssetManagementService
             'failures_Year_To_Date' => $content['failures_Year_To_Date'],
             'ticketCountTable' => $content['ticketCountTable'],
             'TicketAvailabilityYearTable' => $content['TicketAvailabilityYearTable'],
-            'kwhLossesChartYear' => $content['kwhLossesChartYear'],
             'yearLossesHelpTable' => $content['yearLossesHelpTable'],
             'PercentageTableYear' => $content['PercentageTableYear'],
-            'losseskwhchartYearMonthly' => $content['losseskwhchartYearMonthly']
+
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $reportParts['AvailabilityYear'] = $pdf->createPage($html, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
@@ -430,11 +429,9 @@ class AssetManagementService
             //until here all the parameters must be used in all the renders
             'availabilityMonthTable' => $content['availabilityMonthTable'],
             'plant_availability' => $content['plant_availability'],
-            'fails_month' => $content['fails_month'],
             'ticketCountTableMonth' => $content['ticketCountTableMonth'],
             'Availability_Year_To_Date_Table' => $content['Availability_Year_To_Date_Table'],
             'TicketAvailabilityMonthTable' => $content['TicketAvailabilityMonthTable'],
-            'wkhLossesChartMonth' => $content['wkhLossesChartMonth'],
             'monthlyLossesHelpTable' => $content['monthlyLossesHelpTable'],
             'percentageTableMonth' => $content['percentageTableMonth']
         ]);
@@ -680,12 +677,12 @@ class AssetManagementService
                 'padding' => 0, 90, 0, 0,
             ],
         ];
-
         $chart->setOption($option);
 
         $sumary_pie_graph = $chart->render('sumary_pie_graph'.$key, ['style' => 'height: 250px; width:500px;']);
+
         foreach($graphDataPR as $key => $data) {
-            $chart = new ECharts(); // We must use AMCharts
+            $chart = new ECharts();
             $chart->tooltip->show = false;
             $chart->tooltip->trigger = 'item';
             $chart->xAxis = [
@@ -723,7 +720,6 @@ class AssetManagementService
                         'type' => 'bar',
                         'data' => $data['powerYield'],
                         'visualMap' => 'false',
-
                     ],
                     [
                         'name' => 'Inverter PR',
@@ -1453,7 +1449,6 @@ class AssetManagementService
             'offset' => -20
         ];
 
-        $series = [];
         $series = [
             [
                 'name' => 'Yield ',
@@ -2258,132 +2253,6 @@ class AssetManagementService
 
 
         $this->logMessages->updateEntry($logId, 'working', 60);
-        $chart = new ECharts();
-        $chart->yAxis = [
-            'type' => 'category',
-            'axisLabel' => [
-                'show' => true,
-                'margin' => '10',
-            ],
-            'splitArea' => [
-                'show' => true,
-            ],
-            'data' =>[" "],
-        ];
-        $chart->xAxis = [
-            'type' => 'value',
-            'name' => '%',
-            'nameLocation' => 'middle',
-            'nameGap' => 80,
-        ];
-
-
-            $chart->series =[
-                [
-                    'name' => 'Expected G4N[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTable['G4NExpected']] ,
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'Actual[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTable['ActualPower']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'Forecast[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTable['forecast']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'SOR Losses[%] - Planned Outage',
-                    'type' => 'bar',
-                    'data' => [$percentageTable['SORLosses']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-
-                ],
-                [
-                    'name' => 'EFOR Losses[%] - Unplanned Outage',
-                    'type' => 'bar',
-                    'data' => [$percentageTable['EFORLosses']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'OMC Losses[%] - Grid Error/Grid Off',
-                    'type' => 'bar',
-                    'data' => [$percentageTable['OMCLosses']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                'name' => 'Gap Losses[%] - Data Gaps',
-                'type' => 'bar',
-                'data' => [$percentageTable['GapLosses']],
-                'visualMap' => 'false',
-                'label' => [
-                    'show' => true,
-                    'position' => 'inside'
-                ],
-
-                ],
-            ];
-
-
-        $option = [
-            'color' => ['#f1975a', '#698ed0', '#b7b7b7', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
-            'animation' => false,
-            'title' => [
-                'text' => 'Production and Losses in Percentage for the month',
-                'left' => 'center',
-                'top' => '10',
-            ],
-            'tooltip' => [
-                'show' => true,
-            ],
-            'legend' => [
-                'show' => true,
-                'right' => 'right',
-                'top' => 50,
-                //'padding' => -10 ,
-            ],
-            'grid' => [
-                'height' => '80%',
-                'top' => 50,
-                'width' => '70%',
-                'left' => 50,
-
-            ],
-        ];
-
-        $chart->setOption($option);
-
-        $losseskwhchart = $chart->render('Month_losses', ['style' => 'height: 350px; width:28cm;']);
-
 
         $monthlyLossesHelpTable = [
             'ExpectedG4N' => $G4NmonthExpected,
@@ -2407,131 +2276,6 @@ class AssetManagementService
             'GapLosses' => number_format(-($kwhLossesYearTable['GapLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
         ];
 
-        $chart = new ECharts();
-        $chart->yAxis = [
-            'type' => 'category',
-            'axisLabel' => [
-                'show' => true,
-                'margin' => '0',
-            ],
-            'splitArea' => [
-                'show' => true,
-            ],
-            'data' =>[" "],
-        ];
-        $chart->xAxis = [
-            'type' => 'value',
-            'name' => 'KWH',
-            'nameLocation' => 'middle',
-            'nameGap' => 80,
-            'offset' => -20,
-        ];
-
-            $chart->series =[
-                [
-                    'name' => 'Expected G4N[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['G4NExpected']] ,
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'Actual[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['ActualPower']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'Forecast[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['forecast']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'SOR Losses[%] - Planned Outage',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['SORLosses']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'EFOR Losses[%] - Unplanned Outage',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['EFORLosses']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'OMC Losses[%] - Grid Error/Grid Off',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['OMCLosses']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'Data Gaps[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['GapLosses']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ]
-            ];
-
-
-
-        $option = [
-            'color' => ['#f1975a', '#698ed0', '#b7b7b7',  '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
-            'animation' => false,
-            'title' => [
-                'text' => 'Production and Losses cummulative',
-                'left' => 'center',
-                'top' => '10',
-            ],
-            'tooltip' => [
-                'show' => true,
-            ],
-            'tooltip' => [
-                'show' => true,
-            ],
-            'legend' => [
-                'show' => true,
-                'right' => 'right',
-                'top' => 50,
-            ],
-            'grid' => [
-                'height' => '80%',
-                'top' => 50,
-                'width' => '70%',
-                'left' => 60,
-            ],
-        ];
-
-        $chart->setOption($option);
-        $losseskwhchartyear = $chart->render('Year_losses', ['style' => 'height: 350px; width:28cm; ']);
-
         $yearLossesHelpTable = [
             'ExpectedG4N' => $G4NyearExpected,
             'ExpectedPVSYS' => $PVSYSTyearExpected,
@@ -2545,193 +2289,6 @@ class AssetManagementService
 
 
         $this->logMessages->updateEntry($logId, 'working', 70);
-        $chart = new ECharts();
-        $chart->yAxis = [
-            'type' => 'category',
-            'axisLabel' => [
-                'show' => true,
-                'margin' => '10',
-                'right' => '10'
-            ],
-            'splitArea' => [
-                'show' => true,
-            ],
-            'data' => $invertedMonthArray,
-
-        ];
-
-        $chart->xAxis = [
-            'type' => 'value',
-            'name' => '%',
-            'nameLocation' => 'middle',
-            'nameGap' => 80,
-        ];
-
-            $chart->series =
-                [
-
-                    [
-                        'name' => 'Expected g4n[%]',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['ExpectedG4N'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'Actual[%]',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['Actual'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'Forecast[%]',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['Forecast'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'SOR Losses[%] - Planned outage',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['SORLosses'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'EFOR Losses[%] - Unplanned Outage',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['EFORLosses'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'OMC Losses[%] - Grid Error/Grid Off',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['OMCLosses'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
-                        'name' => 'Data Gaps',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['OMCLosses'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                ];
-
-
-        $option = [
-            'color' => ['#f1975a', '#698ed0', '#b7b7b7', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
-            'animation' => false,
-            'title' => [
-                'text' => 'Production and Losses in Percentage by Month',
-                'left' => 'center',
-                'top' => '10',
-            ],
-            'tooltip' => [
-                'show' => true,
-            ],
-            'legend' => [
-                'show' => true,
-                'right' => 'right',
-                'top' => 50,
-                //'padding' => -10 ,
-            ],
-            'grid' => [
-                'height' => '80%',
-                'top' => 50,
-                'width' => '70%',
-                'left' => 60,
-            ],
-        ];
-
-        $chart->setOption($option);
-        $losseskwhchartYearMonthly = $chart->render('Year_losses_monthly', ['style' => 'height: 800px; width:28cm; ']);
-
-
-        $chart = new ECharts();
-        // Actual
-        $chart->series =
-            [
-                [
-                    'type' => 'pie',
-                    'data' => [
-                        [
-                            'value' => $failRelativeSOFPorcentMonth,
-                            'name' => 'SOF',
-                        ],
-                        [
-                            'value' => $failRelativeEFORPorcentMonth,
-                            'name' => 'EFOR',
-                        ],
-                        [
-                            'value' => $failRelativeOMCPorcentMonth,
-                            'name' => 'OMC',
-                        ],
-                        [
-                            'value' => $failRelativeGapsPorcentMonth,
-                            'name' => 'Data Gaps',
-                        ],
-                    ],
-
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => false,
-                    ],
-                    'itemStyle' => [
-                        'borderType' => 'solid',
-                        'borderWidth' => 1,
-                        'borderColor' => '#ffffff',
-                    ],
-                ],
-            ];
-
-        $option = [
-            'animation' => false,
-            'color' => ['#ed7d31', '#941651', '#ffc000'],
-            'title' => [
-                'text' => 'Failures',
-                'left' => 'center',
-                'top' => 'top',
-                'textStyle' => ['fontSize' => 10],
-            ],
-            'tooltip' => [
-                'show' => true,
-            ],
-            'legend' => [
-                'show' => true,
-                'orient' => 'horizontal',
-                'left' => 'left',
-                'bottom' => 0,
-                'padding' => 0, 90, 0, 0,
-            ],
-        ];
-
-        $chart->setOption($option);
-        $fails_month = $chart->render('fails_month', ['style' => 'height: 175px; width:300px; ']);
 
         // fuer PA Report Month
         if ($anlage->getConfigType() == 1) {
@@ -2753,12 +2310,9 @@ class AssetManagementService
                 ];
             }
             $outPa[] = $pa;
-
             unset($pa);
         }
-        // End PA
 
-        // Beginn Operations string_dayly1
         switch ($anlage->getConfigType()) {
             case 1:
                 $sql = "SELECT DATE_FORMAT( stamp,'%d.%m.%Y') AS form_date, sum(wr_pdc) AS act_power_dc, group_dc as invgroup
@@ -2917,9 +2471,7 @@ class AssetManagementService
                             'act_current_dc' => $dcIst[$j]['act_current_dc'],
                             'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 : 0,
                             'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 : 0,
-                            // 'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (1 - $value[$i]['exp_current_dc'] / $dcIst[$j]['act_current_dc']) * 100 : 0,
-                            // 'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (1 - $value[$i]['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100 : 0,
-                        ];
+                           ];
                         if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                             $outTableCurrentsPower[] = $dcExpDcIst;
                             unset($dcExpDcIst);
@@ -3011,7 +2563,6 @@ class AssetManagementService
                             'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 ,
                             'diff_power_dc' =>  (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 ,
                         ];
-
                         if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                             $outTableCurrentsPower[] = $dcExpDcIst;
                             unset($dcExpDcIst);
@@ -3165,8 +2716,6 @@ class AssetManagementService
             ],
         ];
         $chart->series = $series;
-
-
         $option = [
             'animation' => false,
             'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
@@ -3191,12 +2740,10 @@ class AssetManagementService
                 'left' => 100,
             ],
         ];
-
         $chart->setOption($option);
-
         $PR_MonthlyGraphic = $chart->render('PR_MonthlyGraphic', ['style' => 'height: 550px; width:900px;']);
 
-        $chart = new ECharts(); // We must use AMCharts
+        $chart = new ECharts();
         $chart->tooltip->show = false;
 
         $chart->xAxis = [
@@ -3267,8 +2814,6 @@ class AssetManagementService
         ];
         $chart->series = $series;
 
-
-
         $option = [
             'animation' => false,
             'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
@@ -3293,15 +2838,10 @@ class AssetManagementService
                 'left' => 100,
             ],
         ];
-
         $chart->setOption($option);
-
         $PA_MonthlyGraphic = $chart->render('PA_MonthlyGraphic', ['style' => 'height: 550px; width:900px;']);
 
-
-
-
-
+        //BEGIN OF THE ECONOMIC STUFF
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {
@@ -3378,7 +2918,6 @@ class AssetManagementService
                         $var8[$i] = 0.0;
                         $var9[$i] = 0.0;
                         $var10[$i] = 0.0;
-                        //what should we do when the kwh pricev is not set, by now = 0
                         (float) $kwhPrice[$i] = 0;
                     }
                 }
@@ -3441,7 +2980,6 @@ class AssetManagementService
             $graphData[9]['value'] = $sumvar10;
             $graphData[9]['name'] = $var10['name'];
         }
-
         $economicsMandy2 = [
             'var1'  => $var1,
             'var2'  => $var2,
@@ -3495,7 +3033,6 @@ class AssetManagementService
             if ((float)$Ertrag_design > 0) $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = (float)$Ertrag_design * $monthleyFeedInTarif;
             else $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = 0;
 
-            //PARA ESTO USAR FORECAST EN VEZ DE G4N EXPECTED
             if ((float)$forecast[$i] > 0) $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = (float)$forecast[$i] * $monthleyFeedInTarif;
             else $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = 0;
 
@@ -3630,7 +3167,6 @@ class AssetManagementService
         $economicsCumulatedForecastChart = $chart->render('economicsCumulatedForecastChart', ['style' => 'height: 380px; width:26cm;']);
 
         // end Chart economics Cumulated Forecast
-
         $chart = new ECharts();
         $chart->xAxis = [
             'type' => 'category',
@@ -3650,7 +3186,6 @@ class AssetManagementService
             'nameGap' => 70,
         ];
 
-
             $chart->series =
                 [
                     [
@@ -3666,8 +3201,6 @@ class AssetManagementService
                         'visualMap' => 'false',
                     ],
                 ];
-
-
 
         $option = [
             'animation' => false,
@@ -3693,7 +3226,6 @@ class AssetManagementService
         ];
         $chart->setOption($option);
         $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:28cm;']);
-
 
         $chart = new ECharts();
         $chart->xAxis = [
@@ -3765,9 +3297,7 @@ class AssetManagementService
             ],
         ];
         $chart->setOption($option);
-
         $income_per_month_chart = $chart->render('income_per_month_chart', ['style' => 'height: 350px; width:950px;']);
-
         $chart = new ECharts();
         $chart->series =
             [
@@ -3980,10 +3510,6 @@ class AssetManagementService
 
         $losses_compared_chart = $chart->render('lossesCompared', ['style' => 'height: 350px; width:950px;']);
 
-
-        // end Chart Losses compared
-
-        // beginn Table Losses compared cummulated
         $PVSYSDiffSum[0] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][0];
         $G4NDiffSum[0] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][0];
         $G4NEXPDiffSum[0] = $lossesComparedTable['Difference_Profit_to_expected'][0];
@@ -4006,9 +3532,6 @@ class AssetManagementService
             'Difference_Profit_to_expected' => $G4NEXPDiffSum
         ];
 
-        // end Table Losses compared cummulated
-
-        // beginn Chart Losses compared cummulated
         $chart = new ECharts();
           $chart->xAxis = [
             'type' => 'category',
@@ -4077,7 +3600,6 @@ class AssetManagementService
         }
         $cumulated_losses_compared_chart = $chart->render('cumulatedlossesCompared', ['style' => 'height: 350px; width:950px;']);
 
-
         $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))));
         $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))), "year");
 
@@ -4096,7 +3618,6 @@ class AssetManagementService
 
                     $index3 = $index3 + 1;
                 }
-
                 unset($efficiencyArray['values'][$key]);
                 unset($efficiencyArray['avg'][$key]);
                 $index = $index + 1;
@@ -4105,12 +3626,10 @@ class AssetManagementService
                     $index2 = $index2 + 1;
                     $index3 = 0;
                 }
-
             }
         }
         $efficiencyRanking[] = [];
         foreach($orderedEfficiencyArray as $key => $data) {
-
             $chart = new ECharts(); // We must use AMCharts
             $chart->tooltip->show = false;
             $chart->tooltip->trigger = 'item';
@@ -4134,7 +3653,6 @@ class AssetManagementService
                     'name' => '[%]',
 
                 ],
-
             ];
             $chart->series =
                 [
@@ -4185,14 +3703,9 @@ class AssetManagementService
                 ],
             ];
             $chart->setOption($option);
-            $efficiencyRanking[$key] = $chart->render('efficiency_rank_'.$key, ['style' => 'height: 550; width:900px;']);
-
+            $efficiencyRanking[$key] = $chart->render('efficiency_rank_' . $key, ['style' => 'height: 550; width:900px;']);
         }
-
-
-        //Waterfall page generation
-
-
+        //Bucket graph page generation; here we retreive all the monthly losses to put them all together in the table and graph
         $sumForecast = 0;
         $sumForecastIrr = 0;
         $sumActual = 0;
@@ -4219,7 +3732,6 @@ class AssetManagementService
                     $forecastIrr = $irradiation[$i];
                 }
             }
-
             $waterfallDiagramHelpTable[$i]['forecast'] = round($forecast[$i], 2);
             $sumForecast = $sumForecast + $waterfallDiagramHelpTable[$i]['forecast'];
             if( $irradiation[$i] > 0) {
@@ -4228,7 +3740,8 @@ class AssetManagementService
             else{
                 $irrCorrection = 1 ;
             }
-            $waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] / $irrCorrection, 2);
+            if ($irrCorrection > 0)$waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] / $irrCorrection, 2);
+            else $waterfallDiagramHelpTable[$i]['correctedForecast'] = 0;
             $sumCorrectedForecast = $sumCorrectedForecast + $waterfallDiagramHelpTable[$i]['correctedForecast'];
 
             $waterfallDiagramHelpTable[$i]['forecastIrr'] = round($forecastIrr, 2);
@@ -4436,7 +3949,6 @@ class AssetManagementService
             'availability_Year_To_Date' => $availability_Year_To_Date,
             'failures_Year_To_Date' => $failures_Year_To_Date,
             'plant_availability' => $plant_availability,
-            'fails_month' => $fails_month,
             'plantAvailabilityMonth' => $outPa,
             'operations_currents_dayly_table' => $outTableCurrentsPower,
             'income_per_month' => $incomePerMonth,
@@ -4455,14 +3967,11 @@ class AssetManagementService
             'kwhLossesYearTable' =>$kwhLossesYearTable,
             'kwhLossesMonthTable' =>$kwhLossesMonthTable,
             'economicsMandy2' => $economicsMandy2,
-            'wkhLossesChartMonth' => $losseskwhchart,
-            'kwhLossesChartYear' => $losseskwhchartyear,
             'wkhLossesTicketChartMonth' => "",
             'TicketAvailabilityMonthTable' => $TicketAvailabilityMonthTable,
             'TicketAvailabilityYearTable' => $TicketAvailabilityYearTable,
             'monthlyLossesHelpTable' => $monthlyLossesHelpTable,
             'yearLossesHelpTable' => $yearLossesHelpTable,
-            'losseskwhchartYearMonthly' => $losseskwhchartYearMonthly,
             'PercentageTableYear' => $percentageTableYear,
             'percentageTableMonth' => $percentageTable,
             'monthlyTableForPRAndPA' => $monthlyTableForPRAndPA,
