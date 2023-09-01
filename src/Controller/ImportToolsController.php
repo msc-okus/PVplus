@@ -63,7 +63,7 @@ class ImportToolsController extends BaseController
                             $job = 'Import API Data('.$importToolsModel->importType.') – from ' . $importToolsModel->startDate->format('Y-m-d H:i') . ' until ' . $importToolsModel->endDate->format('Y-m-d H:i');
                             $job .= " - " . $this->getUser()->getname();
                             $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
-                            $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId, $readyToImport);
+                            $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId);
                             $messageBus->dispatch($message);
                             $output .= 'Command was send to messenger! Will be processed in background.<br>';
                             break;
