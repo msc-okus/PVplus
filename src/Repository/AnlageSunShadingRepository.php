@@ -2,13 +2,14 @@
 
 namespace App\Repository;
 
+use App\Entity\Anlage;
 use App\Entity\AnlageSunShading;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<AnlageSunShading>
- *
  * @method AnlageSunShading|null find($id, $lockMode = null, $lockVersion = null)
  * @method AnlageSunShading|null findOneBy(array $criteria, array $orderBy = null)
  * @method AnlageSunShading[]    findAll()
@@ -20,6 +21,26 @@ class AnlageSunShadingRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AnlageSunShading::class);
     }
+    /**
+     * @return AnlageSunShading Returns an array of AnlageSunShading objects
+     */
+    public function add(AnlageSunShading $entity, bool $flush = true): void
+    {
+        $this->_em->persist($entity);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
+
+    public function remove(AnlageSunShading $entity, bool $flush = true): void
+    {
+        $this->_em->remove($entity);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
+
+
 
 //    /**
 //     * @return AnlageSunShading[] Returns an array of AnlageSunShading objects

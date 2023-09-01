@@ -324,7 +324,7 @@ class DCCurrentChartService
     }
 
     /**
-     * Erzeugt Daten für das DC Strom Diagram Diagramm, eine Linie je MPP gruppiert nach Inverter.
+     * Erzeugt Daten für das DC Strom Diagram, eine Linie je MPP gruppiert nach Inverter.
      *
      * @param Anlage $anlage
      * @param $from
@@ -393,7 +393,15 @@ class DCCurrentChartService
             return false;
         }
     }
-
+    /**
+     * Erzeugt die Daten für den Pnom Power Chart auf der DC Seite
+     * MS 02/23 update 03/29
+     * @param $from
+     * @param $to
+     *
+     * @return array
+     * Pnom DC Seite
+     */
     public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array
     {
         $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
@@ -409,10 +417,6 @@ class DCCurrentChartService
         $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
         $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
 
-        // $sunArray = $this->WeatherServiceNew->getSunrise($anlage,$from);
-        // $sunrise = $sunArray[$anlagename]['sunrise'];
-        // $sunset = $sunArray[$anlagename]['sunset'];
-
         $from = date('Y-m-d H:00', $sunrise - 3600);
         $to = date('Y-m-d H:00', $sunset + 5400);
 
@@ -426,11 +430,11 @@ class DCCurrentChartService
             case 3: // Groningen
             case 4:
                 $groupdc = 'wr_group';
-                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+               // $nameArray = $this->functions->getNameArray($anlage, 'dc');
                 break;
             default:
                 $groupdc = 'group_dc';
-                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+               // $nameArray = $this->functions->getNameArray($anlage, 'dc');
                 break;
         }
 
@@ -478,17 +482,19 @@ class DCCurrentChartService
 
         $resultIst = $conn->query($sql);
 
+        foreach ($dcGroups as $group) {
+            $nameArray[$g] = $group['GroupName'];
+            $g++;
+        }
+
         if ($resultIst->rowCount() > 0) {
 
             while ($rowCurrIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowCurrIst['ts'];
-                $e = strtotime($stamp);
                 $dataArray['chart'][$counter]['date'] = $stamp;
                 (($rowCurrIst['istCurrent']) ? $currentIst = round($rowCurrIst['istCurrent'], 2) : $currentIst = 0);
                 $currentGroupName = $dcGroups[$rowCurrIst['inv']]['GroupName'];
                 $currentImpp = $mImpp[$rowCurrIst['inv'] - 1]; // the array beginn at zero
-                $inv_num = $rowCurrIst['inv'];
-
                 $value_dcpnom = $currentImpp > 0 ? round(($currentIst / $currentImpp), 2) : 0;
                 $dataArray['chart'][$counter]['xinv'] = $currentGroupName;
                 $dataArray['chart'][$counter]['pnomdc'] = $value_dcpnom;
@@ -496,13 +502,13 @@ class DCCurrentChartService
             }
 
         }
-        // array for range slider
+        // the array for range slider min max
         $dataArray['minSeries'] = $min;
         $dataArray['maxSeries'] = $max;
         $dataArray['sumSeries'] = $groupct;
         $dataArray['SeriesNameArray'] = $nameArray;
         $dataArray['offsetLegend'] = 0;
-
+        // The generated data Array for the range slider and Chart
         return $dataArray;
     }
 }

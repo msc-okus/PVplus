@@ -38,7 +38,6 @@ class AnlageSunShadingFormType extends AbstractType {
             throw new \RuntimeException('Invalid entity.');
         }
 
-
         $builder
             // ###############################################
             // ###          SunShading                    ####

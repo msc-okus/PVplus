@@ -5,8 +5,8 @@
         // Enable queuing
         am4core.options.queue = true;
         am4core.options.onlyShowOnViewport = true;
-        //get The data
-        let data = {{ content.data|raw }};
+        // Get the data
+        var data = {{ content.data|raw }};
         // Create the Chart Instance
         let chart = am4core.create("amchart-holder", am4charts.XYChart);
         chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
@@ -32,11 +32,10 @@
         let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
         valueAxis.title.text = "[[A/Impp]]";
 
-
         // Create series
         function addSeries(xname,id) {
-            let series = chart.series.push(new am4charts.LineSeries());
-           //
+            var series = chart.series.push(new am4charts.LineSeries());
+            //
             series.dataFields.dateX = "date";
             series.dataFields.valueY = "pnomdc";
             series.name = xname;
@@ -85,8 +84,9 @@
         chart.exporting.menu.items[0].label = "Download";
         chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
         chart.exporting.adapter.add("data", function(data, target) {
-            // Assemble data from many series
-            let data = [];
+
+        // Assemble data from many series
+            var data = [];
             chart.series.each(function(series) {
                 for(let i = 0; i < series.data.length; i++) {
                     series.data[i].name = series.name;
@@ -96,7 +96,6 @@
             return { data: data };
         });
         //
-
         chart.cursor = new am4charts.XYCursor();
         chart.cursor.xAxis = dateAxis;
         chart.scrollbarX = new am4core.Scrollbar();
@@ -110,7 +109,6 @@
         // chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
         // chart.exporting.formatOptions.getKey("print").disabled = true;
         // chart.exporting.formatOptions.getKey("pdf").disabled = true;
-        // chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
         chart.legend.markers.template.states.create("dimmed").properties.opacity = 0.3;
         chart.legend.labels.template.states.create("dimmed").properties.opacity = 0.3;
@@ -157,7 +155,6 @@
                 })
             });
         }
-
         // End Chart Instance
     });
 </script>

@@ -33,8 +33,97 @@ $wrapper_module.on('click', '.js-add-module', function (e) {
     $('#modules>ul').append(newForm);
     Foundation.reInit('accordion');
 });
+/*
+* MS  08/2023
+* jquery delete sunshading data from fields
+*/
+// SunShading Wrapper
+let $wrapper_sunshading = $('.js-sunshading-wrapper');
+$wrapper_sunshading.on('click', '.js-remove-sunshading', function (e) {
+    e.preventDefault();
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You want to delete a sunshading Model!",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#126195",
+        timer: 80000,
+        confirmButtonText: "Yes, do it!",
+        cancelButtonText: "No, cancel it!",
+        showCloseButton: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        focusConfirm: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+           $(this).closest('.js-sunshading-item').remove();
+        }
+    });
 
-// time Config
+});
+// SunShading Add
+$('.js-add-sunshading').on('click',   function(e) {
+    e.preventDefault();
+    let prototype = $wrapper_sunshading.data('prototype');
+    let index = $wrapper_sunshading.data('index');
+    let newForm = prototype.replace(/__name__/g, index);
+    $wrapper_sunshading.data('index', index + 1);
+    $('#sunshading>ul').append(newForm);
+    Foundation.reInit('accordion');
+} );
+/*
+* MS  08/2023
+* jquery copy sunshading data into new input fields
+*/
+// SunShading Copy
+$('.js-copy-sunshading').click(function() {
+    // copy data from wrapper_sunshading
+    let prototype = $wrapper_sunshading.data('prototype');
+    let indexrow = $wrapper_sunshading.data('index') -1;
+    // predefine the id with [indexrow] from to copy value
+    var cpfield0 ='#anlage_form_anlageSunShading_'+indexrow+'_description';
+    var cpfield1 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_tilt';
+    var cpfield2 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_height';
+    var cpfield3 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_width';
+    var cpfield4 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_table_height';
+    var cpfield5 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_table_distance';
+    var cpfield6 ='#anlage_form_anlageSunShading_'+indexrow+'_distance_a';
+    var cpfield7 ='#anlage_form_anlageSunShading_'+indexrow+'_distance_b';
+    var cpfield8 ='#anlage_form_anlageSunShading_'+indexrow+'_ground_slope';
+    var cpfield9 ='#anlage_form_anlageSunShading_'+indexrow+'_modulesDB';
+    // build the new wrapper
+    let index = $wrapper_sunshading.data('index');
+    let newForm = prototype.replace(/__name__/g, index);
+    $wrapper_sunshading.data('index', index + 1);
+    $('#sunshading>ul').append(newForm);
+    indexrow = indexrow + 1;
+    // predefine the insert id [indexrow] of value
+    var nwfield0 ='#anlage_form_anlageSunShading_'+indexrow+'_description';
+    var nwfield1 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_tilt';
+    var nwfield2 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_height';
+    var nwfield3 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_width';
+    var nwfield4 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_table_height';
+    var nwfield5 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_table_distance';
+    var nwfield6 ='#anlage_form_anlageSunShading_'+indexrow+'_distance_a';
+    var nwfield7 ='#anlage_form_anlageSunShading_'+indexrow+'_distance_b';
+    var nwfield8 ='#anlage_form_anlageSunShading_'+indexrow+'_ground_slope';
+    var nwfield9 ='#anlage_form_anlageSunShading_'+indexrow+'_modulesDB';
+    // begin copy
+    $(nwfield0).val($(cpfield0).val());
+    $(nwfield1).val($(cpfield1).val());
+    $(nwfield2).val($(cpfield2).val());
+    $(nwfield3).val($(cpfield3).val());
+    $(nwfield4).val($(cpfield4).val());
+    $(nwfield5).val($(cpfield5).val());
+    $(nwfield6).val($(cpfield6).val());
+    $(nwfield7).val($(cpfield7).val());
+    $(nwfield8).val($(cpfield8).val());
+    $(nwfield9).val($(cpfield9).val());
+    // ende copy and reinitzial accordion
+    Foundation.reInit('accordion');
+} );
+
+// the Time Config wrapper
 let $wrapper_timeconfig = $('.js-timeConfig-wrapper');
 $wrapper_timeconfig.on('click', '.js-remove-timeConfig-module', function (e) {
     e.preventDefault();
@@ -225,3 +314,4 @@ $wrapper_acgroup.on('click', '.js-add-acgroup', function(e) {
     $('#js-acgroup>tbody').append(newForm);
     Foundation.reInit('accordion');
 });
+

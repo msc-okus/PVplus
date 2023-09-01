@@ -5,22 +5,32 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\AnlageSunShadingRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
+//use phpDocumentor\Reflection\Types\Collection;
+
 
 #[ORM\Entity(repositoryClass: AnlageSunShadingRepository::class)]
-#[ApiResource]
-class AnlageSunShading
-{
+class AnlageSunShading {
+    use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'sunShadingData')]
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageSunShading')]
     private $anlage;
 
+    #[ORM\OneToOne(targetEntity: AnlageModulesDB::class, inversedBy:"modulesDBData", cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'modules_db_id', referencedColumnName: 'id', nullable: false)]
+    private AnlageModulesDB $modulesDB;
+
+    #[ORM\Column(length: 120)]
+    private string $description;
     #[ORM\Column(length: 20)]
     private ?string $mod_height = null;
 
@@ -45,18 +55,47 @@ class AnlageSunShading
     #[ORM\Column(length: 20)]
     private ?string $ground_slope = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $update_at = null;
+
+    /**
+     * MS 08/2023 AnlageModulesDB
+     *
+     * return AnlageModulesDB
+     */
+
+    public function getModulesDB()
+    {
+       return $this->modulesDB;
+    }
+    public function setModulesDB($modulesDB)
+    {
+        $this->modulesDB = $modulesDB;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
+
     public function getAnlageId(): ?Anlage
     {
         return $this->anlage;
     }
+
 
     public function setAnlageId(?Anlage $anlage): self
     {
@@ -156,19 +195,7 @@ class AnlageSunShading
     public function setGroundSlope(string $ground_slope): static
     {
         $this->ground_slope = $ground_slope;
-
         return $this;
     }
 
-    public function getUpdateAt(): ?\DateTimeImmutable
-    {
-        return $this->update_at;
-    }
-
-    public function setUpdateAt(\DateTimeImmutable $update_at): static
-    {
-        $this->update_at = $update_at;
-
-        return $this;
-    }
 }

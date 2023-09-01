@@ -1,5 +1,35 @@
 {% import _self as formMacros %}
 
+{% macro addSunshadingModel(sunshading) %}
+    <li class="accordion-item js-sunshading-item" data-accordion-item data-allow-all-closed="true">
+        <!-- Accordion tab title -->
+        <a href="#" class="accordion-title">NEW Sun Shading Model:</a>
+
+        <div class="accordion-content" data-tab-content>
+
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-6">{{ form_row(sunshading.description) }}</div>
+                </div>
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_tilt) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_height) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_width) }}</div>
+                </div>
+            <div class="grid-x grid-padding-x">
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_table_height) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_table_distance) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.distance_a) }}</div>
+                </div>
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-6">{{ form_row(sunshading.ground_slope) }}</div>
+                    <div class="cell medium-6">{{ form_row(sunshading.modulesDB) }}</div>
+                </div>
+
+
+        </div>
+    </li>
+{% endmacro %}
+
 {% macro addModule(module) %}
     <li class="accordion-item js-module-item" data-accordion-item data-allow-all-closed="true">
         <!-- Accordion tab title -->
@@ -280,6 +310,99 @@
                         </div>
                     </div>
                 </div>
+                
+                {# Forecast Configuration Tab #}
+                <div class="tabs-panel" id="forcast">
+                    <div class="grid-x grid-padding-x">
+
+                        <div class="cell medium-6">
+                            <fieldset class="fieldset">
+                                <legend>Forecast Settings</legend>
+                                <div class="grid-x grid-margin-x">
+                                    <div class="cell medium-4">{{ form_row(anlageForm.useDayForecast) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.degradationForecast) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.lossesForecast) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.bezMeridan) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.modNeigung) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.modAzimut) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.albeto) }}</div>
+                                    <div class="cell medium-6">{{ form_row(anlageForm.datFilename) }}</div>
+                                    <div class="cell medium-6"><label for="dat_file">your  uploaded file</label><h5 id="dat_file">{{ anlage.getDatFilename }}</h5>
+                                        {% if (anlage.getDatFilename is not empty)  %}
+                                        <a href="{{ path('download_file',{'id': anlage.getAnlId,'dir': 'metodat','file': anlage.getDatFilename}) }}" title="download file"><i class="fa fa fa-download"></i></a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="cell medium-12">
+                                     <div id="modal" {{ stimulus_controller('forecast-submit', { formUrl: path('app_admin_anlagen_build_forecast', { id: anlage.getAnlId} ) }) }} >
+                                       <button class="primary save button button" data-action="forecast-submit#openModal" {% if (anlage.getDatFilename is empty) or (anlage.getUseDayForecast == 0) %}disabled{% endif %}>Build Forecast</button>
+                                     </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                       </div>
+
+                        <div class="cell medium-6">
+                            <fieldset class="fieldset js-sunshading-wrapper"
+                                      data-prototype="{{ formMacros.addSunshadingModel(anlageForm.anlageSunShading.vars.prototype)|e('html_attr') }}"
+                                      data-index="{{ anlageForm.anlageSunShading|length }}">
+
+                                <legend>The Sun Shading Model</legend>
+
+                                <div id="sunshading">
+                                    <ul id="js-accordion" class="accordion" data-accordion data-allow-all-closed="true">
+                                        {% for sunshading in anlageForm.anlageSunShading %}
+                                            <li class="accordion-item js-sunshading-item" data-accordion-item data-allow-all-closed="true">
+                                                <!-- Accordion tab title -->
+                                                <a href="#" class="accordion-title">Sun Shading: <b>{{ sunshading.description.vars.value }}</b>{% if is_granted('ROLE_G4N') %} - (SSHD ID: {{ sunshading.vars.data.id }}) {% endif %}</a>
+
+                                                <div class="accordion-content" data-tab-content>
+                                                    <div class="js-use-sunshading-item">
+                                                    <div class="grid-x grid-padding-x">
+                                                        <div class="cell medium-6">{{ form_row(sunshading.description) }}</div>
+                                                    </div>
+                                                    <div class="grid-x grid-padding-x">
+                                                        <div class="cell medium-4">{{ form_row(sunshading.mod_tilt) }}</div>
+                                                        <div class="cell medium-4">{{ form_row(sunshading.mod_height) }}</div>
+                                                        <div class="cell medium-4">{{ form_row(sunshading.mod_width) }}</div>
+                                                    </div>
+                                                    <div class="grid-x grid-padding-x">
+                                                        <div class="cell medium-3">{{ form_row(sunshading.mod_table_height) }}</div>
+                                                        <div class="cell medium-3">{{ form_row(sunshading.mod_table_distance) }}</div>
+                                                        <div class="cell medium-3">{{ form_row(sunshading.distance_a) }}</div>
+                                                        <div class="cell medium-3">{{ form_row(sunshading.distance_b) }}</div>
+                                                    </div>
+                                                    <div class="grid-x grid-padding-x">
+                                                        <div class="cell medium-6">{{ form_row(sunshading.ground_slope) }}</div>
+                                                        <div class="cell medium-6">{{ form_row(sunshading.modulesDB) }}</div>
+                                                    </div>
+                                                    <div class="grid-x grid-padding-x">
+
+                                                        <div class="cell medium-6">
+                                                        <button type="button" class="button secondary small js-copy-sunshading">
+                                                            <span class="fa fa-plus-circle"></span>&nbsp;Copy Sun Shading Model</button>
+                                                        </div>
+
+                                                        <div class="cell medium-6">
+                                                        <button type="button" class="button danger small js-remove-sunshading">
+                                                            <span class="fa fa-trash"></span>&nbsp;Del Sun Shading Model</button>
+                                                        </div>
+
+                                                    </div>
+                                                    </div>
+                                                </div>
+
+
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <button type="button" class="button secondary small js-add-sunshading"> <span class="fa fa-plus-circle"></span>&nbsp;Add New Sun Shading Model</button>
+                            </fieldset>
+                        </div>
+
+                    </div>
+                </div>
+                {# Ende Forecast Configuration Tab #}
 
                 {# Availability & PR #}
                 <div class="tabs-panel" id="availability">
@@ -733,6 +856,7 @@
         </div>
     </div>
     {% do anlageForm.modules.setRendered() %}
+    {% do anlageForm.anlageSunShading.setRendered() %}
     {% do anlageForm.savecreatedb.setRendered() %}
     {% do anlageForm.timesConfigs.setRendered() %}
     {% do anlageForm.anlInputDaily.setRendered() %}
