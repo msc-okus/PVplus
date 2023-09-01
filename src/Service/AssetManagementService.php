@@ -2471,7 +2471,11 @@ class AssetManagementService
                             'act_current_dc' => $dcIst[$j]['act_current_dc'],
                             'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 : 0,
                             'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 : 0,
+<<<<<<< HEAD
                            ];
+=======
+                        ];
+>>>>>>> b1eec8f207e26f779670b1d8445f8bc20333d7cd
                         if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                             $outTableCurrentsPower[] = $dcExpDcIst;
                             unset($dcExpDcIst);
@@ -3705,7 +3709,12 @@ class AssetManagementService
             $chart->setOption($option);
             $efficiencyRanking[$key] = $chart->render('efficiency_rank_' . $key, ['style' => 'height: 550; width:900px;']);
         }
+<<<<<<< HEAD
         //Bucket graph page generation; here we retreive all the monthly losses to put them all together in the table and graph
+=======
+
+        //Waterfall page generation
+>>>>>>> b1eec8f207e26f779670b1d8445f8bc20333d7cd
         $sumForecast = 0;
         $sumForecastIrr = 0;
         $sumActual = 0;
@@ -3719,9 +3728,9 @@ class AssetManagementService
         $sumOthers = 0;
         $sumCorrectedForecast = 0;
         $sumTotalLosses = 0;
-
         for($i = 0; $i < $report['reportMonth'] ; $i++){
             if ($anlage->hasPVSYST()) {
+                $resultErtrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i + 1);
                 $forecastIrr = $resultErtrag_design->getIrrDesign();
             }
             else {
@@ -3732,16 +3741,28 @@ class AssetManagementService
                     $forecastIrr = $irradiation[$i];
                 }
             }
+<<<<<<< HEAD
             $waterfallDiagramHelpTable[$i]['forecast'] = round($forecast[$i], 2);
             $sumForecast = $sumForecast + $waterfallDiagramHelpTable[$i]['forecast'];
             if( $irradiation[$i] > 0) {
+=======
+            if( $irradiation[$i] > 0 && $forecastIrr > 0) {
+>>>>>>> b1eec8f207e26f779670b1d8445f8bc20333d7cd
                 $irrCorrection = $forecastIrr / $irradiation[$i];
             }
             else{
                 $irrCorrection = 1 ;
             }
+<<<<<<< HEAD
             if ($irrCorrection > 0)$waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] / $irrCorrection, 2);
             else $waterfallDiagramHelpTable[$i]['correctedForecast'] = 0;
+=======
+
+            $waterfallDiagramHelpTable[$i]['forecast'] = round($forecast[$i], 2);
+            $sumForecast = $sumForecast + $waterfallDiagramHelpTable[$i]['forecast'];
+
+            $waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] / $irrCorrection, 2);
+>>>>>>> b1eec8f207e26f779670b1d8445f8bc20333d7cd
             $sumCorrectedForecast = $sumCorrectedForecast + $waterfallDiagramHelpTable[$i]['correctedForecast'];
 
             $waterfallDiagramHelpTable[$i]['forecastIrr'] = round($forecastIrr, 2);
