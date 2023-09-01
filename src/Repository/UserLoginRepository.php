@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\UserLogin;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * @extends ServiceEntityRepository<UserLogin>
@@ -37,6 +38,23 @@ class UserLoginRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function getWithSearchQueryBuilder(?string $term): QueryBuilder
+    {
+
+        $qb = $this->createQueryBuilder('userlogin')
+            ->innerJoin('userlogin.user', 'user')
+            ->orderBy('userlogin.loggedAt', "DESC");
+
+
+        if ($term) {
+            $qb->andWhere('user.name LIKE :term')
+                ->setParameter('term', '%'.$term.'%')
+            ;
+        }
+
+        return $qb;
     }
 
 //    /**

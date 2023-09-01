@@ -24,6 +24,8 @@ ticket:
       72: Exclude from PR/Energy
       73: Replace Energy (Irr)
       74: Correct Energy
+      75: Exclude PPCs
+      76: Replace PPCs
 
   status:
     name: Status

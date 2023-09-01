@@ -1,0 +1,73 @@
+{% import _self as formMacros %}
+
+{% macro addPpc(ppc) %}
+<tr class="js-ppc-item">
+    <td>{{ form_widget(ppc.vcomId) }}</td>
+    <td>{{ form_widget(ppc.startDatePpc) }}</td>
+    <td>{{ form_widget(ppc.endDatePpc) }}</td>
+    <td><a href="#" class="js-remove-ppc"><span class="fa fa-minus-circle"></span></a></td>
+</tr>
+{% endmacro %}
+
+
+{{ form_start(anlageForm) }} {# , {'attr': {'novalidate': 'yes'}}) #}
+    <div class="grid-x">
+        <div class="cell">
+            <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
+                {% if is_granted('ROLE_G4N') %}
+                    <li class="tabs-title is-active"><a data-tabs-target="ppcs" href="#ppcs" aria-selected="true">ppcs</a></li>
+                {% endif %}
+            </ul>
+
+            <div class="tabs-content" data-tabs-content="ppcs">
+                {# PPCs #}
+                <div class="tabs-panel is-active" id="ppcs">
+                    <fieldset class="fieldset js-ppcs-wrapper"
+                              data-prototype="{{ formMacros.addPpc(anlageForm.ppcs.vars.prototype)|e('html_attr') }}"
+                              data-index="{{ anlageForm.ppcs|length }}">
+                        <legend>PPCs</legend>
+                        <div class="cell">
+                            <table id="js-ppcs">
+                                <thead>
+                                <tr>
+                                    <th><small>VCOM ID</small></th>
+                                    <th><small>Sart Date</small></th>
+                                    <th><small>End Date</small></th>
+                                    <th></th>
+                                </tr>
+
+                                </thead>
+                                <tbody>
+                                {% for ppc in anlageForm.ppcs %}
+                                    <tr class="js-ppc-item">
+                                        <td>{{ form_widget(ppc.vcomId) }}</td>
+                                        <td>{{ form_widget(ppc.startDatePpc) }}</td>
+                                        <td>{{ form_widget(ppc.endDatePpc) }}</td>
+                                        <td><a href="#" class="js-remove-ppc"><span class="fa fa-minus-circle"></span></a></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <button type="button" class="button secondary small js-add-ppc"> <span class="fa fa-plus-circle"></span>&nbsp;Add </button>
+                        </div>
+                    </fieldset>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-x grid-padding-y action-menu">
+        <div class="cell">
+            {{ form_widget(anlageForm.save) }}
+            {{ form_widget(anlageForm.saveclose) }}
+            {{ form_widget(anlageForm.close) }}
+            {% if (is_granted('ROLE_DEV')) %}{{ form_widget(anlageForm.savecreatedb) }}{% endif %}
+        </div>
+    </div>
+
+{% do anlageForm.ppcs.setRendered() %}
+{{ form_end(anlageForm) }}
+
+
+

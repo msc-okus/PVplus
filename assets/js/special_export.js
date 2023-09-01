@@ -22,7 +22,6 @@ $(document).ready( async function (tableSelector) {
         info:false,
         responsive:true,
         ordering:false
-
     });
 
 

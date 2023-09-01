@@ -17,7 +17,14 @@ class DownloadDataService
 
     private PRRepository $prRepository;
 
-    public function __construct(AnlageAvailabilityRepository $availabilityRepo, PRRepository $prRepository)
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
+        AnlageAvailabilityRepository $availabilityRepo,
+        PRRepository $prRepository)
     {
         $this->availabilityRepo = $availabilityRepo;
         $this->prRepository = $prRepository;

@@ -4,12 +4,18 @@ namespace App\Form\Anlage;
 
 use App\Entity\AnlageSettings;
 use App\Form\Type\SwitchType;
+use App\Helper\PVPNameArraysTrait;
+use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormTypeInterface;
 class AnlageSettingsFormType extends AbstractType
 {
+    use PVPNameArraysTrait;
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder
             ######## Handling Departments ########
@@ -190,6 +196,33 @@ class AnlageSettingsFormType extends AbstractType
                 'label'     => 'Calculate \'expected\' with (current * voltage)',
                 'help'      => '[epxCalculationByCurrent]'
             ])
+
+            ###### Import ######
+            ->add('symfonyImport', SwitchType::class, [
+                'label'     => 'Import Data with Symphony',
+                'help'      => '[Import Data with Symphony]'
+            ])
+
+            ->add('importType', ChoiceType::class, [
+                'choices'       => self::importTypes(),
+                'placeholder'   => 'please Select',
+                'required'      => false,
+            ])
+
+            ->add('stringboxesUnits', IntegerType::class, [
+                'label' => 'Stringboxes Units',
+                'help' => '[Stringboxes Units(für die Anzahl Schleifen beim Import)]',
+                'empty_data' => '',
+                'required' => false,
+            ])
+
+            ->add('invertersUnits', IntegerType::class, [
+                'label' => 'Inverters Units',
+                'help' => '[Inverters Units(für die Anzahl Schleifen beim Import)]',
+                'empty_data' => '',
+                'required' => false,
+            ])
+
         ;
     }
 

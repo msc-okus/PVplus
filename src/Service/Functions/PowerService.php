@@ -16,6 +16,11 @@ use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 class PowerService
 {
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private FunctionsService $functions,
         private MonthlyDataRepository $monthlyDataRepo,
         private GridMeterDayRepository $gridMeterDayRepo,
@@ -38,7 +43,7 @@ class PowerService
      */
     public function getGridSum(Anlage $anlage, DateTime $from, DateTime $to, bool $ppc = false): float
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $power = 0;
 
         if ($ppc){
@@ -94,9 +99,9 @@ class PowerService
      */
     public function getSumAcPowerV2(Anlage $anlage, DateTime $from, DateTime $to, bool $ppc = false, ?int $inverterID = null): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $result = [];
-        $powerEvu = $powerExp = $powerExpEvu = $powerEGridExt = $powerTheo = $tCellAvg = $tCellAvgMultiIrr = 0;
+        $powerEvu = $powerExp = $powerExpEvu = $powerEGridExt = $powerTheo = $powerTheoNoPpc = $tCellAvg = $tCellAvgMultiIrr = 0;
 
         $ignorNegativEvuSQL = $anlage->isIgnoreNegativEvu() ? 'AND e_z_evu > 0' : '';
         $ppcSQLpart1 = $ppcSQLpart2 = $ppcSQLpart1Meters = '';
@@ -200,6 +205,17 @@ class PowerService
         }
         unset($res);
 
+        // Theoretic Power (TempCorr)
+        $sql = 'SELECT SUM(theo_power) AS theo_power 
+                FROM '.$anlage->getDbNameAcIst()."  s 
+                WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' AND s.theo_power > 0 $sqlPartInverter";
+        $res = $conn->query($sql);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $powerTheoNoPpc = $row['theo_power'];
+        }
+        unset($res);
+
         // Actual (Inverter Out) Leistung ermitteln
         $sql = 'SELECT sum(wr_pac) as sum_power_ac
                 FROM '.$anlage->getDbNameAcIst()." s
@@ -209,14 +225,15 @@ class PowerService
 
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $result['powerEvu']         = (float)$powerEvu;
-            $result['powerAct']         = (float)$row['sum_power_ac'];
-            $result['powerExp']         = (float)$powerExp;
-            $result['powerExpEvu']      = (float)$powerExpEvu;
-            $result['powerEGridExt']    = (float)$powerEGridExt;
-            $result['powerTheo']        = (float)$powerTheo;
-            $result['tCellAvg']         = (float)$tCellAvg;
-            $result['tCellAvgMultiIrr'] = (float)$tCellAvgMultiIrr;
+            $result['powerEvu']         = (float) $powerEvu;
+            $result['powerAct']         = (float) $row['sum_power_ac'];
+            $result['powerExp']         = (float) $powerExp;
+            $result['powerExpEvu']      = (float) $powerExpEvu;
+            $result['powerEGridExt']    = (float) $powerEGridExt;
+            $result['powerTheo']        = (float) $powerTheo;
+            $result['powerTheoNoPpc']   = (float) $powerTheoNoPpc;
+            $result['tCellAvg']         = (float) $tCellAvg;
+            $result['tCellAvgMultiIrr'] = (float) $tCellAvgMultiIrr;
         }
         unset($res);
 
@@ -252,7 +269,7 @@ class PowerService
     #[Deprecated]
     public function checkAndIncludeMonthlyCorrectionEVU(Anlage $anlage, ?float $evu, $from, $to): ?float
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
 
         $fromObj = date_create($from);
         $toObj = date_create($to);
@@ -311,7 +328,7 @@ class PowerService
 
     public function correctGridByTicket(Anlage $anlage, ?float $evu, DateTime $startDate, DateTime $endDate): ?float
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
 
         // Suche alle Tickets (Ticketdates) die in den Zeitraum fallen
         // Es werden Nur Tickets mit Energy exclude Bezug gesucht (Performance Tickets mit ID = 72 + ??
@@ -364,7 +381,7 @@ class PowerService
      */
     public function getSumAcPowerBySection(Anlage $anlage, $from, $to, $section): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $result = [];
         $powerEvu = $powerEvuPpc = $powerAct = $powerTheo = $powerTheoFt = 0;
         $powerExp = $powerExpEvu = $powerTheoPpc = $powerTheoFtPpc = 0;
@@ -386,7 +403,7 @@ class PowerService
             $powerEGridExt = 0;
         }
 
-        // EVU Leistung ermitteln – kann aus unterschidlichen Quellen kommen
+        // EVU Leistung ermitteln – kann aus unterschiedlichen Quellen kommen
         $sql = 'SELECT sum(e_z_evu) as power_evu FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {

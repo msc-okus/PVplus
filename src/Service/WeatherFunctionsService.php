@@ -28,6 +28,11 @@ class WeatherFunctionsService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private PVSystDatenRepository   $pvSystRepo,
         private GroupMonthsRepository   $groupMonthsRepo,
         private GroupModulesRepository  $groupModulesRepo,
@@ -76,7 +81,7 @@ class WeatherFunctionsService
     {
         return $this->cache->get('getWeather_'.md5($weatherStation->getId().$from.$to.$ppc.$anlage->getAnlId()), function(CacheItemInterface $cacheItem) use ($weatherStation, $from, $to, $ppc, $anlage, $inverterID) {
             $cacheItem->expiresAfter(60);
-            $conn = self::getPdoConnection();
+            $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
             $weather = [];
             $dbTable = $weatherStation->getDbNameWeather();
             $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp >= '$from' and stamp < '$to'";
@@ -254,7 +259,7 @@ class WeatherFunctionsService
      */
     public function getIrrByStampForTicket(Anlage $anlage, DateTime $stamp): ?float
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $irr = null;
         $sqlw = 'SELECT g_lower, g_upper FROM ' . $anlage->getDbNameWeather() . " WHERE stamp = '" . $stamp->format('Y-m-d H:i') . "' ";
         $respirr = $conn->query($sqlw);
@@ -302,7 +307,7 @@ class WeatherFunctionsService
      */
     public function getSensors(Anlage $anlage, DateTime $from, DateTime $to): array
     {
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $result = [];
 
         $dbTable = $anlage->getDbNameIst();

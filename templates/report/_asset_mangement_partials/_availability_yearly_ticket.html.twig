@@ -38,36 +38,46 @@
                         <td class="tr_next_columns"> {{ (Availability_Year_To_Date_Table['expectedSOF'] - Availability_Year_To_Date_Table['actualSOF']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left" class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup> </td>
+                        <td style="text-align: left" class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> </td>
                         <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['expectedEFOR'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['actualEFOR'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ (Availability_Year_To_Date_Table['expectedEFOR'] - Availability_Year_To_Date_Table['actualEFOR']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left" class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
+                        <td style="text-align: left" class="tr_next_columns">Grid Error/Grid Off <sup><b> c</b></sup></td>
                         <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['expectedOMC'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['actualOMC'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ (Availability_Year_To_Date_Table['expectedOMC'] - Availability_Year_To_Date_Table['actualOMC']) |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns">Data Gaps </td>
+                        <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['expectedGaps'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ (Availability_Year_To_Date_Table['expectedGaps'] - Availability_Year_To_Date_Table['actualGaps']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left" class="tr_next_columns"><b>Total</b></td>
                         <td  class="tr_next_columns">{{ (Availability_Year_To_Date_Table['expectedAvailability']
                             +  Availability_Year_To_Date_Table['expectedSOF']
                             + Availability_Year_To_Date_Table['expectedEFOR']
-                            + Availability_Year_To_Date_Table['expectedOMC']) |number_format(2, ',', '.')}} </td>
+                            + Availability_Year_To_Date_Table['expectedOMC']
+                            + Availability_Year_To_Date_Table['expectedGaps']) |number_format(2, ',', '.')}} </td>
 
                         <td  class="tr_next_columns">{{ (Availability_Year_To_Date_Table['actualAvailability']
-                            +  Availability_Year_To_Date_Table['actualSOF']
+                            + Availability_Year_To_Date_Table['actualSOF']
                             + Availability_Year_To_Date_Table['actualEFOR']
-                            + Availability_Year_To_Date_Table['actualOMC']) |number_format(2, ',', '.')}} </td>
+                            + Availability_Year_To_Date_Table['actualOMC']
+                            + Availability_Year_To_Date_Table['actualGaps'])|number_format(2, ',', '.')}} </td>
                         <td  class="tr_next_columns">{{ ((Availability_Year_To_Date_Table['actualAvailability']
                             +  Availability_Year_To_Date_Table['actualSOF']
                             + Availability_Year_To_Date_Table['actualEFOR']
-                            + Availability_Year_To_Date_Table['actualOMC']) -
+                            + Availability_Year_To_Date_Table['actualOMC']
+                            + Availability_Year_To_Date_Table['actualGaps']) -
                             (Availability_Year_To_Date_Table['expectedAvailability']
                             +  Availability_Year_To_Date_Table['expectedSOF']
                             + Availability_Year_To_Date_Table['expectedEFOR']
-                            + Availability_Year_To_Date_Table['expectedOMC']))|number_format(2, ',', '.') }}
+                            + Availability_Year_To_Date_Table['expectedOMC']
+                            + Availability_Year_To_Date_Table['expectedGaps']))|number_format(2, ',', '.') }}
                         </td>
                     </tr>
                     </tbody>
@@ -91,14 +101,19 @@
                             <td class="tr_next_columns"> {{ ticketCountTable.SOFQuarters }}</td>
                         </tr>
                         <tr>
-                            <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
+                            <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup></td>
                             <td class="tr_next_columns"> {{ ticketCountTable.EFORTickets }} </td>
                             <td class="tr_next_columns"> {{ ticketCountTable.EFORQuarters }}</td>
                         </tr>
                         <tr>
-                            <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
+                            <td class="tr_next_columns">Grid Error/Grid Off <sup><b> c</b></sup></td>
                             <td class="tr_next_columns"> {{ ticketCountTable.OMCTickets }} </td>
                             <td class="tr_next_columns"> {{ ticketCountTable.OMCQuarters }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Data Gaps </td>
+                            <td class="tr_next_columns"> {{ ticketCountTable.GapTickets }} </td>
+                            <td class="tr_next_columns"> {{ ticketCountTable.GapQuarters }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -110,8 +125,7 @@
                 <div style="text-align: left">
                     <sup><b>a</b></sup> Maintenance, SOR<br>
                     <sup><b>b</b></sup> Defects, EFOR<br>
-                    <sup><b>c</b></sup><b> From this EFOR errors {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps</b><br>
-                    <sup><b>d</b></sup> Availability is not effected, OMC
+                    <sup><b>c</b></sup> Availability is not effected, OMC
                 </div>
             </td>
         </tr>

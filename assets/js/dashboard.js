@@ -30,46 +30,5 @@ $('#startDate').fdatepicker({
     // endDate: dateString,
 });
 
-$(document).ready(function () {
-    $(".case5").on("change paste keyup", function () {
-        let case5from = $("#case5from").val();
-        let case5to = $("#case5to").val()
-        let diff = ((case5to.substr(0, 2) * 60) + (case5to.substr(3, 2) * 1)) - ((case5from.substr(0, 2) * 60) + (case5from.substr(3, 2) * 1));
-        if (case5from !== "" && case5to !== "" && $("#case5inverter").val() !== "" && $("#case5reason").val() !== "" && diff > 0) {
-            $("#addCase5").removeAttr("disabled");
-        } else {
-            $("#addCase5").attr("disabled", true);
-        }
-    });
-
-    $('.js-edit-case5').on("click", function () {
-        let apiUrl = $(this).data('url');
-        $.ajax({
-            url: apiUrl
-        }).then(function (data) {
-            let from = new Date(data.stampFrom);
-            let to = new Date(data.stampTo)
-            $("#case5id").val(data.id);
-            $("#case5from").val(from.getHours().toString().padStart(2, '0') + ":" + from.getMinutes().toString().padStart(2, '0'));
-            $("#case5to").val(to.getHours().toString().padStart(2, '0') + ":" + to.getMinutes().toString().padStart(2, '0'));
-            $("#case5inverter").val(data.inverter);
-            $("#case5reason").val(data.reason);
-            $("#addCase5").removeAttr("disabled");
-        });
-    });
-
-    $('.js-delete-case5').on("click", function () {
-        let apiUrl = $(this).data('url');
-        $.ajax({
-            url: apiUrl
-        }).then(function (data) {
-        });
-        $(this).closest('.js-case5-item')
-            .remove();
-    });
-
-});
-
-
 
 

@@ -1,0 +1,10 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Losses Bucket Diagram</h3>
+    <div class="grid-x">
+        <div class="cell">
+            {{ waterfallDiagram|raw }}
+        </div>
+    </div>
+{%  endblock page %}

@@ -14,6 +14,14 @@ trait PVPNameArraysTrait
         $this->translator = $translator;
     }
 
+    public static function importTypes(): array
+    {
+        return [
+            'standart'              => 'standart',
+            'With Stringboxes'      => 'withStringboxes',
+        ];
+    }
+
     public static function sensorTypes(): array
     {
         return [

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
@@ -12,6 +13,7 @@ use App\Form\Anlage\AnlageDcGroupsFormType;
 use App\Form\Anlage\AnlageFormType;
 use App\Form\Anlage\AnlageNewFormType;
 use App\Form\Anlage\AnlageSensorsFormType;
+use App\Form\Anlage\AnlagePpcsFormType;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
@@ -452,6 +454,36 @@ class AnlagenAdminController extends BaseController
         ]);
     }
 
+    #[Route(path: '/admin/anlagen/editppcs/{id}', name: 'app_admin_anlagen_edit_ppcs')]
+    public function editPpcs($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
+    {
+        $anlage = $anlagenRepository->find($id);
+        $form = $this->createForm(AnlageppcsFormType::class, $anlage, [
+            'anlagenId' => $id,
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
+            $successMessage = 'Plant data saved!';
+            $em->persist($anlage);
+            $em->flush();
+            if ($form->get('saveclose')->isClicked()) {
+                $this->addFlash('success', $successMessage);
+
+                return $this->redirectToRoute('app_admin_anlagen_list');
+            }
+        }
+        if ($form->isSubmitted() && $form->get('close')->isClicked()) {
+            $this->addFlash('warning', 'Canceled. No data was saved.');
+
+            return $this->redirectToRoute('app_admin_anlagen_list');
+        }
+
+        return $this->render('anlagen/edit_ppcs.html.twig', [
+            'anlageForm' => $form->createView(),
+            'anlage' => $anlage,
+        ]);
+    }
+
     #[Route(path: '/admin/anlagen/delete/{id}', name: 'app_admin_anlage_delete')]
     #[IsGranted(['ROLE_DEV'])]
     public function delete($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, Security $security): RedirectResponse
@@ -606,7 +638,7 @@ class AnlagenAdminController extends BaseController
                                   UNIQUE INDEX `stamp_section` (`stamp` ASC, `section` ASC));
                                 ";
 
-            $conn = self::getPdoConnection();
+            $conn = GetPdoService::getPdoConnection();
             $conn->exec($databaseAcIst);
             $conn->exec($databaseDcIst);
             // $conn->exec($databaseAcSoll);

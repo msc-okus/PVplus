@@ -39,6 +39,9 @@ class UserLogin
     private ?int $id = null;
 
     #[ORM\Column]
+    private ?int $userId = null;
+
+    #[ORM\Column]
     private ?\DateTimeImmutable $loggedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'userLogins')]
@@ -54,6 +57,11 @@ class UserLogin
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getUserId(): ?int
+    {
+        return $this->userId;
     }
 
     public function setUser(?User $user): void

@@ -11,8 +11,6 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class GenerateAMReportHandler implements MessageHandlerInterface
 {
-
-
     public function __construct(
         private AssetManagementService $assetManagement,
         private LogMessagesService $logMessages,

@@ -52,7 +52,7 @@ class DownloadAnalyseFormType extends AbstractType
             // #############################################
 
             ->add('calc', SubmitType::class, [
-                'label' => 'generate Analyse',
+                'label' => 'generate Table',
                 'attr' => ['class' => 'primary save'],
             ])
             ->add('close', SubmitType::class, [

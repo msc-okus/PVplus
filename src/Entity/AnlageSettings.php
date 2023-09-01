@@ -156,6 +156,18 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $chartSensor4 = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $symfonyImport = false;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $importType = null;
+
+    #[ORM\Column(nullable: true, options: ['default' => null])]
+    private ?int $stringboxesUnits = null;
+
+    #[ORM\Column(nullable: true, options: ['default' => null])]
+    private ?int $invertersUnits = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -662,4 +674,51 @@ class AnlageSettings
         return $this;
     }
 
+    public function isSymfonyImport(): ?bool
+    {
+        return $this->symfonyImport;
+    }
+
+    public function setSymfonyImport(?bool $symfonyImport): self
+    {
+        $this->symfonyImport = $symfonyImport;
+
+        return $this;
+    }
+
+    public function getImportType(): ?string
+    {
+        return $this->importType;
+    }
+
+    public function setImportType(?string $importType): static
+    {
+        $this->importType = $importType;
+
+        return $this;
+    }
+
+    public function getStringboxesUnits(): ?int
+    {
+        return $this->stringboxesUnits;
+    }
+
+    public function setStringboxesUnits(?int $stringboxesUnits): self
+    {
+        $this->stringboxesUnits = $stringboxesUnits;
+
+        return $this;
+    }
+
+    public function getInvertersUnits(): ?int
+    {
+        return $this->invertersUnits;
+    }
+
+    public function setInvertersUnits(?int $invertersUnits): self
+    {
+        $this->invertersUnits = $invertersUnits;
+
+        return $this;
+    }
 }

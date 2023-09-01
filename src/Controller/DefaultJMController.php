@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
 use App\Entity\Status;
@@ -45,7 +46,7 @@ class DefaultJMController extends AbstractController
 
     )
     {
-        $this->conn = self::getPdoConnection();
+        $this->conn = GetPdoService::getPdoConnection();
 
     }
     #[Route(path: '/default/j/m', name: 'default_j_m')]
@@ -59,9 +60,9 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, AlertSystemV2Service $service)
     {
-        $anlage = $anlagenRepository->findIdLike("218")[0];
+        $anlage = $anlagenRepository->findIdLike("207")[0];
         $fromStamp = strtotime("2023-06-15 00:00");
-        $toStamp = strtotime("2023-06-16 00:00");
+        $toStamp = strtotime("2023-06-30 00:00");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
             $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
         }
@@ -195,6 +196,132 @@ class DefaultJMController extends AbstractController
         $this->pdf->createPage($html5, $fileroute, "MonthlyProd", true);// we will store this later in the entity
 
     }
+
+    #[Route(path: '/test/pdfw', name: 'default_pdf')]
+    public function testpdfwaterfall(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am){
+        $anlage = $ar->findIdLike("57")[0];
+
+
+        $expected = 9000;
+        $dccablelosses = -(int)($expected * (0.5/100));
+        $inverterlosses = -(int)($expected * (1/100));
+        $accablelosses = -(int)($expected * (0.8/100));
+        $missmatchinglosses = -(int)($expected * (1/100));
+        $transformerlosses = -(int)($expected * (1.5/100));
+        $expKpi = $expected + $dccablelosses + $inverterlosses + $accablelosses + $missmatchinglosses + $transformerlosses;
+
+        $data = [$expected, $dccablelosses, $inverterlosses, $accablelosses, $missmatchinglosses, $transformerlosses, $expKpi];
+        $positive = [];
+        $negative = [];
+        $help = [];
+        $sum = 0;
+
+        foreach ($data as $key => $item){
+            if ($item >= 0 ){
+                $positive[] = $item;
+
+                $negative[] = 0;
+            }
+            else{
+                $negative[] = -$item;
+                $positive[] = 0;
+            }
+
+            if ($key === 0) $help[0] = 0;
+
+            else if ($key === count($data)-1) $help[$key] = 0;
+            else{
+                $sum += $data[$key - 1];
+                if ($item < 0){
+                    $help[] = $sum + $item;
+                }
+                else{
+                    $help[] = $sum;
+                }
+            }
+        }
+        $chart = new ECharts();
+
+        $chart->xAxis = [
+            'type' => 'category',
+            'data' =>['Expected', 'kpi1', 'kpi2', ' kpi3', 'kpi4', 'kpi5','ExpectedKpi'],
+        ];
+        $chart->yAxis = [
+            'type' => 'value',
+        ];
+        $chart->series =
+            [
+                [
+                    'type' => 'bar',
+                    'stack' => 'x',
+                    'itemStyle' => [
+                        'normal' => [
+                            'barBorderColor' => 'rgba(0,0,0,0)',
+                            'color' => 'rgba(0,0,0,0)'
+                        ],
+                        'emphasis' => [
+                            'barBorderColor' => 'rgba(0,0,0,0)',
+                            'color' => 'rgba(0,0,0,0)'
+                        ]
+                    ],
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
+                    'data' => $help,
+                ],
+                [
+                    'name' => 'positive',
+                    'type' => 'bar',
+                    'stack' => 'x',
+                    'data' => $positive,
+
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
+
+                ],
+                [
+                    'name' => 'negative',
+                    'type' => 'bar',
+                    'stack' => 'x',
+                    'data' => $negative,
+                    'itemStyle'=>[
+                        'color'=>'#f33'
+                    ],
+
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
+
+                ],
+
+            ];
+
+        $option =[
+            'animation' => false,
+        ];
+        $chart->setOption($option);
+        $test = $chart->render('test', ['style' => 'height: 450px; width:900px;']);
+
+        $view = $this->renderView('report/test.html.twig', [
+            'anlage' => $anlage,
+            'monthName' => 'December',
+            'year' => '2023',
+
+            'graph' => $test,
+
+        ]);
+
+                return $this->render('reporting/showHtml.html.twig', [
+                    'html' => $view,
+                ]);
+
+
+    }
+
     private function calcPRInvArrayDayly(Anlage $anlage, $month, $year){
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
         $begin = $year."-".$month."-01 00:00";

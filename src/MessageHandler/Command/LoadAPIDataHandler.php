@@ -27,11 +27,12 @@ class LoadAPIDataHandler implements MessageHandlerInterface
         $timeCounter = 0;
         $timeRange = $dta->getEndDate()->getTimestamp() - $dta->getStartDate()->getTimestamp();
 
-        for ($stamp = $dta->getStartDate()->getTimestamp(); $stamp <= $dta->getEndDate()->getTimestamp(); $stamp = $stamp + (24 * 3600)) {
+        for ($stamp = $dta->getStartDate()->getTimestamp(); $stamp <= $dta->getEndDate()->getTimestamp(); $stamp += 24 * 3600) {
             $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
             $timeCounter += 24 * 3600;
          #  $this->externFileService->($anlageId, date('Y-m-d 00:00', $stamp));
             $this->externFileService->CallFileServiceAPI($anlageId, date('Y-m-d 00:00', $stamp));
-        }        $this->logMessages->updateEntry($logId, 'done');
+        }
+        $this->logMessages->updateEntry($logId, 'done');
     }
 }

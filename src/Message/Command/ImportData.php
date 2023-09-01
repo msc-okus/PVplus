@@ -12,7 +12,7 @@ class ImportData
         private DateTime $endDate,
         private string $path,
         private string $importType,
-        private int $logId
+        private int $logId,
     )
     {
     }

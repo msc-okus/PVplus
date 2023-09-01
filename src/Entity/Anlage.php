@@ -628,6 +628,8 @@ class Anlage
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageSensors::class, cascade: ['persist', 'remove'])]
     private Collection $sensors;
 
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagePpcs::class, cascade: ['persist', 'remove'])]
+    private Collection $ppcs;
 
     #[ORM\Column(name: 'bez_meridan', type: 'string', length: 20, nullable: true)]
     private ?string $bezMeridan = '';
@@ -646,6 +648,9 @@ class Anlage
 
     #[ORM\Column(name: 'dat_filename', type: 'string', nullable: true)]
     private ?string $datFilename;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $ppcBlockTicket = false;
 
 
 
@@ -696,6 +701,7 @@ class Anlage
         $this->dayLightData = new ArrayCollection();
         $this->anlageSunShading = new ArrayCollection();
         $this->sensors = new ArrayCollection();
+        $this->ppcs = new ArrayCollection();
     }
 
 
@@ -1235,14 +1241,6 @@ class Anlage
     public function getDbNameWeather(): string
     {
         return $this->dbAnlagenData.'.db__pv_ws_'.$this->getNameWeather();
-    }
-
-    #[Deprecated]
-    public function getDbNameWeatherOld()
-    {
-        $anlageDbWeather = $this->getNameWeather();
-
-        return 'db__pv_ws_'.$anlageDbWeather;
     }
 
     public function getAcGroups(): Collection
@@ -3897,6 +3895,46 @@ class Anlage
     }
 
     /**
+     * @return Collection<int, AnlagePpcs>
+     */
+    public function getPpcs(): Collection
+    {
+        return $this->ppcs;
+    }
+
+    /**
+     * @return Collection<int, AnlagePpcs>
+     */
+    public function getPpcsInUse(): Collection
+    {
+        $criteria = AnlagenRepository::ppcsInUse();
+
+        return $this->ppcs->matching($criteria);
+    }
+
+    public function addPpc(AnlagePpcs $ppc): static
+    {
+        if (!$this->ppcs->contains($ppc)) {
+            $this->ppcs->add($ppc);
+            $ppc->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removePpc(AnlagePpcs $ppc): static
+    {
+        if ($this->ppcs->removeElement($ppc)) {
+            // set the owning side to null (unless already changed)
+            if ($ppc->getAnlage() === $this) {
+                $ppc->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * New Algorithme for TicketGeneration
      */
     public function isNewAlgorythm(): ?bool
@@ -3940,6 +3978,18 @@ class Anlage
         $name = str_replace(':', '_', $this->prFormular3);
         $name = str_replace('/', '_', $name);
         return '/images/formulas/' . $name . '.png';
+    }
+
+    public function isPpcBlockTicket(): ?bool
+    {
+        return $this->ppcBlockTicket;
+    }
+
+    public function setPpcBlockTicket(?bool $ppcBlockTicket): static
+    {
+        $this->ppcBlockTicket = $ppcBlockTicket;
+
+        return $this;
     }
 
 }

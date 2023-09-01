@@ -16,6 +16,11 @@ class SollIstIrrAnalyseChartService
     use G4NTrait;
 
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
         private Security $security,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository $invertersRepo,
@@ -58,7 +63,7 @@ class SollIstIrrAnalyseChartService
         ini_set('memory_limit', '3G');
         $dataArray = [];
         $anlagename = $anlage->getAnlName();
-        $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
         $tabelArray = [];
 
         switch ($filter) {

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
@@ -12,7 +13,6 @@ use App\Form\Model\DownloadDataModel;
 use App\Reports\Download\DownloadReport;
 use App\Service\DownloadAnalyseService;
 use App\Service\DownloadDataService;
-use Nuzkito\ChromePdf\ChromePdf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -73,7 +73,7 @@ class DownloadController extends AbstractController
         // das Formular für die Datumsselektion
         $form = $this->createForm(DownloadAnalyseFormType::class);
         $form->handleRequest($request);
-        $plantId = 91;
+
         if ($form->isSubmitted() && $form->get('calc')->isClicked()) { // 'calc' == generate Analyse
             /* @var DownloadAnalyseModel $downloadAnalyseModel */
             $downloadAnalyseModel = $form->getData();
@@ -153,7 +153,7 @@ class DownloadController extends AbstractController
                             'time' => $output->getstamp()->format('M'),
                             'irradiation' => (float) $output->getIrrMonth(),
                             'powerEGridExtMonth' => (float) $output->getpowerEGridExt(),
-                            'PowerEvuMonth' => (float) $output->getPowerEvuMonth(),
+                            'powerEvuMonth' => (float) $output->getPowerEvuMonth(),
                             'powerActMonth' => (float) $output->getpowerActMonth(),
                             'powerDctMonth' => (float) $dcData[$i]['actdc'],
                             'powerExpMonth' => (float) $output->getpowerExpMonth(),
@@ -191,7 +191,7 @@ class DownloadController extends AbstractController
                                 'time' => $output[$i]->getstamp()->format('M-d'),
                                 'irradiation' => (float) $output[$i]->getirradiation(),
                                 'powerEGridExtMonth' => (float) $output[$i]->getpowerEGridExt(),
-                                'PowerEvuMonth' => (float) $output[$i]->getPowerEvu(),
+                                'powerEvuMonth' => (float) $output[$i]->getPowerEvu(),
                                 'powerActMonth' => (float) $output[$i]->getpowerAct(),
                                 'powerDctMonth' => (float) $dcData[$i]['actdc'],
                                 'powerExpMonth' => (float) $output[$i]->getpowerExp(),
@@ -214,7 +214,6 @@ class DownloadController extends AbstractController
                 $start = $year.'-'.$month.'-'.$day.' 00:00';
                 $end = $year.'-'.$month.'-'.$day.' 23:59';
                 $tableType = 'daybase';
-                $landscape = false;
 
                 $outputchart = [];
                 $outputtable = $analyseService->getAllSingleSystemDataForDay($anlage, $start, $end, '%H:00', 'Date Time');
@@ -222,82 +221,15 @@ class DownloadController extends AbstractController
                 $headLine = 'Dayly Report';
             }
         }
+
         // Wenn Close gelickt wird mache dies:
         if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
             return $this->redirectToRoute('app_dashboard');
         }
-        $params[] = [
-            'tableType' => $tableType,
-            'downloadHeadline' => $headLine,
-            'downloadPlantName' => $plantName,
-            'doctype' => $doctype,
-            'showAvailability' => $showAvailability,
-            'showAvailabilitySecond' => $showAvailabilitySecond,
-            'useGridMeterDayData' => $useGridMeterDayData,
-            'formatBody' => $formatBody,
-            'plant_power' => $plantPower,
-            'footerType' => 'download',
-        ];
-        $downloadTable = new DownloadReport(
-            [
-                'download' => $outputtable,
-                'params' => $params,
-            ]
-        );
-        if ($formview == 'download') {
-            $currentDate = date('Y-m-d H-i');
-            $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
 
-            switch ($doctype) {
-                case 'excel':
-                    $excelFilename = 'Download '.$anlage->getAnlName().' - '.$currentDate.'.xlsx';
-                    $output = $downloadTable->run()->render(true);
-                    $downloadTable->run();
-                    $downloadTable->exportToXLSX('DownloadReport')->toBrowser($excelFilename);
-                    exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
-                    break;
-                default:
-                    $output = $downloadTable->run()->render('DownloadReport', true);
-                    $pdfFilename = 'Download '.$anlage->getAnlName().' - '.$currentDate.'.pdf';
-                    $settings = [
-                        // 'useLocalTempFolder' => true,
-                        'pageWaiting' => 'networkidle2', // load, domcontentloaded, networkidle0, networkidle2
-                    ];
-
-                    $downloadTable->run();
-                    $pdfOptions = [
-                        'format' => 'A4',
-                        'landscape' => $landscape,
-                        'noRepeatTableFooter' => false,
-                        'printBackground' => true,
-                        'displayHeaderFooter' => true,
-                    ];
-
-                    $downloadTable->cloudExport('DownloadReport')
-                        ->chromeHeadlessio($secretToken)
-                        ->settings($settings)
-                        ->pdf($pdfOptions)
-                        ->toBrowser($pdfFilename);
-                    exit;
-            }
-        }
         if ($form->isSubmitted()) {
-            $report = $downloadTable->run()->render(true);
+            $report = $outputtable;
 
-            // specify the route to the binary.
-            $pdf = new ChromePdf('/usr/bin/chromium');
-
-            // Route when PDF will be saved.
-            $pdf->output('/usr/home/pvpluy/public_html/result.pdf');
-
-            $pdf->generateFromHtml($report);
-
-            $filename = '/usr/home/pvpluy/public_html/result.pdf';
-            $pdf->output($filename);
-            // Header content type
-            header('Content-type: application/pdf');
-
-            header('Content-Length: '.filesize($filename));
 
         // Send the file to the browser.
         // readfile($filename);
@@ -305,11 +237,16 @@ class DownloadController extends AbstractController
             $report = '';
         }
 
+
+
         return $this->render('downloadData/download.html.twig', [
             'downloadAnalysesExportForm' => $formPdfDownload->createView(),
             'downloadAnalysesForm' => $form->createView(),
+            'tableType' => $tableType,
+            'showAvailability' => $showAvailability,
+            'showAvailabilitySecond' => $showAvailabilitySecond,
+            'useGridMeterDayData' => $useGridMeterDayData,
             'report' => $report,
-            'download' => '',
             'section' => 'analyse',
         ]);
     }
