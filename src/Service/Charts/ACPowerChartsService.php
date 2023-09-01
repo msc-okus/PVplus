@@ -851,7 +851,7 @@ class ACPowerChartsService
         return $dataArray;
     }
     /**
-     * Erzeugt Pnom Power Chart auf der AC Seite
+     * Erzeugt die Daten für den Pnom Power Chart auf der AC Seite
      * MS 02/23 update 03/29
      * @param $from
      * @param $to
@@ -866,21 +866,8 @@ class ACPowerChartsService
         $dataArray = [];
         $pnominverter = $anlage->getPnomInverterArray();
         $counter = 0;$counterInv = 0;
-        // wird nicht verwendet kann gelöscht werden.
-        // $group = 1;
-        // $anlagename = $anlage->getAnlName();
-        // $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
-        // $zenith = 90 + 50 / 60;
-        // $current_date = strtotime(str_replace("T", "", $from));
-        // $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-        // $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-        // $sunArray = $this->WeatherServiceNew->getSunrise($anlage,$from);
-        // $sunrise = $sunArray[$anlagename]['sunrise'];
-        // $sunset = $sunArray[$anlagename]['sunset'];
-        // $from = date('Y-m-d H:00', $sunrise - 3600);
-        // $to = date('Y-m-d H:00', $sunset + 5400);
 
-        // make the difference time format
+        // make the difference in time format
         $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
         $to = self::timeAjustment($to, 1);
 
@@ -914,7 +901,7 @@ class ACPowerChartsService
             $min = 1;$max = 5;
             $sqladd = "AND $group BETWEEN '$min' AND ' $max'";
         }
-        // array for range slider
+        // the array for range slider min max
         $dataArray['minSeries'] = $min;
         $dataArray['maxSeries'] = $max;
         $dataArray['sumSeries'] = $groupct;
@@ -958,6 +945,7 @@ class ACPowerChartsService
             }
             $dataArray['offsetLegend'] = 0;
         }
+        // The generated data Array for the range slider and Chart
         return $dataArray;
    }
 }

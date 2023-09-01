@@ -1,5 +1,5 @@
 <script>
-    // Date RangePicker Config and Function
+    // The date RangePicker Config and Functions
     $(function () {
         [startDate, endDate] = $('.daterange span').html().split(' - ');
         // Predefine the startDate and endDate
@@ -113,7 +113,7 @@
             $('.ranges li.active').removeClass('active');
             $('.ranges li[data-range-key="' + labelfr + '"]').addClass('active');
         });
-        // query the button lastday
+        // query the button lastDay
         $('.button .lastday').click(function () {
             [startDate, endDate] = $('.daterange span').html().split(' - ');
             switch (labelfr) {
@@ -161,7 +161,7 @@
             $("#mysubmit").val('yes');
             $("#chart-control").delay(100).submit();
         });
-        // query the button nextday
+        // query the button nextDay
         $('.button .nextday').click(function () {
             [startDate, endDate] = $('.daterange span').html().split(' - ');
             let checkfutday = moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD');
@@ -228,7 +228,7 @@
     {% endif %}
 
     <script>
-        // Range Slider Config and Function
+        // The range slider config and functions
         $(function () {
             $("#slider-range").slider({
                     range: true,
@@ -239,22 +239,18 @@
                 {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
                 slide
         :
-
             function (event, ui) {
                 $("#sview").val("" + ui.values[0] + "-" + ui.values[1] + "");
                 $("#sviewhidden").val("[" + ui.values[0] + "," + ui.values[1] + "]");
             }
-
         ,
             change: function (event, ui) {
                 if ((ui.values[1] - ui.values[0]) > 100) {
                     alert("The selected range is greater than 100, which can lead to delays in the view!");
-                }
-                ;
+                };
                 $("#sendrange").css("background-color", "#e6e6e6");
             }
-        })
-            ;
+        });
             $("#sview").val("" + $("#slider-range").slider("values", 0) + "-" + $("#slider-range").slider("values", 1) + "");
             $("#sviewhidden").val("[" + $("#slider-range").slider("values", 0) + "," + $("#slider-range").slider("values", 1) + "]");
             $("#goshare").click(function () {

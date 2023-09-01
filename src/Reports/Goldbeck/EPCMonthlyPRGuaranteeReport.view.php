@@ -291,7 +291,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
             if ($headlines['reportStatus'] == 1) {
                 $excludedColumns[] = 'prReal_prDesign';
                 $excludedColumns[] = 'dummy';
-                $excludedColumns[] = 'eGridReal-Design';
+                $excludedColumns[] = 'eGridRealDesign';
                 $excludedColumns[] = 'prReal_prGuar';
                 $excludedColumns[] = 'prReal_prProg';
                 $excludedColumns[] = 'anteil';
@@ -372,7 +372,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                         'label' => '',
                         'cssStyle' => 'background-color: #767676;',
                     ],
-                    'eGridReal-Design' => [
+                    'eGridRealDesign' => [
                         'type' => 'number',
                         'label' => 'EGrid<sub><small>_Real_M</small></sub> -<br>EGrid<sub><small>_Design_M</small></sub><br>[kWh]',
                         'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },

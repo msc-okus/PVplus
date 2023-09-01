@@ -65,7 +65,7 @@ class ForcastWriteDBCommand extends Command {
             $io->error("abort : load the metodat file first");
             exit();
         }
-        // Wenn datfile
+        // Wenn datfileS
         if (count($datfiledata->current()) > 1) {
             $io->info("data read ! please wait");
             $reg_data = new Service\Forecast\APINasaGovService($input_gl, $input_gb, $startapidate, $endapidate);

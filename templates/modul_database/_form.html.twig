@@ -1,0 +1,95 @@
+
+
+{{ form_start(modulesDBForm, {'attr': {'novalidate': 'no'}}) }}
+<div class="grid-x">
+    <div class="cell">
+
+        <ul class="tabs" data-tabs id="moduleDB" data-deep-link="true">
+            <li class="tabs-title is-active"><a href="#base" aria-selected="true">Info</a></li>
+            <li class="tabs-title "><a href="#temp" aria-selected="true"> Tmp. Ref.</a></li>
+            <li class="tabs-title "><a href="#mpp" aria-selected="true">MPP</a></li>
+            <li class="tabs-title "><a href="#operatorc" aria-selected="true">Operator Current</a></li>
+            <li class="tabs-title "><a href="#operatorp" aria-selected="true">Operator Power</a></li>
+            <li class="tabs-title "><a href="#operatorv" aria-selected="true">Operator Voltage</a></li>
+            <li class="tabs-title "><a href="#factores" aria-selected="true">Factores</a></li>
+        </ul>
+
+        <div class="tabs-content" data-tabs-content="moduleDB">
+            <div class="tabs-panel is-active" id="base">
+                <div class="grid-y grid-padding-y">
+                   {{ form_row(modulesDBForm.type) }}
+                   {{ form_row(modulesDBForm.power) }}
+                </div>
+            </div>
+            <div class="tabs-panel" id="temp">
+                <div class="grid-y grid-padding-y">
+                {{ form_row(modulesDBForm.tempCoefCurrent) }}
+                {{ form_row(modulesDBForm.tempCoefVoltage) }}
+                {{ form_row(modulesDBForm.tempCoefPower) }}
+                </div>
+            </div>
+            <div class="tabs-panel" id="mpp">
+                <div class="grid-y grid-padding-y">
+                {{ form_row(modulesDBForm.maxImpp) }}
+                {{ form_row(modulesDBForm.maxUmpp) }}
+                {{ form_row(modulesDBForm.maxPmpp) }}
+                </div>
+            </div>
+            <div class="tabs-panel" id="operatorc">
+                <div class="grid-y grid-padding-y">
+                {{ form_row(modulesDBForm.operatorCurrentA) }}
+                {{ form_row(modulesDBForm.operatorCurrentB) }}
+                {{ form_row(modulesDBForm.operatorCurrentC) }}
+                {{ form_row(modulesDBForm.operatorCurrentD) }}
+                {{ form_row(modulesDBForm.operatorCurrentE) }}
+                {{ form_row(modulesDBForm.operatorCurrentHighA) }}
+                </div>
+            </div>
+
+            <div class="tabs-panel" id="operatorp">
+                <div class="grid-y grid-padding-y">
+                {{ form_row(modulesDBForm.operatorPowerA) }}
+                {{ form_row(modulesDBForm.operatorPowerB) }}
+                {{ form_row(modulesDBForm.operatorPowerC) }}
+                {{ form_row(modulesDBForm.operatorPowerD) }}
+                {{ form_row(modulesDBForm.operatorPowerE) }}
+                {{ form_row(modulesDBForm.operatorPowerHighA) }}
+                {{ form_row(modulesDBForm.operatorPowerHighB) }}
+                </div>
+            </div>
+
+            <div class="tabs-panel" id="operatorv">
+                <div class="grid-y grid-padding-y">
+                {{ form_row(modulesDBForm.operatorVoltageA) }}
+                {{ form_row(modulesDBForm.operatorVoltageB) }}
+                {{ form_row(modulesDBForm.operatorVoltageHightA) }}
+                {{ form_row(modulesDBForm.operatorVoltageHightB) }}
+                {{ form_row(modulesDBForm.operatorVoltageHightC) }}
+                </div>
+            </div>
+
+            <div class="tabs-panel" id="factores">
+                <div class="grid-y grid-padding-y">
+                {{ form_row(modulesDBForm.backSideFactor) }}
+                {{ form_row(modulesDBForm.degradation) }}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+<div class="grid-x">
+    <div class="cell">
+        {{ form_widget(modulesDBForm.save) }}
+        {{ form_widget(modulesDBForm.saveclose) }}
+        {{ form_widget(modulesDBForm.close) }}
+    </div>
+</div>
+{{ form_end(modulesDBForm) }}
+
+
+

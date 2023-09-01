@@ -52,7 +52,6 @@ class ReportEpcService
     public function createEpcReport(Anlage $anlage, DateTime $date): string
     {
         $currentDate = date('Y-m-d H-i');
-        $pdfFilename = 'EPC Report '.$anlage->getAnlName().' - '.$currentDate.'.pdf';
         $error = false;
         $output = '';
         switch ($anlage->getEpcReportType()) {
@@ -264,7 +263,7 @@ class ReportEpcService
                         'spezErtragDesign'  => $this->format($spezErtragDesign),
                         'prGuar'            => $this->format($prGuarantie),
                         'eGridReal'         => $this->format($eGridReal),
-                        'eGridReal-Design'  => $this->format($eGridReal - $ertragPvSyst),
+                        'eGridRealDesign'  => $this->format($eGridReal - $ertragPvSyst),
                         'spezErtrag'        => $this->format($eGridReal / $anlage->getPnom(), 2),
                         'prReal'            => $this->format($prReal),
                         'prReal_prDesign'   => $this->format($prReal - $prDesignPvSyst),
@@ -293,7 +292,7 @@ class ReportEpcService
                 'spezErtragDesign'      => $this->format($sumErtragDesign / ($anlage->getKwPeakPvSyst() > 0 ? $anlage->getKwPeakPvSyst() : $anlage->getPnom())),
                 'prGuar'                => $this->format($anlage->getContractualPR()),
                 'eGridReal'             => $this->format($sumEGridReal),
-                'eGridReal-Design'      => $this->format($sumEGridRealDesign),
+                'eGridRealDesign'      => $this->format($sumEGridRealDesign),
                 'spezErtrag'            => $this->format($sumEGridReal / $anlage->getPnom()),
                 'prReal'                => $this->format($sumPrReal / $counter),
                 'prReal_prDesign'       => $this->format(($sumPrReal / $counter) - $anlage->getDesignPR()), // PR Real minus PR Design
@@ -309,7 +308,7 @@ class ReportEpcService
         }
         // Real / Aktuell (nur bis zum aktuellen Monat, Bsp Sep20 bis Jan 20
         $report[0][] = [
-            'month'                 => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Real&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>'.$realDateText,
+            'month'                 => 'Real'.$realDateText,
             'days'                  => 'months: '.$monateReal,
             'irradiation'           => $this->format($sumIrrMonth),
             'prDesign'              => $this->format($anlage->getDesignPR()),
@@ -317,7 +316,7 @@ class ReportEpcService
             'spezErtragDesign'      => $this->format($sumErtragDesignReal / ($anlage->getKwPeakPvSyst() > 0 ? $anlage->getKwPeakPvSyst() : $anlage->getPnom())),
             'prGuar'                => $this->format($anlage->getContractualPR()),
             'eGridReal'             => $this->format($sumEGridRealReal),
-            'eGridReal-Design'      => $this->format($sumEGridRealDesignReal),
+            'eGridRealDesign'      => $this->format($sumEGridRealDesignReal),
             'spezErtrag'            => $this->format($sumEGridRealReal / $anlage->getPnom()),
             'prReal'                => $this->format($formelPR),
             'prReal_prDesign'       => $this->format($formelPR - $anlage->getDesignPR()),

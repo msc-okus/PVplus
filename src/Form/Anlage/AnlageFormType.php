@@ -963,6 +963,14 @@ class AnlageFormType extends AbstractType
                 'delete_empty' => true,
                 'by_reference' => false,
             ])
+            ->add('anlageSunShading', CollectionType::class, [
+                'entry_type' => SunShadingListEmbeddedFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
+                'mapped' => true,
+            ])
 
             // #############################################
             // ###          STEUERELEMENTE              ####
