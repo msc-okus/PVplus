@@ -53,6 +53,7 @@
         "symfony/flex": "^2.3.3",
         "symfony/form": "6.3.*",
         "symfony/framework-bundle": "6.3.*",
+        "symfony/http-foundation": "6.3.*",
         "symfony/mailer": "6.3.*",
         "symfony/maker-bundle": "^1.43",
         "symfony/messenger": "6.3.*",

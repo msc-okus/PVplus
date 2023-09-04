@@ -49,13 +49,14 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class ReportingController extends AbstractController
 {
     use G4NTrait;
     use PVPNameArraysTrait;
 
-    public function __construct(private $kernelProjectDir)
+    public function __construct(private $kernelProjectDir,private RequestStack $requestStack,)
     {
     }
 
@@ -244,7 +245,7 @@ class ReportingController extends AbstractController
     public function showReportAsPdf(Request $request, $id, ReportEpcService $reportEpc, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
     {
         /** @var AnlagenReports|null $report */
-        $session            = $request->getSession();
+        $session            = $this->requestStack->getSession();
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');
