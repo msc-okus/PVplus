@@ -11,9 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-/**
- * @IsGranted("ROLE_G4N")
- */
+#[IsGranted('ROLE_G4N')]
 class DefaultController extends BaseController
 {
     use G4NTrait;

@@ -3,8 +3,10 @@
 namespace App\Service;
 
 use Gedmo\Sluggable\Util\Urlizer;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
 use Symfony\Component\Asset\Context\RequestStackContext;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -17,12 +19,16 @@ class UploaderHelper
     public const CSV = 'csv';
 
     public function __construct(
-        private FilesystemInterface $filesystem,
+        private $publicAssetBaseUrl,
+        private Filesystem $filesystem,
         private RequestStackContext $requestStackContext,
         private KernelInterface $kernel)
     {
     }
 
+    /**
+     * @throws FilesystemException
+     */
     public function uploadImage(UploadedFile $uploadedFile, $id, string $type): array
     {
         $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -50,6 +56,7 @@ class UploaderHelper
             $foldern.$id.'/'.$newFilename,
             file_get_contents($uploadedFile->getPathname())
         );
+
         $result = [
             'mimeType' => $mimeType,
             'newFilename' => $newFilename,
@@ -59,6 +66,9 @@ class UploaderHelper
         return $result;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function uploadArticleReference(File $file): string
     {
         return $this->uploadFile($file, self::PLANT_REFERENCE, false);
@@ -80,6 +90,7 @@ class UploaderHelper
 
     /**
      * @return resource
+     * @throws FilesystemException
      */
     public function readStream(string $path)
     {
@@ -92,13 +103,15 @@ class UploaderHelper
         return $resource;
     }
 
-    public function deleteFile(string $path)
+    public function deleteFile(string $path): void
     {
+        /*
         $result = $this->filesystem->delete($path);
 
         if ($result === false) {
             throw new \Exception(sprintf('Error deleting "%s"', $path));
         }
+        */
     }
 
     public function uploadFile(File $file, string $directory, bool $isPublic): string

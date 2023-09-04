@@ -34,10 +34,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-/**
- * @IsGranted("ROLE_G4N")
- *
- */
+
 class AnlagenAdminController extends BaseController
 {
     use G4NTrait;

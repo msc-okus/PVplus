@@ -31,9 +31,7 @@ use Hisune\EchartsPHP\Doc\IDE\XAxis;
 use Hisune\EchartsPHP\ECharts;
 use Twig\Environment;
 
-/**
- * @IsGranted("ROLE_G4N")
- */
+#[IsGranted('ROLE_G4N')]
 class DefaultJMController extends AbstractController
 {
     use G4NTrait;

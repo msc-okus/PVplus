@@ -14,10 +14,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-/**
- * @IsGranted("ROLE_G4N")
- */
 #[deprecated]
+#[IsGranted('ROLE_G4N')]
 class CronController extends BaseController
 {
     use G4NTrait;

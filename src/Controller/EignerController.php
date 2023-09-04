@@ -16,9 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("ROLE_G4N")
- */
+#[IsGranted('ROLE_G4N')]
 class EignerController extends BaseController
 {
     #[Route(path: '/admin/owner/new', name: 'app_admin_owner_new')]

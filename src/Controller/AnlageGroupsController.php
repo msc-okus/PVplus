@@ -17,10 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("ROLE_G4N")
- */
 #[Route('/anlage/groups')]
+#[IsGranted('ROLE_ADMIN')]
 class AnlageGroupsController extends AbstractController
 {
     #[Route('/', name: 'app_anlage_groups_index', methods: ['GET','POST'])]

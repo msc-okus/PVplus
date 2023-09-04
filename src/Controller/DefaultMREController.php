@@ -37,9 +37,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-/**
- * @IsGranted("ROLE_G4N")
- */
+#[IsGranted('ROLE_G4N')]
 class DefaultMREController extends BaseController
 {
     use G4NTrait;

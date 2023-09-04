@@ -11,7 +11,6 @@ use App\Repository\AnlagenRepository;
 use App\Service\ImportService;
 use App\Service\LogMessagesService;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;

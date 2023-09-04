@@ -60,7 +60,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/import/cron, roles: PUBLIC_ACCESS, ips: [127.0.0.1, 37.17.224.142, 62.91.87.146, 87.140.79.244, 2003:a:117f:8ff4:3e37:12ff:fe60:a502/64]}
-        - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_USER }
         - { path: ^/, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }
