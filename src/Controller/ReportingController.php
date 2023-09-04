@@ -244,7 +244,7 @@ class ReportingController extends AbstractController
     public function showReportAsPdf(Request $request, $id, ReportEpcService $reportEpc, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
     {
         /** @var AnlagenReports|null $report */
-        $session            = $this->container->get('session');
+        $session            = $request->getSession();
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');
@@ -741,7 +741,7 @@ class ReportingController extends AbstractController
     #[Route(path: '/reporting/newExcel/{id}', name: 'app_reporting_new_excel')]
     public function showReportAsNewExcel($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, ReportsMonthlyService $reportsMonthly): RedirectResponse
     {
-        $session = $this->container->get('session');
+        $session = $request->getSession();
         $searchstatus = $session->get('search');
         $searchtype = $session->get('type');
         $anlageq = $session->get('anlage');
@@ -1203,8 +1203,7 @@ class ReportingController extends AbstractController
     public function newShowReportAsPdf($id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, $tempPathBaseUrl, $kernelProjectDir)
     {
         /** @var AnlagenReports|null $report */
-        $session = $this->container->get('session');
-        #$pdf = new PdfService($tempPathBaseUrl);
+        $session = $request->getSession();
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');

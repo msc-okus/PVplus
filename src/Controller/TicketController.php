@@ -275,7 +275,7 @@ class TicketController extends BaseController
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, RequestStack $requestStack): Response
     {
         $filter = [];
-        $session = $requestStack->getSession();
+        $session = $request->getSession();
         $pageSession = $session->get('page');
         $page = $request->query->getInt('page');
 
