@@ -34,7 +34,7 @@
 
     <table style="width: 100% !important; margin-bottom: 10px;">
         <tr>
-            <td style="width: 50%">
+            <td style="width: 40%">
                 {% if headline.reportStatus %}
                     <h3 style="text-align: left;">PR Forecast <small>{{ forecast.0.forecastDateText }}</small></h3>
                     <table class="basetable">
@@ -55,7 +55,8 @@
                     </table>
                 {% endif %}
             </td>
-            <td style="width: 50%">
+            <td style="width: 20%">&nbsp;</td>
+            <td style="width: 40%">
                 <h3 style="text-align: left;">PR Real <small>{{ forecast_real.0.forecastDateText }}</small></h3>
                 <table class="basetable">
                     <thead>
@@ -79,8 +80,8 @@
         </tr>
     </table>
     <table class="" style="width: 100% !important; margin-bottom: 10px;">
-        <tr>
-            <td style="width: 50%; text-align: center;">
+        <tr style="width: 40%">
+            <td>
                 {% if ( formel.0.algorithmus != 'Groningen'  ) and ( formel.0.algorithmus != 'Veendam' ) and ( formel.0.algorithmus != 'Lelystad' ) %}
                     <img src='{{ absolute_url(asset('/images/temp/prFormelStandard.png')) }}' style='max-width: 400px'>
                 {% endif %}
@@ -94,71 +95,22 @@
                     <img src='{{ absolute_url(asset('/images/temp/prFormelLelystad.png')) }}' style='max-width: 400px'>
                 {% endif %}
             </td>
-            <td style="width: 50%; text-align: center;">
-                {% if ( formel.0.algorithmus != 'Groningen'  ) and ( formel.0.algorithmus != 'Veendam' ) and ( formel.0.algorithmus != 'Lelystad' ) %}
-                    <table style="width: 80%;">
-                        <tr>
-                            <td style='text-align: center'>{{ formel.0.eGridReal|number_format(2,',','.') }} kWh</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td style='text-align: center'>------------------------</td>
-                            <td style='text-align: center'>=</td>
-                            <td style='text-align: center'>{{ formel.0.prReal|number_format(2,',','.') }} %</td>
-                        </tr>
-                        <tr>
-                            <td style='text-align: center'>{{ formel.0.theoPower|number_format(2,',','.') }} kWh</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </table>
-                {% endif %}
-                {% if ( formel.0.algorithmus == 'Veendam' ) %}
+            <td style="width: 20%">&nbsp;</td>
+            <td style="width: 40%;">
+                {% if ( formel.0.algorithmus != 'Groningen'  ) and ( formel.0.algorithmus != 'Lelystad' ) %}
                     <table class="basetable">
                         <tr>
                             <td style='text-align: center'>{{ formel.0.eGridReal|number_format(2,',','.') }} kWh</td>
                             <td></td>
                             <td></td>
-                            <td></td>
-                            <td></td>
                         </tr>
                         <tr>
-                            <td style='text-align: center'>----------------------------</td>
-                            <td style='text-align: center'>x</td>
-                            <td style='text-align: center'>100</td>
+                            <td style='text-align: center'>------------------------------------------------</td>
                             <td style='text-align: center'>=</td>
                             <td style='text-align: center'>{{ formel.0.prReal|number_format(2,',','.') }} %</td>
                         </tr>
                         <tr>
-                            <td style='text-align: center'>{{ formel.0.theoPower|number_format(2,',','.') }} kWh * {{ formel.0.availability|number_format(2,',','.') }}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </table>
-                {% endif %}
-                {% if ( formel.0.algorithmus == 'Lelystad' ) %}
-                    <table>
-                        <tr>
-                            <td style='text-align: center'>{{ formel.0.eGridReal|number_format(2,',','.') }} kWh</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td style='text-align: center'>----------------------------</td>
-                            <td style='text-align: center'>x</td>
-                            <td style='text-align: center'>100</td>
-                            <td style='text-align: center'>=</td>
-                            <td style='text-align: center'>{{ formel.0.prReal|number_format(2,',','.') }} %</td>
-                        </tr>
-                        <tr>
-                            <td style='text-align: center'>{{ formel.0.theoPower|number_format(2,',','.') }} kWh * {{ formel.0.availability|number_format(2,',','.') }}</td>
-                            <td></td>
-                            <td></td>
+                            <td style='text-align: center'>{{ formel.0.theoPower|number_format(2,',','.') }} kWh</td>
                             <td></td>
                             <td></td>
                         </tr>

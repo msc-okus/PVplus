@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AnlagenReports;
 use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
@@ -14,15 +15,13 @@ use App\Service\LogMessagesService;
 use App\Service\PdfService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\Reports\ReportEpcService;
+use App\Service\Reports\ReportsEpcYieldV2;
 use App\Service\Reports\ReportsMonthlyService;
 use App\Service\Reports\ReportsMonthlyV2Service;
-use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Cache\InvalidArgumentException;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use setasign\Fpdi\Fpdi;
 use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
 use setasign\Fpdi\PdfParser\Filter\FilterException;
@@ -38,7 +37,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use App\Entity\AnlagenReports;
 
 class ReportingController extends AbstractController
 {
@@ -226,7 +224,7 @@ class ReportingController extends AbstractController
      * @throws FilterException
      */
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
-    public function showReportAsPdf(Request $request, $id, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, PdfService $pdf): Response
+    public function showReportAsPdf(Request $request, $id, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, PdfService $pdf): Response
     {
         /** @var AnlagenReports|null $report */
         $session            = $request->getSession();
@@ -529,14 +527,14 @@ class ReportingController extends AbstractController
      * @param Request $request
      * @param ReportService $reportService
      * @param NormalizerInterface $serializer
-     * @param ReportsEpcNewService $epcNewService
+     * @param ReportsEpcYieldV2 $epcNewService
      * @param ReportsMonthlyService $reportsMonthly
      * @return Response
      * @throws ExceptionInterface
      */
 
     #[Route(path: '/reporting/html/{id}', name: 'app_reporting_html')]
-    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, ReportService $reportService, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly) : Response
+    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, ReportService $reportService, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, ReportsMonthlyService $reportsMonthly) : Response
     {
         $result = "<h2>Something is wrong !!! (perhaps no Report ?)</h2>";
         $report = $reportsRepository->find($id);
