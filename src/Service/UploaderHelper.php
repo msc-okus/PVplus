@@ -3,9 +3,7 @@
 namespace App\Service;
 
 use Gedmo\Sluggable\Util\Urlizer;
-use League\Flysystem\AdapterInterface;
 use League\Flysystem\FilesystemInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Asset\Context\RequestStackContext;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -18,23 +16,11 @@ class UploaderHelper
     public const EIGNER_LOGO = 'eigners';
     public const CSV = 'csv';
 
-    private FilesystemInterface $filesystem;
-
-    private RequestStackContext $requestStackContext;
-
-    private LoggerInterface $logger;
-
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,FilesystemInterface $filesystem, RequestStackContext $requestStackContext, LoggerInterface $logger,KernelInterface $kernel)
+        private FilesystemInterface $filesystem,
+        private RequestStackContext $requestStackContext,
+        private KernelInterface $kernel)
     {
-        $this->filesystem = $filesystem;
-        $this->requestStackContext = $requestStackContext;
-        $this->logger = $logger;
-        $this->kernel = $kernel;
     }
 
     public function uploadImage(UploadedFile $uploadedFile, $id, string $type): array

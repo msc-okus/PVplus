@@ -71,7 +71,7 @@ class DefaultJMController extends AbstractController
 
 
     #[Route(path: '/test/read', name: 'default_read')]
-    public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am){
+    public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): \Symfony\Component\HttpFoundation\Response{
         $anlage = $ar->findIdLike("110")[0];
 
         return $this->render('base.html.twig');// this is suposed to never run so no problem
@@ -198,7 +198,7 @@ class DefaultJMController extends AbstractController
     }
 
     #[Route(path: '/test/pdfw', name: 'default_pdf')]
-    public function testpdfwaterfall(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am){
+    public function testpdfwaterfall(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): \Symfony\Component\HttpFoundation\Response{
         $anlage = $ar->findIdLike("57")[0];
 
 

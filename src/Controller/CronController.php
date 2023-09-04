@@ -34,7 +34,7 @@ class CronController extends BaseController
 
     #[Route(path: '/cron/checkSystemStatus', name: 'app_cron_checksystemstatus')]
     #[deprecated]
-    public function checkSystemStatus(checkSystemStatusService $checkSystemStatus)
+    public function checkSystemStatus(checkSystemStatusService $checkSystemStatus): \Symfony\Component\HttpFoundation\Response
     {
         $output = $checkSystemStatus->checkSystemStatus();
 
@@ -47,7 +47,7 @@ class CronController extends BaseController
 
     #[Route(path: '/cron/createMonthlyReport', name: 'app_cron_createmonthlyreport')]
     #[deprecated]
-    public function report(ReportService $report, AnlagenRepository $anlagenRepository)
+    public function report(ReportService $report, AnlagenRepository $anlagenRepository): \Symfony\Component\HttpFoundation\Response
     {
         /** @var Anlage $anlagen */
         $anlagen = $anlagenRepository->findAll();

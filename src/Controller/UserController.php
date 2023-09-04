@@ -41,7 +41,7 @@ class UserController extends BaseController
             $roles = $form->get('roles')->getData();
             $user = $form->getData();
 
-            if ($this->isGranted('ROLE_OWNER_ADMIN') && $security->getUser()->getUsername() != "admin" ) {
+            if ($this->isGranted('ROLE_OWNER_ADMIN') && $security->getUser()->getUserIdentifier() != "admin" ) {
                 $eignerDn = $security->getUser()->getEigners()[0];
                 $user->addEigner($eignerDn);
             }
@@ -245,7 +245,7 @@ class UserController extends BaseController
     // USER Löschen
     #[Route(path: 'admin/user/delete/{id}', name: 'app_admin_user_delete', methods: 'GET')]
     #[IsGranted(['ROLE_G4N'])]
-    public function delete($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security,)
+    public function delete($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security,): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         // To do Abfrage Yes No
         $user = $userRepository->find($id);

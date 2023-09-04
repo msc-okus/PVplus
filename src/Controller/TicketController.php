@@ -58,7 +58,7 @@ class TicketController extends BaseController
 
             $ticket->getDates()->first()->setBegin($ticket->getBegin());
             $ticket->getDates()->last()->setEnd($ticket->getEnd());
-            $ticket->setEditor($this->getUser()->getUsername());
+            $ticket->setEditor($this->getUser()->getUserIdentifier());
             $dates = $ticket->getDates();
 
             foreach ($dates as $date) {
@@ -75,7 +75,7 @@ class TicketController extends BaseController
 
             $em->flush();
 
-            return new Response(null, 204);
+            return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
 
         } elseif ($form->isSubmitted() && !$form->isValid()) {
             $anlage = $form->getData()->getAnlage();
@@ -156,7 +156,7 @@ class TicketController extends BaseController
             /** @var Ticket $ticket */
             $ticket = $form->getData();
             if($form->getData()->isIgnoreTicket()){
-                $ticket->setWhoHided($this->getUser()->getUsername());
+                $ticket->setWhoHided($this->getUser()->getUserIdentifier());
                 $ticket->setWhenHidded(date("Y-m-d H:i:s"));
             }
             else{
@@ -164,7 +164,7 @@ class TicketController extends BaseController
                 $ticket->setWhenHidded("");
             }
             $ticketDates = $ticket->getDates();
-            $ticket->setEditor($this->getUser()->getUsername());
+            $ticket->setEditor($this->getUser()->getUserIdentifier());
 
             if ($ticket->getStatus() === 30 && $ticket->getEnd() === null) {
                 $ticket->setEnd(new \DateTime('now'));
@@ -235,7 +235,7 @@ class TicketController extends BaseController
             $em->persist($ticket);
             $em->flush();
 
-            return new Response(null, 204);
+            return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
         }
         if ($ticket->getAlertType() >=70 && $ticket->getAlertType() < 80) $performanceTicket =  true;
         else $performanceTicket = false;
@@ -589,7 +589,7 @@ class TicketController extends BaseController
 
 
 
-            return new Response(null, 204);
+            return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
         }
         $anlage = $ticket->getAnlage();
 
@@ -645,8 +645,8 @@ class TicketController extends BaseController
         $newTicket->setInverter($request->query->get('inverterb'));
         $ticket->setInverter($request->query->get('invertera'));
 
-        $ticket->setEditor($this->getUser()->getUsername());
-        $newTicket->setEditor($this->getUser()->getUsername());
+        $ticket->setEditor($this->getUser()->getUserIdentifier());
+        $newTicket->setEditor($this->getUser()->getUserIdentifier());
 
         $newTicket->setStatus(10);
         $em->persist($ticket);
@@ -687,7 +687,7 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods: ['GET', 'POST'])]
-    public function join(TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
+    public function join(TicketRepository $ticketRepo, EntityManagerInterface $em): Response
     {
         $tickets = json_decode(file_get_contents('php://input'));
         $masterTicket = new Ticket();

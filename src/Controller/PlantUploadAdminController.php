@@ -26,7 +26,7 @@ class PlantUploadAdminController extends BaseController
 
     #[Route(path: '/admin/upload/{id}', name: 'upload_test')]
     #[Deprecated]
-    public function temporaryUploadAction($id, Request $request, UploaderHelper $uploaderHelper, EntityManagerInterface $entityManager): Response
+    public function temporaryUpload($id, Request $request, UploaderHelper $uploaderHelper, EntityManagerInterface $entityManager): Response
     {
         // $anlage = new AnlageFileUpload();
         $repositoryUpload = $entityManager->getRepository(AnlageFileUpload::class);

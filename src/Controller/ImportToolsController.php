@@ -85,7 +85,7 @@ class ImportToolsController extends BaseController
     }
 
     #[Route('/import/cron', name: 'import_cron')]
-    public function importCron(Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
+    public function importCron(AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
     {
         //getDB-Connection
         $conn = $entityManagerInterface->getConnection();
@@ -106,7 +106,7 @@ class ImportToolsController extends BaseController
             $importService->prepareForImport($plantId, $start, $end, '');
         }
 
-        return new Response('This is used for import via cron job.', 200, array('Content-Type' => 'text/html'));
+        return new Response('This is used for import via cron job.', \Symfony\Component\HttpFoundation\Response::HTTP_OK, array('Content-Type' => 'text/html'));
     }
 
 }

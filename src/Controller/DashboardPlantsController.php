@@ -75,12 +75,12 @@ class DashboardPlantsController extends BaseController
            case 'sollisttempanalyse':
                break;
            default:
-               return new Response(null, 204);
+               return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
         }
         if (is_array($content) or $content) {
             return new JsonResponse($content);
          } else {
-            return new Response(null, 204);
+            return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
         }
     }
     /**

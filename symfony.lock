@@ -25,9 +25,6 @@
     "chromeheadlessio/php-client": {
         "version": "1.0.0"
     },
-    "clue/stream-filter": {
-        "version": "v1.5.0"
-    },
     "composer/package-versions-deprecated": {
         "version": "1.11.99.3"
     },
@@ -172,17 +169,8 @@
     "laminas/laminas-code": {
         "version": "3.5.1"
     },
-    "league/flysystem": {
-        "version": "1.1.4"
-    },
-    "league/flysystem-cached-adapter": {
-        "version": "1.1.0"
-    },
     "league/html-to-markdown": {
         "version": "4.10.0"
-    },
-    "league/mime-type-detection": {
-        "version": "1.7.0"
     },
     "liip/imagine-bundle": {
         "version": "2.7",
@@ -224,12 +212,6 @@
             "config/packages/nelmio_cors.yaml"
         ]
     },
-    "nexylan/slack": {
-        "version": "v3.2.0"
-    },
-    "nexylan/slack-bundle": {
-        "version": "v2.2.1"
-    },
     "nikic/php-parser": {
         "version": "v4.6.0"
     },
@@ -249,19 +231,7 @@
         ]
     },
     "oneup/flysystem-bundle": {
-        "version": "3.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.0",
-            "ref": "e6c6440b279273a468e1f570b0fc1d4ff54ad69e"
-        }
-    },
-    "php-http/client-common": {
-        "version": "1.11.0"
-    },
-    "php-http/discovery": {
-        "version": "1.14.0"
+        "version": "1.2.0"
     },
     "php-http/guzzle6-adapter": {
         "version": "v1.1.1"
@@ -269,29 +239,8 @@
     "php-http/httplug": {
         "version": "v1.1.0"
     },
-    "php-http/httplug-bundle": {
-        "version": "1.6",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "1.6",
-            "ref": "87b3d491d593d2c6e3b90bf0689ac69a188bfa5f"
-        }
-    },
-    "php-http/logger-plugin": {
-        "version": "1.2.1"
-    },
-    "php-http/message": {
-        "version": "1.11.1"
-    },
-    "php-http/message-factory": {
-        "version": "v1.0.2"
-    },
     "php-http/promise": {
         "version": "1.1.0"
-    },
-    "php-http/stopwatch-plugin": {
-        "version": "1.4.0"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -341,21 +290,6 @@
     "rector/rector": {
         "version": "0.12.23"
     },
-    "sensio/framework-extra-bundle": {
-        "version": "5.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "5.2",
-            "ref": "fb7e19da7f013d0d422fa9bce16f5c510e27609b"
-        },
-        "files": [
-            "config/packages/sensio_framework_extra.yaml"
-        ]
-    },
-    "stakovicz/ux-collection": {
-        "version": "0.0.4"
-    },
     "stof/doctrine-extensions-bundle": {
         "version": "1.7",
         "recipe": {
@@ -367,9 +301,6 @@
         "files": [
             "config/packages/stof_doctrine_extensions.yaml"
         ]
-    },
-    "symfony/amqp-messenger": {
-        "version": "v5.4.5"
     },
     "symfony/asset": {
         "version": "v5.1.2"
@@ -418,9 +349,6 @@
     },
     "symfony/doctrine-bridge": {
         "version": "v5.1.2"
-    },
-    "symfony/doctrine-messenger": {
-        "version": "v5.4.3"
     },
     "symfony/dotenv": {
         "version": "v5.1.2"
@@ -558,9 +486,6 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.17.1"
     },
-    "symfony/polyfill-php73": {
-        "version": "v1.17.1"
-    },
     "symfony/polyfill-php80": {
         "version": "v1.17.1"
     },
@@ -578,9 +503,6 @@
     },
     "symfony/proxy-manager-bridge": {
         "version": "v5.3.4"
-    },
-    "symfony/redis-messenger": {
-        "version": "v5.4.6"
     },
     "symfony/routing": {
         "version": "5.4",
@@ -614,9 +536,6 @@
         "version": "v5.1.2"
     },
     "symfony/security-csrf": {
-        "version": "v5.1.2"
-    },
-    "symfony/security-guard": {
         "version": "v5.1.2"
     },
     "symfony/security-http": {

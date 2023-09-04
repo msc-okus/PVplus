@@ -34,7 +34,7 @@ class ForcastWriteDBCommand extends Command {
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output){
+    protected function execute(InputInterface $input, OutputInterface $output): int{
 
         $em = $this->entityManager;
         $io = new SymfonyStyle($input, $output);

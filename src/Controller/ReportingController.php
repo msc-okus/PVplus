@@ -202,7 +202,7 @@ class ReportingController extends AbstractController
             $em->flush();
 
             if ($request->isXmlHttpRequest()) {
-                return new Response(null, 204);
+                return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
             }
         }
 
@@ -229,7 +229,7 @@ class ReportingController extends AbstractController
             }
         }
 
-        return new Response(null, 204);
+        return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
     }
 
     /**
@@ -1202,7 +1202,7 @@ class ReportingController extends AbstractController
      * generate PDF
      */
     #[Route(path: '/new_reporting/pdf/{id}', name: 'app_reporting_new_pdf')]
-    public function newShowReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, $tempPathBaseUrl, $kernelProjectDir)
+    public function newShowReportAsPdf($id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, $tempPathBaseUrl, $kernelProjectDir)
     {
         /** @var AnlagenReports|null $report */
         $session = $this->container->get('session');

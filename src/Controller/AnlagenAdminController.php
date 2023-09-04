@@ -111,7 +111,7 @@ class AnlagenAdminController extends BaseController
 
     #[Route(path: '/admin/anlagen/delete/sunshading/{id}/{sadid}/{token}', name: 'app_admin_anlagen_delete_sun_shading')]
     #[IsGranted(['ROLE_DEV'])]
-    public function delete_sunshading_model($id,$sadid, $token, EntityManagerInterface $em, Request $request, AnlageSunShadingRepository $anlageSunShadingRepository): Response
+    public function delete_sunshading_model($id,$sadid, $token, EntityManagerInterface $em, AnlageSunShadingRepository $anlageSunShadingRepository): Response
     {
 
         if ($this->isCsrfTokenValid('deletesunshadingmodel'.$sadid, $token)) {
@@ -318,7 +318,7 @@ class AnlagenAdminController extends BaseController
     }
 
     #[Route(path: '/admin/anlagen/download/{id}/{dir}/{file}', name: 'download_file', methods: ['GET','POST'])]
-    public function downloadFileAction($id, $dir, $file, AnlagenRepository $anlagenRepository, KernelInterface $kernel) {
+    public function downloadFile($id, $dir, $file, AnlagenRepository $anlagenRepository, KernelInterface $kernel) {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageDcGroupsFormType::class, $anlage, [
             'anlagenId' => $id,
@@ -343,12 +343,12 @@ class AnlagenAdminController extends BaseController
 
     }
     #[Route(path: '/admin/anlagen/buildforcast/{id}', name: 'app_admin_anlagen_build_forecast', methods: ['GET','POST'])]
-    public function buildForcast($id, Request $request,  AnlagenRepository $anlagenRepository, KernelInterface $kernel): RedirectResponse|Response
+    public function buildForcast($id,  AnlagenRepository $anlagenRepository, KernelInterface $kernel): RedirectResponse|Response
     {
 
         $anlage = $anlagenRepository->find($id);
         $response = new Response();
-        $response->setStatusCode(200);
+        $response->setStatusCode(\Symfony\Component\HttpFoundation\Response::HTTP_OK);
 
         $application = new Application($kernel);
         $application->setAutoExit(false);
@@ -486,7 +486,7 @@ class AnlagenAdminController extends BaseController
 
     #[Route(path: '/admin/anlagen/delete/{id}', name: 'app_admin_anlage_delete')]
     #[IsGranted(['ROLE_DEV'])]
-    public function delete($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, Security $security): RedirectResponse
+    public function delete($id, EntityManagerInterface $em, AnlagenRepository $anlagenRepository, Security $security): RedirectResponse
     {
         if ($this->isGranted('ROLE_DEV')) {
             /** @var Anlage|null $anlage */
