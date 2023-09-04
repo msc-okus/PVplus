@@ -916,12 +916,12 @@ class AssetManagementService
             'data' => $powerExp,
             'visualMap' => 'false',
         ];
-            $series[] = [
-                'name' => 'Yield',
-                'type' => 'bar',
-                'data' => $powerEvu,
-                'visualMap' => 'false',
-            ];
+        $series[] = [
+            'name' => 'Yield',
+            'type' => 'bar',
+            'data' => $powerEvu,
+            'visualMap' => 'false',
+        ];
 
         $chart->series = $series;
 
@@ -985,7 +985,7 @@ class AssetManagementService
             'type' => 'bar',
             'data' => $powerEvu,
             'visualMap' => 'false',
-            ];
+        ];
         $series[] = [
             'name' => 'Expected g4n',
             'type' => 'bar',
@@ -993,12 +993,12 @@ class AssetManagementService
             'visualMap' => 'false',
 
         ];
-            $series[] = [
-                'name' => 'Forecast',
-                'type' => 'bar',
-                'data' => $forecast,
-                'visualMap' => 'false',
-            ];
+        $series[] = [
+            'name' => 'Forecast',
+            'type' => 'bar',
+            'data' => $forecast,
+            'visualMap' => 'false',
+        ];
         $chart->series = $series;
 
         $option = [
@@ -1056,7 +1056,7 @@ class AssetManagementService
         $PVSYSExpSum[0] = $forecast[0];
         for ($i = 0; $i < 12; ++$i) {
 
-                $PVSYSExpSum[$i] = $forecast[$i] + $PVSYSExpSum[$i - 1];
+            $PVSYSExpSum[$i] = $forecast[$i] + $PVSYSExpSum[$i - 1];
 
             $tbody_forecast_plan_PVSYSTP50[] = $PVSYSExpSum[$i];
 
@@ -1396,21 +1396,21 @@ class AssetManagementService
             'name' => 'KWH',
         ];
 
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Difference ACT to expected g4n',
-                            'type' => 'line',
-                            'data' => $difference_Egrid_to_Expected_G4n,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference ACT to forecast',
-                            'type' => 'line',
-                            'data' => $difference_actual_forecast,
-                            'visualMap' => 'false',
-                        ]
-                    ];
+        $chart->series =
+            [
+                [
+                    'name' => 'Difference ACT to expected g4n',
+                    'type' => 'line',
+                    'data' => $difference_Egrid_to_Expected_G4n,
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'Difference ACT to forecast',
+                    'type' => 'line',
+                    'data' => $difference_actual_forecast,
+                    'visualMap' => 'false',
+                ]
+            ];
 
         $option = [
             'animation' => false,
@@ -1516,13 +1516,13 @@ class AssetManagementService
             $var = round((1 - $forecast[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2);
         }
 
-            $operations_monthly_right_pvsyst_tr1 = [
-                $monthName . ' ' . $report['reportYear'],
-                $powerEvu[$report['reportMonth'] - 1],
-                $forecast[$report['reportMonth'] - 1],
-                $powerEvu[$report['reportMonth'] - 1] - $forecast[$report['reportMonth'] - 1],
-                $var,
-            ];
+        $operations_monthly_right_pvsyst_tr1 = [
+            $monthName . ' ' . $report['reportYear'],
+            $powerEvu[$report['reportMonth'] - 1],
+            $forecast[$report['reportMonth'] - 1],
+            $powerEvu[$report['reportMonth'] - 1] - $forecast[$report['reportMonth'] - 1],
+            $var,
+        ];
 
 
         $start = $report['reportYear'].'-01-01 00:00';
@@ -1538,13 +1538,13 @@ class AssetManagementService
             $expectedPvSystQ1 = 0;
 
 
-                if ($month >= 3) {
-                    $expectedPvSystQ1 = $forecast[0] + $forecast[1] + $forecast[2];
-                } else {
-                    for ($i = 0; $i <= intval($report['reportMonth']); ++$i) {
-                        $expectedPvSystQ1 += $forecast[$i];
-                    }
+            if ($month >= 3) {
+                $expectedPvSystQ1 = $forecast[0] + $forecast[1] + $forecast[2];
+            } else {
+                for ($i = 0; $i <= intval($report['reportMonth']); ++$i) {
+                    $expectedPvSystQ1 += $forecast[$i];
                 }
+            }
             $operations_monthly_right_pvsyst_tr2 = [
                 $powerEvuQ1,
                 $expectedPvSystQ1,
@@ -1572,13 +1572,13 @@ class AssetManagementService
 
         if (( $powerEvuQ2 > 0)) {
 
-                if ($month >= 6) {
-                    $expectedPvSystQ2 = $forecast[3] + $forecast[3][4] + $forecast[3][5];
-                } else {
-                    for ($i = 3; $i <= intval($report['reportMonth']); ++$i) {
-                        $expectedPvSystQ2 += $forecast[3][$i];
-                    }
+            if ($month >= 6) {
+                $expectedPvSystQ2 = $forecast[3] + $forecast[3][4] + $forecast[3][5];
+            } else {
+                for ($i = 3; $i <= intval($report['reportMonth']); ++$i) {
+                    $expectedPvSystQ2 += $forecast[3][$i];
                 }
+            }
 
 
             $operations_monthly_right_pvsyst_tr3 = [
@@ -1607,13 +1607,13 @@ class AssetManagementService
         }
         if (( $powerEvuQ3 > 0) ) {
 
-                if ($month >= 9) {
-                    $expectedPvSystQ3 = $forecast[6] + $forecast[7] + $forecast[8];
-                } else {
-                    for ($i = 6; $i <= intval($report['reportMonth']); ++$i) {
-                        $expectedPvSystQ3 += $forecast[$i];
-                    }
+            if ($month >= 9) {
+                $expectedPvSystQ3 = $forecast[6] + $forecast[7] + $forecast[8];
+            } else {
+                for ($i = 6; $i <= intval($report['reportMonth']); ++$i) {
+                    $expectedPvSystQ3 += $forecast[$i];
                 }
+            }
 
 
             $operations_monthly_right_pvsyst_tr4 = [
@@ -1643,9 +1643,9 @@ class AssetManagementService
         }
         if (($powerEvuQ4 > 0) ) {
 
-                for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
-                    $expectedPvSystQ4 += $forecast[$i];
-                }
+            for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
+                $expectedPvSystQ4 += $forecast[$i];
+            }
 
 
             $operations_monthly_right_pvsyst_tr5 = [
@@ -1656,11 +1656,11 @@ class AssetManagementService
             ];
         }else{
             $operations_monthly_right_pvsyst_tr5 = [
-            $powerEvuQ4,
-            0.0,
-            0.0,
-            0.0,
-        ];}
+                $powerEvuQ4,
+                0.0,
+                0.0,
+                0.0,
+            ];}
         // Year to date
         $pacDate =  $anlage->getPacDate();
         if ($anlage->getUsePac() && $pacDate != null){
@@ -1686,9 +1686,9 @@ class AssetManagementService
             }
 
             $expectedPvSystYtoDFirst = 0;
-                for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
-                    $expectedPvSystYtoDFirst += $forecast[$i];
-                }
+            for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
+                $expectedPvSystYtoDFirst += $forecast[$i];
+            }
 
             $operations_monthly_right_pvsyst_tr6 = [
                 $powerEvuQ1 + $powerEvuQ2 + $powerEvuQ3 + $powerEvuQ4,
@@ -2240,7 +2240,7 @@ class AssetManagementService
             ];
         }else{
             $percentageTable = [
-            'G4NExpected' => 0,
+                'G4NExpected' => 0,
                 'PVSYSExpected' => 0,
                 'forecast' => 0,
                 'ActualPower' => 0,
@@ -2248,7 +2248,7 @@ class AssetManagementService
                 'EFORLosses' => 0,
                 'OMCLosses' => 0,
                 'GapLosses' => 0
-                ];
+            ];
         }
 
 
@@ -2471,11 +2471,7 @@ class AssetManagementService
                             'act_current_dc' => $dcIst[$j]['act_current_dc'],
                             'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 : 0,
                             'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 : 0,
-<<<<<<< HEAD
-                           ];
-=======
                         ];
->>>>>>> b1eec8f207e26f779670b1d8445f8bc20333d7cd
                         if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                             $outTableCurrentsPower[] = $dcExpDcIst;
                             unset($dcExpDcIst);
@@ -2689,7 +2685,7 @@ class AssetManagementService
                     ]
                 ],
                 'symbol' => 'none',
-        ]
+            ]
         ];
         if (!$anlage->getSettings()->isDisableDep1()) $series[] =
             [
@@ -2775,14 +2771,14 @@ class AssetManagementService
                     [
                         'yAxis' => $anlage->getContractualAvailability(),
                         'lineStyle' => [
-                        'name' => '*',
-                        'type'  => 'solid',
-                        'width' => 3,
-                        'color' => 'green',
-                        'label' => [
-                            'formatter' => '{c} {b} *'
-                        ]
-                    ],
+                            'name' => '*',
+                            'type'  => 'solid',
+                            'width' => 3,
+                            'color' => 'green',
+                            'label' => [
+                                'formatter' => '{c} {b} *'
+                            ]
+                        ],
                     ]
                 ],
                 'symbol' => 'none'
@@ -3190,21 +3186,21 @@ class AssetManagementService
             'nameGap' => 70,
         ];
 
-            $chart->series =
+        $chart->series =
+            [
                 [
-                    [
-                        'name' => 'Difference ACT to expected g4n',
-                        'type' => 'line',
-                        'data' => $diefference_prod_to_expected_g4n,
-                        'visualMap' => 'false',
-                    ],
-                    [
-                        'name' => 'Difference ACT to forecast',
-                        'type' => 'line',
-                        'data' => $difference_prod_to_forecast,
-                        'visualMap' => 'false',
-                    ],
-                ];
+                    'name' => 'Difference ACT to expected g4n',
+                    'type' => 'line',
+                    'data' => $diefference_prod_to_expected_g4n,
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'Difference ACT to forecast',
+                    'type' => 'line',
+                    'data' => $difference_prod_to_forecast,
+                    'visualMap' => 'false',
+                ],
+            ];
 
         $option = [
             'animation' => false,
@@ -3537,7 +3533,7 @@ class AssetManagementService
         ];
 
         $chart = new ECharts();
-          $chart->xAxis = [
+        $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
                 'show' => true,
@@ -3709,12 +3705,8 @@ class AssetManagementService
             $chart->setOption($option);
             $efficiencyRanking[$key] = $chart->render('efficiency_rank_' . $key, ['style' => 'height: 550; width:900px;']);
         }
-<<<<<<< HEAD
-        //Bucket graph page generation; here we retreive all the monthly losses to put them all together in the table and graph
-=======
 
-        //Waterfall page generation
->>>>>>> b1eec8f207e26f779670b1d8445f8bc20333d7cd
+        //Bucket graph page generation; here we retreive all the monthly losses to put them all together in the table and graph
         $sumForecast = 0;
         $sumForecastIrr = 0;
         $sumActual = 0;
@@ -3741,33 +3733,24 @@ class AssetManagementService
                     $forecastIrr = $irradiation[$i];
                 }
             }
-<<<<<<< HEAD
             $waterfallDiagramHelpTable[$i]['forecast'] = round($forecast[$i], 2);
             $sumForecast = $sumForecast + $waterfallDiagramHelpTable[$i]['forecast'];
             if( $irradiation[$i] > 0) {
-=======
-            if( $irradiation[$i] > 0 && $forecastIrr > 0) {
->>>>>>> b1eec8f207e26f779670b1d8445f8bc20333d7cd
                 $irrCorrection = $forecastIrr / $irradiation[$i];
-            }
-            else{
+            } else {
                 $irrCorrection = 1 ;
             }
-<<<<<<< HEAD
-            if ($irrCorrection > 0)$waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] / $irrCorrection, 2);
-            else $waterfallDiagramHelpTable[$i]['correctedForecast'] = 0;
-=======
+            if ($irrCorrection > 0) {
+                $waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] / $irrCorrection, 2);
+            } else {
+                $waterfallDiagramHelpTable[$i]['correctedForecast'] = 0;
+            }
 
-            $waterfallDiagramHelpTable[$i]['forecast'] = round($forecast[$i], 2);
-            $sumForecast = $sumForecast + $waterfallDiagramHelpTable[$i]['forecast'];
-
-            $waterfallDiagramHelpTable[$i]['correctedForecast'] = round($waterfallDiagramHelpTable[$i]['forecast'] / $irrCorrection, 2);
->>>>>>> b1eec8f207e26f779670b1d8445f8bc20333d7cd
             $sumCorrectedForecast = $sumCorrectedForecast + $waterfallDiagramHelpTable[$i]['correctedForecast'];
 
             $waterfallDiagramHelpTable[$i]['forecastIrr'] = round($forecastIrr, 2);
             $sumForecastIrr = $sumForecastIrr + $waterfallDiagramHelpTable[$i]['forecastIrr'];
-            
+
             $waterfallDiagramHelpTable[$i]['actual'] = round($tbody_a_production['powerAct'][$i], 2);
             $sumActual = $sumActual + $waterfallDiagramHelpTable[$i]['actual'];
 
@@ -3776,10 +3759,10 @@ class AssetManagementService
 
             $waterfallDiagramHelpTable[$i]['SORLosses'] = round($kwhLosses[$i]['SORLosses'], 2);
             $sumSOR = $sumSOR + $waterfallDiagramHelpTable[$i]['SORLosses'];
-            
+
             $waterfallDiagramHelpTable[$i]['EFORLosses'] = round($kwhLosses[$i]['EFORLosses'], 2);
             $sumEFOR = $sumEFOR + $waterfallDiagramHelpTable[$i]['EFORLosses'];
-            
+
             $waterfallDiagramHelpTable[$i]['OMCLosses'] = round($kwhLosses[$i]['OMCLosses'], 2);
             $sumOMC = $sumOMC + $waterfallDiagramHelpTable[$i]['OMCLosses'];
 
@@ -4041,13 +4024,13 @@ class AssetManagementService
                 else $inverterQuery = "";
                 if ($date->getAlertType() == 10 ) {
 
-                        $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
                                 FROM " . $anlage->getDbNameDcSoll() . "                      
                                 WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
-                        $resExp = $this->conn->query($sqlExpected);
+                    $resExp = $this->conn->query($sqlExpected);
 
-                        if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                        else $exp = 0;
+                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                    else $exp = 0;
 
 
                     if ($date->getDataGapEvaluation() == 10) {
@@ -4117,11 +4100,14 @@ class AssetManagementService
      * @param Anlage $anlage
      * @param $month
      * @param $year
-     * @return Array
+     *
+     * @return array
+     *
      * @throws InvalidArgumentException
      * @throws NonUniqueResultException
      */
-    private function calcPRInvArray(Anlage $anlage, $month, $year):Array {
+    private function calcPRInvArray(Anlage $anlage, $month, $year): array
+    {
         // now we will cheat the data in but in the future we will use the params to retrieve the data
         $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
         $invArray = $anlage->getInverterFromAnlage();
@@ -4148,6 +4134,7 @@ class AssetManagementService
         }
         $PRArray['powerAVG'] = $powerSum / $invNr;
         $PRArray['PRAvg'] = $prSum / $invNr;
+
         return $PRArray;
     }
 
@@ -4157,7 +4144,8 @@ class AssetManagementService
      * @param $year
      * @return array
      */
-    private function calcPRInvArrayDayly(Anlage $anlage, $month, $year){
+    private function calcPRInvArrayDayly(Anlage $anlage, $month, $year): array
+    {
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
         $begin = $year."-".$month."-01 00:00";
         $end = $year."-".$month."-".$daysInMonth." 23:59";
@@ -4183,6 +4171,7 @@ class AssetManagementService
             }
         }
         $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0; //we make the last average outside of the loop
+
         return $output;
     }
 
@@ -4191,13 +4180,15 @@ class AssetManagementService
      * @param $month
      * @return float|int|mixed
      */
-    private function getForecastIrr(Anlage $anlage, $month){
+    private function getForecastIrr(Anlage $anlage, $month)
+    {
         $forecast = $this->forecastDayRepo->findForcastDayByMonth($anlage, $month);
         $sumIrrMonth = 0;
 
         foreach($forecast as $data){
             if ($data->getIrrday() > 0) $sumIrrMonth = $sumIrrMonth + $data->getIrrday()/1000;
         }
+
         return $sumIrrMonth;
     }
 
