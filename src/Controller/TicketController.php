@@ -98,7 +98,7 @@ class TicketController extends BaseController
             $sensorArray[$key]['checked'] = "";
         }
 
-        return $this->renderForm('ticket/_inc/_edit.html.twig', [
+        return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
             'ticket'        => $ticket,
             'anlage'        => $anlage,
@@ -260,7 +260,7 @@ class TicketController extends BaseController
             else  $sensorArray[$key]['checked'] = "";
         }
 
-        return $this->renderForm('ticket/_inc/_edit.html.twig', [
+        return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
             'anlage' => $anlage,
@@ -422,7 +422,7 @@ class TicketController extends BaseController
 
         $form = $this->createForm(TicketFormType::class, $ticket);
 
-        return $this->renderForm('ticket/_inc/_edit.html.twig', [
+        return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
             'edited' => true,
@@ -623,7 +623,7 @@ class TicketController extends BaseController
         }
         $form = $this->createForm(TicketFormType::class, $ticket);
 
-        return $this->renderForm('ticket/_inc/_edit.html.twig', [
+        return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
             'edited' => true,
@@ -675,7 +675,7 @@ class TicketController extends BaseController
         if ($ticket->getDates()->isEmpty()) {
             $inverterArray = null;
         }
-        return $this->renderForm('ticket/_inc/_edit.html.twig', [
+        return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
             'anlage' => $anlage,
