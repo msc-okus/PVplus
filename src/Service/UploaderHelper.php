@@ -5,8 +5,8 @@ namespace App\Service;
 use Gedmo\Sluggable\Util\Urlizer;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
+use League\Flysystem\Visibility;
 use Symfony\Component\Asset\Context\RequestStackContext;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -19,10 +19,10 @@ class UploaderHelper
     public const CSV = 'csv';
 
     public function __construct(
-        private $publicAssetBaseUrl,
-        private Filesystem $filesystem,
+        private readonly string     $tempPathBaseUrl,
+        private Filesystem          $filesystem,
         private RequestStackContext $requestStackContext,
-        private KernelInterface $kernel)
+        private KernelInterface     $kernel)
     {
     }
 
@@ -76,7 +76,7 @@ class UploaderHelper
 
     public function getPublicPath(string $path): string
     {
-        $fullPath = $this->publicAssetBaseUrl.'/'.$path;
+        $fullPath = $this->tempPathBaseUrl.'/'.$path;
         echo $fullPath.'<br>';
         // if it's already absolute, just return
         if (strpos($fullPath, '://') !== false) {
@@ -105,13 +105,7 @@ class UploaderHelper
 
     public function deleteFile(string $path): void
     {
-        /*
-        $result = $this->filesystem->delete($path);
-
-        if ($result === false) {
-            throw new \Exception(sprintf('Error deleting "%s"', $path));
-        }
-        */
+        $this->filesystem->delete($path);
     }
 
     public function uploadFile(File $file, string $directory, bool $isPublic): string
@@ -124,17 +118,13 @@ class UploaderHelper
         $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.$file->guessExtension();
 
         $stream = fopen($file->getPathname(), 'r');
-        $result = $this->filesystem->writeStream(
+        $this->filesystem->writeStream(
             $directory.'/'.$newFilename,
             $stream,
             [
-                'visibility' => $isPublic ? AdapterInterface::VISIBILITY_PUBLIC : AdapterInterface::VISIBILITY_PRIVATE,
+                'visibility' => $isPublic ? Visibility::PUBLIC : Visibility::PRIVATE,
             ]
         );
-
-        if ($result === false) {
-            throw new \Exception(sprintf('Could not write uploaded file "%s"', $newFilename));
-        }
 
         if (is_resource($stream)) {
             fclose($stream);
@@ -161,17 +151,13 @@ class UploaderHelper
 
         $stream = fopen($file->getPathname(), 'r');
 
-        $result = $this->filesystem->writeStream(
+        $this->filesystem->writeStream(
             $directory.'/'.$newFilename,
             $stream,
             [
-                'visibility' => $isPublic ? AdapterInterface::VISIBILITY_PUBLIC : AdapterInterface::VISIBILITY_PRIVATE,
+                'visibility' => $isPublic ? Visibility::PUBLIC : Visibility::PRIVATE,
             ]
         );
-
-        if ($result === false) {
-            throw new \Exception(sprintf('Could not write uploaded file "%s"', $newFilename));
-        }
 
         if (is_resource($stream)) {
             fclose($stream);

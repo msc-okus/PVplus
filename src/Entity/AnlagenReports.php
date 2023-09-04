@@ -2,20 +2,15 @@
 
 namespace App\Entity;
 
-
-
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Repository\ReportsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
-
 
 /**
  * @ApiResource(
@@ -42,7 +37,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class AnlagenReports
 {
     use TimestampableEntity;
-
     use BlameableEntity;
 
     #[ORM\Id]

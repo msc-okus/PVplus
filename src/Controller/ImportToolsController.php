@@ -77,7 +77,7 @@ class ImportToolsController extends BaseController
             return $this->redirectToRoute('app_dashboard');
         }
 
-        return $this->renderForm('import_tools/index.html.twig', [
+        return $this->render('import_tools/index.html.twig', [
             'importToolsForm' => $form,
             'output' => $output,
         ]);

@@ -176,7 +176,7 @@ class AnlageGroupsController extends AbstractController
             return $this->redirectToRoute('app_anlage_groups_edit', ['id'=>$anlageGroup->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('anlage_groups/edit.html.twig', [
+        return $this->render('anlage_groups/edit.html.twig', [
             'anlage_group' => $anlageGroup,
             'form' => $form,
         ]);
