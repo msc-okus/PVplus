@@ -92,6 +92,7 @@ trait G4NTrait
         return $currentHour >= $start && $currentHour <= $end;
     }
 
+    /** @deprecated  */
     public static function checkUnitAndConvert($value, $unit)
     {
         ($unit === 'w') ? $returnValue = ($value / 1000 / 4) : $returnValue = $value;

@@ -71,13 +71,6 @@ class ACPowerChartsService
 
         if ($resExp->rowCount() > 0) {
             $counter = 0;
-            if($anlage->getWeatherStation()) {
-                if ($anlage->getShowOnlyUpperIrr() || !$anlage->getWeatherStation()->getHasLower() || $anlage->getUseCustPRAlgorithm() == 'Groningen' || !$anlage->getIsOstWestAnlage()) {
-                    #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
-                } else {
-                    #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
-                }
-            }
             $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             while ($rowExp = $resExp->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = self::timeShift($anlage, $rowExp['stamp']);
@@ -94,7 +87,7 @@ class ACPowerChartsService
                 $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
                         WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
 
-                $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 GROUP by date_format(stamp, '$form')";
+                $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and wr_num = 1 GROUP by date_format(stamp, '$form')";
 
                 $resActual = $conn->query($sqlActual);
                 $resEvu = $conn->query($sqlEvu);
@@ -103,7 +96,6 @@ class ACPowerChartsService
                     $rowActual = $resActual->fetch(PDO::FETCH_ASSOC);
                     $cosPhi = abs((float) $rowActual['cosPhi']);
                     $acIst = $rowActual['acIst'];
-                    $acIst = self::checkUnitAndConvert($acIst, $anlage->getAnlDbUnit());
                     $acIst > 0 ? $actout = round($acIst, 2) : $actout = 0; // neagtive Werte auschließen
                     $theoPower = $rowActual['theoPower'];
                     $cosPhiSum += $cosPhi * $acIst;
@@ -114,7 +106,7 @@ class ACPowerChartsService
                 }
                 if ($resEvu->rowCount() == 1) {
                     $rowEvu = $resEvu->fetch(PDO::FETCH_ASSOC);
-                    $eZEvu = $rowEvu['eZEvu'] / $anlage->getAnzInverterFromGroupsAC();
+                    $eZEvu = $rowEvu['eZEvu']; # / $anlage->getAnzInverterFromGroupsAC();
                     $eZEvu = max($eZEvu, 0);
                     $evuSum += $eZEvu;
                 } else {

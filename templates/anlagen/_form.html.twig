@@ -312,7 +312,7 @@
                 </div>
                 
                 {# Forecast Configuration Tab #}
-                <div class="tabs-panel" id="forcast">
+                <div class="tabs-panel" id="forecast">
                     <div class="grid-x grid-padding-x">
 
                         <div class="cell medium-6">
@@ -718,36 +718,6 @@
                     </div>
                 </div>
 
-                {# Forecast Configuration Tab #}
-                <div class="tabs-panel" id="forecast">
-                    <div class="grid-x grid-padding-x">
-                        <div class="cell">
-                            <fieldset class="fieldset">
-                                <legend>Forecast Settings</legend>
-                                <div class="grid-x grid-margin-x">
-                                    <div class="cell medium-4">{{ form_row(anlageForm.useDayForecast) }}</div>
-                                    <div class="cell medium-4">{{ form_row(anlageForm.degradationForecast) }}</div>
-                                    <div class="cell medium-4">{{ form_row(anlageForm.lossesForecast) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.bezMeridan) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.modNeigung) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.modAzimut) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.albeto) }}</div>
-                                    <div class="cell medium-6">{{ form_row(anlageForm.datFilename) }}</div>
-                                    <div class="cell medium-6"><label>your uploaded file</label><h5 id="dat_file">{{ anlage.getDatFilename }}</h5>
-                                        {% if (anlage.getDatFilename is not empty)  %}
-                                            <a href="{{ path('download_file',{'id': anlage.getAnlId,'dir': 'metodat','file': anlage.getDatFilename}) }}" title="download file"><i class="fa fa fa-download"></i></a>
-                                        {% endif %}
-                                    </div>
-                                    <div class="cell medium-12">
-                                        <div id="modal" {{ stimulus_controller('forecast-submit', { formUrl: path('app_admin_anlagen_build_forecast', { id: anlage.getAnlId} ) }) }} >
-                                            <button class="primary save button button" data-action="forecast-submit#openModal" {% if (anlage.getDatFilename is empty) or (anlage.getUseDayForecast == 0) %}disabled{% endif %}>Build Forecast</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </div>
-                    </div>
-                </div>
 
                 {# Day-Ahead Forecast #}
                 <div class="tabs-panel" id="dayahead_forecast">
