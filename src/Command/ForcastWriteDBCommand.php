@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class ForcastWriteDBCommand extends Command {
     use G4NTrait;
     protected static $defaultName = 'pvp:forcastwritedb';
+    protected static $defaultDescription = 'write the forcast DB';
 
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -29,7 +30,6 @@ class ForcastWriteDBCommand extends Command {
 
     protected function configure() {
         $this
-            ->setDescription('write the forcast DB')
             ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'the plant ID must set to run the calculation')
         ;
     }
@@ -206,6 +206,7 @@ class ForcastWriteDBCommand extends Command {
             echo json_encode($outs);
             return command::FAILURE;
         }
+        return \Symfony\Component\Console\Command\Command::SUCCESS;
 
     }
     // Helper for Array Merge
