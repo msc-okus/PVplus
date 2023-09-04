@@ -3,20 +3,20 @@ doctrine:
         default_connection:       default
         connections:
             default:
-                dbname:               pvp_base
-                host:                 '%env(host)%'
-                port:                 3306
-                user:                 pvpbase
-                password:             '%env(password_base)%'
-                driver:               pdo_mysql
-                server_version:        mariadb-10.5.15
+                dbname:         pvp_base
+                host:           '%env(host)%'
+                port:           3306
+                user:           '%env(user_base)%'
+                password:       '%env(password_base)%'
+                driver:         pdo_mysql
+                server_version: mariadb-10.5.15
             data:
-                dbname: pvp_data
-                host: '%env(host)%'
-                port: 3306
-                user: pvpluy_2
-                password: '%env(password_plant)%'
-                driver: pdo_mysql
+                dbname:         pvp_data
+                host:           '%env(host)%'
+                port:           3306
+                user:           '%env(user_plant)%'
+                password:       '%env(password_plant)%'
+                driver:         pdo_mysql
                 server_version: mariadb-10.5.15
 
         # IMPORTANT: You MUST configure your server version,

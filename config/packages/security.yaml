@@ -14,7 +14,7 @@ security:
                 property: email
 
     role_hierarchy:
-        # G4N Roles (hierarchical, incluse all feature roles)
+        # G4N Roles (hierarchical, include all feature roles)
         ROLE_DEV: [ROLE_ADMIN]
         ROLE_ADMIN: [ROLE_G4N, ROLE_ALLOWED_TO_SWITCH, ROLE_API_FULL_USER]
         ROLE_G4N: [ROLE_OWNER_ADMIN, ROLE_AM, ROLE_BETA]

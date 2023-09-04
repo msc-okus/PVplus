@@ -231,7 +231,6 @@ class IrradiationService
         $iam            = 1-0.05*((1/COS($aoi)-1));
         $gmod2          = $gmod1-$iam; // Modulstrahlung 2
         if ($gmod2 < 0) $gmod2 = 0; // Negative Werte machen keinen Sinn
-        #dump("Stunde: $stunde Diffus: $diffusMod | Gmod1: $gmod1 | IAM: $iam | Gmod2: $gmod2 | GHI: $ghi");
 
         return $gmod2;
     }
