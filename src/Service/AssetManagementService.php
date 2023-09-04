@@ -3755,7 +3755,7 @@ class AssetManagementService
             $sumActual = $sumActual + $waterfallDiagramHelpTable[$i]['actual'];
 
             $waterfallDiagramHelpTable[$i]['irradiation'] = round( $irradiation[$i], 2);
-            $sumIrr = $sumIrr + $waterfallDiagramHelpTable[$i]['forecastIrr'];
+            $sumIrr = $sumIrr + $waterfallDiagramHelpTable[$i]['irradiation'];
 
             $waterfallDiagramHelpTable[$i]['SORLosses'] = round($kwhLosses[$i]['SORLosses'], 2);
             $sumSOR = $sumSOR + $waterfallDiagramHelpTable[$i]['SORLosses'];
