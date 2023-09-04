@@ -234,7 +234,7 @@ class ReportingController extends AbstractController
     public function showReportAsPdf(Request $request, $id, ReportEpcService $reportEpc, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
     {
         /** @var AnlagenReports|null $report */
-        $session            = $this->$request->getSession();
+        $session            = $request->getSession();
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');

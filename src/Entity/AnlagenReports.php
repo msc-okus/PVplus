@@ -10,6 +10,7 @@ use App\Repository\ReportsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use JetBrains\PhpStorm\Deprecated;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -53,6 +54,7 @@ class AnlagenReports
      * Depending on this information we have to decide wich function to use for PDF and Excel files.
      */
     #[ORM\Column(type: 'integer')]
+    #[Deprecated]
     private int $reportTypeVersion = 0;
 
     #[ORM\Column(type: 'date')]
