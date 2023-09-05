@@ -361,44 +361,7 @@ trait ImportFunctionsTrait
         }
     }
 
-    //Liest die Sensoren der Anlage aus dem Backend
-    /**
-     * @param object $conn
-     * @param int $anlId
-     * @return array
-     */
-    function getAnlageSensors($conn, string $anlId): array
-    {
-        $query = "SELECT * FROM pvp_base.anlage_sensors  WHERE anlage_id  = " . $anlId;
-        $stmt = $conn->query($query);
-        return $stmt->fetchAll();
-    }
 
-    //Liest die PPCs der Anlage aus dem Backend
-    /**
-     * @param object $conn
-     * @param int $anlId
-     * @return array
-     */
-    function getAnlagePpcs($conn, string $anlId): array
-    {
-        $query = "SELECT * FROM pvp_base.anlage_ppcs  WHERE anlage_id  = " . $anlId;
-        $stmt = $conn->query($query);
-        return $stmt->fetchAll();
-    }
-
-    //Liest die AC-Gruppen aus dem Backend aus
-    /**
-     * @param object $conn
-     * @param int $anlId
-     * @return array
-     */
-    function getACGroups($conn, string $anlId): array
-    {
-        $query = "SELECT * FROM `anlage_groups_ac` where `anlage_id` = " . $anlId;
-        $stmt = $conn->query($query);
-        return $stmt->fetchAll();
-    }
 
     //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu
     /**

@@ -15,7 +15,11 @@ use App\Service\MeteoControlService;
 use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Config\DoctrineConfig;
 use Doctrine\Persistence\ManagerRegistry;
-
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 class ImportService
 {
     use ImportFunctionsTrait;
@@ -36,6 +40,7 @@ class ImportService
         private AvailabilityService $availabilityService,
         private MeteoControlService $meteoControlService,
         private ManagerRegistry $doctrine,
+        private SerializerInterface $serializer
     )
     {
 
@@ -61,7 +66,7 @@ class ImportService
         $modules = $anlage->getModules();
         $groups = $anlage->getGroups();
         $systemKey = $anlage->getCustomPlantId();
-        $acGroups = self::getACGroups($conn, $plantId);
+        $acGroups = $this->serializer->normalize($anlage->getAcGroups(), null);
 
         $importType = $anlage->getSettings()->getImportType();
 
@@ -92,7 +97,7 @@ class ImportService
             $inverters = $bulkMeaserments['inverters'];
             $sensors = $bulkMeaserments['sensors'];
 
-            $anlageSensors = self::getAnlageSensors($conn, $plantId);
+            $anlageSensors = $this->serializer->normalize($anlage->getSensors(), null);
 
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
                 $stamp = date('Y-m-d H:i', $timestamp);
@@ -192,8 +197,8 @@ class ImportService
                 //Anlage hatPPc
                 if ($anlage->getHasPPC()) {
                     $ppcs = $bulkMeaserments['ppcs'];
-
-                    $anlagePpcs = self::getAnlagePpcs($conn, $plantId);
+                    
+                    $anlagePpcs = $this->serializer->normalize($anlage->getPpcs(), null);
                     $result = self::getPpc($anlagePpcs, $ppcs, $date, $stamp, $plantId, $anlagenTabelle);
 
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
