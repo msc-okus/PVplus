@@ -1,4 +1,4 @@
-{% extends 'report/new_report.base.html.twig' %}
+{% extends 'report/_base_layouts/new_report.base.html.twig' %}
 
 {% block header %}
     {{ parent() }}
@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block content %}
-    {% include('report/monthly/_overview.html.twig') %}
-    {% include('report/monthly/_table.html.twig') %}
-    {% include('report/monthly/_legend.html.twig') %}
+    {% include('report/_monthly/_overview.html.twig') %}
+    {% include('report/_monthly/_table.html.twig') %}
+    {% include('report/_monthly/_legend.html.twig') %}
 {% endblock content %}

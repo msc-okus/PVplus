@@ -1,7 +1,7 @@
-{% extends 'report/_epc/_pageBase.html.twig' %}
+{% extends 'report/_base_layouts/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3>Basic Values</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Basic Values</h3>
     <table class="basetable" style="width: 100%!important; margin-bottom: 10px;">
         <thead>
         <tr>
@@ -34,7 +34,7 @@
 
     <table style="width: 100% !important; margin-bottom: 10px;">
         <tr>
-            <td style="width: 40%">
+            <td style="color: {{ anlage.eigner.fontColor2 }}; width: 40%;">
                 {% if headline.reportStatus %}
                     <h3 style="text-align: left;">PR Forecast <small>{{ forecast.0.forecastDateText }}</small></h3>
                     <table class="basetable">
@@ -57,7 +57,7 @@
             </td>
             <td style="width: 20%">&nbsp;</td>
             <td style="width: 40%">
-                <h3 style="text-align: left;">PR Real <small>{{ forecast_real.0.forecastDateText }}</small></h3>
+                <h3 style="color: {{ anlage.eigner.fontColor2 }}; text-align: left;">PR Real <small>{{ forecast_real.0.forecastDateText }}</small></h3>
                 <table class="basetable">
                     <thead>
                     <tr>
@@ -82,46 +82,35 @@
     <table class="" style="width: 100% !important; margin-bottom: 10px;">
         <tr style="width: 40%">
             <td>
-                {% if ( formel.0.algorithmus != 'Groningen'  ) and ( formel.0.algorithmus != 'Veendam' ) and ( formel.0.algorithmus != 'Lelystad' ) %}
-                    <img src='{{ absolute_url(asset('/images/temp/prFormelStandard.png')) }}' style='max-width: 400px'>
-                {% endif %}
-                {% if ( formel.0.algorithmus == 'Groningen' ) %}
-                    <img src='{{ absolute_url(asset('/images/temp/prFormelGroningen.jpg')) }}' style='max-width: 400px'>
-                {% endif %}
-                {% if ( formel.0.algorithmus == 'Veendam' ) %}
-                    <img src='{{ absolute_url(asset('/images/temp/prFormelVeendam.png')) }}' style='max-width: 400px'>
-                {% endif %}
-                {% if ( formel.0.algorithmus == 'Lelystad' ) %}
-                    <img src='{{ absolute_url(asset('/images/temp/prFormelLelystad.png')) }}' style='max-width: 400px'>
-                {% endif %}
+                <img src="{{ absolute_url(asset(anlage.prFormular2Image())) }}" alt="{{ anlage.prFormular2 }}" style="max-width: 400px;">
             </td>
             <td style="width: 20%">&nbsp;</td>
             <td style="width: 40%;">
-                {% if ( formel.0.algorithmus != 'Groningen'  ) and ( formel.0.algorithmus != 'Lelystad' ) %}
-                    <table class="basetable">
-                        <tr>
-                            <td style='text-align: center'>{{ formel.0.eGridReal|number_format(2,',','.') }} kWh</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td style='text-align: center'>------------------------------------------------</td>
-                            <td style='text-align: center'>=</td>
-                            <td style='text-align: center'>{{ formel.0.prReal|number_format(2,',','.') }} %</td>
-                        </tr>
-                        <tr>
-                            <td style='text-align: center'>{{ formel.0.theoPower|number_format(2,',','.') }} kWh</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </table>
-                {% endif %}
+
+                <table class="basetable">
+                    <tr>
+                        <td style='text-align: center'>{{ formel.0.eGridReal|number_format(2,',','.') }} kWh</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td style='text-align: center'>------------------------------------------------</td>
+                        <td style='text-align: center'>=</td>
+                        <td style='text-align: center'>{{ formel.0.prReal|number_format(2,',','.') }} %</td>
+                    </tr>
+                    <tr>
+                        <td style='text-align: center'>{{ formel.0.theoPower|number_format(2,',','.') }} kWh</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+
             </td>
         </tr>
     </table>
 
     {% if forecast_real.0.pld > 0 %}
-        <h3>PLD</h3>
+        <h3 style="color: {{ anlage.eigner.fontColor2 }};">PLD</h3>
         <table class="basetable">
             <thead>
             <tr>

@@ -58,7 +58,7 @@ class ReportsMonthlyService
             ->setCreatedAt(new \DateTime())
             ->setAnlage($anlage)
             ->setEigner($anlage->getEigner())
-            ->setReportType('monthly-report')
+            ->setReportType('_monthly-report')
             ->setReportTypeVersion(1)
             ->setStartDate($startDate)
             ->setEndDate($endDate)

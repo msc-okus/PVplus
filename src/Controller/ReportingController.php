@@ -263,7 +263,7 @@ class ReportingController extends AbstractController
                                 'year'          => $year
                             ]
                         ;
-                        $result = $this->renderView('report/_epc_new/epcMonthlyPRGuarantee.html.twig', [
+                        $result = $this->renderView('report/_epc_pr_2019/epcMonthlyPRGuarantee.html.twig', [ //'report/_epc_new/epcMonthlyPRGuarantee.html.twig'
                             'headline'      => $headline,
                             'main'          => $reportArray[0],
                             'forecast'      => $reportArray[1],
@@ -278,7 +278,7 @@ class ReportingController extends AbstractController
                         break;
 
                     case 'yieldGuarantee':
-                        $result = $this->renderView('report/epcReport.html.twig', [
+                        $result = $this->renderView('report/_epc_yield_2021/epcReportYield.html.twig', [ //'report/epcReportYield.html.twig'
                             'anlage'            => $anlage,
                             'monthsTable'       => $reportArray['monthTable'],
                             'forcast'           => $reportArray['forcastTable'],
@@ -292,7 +292,7 @@ class ReportingController extends AbstractController
 
             case 'epc-new-pr':
                 $pdfFilename = 'QEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
-                $result = $this->renderView('report/epcReportPR.html.twig', [
+                $result = $this->renderView('report/_epc_yield_2021/epcReportYield.html.twig', [
                     'anlage'        => $anlage,
                     'monthsTable'   => $reportArray['monthTable'],
                     'forcast'       => $reportArray['forcastTable'],
@@ -669,7 +669,7 @@ class ReportingController extends AbstractController
                                     'year'          => $report->getYear()
                                 ]
                             ;
-                            $result = $this->renderView('report/_epc_new/epcMonthlyPRGuarantee.html.twig', [
+                            $result = $this->renderView('report/_epc_pr_2019/epcMonthlyPRGuarantee.html.twig', [ //report/_epc_new/epcMonthlyPRGuarantee.html.twig
                                 'headline'      => $headline,
                                 'main'          => $reportArray[0],
                                 'forecast'      => $reportArray[1],
@@ -683,7 +683,7 @@ class ReportingController extends AbstractController
                             break;
 
                         case 'yieldGuarantee' :
-                            $result = $this->renderView('report/epcReport.html.twig', [
+                            $result = $this->renderView('report/_epc_yield_2021/epcReportYield.html.twig', [
                                 'anlage'            => $anlage,
                                 'monthsTable'       => $reportArray['monthTable'],
                                 'forcast'           => $reportArray['forcastTable'],
@@ -696,7 +696,7 @@ class ReportingController extends AbstractController
                     break;
 
                 case 'epc-new-pr':
-                    $result = $this->renderView('report/epcReportPR.html.twig', [
+                    $result = $this->renderView('report/_epc_pr_2021/epcReportPR.html.twig', [
                         'anlage'        => $anlage,
                         'monthsTable'   => $reportArray['monthTable'],
                         'forcast'       => $reportArray['forcastTable'],

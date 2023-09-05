@@ -129,7 +129,7 @@ class ExpectedService
                             $shadow_loss = $groupMonth->getShadowLoss();
                         }
                     } elseif ($anlageMonth) {
-                        // use general monthly shadow loss (Entity: AnlageMonth)
+                        // use general _monthly shadow loss (Entity: AnlageMonth)
                         $shadow_loss = $anlageMonth->getShadowLoss();
                     }
 

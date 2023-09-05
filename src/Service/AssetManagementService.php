@@ -417,7 +417,7 @@ class AssetManagementService
         $html = str_replace('src="//', 'src="https://', $html);
         $reportParts['AvailabilityYear'] = $pdf->createPage($html, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
 
-        //Availability by tickets monthly
+        //Availability by tickets _monthly
         $html =$this->twig->render('report/asset_report_part_11.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -3706,7 +3706,7 @@ class AssetManagementService
             $efficiencyRanking[$key] = $chart->render('efficiency_rank_' . $key, ['style' => 'height: 550; width:900px;']);
         }
 
-        //Bucket graph page generation; here we retreive all the monthly losses to put them all together in the table and graph
+        //Bucket graph page generation; here we retreive all the _monthly losses to put them all together in the table and graph
         $sumForecast = 0;
         $sumForecastIrr = 0;
         $sumActual = 0;
