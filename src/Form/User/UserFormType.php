@@ -2,14 +2,10 @@
 
 namespace App\Form\User;
 
-use App\Controller\SecurityController;
 use App\Entity\Eigner;
-use App\Entity\Anlage;
 use App\Entity\User;
 use App\Form\Type\SwitchType;
 use App\Repository\AnlagenRepository;
-use App\Repository\EignerRepository;
-use App\Repository\UserRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -20,7 +16,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 
 class UserFormType extends AbstractType
@@ -32,7 +28,7 @@ class UserFormType extends AbstractType
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /** @var User $user */
         /** @var Eigner $eigner_l */
@@ -63,7 +59,7 @@ class UserFormType extends AbstractType
 
         if ($anlagen){
             foreach ($anlagen as $key => $anlage){
-                $anlagenid[] = [$anlage['anlName'] => $anlage['anlId']];
+                $anlagenid[] = [strtoupper($anlage['country'])." | ".$anlage['anlName'] => $anlage['anlId']];
             }
         }
 
