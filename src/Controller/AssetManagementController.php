@@ -6,12 +6,14 @@ use App\Service\GetPdoService;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AssetManagementService;
+use Doctrine\ORM\NoResultException;
 use Nuzkito\ChromePdf\ChromePdf;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[IsGranted('ROLE_G4N')]
+#[IsGranted('ROLE_G4N', 'ROLE_AM')]
 class AssetManagementController extends BaseController
 {
     use G4NTrait;
@@ -24,9 +26,16 @@ class AssetManagementController extends BaseController
     }
 
     /**
-     * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
-     * @param $charttypetoexport (0 = , 1 = )
-     *
+     * @param $id
+     * @param $month
+     * @param $year
+     * @param $export
+     * @param $pages
+     * @param AssetManagementService $assetManagement
+     * @param AnlagenRepository $anlagenRepository
+     * @param Request $request
+     * @return Response|void
+     * @throws NoResultException
      * @deprecated
      */
     #[Route(path: '/asset/report/{id}/{month}/{year}/{export}/{pages}', name: 'report_asset_management')]
