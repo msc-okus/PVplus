@@ -277,6 +277,8 @@ class AnlagenRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')
             ->select('a.anlName','a.anlId','a.country')
             ->andWhere('a.eignerId = :eigner')
+            ->andWhere("a.anlHidePlant = 'No'")
+            ->andWhere("a.anlView = 'Yes'")
             ->orderBy('a.country')
             ->addOrderBy('a.anlName')
             ->setParameter('eigner', $eigner)
