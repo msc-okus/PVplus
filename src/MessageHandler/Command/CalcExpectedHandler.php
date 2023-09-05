@@ -32,6 +32,6 @@ class CalcExpectedHandler implements MessageHandlerInterface
 
             $this->expectedService->storeExpectedToDatabase($anlageId, $from, $to);
         }
-        $this->logMessages->updateEntry($logId, 'done');
+        $this->logMessages->updateEntry($logId, 'done', 100);
     }
 }
