@@ -15,10 +15,7 @@ use App\Service\MeteoControlService;
 use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Config\DoctrineConfig;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
+
 use Symfony\Component\Serializer\SerializerInterface;
 class ImportService
 {
@@ -197,7 +194,7 @@ class ImportService
                 //Anlage hatPPc
                 if ($anlage->getHasPPC()) {
                     $ppcs = $bulkMeaserments['ppcs'];
-                    
+
                     $anlagePpcs = $this->serializer->normalize($anlage->getPpcs(), null);
                     $result = self::getPpc($anlagePpcs, $ppcs, $date, $stamp, $plantId, $anlagenTabelle);
 
