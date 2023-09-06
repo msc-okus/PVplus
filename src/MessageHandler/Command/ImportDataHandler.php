@@ -44,7 +44,7 @@ class ImportDataHandler implements MessageHandlerInterface
                 $from = strtotime(date('Y-m-d 00:15', $dayStamp));
                 $to = strtotime(date('Y-m-d 23:59', $dayStamp));
                 $currentDay = date('d', $dayStamp);
-                
+
                 // Proof if date = today, if yes set $to to current DateTime
                 if ($importData->getEndDate()->format('Y') == date('Y') && $importData->getEndDate()->format('m') == date('m') && $currentDay == date('d')) {
                     $hour = date('H');
