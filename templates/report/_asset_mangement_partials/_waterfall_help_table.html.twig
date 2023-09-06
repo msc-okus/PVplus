@@ -49,19 +49,19 @@
                                 {% else %}
                                     <td class="tr_next_columns">{{ loop.index }}</td>
                                 {% endif %}
-                                <td class="tr_next_columns"> {{ row.forecast }}</td>
-                                <td class="tr_next_columns"> {{ row.forecastIrr }}</td>
-                                <td class="tr_next_columns"> {{ row.correctedForecast }}</td>
-                                <td class="tr_next_columns"> {{ row.actual }}</td>
-                                <td class="tr_next_columns"> {{ row.irradiation }}</td>
-                                <td class="tr_next_columns"> {{ row.SORLosses }}</td>
-                                <td class="tr_next_columns"> {{ row.EFORLosses }}</td>
-                                <td class="tr_next_columns"> {{ row.OMCLosses }}</td>
-                                <td class="tr_next_columns"> {{ row.PPCLosses }}</td>
-                                <td class="tr_next_columns"> {{ row.GapLosses }}</td>
-                                <td class="tr_next_columns"> {{ row.otherLosses }}</td>
-                                <td class="tr_next_columns"> {{ row.totalLosses }}</td>
-                                <td class="tr_next_columns"> {{ row.expected }}</td>
+                                <td class="tr_next_columns"> {{ row.forecast|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.forecastIrr|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.correctedForecast|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.actual|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.irradiation|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.SORLosses|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.EFORLosses|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.OMCLosses|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.PPCLosses|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.GapLosses|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.otherLosses|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.totalLosses|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ row.expected|number_format(2, ',', '.') }}</td>
                             </tr>
                     {% endfor %}
                 </tbody>
