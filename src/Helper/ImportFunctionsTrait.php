@@ -605,12 +605,12 @@ trait ImportFunctionsTrait
     {
         $i = 0;
         for ($i = 0; $i < count($acGroups); $i++) {
-            $pvpGroupAc = $acGroups[$i]->ac_group_id;
+            $pvpGroupAc = $acGroups[$i]->acGroup;
             $pvpGroupDc = $i + 1;
             $pvpInverter = $i + 1;
 
             if (is_array($inverters) && array_key_exists($date, $inverters)) {
-                $custInverterKennung = $acGroups[$i]['import_id'];
+                $custInverterKennung = $acGroups[$i]['importId'];
                 $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
                 $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
                 $currentAcP1 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']);

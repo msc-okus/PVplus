@@ -63,9 +63,15 @@ class ImportService
         $modules = $anlage->getModules();
         $groups = $anlage->getGroups();
         $systemKey = $anlage->getCustomPlantId();
-        $acGroups = $this->serializer->normalize($anlage->getAcGroups(), null);
 
         $importType = $anlage->getSettings()->getImportType();
+        if ($importType == 'withStringboxes') {
+            $acGroups = $anlage->getAcGroups()->toArray();
+
+            for ($i = 0; $i < count($acGroups); ++$i) {
+                $acGroupsCleaned[$i]['importId'] = $acGroups[$i]->getImportId();
+            }
+        }
 
         $anlagenTabelle = $anlage->getAnlIntnr();
 
@@ -177,7 +183,7 @@ class ImportService
                     //Anzahl der Units in einer Stringbox
                     $stringBoxUnits = $anlage->getSettings()->getStringboxesUnits();
 
-                    $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
+                    $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroupsCleaned, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
 
                     //built array for pvist
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
@@ -194,8 +200,12 @@ class ImportService
                 if ($anlage->getHasPPC()) {
                     $ppcs = $bulkMeaserments['ppcs'];
 
-                    $anlagePpcs = $this->serializer->normalize($anlage->getPpcs(), null);
-                    $result = self::getPpc($anlagePpcs, $ppcs, $date, $stamp, $plantId, $anlagenTabelle);
+                    $anlagePpcs = $anlage->getPpcs()->toArray();
+                    for ($i = 0; $i < count($anlagePpcs); ++$i) {
+                        $anlagePpcsCleaned[$i]['vcomId'] = $anlagePpcs[$i]->getVcomId();
+                    }
+
+                    $result = self::getPpc($anlagePpcsCleaned, $ppcs, $date, $stamp, $plantId, $anlagenTabelle);
 
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                         $data_ppc[] = $result[0][$j];
