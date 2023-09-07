@@ -34,7 +34,7 @@ $(document).ready( async function (tableSelector) {
                 messageTop:' Monats Bericht',
                 messageBottom:null,
                 title:'Monthly Report',
-                filename:'monthly report',
+                filename:'_monthly report',
                 footer:true,
               //  autoFilter:true,
                 sheetName: 'Monthly report',

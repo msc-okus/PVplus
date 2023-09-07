@@ -1,8 +1,8 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Yearly Overview - {{ year }}</h3>
-    <table style="width: 50%">
-        <tr style="width: 50%">
+    <table style="width: 100%">
+        <tr style="width: 100%">
             <td style="width: 50%">
                 <table style="width: 90%">
                     <thead>
@@ -55,38 +55,94 @@
                         <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ (Availability_Year_To_Date_Table['expectedGaps'] - Availability_Year_To_Date_Table['actualGaps']) |number_format(2, ',', '.') }}</td>
                     </tr>
-                    <tr>
-                        <td style="text-align: left" class="tr_next_columns"><b>Total</b></td>
-                        <td  class="tr_next_columns">{{ (Availability_Year_To_Date_Table['expectedAvailability']
-                            +  Availability_Year_To_Date_Table['expectedSOF']
-                            + Availability_Year_To_Date_Table['expectedEFOR']
-                            + Availability_Year_To_Date_Table['expectedOMC']
-                            + Availability_Year_To_Date_Table['expectedGaps']) |number_format(2, ',', '.')}} </td>
-
-                        <td  class="tr_next_columns">{{ (Availability_Year_To_Date_Table['actualAvailability']
-                            + Availability_Year_To_Date_Table['actualSOF']
-                            + Availability_Year_To_Date_Table['actualEFOR']
-                            + Availability_Year_To_Date_Table['actualOMC']
-                            + Availability_Year_To_Date_Table['actualGaps'])|number_format(2, ',', '.')}} </td>
-                        <td  class="tr_next_columns">{{ ((Availability_Year_To_Date_Table['actualAvailability']
-                            +  Availability_Year_To_Date_Table['actualSOF']
-                            + Availability_Year_To_Date_Table['actualEFOR']
-                            + Availability_Year_To_Date_Table['actualOMC']
-                            + Availability_Year_To_Date_Table['actualGaps']) -
-                            (Availability_Year_To_Date_Table['expectedAvailability']
-                            +  Availability_Year_To_Date_Table['expectedSOF']
-                            + Availability_Year_To_Date_Table['expectedEFOR']
-                            + Availability_Year_To_Date_Table['expectedOMC']
-                            + Availability_Year_To_Date_Table['expectedGaps']))|number_format(2, ',', '.') }}
-                        </td>
-                    </tr>
                     </tbody>
                 </table>
 
             </td>
+            <td style="width: 50%"> <table >
+                    <thead>
+                    <tr>
+                        <th style="text-align: center" class="table-center" colspan="2" rowspan="3">
+                            <b>Production / Plan and loss values</b>
+                        </th>
+                        <th style="text-align: center" class="table-center" rowspan="3">
+                            <b>kWh</b>
+                        </th>
+                        <th style="text-align: center" class="table-center">
+                            <b>Relative to</b>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th style="text-align: center" class="table-center">
+                            <b>g4n Expected</b>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th style="text-align: center" class="table-center">
+                            <b>%</b>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td style="text-align: center" class="tr_next_columns" rowspan="2"> Actual Values</td>
+                        <td style="text-align: left" class="tr_next_columns">  Production - Actual</td>
+                        <td class="tr_next_columns">{{ yearLossesHelpTable['Actual'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ PercentageTableYear['ActualPower'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns"> Expected G4N </td>
+                        <td class="tr_next_columns">{{ yearLossesHelpTable['ExpectedG4N'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ PercentageTableYear['G4NExpected'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    {% if ((anlage.hasPVSYST == true) == true) %}
+                        <tr>
+                            <td style="text-align: center" class="tr_next_columns" rowspan="2"> Planned Values</td>
+                            <td style="text-align: left" class="tr_next_columns"> Forecast g4n </td>
+                            <td class="tr_next_columns">{{ yearLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ PercentageTableYear['forecast'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left" class="tr_next_columns"> Plant Simulation</td>
+                            <td class="tr_next_columns">{{ yearLossesHelpTable['ExpectedPVSYS'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ PercentageTableYear['PVSYSExpected'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td style="text-align: center" class="tr_next_columns"> Planned Values</td>
+                            <td style="text-align: left" class="tr_next_columns"> Forecast</td>
+                            <td class="tr_next_columns">{{ yearLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ PercentageTableYear['forecast'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td style="text-align: center" class="tr_next_columns" rowspan="4"> Type of Ticket</td>
+                        <td style="text-align: left" class="tr_next_columns">  SOR Losses - Planned Outage</td>
+                        <td class="tr_next_columns">{{ yearLossesHelpTable['SORLosses'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ PercentageTableYear['SORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns"> EFOR Losses - Unplanned Outage </td>
+                        <td class="tr_next_columns">{{ yearLossesHelpTable['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ PercentageTableYear['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns"> OMC Losses - Grid Error / Grid Off </td>
+                        <td class="tr_next_columns">{{ yearLossesHelpTable['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ PercentageTableYear['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns"> Data Gap </td>
+                        <td class="tr_next_columns">{{ yearLossesHelpTable['GapLosses'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ PercentageTableYear['GapLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </td>
 
         </tr>
-        <tr style="width: 50%">
+        <tr style="width: 100%">
             <td style="width: 50%">
                 <table style="margin-top: 30px; width: 90%">
                     <thead>
@@ -120,7 +176,7 @@
 
             </td>
         </tr>
-        <tr style="width: 50%">
+        <tr style="width: 100%">
             <td>
                 <div style="text-align: left">
                     <sup><b>a</b></sup> Maintenance, SOR<br>

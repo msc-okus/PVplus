@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
 
 use App\Entity\User;
 use App\Entity\Eigner;
@@ -9,7 +8,8 @@ use App\Form\User\UserFormType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends BaseController
 {
     #[Route(path: '/admin/user/new', name: 'app_admin_user_new')]
-    #[IsGranted(['ROLE_G4N'])]
+    #[IsGranted('ROLE_G4N')]
     public function new(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $userPasswordHasher, SecurityController $security): Response
     {
         $form = $this->createForm(UserFormType::class);
@@ -71,7 +71,7 @@ class UserController extends BaseController
 
     // USER List zur Listen Ansicht der User
     #[Route(path: '/admin/user/list', name: 'app_admin_user_list')]
-    #[IsGranted(['ROLE_OWNER_ADMIN'])]
+    #[IsGranted('ROLE_OWNER_ADMIN')]
     public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository, SecurityController $security): Response
     {
         /** @var User $user */
@@ -115,7 +115,7 @@ class UserController extends BaseController
 
     // USER Edit
     #[Route(path: '/admin/user/edit/{id}', name: 'app_admin_user_edit')]
-    #[IsGranted(['ROLE_OWNER_ADMIN'])]
+    #[IsGranted('ROLE_OWNER_ADMIN')]
     public function edit($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher): Response
     {
         /** @var User $user */
@@ -240,8 +240,8 @@ class UserController extends BaseController
 
     // USER Löschen
     #[Route(path: 'admin/user/delete/{id}', name: 'app_admin_user_delete', methods: 'GET')]
-    #[IsGranted(['ROLE_G4N'])]
-    public function delete($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security,): \Symfony\Component\HttpFoundation\RedirectResponse
+    #[IsGranted('ROLE_G4N')]
+    public function delete($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security,): RedirectResponse
     {
         // To do Abfrage Yes No
         $user = $userRepository->find($id);
@@ -260,8 +260,9 @@ class UserController extends BaseController
             $em->remove($user);
             $em->flush();
             $this->addFlash('warning', 'User are deleted.');
-            return $this->redirectToRoute('app_admin_user_list');
         }
+
+        return $this->redirectToRoute('app_admin_user_list');
     }
 
 }

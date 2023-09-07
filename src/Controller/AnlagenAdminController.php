@@ -22,7 +22,7 @@ use App\Repository\EconomicVarNamesRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -107,7 +107,7 @@ class AnlagenAdminController extends BaseController
     }
 
     #[Route(path: '/admin/anlagen/delete/sunshading/{id}/{sadid}/{token}', name: 'app_admin_anlagen_delete_sun_shading')]
-    #[IsGranted(['ROLE_DEV'])]
+    #[IsGranted('ROLE_DEV')]
     public function delete_sunshading_model($id,$sadid, $token, EntityManagerInterface $em, AnlageSunShadingRepository $anlageSunShadingRepository): Response
     {
 
@@ -482,7 +482,7 @@ class AnlagenAdminController extends BaseController
     }
 
     #[Route(path: '/admin/anlagen/delete/{id}', name: 'app_admin_anlage_delete')]
-    #[IsGranted(['ROLE_DEV'])]
+    #[IsGranted('ROLE_DEV')]
     public function delete($id, EntityManagerInterface $em, AnlagenRepository $anlagenRepository, Security $security): RedirectResponse
     {
         if ($this->isGranted('ROLE_DEV')) {

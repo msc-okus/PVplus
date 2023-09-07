@@ -4,14 +4,12 @@ namespace App\Controller;
 
 use App\Entity\AnlageModulesDB;
 use App\Form\Anlage\AnlageModulesFormType;
-use App\Form\Anlage\AnlageFormType;
-use App\Form\Anlage\AnlageNewFormType;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlageModulesDBRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -28,7 +26,7 @@ class ModulDatabaseController extends BaseController
         $form = $this->createForm(AnlageModulesFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
-            /** @var ModulesDb $modules */
+            /** @var AnlageModulesDB $modules */
             $modules = $form->getData();
             $em->persist($modules);
             $em->flush();

@@ -1,7 +1,7 @@
-{% extends 'report/_epc/_pageBase.html.twig' %}
+{% extends 'report/_base_layouts/_pageBase.html.twig' %}
 {% block page %}
 
-    <h3 >Legend</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Legend</h3>
     {% if legend|length > 0 %}
         <table>
             <thead>
@@ -46,7 +46,7 @@
 
 
 
-    <h3>Remarks</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Remarks</h3>
     {{ headline.epcNote }}
 
 {% endblock %}

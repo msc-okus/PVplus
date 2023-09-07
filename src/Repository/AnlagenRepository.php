@@ -275,8 +275,12 @@ class AnlagenRepository extends ServiceEntityRepository
     public function findAllIDByEigner($eigner): array
     {
         return $this->createQueryBuilder('a')
-            ->select('a.anlName','a.anlId')
+            ->select('a.anlName','a.anlId','a.country')
             ->andWhere('a.eignerId = :eigner')
+            ->andWhere("a.anlHidePlant = 'No'")
+            ->andWhere("a.anlView = 'Yes'")
+            ->orderBy('a.country')
+            ->addOrderBy('a.anlName')
             ->setParameter('eigner', $eigner)
             ->getQuery()
             ->getResult();

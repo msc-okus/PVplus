@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
 
+use App\Service\GetPdoService;
 use App\Entity\WeatherStation;
 use App\Form\WeatherStation\WeatherStationFormType;
 use App\Helper\G4NTrait;
@@ -10,7 +10,7 @@ use App\Helper\PVPNameArraysTrait;
 use App\Repository\WeatherStationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

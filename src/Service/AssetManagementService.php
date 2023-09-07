@@ -417,7 +417,7 @@ class AssetManagementService
         $html = str_replace('src="//', 'src="https://', $html);
         $reportParts['AvailabilityYear'] = $pdf->createPage($html, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
 
-        //Availability by tickets monthly
+        //Availability by tickets _monthly
         $html =$this->twig->render('report/asset_report_part_11.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -1420,6 +1420,18 @@ class AssetManagementService
                 'bottom' => 0,
                 'width' => '85%',
             ],
+            'title' => [
+                'text' => 'Cumulative Losses',
+                'left' => 'center',
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
         ];
         $chart->setOption($option);
 
@@ -2022,7 +2034,7 @@ class AssetManagementService
         $endate = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInThisMonth." 23:59:00";
         $SOFErrors  = 0;
         $EFORErrors = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 20, $anlage)[0][1] + (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-01-01', $endate, $anlage, "10")[0][1];
-        $OMCErrors  = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 30, $anlage)[0][1];
+        $OMCErrors  = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 30, $anlage)[0][1] + (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 50, $anlage)[0][1];
         $dataGaps   = (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-01-01', $endate, $anlage, "20")[0][1];
         $totalErrors = $SOFErrors + $EFORErrors + $OMCErrors + $dataGaps;
         // here we calculate the ammount of quarters to calculate the relative percentages
@@ -2064,7 +2076,6 @@ class AssetManagementService
                 $table_percentage_monthly['DataGap'][] = 0;
             }
         }
-
         foreach($kwhLosses as $data){
             $sumLossesYearSOR = $sumLossesYearSOR + $data['SORLosses'];
             $sumLossesYearEFOR = $sumLossesYearEFOR + $data['EFORLosses'];
@@ -2110,7 +2121,7 @@ class AssetManagementService
         $ticketCountTable = [
             'SOFTickets'   => 0,
             'EFORTickets'  => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 20, $anlage)[0][1] + (int) $this->ticketDateRepo->countGapsByIntervalPlantEv($report['reportYear'].'-01-01', $endate, "10", $anlage)[0][1],
-            'OMCTickets'   => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 30, $anlage)[0][1],
+            'OMCTickets'   => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 30, $anlage)[0][1] + (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 50, $anlage)[0][1],
             'GapTickets'   => (int) $this->ticketDateRepo->countGapsByIntervalPlantEv($report['reportYear'].'-01-01', $endate, "20", $anlage)[0][1],
             'SOFQuarters'  => $SOFErrors,
             'EFORQuarters' => $EFORErrors,
@@ -2127,7 +2138,7 @@ class AssetManagementService
         //$SOFErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 10, $anlage)[0][1];
         $SOFErrorsMonth = 0;
         $EFORErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 20, $anlage)[0][1] + (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, $anlage, "10")[0][1];
-        $OMCErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1];
+        $OMCErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1] + (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 50, $anlage)[0][1];
         $dataGapsMonth = (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, $anlage, "20")[0][1];
         $totalErrorsMonth = $SOFErrorsMonth + $EFORErrorsMonth + $OMCErrorsMonth + $dataGapsMonth;
         $EFORErrorsMonth = $EFORErrorsMonth + (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, $anlage, "10")[0][1];
@@ -2185,7 +2196,7 @@ class AssetManagementService
         $ticketCountTableMonth = [
             'SOFTickets'    => 0,
             'EFORTickets'   => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 20, $anlage)[0][1] + $this->ticketDateRepo->countGapsByIntervalPlantEv($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, "10", $anlage)[0][1],
-            'OMCTickets'    => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1],
+            'OMCTickets'    => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1] + (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 50, $anlage)[0][1],
             'GapTickets'    => (int) $this->ticketDateRepo->countGapsByIntervalPlantEv($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate,  "20", $anlage)[0][1],
             'SOFQuarters'   => $SOFErrorsMonth,
             'EFORQuarters'  => $EFORErrorsMonth,
@@ -3206,7 +3217,7 @@ class AssetManagementService
             'animation' => false,
             'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
             'title' => [
-                'text' => '',
+                'text' => 'Monthly Production - Losses',
                 'left' => 'center',
             ],
             'tooltip' => [
@@ -3599,9 +3610,11 @@ class AssetManagementService
             $acGroupsCleaned = $this->functions->getNameArray($anlage, 'dc', false);
         }
         $cumulated_losses_compared_chart = $chart->render('cumulatedlossesCompared', ['style' => 'height: 350px; width:950px;']);
+        $monthDate = $report['reportYear'].'-'.$report['reportMonth']."-01 00:00";
 
-        $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))));
-        $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))), "year");
+
+        $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($monthDate))), date_create(date("Y-m-d ",strtotime($report['to']))));
+        $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['reportYear']."-01-01"))), date_create(date("Y-m-d ",strtotime($report['to']))));
 
         $efficiencyArray= $this->calcPRInvArrayDayly($anlage, "01", "2023");
         $orderedEfficiencyArray = [];
@@ -3706,7 +3719,7 @@ class AssetManagementService
             $efficiencyRanking[$key] = $chart->render('efficiency_rank_' . $key, ['style' => 'height: 550; width:900px;']);
         }
 
-        //Bucket graph page generation; here we retreive all the monthly losses to put them all together in the table and graph
+        //Bucket graph page generation; here we retreive all the _monthly losses to put them all together in the table and graph
         $sumForecast = 0;
         $sumForecastIrr = 0;
         $sumActual = 0;
@@ -3755,7 +3768,7 @@ class AssetManagementService
             $sumActual = $sumActual + $waterfallDiagramHelpTable[$i]['actual'];
 
             $waterfallDiagramHelpTable[$i]['irradiation'] = round( $irradiation[$i], 2);
-            $sumIrr = $sumIrr + $waterfallDiagramHelpTable[$i]['forecastIrr'];
+            $sumIrr = $sumIrr + $waterfallDiagramHelpTable[$i]['irradiation'];
 
             $waterfallDiagramHelpTable[$i]['SORLosses'] = round($kwhLosses[$i]['SORLosses'], 2);
             $sumSOR = $sumSOR + $waterfallDiagramHelpTable[$i]['SORLosses'];

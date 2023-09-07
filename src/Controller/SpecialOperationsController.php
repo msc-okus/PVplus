@@ -11,14 +11,12 @@ use App\Form\Tools\WeatherToolsFormType;
 use App\Message\Command\CalcExpected;
 use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Repository\AnlagenRepository;
-use App\Repository\LogRepository;
 use App\Repository\TicketRepository;
 use App\Repository\UserLoginRepository;
 use App\Repository\WeatherStationRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\ExportService;
 use App\Service\LogMessagesService;
-use App\Service\Reports\ReportsMonthlyService;
 use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,7 +24,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Exception;
 use Omines\DataTablesBundle\DataTableFactory;
 use Psr\Cache\InvalidArgumentException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,7 +33,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Helper\simpleXLSX;
 use App\Service\UploaderHelper;
 use App\Helper\G4NTrait;
-use App\Entity\UserLogin;
 use Knp\Component\Pager\PaginatorInterface;
 
 class SpecialOperationsController extends AbstractController
@@ -46,7 +43,7 @@ class SpecialOperationsController extends AbstractController
      * @throws InvalidArgumentException
      * @throws NonUniqueResultException
      */
-    #[IsGranted(['ROLE_G4N'])]
+    #[IsGranted('ROLE_G4N')]
     #[Route(path: '/special/operations/bavelse/report', name: 'bavelse_report')]
     public function bavelseExport(Request $request, ExportService $bavelseExport, AnlagenRepository $anlagenRepository, AvailabilityByTicketService $availabilityByTicket): Response
     {
@@ -93,7 +90,8 @@ class SpecialOperationsController extends AbstractController
      * @throws Exception
      * @throws InvalidArgumentException
      */
-    #[IsGranted(['ROLE_G4N', 'ROLE_BETA'])]
+    #[IsGranted('ROLE_G4N')]
+    #[IsGranted('ROLE_BETA')]
     #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
     public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, DataTableFactory $dataTableFactory): Response
     {
@@ -126,7 +124,7 @@ class SpecialOperationsController extends AbstractController
 
     }
 
-    #[IsGranted(['ROLE_G4N'])]
+    #[IsGranted('ROLE_G4N')]
     #[Route(path: '/special/operations/loadweatherdata', name: 'load_weatherdata')]
     public function loadUPWeatherData(Request $request, AnlagenRepository $anlagenRepository, WeatherStationRepository $weatherStationRepo, WeatherServiceNew $weatherService, MessageBusInterface $messageBus, LogMessagesService $logMessages,): Response
     {
@@ -182,7 +180,7 @@ class SpecialOperationsController extends AbstractController
      * @throws InvalidArgumentException
      * @throws NonUniqueResultException
      */
-    #[IsGranted(['ROLE_BETA'] )]
+    #[IsGranted('ROLE_BETA')]
     #[Route(path: '/special/operations/calctools', name: 'calc_tools')]
     public function toolsCalc(Request $request, AnlagenRepository $anlagenRepo, AvailabilityByTicketService $availabilityByTicket, MessageBusInterface $messageBus, LogMessagesService $logMessages,): Response
     {
@@ -265,7 +263,7 @@ class SpecialOperationsController extends AbstractController
     }
 
 
-    #[IsGranted(['ROLE_G4N'])]
+    #[IsGranted('ROLE_G4N')]
     #[Route(path: '/special/operations/deletetickets', name: 'delete_tickets')]
     public function deleteTickets(Request $request, AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em): Response
     {
@@ -322,21 +320,21 @@ class SpecialOperationsController extends AbstractController
             $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageForm]);
             $anlageId = $anlage->getAnlagenId();
             $dataBaseNTable = $anlage->getDbNameIst();
-echo $dataBaseNTable;
+            echo $dataBaseNTable;
 
-$timezones = \DateTimeZone::listIdentifiers();
-print_r($timezones);
+            $timezones = \DateTimeZone::listIdentifiers();
+            print_r($timezones);
 
-$timezone = new \DateTimeZone('Europe/Berlin');
-$transitions = $timezone->getTransitions();
+            $timezone = new \DateTimeZone('Europe/Berlin');
+            $transitions = $timezone->getTransitions();
 
-foreach($transitions as $transition) {
-    echo "Transition: " . date('Y-m-d H:i:s', $transition['ts']) . " (offset: " . $transition['offset'] . " seconds)<br>";
-}
-exit;
+            foreach($transitions as $transition) {
+                echo "Transition: " . date('Y-m-d H:i:s', $transition['ts']) . " (offset: " . $transition['offset'] . " seconds)<br>";
+            }
+            exit;
             $plantoffset = new \DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
-$x =  (string)$plantoffset->getName();
-echo $x;
+            $x =  (string)$plantoffset->getName();
+            echo $x;
             $datetime = new \DateTime(date('Y/m/d H:i:s'), new \DateTimeZone('Europe/Amsterdam'));
             $offset = $datetime->getOffset();
             if($datetime->format('I')) { // Check if DST is in effect

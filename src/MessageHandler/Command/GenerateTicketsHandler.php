@@ -39,6 +39,6 @@ class GenerateTicketsHandler implements MessageHandlerInterface
                 $this->alertService->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp), date('Y-m-d H:i:00', $stamp + (24 * 3600)));
             }
         }
-        $this->logMessages->updateEntry($logId, 'done');
+        $this->logMessages->updateEntry($logId, 'done', 100);
     }
 }

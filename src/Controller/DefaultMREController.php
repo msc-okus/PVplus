@@ -5,10 +5,7 @@ use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
-use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
-use App\Repository\Case5Repository;
-use App\Repository\WeatherStationRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\AvailabilityService;
 use App\Service\CheckSystemStatusService;
@@ -18,24 +15,17 @@ use App\Service\Functions\SensorService;
 use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
 use App\Service\ReportEpcPRNewService;
-use App\Service\Reports\ReportsMonthlyService;
 use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\WeatherFunctionsService;
-use App\Service\WeatherServiceNew;
 use Doctrine\ORM\NonUniqueResultException;
-use JetBrains\PhpStorm\NoReturn;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Knp\Snappy\Pdf;
 use Psr\Cache\InvalidArgumentException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 
 #[IsGranted('ROLE_G4N')]
 class DefaultMREController extends BaseController

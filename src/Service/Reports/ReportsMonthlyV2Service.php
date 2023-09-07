@@ -303,7 +303,7 @@ class ReportsMonthlyV2Service
      */
     private function createPDF(Anlage $anlage, array $report): array
     {
-        $html = $this->twig->render('report/monthly/monthlyReport.html.twig', [
+        $html = $this->twig->render('report/_monthly/monthlyReport2023.html.twig', [
             'anlage'        => $anlage,
             'report'        => $report,
         ]);
