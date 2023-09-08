@@ -62,7 +62,7 @@
 
                         <a href="{{ path('app_admin_anlagen_edit', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> Settings</a>&nbsp;
                         <a href="{{ path('app_admin_anlagen_edit_config', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-cog"></span></a>&nbsp;
-                        {# {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_anlage_delete', { id: plant.anlId}) }}" class="hollow button tiny action-icon shadow" onclick="return window.confirm('Löschen?');"><span class="fa fa-trash red"></span></a>{% endif %}&nbsp; #}
+                        {% if is_granted('ROLE_DEV') and app.user.name == 'matthias' %}<a href="{{ path('app_admin_anlage_delete', { id: plant.anlId}) }}" class="hollow button tiny action-icon shadow" onclick="return window.confirm('Löschen?');"><span class="fa fa-trash red"></span></a>{% endif %}&nbsp;
                     {% else %}
                         <a href="{{ path('app_anlagen_setting_edit', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> Settings</a>&nbsp;
                         <a href="{{ path('app_anlagen_edit', { id: plant.anlId}) }}" title="Edit Legend" class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a>&nbsp;
