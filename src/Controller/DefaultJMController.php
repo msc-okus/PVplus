@@ -6,13 +6,22 @@ use App\Service\GetPdoService;
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+<<<<<<< HEAD
 use App\Service\TicketsGeneration\InternalAlertSystemService;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Service\AlertSystemV2Service;
+=======
+use App\Repository\StatusRepository;
+use App\Repository\TicketRepository;
+use App\Service\TicketsGeneration\AlertSystemService;
+use App\Service\TicketsGeneration\AlertSystemV2Service;
+use App\Service\AlertSystemWeatherService;
+>>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7
 use App\Service\AssetManagementService;
 use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
+use App\Service\TicketsGeneration\InternalAlertSystemService;
 use App\Service\WeatherServiceNew;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,12 +57,21 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
     {
+<<<<<<< HEAD
         $anlage = $anlagenRepository->findIdLike("207")[0];
         $fromStamp = strtotime("2023-06-15 00:00");
         $toStamp = strtotime("2023-06-30 00:00");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
             $service->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
         }
+=======
+        $anlage = $anlagenRepository->findIdLike("218")[0];
+        $fromStamp = strtotime("2023-06-15 12:00");
+        $toStamp = strtotime("2023-06-16 00:00");
+
+        $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $fromStamp), date('Y-m-d H:i:00', $toStamp));
+
+>>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7
         dd("hello World");
     }
 

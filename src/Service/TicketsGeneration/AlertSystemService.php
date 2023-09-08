@@ -21,7 +21,16 @@ use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 use phpDocumentor\Reflection\Types\Boolean;
+define('EFOR', '10');
+define('SOR', '20');
+define('OMC', '30');
 
+define('DATA_GAP', 10);
+define('INVERTER_ERROR', 20);
+define('GRID_ERROR', 30);
+define('WEATHER_STATION_ERROR', 40);
+define('EXTERNAL_CONTROL', 50); // Regelung vom Direktvermarketr oder Netztbetreiber
+define('POWER_DIFF', 60);
 class AlertSystemService
 {
     use G4NTrait;
@@ -44,6 +53,10 @@ class AlertSystemService
         private StatusRepository        $statusRepo,
         private TicketRepository        $ticketRepo)
     {
+<<<<<<< HEAD:src/Service/TicketsGeneration/AlertSystemService.php
+=======
+
+>>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7:src/Service/AlertSystemService.php
     }
 
     /**
