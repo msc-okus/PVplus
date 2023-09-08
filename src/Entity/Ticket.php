@@ -136,6 +136,9 @@ class Ticket
     #[ORM\Column(nullable: true)]
     private ?bool $notified = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $internal = false;
+
 
     /*
         #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -428,6 +431,18 @@ class Ticket
     public function setNotified(?bool $notified): self
     {
         $this->notified = $notified;
+
+        return $this;
+    }
+
+    public function isInternal(): ?bool
+    {
+        return $this->internal;
+    }
+
+    public function setInternal(?bool $internal): static
+    {
+        $this->internal = $internal;
 
         return $this;
     }

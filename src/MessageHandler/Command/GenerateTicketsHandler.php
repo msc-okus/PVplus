@@ -4,8 +4,8 @@ namespace App\MessageHandler\Command;
 use App\Entity\Anlage;
 use App\Message\Command\GenerateTickets;
 use App\Repository\AnlagenRepository;
-use App\Service\AlertSystemService;
-use App\Service\AlertSystemV2Service;
+use App\Service\TicketsGeneration\AlertSystemService;
+use App\Service\TicketsGeneration\AlertSystemV2Service;
 use App\Service\LogMessagesService;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 

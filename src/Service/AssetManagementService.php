@@ -2564,16 +2564,29 @@ class AssetManagementService
                             }
                         }
                     } else {
-                        $dcExpDcIst[] = [
-                            'group' => $value[$i]['invgroup'],
-                            'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
-                            'exp_power_dc' => $value[$i]['exp_power_dc'],
-                            'exp_current_dc' => $value[$i]['exp_current_dc'],
-                            'act_power_dc' => $dcIst[$j]['act_power_dc'],
-                            'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                            'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 ,
-                            'diff_power_dc' =>  (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 ,
-                        ];
+                        if ($value[$i]['exp_power_dc'] > 0 && $value[$i]['exp_current_dc'] > 0) {
+                            $dcExpDcIst[] = [
+                                'group' => $value[$i]['invgroup'],
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
+                                'exp_power_dc' => $value[$i]['exp_power_dc'],
+                                'exp_current_dc' => $value[$i]['exp_current_dc'],
+                                'act_power_dc' => $dcIst[$j]['act_power_dc'],
+                                'act_current_dc' => $dcIst[$j]['act_current_dc'],
+                                'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100,
+                                'diff_power_dc' => (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100,
+                            ];
+                        }else{
+                            $dcExpDcIst[] = [
+                                'group' => $value[$i]['invgroup'],
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
+                                'exp_power_dc' => $value[$i]['exp_power_dc'],
+                                'exp_current_dc' => $value[$i]['exp_current_dc'],
+                                'act_power_dc' => $dcIst[$j]['act_power_dc'],
+                                'act_current_dc' => $dcIst[$j]['act_current_dc'],
+                                'diff_current_dc' => 0,
+                                'diff_power_dc' => 0,
+                            ];
+                        }
                         if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                             $outTableCurrentsPower[] = $dcExpDcIst;
                             unset($dcExpDcIst);

@@ -27,6 +27,24 @@ class InternalAlertSystemService
     use G4NTrait;
     private $ticketArray;
 
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
+        private AnlagenRepository       $anlagenRepository,
+        private WeatherServiceNew       $weather,
+        private WeatherFunctionsService $weatherFunctions,
+        private AnlagenRepository       $AnlRepo,
+        private EntityManagerInterface  $em,
+        private MessageService          $mailservice,
+        private FunctionsService        $functions,
+        private StatusRepository        $statusRepo,
+        private TicketRepository        $ticketRepo)
+    {
+    }
+
     /**
      * this method should be called to generate the tickets
      * no other method from this class should be called manually
@@ -46,17 +64,31 @@ class InternalAlertSystemService
      * @param string $to
      * @return string
      */
-    public function checkSystem(Anlage $anlage, string $from, string $to  ): string
+    public function checkSystem(Anlage $anlage, string $from, ?string $to = null  ): string
     {
 
         $fromStamp = strtotime($from);
-        $toStamp = strtotime($to);
+        if ($to != null) $toStamp = strtotime($to);
+        else $toStamp = strtotime($from);
+
+        $ticketArray['countIrr'] = false;
+        $ticketArray['countExp'] = false;
+        $ticketArray['countPPC'] = false;
+
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
                 $plant_status = self::RetrievePlant($anlage, date('Y-m-d H:i:00', $stamp));
-                $ticketArray[date('Y-m-d H:i:00', $stamp)]['countIrr'] = $plant_status['countIrr'];
-                $ticketArray[date('Y-m-d H:i:00', $stamp)]['countExp'] = $plant_status['countExp'];
-                $ticketArray[date('Y-m-d H:i:00', $stamp)]['countPPC'] = $plant_status['countPPC'];
+                $ticketArray['countIrr'] = $plant_status['countIrr'];
+                $ticketArray['countExp'] = $plant_status['countExp'];
+                $ticketArray['countPPC'] = $plant_status['countPPC'];
+
+                if ($ticketArray['countIrr'] == true) $this->generateTickets(90, $anlage, $stamp, "");
+                if ($ticketArray['countExp'] == true) $this->generateTickets(91, $anlage, $stamp, "");
+                if ($ticketArray['countPPC'] == true) $this->generateTickets(92, $anlage, $stamp, "");
             }
+
+
+
+            /*
             foreach ($ticketArray as $key => $value){
                 $previousQuarter = date('Y-m-d H:i:00', strtotime($key) - 900);
                 $nextQuarter = date('Y-m-d H:i:00', strtotime($key) + 900);
@@ -67,9 +99,12 @@ class InternalAlertSystemService
                 }
                 dump($key);
             }
+            */
         dd($ticketArray);
         return 'success';
     }
+
+
     /**
      * main function to retrieve plant status for a given time
      * @param Anlage $anlage
@@ -82,10 +117,14 @@ class InternalAlertSystemService
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+
         $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
+        $tolerance = 240; // here we have the ammount of time we "look" in the past to generate the internal errors
+        $begin = date('Y-m-d H:i:s', strtotime($time) - $totalOffset - $tolerance);
+
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameWeather()."
-                WHERE stamp = '$time' ";
+                WHERE stamp BETWEEN '$begin' AND'$time' ";
 
         $resp = $conn->query($sql);
 
@@ -93,7 +132,7 @@ class InternalAlertSystemService
 
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameDcSoll()."
-                WHERE stamp = '$time'";
+                WHERE stamp BETWEEN '$begin' AND'$time' ";
 
         $resp = $conn->query($sql);
 
@@ -101,13 +140,72 @@ class InternalAlertSystemService
 
         $sql = "SELECT *
                 FROM ". $anlage->getDbNamePPC()."
-                WHERE stamp = '$time' ";
+                WHERE stamp BETWEEN '$begin' AND'$time' ";
 
         $resp = $conn->query($sql);
 
         $plantStatus['countPPC'] =  $resp->rowCount() === 0;
 
         return $plantStatus;
+    }
+
+
+    /**
+     * Given all the information needed to generate a ticket, the tickets are created and commited to the db (single ticket variant)
+     * @param $errorType
+     * @param $errorCategorie
+     * @param $anlage
+     * @param $inverter
+     * @param $time
+     * @param $message
+     * @return void
+     */
+    private function generateTickets($errorCategorie, $anlage, $time, $message)
+    {
+        $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
+
+        //this could be the ticket from  the previous quarter or the last ticket from  the previous day
+        if ($ticketOld !== null) { // is there is a previous ticket we just extend it
+            $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
+            $end->getTimestamp();
+            $ticketOld->setEnd($end);
+            $ticketOld->setOpenTicket(true);
+            $this->em->persist($ticketOld);
+        } else {// if there is no previous ticket we create a new one, the next lines are just setting the properties of the ticket
+            $ticket = new Ticket();
+            $ticket->setAnlage($anlage);
+            $ticket->setStatus('10'); // Status 10 = open
+            $ticket->setEditor('Alert system');
+            $ticket->setSystemStatus(10);
+            $ticket->setPriority(20);
+            $ticket->setOpenTicket(true);
+            $ticket->setDescription($message);
+            $ticket->setCreatedBy("AlertSystem");
+            $ticket->setUpdatedBy("AlertSystem");
+            $ticket->setProofAM(false);
+            $ticket->setInverter('*');
+            $ticket->setAlertType(90); //  category = alertType (bsp: datagap, inverter power, etc.)
+
+            $ticket->setErrorType(90); // type = errorType (Bsp:  SOR, EFOR, OMC)
+            $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
+            $begin->getTimestamp();
+            $ticket->setBegin($begin);
+            $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
+            $end->getTimestamp();
+
+            $ticket->setEnd($end);
+            //default values por the kpi evaluation
+
+            $this->em->persist($ticket);
+
+        }
+
+    }
+
+    private function getLastTicket($anlage, $time, $errorCategory): mixed
+    {
+        $ticket = $this->ticketRepo->findByAnlageInverterTime($anlage, $time, $errorCategory, "*"); // we try to retrieve the ticket in the previous quarter
+        return $ticket != null ? $ticket[0] : null;
     }
 
         //AUXILIAR FUNCTIONS

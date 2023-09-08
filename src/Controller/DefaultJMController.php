@@ -6,6 +6,7 @@ use App\Service\GetPdoService;
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use App\Service\TicketsGeneration\InternalAlertSystemService;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Service\AlertSystemV2Service;
 use App\Service\AssetManagementService;
@@ -45,13 +46,13 @@ class DefaultJMController extends AbstractController
     }
 
     #[Route(path: '/test/createticket', name: 'default_check')]
-    public function check(AnlagenRepository $anlagenRepository, AlertSystemV2Service $service)
+    public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
     {
         $anlage = $anlagenRepository->findIdLike("207")[0];
         $fromStamp = strtotime("2023-06-15 00:00");
         $toStamp = strtotime("2023-06-30 00:00");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-            $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
+            $service->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
         }
         dd("hello World");
     }

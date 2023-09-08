@@ -26,6 +26,9 @@ ticket:
       74: Correct Energy
       75: Exclude PPCs
       76: Replace PPCs
+      90: Internal Error Irradiation
+      91: Internal Error Expected
+      92: Internal Error PPC
 
   status:
     name: Status

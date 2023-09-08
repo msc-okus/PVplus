@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\Repository\AnlagenRepository;
-use App\Service\AlertSystemService;
+use App\Service\TicketsGeneration\AlertSystemService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
