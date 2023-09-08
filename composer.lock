@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "79697191aeaaf60a03cb45d5652d6045",
+    "content-hash": "7c17cf65380abfd42a382b85acdb6427",
     "packages": [
         {
             "name": "api-platform/core",
@@ -2235,20 +2235,20 @@
         },
         {
             "name": "gedmo/doctrine-extensions",
-            "version": "v3.12.0",
+            "version": "v3.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine-extensions/DoctrineExtensions.git",
-                "reference": "eef4b4978118fdb4c0a03509325e807ad96e3bec"
+                "reference": "291d0c527d2dc9ee07b888c9a4e2a179893f08ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine-extensions/DoctrineExtensions/zipball/eef4b4978118fdb4c0a03509325e807ad96e3bec",
-                "reference": "eef4b4978118fdb4c0a03509325e807ad96e3bec",
+                "url": "https://api.github.com/repos/doctrine-extensions/DoctrineExtensions/zipball/291d0c527d2dc9ee07b888c9a4e2a179893f08ab",
+                "reference": "291d0c527d2dc9ee07b888c9a4e2a179893f08ab",
                 "shasum": ""
             },
             "require": {
-                "behat/transliterator": "~1.2",
+                "behat/transliterator": "^1.2",
                 "doctrine/annotations": "^1.13 || ^2.0",
                 "doctrine/collections": "^1.2 || ^2.0",
                 "doctrine/common": "^2.13 || ^3.0",
@@ -2262,7 +2262,7 @@
             "conflict": {
                 "doctrine/dbal": "<2.13.1 || ^3.0 <3.2",
                 "doctrine/mongodb-odm": "<2.3",
-                "doctrine/orm": "<2.10.2",
+                "doctrine/orm": "<2.10.2 || 2.16.0 || 2.16.1",
                 "sebastian/comparator": "<2.0"
             },
             "require-dev": {
@@ -2337,7 +2337,7 @@
             "support": {
                 "email": "gediminas.morkevicius@gmail.com",
                 "issues": "https://github.com/doctrine-extensions/DoctrineExtensions/issues",
-                "source": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/v3.12.0",
+                "source": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/v3.13.0",
                 "wiki": "https://github.com/Atlantic18/DoctrineExtensions/tree/main/doc"
             },
             "funding": [
@@ -2358,7 +2358,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-07-08T20:38:42+00:00"
+            "time": "2023-09-06T13:16:12+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -2990,16 +2990,16 @@
         },
         {
             "name": "knplabs/knp-snappy",
-            "version": "v1.4.2",
+            "version": "v1.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/KnpLabs/snappy.git",
-                "reference": "b66f79334421c26d9c244427963fa2d92980b5d3"
+                "reference": "d3b742d61a68bf93866032c2c0a7f1486128b67e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/snappy/zipball/b66f79334421c26d9c244427963fa2d92980b5d3",
-                "reference": "b66f79334421c26d9c244427963fa2d92980b5d3",
+                "url": "https://api.github.com/repos/KnpLabs/snappy/zipball/d3b742d61a68bf93866032c2c0a7f1486128b67e",
+                "reference": "d3b742d61a68bf93866032c2c0a7f1486128b67e",
                 "shasum": ""
             },
             "require": {
@@ -3010,8 +3010,8 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.16||^3.0",
                 "pedrotroller/php-cs-custom-fixer": "^2.19",
-                "phpstan/phpstan": "^0.12.7",
-                "phpstan/phpstan-phpunit": "^0.12.6",
+                "phpstan/phpstan": "^1.0.0",
+                "phpstan/phpstan-phpunit": "^1.0.0",
                 "phpunit/phpunit": "~7.4||~8.5"
             },
             "suggest": {
@@ -3058,31 +3058,30 @@
             ],
             "support": {
                 "issues": "https://github.com/KnpLabs/snappy/issues",
-                "source": "https://github.com/KnpLabs/snappy/tree/v1.4.2"
+                "source": "https://github.com/KnpLabs/snappy/tree/v1.4.3"
             },
-            "time": "2023-03-17T14:47:54+00:00"
+            "time": "2023-09-06T15:24:48+00:00"
         },
         {
             "name": "knplabs/knp-snappy-bundle",
-            "version": "v1.9.1",
+            "version": "v1.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/KnpLabs/KnpSnappyBundle.git",
-                "reference": "cfdddb3fd848d97c6b07be72b7703c2e45274954"
+                "reference": "b529b40776345d3a92feb3bc1118a808ea196791"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/KnpSnappyBundle/zipball/cfdddb3fd848d97c6b07be72b7703c2e45274954",
-                "reference": "cfdddb3fd848d97c6b07be72b7703c2e45274954",
+                "url": "https://api.github.com/repos/KnpLabs/KnpSnappyBundle/zipball/b529b40776345d3a92feb3bc1118a808ea196791",
+                "reference": "b529b40776345d3a92feb3bc1118a808ea196791",
                 "shasum": ""
             },
             "require": {
-                "knplabs/knp-snappy": "^1.4.2",
+                "knplabs/knp-snappy": "^1.4.3",
                 "php": ">=7.4",
                 "symfony/framework-bundle": "^4.4|^5.1|^6.0"
             },
             "require-dev": {
-                "doctrine/annotations": "^1.11",
                 "symfony/asset": "^4.4|^5.1|^6.0",
                 "symfony/finder": "^4.4|^5.1|^6.0",
                 "symfony/phpunit-bridge": "^4.4|^5.1|^6.0",
@@ -3122,22 +3121,22 @@
             ],
             "support": {
                 "issues": "https://github.com/KnpLabs/KnpSnappyBundle/issues",
-                "source": "https://github.com/KnpLabs/KnpSnappyBundle/tree/v1.9.1"
+                "source": "https://github.com/KnpLabs/KnpSnappyBundle/tree/v1.9.2"
             },
-            "time": "2023-05-12T12:38:57+00:00"
+            "time": "2023-09-06T15:36:23+00:00"
         },
         {
             "name": "laminas/laminas-code",
-            "version": "4.11.0",
+            "version": "4.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-code.git",
-                "reference": "169123b3ede20a9193480c53de2a8194f8c073ec"
+                "reference": "36cbee228b427446419dd51944bdfb6bb8ddbcd0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-code/zipball/169123b3ede20a9193480c53de2a8194f8c073ec",
-                "reference": "169123b3ede20a9193480c53de2a8194f8c073ec",
+                "url": "https://api.github.com/repos/laminas/laminas-code/zipball/36cbee228b427446419dd51944bdfb6bb8ddbcd0",
+                "reference": "36cbee228b427446419dd51944bdfb6bb8ddbcd0",
                 "shasum": ""
             },
             "require": {
@@ -3187,7 +3186,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2023-05-14T12:05:38+00:00"
+            "time": "2023-09-06T14:56:25+00:00"
         },
         {
             "name": "league/flysystem",
@@ -4625,16 +4624,16 @@
         },
         {
             "name": "php-http/httplug-bundle",
-            "version": "1.30.0",
+            "version": "1.30.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-http/HttplugBundle.git",
-                "reference": "a36919772e929586e5c7f7f06d7b5249d64685fd"
+                "reference": "57284fb032bcafc3e978a1d7e4a2b591045f7e15"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-http/HttplugBundle/zipball/a36919772e929586e5c7f7f06d7b5249d64685fd",
-                "reference": "a36919772e929586e5c7f7f06d7b5249d64685fd",
+                "url": "https://api.github.com/repos/php-http/HttplugBundle/zipball/57284fb032bcafc3e978a1d7e4a2b591045f7e15",
+                "reference": "57284fb032bcafc3e978a1d7e4a2b591045f7e15",
                 "shasum": ""
             },
             "require": {
@@ -4720,9 +4719,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-http/HttplugBundle/issues",
-                "source": "https://github.com/php-http/HttplugBundle/tree/1.30.0"
+                "source": "https://github.com/php-http/HttplugBundle/tree/1.30.1"
             },
-            "time": "2023-08-31T12:40:51+00:00"
+            "time": "2023-09-07T08:04:12+00:00"
         },
         {
             "name": "php-http/logger-plugin",
@@ -5297,16 +5296,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.23.1",
+            "version": "1.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "846ae76eef31c6d7790fac9bc399ecee45160b26"
+                "reference": "3510b0a6274cc42f7219367cb3abfc123ffa09d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/846ae76eef31c6d7790fac9bc399ecee45160b26",
-                "reference": "846ae76eef31c6d7790fac9bc399ecee45160b26",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/3510b0a6274cc42f7219367cb3abfc123ffa09d6",
+                "reference": "3510b0a6274cc42f7219367cb3abfc123ffa09d6",
                 "shasum": ""
             },
             "require": {
@@ -5338,9 +5337,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.23.1"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.24.0"
             },
-            "time": "2023-08-03T16:32:59+00:00"
+            "time": "2023-09-07T20:46:32+00:00"
         },
         {
             "name": "psr/cache",
@@ -10454,16 +10453,16 @@
         },
         {
             "name": "symfony/stimulus-bundle",
-            "version": "v2.11.0",
+            "version": "v2.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/stimulus-bundle.git",
-                "reference": "8c94fd88cbc9f4ee8177a2b04e69532a2e01145c"
+                "reference": "e0e19de8df4d5b2bed57328ae69ef7904df660c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/stimulus-bundle/zipball/8c94fd88cbc9f4ee8177a2b04e69532a2e01145c",
-                "reference": "8c94fd88cbc9f4ee8177a2b04e69532a2e01145c",
+                "url": "https://api.github.com/repos/symfony/stimulus-bundle/zipball/e0e19de8df4d5b2bed57328ae69ef7904df660c7",
+                "reference": "e0e19de8df4d5b2bed57328ae69ef7904df660c7",
                 "shasum": ""
             },
             "require": {
@@ -10502,7 +10501,7 @@
                 "symfony-ux"
             ],
             "support": {
-                "source": "https://github.com/symfony/stimulus-bundle/tree/v2.11.0"
+                "source": "https://github.com/symfony/stimulus-bundle/tree/v2.11.1"
             },
             "funding": [
                 {
@@ -10518,7 +10517,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-08-24T16:25:14+00:00"
+            "time": "2023-08-28T18:00:50+00:00"
         },
         {
             "name": "symfony/stopwatch",
@@ -11036,7 +11035,7 @@
         },
         {
             "name": "symfony/ux-chartjs",
-            "version": "v2.11.0",
+            "version": "v2.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-chartjs.git",
@@ -11096,7 +11095,7 @@
                 "symfony-ux"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-chartjs/tree/v2.11.0"
+                "source": "https://github.com/symfony/ux-chartjs/tree/v2.11.1"
             },
             "funding": [
                 {
@@ -11596,16 +11595,16 @@
         },
         {
             "name": "tecnickcom/tc-lib-barcode",
-            "version": "1.17.25",
+            "version": "1.17.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-barcode.git",
-                "reference": "2b87f7c63dfd05000445a202c1779aeb9eb4549d"
+                "reference": "bbada6319c7999b51430408359af389cdc5442c8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-barcode/zipball/2b87f7c63dfd05000445a202c1779aeb9eb4549d",
-                "reference": "2b87f7c63dfd05000445a202c1779aeb9eb4549d",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-barcode/zipball/bbada6319c7999b51430408359af389cdc5442c8",
+                "reference": "bbada6319c7999b51430408359af389cdc5442c8",
                 "shasum": ""
             },
             "require": {
@@ -11632,7 +11631,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -11682,7 +11681,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-barcode/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-barcode/tree/1.17.25"
+                "source": "https://github.com/tecnickcom/tc-lib-barcode/tree/1.17.29"
             },
             "funding": [
                 {
@@ -11690,20 +11689,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-18T08:10:11+00:00"
+            "time": "2023-09-06T13:20:35+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-color",
-            "version": "1.14.24",
+            "version": "1.14.28",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-color.git",
-                "reference": "6207533413f6edc3fea373d0e54041661d2bd905"
+                "reference": "c0ea9b1a8488776d33ae4051aa0701facf79e402"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-color/zipball/6207533413f6edc3fea373d0e54041661d2bd905",
-                "reference": "6207533413f6edc3fea373d0e54041661d2bd905",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-color/zipball/c0ea9b1a8488776d33ae4051aa0701facf79e402",
+                "reference": "c0ea9b1a8488776d33ae4051aa0701facf79e402",
                 "shasum": ""
             },
             "require": {
@@ -11726,7 +11725,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -11753,7 +11752,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-color/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-color/tree/1.14.24"
+                "source": "https://github.com/tecnickcom/tc-lib-color/tree/1.14.28"
             },
             "funding": [
                 {
@@ -11761,20 +11760,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-18T08:09:02+00:00"
+            "time": "2023-09-06T13:19:19+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-file",
-            "version": "1.7.24",
+            "version": "1.7.28",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-file.git",
-                "reference": "d5a0fe8443d8dd942f2f55fd378f892471f8dd4d"
+                "reference": "a9253ad6a69f416fb9b0328bbc383b17fafa2c65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-file/zipball/d5a0fe8443d8dd942f2f55fd378f892471f8dd4d",
-                "reference": "d5a0fe8443d8dd942f2f55fd378f892471f8dd4d",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-file/zipball/a9253ad6a69f416fb9b0328bbc383b17fafa2c65",
+                "reference": "a9253ad6a69f416fb9b0328bbc383b17fafa2c65",
                 "shasum": ""
             },
             "require": {
@@ -11798,7 +11797,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -11821,7 +11820,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-file/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-file/tree/1.7.24"
+                "source": "https://github.com/tecnickcom/tc-lib-file/tree/1.7.28"
             },
             "funding": [
                 {
@@ -11829,7 +11828,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-18T08:09:13+00:00"
+            "time": "2023-09-06T13:19:29+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-pdf",
@@ -11837,12 +11836,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-pdf.git",
-                "reference": "bb1626e842efa7c8d0fda74613bc40d25425b007"
+                "reference": "57866dab3e348633d35092712ecaa57f13b52017"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf/zipball/bb1626e842efa7c8d0fda74613bc40d25425b007",
-                "reference": "bb1626e842efa7c8d0fda74613bc40d25425b007",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf/zipball/57866dab3e348633d35092712ecaa57f13b52017",
+                "reference": "57866dab3e348633d35092712ecaa57f13b52017",
                 "shasum": ""
             },
             "require": {
@@ -11877,7 +11876,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -11897,7 +11896,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-pdf/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-pdf/tree/8.0.22"
+                "source": "https://github.com/tecnickcom/tc-lib-pdf/tree/8.0.26"
             },
             "funding": [
                 {
@@ -11905,20 +11904,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-18T08:12:16+00:00"
+            "time": "2023-09-06T13:22:45+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-pdf-encrypt",
-            "version": "1.6.20",
+            "version": "1.6.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-pdf-encrypt.git",
-                "reference": "29adc87d3cf66162da03fa03e3a3638dd72c8d9d"
+                "reference": "32649b3d270749a5770a7ebe9225e532b7a57f93"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-encrypt/zipball/29adc87d3cf66162da03fa03e3a3638dd72c8d9d",
-                "reference": "29adc87d3cf66162da03fa03e3a3638dd72c8d9d",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-encrypt/zipball/32649b3d270749a5770a7ebe9225e532b7a57f93",
+                "reference": "32649b3d270749a5770a7ebe9225e532b7a57f93",
                 "shasum": ""
             },
             "require": {
@@ -11947,7 +11946,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -11968,7 +11967,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-pdf-encrypt/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-pdf-encrypt/tree/1.6.20"
+                "source": "https://github.com/tecnickcom/tc-lib-pdf-encrypt/tree/1.6.24"
             },
             "funding": [
                 {
@@ -11976,20 +11975,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-18T08:09:23+00:00"
+            "time": "2023-09-06T13:19:41+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-pdf-font",
-            "version": "1.11.6",
+            "version": "1.11.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-pdf-font.git",
-                "reference": "c49491c80f31fcb929e1d53f0f27e0e67033bdf4"
+                "reference": "98af6a56e7cbb006186fc8a4ad3cd5e8295484f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-font/zipball/c49491c80f31fcb929e1d53f0f27e0e67033bdf4",
-                "reference": "c49491c80f31fcb929e1d53f0f27e0e67033bdf4",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-font/zipball/98af6a56e7cbb006186fc8a4ad3cd5e8295484f3",
+                "reference": "98af6a56e7cbb006186fc8a4ad3cd5e8295484f3",
                 "shasum": ""
             },
             "require": {
@@ -12017,7 +12016,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -12039,7 +12038,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-pdf-font/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-pdf-font/tree/1.11.6"
+                "source": "https://github.com/tecnickcom/tc-lib-pdf-font/tree/1.11.10"
             },
             "funding": [
                 {
@@ -12047,20 +12046,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-18T08:11:45+00:00"
+            "time": "2023-09-06T13:22:03+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-pdf-graph",
-            "version": "1.7.8",
+            "version": "1.7.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-pdf-graph.git",
-                "reference": "5c1e7ecab480b4a1a7ab01177852f66b3f193008"
+                "reference": "4bd0cd1d1a708edbdcfd5dadd19088e5d3a4bb0e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-graph/zipball/5c1e7ecab480b4a1a7ab01177852f66b3f193008",
-                "reference": "5c1e7ecab480b4a1a7ab01177852f66b3f193008",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-graph/zipball/4bd0cd1d1a708edbdcfd5dadd19088e5d3a4bb0e",
+                "reference": "4bd0cd1d1a708edbdcfd5dadd19088e5d3a4bb0e",
                 "shasum": ""
             },
             "require": {
@@ -12085,7 +12084,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -12105,7 +12104,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-pdf-graph/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-pdf-graph/tree/1.7.8"
+                "source": "https://github.com/tecnickcom/tc-lib-pdf-graph/tree/1.7.12"
             },
             "funding": [
                 {
@@ -12113,20 +12112,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-18T08:11:07+00:00"
+            "time": "2023-09-06T13:21:22+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-pdf-image",
-            "version": "1.4.5",
+            "version": "1.4.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-pdf-image.git",
-                "reference": "15657b874f81ba06add036b98978ec444c0db8e5"
+                "reference": "f18747845fc1a4735f47d4fe1b2fbedbcdb3d340"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-image/zipball/15657b874f81ba06add036b98978ec444c0db8e5",
-                "reference": "15657b874f81ba06add036b98978ec444c0db8e5",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-image/zipball/f18747845fc1a4735f47d4fe1b2fbedbcdb3d340",
+                "reference": "f18747845fc1a4735f47d4fe1b2fbedbcdb3d340",
                 "shasum": ""
             },
             "require": {
@@ -12153,7 +12152,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -12174,7 +12173,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-pdf-image/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-pdf-image/tree/1.4.5"
+                "source": "https://github.com/tecnickcom/tc-lib-pdf-image/tree/1.4.9"
             },
             "funding": [
                 {
@@ -12182,20 +12181,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-18T08:11:17+00:00"
+            "time": "2023-09-06T13:21:32+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-pdf-page",
-            "version": "3.1.6",
+            "version": "3.1.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-pdf-page.git",
-                "reference": "171d497592c175836cf1a9c4766667747f952d30"
+                "reference": "c4c7273bc314cb4eba351e2e2531e49c32e7c2d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-page/zipball/171d497592c175836cf1a9c4766667747f952d30",
-                "reference": "171d497592c175836cf1a9c4766667747f952d30",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-page/zipball/c4c7273bc314cb4eba351e2e2531e49c32e7c2d1",
+                "reference": "c4c7273bc314cb4eba351e2e2531e49c32e7c2d1",
                 "shasum": ""
             },
             "require": {
@@ -12221,7 +12220,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -12240,7 +12239,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-pdf-page/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-pdf-page/tree/3.1.6"
+                "source": "https://github.com/tecnickcom/tc-lib-pdf-page/tree/3.1.10"
             },
             "funding": [
                 {
@@ -12248,20 +12247,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-18T08:10:55+00:00"
+            "time": "2023-09-06T13:21:11+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-unicode",
-            "version": "1.4.18",
+            "version": "1.4.22",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-unicode.git",
-                "reference": "af59d0eb7f77895a0e0f0d357ebb7078a9ee7889"
+                "reference": "c46ea3fd7ef1e1b597ff53ee9c18a6a12d05d54a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-unicode/zipball/af59d0eb7f77895a0e0f0d357ebb7078a9ee7889",
-                "reference": "af59d0eb7f77895a0e0f0d357ebb7078a9ee7889",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-unicode/zipball/c46ea3fd7ef1e1b597ff53ee9c18a6a12d05d54a",
+                "reference": "c46ea3fd7ef1e1b597ff53ee9c18a6a12d05d54a",
                 "shasum": ""
             },
             "require": {
@@ -12286,7 +12285,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -12306,7 +12305,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-unicode/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-unicode/tree/1.4.18"
+                "source": "https://github.com/tecnickcom/tc-lib-unicode/tree/1.4.22"
             },
             "funding": [
                 {
@@ -12314,20 +12313,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-18T08:10:44+00:00"
+            "time": "2023-09-06T13:21:01+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-unicode-data",
-            "version": "1.7.18",
+            "version": "1.7.22",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-unicode-data.git",
-                "reference": "a04e6d55f2cef422334118c22cff59bb920e5abc"
+                "reference": "1420814716e0797e66caad4e71b9410d5d995f2a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-unicode-data/zipball/a04e6d55f2cef422334118c22cff59bb920e5abc",
-                "reference": "a04e6d55f2cef422334118c22cff59bb920e5abc",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-unicode-data/zipball/1420814716e0797e66caad4e71b9410d5d995f2a",
+                "reference": "1420814716e0797e66caad4e71b9410d5d995f2a",
                 "shasum": ""
             },
             "require": {
@@ -12349,7 +12348,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -12369,7 +12368,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-unicode-data/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-unicode-data/tree/1.7.18"
+                "source": "https://github.com/tecnickcom/tc-lib-unicode-data/tree/1.7.22"
             },
             "funding": [
                 {
@@ -12377,7 +12376,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-05-18T08:09:48+00:00"
+            "time": "2023-09-06T13:20:10+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
@@ -13019,16 +13018,16 @@
         },
         {
             "name": "rector/rector",
-            "version": "0.18.1",
+            "version": "0.18.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "ee72ef542680a7f47ed8c6784f78b032c0d2f381"
+                "reference": "8606564b50ce70f99839d35c67f4536dc2ea090d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/ee72ef542680a7f47ed8c6784f78b032c0d2f381",
-                "reference": "ee72ef542680a7f47ed8c6784f78b032c0d2f381",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/8606564b50ce70f99839d35c67f4536dc2ea090d",
+                "reference": "8606564b50ce70f99839d35c67f4536dc2ea090d",
                 "shasum": ""
             },
             "require": {
@@ -13063,7 +13062,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/0.18.1"
+                "source": "https://github.com/rectorphp/rector/tree/0.18.2"
             },
             "funding": [
                 {
@@ -13071,7 +13070,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-08-28T18:01:58+00:00"
+            "time": "2023-09-06T08:50:38+00:00"
         },
         {
             "name": "symfony/web-profiler-bundle",
