@@ -26,8 +26,6 @@ class InternalAlertSystemService
 {
     use G4NTrait;
     private $ticketArray;
-
-<<<<<<< HEAD
     public function __construct(
         private $host,
         private $userBase,
@@ -46,15 +44,6 @@ class InternalAlertSystemService
     {
     }
 
-=======
->>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7
-    /**
-     * this method should be called to generate the tickets
-     * no other method from this class should be called manually
-     * @param Anlage $anlage
-     * @param string $from
-     * @param string|null $to
-     */
     public function generateTicketsInterval(Anlage $anlage, string $from, string $to = null): void
     {
         $this->checkSystem($anlage,  $from,  $to);
@@ -67,7 +56,7 @@ class InternalAlertSystemService
      * @param string $to
      * @return string
      */
-<<<<<<< HEAD
+
     public function checkSystem(Anlage $anlage, string $from, ?string $to = null  ): string
     {
 
@@ -90,22 +79,6 @@ class InternalAlertSystemService
                 if ($ticketArray['countPPC'] == true) $this->generateTickets(92, $anlage, $stamp, "");
             }
 
-
-
-            /*
-=======
-    public function checkSystem(Anlage $anlage, string $from, string $to  ): string
-    {
-
-        $fromStamp = strtotime($from);
-        $toStamp = strtotime($to);
-            for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                $plant_status = self::RetrievePlant($anlage, date('Y-m-d H:i:00', $stamp));
-                $ticketArray[date('Y-m-d H:i:00', $stamp)]['countIrr'] = $plant_status['countIrr'];
-                $ticketArray[date('Y-m-d H:i:00', $stamp)]['countExp'] = $plant_status['countExp'];
-                $ticketArray[date('Y-m-d H:i:00', $stamp)]['countPPC'] = $plant_status['countPPC'];
-            }
->>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7
             foreach ($ticketArray as $key => $value){
                 $previousQuarter = date('Y-m-d H:i:00', strtotime($key) - 900);
                 $nextQuarter = date('Y-m-d H:i:00', strtotime($key) + 900);
@@ -116,18 +89,13 @@ class InternalAlertSystemService
                 }
                 dump($key);
             }
-<<<<<<< HEAD
-            */
+
         dd($ticketArray);
         return 'success';
     }
 
 
-=======
-        dd($ticketArray);
-        return 'success';
-    }
->>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7
+
     /**
      * main function to retrieve plant status for a given time
      * @param Anlage $anlage
@@ -140,8 +108,6 @@ class InternalAlertSystemService
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
-<<<<<<< HEAD
-
         $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
         $tolerance = 240; // here we have the ammount of time we "look" in the past to generate the internal errors
         $begin = date('Y-m-d H:i:s', strtotime($time) - $totalOffset - $tolerance);
@@ -149,37 +115,17 @@ class InternalAlertSystemService
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameWeather()."
                 WHERE stamp BETWEEN '$begin' AND'$time' ";
-=======
-        $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
-        $sql = "SELECT *
-                FROM ". $anlage->getDbNameWeather()."
-                WHERE stamp = '$time' ";
->>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7
-
         $resp = $conn->query($sql);
-
         $plantStatus['countIrr']  = $resp->rowCount() === 0;
-
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameDcSoll()."
-<<<<<<< HEAD
                 WHERE stamp BETWEEN '$begin' AND'$time' ";
-=======
-                WHERE stamp = '$time'";
->>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7
-
         $resp = $conn->query($sql);
-
         $plantStatus['countExp']  = $resp->rowCount() !== count($anlage->getInverterFromAnlage());
-
         $sql = "SELECT *
                 FROM ". $anlage->getDbNamePPC()."
-<<<<<<< HEAD
-                WHERE stamp BETWEEN '$begin' AND'$time' ";
-=======
-                WHERE stamp = '$time' ";
->>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7
 
+                WHERE stamp BETWEEN '$begin' AND'$time' ";
         $resp = $conn->query($sql);
 
         $plantStatus['countPPC'] =  $resp->rowCount() === 0;
@@ -187,7 +133,6 @@ class InternalAlertSystemService
         return $plantStatus;
     }
 
-<<<<<<< HEAD
 
     /**
      * Given all the information needed to generate a ticket, the tickets are created and commited to the db (single ticket variant)
@@ -247,8 +192,7 @@ class InternalAlertSystemService
         return $ticket != null ? $ticket[0] : null;
     }
 
-=======
->>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7
+
         //AUXILIAR FUNCTIONS
     /**
      * We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30.
