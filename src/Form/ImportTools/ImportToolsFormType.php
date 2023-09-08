@@ -43,7 +43,14 @@ class ImportToolsFormType extends AbstractType
         $anlagen_toShow = [];
         $i = 0;
         foreach ($anlagen as $anlage) {
-            if($anlage->getPathToImportScript() != ''){
+            $isSymfonyImport = null;
+            $settings = $anlage->getSettings();
+            if($settings){
+                $isSymfonyImport = $settings->isSymfonyImport();
+            }
+            
+            if($anlage->getPathToImportScript() != '' || $isSymfonyImport){
+
                 $anlagen_toShow[$i] = $anlage;
                 $i++;
             }
