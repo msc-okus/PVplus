@@ -7,7 +7,7 @@ use App\Entity\Eigner;
 use App\Repository\EignerRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class DashboardController extends BaseController
 {

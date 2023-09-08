@@ -25,7 +25,7 @@ use App\Service\Charts\TempHeatmapChartService;
 use App\Service\Charts\VoltageChartService;
 use DateTime;
 use PDO;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
