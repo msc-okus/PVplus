@@ -15,8 +15,6 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends BaseController
 {
-
-
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils, UserLoginRepository $userLoginRepository,UserRepository $userRepository): Response
     {
@@ -43,7 +41,6 @@ class SecurityController extends BaseController
             'session' => $session,
         ]);
     }
-
 
 
     #[Route(path: '/logout', name: 'app_logout')]

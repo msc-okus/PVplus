@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;

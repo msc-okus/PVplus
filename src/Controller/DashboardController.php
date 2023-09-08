@@ -1,18 +1,19 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
 
 use App\Entity\Eigner;
 use App\Repository\EignerRepository;
 use App\Repository\UserRepository;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class DashboardController extends BaseController
 {
     #[Route(path: '/', name: 'app_dashboard')]
-    public function index(EignerRepository $eignerRepository)
+    public function index(EignerRepository $eignerRepository): RedirectResponse|Response
     {
         /* @var Eigner [] $eigners */
         /* @var Eigner $owners */

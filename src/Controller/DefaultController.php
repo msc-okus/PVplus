@@ -3,11 +3,13 @@
 namespace App\Controller;
 
 use App\Helper\G4NTrait;
+use JetBrains\PhpStorm\Deprecated;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('ROLE_G4N')]
+#[Deprecated]
 class DefaultController extends BaseController
 {
     use G4NTrait;
