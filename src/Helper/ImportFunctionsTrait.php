@@ -374,6 +374,7 @@ trait ImportFunctionsTrait
      */
     function checkSensors(array $anlageSensors, int $length, bool $istOstWest, $sensors, $date): array
     {
+
         if ($istOstWest) {
             $gmPyHori = [];
             $gmPyWest = [];
@@ -393,7 +394,7 @@ trait ImportFunctionsTrait
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                         array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
-                        $gmPyHoriAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
+                        $gmPyHoriAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
 
                 }
@@ -410,7 +411,7 @@ trait ImportFunctionsTrait
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                         array_push($gmPyWest, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
-                        $gmPyWestAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
+                        $gmPyWestAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
 
                 }
@@ -427,7 +428,7 @@ trait ImportFunctionsTrait
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                         array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
-                        $gmPyEastAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
+                        $gmPyEastAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
 
                 }
@@ -458,7 +459,7 @@ trait ImportFunctionsTrait
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                         array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
-                        $gmPyHoriAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
+                        $gmPyHoriAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
 
                 }
@@ -474,7 +475,7 @@ trait ImportFunctionsTrait
                     }
                     $now = strtotime($date);
                     array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
-                    $gmPyEastAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
+                    $gmPyEastAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                 }
 
             }
@@ -503,7 +504,7 @@ trait ImportFunctionsTrait
                 $now = strtotime($date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                     array_push($tempModule, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
-                    $tempAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
+                    $tempAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
                 }
 
             }
@@ -519,7 +520,7 @@ trait ImportFunctionsTrait
                 $now = strtotime($date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                     array_push($tempAmbientArray, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
-                    $tempAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
+                    $tempAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
                 }
 
             }
@@ -539,7 +540,7 @@ trait ImportFunctionsTrait
                 #echo "Sensor End $date = $now /BE $y = $end \n";
                 if (($now >= $start && ($end == 0 || $now < $end)) || ($start == 0 && $end == 0)) {
                     array_push($windSpeedEWD, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
-                    $windAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
+                    $windAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
                 }
 
             }
@@ -555,7 +556,7 @@ trait ImportFunctionsTrait
                 $now = strtotime($date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                     array_push($windSpeedEWS, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
-                    $windAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
+                    $windAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
                 }
             }
         }
