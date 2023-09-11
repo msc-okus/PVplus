@@ -59,7 +59,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/import/cron, roles: PUBLIC_ACCESS, ips: [116.202.252.113, 2a01:4f8:d0a:74ce::2, 2003:a:110f:f400:541d:51b9:68d9:1244]}
+        - { path: ^/import/cron, roles: PUBLIC_ACCESS, ips: [127.0.0.1, 116.202.252.113, 2a01:4f8:d0a:74ce::2, 2003:a:110f:f400:541d:51b9:68d9:1244, 128.204.133.182]}
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_USER }
         - { path: ^/, roles: ROLE_USER }
