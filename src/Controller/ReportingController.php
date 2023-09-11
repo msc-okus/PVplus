@@ -224,7 +224,7 @@ class ReportingController extends AbstractController
      * @throws FilterException
      */
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
-    public function showReportAsPdf(Request $request, $id, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, PdfService $pdf): Response
+    public function showReportAsPdf(Request $request, $id, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, PdfService $pdf, $kernelProjectDir): Response
     {
         /** @var AnlagenReports|null $report */
         $session            = $request->getSession();
@@ -327,6 +327,12 @@ class ReportingController extends AbstractController
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
                         $files = $report->getPdfParts();
+
+                        /* Aktivieren für internex
+                        foreach ($files as $key => $file ){
+                            $files[$key] = str_replace('/usr/home/pvpluy/public_html', $kernelProjectDir."/..", $file);
+                        }
+                        */
                         $pdf = new Fpdi();
                         // this is the header and we will always want to include it
                         if ( $files['head']) {
