@@ -21,6 +21,7 @@ services:
             $uploadsPath:       '%kernel.project_dir%/public/uploads'
             $tempPathBaseUrl:   '%kernel.project_dir%/tempfiles'
             $filesystem:        '@oneup_flysystem.public_uploads_filesystem_filesystem'
+            $fileSystemFtp:     '@oneup_flysystem.sftp_filesystem'
             $kernelProjectDir:  '%kernel.project_dir%'
             $host:              '%app.host%'
             $userBase:          '%app.user_base%'

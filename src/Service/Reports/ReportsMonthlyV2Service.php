@@ -307,7 +307,7 @@ class ReportsMonthlyV2Service
         ]);
 
         $html = str_replace('src="//', 'src="https://', $html); // replace local pathes to global
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/MonthlyReport/'  ;
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/MonthlyReport'  ;
         return [
             'path' => $this->pdf->createPage($html, $fileroute, "Monthly_Report_" . $report['month'] . "_" . $report['year'] ."_". time() , false), // we will store this later in the entity
             'html' => $html,

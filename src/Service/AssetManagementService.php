@@ -24,6 +24,8 @@ use PDO;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
+use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
 
 class AssetManagementService
 {
@@ -56,6 +58,7 @@ class AssetManagementService
         private SensorService $sensorService,
         private WeatherFunctionsService $weatherFunctions,
         private ForcastDayRepository $forecastDayRepo,
+        private Filesystem $fileSystemFtp,
     )
     {
         $this->conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
@@ -92,7 +95,7 @@ class AssetManagementService
             'InvPow' => true,
             'Economics' => true, ];
         $output['data'] = $data;
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . 'pdf/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $pdf = $this->pdf;
         $reportParts = [];
         $content = $output;
