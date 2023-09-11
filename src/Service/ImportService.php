@@ -47,7 +47,7 @@ class ImportService
     /**
      * @throws NonUniqueResultException
      */
-    public function prepareForImport(Anlage|int $anlage, $start, $end): void
+    public function prepareForImport(Anlage|int $anlage, int $start, int $end): void
     {
 
         if (is_int($anlage)) {
