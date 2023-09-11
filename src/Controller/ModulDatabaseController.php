@@ -17,7 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class ModulDatabaseController extends BaseController
 {
     use G4NTrait;
-
     use PVPNameArraysTrait;
 
     #[Route(path: '/admin/moduldb/new', name: 'app_admin_moduldb_new')]
