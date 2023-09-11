@@ -328,6 +328,7 @@ class ReportingController extends AbstractController
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
                         $files = $report->getPdfParts();
+
                         $pdf = new Fpdi();
                         // this is the header and we will always want to include it
 

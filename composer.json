@@ -12,6 +12,7 @@
         "ext-json": "*",
         "ext-mysqli": "*",
         "ext-pdo": "*",
+        "ext-curl": "*",
         "api-platform/core": "^2.6",
         "babdev/pagerfanta-bundle": "^4.2.1",
         "beberlei/doctrineextensions": "^1.3",

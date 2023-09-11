@@ -13,21 +13,15 @@ class DownloadDataService
 {
     use G4NTrait;
 
-    private AnlageAvailabilityRepository $availabilityRepo;
-
-    private PRRepository $prRepository;
-
     public function __construct(
         private $host,
         private $userBase,
         private $passwordBase,
         private $userPlant,
         private $passwordPlant,
-        AnlageAvailabilityRepository $availabilityRepo,
-        PRRepository $prRepository)
+        private AnlageAvailabilityRepository $availabilityRepo,
+        private PRRepository $prRepository)
     {
-        $this->availabilityRepo = $availabilityRepo;
-        $this->prRepository = $prRepository;
     }
 
     /**
@@ -39,7 +33,7 @@ class DownloadDataService
      *
      * @return string
      */
-    public function getAllSingleSystemData(Anlage $anlage, $from, $to, $intervall, $headlineDate)
+    public function getAllSingleSystemData(Anlage $anlage, $from, $to, $intervall, $headlineDate): string
     {
         $conn = self::connectToDatabase();
         $dbnameist = $anlage->getDbNameIst();

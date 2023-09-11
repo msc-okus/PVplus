@@ -93,13 +93,6 @@ trait G4NTrait
         return $currentHour >= $start && $currentHour <= $end;
     }
 
-    #[Deprecated]
-    public static function checkUnitAndConvert($value, $unit)
-    {
-        ($unit === 'w') ? $returnValue = ($value / 1000 / 4) : $returnValue = $value;
-
-        return $returnValue;
-    }
 
     // Formatiere angegebene Zeit für SQL
     public function formatTimeStampToSql(int $timestamp): string

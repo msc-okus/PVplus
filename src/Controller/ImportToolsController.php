@@ -11,6 +11,7 @@ use App\Repository\AnlagenRepository;
 use App\Service\ImportService;
 use App\Service\LogMessagesService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -83,29 +84,30 @@ class ImportToolsController extends BaseController
         ]);
     }
 
+    /**
+     * Cronjob to Import PLants direct by symfony (configured in backend)
+     *
+     * @param AnlagenRepository $anlagenRepo
+     * @param ImportService $importService
+     * @return Response
+     * @throws NonUniqueResultException
+     */
     #[Route('/import/cron', name: 'import_cron')]
-    public function importCron(AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
+    public function importCron(AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
-        //getDB-Connection
-        $conn = $entityManagerInterface->getConnection();
         //get all Plants for Import via via Cron
-        $readyToImport = self::getPlantsImportReady($conn);
+        $anlagen = $anlagenRepo->getSymfonyImportPlants();
 
         $time = time();
         $time -= $time % 900;
-        $start = strtotime(date('Y-m-d H:i', $time - (4 * 3600)));
+        $start = $time - (4 * 3600);
         $end = $time;
 
-
-        sleep(5);
-        for ($i = 0; $i <= count($readyToImport)-1; $i++) {
-            $plantId = $readyToImport[$i]['anlage_id'];
-            $anlage = $anlagenRepo->findOneByIdAndJoin($plantId);
-            #self::prepareForImport($plantId, $start, $end, '');
-            $importService->prepareForImport($plantId, $start, $end, '');
+        foreach ($anlagen as $anlage) {
+            $importService->prepareForImport($anlage, $start, $end);
         }
 
-        return new Response('This is used for import via cron job.', \Symfony\Component\HttpFoundation\Response::HTTP_OK, array('Content-Type' => 'text/html'));
+        return new Response('This is used for import via cron job.', Response::HTTP_OK, array('Content-Type' => 'text/html'));
     }
 
 }
