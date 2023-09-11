@@ -7,8 +7,8 @@ parameters:
     app.host:           '%env(host)%'
     app.user_base:      '%env(user_base)%'
     app.password_base:  '%env(password_base)%'
-    app.user_plant:     '%env(user_plant)%'
-    app.password_plant: '%env(password_plant)%'
+    app.user_plant:     '%env(user_plant)%'     # Measerment Data
+    app.password_plant: '%env(password_plant)%' # Measerment Data
 
 services:
     # default configuration for services in *this* file

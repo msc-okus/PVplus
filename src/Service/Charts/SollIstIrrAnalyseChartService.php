@@ -153,10 +153,10 @@ class SollIstIrrAnalyseChartService
                 //$time = date('H:i', strtotime($rowActual['ts']));
                 //$stamp = date('Y-m-d', strtotime($rowActual['ts']));
                 $actPowerAC = $rowActual['act_power_ac'];
-                $actPowerAC = $actPowerAC > 0 ? round(self::checkUnitAndConvert($actPowerAC, $anlage->getAnlDbUnit()), 3) : 0; // neagtive Werte auschließen
+                $actPowerAC = $actPowerAC > 0 ? round($actPowerAC, 3) : 0; // neagtive Werte auschließen
                 $actPowerAC = substr($actPowerAC, 0, 5);
                 $actPowerDC = $rowActual['act_power_dc'];
-                $actPowerDC = $actPowerDC > 0 ? round(self::checkUnitAndConvert($actPowerDC, $anlage->getAnlDbUnit()), 3) : 0; // neagtive Werte auschließen
+                $actPowerDC = $actPowerDC > 0 ? round($actPowerDC, 3) : 0; // neagtive Werte auschließen
                 $actPowerDC = substr($actPowerDC, 0, 5);
                 $przac = $rowActual['przac'];
                 $przac =  $przac > 0 ? $przac : 0;
