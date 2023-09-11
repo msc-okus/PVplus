@@ -86,7 +86,9 @@ class ImportToolsController extends BaseController
 
     /**
      * Cronjob to Import PLants direct by symfony (configured in backend)
-
+     *
+     * @param AnlagenRepository $anlagenRepo
+     * @param ImportService $importService
      * @return Response
      * @throws NonUniqueResultException
      */
@@ -96,9 +98,10 @@ class ImportToolsController extends BaseController
         //get all Plants for Import via via Cron
         $anlagen = $anlagenRepo->getSymfonyImportPlants();
 
-        $end = time();
-        $end -= $end % 900;
-        $start = $end - (4 * 3600);
+        $time = time();
+        $time -= $time % 900;
+        $start = $time - (4 * 3600);
+        $end = $time;
 
         foreach ($anlagen as $anlage) {
             $importService->prepareForImport($anlage, $start, $end);

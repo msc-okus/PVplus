@@ -22,7 +22,6 @@ class ImportService
     use ImportFunctionsTrait;
     use G4NTrait;
 
-
     public function __construct(
         private $host,
         private $userBase,
@@ -40,16 +39,13 @@ class ImportService
         private SerializerInterface $serializer
     )
     {
-
-        $this->em = $em;
     }
 
     /**
      * @throws NonUniqueResultException
      */
-    public function prepareForImport(Anlage|int $anlage, int $start, int $end): void
+    public function prepareForImport(Anlage|int $anlage, $start, $end): void
     {
-
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
