@@ -86,4 +86,26 @@ class ReportsRepository extends ServiceEntityRepository
 
         return $qb;
     }
+    /**
+     * @return QueryBuilder
+     */
+    public function findOneByAMYT(Anlage $Anl = null, string $month = "", string $year = "", string $type = "")
+    {
+        $qb = $this->createQueryBuilder('a')
+            ;
+        if ($type != '') {
+            $qb->andWhere("a.reportType like '%$type%'");
+        }
+        if ($month != '') {
+            $qb->andWhere("a.month = $month");
+        }
+        if ($year != '') {
+            $qb->andWhere("a.year = $year");
+        }
+        if ($Anl != null) {
+            $qb->andWhere(" a.anlName LIKE '$Anl' ");
+        }
+        return $qb     ->getQuery()
+            ->getResult();
+    }
 }

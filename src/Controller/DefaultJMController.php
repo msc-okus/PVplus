@@ -1,35 +1,24 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
-use App\Entity\Status;
-use App\Entity\Ticket;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-use App\Repository\StatusRepository;
-use App\Repository\TicketRepository;
-use App\Service\AlertSystemService;
+use App\Repository\ReportsRepository;
 use App\Service\AlertSystemV2Service;
-use App\Service\AlertSystemWeatherService;
 use App\Service\AssetManagementService;
-use App\Service\Charts\IrradiationChartService;
 use App\Service\FunctionsService;
-use App\Service\MessageService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
 use App\Service\WeatherServiceNew;
-use DateTimeZone;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use PDO;
-use Hisune\EchartsPHP\Doc\IDE\XAxis;
 use Hisune\EchartsPHP\ECharts;
 use Twig\Environment;
 
@@ -37,16 +26,18 @@ use Twig\Environment;
 class DefaultJMController extends AbstractController
 {
     use G4NTrait;
-    private PDO $conn;
+
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
         private Environment $twig,
         private PdfService $pdf,
         private FunctionsService $functions,
         private PRCalulationService $PRCalulation,
-
+        private ReportsRepository $reportRepo,
     )
     {
-        $this->conn = GetPdoService::getPdoConnection();
 
     }
     #[Route(path: '/default/j/m', name: 'default_j_m')]
@@ -351,10 +342,19 @@ class DefaultJMController extends AbstractController
         return $output;
     }
     #[Route(path: '/test/sftp', name: 'default_sftp_test')]
-    public function sftpTest(){
-        dd("hi");
-        //$adapter = $this->container->get('oneup_flysystem.sftp_filesystem');
-        dd($this->container);
-        $fileSystem = new Filesystem();
+    public function sftpTest($fileSystemFtp, AnlagenRepository $ar, EntityManagerInterface $em){
+        $anlage = $ar->findIdLike(54);
+        $reportArray = $this->reportRepo->findOneByAMYT(null, "", "2023","monthly-report");
+        foreach ($reportArray as $report){
+
+            $file = str_replace("/usr/home/pvpluy/public_html/public", "./pdf", $report->getFile());
+            $file = str_replace("//", "/", $file);
+           $report->setFile($file);
+
+           $em->persist($report);
+        }
+        $em->flush();
+        dd($fileSystemFtp);
+
     }
 }
