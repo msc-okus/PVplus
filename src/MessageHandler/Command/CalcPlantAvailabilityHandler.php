@@ -38,6 +38,6 @@ class CalcPlantAvailabilityHandler implements MessageHandlerInterface
                 $this->availabilityService->checkAvailability($anlageId, $stamp, true);
             }
         }
-        $this->logMessages->updateEntry($logId, 'done');
+        $this->logMessages->updateEntry($logId, 'done', 100);
     }
 }

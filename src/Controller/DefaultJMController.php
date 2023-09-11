@@ -22,7 +22,6 @@ use App\Service\PRCalulationService;
 use App\Service\WeatherServiceNew;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
-use League\Flysystem\Filesystem;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -44,6 +43,7 @@ class DefaultJMController extends AbstractController
         private PdfService $pdf,
         private FunctionsService $functions,
         private PRCalulationService $PRCalulation,
+
     )
     {
         $this->conn = GetPdoService::getPdoConnection();

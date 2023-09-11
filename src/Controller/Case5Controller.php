@@ -1,17 +1,18 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
 
 use App\Helper\G4NTrait;
 use App\Repository\Case5Repository;
 use App\Service\AvailabilityService;
 use Doctrine\ORM\EntityManagerInterface;
+use JetBrains\PhpStorm\Deprecated;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[Deprecated]
 class Case5Controller extends BaseController
 {
     use G4NTrait;

@@ -3,10 +3,10 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Overview</h3>
     <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Resolution according to failure groups - {{ monthName }} {{ year }}</span>
-    <table style="vertical-align: bottom; width: 50%">
-        <tr style="width: 50%">
-            <td style="width:50%">
-                <table style="width: 100%">
+    <table style="vertical-align: bottom">
+        <tr >
+            <td style="width: 50%">
+                <table style="width: 90%">
                     <thead>
                     <tr>
                         <th class="table-center">Availability</th>
@@ -57,40 +57,91 @@
                         <td class="tr_next_columns"> {{ availabilityMonthTable['actualGaps'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedGaps'] - availabilityMonthTable['actualGaps']) |number_format(2, ',', '.') }}</td>
                     </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td style="width: 50%">
+                <table >
+                    <thead>
                     <tr>
-                        <td style="text-align: left" class="tr_next_columns"><b>Total</b></td>
-                        <td  class="tr_next_columns">{{ (availabilityMonthTable['expectedAvailability']
-                            + availabilityMonthTable['expectedSOF']
-                            + availabilityMonthTable['expectedEFOR']
-                            + availabilityMonthTable['expectedOMC']
-                            + availabilityMonthTable['expectedGaps']) |number_format(2, ',', '.')}} </td>
+                        <th style="text-align: center" class="table-center" colspan="2" rowspan="3">
+                            <b>Production / Plan and loss values</b>
+                        </th>
+                        <th style="text-align: center" class="table-center" rowspan="3">
+                            <b>kWh</b>
+                        </th>
+                        <th style="text-align: center" class="table-center">
+                            <b>Relative to</b>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th style="text-align: center" class="table-center">
+                            <b>G4N Expected</b>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th style="text-align: center" class="table-center">
+                            <b>%</b>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td style="text-align: center" class="tr_next_columns" rowspan="2"> Actual Values</td>
+                        <td style="text-align: left" class="tr_next_columns">  Production - Actual</td>
+                        <td class="tr_next_columns">{{ monthlyLossesHelpTable['Actual'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ percentageTableMonth['ActualPower'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
 
-                        <td  class="tr_next_columns">{{ (availabilityMonthTable['actualAvailability']
-                            + availabilityMonthTable['actualSOF']
-                            + availabilityMonthTable['actualEFOR']
-                            + availabilityMonthTable['actualOMC']
-                            + availabilityMonthTable['actualGaps']) |number_format(2, ',', '.')}} </td>
-                        <td  class="tr_next_columns">{{ ((availabilityMonthTable['actualAvailability']
-                            + availabilityMonthTable['actualSOF']
-                            + availabilityMonthTable['actualEFOR']
-                            + availabilityMonthTable['actualOMC']
-                            + availabilityMonthTable['actualGaps']) -
-                            (availabilityMonthTable['expectedAvailability']
-                            + availabilityMonthTable['expectedSOF']
-                            + availabilityMonthTable['expectedEFOR']
-                            + availabilityMonthTable['expectedOMC']
-                            + availabilityMonthTable['expectedGaps']))|number_format(2, ',', '.') }}
-                        </td>
+                        <td style="text-align: left" class="tr_next_columns"> Expected G4N </td>
+                        <td class="tr_next_columns">{{ monthlyLossesHelpTable['ExpectedG4N'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ percentageTableMonth['G4NExpected'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    {% if (anlage.hasPVSYST == true) %}
+                        <tr>
+                            <td style="text-align: center" class="tr_next_columns" > Planned Values</td>
+                            <td style="text-align: left" class="tr_next_columns"> Forecast</td>
+                            <td class="tr_next_columns">{{ monthlyLossesHelpTable['ExpectedPVSYS'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ percentageTableMonth['PVSYSExpected'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td style="text-align: center" class="tr_next_columns" > Planned Values</td>
+                            <td style="text-align: left" class="tr_next_columns"> Forecast </td>
+                            <td class="tr_next_columns">{{ monthlyLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ percentageTableMonth['forecast'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td style="text-align: center" class="tr_next_columns" rowspan="4"> Type of Ticket</td>
+                        <td style="text-align: left" class="tr_next_columns">  SOR Losses - Planned Outage</td>
+                        <td class="tr_next_columns">{{ monthlyLossesHelpTable['SORLosses'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ percentageTableMonth['SORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns"> EFOR Losses - Unplanned Outage </td>
+                        <td class="tr_next_columns">{{ monthlyLossesHelpTable['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ percentageTableMonth['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns"> OMC Losses - Grid Error / Grid Off </td>
+                        <td class="tr_next_columns">{{ monthlyLossesHelpTable['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ percentageTableMonth['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns"> Data Gaps </td>
+                        <td class="tr_next_columns">{{ monthlyLossesHelpTable['GapLosses'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ percentageTableMonth['GapLosses'] |number_format(2, ',', '.') }}</td>
                     </tr>
                     </tbody>
                 </table>
-
             </td>
 
 
         </tr>
-        <tr style="width: 50%">
-            <td style="width: 50%">
+        <tr>
+            <td >
                 <table style="margin-top: 30px; width: 90%">
                     <thead>
                     <th>Type of Ticket</th>
@@ -122,7 +173,8 @@
                 </table>
 
             </td>
-        <tr>
+        </tr>
+        <tr >
             <td>
                 <div style="text-align: left">
                     <sup><b>a</b></sup> Maintenance, SOR<br>
@@ -132,7 +184,7 @@
             </td>
         </tr>
         {%  if (TicketAvailabilityMonthTable) %}
-        <tr style="width: 50%">
+        <tr >
             <td style="width: 50%">
                 <table>
                     <thead>

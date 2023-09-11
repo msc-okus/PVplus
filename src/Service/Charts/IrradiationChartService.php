@@ -14,8 +14,6 @@ class IrradiationChartService
 
     public function __construct(
         private $host,
-        private $userBase,
-        private $passwordBase,
         private $userPlant,
         private $passwordPlant,
         private FunctionsService $functions,
@@ -152,10 +150,10 @@ class IrradiationChartService
                         $irrCounter = 1;
                         foreach ($irrAnlageArray as $irrAnlageItem => $irrAnlageValue) {
                             if (!($irrAnlageValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                                if (!isset($irrAnlageValue)) {
+                                if (!isset($irrAnlageValue) or is_array($irrAnlageValue)) {
                                     $irrAnlageValue = 0;
                                 }
-                                $dataArray['chart'][$counter]["val$irrCounter"] = round(($irrAnlageValue < 0) ? 0 : $irrAnlageValue, 2);
+                                $dataArray['chart'][$counter]["val$irrCounter"] = round(max($irrAnlageValue, 0), 2);
                                 if (!isset($dataArray['nameX'][$irrCounter])) {
                                     $dataArray['nameX'][$irrCounter] = $irrAnlageItem;
                                 }

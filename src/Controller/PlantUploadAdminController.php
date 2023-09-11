@@ -1,18 +1,16 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
-use App\Entity\AnlageFileUpload;
 use App\Form\FileUpload\FileUploadFormType;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use JetBrains\PhpStorm\Deprecated;
 
 #[Deprecated]
 class PlantUploadAdminController extends BaseController

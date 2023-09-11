@@ -7,6 +7,7 @@ require_once __DIR__.'/../../public/config.php';
 use App\Entity\Anlage;
 use DateTimeZone;
 use Exception;
+use JetBrains\PhpStorm\Deprecated;
 use PDO;
 use PDOException;
 use Symfony\Component\Intl\Timezones;
@@ -92,7 +93,7 @@ trait G4NTrait
         return $currentHour >= $start && $currentHour <= $end;
     }
 
-    /** @deprecated  */
+    #[Deprecated]
     public static function checkUnitAndConvert($value, $unit)
     {
         ($unit === 'w') ? $returnValue = ($value / 1000 / 4) : $returnValue = $value;
@@ -107,18 +108,18 @@ trait G4NTrait
     }
 
     /**
-     * @deprecated
      * erstezen durch getPdoConnection()
      */
+    #[Deprecated]
     public static function connectToDatabase(): \mysqli
     {
         return new \mysqli('dedi6015.your-server.de', 'pvpluy_2', 'XD4R5XyVHUkK9U5i', 'pvp_data');
     }
 
     /**
-     * @deprecated
      * ersetzen durch 'doctrine'
      */
+    #[Deprecated]
     public static function connectToDatabaseAnlage(): \mysqli
     {
         return new \mysqli('dedi6015.your-server.de', 'pvpbase', '04qjYWk1oTf9gb7k', 'pvp_base');

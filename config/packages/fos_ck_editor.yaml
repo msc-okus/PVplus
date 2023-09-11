@@ -1,6 +1,6 @@
 fos_ck_editor:
-  base_path: "build/ckeditor"
-  js_path: "build/ckeditor/ckeditor.js"
+  base_path: "bundles/fosckeditor"
+  js_path: "bundles/fosckeditor/ckeditor.js"
 
   configs:
     G4NConfig:

@@ -8,15 +8,11 @@ use App\Repository\AnlagenRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\Form\ChoiceList\ChoiceList;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class CalcToolsFormType extends AbstractType
 {
@@ -32,7 +28,7 @@ class CalcToolsFormType extends AbstractType
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
-        if ($this->security->isGranted('ROLE_G4N')) {
+        if ($this->security->isGranted('ROLE_BETA')) {
             $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
         } else {
             $eigner = $this?->security->getUser()?->getEigners()[0];
@@ -40,8 +36,8 @@ class CalcToolsFormType extends AbstractType
         }
 
         $choiceFunction = [
-            'Update Plant Availability' => 'updatePA',
-            'Calculate PA' => 'calcPA'
+            'Update (recalculate) Plant Availability' => 'updatePA',
+            'Display Calculated PA' => 'calcPA'
         ];
 
 

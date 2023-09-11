@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
 
-use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\AnlageCase6;
 use App\Entity\Case6Array;
 use App\Entity\Case6Draft;
@@ -19,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use function Symfony\Component\String\u;
 
 class CsvUploadController extends AbstractController
@@ -28,7 +27,7 @@ class CsvUploadController extends AbstractController
     {
         $case6draft = $draftRepo->findById($id)[0];
         $anlage = $case6draft->getAnlage();
-        $Route = $this->generateUrl('csv_upload_list', ['anlId' => $anlage->getAnlId()], UrlGeneratorInterface::ABS_PATH);
+        $Route = $this->generateUrl('csv_upload_list', ['anlId' => $anlage->getAnlId()], UrlGeneratorInterface::ABSOLUTE_PATH);
         if ($case6draft) {
             $em->remove($case6draft);
             $em->flush();

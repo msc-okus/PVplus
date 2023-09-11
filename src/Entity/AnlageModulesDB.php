@@ -121,9 +121,6 @@ class AnlageModulesDB
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $dimension_width;
 
-    #[ORM\Column(type: 'datetime',nullable: true)]
-    private ?DateTime $modified;
-
     #[ORM\OneToOne(targetEntity: AnlageSunShading::class, mappedBy:"modulesDB", fetch:"EAGER")]
     private $modulesDBData;
 
@@ -449,21 +446,6 @@ class AnlageModulesDB
         $this->dimension_width = $dimension_width;
         return $this;
     }
-
-
-    public function getModified_at(): ?\DateTime
-    {
-        return $this->modified;
-    }
-
-    public function setModified_at(\DateTime $modified): self
-    {
-        $this->modified = $modified;
-
-        return $this;
-    }
-
-    //
 
     // ####### Cuurent
     public function getOperatorCurrentA(): ?float

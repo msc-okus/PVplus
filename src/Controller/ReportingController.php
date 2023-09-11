@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Controller;
+
+use App\Entity\AnlagenReports;
 use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
@@ -13,16 +15,13 @@ use App\Service\LogMessagesService;
 use App\Service\PdfService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\Reports\ReportEpcService;
+use App\Service\Reports\ReportsEpcYieldV2;
 use App\Service\Reports\ReportsMonthlyService;
 use App\Service\Reports\ReportsMonthlyV2Service;
-use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Knp\Snappy\Pdf;
 use Psr\Cache\InvalidArgumentException;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use setasign\Fpdi\Fpdi;
 use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
 use setasign\Fpdi\PdfParser\Filter\FilterException;
@@ -38,15 +37,13 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use App\Entity\AnlagenReports;
-use App\Entity\AnlagePpcs;
 
 class ReportingController extends AbstractController
 {
     use G4NTrait;
     use PVPNameArraysTrait;
 
-    public function __construct(private $kernelProjectDir,)
+    public function __construct(private $kernelProjectDir)
     {
     }
 
@@ -66,8 +63,6 @@ class ReportingController extends AbstractController
         ReportEpcPRNewService $reportEpcNew,
         LogMessagesService $logMessages,
         MessageBusInterface $messageBus,
-        string $kernelProjectDir,
-        PdfService $pdf,
         EntityManagerInterface $em
     ): Response
     {
@@ -190,7 +185,7 @@ class ReportingController extends AbstractController
             $em->flush();
 
             if ($request->isXmlHttpRequest()) {
-                return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
+                return new Response(null, Response::HTTP_NO_CONTENT);
             }
         }
 
@@ -217,7 +212,7 @@ class ReportingController extends AbstractController
             }
         }
 
-        return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
     /**
@@ -225,16 +220,14 @@ class ReportingController extends AbstractController
      * @throws PdfReaderException
      * @throws CrossReferenceException
      * @throws PdfParserException
-     * @throws ContainerExceptionInterface
      * @throws PdfTypeException
-     * @throws NotFoundExceptionInterface
      * @throws FilterException
      */
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
-    public function showReportAsPdf(Request $request, $id, ReportEpcService $reportEpc, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
+    public function showReportAsPdf(Request $request, $id, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, PdfService $pdf): Response
     {
         /** @var AnlagenReports|null $report */
-        $session            = $this->$request->getSession();
+        $session            = $request->getSession();
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');
@@ -270,7 +263,7 @@ class ReportingController extends AbstractController
                                 'year'          => $year
                             ]
                         ;
-                        $result = $this->renderView('report/_epc_new/epcMonthlyPRGuarantee.html.twig', [
+                        $result = $this->renderView('report/_epc_pr_2019/epcMonthlyPRGuarantee.html.twig', [ //'report/_epc_new/epcMonthlyPRGuarantee.html.twig'
                             'headline'      => $headline,
                             'main'          => $reportArray[0],
                             'forecast'      => $reportArray[1],
@@ -283,8 +276,9 @@ class ReportingController extends AbstractController
                         ]);
                         $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                         break;
+
                     case 'yieldGuarantee':
-                        $result = $this->renderView('report/epcReport.html.twig', [
+                        $result = $this->renderView('report/_epc_yield_2021/epcReportYield.html.twig', [ //'report/epcReportYield.html.twig'
                             'anlage'            => $anlage,
                             'monthsTable'       => $reportArray['monthTable'],
                             'forcast'           => $reportArray['forcastTable'],
@@ -292,13 +286,13 @@ class ReportingController extends AbstractController
                             'chart1'            => $epcNewService->chartYieldPercenDiff($anlage, $reportArray['monthTable']),//$reportArray['chartYieldPercenDiff'],
                             'chart2'            => $epcNewService->chartYieldCumulative($anlage, $reportArray['monthTable']),
                         ]);
-
                         $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                 }
                 break;
+
             case 'epc-new-pr':
                 $pdfFilename = 'QEPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
-                $result = $this->renderView('report/epcReportPR.html.twig', [
+                $result = $this->renderView('report/_epc_yield_2021/epcReportYield.html.twig', [
                     'anlage'        => $anlage,
                     'monthsTable'   => $reportArray['monthTable'],
                     'forcast'       => $reportArray['forcastTable'],
@@ -307,10 +301,9 @@ class ReportingController extends AbstractController
                     // 'chart1'            => $chartYieldPercenDiff,
                     // 'chart2'            => $chartYieldCumulativ,
                 ]);
-
                 $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
-
                 break;
+
             case 'monthly-report':
                 //standard G4N Report (an O&M Goldbeck angelehnt)
                 $pdf = new Fpdi();
@@ -534,21 +527,19 @@ class ReportingController extends AbstractController
      * @param Request $request
      * @param ReportService $reportService
      * @param NormalizerInterface $serializer
-     * @param ReportsEpcNewService $epcNewService
+     * @param ReportsEpcYieldV2 $epcNewService
      * @param ReportsMonthlyService $reportsMonthly
      * @return Response
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @deprecated
+     * @throws ExceptionInterface
      */
 
     #[Route(path: '/reporting/html/{id}', name: 'app_reporting_html')]
-    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, ReportService $reportService, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly) : Response
+    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, ReportService $reportService, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, ReportsMonthlyService $reportsMonthly) : Response
     {
         $result = "<h2>Something is wrong !!! (perhaps no Report ?)</h2>";
         $report = $reportsRepository->find($id);
         if ($report) {
-            /** @var AnlagenReport|null $report */
+            /** @var AnlagenReports|null $report */
             $report = $reportsRepository->find($id);
             $anlage = $report->getAnlage();
             $reportArray = $report->getContentArray();
@@ -678,8 +669,7 @@ class ReportingController extends AbstractController
                                     'year'          => $report->getYear()
                                 ]
                             ;
-
-                            $result = $this->renderView('report/_epc_new/epcMonthlyPRGuarantee.html.twig', [
+                            $result = $this->renderView('report/_epc_pr_2019/epcMonthlyPRGuarantee.html.twig', [ //report/_epc_new/epcMonthlyPRGuarantee.html.twig
                                 'headline'      => $headline,
                                 'main'          => $reportArray[0],
                                 'forecast'      => $reportArray[1],
@@ -691,8 +681,9 @@ class ReportingController extends AbstractController
                                 'anlage'        => $anlage
                             ]);
                             break;
+
                         case 'yieldGuarantee' :
-                            $result = $this->renderView('report/epcReport.html.twig', [
+                            $result = $this->renderView('report/_epc_yield_2021/epcReportYield.html.twig', [
                                 'anlage'            => $anlage,
                                 'monthsTable'       => $reportArray['monthTable'],
                                 'forcast'           => $reportArray['forcastTable'],
@@ -703,9 +694,9 @@ class ReportingController extends AbstractController
                             break;
                     }
                     break;
-                case 'epc-new-pr':
 
-                    $result = $this->renderView('report/epcReportPR.html.twig', [
+                case 'epc-new-pr':
+                    $result = $this->renderView('report/_epc_pr_2021/epcReportPR.html.twig', [
                         'anlage'        => $anlage,
                         'monthsTable'   => $reportArray['monthTable'],
                         'forcast'       => $reportArray['forcastTable'],
