@@ -328,11 +328,6 @@ class ReportingController extends AbstractController
                         $data = $form->getData();
                         $files = $report->getPdfParts();
 
-                        /* Aktivieren für internex */
-                        foreach ($files as $key => $file ){
-                            $files[$key] = str_replace('/usr/home/pvpluy/public_html', $kernelProjectDir."/..", $file);
-                        }
-
                         $pdf = new Fpdi();
                         // this is the header and we will always want to include it
                         if ( $files['head']) {
