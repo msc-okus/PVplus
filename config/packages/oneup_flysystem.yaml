@@ -4,6 +4,18 @@ oneup_flysystem:
         public_uploads_adapter:
             local:
                 location: '%kernel.project_dir%/public/uploads'
+
+        sftp:
+            sftp:
+                options:
+                    host: ftp.g4npvplus.net
+                    username: pvpluy_11
+                    password: hEgxVX579NtHTMZ1
+                    port: 22
+                    root: ./
     filesystems:
         public_uploads_filesystem:
             adapter: public_uploads_adapter
+
+        sftp:
+            adapter: sftp

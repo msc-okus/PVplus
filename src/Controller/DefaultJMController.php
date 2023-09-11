@@ -22,8 +22,11 @@ use App\Service\PRCalulationService;
 use App\Service\WeatherServiceNew;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
+use League\Flysystem\Filesystem;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use PDO;
@@ -41,7 +44,6 @@ class DefaultJMController extends AbstractController
         private PdfService $pdf,
         private FunctionsService $functions,
         private PRCalulationService $PRCalulation,
-
     )
     {
         $this->conn = GetPdoService::getPdoConnection();
@@ -347,5 +349,12 @@ class DefaultJMController extends AbstractController
         }
         $output['avg'][$inverter ] = round($efficiencySum / $efficiencyCount, 2); //we make the last average outside of the loop
         return $output;
+    }
+    #[Route(path: '/test/sftp', name: 'default_sftp_test')]
+    public function sftpTest(){
+        dd("hi");
+        //$adapter = $this->container->get('oneup_flysystem.sftp_filesystem');
+        dd($this->container);
+        $fileSystem = new Filesystem();
     }
 }
