@@ -8,10 +8,10 @@ oneup_flysystem:
         sftp:
             sftp:
                 options:
-                    host: ftp.g4npvplus.net
-                    username: pvpluy_11
-                    password: hEgxVX579NtHTMZ1
-                    port: 22
+                    host: serv49313224-prod-app01.secure-node.de/128.204.133.182
+                    username: f6
+                    password: w4u6eCmT!rLqRRUmwTZvkxp7P
+                    port: 10422
                     root: ./
     filesystems:
         public_uploads_filesystem:
