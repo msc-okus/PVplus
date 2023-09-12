@@ -108,7 +108,7 @@ private GetPdoService $getPdoService,
                 $time = date('H:i', strtotime(self::timeShift($anlage,$rowActual['ts'])));
                 //$stamp = date('Y-m-d', strtotime($rowActual['ts']));self::timeShift($anlage, $rowExp['stamp']);
                 $actPower = $rowActual['actPower'];
-                $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
+                $actPower = $actPower > 0 ? round($actPower, 2) : 0; // neagtive Werte auschließen
                 $prz = $rowActual['prz'];
                 switch (TRUE){
                     case ($prz >= 95 and $prz <= 100);

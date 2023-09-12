@@ -611,8 +611,8 @@ private GetPdoService $getPdoService,
         if ($result->rowCount() > 0) {
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $inverter = $row['inverter'];
-                $powerDc = self::checkUnitAndConvert($row['power_dc'], $anlage->getAnlDbUnit());
-                $powerAc = self::checkUnitAndConvert($row['power_ac'], $anlage->getAnlDbUnit());
+                $powerDc = $row['power_dc'];
+                $powerAc = $row['power_ac'];
                 $dataArray['chart'][] = [
                     'inverter' => "Inverter #$inverter",
                     'valDc' => $powerDc,

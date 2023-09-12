@@ -416,7 +416,7 @@ private GetPdoService $getPdoService,
                                 $temperature = $rowIst['temp'];
                             }
                             $dataArray['chart'][$counter]['temperature'] = $temperature;
-                            $actPower = self::checkUnitAndConvert($rowIst['actPower'], $anlage->getAnlDbUnit());
+                            $actPower = $rowIst['actPower'];
                             if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                                 switch ($anlage->getConfigType()) {
                                     case 3: // Groningen, Saran
@@ -506,7 +506,7 @@ private GetPdoService $getPdoService,
                     'link' => $invGroupSoll,
                     'exp' => round($row['soll'], 2),
                 ];
-                $dataArray['chart'][$counter]['act'] = round(self::checkUnitAndConvert($istGruppenArray[$invGroupSoll], $anlage->getAnlDbUnit()), 2);
+                $dataArray['chart'][$counter]['act'] = round($istGruppenArray[$invGroupSoll], 2);
                 if ($counter > $dataArray['maxSeries']) {
                     $dataArray['maxSeries'] = $counter;
                 }
@@ -579,7 +579,7 @@ private GetPdoService $getPdoService,
                         $inverter = $rowInv['inverter'];
                         $dataArray['chart'][] = [
                             'category' => "Inverter #$inverter",
-                            'val' => self::checkUnitAndConvert($rowInv['dcinv'], $anlage->getAnlDbUnit()),
+                            'val' => $rowInv['dcinv'],
                             'link' => "$inverter",
                         ];
                         if ($wrcounter > $dataArray['maxSeries']) {

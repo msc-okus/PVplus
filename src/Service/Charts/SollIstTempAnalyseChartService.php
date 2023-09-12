@@ -114,7 +114,7 @@ private GetPdoService $getPdoService,
                 //$stamp = date('Y-m-d', strtotime($rowActual['ts']));
                 $time = date('H:i', strtotime(self::timeShift($anlage,$rowActual['ts'])));
                 $actPower = $rowActual['act_power_ac'];
-                $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
+                $actPower = $actPower > 0 ? round($actPower, 2) : 0; // neagtive Werte auschließen
                 $prz = $rowActual['prz'];
                 $temp = $rowActual['wr_temp'];
                 switch (TRUE){

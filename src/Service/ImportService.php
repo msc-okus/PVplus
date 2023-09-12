@@ -11,9 +11,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\PVSystDatenRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\MeteoControlService;
 use Doctrine\ORM\NonUniqueResultException;
-use Symfony\Config\DoctrineConfig;
 use Doctrine\Persistence\ManagerRegistry;
 
 use Symfony\Component\Serializer\SerializerInterface;
@@ -21,7 +19,6 @@ class ImportService
 {
     use ImportFunctionsTrait;
     use G4NTrait;
-
 
     public function __construct(
 private GetPdoService $getPdoService,
@@ -36,16 +33,13 @@ private GetPdoService $getPdoService,
         private SerializerInterface $serializer
     )
     {
-
-        $this->em = $em;
     }
 
     /**
      * @throws NonUniqueResultException
      */
-    public function prepareForImport(Anlage|int $anlage, $start, $end): void
+    public function prepareForImport(Anlage|int $anlage, $start, $end, string $importType = ""): void
     {
-
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
@@ -60,8 +54,7 @@ private GetPdoService $getPdoService,
         $groups = $anlage->getGroups();
         $systemKey = $anlage->getCustomPlantId();
 
-        $importType = $anlage->getSettings()->getImportType();
-        if ($importType == 'withStringboxes') {
+        if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
             $acGroups = $anlage->getAcGroups()->toArray();
 
             for ($i = 0; $i < count($acGroups); ++$i) {
@@ -160,7 +153,7 @@ private GetPdoService $getPdoService,
                 $windAnlage = json_encode($windAnlageArray);
 
                 //Import different Types
-                if ($importType == 'standart') {
+                if ($anlage->getSettings()->getImportType() == 'standart') {
                     //Anzahl der Units in eines Inverters
                     $invertersUnits = $anlage->getSettings()->getInvertersUnits();
 
@@ -172,7 +165,7 @@ private GetPdoService $getPdoService,
                     }
                 }
 
-                if ($importType == 'withStringboxes') {
+                if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                     $stringBoxes = $bulkMeaserments['stringboxes'];
                     $stringBoxesTime = $stringBoxes[$date];
 
@@ -222,7 +215,7 @@ private GetPdoService $getPdoService,
                 self::insertData($tableName, $data_ppc, $this->host, $this->userPlant, $this->passwordPlant);
                 break;
             case 'api-import-pvist':
-                if ($importType == 'withStringboxes') {
+                if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                     $tableName = "db__pv_dcist_$anlagenTabelle";
                     self::insertData($tableName, $data_pv_dcist, $this->host, $this->userPlant, $this->passwordPlant);
                 }
@@ -239,7 +232,7 @@ private GetPdoService $getPdoService,
                     self::insertData($tableName, $data_ppc, $this->host, $this->userPlant, $this->passwordPlant);
                 }
 
-                if ($importType == 'withStringboxes') {
+                if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                     $tableName = "db__pv_dcist_$anlagenTabelle";
                     self::insertData($tableName, $data_pv_dcist, $this->host, $this->userPlant, $this->passwordPlant);
                 }

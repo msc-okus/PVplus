@@ -253,7 +253,7 @@ private GetPdoService $getPdoService,
                 $resultActual = $conn->query($sqlIst);
                 while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
                     $actPower = $rowActual['actPower'];
-                    ($actPower > 0) ? $actPower = self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()) : $actPower = 0;
+                    $actPower = ($actPower > 0) ? $actPower : 0;
 
                     if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                         switch ($anlage->getConfigType()) {
@@ -476,7 +476,7 @@ private GetPdoService $getPdoService,
                 ];
                 if ($rowInv = $resultInv->fetch(PDO::FETCH_ASSOC)) {
                     ++$wrcounter;
-                    $dataArray['chart'][$counter]['act'] = self::checkUnitAndConvert($rowInv['acinv'], $anlage->getAnlDbUnit());
+                    $dataArray['chart'][$counter]['act'] = $rowInv['acinv'];
                     if ($wrcounter > $dataArray['maxSeries']) {
                         $dataArray['maxSeries'] = $wrcounter;
                     }
