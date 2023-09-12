@@ -6,7 +6,6 @@ require_once __DIR__.'/../../public/config.php';
 use PDO;
 use PDOException;
 
-
 trait ImportFunctionsTrait
 {
     function getDcPNormPerInvereter($conn, array $groups, array $modules): array
@@ -48,7 +47,7 @@ trait ImportFunctionsTrait
     function insertData($tableName = NULL, $data = NULL, $host = null, $userPlant = null, $passwordPlant = null): void
     {
         // obtain column template
-        $DBDataConnection = $this->getPdoConnection($host, $userPlant, $passwordPlant);
+        $DBDataConnection = $this->pdoService->getPdoPlant();
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];
