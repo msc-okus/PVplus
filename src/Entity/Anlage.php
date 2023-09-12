@@ -381,7 +381,7 @@ class Anlage
     private bool $useGridMeterDayData = false;
     #[ORM\Column(type: 'string', length: 20)]
     private string $country = '';
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: OpenWeather::class)]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: OpenWeather::class, cascade: ['persist', 'remove'] )]
     private Collection $openWeather;
     #[ORM\Column(type: 'boolean')]
     private bool $calcPR = false;
@@ -547,7 +547,7 @@ class Anlage
     #[ORM\Column(type: 'boolean')]
     private bool $RetrieveAllData = false;
 
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: DayLightData::class)]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: DayLightData::class, cascade: ['persist', 'remove'])]
     private Collection $dayLightData;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageSunShading::class, cascade: ['persist', 'remove'])]

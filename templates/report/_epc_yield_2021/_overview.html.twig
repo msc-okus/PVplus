@@ -1,4 +1,4 @@
-{% extends 'report/_epc/_pageBase.html.twig' %}
+{% extends 'report/_base_layouts/_pageBase.html.twig' %}
 
 {% block page %}
     {% set sumRow1 = monthsTable|length - 2 %}
@@ -38,7 +38,7 @@
     </table>
 
     <div class="col-50 float-left" >
-        <div class="cell" style="margin-right: 10px;">AAAAAAAAAAAA
+        <div class="cell" style="margin-right: 10px;">
             <h3>Result {{ forcast.forcast }}</h3>
             <table class="basetable pldtable">
                 <thead>
@@ -94,7 +94,7 @@
         </div>
     </div>
     <div class="col-50 float-left">
-        <div class="cell" style="margin-left: 10px;">BBBBBBBBBBB
+        <div class="cell" style="margin-left: 10px;">
             <h3>Result {{ forcast.real }}</h3>
             <table class="basetable pldtable">
                 <thead>
@@ -152,7 +152,7 @@
 
     <span class="clearfix"></span>
     <div style="height: 50px"></div>
-    <div class="" style="text-align: center;">CCCCCCCCCCCCCCC
+    <div class="" style="text-align: center;">
         <svg width="500" height="41" viewBox="0 0 9929.0 952.0" xmlns="http://www.w3.org/2000/svg">
             <style>
                 .ts3{font-family:'Source Sans Pro', sans-serif; font-weight: normal; font-style: normal; font-size: 100.0px;fill:rgb(255,200,200);pointer-events: none;}
@@ -206,7 +206,7 @@
         </div>
     </div>
     <div class="col-50 float-left">
-        <div class="cell box" style="margin-left: 10px;">DDDDDDDDDDD
+        <div class="cell box" style="margin-left: 10px;">
             <svg width="500" height="41" viewBox="0 0 9929.0 952.0" xmlns="http://www.w3.org/2000/svg">
             <style>
                 .ts3{font-family:'Source Sans Pro', sans-serif; font-weight: normal; font-style: normal; font-size: 100.0px;fill:rgb(255,200,200);pointer-events: none;}

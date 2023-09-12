@@ -88,7 +88,6 @@ class ACPowerChartsService
                         WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
 
                 $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
-                dump($sqlEvu);
 
                 $resActual = $conn->query($sqlActual);
                 $resEvu = $conn->query($sqlEvu);
@@ -257,7 +256,7 @@ class ACPowerChartsService
                 $resultActual = $conn->query($sqlIst);
                 while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
                     $actPower = $rowActual['actPower'];
-                    ($actPower > 0) ? $actPower = self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()) : $actPower = 0;
+                    $actPower = ($actPower > 0) ? $actPower : 0;
 
                     if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                         switch ($anlage->getConfigType()) {
@@ -480,7 +479,7 @@ class ACPowerChartsService
                 ];
                 if ($rowInv = $resultInv->fetch(PDO::FETCH_ASSOC)) {
                     ++$wrcounter;
-                    $dataArray['chart'][$counter]['act'] = self::checkUnitAndConvert($rowInv['acinv'], $anlage->getAnlDbUnit());
+                    $dataArray['chart'][$counter]['act'] = $rowInv['acinv'];
                     if ($wrcounter > $dataArray['maxSeries']) {
                         $dataArray['maxSeries'] = $wrcounter;
                     }

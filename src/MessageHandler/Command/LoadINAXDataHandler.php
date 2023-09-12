@@ -32,6 +32,6 @@ class LoadINAXDataHandler implements MessageHandlerInterface
          #  $this->externFileService->($anlageId, date('Y-m-d 00:00', $stamp));
             $this->externFileService->CallFileServiceINAX($anlageId, date('Y-m-d 00:00', $stamp));
         }
-        $this->logMessages->updateEntry($logId, 'done');
+        $this->logMessages->updateEntry($logId, 'done', 100);
     }
 }

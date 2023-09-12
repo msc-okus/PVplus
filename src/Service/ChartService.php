@@ -25,7 +25,7 @@ use App\Service\Charts\TempHeatmapChartService;
 use App\Service\Charts\VoltageChartService;
 use DateTime;
 use PDO;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -614,8 +614,8 @@ class ChartService
         if ($result->rowCount() > 0) {
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $inverter = $row['inverter'];
-                $powerDc = self::checkUnitAndConvert($row['power_dc'], $anlage->getAnlDbUnit());
-                $powerAc = self::checkUnitAndConvert($row['power_ac'], $anlage->getAnlDbUnit());
+                $powerDc = $row['power_dc'];
+                $powerAc = $row['power_ac'];
                 $dataArray['chart'][] = [
                     'inverter' => "Inverter #$inverter",
                     'valDc' => $powerDc,

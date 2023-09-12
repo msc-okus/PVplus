@@ -327,7 +327,7 @@
                                     <div class="cell medium-3">{{ form_row(anlageForm.modAzimut) }}</div>
                                     <div class="cell medium-3">{{ form_row(anlageForm.albeto) }}</div>
                                     <div class="cell medium-6">{{ form_row(anlageForm.datFilename) }}</div>
-                                    <div class="cell medium-6"><label for="dat_file">your  uploaded file</label><h5 id="dat_file">{{ anlage.getDatFilename }}</h5>
+                                    <div class="cell medium-6"><label>your uploaded file</label><h5 id="dat_file">{{ anlage.getDatFilename }}</h5>
                                         {% if (anlage.getDatFilename is not empty)  %}
                                         <a href="{{ path('download_file',{'id': anlage.getAnlId,'dir': 'metodat','file': anlage.getDatFilename}) }}" title="download file"><i class="fa fa fa-download"></i></a>
                                         {% endif %}

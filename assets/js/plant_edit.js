@@ -156,19 +156,19 @@ $wrapper_eventmail.on('click', '.js-add-eventmail', function(e) {
 });
 
 // legend
-let $wrapper_legend = $('.js-legend-monthly-wrapper');
-$wrapper_legend.on('click', '.js-remove-legend-monthly', function(e) {
+let $wrapper_legend = $('.js-legend-_monthly-wrapper');
+$wrapper_legend.on('click', '.js-remove-legend-_monthly', function(e) {
     e.preventDefault();
-    $(this).closest('.js-legend-monthly-item')
+    $(this).closest('.js-legend-_monthly-item')
         .remove();
 });
-$wrapper_legend.on('click', '.js-add-legend-monthly', function(e) {
+$wrapper_legend.on('click', '.js-add-legend-_monthly', function(e) {
     e.preventDefault();
     let prototype = $wrapper_legend.data('prototype');
     let index = $wrapper_legend.data('index');
     let newForm = prototype.replace(/__name__/g, index);
     $wrapper_legend.data('index', index + 1);
-    $('#legend-monthly>tbody').append(newForm);
+    $('#legend-_monthly>tbody').append(newForm);
 });
 
 // legend EPC
@@ -203,20 +203,20 @@ $wrapper_pvsyst.on('click', '.js-add-pvsyst', function(e) {
     $('#pvsyst-values>tbody').append(newForm);
 });
 
-// monthly-yield
-let $wrapper_yield = $('.js-monthly-yield-wrapper');
-$wrapper_yield.on('click', '.js-remove-monthly-yield', function(e) {
+// _monthly-yield
+let $wrapper_yield = $('.js-_monthly-yield-wrapper');
+$wrapper_yield.on('click', '.js-remove-_monthly-yield', function(e) {
     e.preventDefault();
-    $(this).closest('.js-monthly-yield-item')
+    $(this).closest('.js-_monthly-yield-item')
         .remove();
 });
-$wrapper_yield.on('click', '.js-add-monthly-yield', function(e) {
+$wrapper_yield.on('click', '.js-add-_monthly-yield', function(e) {
     e.preventDefault();
     let prototype = $wrapper_yield.data('prototype');
     let index = $wrapper_yield.data('index');
     let newForm = prototype.replace(/__name__/g, index);
     $wrapper_yield.data('index', index + 1);
-    $('#monthly-yield-values>tbody').append(newForm);
+    $('#_monthly-yield-values>tbody').append(newForm);
 });
 
 // Economics

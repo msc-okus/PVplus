@@ -1,9 +1,9 @@
-{% extends 'report/_epc/_pageBase.html.twig' %}
+{% extends 'report/_base_layouts/_pageBase.html.twig' %}
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Day Values</h3>
     {% if report != null %}
-       {% include "report/monthly/_tableSub.html.twig" %}
+       {% include "report/_monthly/_tableSub.html.twig" %}
     {% else %}
         <h2>no Report (twig has no report variable)</h2>
     {% endif %}

@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Anlage;
-use App\Entity\AnlagenMonthlyData;
 use App\Entity\AnlagenPR;
 use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
@@ -12,6 +11,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
+use App\Service\Reports\ReportsEpcYieldV2;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -37,7 +37,7 @@ class ReportEpcService
         private FunctionsService $functions,
         private PRCalulationService $PRCalulation,
         private AvailabilityService $availabilityService,
-        private ReportsEpcNewService $epcNew
+        private ReportsEpcYieldV2 $epcNew
     )
     {}
 

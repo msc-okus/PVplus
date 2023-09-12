@@ -22,12 +22,13 @@ use App\Repository\EconomicVarNamesRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use League\Flysystem\FilesystemException;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -38,6 +39,13 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class AnlagenAdminController extends BaseController
 {
     use G4NTrait;
+    public function __construct(
+        private $host,
+        private $userPlant,
+        private $passwordPlant
+    )
+    {
+    }
 
     #[Route(path: '/admin/anlagen/new', name: 'app_admin_anlagen_new')]
     public function new(EntityManagerInterface $em, Request $request, WeatherStationController $weatherStationController): RedirectResponse|Response
@@ -107,7 +115,7 @@ class AnlagenAdminController extends BaseController
     }
 
     #[Route(path: '/admin/anlagen/delete/sunshading/{id}/{sadid}/{token}', name: 'app_admin_anlagen_delete_sun_shading')]
-    #[IsGranted(['ROLE_DEV'])]
+    #[IsGranted('ROLE_DEV')]
     public function delete_sunshading_model($id,$sadid, $token, EntityManagerInterface $em, AnlageSunShadingRepository $anlageSunShadingRepository): Response
     {
 
@@ -214,6 +222,7 @@ class AnlagenAdminController extends BaseController
      * @param UploaderHelper $uploaderHelper
      * @param AnlageFileRepository $RepositoryUpload
      * @return RedirectResponse|Response
+     * @throws FilesystemException
      */
     #[Route(path: '/admin/anlagen/editconfig/{id}', name: 'app_admin_anlagen_edit_config')]
     public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload): RedirectResponse|Response
@@ -315,7 +324,8 @@ class AnlagenAdminController extends BaseController
     }
 
     #[Route(path: '/admin/anlagen/download/{id}/{dir}/{file}', name: 'download_file', methods: ['GET','POST'])]
-    public function downloadFile($id, $dir, $file, AnlagenRepository $anlagenRepository, KernelInterface $kernel) {
+    public function downloadFile($id, $dir, $file, AnlagenRepository $anlagenRepository, KernelInterface $kernel): BinaryFileResponse|Response
+    {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageDcGroupsFormType::class, $anlage, [
             'anlagenId' => $id,
@@ -339,13 +349,15 @@ class AnlagenAdminController extends BaseController
         }
 
     }
+
+    /**
+     * @throws \Exception
+     */
     #[Route(path: '/admin/anlagen/buildforcast/{id}', name: 'app_admin_anlagen_build_forecast', methods: ['GET','POST'])]
     public function buildForcast($id,  AnlagenRepository $anlagenRepository, KernelInterface $kernel): RedirectResponse|Response
     {
-
-        $anlage = $anlagenRepository->find($id);
         $response = new Response();
-        $response->setStatusCode(\Symfony\Component\HttpFoundation\Response::HTTP_OK);
+        $response->setStatusCode(Response::HTTP_OK);
 
         $application = new Application($kernel);
         $application->setAutoExit(false);
@@ -357,8 +369,8 @@ class AnlagenAdminController extends BaseController
 
         $output = new BufferedOutput();
         $application->run($input, $output);
-        return $response;
 
+        return $response;
     }
 
     #[Route(path: '/admin/anlagen/editdcgroups/{id}', name: 'app_admin_anlagen_edit_dcgroups')]
@@ -482,7 +494,7 @@ class AnlagenAdminController extends BaseController
     }
 
     #[Route(path: '/admin/anlagen/delete/{id}', name: 'app_admin_anlage_delete')]
-    #[IsGranted(['ROLE_DEV'])]
+    #[IsGranted('ROLE_DEV')]
     public function delete($id, EntityManagerInterface $em, AnlagenRepository $anlagenRepository, Security $security): RedirectResponse
     {
         if ($this->isGranted('ROLE_DEV')) {
@@ -492,7 +504,7 @@ class AnlagenAdminController extends BaseController
             $em->flush();
         }
 
-        return $this->redirectToRoute('app_anlagen_list');
+        return $this->redirectToRoute('app_admin_anlagen_list');
     }
 
     /**
@@ -635,7 +647,7 @@ class AnlagenAdminController extends BaseController
                                   UNIQUE INDEX `stamp_section` (`stamp` ASC, `section` ASC));
                                 ";
 
-            $conn = GetPdoService::getPdoConnection();
+            $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
             $conn->exec($databaseAcIst);
             $conn->exec($databaseDcIst);
             // $conn->exec($databaseAcSoll);

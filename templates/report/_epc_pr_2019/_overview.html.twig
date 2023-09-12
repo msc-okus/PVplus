@@ -1,0 +1,137 @@
+{% extends 'report/_base_layouts/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Basic Values</h3>
+    <table class="basetable" style="width: 100%!important; margin-bottom: 10px;">
+        <thead>
+        <tr>
+            <th>Start FAC</th>
+            <th>End FAC</th>
+            <th>PLD [EUR/kWh]</th>
+            <th>PR design [%]</th>
+            <th>PR guaranteed</th>
+            <th>Risk discount [%]</th>
+            <th>Annual Degradation [%]</th>
+            <th>Plant size as build [kWp]</th>
+            <th>Plant size by PVSYST [kWp]</th>
+        </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>{{ header.0.startFac|date("Y-m-d") }}</td>
+                <td>{{ header.0.endeFac|date("Y-m-d") }}</td>
+                <td>{{ header.0.pld|number_format(2,',','.') }}</td>
+                <td>{{ header.0.PRDesign|number_format(2,',','.') }}</td>
+                <td>{{ header.0.PRgarantiert|number_format(2,',','.') }}</td>
+                <td>{{ header.0.Risikoabschlag|number_format(2,',','.') }}</td>
+                <td>{{ header.0.AnnualDegradation|number_format(2,',','.') }}</td>
+                <td>{{ header.0.kwPeak|number_format(2,',','.') }}</td>
+                <td>{{ header.0.kwPeakPvSyst|number_format(2,',','.') }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table style="width: 100% !important; margin-bottom: 10px;">
+        <tr>
+            <td style="color: {{ anlage.eigner.fontColor2 }}; width: 40%;">
+                {% if headline.reportStatus %}
+                    <h3 style="text-align: left;">PR Forecast <small>{{ forecast.0.forecastDateText }}</small></h3>
+                    <table class="basetable">
+                        <thead>
+                        <tr>
+                            <th>SPR<sub><small>Prog</small></sub> - PR<sub><small>Guar</small></sub> [%]</th>
+                            <th></th>
+                            <th>Total PLD [EUR]</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>{{ forecast.0.PRDiffYear|number_format(2,',','.') }}</td>
+                            <td>{{ forecast.0.message }}</td>
+                            <td>{{ forecast.0.pld|number_format(2,',','.') }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                {% endif %}
+            </td>
+            <td style="width: 20%">&nbsp;</td>
+            <td style="width: 40%">
+                <h3 style="color: {{ anlage.eigner.fontColor2 }}; text-align: left;">PR Real <small>{{ forecast_real.0.forecastDateText }}</small></h3>
+                <table class="basetable">
+                    <thead>
+                    <tr>
+                        <th>PR<sub><small>Real</small></sub> - PR<sub><small>Guar</small></sub> [%]</th>
+                        <th>Availability</th>
+                        <th></th>
+                        <th>Total PLD [EUR]</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{{ forecast_real.0.PRDiffYear|number_format(2,',','.') }}</td>
+                        <td>{{ forecast_real.0.availability|number_format(2,',','.') }}</td>
+                        <td>{{ forecast_real.0.message }}</td>
+                        <td>{{ forecast_real.0.pld|number_format(2,',','.') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <table class="" style="width: 100% !important; margin-bottom: 10px;">
+        <tr style="width: 40%">
+            <td>
+                <img src="{{ absolute_url(asset(anlage.prFormular2Image())) }}" alt="{{ anlage.prFormular2 }}" style="max-width: 400px;">
+            </td>
+            <td style="width: 20%">&nbsp;</td>
+            <td style="width: 40%;">
+
+                <table class="basetable">
+                    <tr>
+                        <td style='text-align: center'>{{ formel.0.eGridReal|number_format(2,',','.') }} kWh</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td style='text-align: center'>------------------------------------------------</td>
+                        <td style='text-align: center'>=</td>
+                        <td style='text-align: center'>{{ formel.0.prReal|number_format(2,',','.') }} %</td>
+                    </tr>
+                    <tr>
+                        <td style='text-align: center'>{{ formel.0.theoPower|number_format(2,',','.') }} kWh</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+    {% if forecast_real.0.pld > 0 %}
+        <h3 style="color: {{ anlage.eigner.fontColor2 }};">PLD</h3>
+        <table class="basetable">
+            <thead>
+            <tr>
+                <th>Year</th>
+                <th>E loss [kWh]</th>
+                <th>net present PLD [EUR]</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for key,value in pld %}
+
+                <tr>
+                    <td>{{ value.year }}</td>
+                    <td>{{ value.eLoss|number_format(2,',','.') }}</td>
+                    <td>{{ value.pld|number_format(2,',','.') }}</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    {% endif %}
+
+
+{% endblock %}

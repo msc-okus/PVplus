@@ -52,7 +52,7 @@
         "jszip": "^3.10.1",
         "moments": "^0.0.2",
         "pdfmake": "^0.2.7",
-        "sass-loader": "^13.0.0",
+        "sass-loader": "^13.3.1",
         "stimulus-reveal-controller": "^4.1.0",
         "stimulus-use": "^0.50.0",
         "sweetalert2": "^11.4.8",

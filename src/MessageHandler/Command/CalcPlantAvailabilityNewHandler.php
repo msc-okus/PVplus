@@ -38,6 +38,6 @@ class CalcPlantAvailabilityNewHandler implements MessageHandlerInterface
             $this->availabilityByTicket->checkAvailability($anlage, $day, 2);
             $this->availabilityByTicket->checkAvailability($anlage, $day, 3);
         }
-        $this->logMessages->updateEntry($logId, 'done');
+        $this->logMessages->updateEntry($logId, 'done', 100);
     }
 }

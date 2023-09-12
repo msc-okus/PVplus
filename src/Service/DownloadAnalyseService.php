@@ -74,7 +74,7 @@ class DownloadAnalyseService
     public function getAllSingleSystemData(Anlage $anlage, int $year = 0, int $month = 0, int $timerange = 0): array|AnlagenPR|null
     {
         $download = [];
-        // timerange = monthly or dayly table
+        // timerange = _monthly or dayly table
         switch ($timerange) {
             case 1:
                 if ($year != 0 && $month != 0) {

@@ -43,12 +43,12 @@ class ImportDataHandler implements MessageHandlerInterface
             for ($dayStamp = $importData->getStartDate()->getTimestamp(); $dayStamp <= $importData->getEndDate()->getTimestamp(); $dayStamp += 24*3600) {
                 $from = strtotime(date('Y-m-d 00:15', $dayStamp));
                 $to = strtotime(date('Y-m-d 23:59', $dayStamp));
+                $currentDay = date('d', $dayStamp);
 
                 // Proof if date = today, if yes set $to to current DateTime
-                if ($importData->getEndDate()->format('Y') == date('Y') && $importData->getEndDate()->format('m') == date('m') && $importData->getEndDate()->format('d') == date('d')) {
+                if ($importData->getEndDate()->format('Y') == date('Y') && $importData->getEndDate()->format('m') == date('m') && $currentDay == date('d')) {
                     $hour = date('H');
-                    $minute = date('i');
-                    $to = strtotime($importData->getEndDate()->format("Y-m-d $hour:$minute"));
+                    $to = strtotime($importData->getEndDate()->format("Y-m-d $hour:00"));
                 }
 
                 $minute = (int)date('i');

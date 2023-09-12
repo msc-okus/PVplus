@@ -1,7 +1,7 @@
-{% extends 'report/_epc/_pageBase.html.twig' %}
+{% extends 'report/_base_layouts/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3>Monthly Values</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Values</h3>
     <table class="basetable monthtable">
         <thead>
         <tr>
@@ -42,7 +42,7 @@
                     <td>{{ value.prReal_prDesign|number_format(2,',','.') }}</td>
                     <td>{{ value.availability|number_format(2,',','.') }}</td>
                     <td style="background-color: #767676;"></td>
-                    <td>{{ value.eGridRealDesign }}</td>
+                    <td>{% if value.eGridReal-Design is defined %}{{ value.eGridReal-Design }}{% else %}{{ value.eGridRealDesign }}</td>
                     <td>{{ value.prReal_prGuar|number_format(2,',','.') }}</td>
                     <td>{{ value.prReal_prProg|number_format(2,',','.') }}</td>
                     <td>{{ value.anteil|number_format(2,',','.') }}</td>

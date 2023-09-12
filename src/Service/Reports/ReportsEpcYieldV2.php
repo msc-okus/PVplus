@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Reports;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
@@ -8,13 +8,17 @@ use App\Repository\AnlagenRepository;
 use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
+use App\Service\AvailabilityByTicketService;
+use App\Service\AvailabilityService;
+use App\Service\FunctionsService;
+use App\Service\PRCalulationService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Hisune\EchartsPHP\ECharts;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class ReportsEpcNewService
+class ReportsEpcYieldV2
 {
     use G4NTrait;
 
@@ -167,16 +171,16 @@ class ReportsEpcNewService
 
             $tableArray[$n]['B_month'] = date('m / Y', strtotime("$year-$month-1")); // Spalte B
             $tableArray[$n]['C_days'] = $days; // Spalte C
-            $tableArray[$n]['D_irrDesign'] = ($hasMonthData) ? (($monthlyRecalculatedData !== null) ? $monthlyRecalculatedData->getPvSystIrr() : 0) : $pvSystData[$month - 1]['irrDesign'] * $factor; // Spalte D // kommt aus der Tabelle PvSyst Werte Design
-            $tableArray[$n]['E_yieldDesign'] = ($hasMonthData) ? (($monthlyRecalculatedData !== null) ? $monthlyRecalculatedData->getPvSystErtrag() : 0) : $pvSystData[$month - 1]['ertragDesign'] * $factor; // Spalte E // kommt aus der Tabelle PvSyst Werte Design
+            $tableArray[$n]['D_irrDesign'] = ($hasMonthData) ? (($monthlyRecalculatedData !== null) ? $monthlyRecalculatedData->getPvSystIrr() : 0) : $pvSystData[$month]['irrDesign'] * $factor; // Spalte D // kommt aus der Tabelle PvSyst Werte Design
+            $tableArray[$n]['E_yieldDesign'] = ($hasMonthData) ? (($monthlyRecalculatedData !== null) ? $monthlyRecalculatedData->getPvSystErtrag() : 0) : $pvSystData[$month]['ertragDesign'] * $factor; // Spalte E // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$n]['F_specificYieldDesign'] = $tableArray[$n]['E_yieldDesign'] / $anlage->getKwPeakPvSyst();  // Spalte F // berechnet aus IrrDesign un der Anlagenleistung (kwPeak)
             $tableArray[$n]['G_prDesign'] = ($tableArray[$n]['D_irrDesign'] > 0) ? $tableArray[$n]['F_specificYieldDesign'] / $tableArray[$n]['D_irrDesign'] * 100 : 0; // Spalte G // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$n]['H_prGuarantie'] = $tableArray[$n]['G_prDesign'] - $anlage->getTransformerTee() - $anlage->getGuaranteeTee(); // Spalte H
-            $tableArray[$n]['I_theorYieldDesign'] = ($hasMonthData) ? (($monthlyRecalculatedData !== null) ? $monthlyRecalculatedData->getPvSystIrr() * $anlage->getKwPeakPvSyst() : 0) : $pvSystData[$month - 1]['irrDesign'] * $anlage->getKwPeakPvSyst() * $factor; // Spalte I
+            $tableArray[$n]['I_theorYieldDesign'] = ($hasMonthData) ? (($monthlyRecalculatedData !== null) ? $monthlyRecalculatedData->getPvSystIrr() * $anlage->getKwPeakPvSyst() : 0) : $pvSystData[$month]['irrDesign'] * $anlage->getKwPeakPvSyst() * $factor; // Spalte I
             $tableArray[$n]['J_theorYieldMTDesign'] = ''; // Spalte J
             $tableArray[$n]['K_irrFTDesign'] = ''; // Spalte K
             $tableArray[$n]['L_irr'] = ($hasMonthData) ? $prArray['irradiation'] : $tableArray[$n]['D_irrDesign']; // Spalte L // Irradiation
-            $tableArray[$n]['M_eGridYield'] = ($hasMonthData) ? $eGridReal : $pvSystData[$month - 1]['ertragDesign'] * $factor; // Spalte M // eGrid gemessen (je nach Konfiguration der Anlage aus dem Feld e_z_evu oder aus den Tageswerten der externen Grid Messung
+            $tableArray[$n]['M_eGridYield'] = ($hasMonthData) ? $eGridReal : $pvSystData[$month]['ertragDesign'] * $factor; // Spalte M // eGrid gemessen (je nach Konfiguration der Anlage aus dem Feld e_z_evu oder aus den Tageswerten der externen Grid Messung
             $tableArray[$n]['N_specificYield'] = $tableArray[$n]['M_eGridYield'] / $anlage->getPnom(); // Spalte N
             $tableArray[$n]['O_availability'] = ($hasMonthData) ? $prArray['availability'] : null; // Spalte O
             $tableArray[$n]['P_part'] = 0; // Spalte P // muss in Runde 2 Berechnet werden

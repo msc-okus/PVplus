@@ -6,7 +6,6 @@ use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
 use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
-use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Repository\AnlagenRepository;
 use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
@@ -14,12 +13,10 @@ use App\Repository\PRRepository;
 use App\Service\AvailabilityService;
 use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
-use App\Service\ReportsEpcNewService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class ReportEpcService
@@ -41,7 +38,7 @@ class ReportEpcService
         private FunctionsService $functions,
         private PRCalulationService $PRCalulation,
         private AvailabilityService $availabilityService,
-        private ReportsEpcNewService $epcNew
+        private ReportsEpcYieldV2 $epcYieldV2
     )
     {}
 
@@ -59,9 +56,9 @@ class ReportEpcService
                 $reportArray = $this->reportPRGuarantee($anlage, $date);
                 break;
             case 'yieldGuarantee':
-                $monthTable = $this->epcNew->monthTable($anlage, $date);
+                $monthTable = $this->epcYieldV2->monthTable($anlage, $date);
                 $reportArray['monthTable'] = $monthTable;
-                $reportArray['forcastTable'] = $this->epcNew->forcastTable($anlage, $monthTable, $date);
+                $reportArray['forcastTable'] = $this->epcYieldV2->forcastTable($anlage, $monthTable, $date);
                 break;
             default:
                 $error = true;
