@@ -814,12 +814,14 @@ class Anlage
         return $this->anlBetrieb;
     }
 
-    public function getBetriebsJahre(): ?float
+    public function getBetriebsJahre(): float
     {
         if ($this->getAnlBetrieb()) {
-            return  (int) date('Y') - (int) $this->getAnlBetrieb()->format('Y');
+            $interval = $this->getAnlBetrieb()->diff(new DateTime());
+
+            return (int) ($interval->format('%a') / 356) + 1;
         } else {
-            return false;
+            return -1;
         }
 
     }
