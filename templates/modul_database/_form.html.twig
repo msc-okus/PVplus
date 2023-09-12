@@ -1,6 +1,7 @@
 
 
 {{ form_start(modulesDBForm, {'attr': {'novalidate': 'no'}}) }}
+
 <div class="grid-x">
     <div class="cell">
 
@@ -18,7 +19,12 @@
             <div class="tabs-panel is-active" id="base">
                 <div class="grid-y grid-padding-y">
                    {{ form_row(modulesDBForm.type) }}
+                   {{ form_row(modulesDBForm.producer) }}
                    {{ form_row(modulesDBForm.power) }}
+                   {{ form_row(modulesDBForm.isBifacial) }}
+                   {{ form_row(modulesDBForm.dimensionHeight) }}
+                   {{ form_row(modulesDBForm.dimensionWidth) }}
+                   {{ form_row(modulesDBForm.annotation) }}
                 </div>
             </div>
             <div class="tabs-panel" id="temp">

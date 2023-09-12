@@ -6,93 +6,244 @@
 {% endblock %}
 
 {% block body %}
-    <style>
-        .data {
-            background-color: #d5dbdf;
-            padding: 2px;
-            margin: 2px;
-        }
-        .datacell {
-            border: 2px solid #00d0ff;
-            border-radius: 5px;
-        }
-    </style>
-    <h1>List Modules </h1>
+
+<h1>List Modules </h1>
+<div class="grid-x grid-padding-x">
+<div class="cell medium-2 ">
     {{ macrolibrary.searchbox(app.request.query.get('qw'), 'qw') }}
+</div>
+</div>
 <ul id="js-accordion" class="accordion" data-accordion data-allow-all-closed="true">
         {% for modules in pagination %}
             <li class="accordion-item js-modulesdb-item" data-accordion-item data-allow-all-closed="true">
                 <!-- Accordion tab title -->
-
                 <a href="#" class="accordion-title">Modul: <b>{{ modules.type }}</b> -  {{ modules.power }} Wp</a>
 
                 <div class="accordion-content" data-tab-content>
                     <div class="js-use-modulesdb-item">
-
+                        <legend><b>Modul Type:</b> {{ modules.type }}</legend>
                         <div class="grid-x grid-padding-x">
-                            <div class="cell medium-3 data datacell"><label>Id: {{ modules.id }}</label></div>
-                            <div class="cell medium-3 data datacell"><label>Type: {{ modules.type }}</label></div>
-                            <div class="cell medium-3 data datacell"><label>Power: {{ modules.power }} Wp</label></div>
-                            <div class="cell medium-2 "><label>&nbsp</label></div>
-                        </div>
+                            <div class="cell medium-8 large-8">
+                            <fieldset class="fieldset">
+                                <legend>Technical data</legend>
+                                <table style="width: 100%; border-collapse: unset;border-spacing: inherit;">
+                                    <tbody>
+                                    <tr>
+                                        <td><div class=" cell medium-2 "><label><b>Producer:</b> {{ modules.producer }} </label></div></td>
+                                        <td><div class=" cell medium-2 "><label><b>Power:</b> {{ modules.power }} Wp</label></div></td>
+                                        <td><div class=" cell medium-2 "><label><b>Module degradation per Year:</b> {{ modules.degradation }} % </label></div></td>
+                                        <td><div class=" cell medium-2 "><label><b>Is Bifacial:</b>{% if (modules.isBifacial == 0) or (modules.isBifacial is empty) %} No {% else %} Yes {% endif %}</label></div></td>
+                                    </tr>
+                                    <tr>
+                                        <td><div class=" cell medium-2 "><label><b>Temp. Coef. Current:</b> {{ modules.tempCoefCurrent }} A</label></div></td>
+                                        <td><div class=" cell medium-2 "><label><b>Temp. Coef. Voltage:</b> {{ modules.tempCoefVoltage }} V</label></div></td>
+                                        <td><div class=" cell medium-2 "><label><b>Temp. Coef. Power:</b> {{ modules.tempCoefPower }} W</label></div></td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td><div class=" cell medium-2 "><label><b>Max Current MPP:</b> {{ modules.maxImpp }} A</label></div></td>
+                                        <td><div class=" cell medium-2 "><label><b>Max Voltage MPP:</b> {{ modules.maxUmpp }} V</label></div></td>
+                                        <td><div class=" cell medium-2 "><label><b>Max Power MPP:</b> {{ modules.maxPmpp }} W</label></div></td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td><div class=" cell medium-2 "><label><b>Factor to extend Irr on BFIM:</b> {{ modules.backSideFactor }} %</label></div></td>
+                                        <td><div class=" cell medium-2 "><label><b>Dimension Height:</b> {{ modules.dimensionHeight }} mm</label></div></td>
+                                        <td><div class=" cell medium-2 "><label><b>Dimension Width:</b> {{ modules.dimensionWidth }} mm</label></div></td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </fieldset>
+                            </div>
 
-                        <div class="grid-x grid-padding-x">
-                            <div class="cell medium-2 data datacell"><label>TempCoefCurrent: {{ modules.tempCoefCurrent }} A</label></div>
-                            <div class="cell medium-2 data datacell"><label>TempCoefVoltage: {{ modules.tempCoefVoltage }} V</label></div>
-                            <div class="cell medium-2 data datacell"><label>TempCoefVoltage: {{ modules.tempCoefVoltage }} V</label></div>
-                            <div class="cell medium-2 data datacell"><label>TempCoefPower: {{ modules.tempCoefPower }} W</label></div>
-                            <div class="cell medium-2 data datacell"><label>MaxImpp: {{ modules.maxImpp }} A</label></div>
-                            <div class="cell medium-2 "><label>&nbsp;</label></div>
-                        </div>
+                            <div class="cell medium-4 large-4">
+                                <fieldset class="fieldset">
+                                    <legend>Infomation</legend>
+                                    <table style="width: 100%; border-collapse: unset;border-spacing: inherit;">
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="cell medium-2 "><label><b>Datasheet 1:</b> <a href="{{ modules.dataSheet1 }}"><i class="fa fa-file-pdf"></i></a> </label></div>
+                                                <div class="cell medium-2 "><label><b>Datasheet 2:</b> <a href="{{ modules.dataSheet2 }}"><i class="fa fa-file-pdf"></i></a> </label></div>
+                                            </td>
+                                            <td><div class="cell medium-2 ">
+                                                    <label><b>Annotation:</b></label>
+                                                    <textarea id="annotation" name="annotation" rows="4" cols="50">
+                                                {{ modules.annotation }}
+                                            </textarea>
+                                                </div></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
 
-                        <div class="grid-x grid-padding-x">
-                            <div class="cell medium-2 data datacell"><label>MaxUmpp: {{ modules.maxUmpp }} V</label></div>
-                            <div class="cell medium-2 data datacell"><label>MaxPmpp: {{ modules.maxPmpp }} W</label></div>
-                            <div class="cell medium-2 data datacell"><label>OperatorCurrentA: {{ modules.operatorCurrentA }} A</label></div>
-                            <div class="cell medium-2 data datacell"><label>OperatorCurrentB: {{ modules.operatorCurrentB }} A</label></div>
-                            <div class="cell medium-2 data datacell"><label>OperatorCurrentC: {{ modules.operatorCurrentC }} A</label></div>
-                            <div class="cell medium-2 data datacell"><label>OperatorCurrentD: {{ modules.operatorCurrentD }} A</label></div>
-                        </div>
-
-                        <div class="grid-x grid-padding-x">
-                            <div class="cell medium-2 data datacell"><label>OperatorCurrentE: {{ modules.operatorCurrentE }} A</label></div>
-                            <div class="cell medium-2 data datacell"><label>OperatorCurrentHighA: {{ modules.operatorCurrentHighA }} A</label></div>
-                            <div class="cell medium-2 data datacell"><label>OperatorPowerA: {{ modules.operatorPowerA }} W</label></div>
-                            <div class="cell medium-2 data datacell"><label>OperatorPowerB: {{ modules.operatorPowerB }} W</label></div>
-                            <div class="cell medium-2 data datacell"><label>OperatorPowerC: {{ modules.operatorPowerC }} W</label></div>
-                            <div class="cell medium-2 data datacell"><label>OperatorPowerD: {{ modules.operatorPowerD }} W</label></div>
-                        </div>
-
-                        <div class="grid-x grid-padding-x">
-                             <div class="cell medium-2 data datacell"><label>OperatorPowerE: {{ modules.operatorPowerE }} W</label></div>
-                             <div class="cell medium-2 data datacell"><label>OperatorPowerHighA: {{ modules.operatorPowerHighA }} W</label></div>
-                             <div class="cell medium-2 data datacell"><label>OperatorPowerHighB: {{ modules.operatorPowerHighB }} W</label></div>
-                             <div class="cell medium-2 data datacell"><label>OperatorVoltageA: {{ modules.operatorVoltageA }} V</label></div>
-                             <div class="cell medium-2 data datacell"><label>OperatorVoltageB: {{ modules.operatorVoltageB }} V</label></div>
-                             <div class="cell medium-2 "><label>&nbsp</label></div>
-                        </div>
-
-                        <div class="grid-x grid-padding-x">
-                            <div class="cell medium-2 data datacell"><label>OperatorVoltageHightA: {{ modules.operatorVoltageHightA }} V</label></div>
-                            <div class="cell medium-2 data datacell"><label>OperatorVoltageHightB: {{ modules.operatorVoltageHightB }} V</label></div>
-                            <div class="cell medium-2 data datacell"><label>OperatorVoltageHightC: {{ modules.operatorVoltageHightC }} V</label></div>
-                            <div class="cell medium-2 data datacell"><label>BackSideFactor: {{ modules.backSideFactor }} </label></div>
-                            <div class="cell medium-2 data datacell"><label>Degradation: {{ modules.degradation }} % </label></div>
-                            <div class="cell medium-2 "><label>&nbsp;</label></div>
-                        </div>
-
-                        <div class="grid-x grid-padding-x">
-
-                            <div class="cell medium-6">
-                                <a href="{{ path('app_admin_moduldb_edit', { id: modules.id}) }}" class="hollow button tiny action-icon shadow">
-                                    <span class="fa fa-edit"></span>
-                                </a>
+                                </fieldset>
                             </div>
 
                         </div>
+<hr>
+                        <div class="grid-x grid-padding-x">
 
-                    </div>
-                </div>
+                            <div class="cell medium-6 large-4">
+                                <fieldset class="fieldset">
+
+                                    <legend>Operators Current</legend>
+                                    <div class="grid-x grid-padding-x">
+                                        <table style="width: 100%; border-collapse: unset;border-spacing: inherit;">
+                                            <tbody>
+                                            <tr>
+                                                <td> <div class="cell medium-2 "><label><b>A:</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>B:</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>C:</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>D:</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>E:</b>  </label></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorCurrentA }} A</label></div></td>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorCurrentB }} A</label></div></td>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorCurrentC }} A</label></div></td>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorCurrentD }} A</label></div></td>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorCurrentE }} A</label></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td> <div class="cell medium-2 "><label><b>A (> 200W):</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                            </tr>
+                                            <tr>
+                                                <td><div class="cell medium-2 "><label> {{ modules.operatorCurrentHighA }} A</label></div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <div class="cell medium-6 large-4">
+                                <fieldset class="fieldset">
+                                    <legend>Operators Voltage</legend>
+                                    <div class="grid-x grid-padding-x">
+                                        <table style="width: 100%; border-collapse: unset;border-spacing: inherit;">
+                                            <tbody>
+                                            <tr>
+                                                <td> <div class="cell medium-2 "><label><b>A:</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>B:</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                            </tr>
+                                            <tr>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorVoltageA }} A</label></div></td>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorVoltageB }} A</label></div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                            </tr>
+                                            <tr>
+                                                <td> <div class="cell medium-2 "><label><b>A (> 200W):</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>B (> 200W):</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>C (> 200W):</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                            </tr>
+                                            <tr>
+                                                <td><div class="cell medium-2 "><label> {{ modules.operatorVoltageHightA }} V</label></div></td>
+                                                <td><div class="cell medium-2 "><label> {{ modules.operatorVoltageHightB }} V</label></div></td>
+                                                <td><div class="cell medium-2 "><label> {{ modules.operatorVoltageHightC }} V</label></div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <div class="cell medium-6 large-4">
+                                <fieldset class="fieldset">
+
+                                    <legend>Operators Power</legend>
+                                    <div class="grid-x grid-padding-x">
+                                        <table style="width: 100%; border-collapse: unset;border-spacing: inherit;">
+                                            <tbody>
+                                            <tr>
+                                                <td> <div class="cell medium-2 "><label><b>A:</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>B:</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>C:</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>D:</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>E:</b>  </label></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorPowerA }} W</label></div></td>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorPowerB }} W</label></div></td>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorPowerC }} W</label></div></td>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorPowerD }} W</label></div></td>
+                                                <td><div class="cell medium-2 "><label>{{ modules.operatorPowerE }} W</label></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td> <div class="cell medium-2 "><label><b>A (> 200W):</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 "><label><b>B (> 200W):</b>  </label></div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td> <div class="cell medium-2 ">&nbsp;</div></td>
+                                            </tr>
+                                            <tr>
+                                                <td><div class="cell medium-2 "><label> {{ modules.operatorPowerHighA }} W</label></div></td>
+                                                <td><div class="cell medium-2 "><label> {{ modules.operatorPowerHighB }} W</label></div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                                <td><div class="cell medium-2 ">&nbsp;</div></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-4">
+                                <form action="{{ path('app_admin_moduldb_edit', { id: modules.id }) }}" method="get">
+                                    <button class="primary small button button" type="submit">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </button>
+                                </form>
+
+                            </div>
+                        </div>
+
+                            <div class="grid-x grid-padding-x">
+                                <div class="cell medium-4">
+                                    <form action="{{ path('app_admin_moduldb_copy', { id: modules.id }) }}" method="get">
+                                        <button class="primary small button button" type="submit">
+                                            <i class="fa fa-copy"></i> Copy
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="grid-x grid-padding-x">
+                                <div class="cell medium-4">
+                                    <form id="deletform" action="{{ path('app_admin_moduldb_delet', { id: modules.id }) }}" method="get">
+                                        <input type="hidden" name="token" value="{{ csrf_token('deletemodulesdb' ~ modules.id) }}">
+                                        <button class="primary small button" type="submit" id="deleteDataFq" style="background-color: #ba1717;" onclick="return confirm('Are you sure ?');">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+
+                      </div>
+                   </div>
+               </div>
 
             </li>
         {% endfor %}
