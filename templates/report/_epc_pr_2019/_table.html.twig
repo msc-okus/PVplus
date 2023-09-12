@@ -42,7 +42,7 @@
                     <td>{{ value.prReal_prDesign|number_format(2,',','.') }}</td>
                     <td>{{ value.availability|number_format(2,',','.') }}</td>
                     <td style="background-color: #767676;"></td>
-                    <td>{{ value.eGridRealDesign }}</td>
+                    <td>{% if value.eGridReal-Design is defined %}{{ value.eGridReal-Design }}{% else %}{{ value.eGridRealDesign }}</td>
                     <td>{{ value.prReal_prGuar|number_format(2,',','.') }}</td>
                     <td>{{ value.prReal_prProg|number_format(2,',','.') }}</td>
                     <td>{{ value.anteil|number_format(2,',','.') }}</td>
