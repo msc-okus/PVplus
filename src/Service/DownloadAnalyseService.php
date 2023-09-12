@@ -13,7 +13,7 @@ use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
 
@@ -44,7 +44,7 @@ class DownloadAnalyseService
     private AnlageAvailabilityRepository $availabilityRepo;
 
     public function __construct(
-private GetPdoService $getPdoService,
+private PdoService $pdoService,
         AnlageAvailabilityRepository $availabilityRepo,
         PRRepository $prRepository,
         AnlagenRepository $anlagenRepository,
@@ -105,7 +105,7 @@ private GetPdoService $getPdoService,
      */
     public function getDcSingleSystemData($anlage, $from, $to, $intervall): array
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         switch ($anlage->getConfigType()) {
             case 2:
             case 1: $dbnameist = $anlage->getDbNameIst();
@@ -150,7 +150,7 @@ private GetPdoService $getPdoService,
      */
     public function getEcpectedDcSingleSystemData(Anlage $anlage, $from, $to, $intervall): array
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dbnamesoll = $anlage->getDbNameDcSoll();
         $output = [];
         // Expected DC
@@ -180,7 +180,7 @@ private GetPdoService $getPdoService,
      */
     public function getAllSingleSystemDataForDay(Anlage $anlage, $from, $to, $intervall, $headlineDate): array
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dbnameist = $anlage->getDbNameIst();
         $dbnamesoll = $anlage->getDbNameAcSoll();
         $dbnamedcsoll = $anlage->getDbNameDcSoll();

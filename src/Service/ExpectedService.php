@@ -17,14 +17,14 @@ use App\Repository\OpenWeatherRepository;
 use App\Service\Functions\IrradiationService;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 class ExpectedService
 {
     use G4NTrait;
 
     public function __construct(
-private GetPdoService $getPdoService,
+private PdoService $pdoService,
         private AnlagenRepository $anlagenRepo,
         private GroupsRepository $groupsRepo,
         private GroupMonthsRepository $groupMonthsRepo,
@@ -49,7 +49,7 @@ private GetPdoService $getPdoService,
 
         $output = '';
         if ($anlage->getGroups() && !$anlage->isExcludeFromExpCalc() && $anlage->getAnlBetrieb() !== null) {
-            $conn = $this->getPdoService->getPdoPlant();
+            $conn = $this->pdoService->getPdoPlant();
             $arrayExpected = $this->calcExpected($anlage, $from, $to);
             if ($arrayExpected) {
                 $sql = 'INSERT INTO '.$anlage->getDbNameDcSoll().' (stamp, wr, wr_num, group_dc, group_ac, ac_exp_power, ac_exp_power_evu, ac_exp_power_no_limit, dc_exp_power, dc_exp_current, soll_imppwr, soll_pdcwr, dc_exp_voltage) VALUES ';
@@ -83,7 +83,7 @@ private GetPdoService $getPdoService,
         $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre
         $month = date('m', strtotime($from));
 
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         // Lade Wetter (Wetterstation der Anlage) Daten für die angegebene Zeit und Speicher diese in ein Array
         $weatherStations = $this->groupsRepo->findAllWeatherstations($anlage, $anlage->getWeatherStation());
         $sqlWetterDaten = 'SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, temp_pannel AS panel_temp, temp_ambient AS ambient_temp FROM '.$anlage->getDbNameWeather()." WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";

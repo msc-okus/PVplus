@@ -9,7 +9,7 @@ use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
 use PDO;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class TempHeatmapChartService
@@ -29,7 +29,7 @@ class TempHeatmapChartService
     private WeatherServiceNew $weatherService;
 
     public function __construct(
-private GetPdoService $getPdoService,Security $security,
+private PdoService $pdoService,Security $security,
         AnlagenStatusRepository $statusRepository,
         InvertersRepository $invertersRepo,
         IrradiationChartService $irradiationChart,
@@ -101,7 +101,7 @@ private GetPdoService $getPdoService,Security $security,
         $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
         $to = self::timeAjustment($to, 1);
 
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
 
         switch ($anlage->getConfigType()) {

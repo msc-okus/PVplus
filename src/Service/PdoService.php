@@ -3,8 +3,9 @@
 namespace App\Service;
 
 use App\Helper\G4NTrait;
-
-class GetPdoService
+use PDO;
+use PDOException;
+class PdoService
 {
     use G4NTrait;
 
@@ -18,11 +19,13 @@ class GetPdoService
     {
     }
 
+    //connection for imported data
     public function getPdoPlant()
     {
         return($this->getPdoConnection($this->host, $this->userPlant, $this->passwordPlant, 'pvp_data'));
     }
 
+    //connection for base tables like anlagen
     public function getPdoBase()
     {
         return($this->getPdoConnection($this->host, $this->userBase, $this->passwordBase, 'pvp_base'));

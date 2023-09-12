@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 use App\Entity\Anlage;
 use App\Form\Model\WeatherToolsModel;
@@ -361,7 +361,7 @@ class SpecialOperationsController extends AbstractController
                 // Here we upload the file and read it
                 $newFile = $uploaderHelper->uploadFile($uploadedFile, '/xlsx/1', 'xlsx');
 
-                $conn = $this->getPdoService->getPdoPlant();
+                $conn = $this->pdoService->getPdoPlant();
 
                 if ( $xlsx = simpleXLSX::parse($uploadsPath . '/xlsx/1/'.$newFile) ) {
                     $i = 0;

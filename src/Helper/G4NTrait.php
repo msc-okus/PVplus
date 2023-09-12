@@ -8,8 +8,7 @@ use App\Entity\Anlage;
 use DateTimeZone;
 use Exception;
 use JetBrains\PhpStorm\Deprecated;
-use PDO;
-use PDOException;
+
 use Symfony\Component\Intl\Timezones;
 use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 

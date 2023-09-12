@@ -8,7 +8,7 @@ use App\Repository\AnlagenStatusRepository;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use PDO;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class VoltageChartService
@@ -16,7 +16,7 @@ class VoltageChartService
     use G4NTrait;
 
     public function __construct(
-private GetPdoService $getPdoService,
+private PdoService $pdoService,
         private Security $security,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository $invertersRepo,
@@ -39,7 +39,7 @@ private GetPdoService $getPdoService,
     public function getVoltage1(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $acGroups = $anlage->getGroupsAc();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
@@ -145,7 +145,7 @@ private GetPdoService $getPdoService,
         } else {
             $form = '%y%m%d%H%i';
         }
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dcGroups = $anlage->getGroupsDc();
         $dataArray = [];
         // Spannung für diesen Zeitraum und diese Gruppe
@@ -219,7 +219,7 @@ private GetPdoService $getPdoService,
         } else {
             $form = '%y%m%d%H%i';
         }
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
 

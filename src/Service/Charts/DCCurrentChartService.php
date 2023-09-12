@@ -9,14 +9,14 @@ use App\Repository\AnlagenStatusRepository;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use PDO;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 class DCCurrentChartService
 {
     use G4NTrait;
 
     public function __construct(
-private GetPdoService $getPdoService,
+private PdoService $pdoService,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository     $invertersRepo,
         private IrradiationChartService $irradiationChart,
@@ -36,7 +36,7 @@ private GetPdoService $getPdoService,
     public function getCurr1(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $acGroups = $anlage->getGroupsAc();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
@@ -152,7 +152,7 @@ private GetPdoService $getPdoService,
     public function getCurr2(Anlage $anlage, $from, $to, int $set = 1, bool $hour = false): array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dcGroups = $anlage->getGroupsDc();
         $dataArray = [];
 
@@ -222,7 +222,7 @@ private GetPdoService $getPdoService,
     public function getCurr3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dcGroups = $anlage->getGroupsDc();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
@@ -335,7 +335,7 @@ private GetPdoService $getPdoService,
     public function getCurr4(Anlage $anlage, $from, $to, ?int $inverter = 1, bool $hour = false): bool|array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
 
@@ -401,7 +401,7 @@ private GetPdoService $getPdoService,
      */
     public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $nameArray = [];
         $group = 1;

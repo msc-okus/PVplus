@@ -11,14 +11,14 @@ use App\Repository\ForcastDayRepository;
 use App\Repository\ForcastRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 class CheckSystemStatusService
 {
     use G4NTrait;
 
     public function __construct(
-        private GetPdoService $getPdoService,
+        private PdoService $pdoService,
         private AnlagenRepository $anlagenRepository,
         private AnlagenStatusRepository $statusRepository,
         private EntityManagerInterface $em,
@@ -33,9 +33,9 @@ class CheckSystemStatusService
     {
         // TODO: Umstellung auf Doctrine / Symfony
         $anlagenStatusDb = 'pvp_base.pvp_anlagen_status';
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
 
-        $connAnlage = $this->getPdoService->getPdoBase();
+        $connAnlage = $this->pdoService->getPdoBase();
 
         $output = '';
 
@@ -426,7 +426,7 @@ class CheckSystemStatusService
      */
     private function calcPowerIstAcAndDc(Anlage $anlage, $from, $to)
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         if ($anlage->getUseNewDcSchema()) {
             $res = $conn->query('SELECT sum(wr_pac) as SumPowerAC FROM '.$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '$from' AND '$to'");
             if ($res->rowCount() > 0) {
@@ -474,7 +474,7 @@ class CheckSystemStatusService
      */
     private function calcPowerSollAcAndDc(Anlage $anlage, $from, $to)
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         // Soll AC
         $sql = 'SELECT sum(ac_exp_power) as SumPowerAC FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to'";
         $res = $conn->query($sql);
@@ -510,7 +510,7 @@ class CheckSystemStatusService
      */
     private function checkInverter(Anlage $anlage, $from, $to, $currentTimeStamp): array
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $inverterArray = [];
         $inverterArray['score'] = 0;
         $inverterArray['anzInverter'] = 0;
@@ -629,7 +629,7 @@ class CheckSystemStatusService
      */
     private function checkStrings(Anlage $anlage, $timestampModulo)
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
 
         $from = date('Y-m-d H:i', $timestampModulo - 1800); // nur die letzte halbe Stunde auswerten
         $to = date('Y-m-d H:i', $timestampModulo);

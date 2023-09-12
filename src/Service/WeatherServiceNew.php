@@ -17,7 +17,7 @@ class WeatherServiceNew
     use G4NTrait;
 
     public function __construct(
-private GetPdoService $getPdoService,
+private PdoService $pdoService,
         private DayLightDataRepository $dayrepo,
         private EntityManagerInterface $em,
         private AnlagenRepository $anlRepo)
@@ -27,7 +27,7 @@ private GetPdoService $getPdoService,
     public function loadWeatherDataUP(WeatherStation $weatherStation, $date = 0): string
     {
         $output = '';
-        $conn = $this->getPdoService->getPdoPlant();  // DB Connection herstellen
+        $conn = $this->pdoService->getPdoPlant();  // DB Connection herstellen
         // Variablen festlegen bzw. generieren aus der db
         if ($date > 0) {
             $timestamp = $date;

@@ -8,14 +8,14 @@ use App\Repository\AnlagenStatusRepository;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use PDO;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 class ACPowerChartsService
 {
     use G4NTrait;
 
     public function __construct(
-private GetPdoService $getPdoService,
+private PdoService $pdoService,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository $invertersRepo,
         private IrradiationChartService $irradiationChart,
@@ -37,7 +37,7 @@ private GetPdoService $getPdoService,
     {
         ini_set('memory_limit', '3G');
         set_time_limit(500);
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $formExp = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $form = $hour ? '%y%m%d%' : '%y%m%d%H%i';
 
@@ -218,7 +218,7 @@ private GetPdoService $getPdoService,
                             WHERE a.stamp BETWEEN '$from' AND '$to'
                             GROUP by date_format(a.stamp, '$form')";
 
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $resultExp = $conn->query($sqlExpected);
         if ($resultExp->rowCount() > 0) {
             $counter = 0;
@@ -319,7 +319,7 @@ private GetPdoService $getPdoService,
         set_time_limit(500);
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
 
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $groupID = 1;
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
@@ -453,7 +453,7 @@ private GetPdoService $getPdoService,
     {
         ini_set('memory_limit', '3G');
         set_time_limit(500);
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $acGroups = $anlage->getGroupsAc();
 
@@ -508,7 +508,7 @@ private GetPdoService $getPdoService,
         } else {
             $form = '%y%m%d%H%i';
         }
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
             case 1:
@@ -610,7 +610,7 @@ private GetPdoService $getPdoService,
         } else {
             $form = '%y%m%d%H%i';
         }
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
             case 1:
@@ -705,7 +705,7 @@ private GetPdoService $getPdoService,
         } else {
             $form = '%y%m%d%H%i';
         }
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $acGroups = $anlage->getGroupsAc();
         if ($hour) {
@@ -793,7 +793,7 @@ private GetPdoService $getPdoService,
         } else {
             $form = '%y%m%d%H%i';
         }
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $acGroups = $anlage->getGroupsAc();
         switch ($anlage->getConfigType()) {
@@ -851,7 +851,7 @@ private GetPdoService $getPdoService,
     public function getNomPowerGroupAC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array {
         ini_set('memory_limit', '3G');
         set_time_limit(500);
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $pnominverter = $anlage->getPnomInverterArray();
         $counter = 0;$counterInv = 0;

@@ -23,7 +23,7 @@ class DatFileReaderService {
      * @param string $position
      */
     public function __construct(
-private GetPdoService $getPdoService,$filename, $delimiter = ",", $rowDelimiter = "r", $position = 0)  {
+private PdoService $pdoService,$filename, $delimiter = ",", $rowDelimiter = "r", $position = 0)  {
         $this->delimiter = $delimiter;
         $this->rowDelimiter = $rowDelimiter;
         $this->position = $position;

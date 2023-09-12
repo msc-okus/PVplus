@@ -18,7 +18,7 @@ use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 use DateTime;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -29,7 +29,7 @@ class WeatherFunctionsService
     use G4NTrait;
 
     public function __construct(
-private GetPdoService $getPdoService,
+private PdoService $pdoService,
         private PVSystDatenRepository   $pvSystRepo,
         private GroupMonthsRepository   $groupMonthsRepo,
         private GroupModulesRepository  $groupModulesRepo,
@@ -78,7 +78,7 @@ private GetPdoService $getPdoService,
     {
         return $this->cache->get('getWeather_'.md5($weatherStation->getId().$from.$to.$ppc.$anlage->getAnlId()), function(CacheItemInterface $cacheItem) use ($weatherStation, $from, $to, $ppc, $anlage, $inverterID) {
             $cacheItem->expiresAfter(60);
-            $conn = $this->getPdoService->getPdoPlant();
+            $conn = $this->pdoService->getPdoPlant();
             $weather = [];
             $dbTable = $weatherStation->getDbNameWeather();
             $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp >= '$from' and stamp < '$to'";
@@ -256,7 +256,7 @@ private GetPdoService $getPdoService,
      */
     public function getIrrByStampForTicket(Anlage $anlage, DateTime $stamp): ?float
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $irr = null;
         $sqlw = 'SELECT g_lower, g_upper FROM ' . $anlage->getDbNameWeather() . " WHERE stamp = '" . $stamp->format('Y-m-d H:i') . "' ";
         $respirr = $conn->query($sqlw);
@@ -304,7 +304,7 @@ private GetPdoService $getPdoService,
      */
     public function getSensors(Anlage $anlage, DateTime $from, DateTime $to): array
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $result = [];
 
         $dbTable = $anlage->getDbNameIst();

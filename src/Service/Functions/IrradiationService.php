@@ -11,7 +11,7 @@ use App\Repository\TicketRepository;
 use App\Service\WeatherFunctionsService;
 use DateTime;
 use PDO;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -22,7 +22,7 @@ class IrradiationService
     use G4NTrait;
 
     public function __construct(
-private GetPdoService $getPdoService,
+private PdoService $pdoService,
         private TicketRepository $ticketRepo,
         private TicketDateRepository $ticketDateRepo,
         private ReplaceValuesTicketRepository $replaceValuesTicketRepo,
@@ -42,7 +42,7 @@ private GetPdoService $getPdoService,
         {
             $cacheItem->expiresAfter(60); // Lifetime of cache Item
 
-            $conn = $this->getPdoService->getPdoPlant();
+            $conn = $this->pdoService->getPdoPlant();
             $irrData = [];
             $sqlIrrFlag = "";
             if ($anlage->getAnlId() == 181){ // Zwartowo

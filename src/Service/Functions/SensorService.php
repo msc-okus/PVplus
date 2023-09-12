@@ -11,14 +11,14 @@ use App\Service\WeatherFunctionsService;
 use Doctrine\ORM\NonUniqueResultException;
 use DateTime;
 use Psr\Cache\InvalidArgumentException;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 class SensorService
 {
     use G4NTrait;
 
     public function __construct(
-        private GetPdoService $getPdoService,
+        private PdoService $pdoService,
         private WeatherFunctionsService $weatherFunctionsService,
         private TicketDateRepository    $ticketDateRepo,
         private ReplaceValuesTicketRepository $replaceValuesTicketRepo)

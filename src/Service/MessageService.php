@@ -23,7 +23,7 @@ class MessageService
     private $em;
 
     public function __construct(
-private GetPdoService $getPdoService,EntityManagerInterface $em, MailerInterface $mailer, AnlageEventMailRepository $anlageEventMail)
+private PdoService $pdoService,EntityManagerInterface $em, MailerInterface $mailer, AnlageEventMailRepository $anlageEventMail)
     {
         $this->anlageEventMail = $anlageEventMail;
         $this->mailer = $mailer;

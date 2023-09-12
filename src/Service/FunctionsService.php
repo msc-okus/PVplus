@@ -20,7 +20,7 @@ use App\Repository\MonthlyDataRepository;
 use App\Repository\PVSystDatenRepository;
 use DateTime;
 use PDO;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -32,7 +32,7 @@ class FunctionsService
     use G4NTrait;
 
     public function __construct(
-private GetPdoService $getPdoService,
+private PdoService $pdoService,
         private PVSystDatenRepository $pvSystRepo,
         private GroupMonthsRepository $groupMonthsRepo,
         private GroupModulesRepository $groupModulesRepo,
@@ -58,7 +58,7 @@ private GetPdoService $getPdoService,
      */
     public function getSumPowerAcAct(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd): array
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $result = [];
         $irrAnlage = [];
         $tempAnlage = [];
@@ -235,7 +235,7 @@ private GetPdoService $getPdoService,
      */
     public function getSumPowerAcExp(Anlage $anlage, $from, $to, $pacDate, $pacDateEnd): array
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dbTable = $anlage->getDbNameDcSoll();
         $sumPowerExp = $sumPowerExpMonth = $sumPowerExpPac = $sumPowerExpYear = 0;
         $sumPowerExpEVU = $sumPowerExpEVUMonth = $sumPowerExpEVUPac = $sumPowerExpEVUYear = 0;
@@ -340,7 +340,7 @@ private GetPdoService $getPdoService,
             $forcastResultArray['divPlus'] += $forcast->getDivMaxWeek();
         }
 
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $sql = "SELECT week(date_format(stamp, '2000-%m-%d'),3) as kw, sum(e_z_evu) AS sumEvu  
                 FROM ".$anlage->getDbNameAcIst()."
                 WHERE stamp BETWEEN '$startdate' AND '$day' AND unit = 1 GROUP BY week(date_format(stamp, '2000-%m-%d'),3) 
@@ -433,7 +433,7 @@ private GetPdoService $getPdoService,
      */
     public function getWeather(Anlage $anlage, WeatherStation $weatherStation, $from, $to, $pacDateStart, $pacDateEnd): array
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
         $startMonth = date('Y-m-01 00:00', strtotime($to));
         $weather = [];
@@ -564,7 +564,7 @@ private GetPdoService $getPdoService,
      */
     public function getWeatherNew(Anlage $anlage, WeatherStation $weatherStation, $from, $to): array
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $weather = [];
         $dbTable = $weatherStation->getDbNameWeather();
 
@@ -819,7 +819,7 @@ private GetPdoService $getPdoService,
      */
     public function getSumAcPower(Anlage $anlage, $from, $to): array
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $result = [];
         $powerEvu = $powerExp = $powerExpEvu = $powerTheo = $tCellAvg = $tCellAvgMultiIrr = 0;
         // ############ für den angeforderten Zeitraum #############
@@ -883,7 +883,7 @@ private GetPdoService $getPdoService,
 
     public function checkAndIncludeMonthlyCorrectionEVU(Anlage $anlage, ?float $evu, $from, $to): ?float
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
 
         $fromObj = date_create($from);
         $toObj = date_create($to);

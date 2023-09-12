@@ -9,7 +9,7 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\PRRepository;
 use PDO;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 class DownloadDataService
 {
@@ -20,7 +20,7 @@ class DownloadDataService
     private PRRepository $prRepository;
 
     public function __construct(
-        private GetPdoService $getPdoService,
+        private PdoService $pdoService,
         AnlageAvailabilityRepository $availabilityRepo,
         PRRepository $prRepository)
     {
@@ -39,7 +39,7 @@ class DownloadDataService
      */
     public function getAllSingleSystemData(Anlage $anlage, $from, $to, $intervall, $headlineDate)
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dbnameist = $anlage->getDbNameIst();
         $dbnamedcsoll = $anlage->getDbNameDcSoll();
         $dbnamews = $anlage->getDbNameWeather();
@@ -140,7 +140,7 @@ class DownloadDataService
      */
     public function getIrrSingleSystemData($anlage, $from, $to, $intervall, $headlineDate)
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dbnamews = $anlage->getDbNameWeather();
         $sql2 = "SELECT DATE_FORMAT( a.stamp, '$intervall' ) AS form_date , AVG(b.pt_avg) AS sum_pt_avg, SUM(b.gi_avg) as sum_avg , SUM(b.gmod_avg) as sum_gmod , AVG(b.wind_speed) AS sum_wind_speed, b.anl_id
                     FROM (db_dummysoll a left JOIN $dbnamews b ON a.stamp = b.stamp) 
@@ -187,7 +187,7 @@ class DownloadDataService
      */
     public function getAcSingleSystemData($anlage, $from, $to, $intervall, $headlineDate)
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dbnameist = $anlage->getDbNameIst();
         $dbnamesoll = $anlage->getDbNameDcSoll();
         $arrayout1a = [];
@@ -241,7 +241,7 @@ class DownloadDataService
      */
     public function getDcSingleSystemData($anlage, $from, $to, $intervall, $headlineDate)
     {
-        $conn = $this->getPdoService->getPdoPlant();
+        $conn = $this->pdoService->getPdoPlant();
         $dbnameist = $anlage->getDbNameIst();
         $arrayout1a = [];
         // Ist Daten laden
