@@ -14,11 +14,7 @@ class LogMessagesService
     private LogMessagesRepository $logMessagesRepo;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,EntityManagerInterface $em, LogMessagesRepository $logMessagesRepo)
+private GetPdoService $getPdoService,EntityManagerInterface $em, LogMessagesRepository $logMessagesRepo)
     {
         $this->em = $em;
         $this->logMessagesRepo = $logMessagesRepo;

@@ -6,16 +6,13 @@ use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Service\FunctionsService;
 use PDO;
+use App\Service\GetPdoService;
 use DateTime;
 
 class GridService
 {
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private GetPdoService $getPdoService,
         private FunctionsService $functions
     )
     {
@@ -35,7 +32,7 @@ class GridService
      */
     public function getGridSum(Anlage $anlage, DateTime $from, DateTime $to, bool $ppc = false): float
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $power = 0;
 
         if ($ppc){

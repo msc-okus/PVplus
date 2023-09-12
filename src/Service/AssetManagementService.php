@@ -21,6 +21,7 @@ use Doctrine\ORM\NoResultException;
 use Hisune\EchartsPHP\ECharts;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
+use App\Service\GetPdoService;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
@@ -32,11 +33,7 @@ class AssetManagementService
     private PDO $conn;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private GetPdoService $getPdoService,
         private EntityManagerInterface $em,
         private PvSystMonthRepository $pvSystMonthRepo,
         private FunctionsService $functions,

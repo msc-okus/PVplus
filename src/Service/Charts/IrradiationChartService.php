@@ -7,6 +7,7 @@ use App\Helper\G4NTrait;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use PDO;
+use App\Service\GetPdoService;
 
 class IrradiationChartService
 {
@@ -35,7 +36,7 @@ class IrradiationChartService
      */
     public function getIrradiation(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         if ($hour) {
@@ -100,7 +101,7 @@ class IrradiationChartService
      */
     public function getIrradiationPlant(Anlage $anlage, $from, $to, bool $hour): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         $dataArray['maxSeries'] = 0;

@@ -13,6 +13,7 @@ use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
+use App\Service\GetPdoService;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
 
@@ -43,11 +44,7 @@ class DownloadAnalyseService
     private AnlageAvailabilityRepository $availabilityRepo;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private GetPdoService $getPdoService,
         AnlageAvailabilityRepository $availabilityRepo,
         PRRepository $prRepository,
         AnlagenRepository $anlagenRepository,
@@ -108,7 +105,7 @@ class DownloadAnalyseService
      */
     public function getDcSingleSystemData($anlage, $from, $to, $intervall): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         switch ($anlage->getConfigType()) {
             case 2:
             case 1: $dbnameist = $anlage->getDbNameIst();
@@ -153,7 +150,7 @@ class DownloadAnalyseService
      */
     public function getEcpectedDcSingleSystemData(Anlage $anlage, $from, $to, $intervall): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $dbnamesoll = $anlage->getDbNameDcSoll();
         $output = [];
         // Expected DC
@@ -183,7 +180,7 @@ class DownloadAnalyseService
      */
     public function getAllSingleSystemDataForDay(Anlage $anlage, $from, $to, $intervall, $headlineDate): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $dbnameist = $anlage->getDbNameIst();
         $dbnamesoll = $anlage->getDbNameAcSoll();
         $dbnamedcsoll = $anlage->getDbNameDcSoll();

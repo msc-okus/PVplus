@@ -9,6 +9,7 @@ use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
 use PDO;
+use App\Service\GetPdoService;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class SollIstTempAnalyseChartService
@@ -16,11 +17,7 @@ class SollIstTempAnalyseChartService
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private GetPdoService $getPdoService,
         private Security $security,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository $invertersRepo,
@@ -62,7 +59,7 @@ class SollIstTempAnalyseChartService
     {
         ini_set('memory_limit', '3G');
         $anlagename = $anlage->getAnlName();
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
             case 3:

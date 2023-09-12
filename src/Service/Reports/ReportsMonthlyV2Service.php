@@ -28,6 +28,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use DateTime;
+use App\Service\GetPdoService;
 
 /**
  *
@@ -37,11 +38,7 @@ class ReportsMonthlyV2Service
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+        private GetPdoService $getPdoService,
         private AnlagenRepository $anlagenRepository,
         private PRRepository $PRRepository,
         private ReportsRepository $reportsRepository,

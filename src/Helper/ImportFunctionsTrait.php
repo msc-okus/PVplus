@@ -9,77 +9,6 @@ use PDOException;
 
 trait ImportFunctionsTrait
 {
-
-    /**
-     * @param string|null $dbdsn
-     * @param string|null $dbusr
-     * @param string|null $dbpass
-     * @return PDO
-     */
-    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
-    {
-
-        // Config als Array
-        // Check der Parameter wenn null dann nehme default Werte als fallback
-        $config = [
-            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
-            'database_user' => $dbusr,
-            'database_pass' => $dbpass
-        ];
-
-        try {
-            $pdo = new PDO(
-                $config['database_dsn'],
-                $config['database_user'],
-                $config['database_pass'],
-                [
-                    PDO::ATTR_PERSISTENT => true
-                ]
-            );
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            echo 'Error!: ' . $e->getMessage() . '<br/>';
-            exit;
-        }
-
-        return $pdo;
-    }
-
-    /**
-     * @param string|null $dbdsn
-     * @param string|null $dbusr
-     * @param string|null $dbpass
-     * @return PDO
-     */
-    public static function getPdoConnectionBase(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
-    {
-        // Config als Array
-        // Check der Parameter wenn null dann nehme default Werte als fallback
-        $config = [
-            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
-            'database_user' =>  $dbusr,
-            'database_pass' => $dbpass
-        ];
-
-        try {
-            $pdo = new PDO(
-                $config['database_dsn'],
-                $config['database_user'],
-                $config['database_pass'],
-                [
-                    PDO::ATTR_PERSISTENT => true
-                ]
-            );
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            echo 'Error!: ' . $e->getMessage() . '<br/>';
-            exit;
-        }
-
-        return $pdo;
-    }
-
-    //???
     function getDcPNormPerInvereter($conn, array $groups, array $modules): array
     {
 
@@ -111,38 +40,6 @@ trait ImportFunctionsTrait
     }
 
     /**
-     * @param string|DateTime $dateTime
-     * @return int
-     */
-    function calcYearOfOperation(DateTime $currentDate, DateTime $installationDate): int
-    {
-        $years = ($currentDate->getTimestamp() - $installationDate->getTimestamp()) / (60 * 60 * 24 * 356);
-        #echo (int)$years.'<br>';
-
-        return (int)$years; //(int)$currentDate->format('Y') - (int)$installationDate->format('Y'); // betriebsjahre;
-    }
-
-
-    /**
-     * Funktion g4nTimeCET() um immer Winterzeit zu bekommen
-     *
-     * @return int
-     */
-    function g4nTimeCET()
-    {
-        if (date("I") == "1") {
-            //wir haben Sommerzeit
-            $_time = time() - 3600;
-        } else {
-            // wir haben Winterzeit
-            $_time = time();
-        }
-
-        return $_time;
-    }
-
-
-    /**
      * @param string|null $tableName
      * @param array|null $data
      * @param string|null $host
@@ -151,13 +48,12 @@ trait ImportFunctionsTrait
     function insertData($tableName = NULL, $data = NULL, $host = null, $userPlant = null, $passwordPlant = null): void
     {
         // obtain column template
-        $DBDataConnection = $this->getPdoConnectionData($host, $userPlant, $passwordPlant);
+        $DBDataConnection = $this->getPdoConnection($host, $userPlant, $passwordPlant);
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];
         $columns = array_fill_keys(array_values($stmt->fetchAll(PDO::FETCH_COLUMN)), null);
         unset($columns['db_id']);
-
 
         // multiple INSERT
         $rows = count($data);
@@ -209,87 +105,6 @@ trait ImportFunctionsTrait
     }
 
     /**
-     * @param array $tempCorrParams // Parameter aus Anlage
-     * @param float $tempCellTypeAvg // t_cell_avg
-     * @param float|null $modulTemp // gemessene Modul Temperatur
-     * @param float|null $gPOA // Strahlung
-     * @param float $limitGPoa // limit der Strahlung (default: 0)
-     * @return float
-     */
-    function tempCorrectionIEC(array $tempCorrParams, float $tempCellTypeAvg, ?float $modulTemp, ?float $gPOA, float $limitGPoa = 0): float
-    {
-        $gamma = $tempCorrParams['gamma'];
-        $a = $tempCorrParams['a'];
-        $b = $tempCorrParams['b'];
-        $deltaTcnd = $tempCorrParams['deltaTcnd'];
-
-        if ($gPOA !== null && $modulTemp !== null) {
-            ($gPOA > $limitGPoa || $tempCellTypeAvg == 0) ? $tempCorrection = 1 - ($tempCellTypeAvg - $modulTemp) * $gamma / 100 : $tempCorrection = 1;
-        } else {
-            $tempCorrection = 0;
-        }
-
-        return $tempCorrection;
-    }
-
-    /**
-     * @param array $tempCorrParams // Parameter aus Anlage
-     * @param float $tempCellTypeAvg
-     * @param float|null $windSpeed
-     * @param float|null $airTemp
-     * @param float|null $gPOA // Strahlung
-     * @param float $limitGPoa // limit der Strahlung (default: 0)
-     * @return float
-     *
-     * Temp Correction by NREL
-     */
-    function tempCorrection(array $tempCorrParams, float $tempCellTypeAvg, ?float $windSpeed, ?float $airTemp, ?float $gPOA, float $limitGPoa = 0): float
-    {
-        $gamma = $tempCorrParams['gamma'];
-        $a = $tempCorrParams['a'];
-        $b = $tempCorrParams['b'];
-        $deltaTcnd = $tempCorrParams['deltaTcnd'];
-
-        if ($windSpeed === null) {
-            $windSpeed = 0;
-        }
-
-        if ($gPOA !== null && $windSpeed !== null && $airTemp !== null) {
-            $tempModulBack = $gPOA * pow(M_E, $a + ($b * $windSpeed)) + $airTemp;
-            $tempCell = $tempModulBack + ($gPOA / 1000) * $deltaTcnd;
-            ($gPOA > $limitGPoa || $tempCellTypeAvg == 0) ? $tempCorrection = 1 - ($tempCellTypeAvg - $tempCell) * $gamma / 100 : $tempCorrection = 1;
-        } else {
-            $tempCorrection = 0;
-        }
-
-        return $tempCorrection;
-    }
-
-    /**
-     * Calculation of temprature of cell (Tcell) according to NREL
-     *
-     * @param array $tempCorrParams
-     * @param float|null $windSpeed
-     * @param float|null $airTemp
-     * @param float|null $gPOA
-     * @return float|null
-     */
-    function tempCell(array $tempCorrParams, ?float $windSpeed, ?float $airTemp, ?float $gPOA): ?float
-    {
-        if (is_null($airTemp) || is_null($gPOA)) return null;
-        if ($windSpeed < 0 || $windSpeed === null) $windSpeed = 0;
-
-        $a = $tempCorrParams['a'];
-        $b = $tempCorrParams['b'];
-        $deltaTcnd = $tempCorrParams['deltaTcnd'];
-
-        $tempModulBack = $gPOA * pow(M_E, $a + ($b * $windSpeed)) + $airTemp;
-
-        return $tempModulBack + ($gPOA / 1000) * $deltaTcnd;
-    }
-
-
-    /**
      * Datenimport der Grid Daten in die Tabelle anlage_grid_meter_day<br>
      * Es werden Tages werte importiert.<br>
      * Sollte für diesen Tag schon ein Wert vorliegen wird dieser aktualisiert (stamp ist unique key).<br>
@@ -312,37 +127,6 @@ trait ImportFunctionsTrait
         $DBDataConnection = null;
     }
 
-    //???
-
-    /**
-     * Schreibt Eintraege, in die Tabelle 'log'.
-     * Stand: August 2021 - GSCH
-     * @param $anlage_id
-     * @param $created_at
-     * @param $created_by
-     * @param $type
-     * @param $description
-     * @param $stamp
-     */
-    function insertDataIntoLog($anlage_id, $created_at, $created_by, $type, $description, $stamp)
-    {
-        $DBBaseConnection = getPdoConnectionAnlage();
-        $sql_insert = "INSERT INTO log SET 
-                    anlage_id = $anlage_id, 
-                    created_at = '$created_at', 
-                    created_by = '$created_by',
-                    type = '$type', 
-                    description = '$description', 
-                    stamp = '$stamp'
-                   ON DUPLICATE KEY UPDATE 
-                    anlage_id = '$anlage_id'";
-        echo "Log: $sql_insert \n";
-        $DBBaseConnection->exec($sql_insert);
-        $DBBaseConnection = null;
-
-    }
-
-
     /**
      * @param string|null $value
      * @param false $convertToKWH
@@ -360,8 +144,6 @@ trait ImportFunctionsTrait
             }
         }
     }
-
-
 
     //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu
     /**

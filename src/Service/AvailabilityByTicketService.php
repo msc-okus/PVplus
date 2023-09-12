@@ -20,6 +20,7 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
+use App\Service\GetPdoService;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -28,11 +29,7 @@ class AvailabilityByTicketService
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private GetPdoService $getPdoService,
         private EntityManagerInterface $em,
         private AnlageAvailabilityRepository $availabilityRepository,
         private Case5Repository $case5Repository,
@@ -188,7 +185,7 @@ class AvailabilityByTicketService
             $this->em->flush();
 
             // Store results to Weather Database (VirtualValues !!)
-            $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+            $conn = $this->getPdoService->getPdoPlant();
             $sqlPa = match ($department) {
                 1 => "pa1",
                 2 => "pa2",
@@ -561,7 +558,7 @@ class AvailabilityByTicketService
 
     private function getIstData(Anlage $anlage, $from, $to): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $istData = [];
         $dbNameIst = $anlage->getDbNameIst();
         $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM $dbNameIst WHERE stamp BETWEEN '$from' AND '$to' ORDER BY stamp, unit";

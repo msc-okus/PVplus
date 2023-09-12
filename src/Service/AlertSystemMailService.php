@@ -13,11 +13,7 @@ class AlertSystemMailService
 {
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private GetPdoService $getPdoService,
         private MessageService $mailservice,
     )
     {

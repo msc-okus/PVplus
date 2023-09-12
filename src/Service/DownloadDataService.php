@@ -8,6 +8,8 @@ use App\Entity\AnlagenPR;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\PRRepository;
+use PDO;
+use App\Service\GetPdoService;
 
 class DownloadDataService
 {
@@ -18,11 +20,7 @@ class DownloadDataService
     private PRRepository $prRepository;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+        private GetPdoService $getPdoService,
         AnlageAvailabilityRepository $availabilityRepo,
         PRRepository $prRepository)
     {
@@ -41,7 +39,7 @@ class DownloadDataService
      */
     public function getAllSingleSystemData(Anlage $anlage, $from, $to, $intervall, $headlineDate)
     {
-        $conn = self::connectToDatabase();
+        $conn = $this->getPdoService->getPdoPlant();
         $dbnameist = $anlage->getDbNameIst();
         $dbnamedcsoll = $anlage->getDbNameDcSoll();
         $dbnamews = $anlage->getDbNameWeather();
@@ -56,13 +54,13 @@ class DownloadDataService
             WHERE a.stamp BETWEEN '$from' and '$to'AND b.wr_pac > 0 GROUP by form_date ORDER BY form_date";
         $actAcDcPower = [];
         $resAct = $conn->query("$sql");
-        if ($resAct->num_rows > 0) {
-            while ($rowAct = $resAct->fetch_assoc()) {
-                $date_time = $rowAct['form_date'];
+        if ($resAct->rowCount() > 0) {
+            while ($rowAct = $resAct->fetch(PDO::FETCH_OBJ)) {
+                $date_time = $rowAct->form_date;
                 // Power GRID muss durch Anzahl der Gruppen geteilt werden, weil der Wert für die gesamte Anlage in jeder Gruppe gespeichert ist. Er darf aber nur einmal gezählt werden.
-                $actAcDcPower[$date_time]['actPowerGrid'] = round($rowAct['power_grid'] / $anlage->getAcGroups()->count(), 2);
-                $actAcDcPower[$date_time]['actPowerAc'] = round($rowAct['act_power_ac'], 2);
-                $actAcDcPower[$date_time]['actPowerDc'] = round($rowAct['act_power_dc'], 2);
+                $actAcDcPower[$date_time]['actPowerGrid'] = round($rowAct->power_grid / $anlage->getAcGroups()->count(), 2);
+                $actAcDcPower[$date_time]['actPowerAc'] = round($rowAct->act_power_ac, 2);
+                $actAcDcPower[$date_time]['actPowerDc'] = round($rowAct->act_power_dc, 2);
             }
         }
 
@@ -86,11 +84,11 @@ class DownloadDataService
             WHERE a.stamp BETWEEN '$from' and '$to' GROUP by form_date ORDER BY form_date";
         $resExpDc = $conn->query($sql);
         $expPower = [];
-        if ($resExpDc->num_rows > 0) {
-            while ($rowExp = $resExpDc->fetch_assoc()) {
-                $date_time = $rowExp['form_date'];
-                $expPower[$date_time]['expPowerAc'] = round($rowExp['exp_power_ac'], 2);
-                $expPower[$date_time]['expPowerDc'] = round($rowExp['exp_power_dc'], 2);
+        if ($resExpDc->rowCount() > 0) {
+            while ($rowExp = $resExpDc->fetch(PDO::FETCH_OBJ)) {
+                $date_time = $rowExp->form_date;
+                $expPower[$date_time]['expPowerAc'] = round($rowExp->exp_power_ac, 2);
+                $expPower[$date_time]['expPowerDc'] = round($rowExp->exp_power_dc, 2);
             }
         }
 
@@ -99,13 +97,13 @@ class DownloadDataService
                     FROM (db_dummysoll a left JOIN $dbnamews b ON a.stamp = b.stamp) 
                     WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY form_date ORDER BY a.stamp";
         $res01 = $conn->query($sql2ss);
-        if ($res01->num_rows > 0) {
-            while ($ro01 = $res01->fetch_assoc()) {
-                $ptavgi = round($ro01['avgpt']);       // Pannel Temperature
-                $irr_upper = round($ro01['irr_upper_pannel']);     // Einstrahlung upper Pannel
-                $irr_lower = round($ro01['irr_lower_pannel']);
+        if ($res01->rowCount() > 0) {
+            while ($ro01 = $res01->fetch(PDO::FETCH_OBJ)) {
+                $ptavgi = round($ro01->avgpt);       // Pannel Temperature
+                $irr_upper = round($ro01->irr_upper_pannel);     // Einstrahlung upper Pannel
+                $irr_lower = round($ro01->irr_lower_pannel);
                 $irr_helper = ($irr_upper + $irr_lower) / 2;
-                $date_time = $ro01['form_date'];   // Datum
+                $date_time = $ro01->form_date;   // Datum
                 // Actual AC & DC
                 $powerGrid = $actAcDcPower[$date_time]['actPowerGrid'];
                 $actPowerAc = $actAcDcPower[$date_time]['actPowerAc'];
@@ -126,7 +124,7 @@ class DownloadDataService
         }
 
         $ht2 .= '</tbody></table>';
-        $conn->close();
+        
 
         return $ht2;
     }
@@ -142,23 +140,23 @@ class DownloadDataService
      */
     public function getIrrSingleSystemData($anlage, $from, $to, $intervall, $headlineDate)
     {
-        $conn = self::connectToDatabase();
+        $conn = $this->getPdoService->getPdoPlant();
         $dbnamews = $anlage->getDbNameWeather();
         $sql2 = "SELECT DATE_FORMAT( a.stamp, '$intervall' ) AS form_date , AVG(b.pt_avg) AS sum_pt_avg, SUM(b.gi_avg) as sum_avg , SUM(b.gmod_avg) as sum_gmod , AVG(b.wind_speed) AS sum_wind_speed, b.anl_id
                     FROM (db_dummysoll a left JOIN $dbnamews b ON a.stamp = b.stamp) 
                     WHERE a.stamp BETWEEN '$from' and '$to' GROUP by form_date ORDER BY form_date";
         $res = $conn->query($sql2);
         $ht2 = "<table id='statistics' class='table'><thead><tr><th>$headlineDate</th><th>GI</br>[W/qm]</th><th>GMOD</br>[W/qm]</th><th>PT</br>[°C]</th></tr></thead><tbody>";
-        while ($ro = $res->fetch_assoc()) {
-            $sumAvg = round($ro['sum_avg'], 2);
+        while ($ro = $res->fetch(PDO::FETCH_OBJ)) {
+            $sumAvg = round($ro->sum_avg, 2);
             if (!$sumAvg) {
                 $sumAvg = 0;
             }
-            $sumGmod = round($ro['sum_gmod'], 2);
+            $sumGmod = round($ro->sum_gmod, 2);
             if (!$sumGmod) {
                 $sumGmod = 0;
             }
-            $sumPtAvg = round($ro['sum_pt_avg'], 2);
+            $sumPtAvg = round($ro->sum_pt_avg, 2);
             if (!$sumPtAvg) {
                 $sumPtAvg = 0;
             }
@@ -170,7 +168,7 @@ class DownloadDataService
             $sumAvg = str_replace('#', '0.00', $sumAvg);
             $sumGmod = str_replace('#', '0.00', $sumGmod);
             $sumPtAvg = str_replace('#', '0.00', $sumPtAvg);
-            $stamp = $ro['form_date'];
+            $stamp = $ro->form_date;
             $ht2 .= "<tr><td>$stamp</th><td>$sumAvg</td><td>$sumGmod</td><td>$sumPtAvg</td></tr>";
         }
         $ht2 .= '</tbody></table>';
@@ -189,7 +187,7 @@ class DownloadDataService
      */
     public function getAcSingleSystemData($anlage, $from, $to, $intervall, $headlineDate)
     {
-        $conn = self::connectToDatabase();
+        $conn = $this->getPdoService->getPdoPlant();
         $dbnameist = $anlage->getDbNameIst();
         $dbnamesoll = $anlage->getDbNameDcSoll();
         $arrayout1a = [];
@@ -200,10 +198,10 @@ class DownloadDataService
 
         $res02 = $conn->query($sql2sb);
         $dds = 0;
-        if ($res02->num_rows > 0) {
-            while ($ro02 = $res02->fetch_assoc()) {
-                $arrayout1a[$dds]['DATE'] = $ro02['form_date'];
-                $arrayout1a[$dds]['EXP'] = round($ro02['exp_power_ac'], 2);
+        if ($res02->rowCount() > 0) {
+            while ($ro02 = $res02->fetch(PDO::FETCH_OBJ)) {
+                $arrayout1a[$dds]['DATE'] = $ro02->form_date;
+                $arrayout1a[$dds]['EXP'] = round($ro02->exp_power_ac, 2);
                 ++$dds;
             }
         }
@@ -211,9 +209,9 @@ class DownloadDataService
         $sql2sc = "SELECT DATE_FORMAT( a.stamp, '$intervall' ) AS form_date, sum(b.wr_pac) as act_power_ac FROM (db_dummysoll a left JOIN $dbnameist b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP by form_date ORDER BY form_date";
         $res03 = $conn->query($sql2sc);
         $dds = 0;
-        if ($res03->num_rows > 0) {
-            while ($ro03 = $res03->fetch_assoc()) {
-                $arrayout1a[$dds]['ACTAC'] = round($ro03['act_power_ac'], 2);
+        if ($res03->rowCount() > 0) {
+            while ($ro03 = $res03->fetch(PDO::FETCH_OBJ)) {
+                $arrayout1a[$dds]['ACTAC'] = round($ro03->act_power_ac, 2);
                 ++$dds;
             }
         }
@@ -243,7 +241,7 @@ class DownloadDataService
      */
     public function getDcSingleSystemData($anlage, $from, $to, $intervall, $headlineDate)
     {
-        $conn = self::connectToDatabase();
+        $conn = $this->getPdoService->getPdoPlant();
         $dbnameist = $anlage->getDbNameIst();
         $arrayout1a = [];
         // Ist Daten laden
@@ -252,10 +250,10 @@ class DownloadDataService
                     WHERE a.stamp BETWEEN '$from' and '$to' GROUP by form_date ORDER BY form_date";
         $res03 = $conn->query($sql2sc);
         $dds = 0;
-        if ($res03->num_rows > 0) {
-            while ($row = $res03->fetch_assoc()) {
-                $arrayout1a[$dds]['DATE'] = $row['form_date'];
-                $arrayout1a[$dds]['ACTDC'] = round($row['act_power_dc'], 2);
+        if ($res03->rowCount() > 0) {
+            while ($row = $res03->fetch(PDO::FETCH_OBJ)) {
+                $arrayout1a[$dds]['DATE'] = $row->form_date;
+                $arrayout1a[$dds]['ACTDC'] = round($row->act_power_dc, 2);
                 ++$dds;
             }
         }

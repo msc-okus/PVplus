@@ -17,17 +17,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Hisune\EchartsPHP\ECharts;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use App\Service\GetPdoService;
 
 class ReportsEpcYieldV2
 {
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+        private GetPdoService $getPdoService,
         private AnlagenRepository $anlageRepo,
         private GridMeterDayRepository $gridMeterRepo,
         private PRRepository $prRepository,

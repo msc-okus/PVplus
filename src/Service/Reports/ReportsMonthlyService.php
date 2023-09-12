@@ -22,6 +22,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use App\Service\GetPdoService;
 
 /**
  *
@@ -31,11 +32,7 @@ class ReportsMonthlyService
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+        private GetPdoService $getPdoService,
         private AnlagenRepository $anlagenRepository,
         private PRRepository $PRRepository,
         private ReportsRepository $reportsRepository,

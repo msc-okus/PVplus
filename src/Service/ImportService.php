@@ -24,11 +24,7 @@ class ImportService
 
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private GetPdoService $getPdoService,
         private PVSystDatenRepository $pvSystRepo,
         private AnlagenRepository $anlagenRepository,
         private AnlageAvailabilityRepository $anlageAvailabilityRepo,

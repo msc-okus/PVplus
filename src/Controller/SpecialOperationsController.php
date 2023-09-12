@@ -40,6 +40,16 @@ class SpecialOperationsController extends AbstractController
 {
     use G4NTrait;
 
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
+
+    )
+    {
+    }
     /**
      * @throws InvalidArgumentException
      * @throws NonUniqueResultException
@@ -351,7 +361,7 @@ class SpecialOperationsController extends AbstractController
                 // Here we upload the file and read it
                 $newFile = $uploaderHelper->uploadFile($uploadedFile, '/xlsx/1', 'xlsx');
 
-                $conn = GetPdoService::getPdoConnection();
+                $conn = $this->getPdoService->getPdoPlant();
 
                 if ( $xlsx = simpleXLSX::parse($uploadsPath . '/xlsx/1/'.$newFile) ) {
                     $i = 0;

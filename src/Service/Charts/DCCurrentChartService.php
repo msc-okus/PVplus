@@ -9,17 +9,14 @@ use App\Repository\AnlagenStatusRepository;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use PDO;
+use App\Service\GetPdoService;
 
 class DCCurrentChartService
 {
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private GetPdoService $getPdoService,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository     $invertersRepo,
         private IrradiationChartService $irradiationChart,
@@ -39,7 +36,7 @@ class DCCurrentChartService
     public function getCurr1(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $acGroups = $anlage->getGroupsAc();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
@@ -155,7 +152,7 @@ class DCCurrentChartService
     public function getCurr2(Anlage $anlage, $from, $to, int $set = 1, bool $hour = false): array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $dcGroups = $anlage->getGroupsDc();
         $dataArray = [];
 
@@ -225,7 +222,7 @@ class DCCurrentChartService
     public function getCurr3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $dcGroups = $anlage->getGroupsDc();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
@@ -338,7 +335,7 @@ class DCCurrentChartService
     public function getCurr4(Anlage $anlage, $from, $to, ?int $inverter = 1, bool $hour = false): bool|array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
 
@@ -404,7 +401,7 @@ class DCCurrentChartService
      */
     public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->getPdoService->getPdoPlant();
         $dataArray = [];
         $nameArray = [];
         $group = 1;
