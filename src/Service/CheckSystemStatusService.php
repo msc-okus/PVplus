@@ -432,7 +432,7 @@ class CheckSystemStatusService
             if ($res->rowCount() > 0) {
                 $row = $res->fetch(PDO::FETCH_OBJ);
                 $actAc = $row->SumPowerAC;
-                $returnArray['ac'] = self::checkUnitAndConvert($actAc, $anlage->getAnlDbUnit());
+                $returnArray['ac'] = $actAc;
             } else {
                 $returnArray['ac'] = 0;
             }
@@ -441,7 +441,7 @@ class CheckSystemStatusService
                 if ($res->rowCount() > 0) {
                     $row = $res->fetch(PDO::FETCH_OBJ);
                     $actDc = $row->SumPowerDC;
-                    $returnArray['dc'] = self::checkUnitAndConvert($actDc, $anlage->getAnlDbUnit());
+                    $returnArray['dc'] = $actDc;
                 }
             } else {
                 $returnArray['dc'] = 0;
@@ -454,16 +454,14 @@ class CheckSystemStatusService
                     $actAc = $row->SumPowerAC;
                     $actDc = $row->SumPowerDC;
 
-                    $returnArray['ac'] = self::checkUnitAndConvert($actAc, $anlage->getAnlDbUnit());
-                    $returnArray['dc'] = self::checkUnitAndConvert($actDc, $anlage->getAnlDbUnit());
+                    $returnArray['ac'] = $actAc;
+                    $returnArray['dc'] = $actDc;
                 }
             } else {
                 $returnArray['ac'] = 0;
                 $returnArray['dc'] = 0;
             }
         }
-
-        
 
         return $returnArray;
     }
