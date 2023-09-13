@@ -95,7 +95,7 @@ class AssetManagementService
             'InvPow' => true,
             'Economics' => true, ];
         $output['data'] = $data;
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . 'pdf/AssetReport_' .$reportMonth . '_' . $reportYear ;
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $pdf = $this->pdf;
         $reportParts = [];
         $content = $output;
@@ -920,7 +920,7 @@ class AssetManagementService
             'visualMap' => 'false',
         ];
         $series[] = [
-            'name' => 'Yield',
+            'name' => 'Actual(Yield)',
             'type' => 'bar',
             'data' => $powerEvu,
             'visualMap' => 'false',
@@ -960,7 +960,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:700px;']);
-
+        $series = [];
         $chart = new ECharts(); // We must use AMCharts
         $chart->tooltip->show = false;
         $chart->tooltip->trigger = 'item';
@@ -984,7 +984,7 @@ class AssetManagementService
             'nameGap' => 80,
             'offset' => -20,
         ];
-        $series[] = [   'name' => 'Yield ',
+        $series[] = [   'name' => 'Actual(Yield) ',
             'type' => 'bar',
             'data' => $powerEvu,
             'visualMap' => 'false',
@@ -2567,16 +2567,30 @@ class AssetManagementService
                             }
                         }
                     } else {
-                        $dcExpDcIst[] = [
-                            'group' => $value[$i]['invgroup'],
-                            'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
-                            'exp_power_dc' => $value[$i]['exp_power_dc'],
-                            'exp_current_dc' => $value[$i]['exp_current_dc'],
-                            'act_power_dc' => $dcIst[$j]['act_power_dc'],
-                            'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                            'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 ,
-                            'diff_power_dc' =>  (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 ,
-                        ];
+                        if ($value[$i]['exp_power_dc'] > 0) {
+                            $dcExpDcIst[] = [
+                                'group' => $value[$i]['invgroup'],
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
+                                'exp_power_dc' => $value[$i]['exp_power_dc'],
+                                'exp_current_dc' => $value[$i]['exp_current_dc'],
+                                'act_power_dc' => $dcIst[$j]['act_power_dc'],
+                                'act_current_dc' => $dcIst[$j]['act_current_dc'],
+                                'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100,
+                                'diff_power_dc' => (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100,
+                            ];
+                        }
+                        else{
+                            $dcExpDcIst[] = [
+                                'group' => $value[$i]['invgroup'],
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
+                                'exp_power_dc' => $value[$i]['exp_power_dc'],
+                                'exp_current_dc' => $value[$i]['exp_current_dc'],
+                                'act_power_dc' => $dcIst[$j]['act_power_dc'],
+                                'act_current_dc' => $dcIst[$j]['act_current_dc'],
+                                'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100,
+                                'diff_power_dc' => 0,
+                            ];
+                        }
                         if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                             $outTableCurrentsPower[] = $dcExpDcIst;
                             unset($dcExpDcIst);

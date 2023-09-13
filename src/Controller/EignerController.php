@@ -10,6 +10,7 @@ use App\Repository\EignerRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use League\Flysystem\Filesystem;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,13 +65,14 @@ class EignerController extends BaseController
     }
 
     #[Route(path: '/admin/owner/edit/{id}', name: 'app_admin_owner_edit')]
-    public function edit($id, EntityManagerInterface $em, Request $request, EignerRepository $ownerRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload): Response
+    public function edit($id, EntityManagerInterface $em, Request $request, EignerRepository $ownerRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): Response
     {
         $owner = $ownerRepo->find($id);
         $imageuploaded = $RepositoryUpload->findOneBy(['path' => $owner->getLogo()]);
         $form = $this->createForm(OwnerFormType::class, $owner);
         if ($imageuploaded != null) {
             $isupload = 'yes';
+            $filesystem->write("temp/temp.png", $fileSystemFtp->read($imageuploaded->getPath()));
         } else {
             $isupload = 'no';
         }
@@ -82,10 +84,10 @@ class EignerController extends BaseController
             $uploadedFile = $form['imageFile']->getData();
             if ($uploadedFile) {
                 $isupload = 'yes';
-                $newFile = $uploaderHelper->uploadImage($uploadedFile, $id, 'owner');
+                $newFile = $uploaderHelper->uploadImageSFTP($uploadedFile,$owner->getFirma(), '' , 'owner');
                 $newFilename = $newFile['newFilename'];
                 $mimeType = $newFile['mimeType'];
-                $uploadsPath = 'uploads/'.UploaderHelper::EIGNER_LOGO.'/'.$id.'/'.$newFilename;
+                $uploadsPath = $newFile['path'];
                 $upload->setFilename($newFilename)
                     ->setMimeType($mimeType)
                     ->setPath($uploadsPath)

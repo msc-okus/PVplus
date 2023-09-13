@@ -22,6 +22,7 @@ use App\Repository\EconomicVarNamesRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -225,13 +226,14 @@ class AnlagenAdminController extends BaseController
      * @throws FilesystemException
      */
     #[Route(path: '/admin/anlagen/editconfig/{id}', name: 'app_admin_anlagen_edit_config')]
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload): RedirectResponse|Response
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): RedirectResponse|Response
     {
         $upload = new AnlageFile();
         $anlage = $anlagenRepository->find($id);
         $imageuploaded = $RepositoryUpload->findOneBy(['path' => $anlage->getPicture()]);
         if ($imageuploaded != null) {
             $isupload = 'yes';
+            $filesystem->write("temp/temp.png", $fileSystemFtp->read($imageuploaded->getPath()));
         } else {
             $isupload = 'no';
         }
@@ -247,10 +249,10 @@ class AnlagenAdminController extends BaseController
             $uploadedFile = $form['picture']->getData();
             if ($uploadedFile) {
                 $isupload = 'yes';
-                $newFile = $uploaderHelper->uploadImage($uploadedFile, $id, 'owner');
+                $newFile = $uploaderHelper->uploadImageSFTP($uploadedFile, $anlage->getEigner()->getFirma(), $anlage->getAnlName(), 'plant');
                 $newFilename = $newFile['newFilename'];
                 $mimeType = $newFile['mimeType'];
-                $uploadsPath = 'uploads/'.UploaderHelper::EIGNER_LOGO.'/'.$id.'/'.$newFilename;
+                $uploadsPath = $newFile['path'];
                 $upload->setFilename($newFilename)
                     ->setMimeType($mimeType)
                     ->setPath($uploadsPath)
@@ -277,13 +279,16 @@ class AnlagenAdminController extends BaseController
             $imageuploaded = $RepositoryUpload->findOneBy(['path' => $anlage->getPicture()]);
             if ($form->get('save')->isClicked()) {
                 if ($imageuploaded != null) {
-                    return $this->render('anlagen/editconfig.html.twig', [
+
+                     $response = $this->render('anlagen/editconfig.html.twig', [
                         'anlageForm' => $form->createView(),
                         'anlage' => $anlage,
                         'econames' => $economicVarNames1,
                         'isupload' => $isupload,
-                        'imageuploadet' => $imageuploaded->getPath(),
+                        'imageuploadet' => "/uploads/temp/temp.png",
                     ]);
+
+                    return $response;
                 } else {
                     return $this->render('anlagen/editconfig.html.twig', [
                         'anlageForm' => $form->createView(),
@@ -311,7 +316,7 @@ class AnlagenAdminController extends BaseController
                 'anlage' => $anlage,
                 'econames' => $economicVarNames1,
                 'isupload' => $isupload,
-                'imageuploadet' => $imageuploaded->getPath(),
+                'imageuploadet' => "/uploads/temp/temp.png",
             ]);
         } else {
             return $this->render('anlagen/editconfig.html.twig', [
