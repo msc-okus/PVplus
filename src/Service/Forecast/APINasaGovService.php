@@ -18,11 +18,7 @@ class APINasaGovService {
      * @param string $enddate
      */
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,$input_gl,$input_gb,$startdate,$enddate) {
+private PdoService $pdoService,$input_gl,$input_gb,$startdate,$enddate) {
         $this->lat = $input_gb;
         $this->lon = $input_gl;
         $this->start = $startdate;

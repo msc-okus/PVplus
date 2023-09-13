@@ -21,12 +21,12 @@ use Doctrine\ORM\NoResultException;
 use Hisune\EchartsPHP\ECharts;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
+use App\Service\PdoService;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
-
 class AssetManagementService
 {
     use G4NTrait;
@@ -34,11 +34,7 @@ class AssetManagementService
     private PDO $conn;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+        private PdoService $pdoService,
         private EntityManagerInterface $em,
         private PvSystMonthRepository $pvSystMonthRepo,
         private FunctionsService $functions,
@@ -61,7 +57,7 @@ class AssetManagementService
         private Filesystem $fileSystemFtp,
     )
     {
-        $this->conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $this->conn = $this->pdoService->getPdoPlant();
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
@@ -40,9 +40,7 @@ class AnlagenAdminController extends BaseController
 {
     use G4NTrait;
     public function __construct(
-        private $host,
-        private $userPlant,
-        private $passwordPlant
+        private PdoService $pdoService,
     )
     {
     }
@@ -647,7 +645,7 @@ class AnlagenAdminController extends BaseController
                                   UNIQUE INDEX `stamp_section` (`stamp` ASC, `section` ASC));
                                 ";
 
-            $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+            $conn = $this->pdoService->getPdoPlant();
             $conn->exec($databaseAcIst);
             $conn->exec($databaseDcIst);
             // $conn->exec($databaseAcSoll);
