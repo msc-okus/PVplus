@@ -27,7 +27,6 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
-
 class AssetManagementService
 {
     use G4NTrait;
@@ -35,7 +34,7 @@ class AssetManagementService
     private PDO $conn;
 
     public function __construct(
-private PdoService $pdoService,
+        private PdoService $pdoService,
         private EntityManagerInterface $em,
         private PvSystMonthRepository $pvSystMonthRepo,
         private FunctionsService $functions,
@@ -58,7 +57,7 @@ private PdoService $pdoService,
         private Filesystem $fileSystemFtp,
     )
     {
-        $this->conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $this->conn = $this->pdoService->getPdoPlant();
     }
 
     /**
