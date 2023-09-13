@@ -20,7 +20,7 @@ class DummySollService
         // Update Dummy DBs
         $output = "Start Dummy Data\n";
         if (!$from) {
-            $currentTime = self::getCetTime();
+            $currentTime = time();
             $start = $currentTime - ($currentTime % 900) - 3600;
             $end = $currentTime;
         } else {

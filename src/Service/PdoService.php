@@ -20,13 +20,13 @@ class PdoService
     }
 
     //connection for imported data
-    public function getPdoPlant()
+    public function getPdoPlant(): PDO
     {
         return($this->getPdoConnection($this->host, $this->userPlant, $this->passwordPlant, 'pvp_data'));
     }
 
     //connection for base tables like anlagen
-    public function getPdoBase()
+    public function getPdoBase(): PDO
     {
         return($this->getPdoConnection($this->host, $this->userBase, $this->passwordBase, 'pvp_base'));
     }
@@ -35,6 +35,7 @@ class PdoService
      * @param string|null $dbdsn
      * @param string|null $dbusr
      * @param string|null $dbpass
+     * @param null $database
      * @return PDO
      */
     private function getPdoConnection(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null, $database = null): PDO

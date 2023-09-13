@@ -4,12 +4,14 @@ namespace App\Command;
 
 use App\Helper\G4NTrait;
 use App\Service\DummySollService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(name: 'pvp:dummysoll')]
 class DummySollCommand extends Command
 {
     use G4NTrait;
