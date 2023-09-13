@@ -385,11 +385,11 @@ trait ImportFunctionsTrait
      */
     function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
     {
-        $i = 0;
-        for ($i = 0; $i < count($acGroups); $i++) {
-            $pvpGroupAc = $acGroups[$i]->acGroup;
-            $pvpGroupDc = $i + 1;
-            $pvpInverter = $i + 1;
+
+        for ($i = 1; $i < count($acGroups); $i++) {
+            $pvpGroupAc = $i;
+            $pvpGroupDc = $i;
+            $pvpInverter = $i;
 
             if (is_array($inverters) && array_key_exists($date, $inverters)) {
                 $custInverterKennung = $acGroups[$i]['importId'];
@@ -461,7 +461,6 @@ trait ImportFunctionsTrait
                 'wind_anlage' => $windAnlage,
 
             ];
-            $i++;
         }
 
         $result[] = $data_pv_ist;
@@ -520,7 +519,6 @@ trait ImportFunctionsTrait
      */
     function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
     {
-        $i = 0;
         foreach ($groups as $group) {
             $pvpInverter = $group->getDcGroup();
             $pvpGroupDc = $group->getDcGroup();
@@ -620,7 +618,6 @@ trait ImportFunctionsTrait
                 'temp_inverter' => $tempAnlage,
                 'wind_anlage' => $windAnlage,
             ];
-            $i++;
         }
         $result[] = $data_pv_ist;
         return $result;

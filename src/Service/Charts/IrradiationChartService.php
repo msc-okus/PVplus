@@ -18,7 +18,8 @@ class IrradiationChartService
         private $userPlant,
         private $passwordPlant,
         private FunctionsService $functions,
-        private InvertersRepository $invertersRep
+        private InvertersRepository $invertersRep,
+        private PdoService $pdoService,
     )
     {
     }
