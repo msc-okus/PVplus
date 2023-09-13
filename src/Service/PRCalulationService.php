@@ -46,7 +46,7 @@ private PdoService $pdoService,
 
 
     /**
-     * @throws NonUniqueResultException
+     * @throws NonUniqueResultException|InvalidArgumentException
      */
     #[Deprecated]
     public function calcPRAll(Anlage|int $anlage, string $day): string
@@ -644,7 +644,6 @@ private PdoService $pdoService,
             'Veendam'           => $weatherNoPpc['theoPowerPA1'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irr    // all others calc by Pnom and Irr.
         };
-        //$result['prDep1Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerEvu'], $result['powerTheoDep1'], $pa1); //($power['powerEvu'] / $tempTheoPower) * 100;
         if ($result['powerTheoDep1'] !== null) {
             $result['prDep1Act'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $result['powerAct'], $result['powerTheoDep1'], $pa1); //(($power['powerAct'] / $tempTheoPower) * 100;
             $result['prDep1Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $result['powerEvu'], $result['powerTheoDep1'], $pa1); //($power['powerEvu'] / $tempTheoPower) * 100;
@@ -667,7 +666,6 @@ private PdoService $pdoService,
             'Veendam'           => $weatherNoPpc['theoPowerPA2'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irr    // all others calc by Pnom and Irr.
         };
-        //$result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerEvu'], $result['powerTheoDep2'], $pa2); //($power['powerEvu'] / $tempTheoPower) * 100;
         if ($result['powerTheoDep2'] !== null) {
             $result['prDep2Act'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $result['powerAct'], $result['powerTheoDep2'], $pa2); //(($power['powerAct'] / $tempTheoPower) * 100;
             $result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $result['powerEvu'], $result['powerTheoDep2'], $pa2); //($power['powerEvu'] / $tempTheoPower) * 100;
@@ -690,7 +688,6 @@ private PdoService $pdoService,
             'Veendam'           => $weatherNoPpc['theoPowerPA3'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irr    // all others calc by Pnom and Irr.
         };
-        //$result['prDep3Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerEvu'], $result['powerTheoDep3'], $pa3); //($power['powerEvu'] / $tempTheoPower) * 100;
         if ($result['powerTheoDep3'] !== null) {
             $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $result['powerAct'], $result['powerTheoDep3'], $pa3); //(($power['powerAct'] / $tempTheoPower) * 100;
             $result['prDep3Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $result['powerEvu'], $result['powerTheoDep3'], $pa3); //($power['powerEvu'] / $tempTheoPower) * 100;
@@ -987,7 +984,6 @@ private PdoService $pdoService,
             default => $anlage->getPrFormular0(),
         };
 
-        // ToDo: calculate number of years since plant ist ON
         $years = $anlage->getBetriebsJahre();
         if ($inverterID === null) {
             $pnom = $anlage->getPnom();
@@ -1007,18 +1003,19 @@ private PdoService $pdoService,
                 if ($theoPower > 0) $result = $eGrid > 0 ? ($eGrid / $theoPower) * 100 : null;
                 break;
             case 'Ladenburg': // not tested (2023-03-22 MR)
-                if ($years && $years > 0){
+                if ($years >= 0){
                     // entspricht Standard PR plus degradation (Faktor = $years int)
                     $powerTheo = $pnom * pow(1 - ($anlage->getDegradationPR()/100), $years) * $irr;
                     $result = ($irr > 0) ? ($eGrid / $powerTheo) * 100 : null;
                 }
                 break;
-            case 'Doellen': // not tested (2023-06-06 MR)
-                if ($years && $years > 0){
+            case 'Doellen': // not finaly tested (2023-09-12 MR)
+                if ($years >= 0){
                     // entspricht Standard PR plus degradation in Zwei Faktoren (Faktor = $years int)
-                    $powerTheo = $pnom * pow(1 - $anlage->getDegradationPR(), $years) * (1 - $anlage->getDegradationPR() / 2) * $irr;
+                    $powerTheo = $pnom * pow(1 - ($anlage->getDegradationPR()/100), ($years - 1)) * (1 - ($anlage->getDegradationPR()/100) / 2) * $irr;
                     $result = ($irr > 0) ? ($eGrid / $powerTheo) * 100 : null;
                 }
+
                 break;
 
 

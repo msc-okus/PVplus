@@ -174,7 +174,12 @@ class ReportsMonthlyV2Service
 
         for ($n = 1; $n <= $days; ++$n) {
             $xAxis[] = $table[$n]['datum_alt'];
-            $number = $anlage->getUseGridMeterDayData() ? $table[$n]['powerEGridExt'] : $table[$n]['powerEvu'];
+            if ($anlage->getShowEvuDiag()){
+                $number = $anlage->getUseGridMeterDayData() ? $table[$n]['powerEGridExt'] : $table[$n]['powerEvu'];
+            } else {
+                $number = $table[$n]['powerAct'];
+            }
+
             $yAxis[] = round($number,2);
         }
         $chart = new ECharts();
