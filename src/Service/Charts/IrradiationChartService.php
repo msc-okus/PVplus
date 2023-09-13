@@ -19,7 +19,8 @@ class IrradiationChartService
         private $passwordPlant,
         private FunctionsService $functions,
         private InvertersRepository $invertersRep,
-        private PdoService $pdoService
+        private PdoService $pdoService,
+
     )
     {
     }
