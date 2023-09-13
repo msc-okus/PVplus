@@ -3,11 +3,17 @@
 namespace App\Service;
 
 use App\Helper\G4NTrait;
+use App\Service\PdoService;
+
 
 class DummySollService
 {
     use G4NTrait;
-
+    public function __construct(
+        private PdoService $pdoService,
+    )
+    {
+    }
     public function createDummySoll($from = null): string
     {
         $conn = $this->pdoService->getPdoPlant();

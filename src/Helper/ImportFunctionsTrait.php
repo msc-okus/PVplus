@@ -115,7 +115,7 @@ trait ImportFunctionsTrait
      */
     function insertDataIntoGridMeterDay($anlagenID, $stamp, float $value)
     {
-        $DBDataConnection = getPdoConnectionAnlage();
+        $DBDataConnection = $this->pdoService->getPdoBase();
 
         $sql_sel_ins = "INSERT INTO anlage_grid_meter_day SET 
                     anlage_id = $anlagenID, stamp = '$stamp', grid_meter_value = $value 
