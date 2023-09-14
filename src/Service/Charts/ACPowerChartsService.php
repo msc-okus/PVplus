@@ -35,8 +35,8 @@ private PdoService $pdoService,
      */
     public function getAC1(Anlage $anlage, $from, $to, bool $hour = false): array
     {
-        ini_set('memory_limit', '3G');
-        set_time_limit(500);
+        #ini_set('memory_limit', '3G');
+        #set_time_limit(500);
         $conn = $this->pdoService->getPdoPlant();
         $formExp = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $form = $hour ? '%y%m%d%' : '%y%m%d%H%i';
@@ -62,6 +62,7 @@ private PdoService $pdoService,
                         WHERE a.stamp >= '$from' AND a.stamp <= '$to' 
                         GROUP by date_format(a.stamp, '$formExp')";
         }
+
         $resExp = $conn->query($sqlExp);
         $actSum = $expSum = $expEvuSum = $expNoLimitSum = $evuSum = $cosPhiSum = $theoPowerSum = $irrSum = 0;
         $dataArray = [];

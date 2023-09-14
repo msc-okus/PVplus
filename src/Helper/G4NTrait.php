@@ -219,6 +219,7 @@ trait G4NTrait
             // wintertime
             $offset -= 3600; // not sure why this is nessary
         }
+
         $of = $offset / 3600;
 
         if ($of < 0) {
