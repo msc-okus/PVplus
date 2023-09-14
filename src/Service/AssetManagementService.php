@@ -4,7 +4,9 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
+use App\Form\Owner\OwnerFormType;
 use App\Helper\G4NTrait;
+use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
 use App\Repository\EconomicVarValuesRepository;
@@ -22,6 +24,8 @@ use Hisune\EchartsPHP\ECharts;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 use Psr\Cache\InvalidArgumentException;
+use RecursiveIteratorIterator;
+use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
 use League\Flysystem\Filesystem;
@@ -59,6 +63,8 @@ class AssetManagementService
         private WeatherFunctionsService $weatherFunctions,
         private ForcastDayRepository $forecastDayRepo,
         private Filesystem $fileSystemFtp,
+        private Filesystem $filesystem,
+        private AnlageFileRepository $RepositoryUpload
     )
     {
         $this->conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
@@ -101,9 +107,41 @@ class AssetManagementService
         $content = $output;
         $this->logMessages->updateEntry($logId, 'working', 95);
         //rendering the header
+
+        //with this we clear our temp files folder
+        $it = new RecursiveDirectoryIterator("uploads/temp", RecursiveDirectoryIterator::SKIP_DOTS);
+        $files = new RecursiveIteratorIterator($it,
+            RecursiveIteratorIterator::CHILD_FIRST);
+        foreach($files as $file) {
+            unlink($file->getRealPath());
+        }
+
+        $owner = $anlage->getEigner();
+        $tempFileLogo = '';
+
+        if ($owner->getLogo() != '') {
+            if ($this->fileSystemFtp->fileExists($owner->getLogo())) {
+                $tempFileLogo = 'temp/temp'.random_int(0, 10000).'.png';
+                $this->filesystem->write($tempFileLogo, $this->fileSystemFtp->read($owner->getLogo()));
+                $tempFileLogo = '/uploads/'. $tempFileLogo;
+            }
+        }
+
+        $tempFilePlantImage = '';
+
+        if ($anlage->getPicture() != '') {
+            if ($this->fileSystemFtp->fileExists($anlage->getPicture())) {
+                $tempFilePlantImage = 'temp/temp'.random_int(0, 10000).'.png';
+                $this->filesystem->write($tempFilePlantImage, $this->fileSystemFtp->read($anlage->getPicture()));
+                $tempFilePlantImage = '/uploads/'. $tempFilePlantImage;
+            }
+        }
+
         $html = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
             'anlage' => $anlage,
+            'headerImage' => $tempFilePlantImage,
+            'logoImage' => $tempFileLogo,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -125,6 +163,7 @@ class AssetManagementService
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
+            'logoImage' => $tempFileLogo,
             'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
@@ -142,6 +181,7 @@ class AssetManagementService
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
+            'logoImage' => $tempFileLogo,
             'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
@@ -161,6 +201,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -179,6 +220,7 @@ class AssetManagementService
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
                 'year' => $reportYear,
+                'logoImage' => $tempFileLogo,
                 'dataCfArray' => $content['dataCfArray'],
                 'reportmonth' => $content['reportmonth'],
                 'monthArray' => $content['monthArray'],
@@ -197,6 +239,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -214,6 +257,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -233,6 +277,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -250,6 +295,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -286,6 +332,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -300,6 +347,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -318,6 +366,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -334,6 +383,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -351,6 +401,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -368,6 +419,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -385,6 +437,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -403,6 +456,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -426,6 +480,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -447,6 +502,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -465,6 +521,7 @@ class AssetManagementService
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
                 'year' => $reportYear,
+                'logoImage' => $tempFileLogo,
                 'dataCfArray' => $content['dataCfArray'],
                 'reportmonth' => $content['reportmonth'],
                 'monthArray' => $content['monthArray'],

@@ -108,7 +108,7 @@ class PdfService
         $filepath = str_replace(" ", "_", $filepath);
         $fileroute = './pdf/' . $fileroute;
         $fileroute = str_replace(" ", "_", $fileroute);
-        if ($this->fileSystemFtp->fileExists($fileroute) === false)$this->fileSystemFtp->createDirectory( $fileroute );
+       // if ($this->fileSystemFtp->fileExists($fileroute) === false)$this->fileSystemFtp->createDirectory( $fileroute );
         $this->fileSystemFtp->write($filepath, $pdf);
         if ($view) {
            $resource = $this->fileSystemFtp->readStream($filepath);
