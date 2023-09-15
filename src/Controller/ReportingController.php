@@ -75,7 +75,7 @@ class ReportingController extends AbstractController
         $reportType = $request->query->get('report-typ');
         $reportMonth = $request->query->get('month');
         $reportYear = $request->query->get('year');
-        $local = $request->query->get('local');
+        //$local = $request->query->get('local');
         $daysOfMonth = date('t', strtotime("$reportYear-$reportMonth-01"));
         $reportDate = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
         $anlageId = $request->query->get('anlage-id');
@@ -95,11 +95,11 @@ class ReportingController extends AbstractController
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
-                if ($local !== null) {
+                if ($_ENV['APP_ENV'] == 'dev') {
                     $report = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
                     $em->persist($report);
                     $em->flush();
-                } else {
+                } else if ($_ENV['APP_ENV'] == 'prod'){
                     $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
                     $messageBus->dispatch($message);

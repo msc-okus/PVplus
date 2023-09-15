@@ -201,7 +201,8 @@
 
                             {%  if isupload == 'yes' %}
                                 Last Uploaded:<br>
-                                <img class="article-img" src="{{ asset(imageuploadet)|imagine_filter('squared_thumbnail_small') }}" alt="-"><br>
+                                <img class="article-img" src="{{ absolute_url(asset(imageuploadet)) }}" alt="-"><br>
+
                             {% endif %}
                             </div>
                         </div>

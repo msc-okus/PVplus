@@ -8,7 +8,7 @@
         </tr>
         {% if (anlage.getPicture != null) %}
             <tr>
-                <td style="text-align: left"><img style="max-width: 840px; max-height: 400px;" src="{{ absolute_url(asset(anlage.getPicture)) }}"></td>
+                <td style="text-align: left"><img style="max-width: 840px; max-height: 400px;" src="{{ absolute_url(asset(headerImage)) }}"></td>
                 <td rowspan="2" style="vertical-align: bottom; text-align: left; padding-bottom: 40px !important;"></td>
             </tr>
         {% else %}
