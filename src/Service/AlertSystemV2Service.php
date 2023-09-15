@@ -363,7 +363,7 @@ class AlertSystemV2Service
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $time = G4NTrait::timeAjustment($time, -2);
-        if (($time > $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
+        if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
 
@@ -406,11 +406,11 @@ class AlertSystemV2Service
         $voltLimit = 0;
         $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
 
-        $powerThreshold = (int) $anlage->getPowerThreshold();
+        $powerThreshold = (float) $anlage->getPowerThreshold() / 4;
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
-
-        if ($irradiation !== null && $irradiation < $irrLimit) $this->irr = true;
+        dump($time, $irradiation);
+        if ($irradiation === null || $irradiation < $irrLimit) $this->irr = true; // about irradiation === null, it is better to miss a ticket than to have a false one
         else $this->irr = false;
 
         if ($anlage->getHasPPC()) {
@@ -432,7 +432,7 @@ class AlertSystemV2Service
 
             $sqlAct = 'SELECT b.unit as unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  b.wr_pac <= '$powerThreshold' ";
+                    WHERE a.stamp = '$time' AND  b.wr_pac <= $powerThreshold ";
             $resp = $conn->query($sqlAct);
             $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
 

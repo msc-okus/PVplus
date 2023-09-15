@@ -8,13 +8,18 @@ use App\Entity\Anlage;
 use DateTimeZone;
 use Exception;
 use JetBrains\PhpStorm\Deprecated;
+use League\Flysystem\Filesystem;
 use PDO;
 use PDOException;
+use RecursiveIteratorIterator;
+use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 use Symfony\Component\Intl\Timezones;
 use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 
 trait G4NTrait
 {
+
+
     /**
      *  Removes control char from given string.
      */
@@ -446,5 +451,28 @@ trait G4NTrait
         $returnArray['array1'] = array_diff($array1, $array2);
         $returnArray['array2'] = array_diff($array2, $array1);
         return $returnArray;
+    }
+
+    /**
+     *
+     * @param array $file
+     * @return array
+     */
+    public function makeTempFiles(array $files,  $filesystem):array
+    {
+        //with this we clear our temp files folder
+        $it = new RecursiveDirectoryIterator("uploads/temp", RecursiveDirectoryIterator::SKIP_DOTS);
+        $content = new RecursiveIteratorIterator($it,
+            RecursiveIteratorIterator::CHILD_FIRST);
+        foreach($content as $file) {
+            unlink($file->getRealPath());
+        }
+        $return = [];
+        foreach ($files as $key => $file){
+            $tempFile = 'temp/temp'.random_int(0, 10000).'.png';
+            $filesystem->write($tempFile, $file);
+            $return[$key] = '/uploads/'. $tempFile;
+        }
+        return $return;
     }
 }
