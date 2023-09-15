@@ -13,6 +13,7 @@ use DateTime;
 use Doctrine\ORM\NonUniqueResultException;
 use JetBrains\PhpStorm\NoReturn;
 use PDO;
+use App\Service\PdoService;
 use Psr\Cache\InvalidArgumentException;
 
 class ExportService
@@ -20,11 +21,7 @@ class ExportService
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+		private PdoService $pdoService,
         private FunctionsService $functions,
         private PRRepository $PRRepository,
         private AnlageAvailabilityRepository $availabilityRepo,
@@ -226,7 +223,7 @@ class ExportService
 
     private function getWeather900(Anlage $anlage, string $from, string $to): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $weather = [];
 
         /** @var AnlageAcGroups $groupAC */
@@ -274,7 +271,7 @@ class ExportService
 
     private function getACPower900(Anlage $anlage, string $from, string $to): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $result = [];
 
         foreach ($anlage->getAcGroups() as $acGroups) {
@@ -331,7 +328,7 @@ class ExportService
 
     public function getGridSum900(Anlage $anlage, string $from, string $to): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $power = [];
 
         $sql = "SELECT stamp, p_set_gridop_rel, p_set_rpc_rel 
@@ -544,7 +541,7 @@ class ExportService
      */
     public function getFacPRData(Anlage $anlage, DateTime $from, ?DateTime $to = null, string $target = 'array'): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
 
         $export = [];
         $fromSql = $from->format('Y-m-d 00:00');
@@ -591,7 +588,7 @@ class ExportService
 
     public function getFacPAData(Anlage $anlage, DateTime $from, DateTime $to = null): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
 
         $export = [];
         $fromSql = $from->format('Y-m-d 00:00');
@@ -620,7 +617,7 @@ class ExportService
 
     public function getRawData(Anlage $anlage, DateTime $from = null, DateTime $to = null): string
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $output = '';
         $fromSql = $from->format('Y-m-d 00:00');
         $toSql = $to->format('Y-m-d 23:59');

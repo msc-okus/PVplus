@@ -28,6 +28,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use DateTime;
+use App\Service\PdoService;
 
 /**
  *
@@ -37,9 +38,7 @@ class ReportsMonthlyV2Service
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userPlant,
-        private $passwordPlant,
+        private PdoService $pdoService,
         private AnlagenRepository $anlagenRepository,
         private PRRepository $PRRepository,
         private ReportsRepository $reportsRepository,
@@ -175,7 +174,12 @@ class ReportsMonthlyV2Service
 
         for ($n = 1; $n <= $days; ++$n) {
             $xAxis[] = $table[$n]['datum_alt'];
-            $number = $anlage->getUseGridMeterDayData() ? $table[$n]['powerEGridExt'] : $table[$n]['powerEvu'];
+            if ($anlage->getShowEvuDiag()){
+                $number = $anlage->getUseGridMeterDayData() ? $table[$n]['powerEGridExt'] : $table[$n]['powerEvu'];
+            } else {
+                $number = $table[$n]['powerAct'];
+            }
+
             $yAxis[] = round($number,2);
         }
         $chart = new ECharts();
@@ -246,7 +250,7 @@ class ReportsMonthlyV2Service
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
 
-            $dayValues[$i]['datum'] = $day->format('y-m-d');
+            $dayValues[$i]['datum'] = $day->format('Y-m-d');
             $dayValues[$i]['datum_alt'] = $day->format('m-d');
             foreach($prArray as $key => $value) {
                 $dayValues[$i][$key] = $value;
@@ -307,7 +311,7 @@ class ReportsMonthlyV2Service
         ]);
 
         $html = str_replace('src="//', 'src="https://', $html); // replace local pathes to global
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/MonthlyReport'  ;
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/MonthlyReport/'  ;
         return [
             'path' => $this->pdf->createPage($html, $fileroute, "Monthly_Report_" . $report['month'] . "_" . $report['year'] ."_". time() , false), // we will store this later in the entity
             'html' => $html,

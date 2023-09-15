@@ -21,11 +21,7 @@ class ImportService
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+        private PdoService $pdoService,
         private PVSystDatenRepository $pvSystRepo,
         private AnlagenRepository $anlagenRepository,
         private AnlageAvailabilityRepository $anlageAvailabilityRepo,
@@ -104,7 +100,7 @@ class ImportService
 
                 if (array_key_exists($date, $basics)) {
                     $irrAnlageArrayGMO['G_M0'] = $basics[$date]['G_M0'] > 0 ? round($basics[$date]['G_M0'], 4) : 0;   //
-                    $eZEvu = round($basics[$date]['E_Z_EVU'], 0);
+                    $eZEvu = $basics[$date]['E_Z_EVU'];
                 }
 
                 if (is_array($sensors) && array_key_exists($date, $sensors)) {

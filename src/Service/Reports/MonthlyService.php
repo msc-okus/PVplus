@@ -17,17 +17,14 @@ use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\NoReturn;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use App\Service\PdoService;
 
 class MonthlyService
 {
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+        private PdoService $pdoService,
         private AnlagenRepository $anlagenRepository,
         private PRRepository $PRRepository,
         private ReportsRepository $reportsRepository,

@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 use App\Entity\WeatherStation;
 use App\Form\WeatherStation\WeatherStationFormType;
 use App\Helper\G4NTrait;
@@ -24,7 +24,8 @@ class WeatherStationController extends BaseController
     public function __construct(
         private $host,
         private $userPlant,
-        private $passwordPlant
+        private $passwordPlant,
+        private PdoService $pdoService,
     )
     {
     }
@@ -112,7 +113,7 @@ class WeatherStationController extends BaseController
      */
     public function createWeatherDatabase($databaseIdent): bool
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $sqlCreateWeatherDatabase = "
         CREATE TABLE IF NOT EXISTS `db__pv_ws_$databaseIdent` (
             `db_id` int(11) NOT NULL AUTO_INCREMENT,
