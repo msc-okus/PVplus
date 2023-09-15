@@ -7,7 +7,7 @@ use PDO;
 use PDOException;
 
 trait ImportFunctionsTrait
-{
+{   // ToDo: Replace with $anlage->getPnomInverterArray */
     function getDcPNormPerInvereter($conn, array $groups, array $modules): array
     {
 
@@ -44,7 +44,7 @@ trait ImportFunctionsTrait
      * @param string|null $host
      * @param string|null $passwordPlant
      */
-    function insertData($tableName = NULL, $data = NULL, $host = null, $userPlant = null, $passwordPlant = null): void
+    function insertData(string $tableName = NULL, array $data = NULL, $host = null, $userPlant = null, $passwordPlant = null): void
     {
         // obtain column template
         $DBDataConnection = $this->pdoService->getPdoPlant();
@@ -112,8 +112,11 @@ trait ImportFunctionsTrait
      * @param $anlagenID
      * @param $stamp
      * @param float $value
+     *
+     * ToDo: Replace with doctrine
+     *
      */
-    function insertDataIntoGridMeterDay($anlagenID, $stamp, float $value)
+    function insertDataIntoGridMeterDay($anlagenID, $stamp, float $value): void
     {
         $DBDataConnection = $this->pdoService->getPdoBase();
 
@@ -153,7 +156,7 @@ trait ImportFunctionsTrait
      * @param  $date
      * @return array
      */
-    function checkSensors(array $anlageSensors, int $length, bool $istOstWest, $sensors, $date): array
+    function checkSensors(array $anlageSensors, int $length, bool $istOstWest, array $sensors, $date): array
     {
 
         if ($istOstWest) {
@@ -360,7 +363,7 @@ trait ImportFunctionsTrait
      * @param object $conn
      * @return array
      */
-    public function getPlantsImportReady($conn)
+    public function getPlantsImportReady($conn): array
     {
         $query = "SELECT `anlage_id` FROM `anlage_settings` where `symfony_import` = 1  ";
         $stmt = $stmt = $conn->query($query);
@@ -504,17 +507,18 @@ trait ImportFunctionsTrait
     }
 
     //importiert die Daten für Anlegen ohne Stringboxes
+
     /**
      * @param array $inverters
      * @param string $date
      * @param int $plantId
      * @param string $stamp
      * @param float $eZEvu
-     * @param array $irrAnlage
-     * @param array $tempAnlage
-     * @param array $windAnlage
+     * @param string $irrAnlage
+     * @param string $tempAnlage
+     * @param string $windAnlage
      * @param object $groups
-     * @param int $stringBoxUnits
+     * @param $invertersUnits
      * @return array
      */
     function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
