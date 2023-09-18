@@ -128,6 +128,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -900,7 +901,7 @@ class AssetManagementService
             if ($anlage->getShowEvuDiag()) {
                 (float) $powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
             } else {
-                (float) $powerExpEvu[] = $data1_grid_meter['powerExp'];
+                (float) $powerExpEvu[] = $data1_grid_meter['powerAct'];
             }
             (float) $powerExp[] = $data1_grid_meter['powerExp'];
             (float) $powerExternal[] = $data1_grid_meter['powerEGridExt'];
