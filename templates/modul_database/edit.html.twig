@@ -3,7 +3,7 @@
 {% block body %}
     <div class="grid-x">
         <div class="cell">
-            <h1>Edit Modul</h1>
+            <h1>Edit modul</h1>
         </div>
     </div>
     {{ include('modul_database/_form.html.twig') }}
@@ -11,15 +11,8 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {{ encore_entry_script_tags('modules_db') }}
 {% endblock %}
-
 
 {% block title %}
-    {{  parent() }}edit Modul
-{% endblock %}
-
-
-{% block javascripts %}
-    {{ parent() }}
+    {{  parent() }}Edit modul
 {% endblock %}

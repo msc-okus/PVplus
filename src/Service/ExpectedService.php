@@ -15,6 +15,7 @@ use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\OpenWeatherRepository;
 use App\Service\Functions\IrradiationService;
+use DivisionByZeroError;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 
@@ -514,7 +515,14 @@ class ExpectedService
                     $expEvuSumDay =  $expEvuSumDay / $prfz ;
                 }
 
-                    if ($doy < 365) {
+                // Catch Division by zero and Set the var fktday with theoretical data
+                try {
+                    $fktday = $expEvuSumDay /  $expEvuSumYear;
+                } catch( DivisionByZeroError $e ){
+                    $fktday = $theoday /  $theoYear;
+                }
+
+                if ($doy < 365) {
                         // Speichern der Tageswerte Werte in ein Array
                         $resultArray[$doy] = [
                             'doy' => $doy,
@@ -530,7 +538,7 @@ class ExpectedService
                             'pnom' => $pnomall,
                             'exp_theo_day' => round($theoday,0),
                             'exp_evu_day' => round($expEvuSumDay, 0),
-                            'fkt_day' => number_format($expEvuSumDay /  $expEvuSumYear,8,".","")
+                            'fkt_day' => number_format($fktday,8,".","")
                         ];
                     } else {
                         // Speichern der Tageswerte Werte in Array
@@ -548,7 +556,7 @@ class ExpectedService
                             'pnom' => $pnomall,
                             'exp_theo_day' => round($theoday,0),
                             'exp_evu_day' => round($expEvuSumDay, 0),
-                            'fkt_day' => number_format($expEvuSumDay /  $expEvuSumYear,8,".","")
+                            'fkt_day' => number_format($fktday,8,".","")
                         ];
 
                         $resultArray['yearsum'] = [

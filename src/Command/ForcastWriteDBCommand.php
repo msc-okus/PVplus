@@ -3,6 +3,7 @@ namespace App\Command;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service;
+use App\Service\Forecast;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -10,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Doctrine\ORM\EntityManagerInterface;
+
 #[AsCommand(name: 'pvp:forcastwritedb')]
 /**
  * @return bool
@@ -23,7 +25,8 @@ class ForcastWriteDBCommand extends Command {
         private EntityManagerInterface $entityManager,
         private AnlagenRepository $anlagenRepository,
         private KernelInterface $kernel,
-        private Service\ExpectedService $expectedService
+        private Service\ExpectedService $expectedService,
+        private Forecast\DatFileReaderService $datFileReaderService
     ) {
         parent::__construct();
     }
@@ -56,24 +59,25 @@ class ForcastWriteDBCommand extends Command {
         $endapidate = date("Y",strtotime("-1 year", time())).'0101';
         // Function zur Umkreissuche anhand der Lat & Log fehlt noch
         // hole den *.dat File Name aus der Datenbank
-        $datfile_folder = $this->kernel->getProjectDir()."/public/uploads/metodat/"; // Metonorm datfile folder local
         $datfile_name = $anlage->getDatFilename();
         if ($datfile_name) {
-            $datfile = "$datfile_folder$datfile_name";
-            $datfiledata = new Service\Forecast\DatFileReaderService($datfile);
+            $datfile = "$datfile_name";
+            $this->datFileReaderService->read($datfile);
           } else {
             $io->error("abort : load the metodat file first");
             exit();
         }
-        // Wenn datfileS
-        if (count($datfiledata->current()) > 1) {
+
+        // Wenn datfile current
+        if (count($this->datFileReaderService->current()) > 1) {
             $io->info("data read ! please wait");
             $reg_data = new Service\Forecast\APINasaGovService($input_gl, $input_gb, $startapidate, $endapidate);
-            $dec_data = new Service\Forecast\ForcastDEKService($input_gl, $input_gb, $input_mer, $input_mn, $input_ma, $input_ab, $datfiledata);
+            $dec_data = new Service\Forecast\ForcastDEKService($input_gl, $input_gb, $input_mer, $input_mn, $input_ma, $input_ab, $this->datFileReaderService->current());
             $decarray = $dec_data->get_DEK_Data();
             $reg_array = $reg_data->make_sortable_data('faktor');
             $dec_array = $this->expectedService->calcExpectedforForecast($anlage, $decarray);
 
+// only for debug
 #print_R($decarray); // IR Values
 #print_R($dec_array);
 #print_R($reg_array);

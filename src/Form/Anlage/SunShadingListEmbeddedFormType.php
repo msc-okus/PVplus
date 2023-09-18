@@ -55,11 +55,11 @@ class SunShadingListEmbeddedFormType extends AbstractType
             ])*/
 
             ->add('mod_width', TextType::class, [
-                'label' => 'The light width [LW]',
+                'label' => 'The light width [LW] in mm',
                 'empty_data' => '0',
                 'help' => 'The light width between behind edge row 1 to behind edge row 2 [LW] in mm',
                 'label_html' => true,
-                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('modulesDB', EntityType::class, [
@@ -73,51 +73,51 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'mapped' => true,
             ])
             ->add('mod_tilt', TextType::class, [
-                'label' => 'The modul tilt [ß]',
+                'label' => 'The modul tilt [ß] in °',
                 'empty_data' => '0',
                 'help' => '[The modul tilt [ß] in °]',
                 'label_html' => true,
-                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('mod_table_height', TextType::class, [
-                'label' => 'The table height [M]',
+                'label' => 'The table height [M] in mm',
                 'empty_data' => '0',
                 'help' => '[The table height [M] in mm]',
                 'label_html' => true,
-                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('mod_table_distance', TextType::class, [
-                'label' => 'Row division [RT]',
+                'label' => 'Row division [RT] in mm',
                 'empty_data' => '0',
                 'help' => '[Row division distance behind edge to next behind edge in mm]',
                 'label_html' => true,
-                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('distance_a', TextType::class, [
-                'label' => 'The Lot [H]',
+                'label' => 'The Lot [H] in mm',
                 'empty_data' => '0',
                 'help' => '[The Lot from table top to footpoint [H] in mm]',
                 'label_html' => true,
-                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('distance_b', TextType::class, [
-                'label' => 'Distance under the table [d]',
+                'label' => 'Distance under the table [d] in mm',
                 'help' => '[Distance under the table from [M] to Lot [h] in mm]',
                 'empty_data' => '0',
                 'label_html' => true,
-                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('ground_slope', TextType::class, [
-                'label' => 'Have a ground slope',
+                'label' => 'Have a ground slope in %',
                 'empty_data' => '0',
                 'help' => '[The ground slope in %]',
                 'label_html' => true,
-                'attr' => ['maxlength' => 2],
+                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 30px'],
                 'required' => true,
             ])
         ;

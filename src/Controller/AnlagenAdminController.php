@@ -7,6 +7,7 @@ use App\Entity\Anlage;
 use App\Entity\AnlageFile;
 use App\Entity\EconomicVarNames;
 use App\Entity\WeatherStation;
+use League\Flysystem\Filesystem;
 use App\Form\Anlage\AnlageAcGroupsFormType;
 use App\Form\Anlage\AnlageConfigFormType;
 use App\Form\Anlage\AnlageDcGroupsFormType;
@@ -42,7 +43,8 @@ class AnlagenAdminController extends BaseController
     public function __construct(
         private $host,
         private $userPlant,
-        private $passwordPlant
+        private $passwordPlant,
+        private Filesystem $fileSystemFtp
     )
     {
     }
@@ -323,25 +325,36 @@ class AnlagenAdminController extends BaseController
         }
     }
 
-    #[Route(path: '/admin/anlagen/download/{id}/{dir}/{file}', name: 'download_file', methods: ['GET','POST'])]
-    public function downloadFile($id, $dir, $file, AnlagenRepository $anlagenRepository, KernelInterface $kernel): BinaryFileResponse|Response
+    #[Route(path: '/admin/anlagen/download/{id}/{dir}/{file}/{ext}', name: 'download_file', methods: ['GET','POST'])]
+    public function downloadFile($id, $dir, $file, $ext, AnlagenRepository $anlagenRepository, KernelInterface $kernel): BinaryFileResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageDcGroupsFormType::class, $anlage, [
             'anlagenId' => $id,
         ]);
 
-        $datfile_folder = $kernel->getProjectDir()."/public/uploads"; //
-        $filename = $file;
-        $dwnlink = $datfile_folder.'/'.$dir.'/'.$filename;
+        $filename = $file.'.'.$ext;
+        $ftplink = $dir.'/'.$file.'.'.$ext;
 
-        if (file_exists($dwnlink)) {
-            $response = new BinaryFileResponse($dwnlink);
+        if ($this->fileSystemFtp->fileExists($ftplink)) {
+
+            $resource = $this->fileSystemFtp->readStream($ftplink);
+            $metadata = stream_get_meta_data($resource);
+            $resourcedata = $this->fileSystemFtp->read($ftplink);
+            $path = $metadata['uri']; // alternative
+
+            $tmpfile = tempnam(sys_get_temp_dir(), '~g4n'); // Erstellt ein Tmp file
+            $handle = fopen($tmpfile, "w");
+            fwrite($handle,  $resourcedata);
+            fclose($handle);
+
+            $response = new BinaryFileResponse($tmpfile);
             $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $filename);
+
             $this->addFlash('success', 'File was downloaded.');
             return $response;
-        } else {
-            $this->addFlash('warning', 'File not found.');
+          } else {
+            $this->addFlash('warning', 'Sorry file not found.');
             return $this->render('anlagen/edit.html.twig', [
                 'anlageForm' => $form->createView(),
                 'anlage' => $anlage,

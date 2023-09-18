@@ -3,44 +3,53 @@
 namespace App\Service\Forecast;
 
 use App\Entity\Anlage;
-use App\Repository\AnlagenRepository;
-use App\Repository\StatusRepository;
-use App\Repository\TicketRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Helper\G4NTrait;
+use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemAdapter;
 
-class DatFileReaderService {
+
+
+class DatFileReaderService  {
     private $delimiter;
     private $rowDelimiter;
     private $fileHandle = null;
     private $position = 3;
     private $data = array();
 
-    /**
-     * The constructor
-     * @param string $filename
-     * @param string $delimiter
-     * @param string $rowDelimiter
-     * @param string $position
-     */
+    use G4NTrait;
+
+
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,$filename, $delimiter = ",", $rowDelimiter = "r", $position = 0)  {
+        private Filesystem $fileSystemFtp,
+    )
+    {
+        $position = 0;
+        $delimiter = ",";
+        $rowDelimiter = "r";
+        $dir = 'metodat';
+
         $this->delimiter = $delimiter;
         $this->rowDelimiter = $rowDelimiter;
         $this->position = $position;
-        (file_exists($filename)) ? $datfilestatus = true : $datfilestatus = false;
+        $this->dir = $dir;
+    }
 
-        if ($datfilestatus == true) {
-            $this->fileHandle = fopen($filename, $this->rowDelimiter);
+    public function read($filename) {
+            $ftplink = $this->dir.'/'.$filename;
+
+        if ($this->fileSystemFtp->fileExists($ftplink)) {
+            $resourcedata = $this->fileSystemFtp->read($ftplink);
+            $tmpfile = tempnam(sys_get_temp_dir(), '~g4n'); // Erstellt ein Tmp. file
+            $handle = fopen($tmpfile, "w");
+            fwrite($handle,  $resourcedata);
+            fclose($handle);
+            $this->fileHandle = fopen($tmpfile, $this->rowDelimiter);
             if ($this->fileHandle === FALSE) {
                 throw new \Exception("Unable to open file: {$filename}");
             } else {
                 $this->parseLine();
             }
-        } else {
+          } else {
             return false;
         }
     }
