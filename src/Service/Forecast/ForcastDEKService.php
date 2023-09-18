@@ -26,7 +26,7 @@ class ForcastDEKService {
         $this->ma = $input_ma;
         $this->ab = $input_ab;
         $this->mer = $input_mer;
-        $this->metoarray = $datfile->current();
+        $this->metoarray = $datfile;# $this->metoarray = $datfile->current();
     }
 
     public function get_DEK_Data($doy = 'all') {

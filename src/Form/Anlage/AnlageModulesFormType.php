@@ -3,6 +3,8 @@
 namespace App\Form\Anlage;
 
 use App\Entity\AnlageModulesDB;
+use App\Form\Type\SwitchType;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -17,7 +19,12 @@ class AnlageModulesFormType extends AbstractType
             ->add('type', TextType::class, [
                 'label' => 'Module Type',
             ])
+            ->add('producer', TextType::class, [
+                'label' => 'Producer',
+                'empty_data' => '',
+            ])
             ->add('power', TextType::class, [
+                'label' => 'Power Wp',
                 'empty_data' => '0',
             ])
             ->add('tempCoefCurrent', TextType::class, [
@@ -103,8 +110,25 @@ class AnlageModulesFormType extends AbstractType
                 'label'         => 'PowerHigh B (>200W)',
                 'empty_data'    => '0',
             ])
+            ->add('dimensionHeight', TextType::class, [
+                'label'         => 'Dimension height',
+                'empty_data'    => '0',
+            ])
+            ->add('dimensionWidth', TextType::class, [
+                'label'         => 'Dimension width',
+                'empty_data'    => '0',
+            ])
+            ->add('isBifacial', SwitchType::class, [
+                'label' => 'is a Bifacial Modul',
+                'help' => '[isBifacial]',
+            ])
+            ->add('annotation', CKEditorType::class, [
+                'label' => 'an Annotation',
+                'empty_data' => '',
+                'config' => ['toolbar' => 'my_toolbar'],
+            ])
 
-            ######### Voltage ##########
+            ######### Voltage ##########dataSheet_1
 
             ->add('operatorVoltageA', TextType::class, [
                 'label'         => 'Voltage A',

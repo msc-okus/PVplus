@@ -20,10 +20,10 @@ class UploaderHelper
 
     public function __construct(
         private readonly string     $tempPathBaseUrl,
-        private Filesystem          $filesystem,
-        private Filesystem          $fileSystemFtp,
-        private RequestStackContext $requestStackContext,
-        private KernelInterface     $kernel)
+        private Filesystem $fileSystemFtp,
+        private RequestStackContext $requestStackContext
+    )
+
     {
     }
 
@@ -53,7 +53,7 @@ class UploaderHelper
                 $foldern = '/';
         }
 
-        $this->filesystem->write(
+        $this->fileSystemFtp->write(
             $foldern.$id.'/'.$newFilename,
             file_get_contents($uploadedFile->getPathname())
         );
@@ -126,7 +126,7 @@ class UploaderHelper
      */
     public function readStream(string $path)
     {
-        $resource = $this->filesystem->readStream($path);
+        $resource = $this->fileSystemFtp->readStream($path);
 
         if ($resource === false) {
             throw new \Exception(sprintf('Error opening stream for "%s"', $path));
@@ -137,7 +137,7 @@ class UploaderHelper
 
     public function deleteFile(string $path): void
     {
-        $this->filesystem->delete($path);
+        $this->fileSystemFtp->delete($path);
     }
 
     public function uploadFile(File $file, string $directory, bool $isPublic): string
@@ -150,7 +150,7 @@ class UploaderHelper
         $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.$file->guessExtension();
 
         $stream = fopen($file->getPathname(), 'r');
-        $this->filesystem->writeStream(
+        $this->fileSystemFtp->writeStream(
             $directory.'/'.$newFilename,
             $stream,
             [
@@ -173,17 +173,15 @@ class UploaderHelper
             $originalFilename = $file->getFilename();
         }
 
-        $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'.'.pathinfo($originalFilename, PATHINFO_EXTENSION);
-
-        $datfile_folder = $this->kernel->getProjectDir()."/public/uploads/"; //
-
-        if (file_exists($datfile_folder.'/'.$directory.'/'.$newFilename)) {
          $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.pathinfo($originalFilename, PATHINFO_EXTENSION);
-        }
+    #    $datfile_folder = $this->kernel->getProjectDir()."/public/uploads/"; //
+    #    if (file_exists($datfile_folder.'/'.$directory.'/'.$newFilename)) {
+    #     $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.pathinfo($originalFilename, PATHINFO_EXTENSION);
+    #    }
 
         $stream = fopen($file->getPathname(), 'r');
 
-        $this->filesystem->writeStream(
+        $this->fileSystemFtp->writeStream(
             $directory.'/'.$newFilename,
             $stream,
             [

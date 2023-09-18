@@ -520,7 +520,7 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3,'style' => 'width: 55px']
             ])
             ->add('lossesForecast', TextType::class, [
                 'label' => 'Losses, only forecast [%]',
@@ -528,7 +528,7 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3,'style' => 'width: 55px']
             ])
             ->add('bezMeridan', TextType::class, [
                 'label' => 'Reference meridian',
@@ -536,41 +536,42 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => true,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2]
+                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2,'style' => 'width: 55px']
             ])
             ->add('modNeigung', TextType::class, [
                 'label' => 'Module alignment',
                 'help' => '[Module alignment in degrees , example 30]',
                 'label_html' => true,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2]
+                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2,'style' => 'width: 55px']
             ])
             ->add('modAzimut', TextType::class, [
                 'label' => 'Modul azimut',
                 'help' => '[Modul azimut in degrees for S=180 O=90 W=180 ]',
                 'label_html' => true,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3,'style' => 'width: 55px']
             ])
             ->add('albeto', TextType::class, [
                 'label' => 'Albedo',
                 'help' => '[The albedo are 0.15 for grass or 0.3 for roof]',
                 'label_html' => true,
                 'empty_data' => '0',
-                'attr' => ['maxlength' => 4]
+                'attr' => ['maxlength' => 4,'style' => 'width: 55px']
             ])
             ->add('datFilename', FileType::class, [
-                'label' => 'Upload the Metonorm *dat file',
+                'label' => 'Upload the metonorm *dat file',
                 'mapped' => false,
-                'help' => '[The generated meteonorm dat file]',
+                'help' => '[The generated meteonorm *dat file]',
+                'attr'=> ['class'=>'filestyle'],
                 'constraints' => [
                     new File([
                         'maxSize' => '5120k',
                         'mimeTypes' => [ ],
-                        'mimeTypesMessage' => 'Please upload a valid dat document',
+                        'mimeTypesMessage' => 'Please upload a valid *dat file',
                     ])
                 ],
-                'required' => false,
+                'required' => true,
             ])
 
             ->add('dataSourceAM', CKEditorType::class, [

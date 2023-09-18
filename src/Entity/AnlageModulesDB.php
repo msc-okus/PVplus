@@ -9,15 +9,17 @@ use App\Repository\ModulesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use phpDocumentor\Reflection\Types\Float_;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 #[ORM\Entity(repositoryClass: AnlageModulesDBRepository::class)]
 class AnlageModulesDB
 {
+    use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private int $id;
+    private ?int $id;
 
     #[ORM\Column(type: 'string', length: 30)]
     private string $type;
@@ -100,14 +102,17 @@ class AnlageModulesDB
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $backSideFactor;
 
-    #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $modul_picture;
+    #[ORM\Column(type: 'integer', length: 1, nullable: false)]
+    private ?bool $isBifacial;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $data_sheet_1;
+    private ?string $modulPicture;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $data_sheet_2;
+    private ?string $dataSheet_1;
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $dataSheet_2;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $annotation;
@@ -116,10 +121,10 @@ class AnlageModulesDB
     private ?string $producer;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $dimension_height;
+    private ?string $dimensionHeight;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $dimension_width;
+    private ?string $dimensionWidth;
 
     #[ORM\OneToOne(targetEntity: AnlageSunShading::class, mappedBy:"modulesDB", fetch:"EAGER")]
     private $modulesDBData;
@@ -182,6 +187,13 @@ class AnlageModulesDB
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId(?int $id): self
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function getType(): ?string
@@ -365,37 +377,48 @@ class AnlageModulesDB
     }
 
     //
+    public function getisBifacial(): ?bool
+    {
+        return $this->isBifacial;
+    }
+
+    public function setisBifacial(string $isBifacial): self
+    {
+        $this->isBifacial = $isBifacial;
+        return $this;
+    }
+
 
     public function getModulPicture(): ?string
     {
-        return $this->modul_picture;
+        return $this->modulPicture;
     }
 
-    public function setModulPicture(string $modul_picture): self
+    public function setModulPicture(string $modulPicture): self
     {
-        $this->modul_picture = $modul_picture;
+        $this->modulPicture = $modulPicture;
         return $this;
     }
 
-    public function getDataSheet1(): ?string
+    public function getdataSheet1(): ?string
     {
-        return $this->data_sheet_1;
+        return $this->dataSheet1;
     }
 
-    public function setDataSheet1(string $data_sheet_1): self
+    public function setdataSheet1(string $dataSheet1): self
     {
-        $this->data_sheet_1 = $data_sheet_1;
+        $this->dataSheet1 = $dataSheet1;
         return $this;
     }
 
-    public function getDataSheet2(): ?string
+    public function getdataSheet2(): ?string
     {
-        return $this->data_sheet_2;
+        return $this->dataSheet2;
     }
 
-    public function setDataSheet2(string $data_sheet_2): self
+    public function setdataSheet2(string $dataSheet2): self
     {
-        $this->data_sheet_2 = $data_sheet_2;
+        $this->data_sheet2 = $dataSheet2;
         return $this;
     }
 
@@ -424,28 +447,30 @@ class AnlageModulesDB
     }
 
 
-    public function getDimensionHeight(): ?string
+    public function getdimensionHeight(): ?string
     {
-        return $this->dimension_height;
+        return $this->dimensionHeight;
     }
 
-    public function setDimensionHeight(string $dimension_height): self
+    public function setdimensionHeight(string $dimensionHeight): self
     {
-        $this->dimension_height = $dimension_height;
+        $this->dimensionHeight = $dimensionHeight;
         return $this;
     }
 
 
-    public function getDimensionWidth(): ?string
+    public function getdimensionWidth(): ?string
     {
-        return $this->dimension_width;
+        return $this->dimensionWidth;
     }
 
-    public function setDimensionWidth(string $dimension_width): self
+    public function setdimensionWidth(string $dimensionWidth): self
     {
-        $this->dimension_width = $dimension_width;
+        $this->dimensionWidth = $dimensionWidth;
         return $this;
     }
+
+
 
     // ####### Cuurent
     public function getOperatorCurrentA(): ?float

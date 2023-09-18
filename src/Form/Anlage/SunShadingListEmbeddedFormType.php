@@ -39,25 +39,27 @@ class SunShadingListEmbeddedFormType extends AbstractType
            $builder
             ->add('description', TextareaType::class, [
                 'label' => 'Description for this',
-                'help' => '[Enter an Description for this model !]',
+                'help' => '[Enter an description for this sunshading model !]',
                 'empty_data' => 'default shading model',
                 'label_html' => true,
                 'required' => true,
             ])
-            ->add('mod_height', TextType::class, [
+
+            /*->add('mod_height', TextType::class, [
                 'label' => 'The module height',
                 'empty_data' => '0',
                 'help' => '[The module height in mm]',
                 'label_html' => true,
                 'attr' => ['maxlength' => 4],
                 'required' => true,
-            ])
+            ])*/
+
             ->add('mod_width', TextType::class, [
-                'label' => 'The module width',
+                'label' => 'The light width [LW] in mm',
                 'empty_data' => '0',
-                'help' => '[The module width in mm]',
+                'help' => 'The light width between behind edge row 1 to behind edge row 2 [LW] in mm',
                 'label_html' => true,
-                'attr' => ['maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('modulesDB', EntityType::class, [
@@ -71,51 +73,51 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'mapped' => true,
             ])
             ->add('mod_tilt', TextType::class, [
-                'label' => 'The modul tilt',
+                'label' => 'The modul tilt [ß] in °',
                 'empty_data' => '0',
-                'help' => '[The modul tilt in mm]',
+                'help' => '[The modul tilt [ß] in °]',
                 'label_html' => true,
-                'attr' => ['maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('mod_table_height', TextType::class, [
-                'label' => 'The table height',
+                'label' => 'The table height [M] in mm',
                 'empty_data' => '0',
-                'help' => '[The table height in mm]',
+                'help' => '[The table height [M] in mm]',
                 'label_html' => true,
-                'attr' => ['maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('mod_table_distance', TextType::class, [
-                'label' => 'The table distance',
+                'label' => 'Row division [RT] in mm',
                 'empty_data' => '0',
-                'help' => '[The distance in mm]',
+                'help' => '[Row division distance behind edge to next behind edge in mm]',
                 'label_html' => true,
-                'attr' => ['maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('distance_a', TextType::class, [
-                'label' => 'The distance of A',
+                'label' => 'The Lot [H] in mm',
                 'empty_data' => '0',
-                'help' => '[The distance of A in mm]',
+                'help' => '[The Lot from table top to footpoint [H] in mm]',
                 'label_html' => true,
-                'attr' => ['maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('distance_b', TextType::class, [
-                'label' => 'The distance of B',
-                'help' => '[The distance of B in mm]',
+                'label' => 'Distance under the table [d] in mm',
+                'help' => '[Distance under the table from [M] to Lot [h] in mm]',
                 'empty_data' => '0',
                 'label_html' => true,
-                'attr' => ['maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
             ])
             ->add('ground_slope', TextType::class, [
-                'label' => 'Have a ground slope',
+                'label' => 'Have a ground slope in %',
                 'empty_data' => '0',
                 'help' => '[The ground slope in %]',
                 'label_html' => true,
-                'attr' => ['maxlength' => 2],
+                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 30px'],
                 'required' => true,
             ])
         ;

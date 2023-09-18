@@ -3,18 +3,16 @@
 {% block body %}
     <div class="grid-x">
         <div class="cell">
-            <h1>Edit Modul</h1>
+            <h1>Edit modul</h1>
         </div>
     </div>
     {{ include('modul_database/_form.html.twig') }}
 {% endblock %}
 
-
-{% block title %}
-    {{  parent() }}edit Modul
-{% endblock %}
-
-
 {% block javascripts %}
     {{ parent() }}
+{% endblock %}
+
+{% block title %}
+    {{  parent() }}Edit modul
 {% endblock %}
