@@ -44,7 +44,7 @@ trait ImportFunctionsTrait
      * @param string|null $host
      * @param string|null $passwordPlant
      */
-    function insertData($tableName = NULL, $data = NULL, $host = null, $userPlant = null, $passwordPlant = null): void
+    function insertData($tableName = NULL, $data = NULL): void
     {
         // obtain column template
         $DBDataConnection = $this->pdoService->getPdoPlant();
@@ -386,13 +386,14 @@ trait ImportFunctionsTrait
     function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
     {
 
-        for ($i = 1; $i < count($acGroups); $i++) {
-            $pvpGroupAc = $i;
+        for ($i = 1; $i <= count($acGroups); $i++) {
+
+            $pvpGroupAc = $acGroups[$i-1]['group_ac'];
             $pvpGroupDc = $i;
-            $pvpInverter = $i;
+            $pvpInverter = $acGroups[$i-1]['group_ac'];
 
             if (is_array($inverters) && array_key_exists($date, $inverters)) {
-                $custInverterKennung = $acGroups[$i]['importId'];
+                $custInverterKennung = $acGroups[$i-1]['importId'];
                 $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
                 $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
                 $currentAcP1 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']);
@@ -519,7 +520,9 @@ trait ImportFunctionsTrait
      */
     function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
     {
+
         foreach ($groups as $group) {
+
             $pvpInverter = $group->getDcGroup();
             $pvpGroupDc = $group->getDcGroup();
             $pvpGroupAc = $group->getAcGroup();
@@ -619,6 +622,7 @@ trait ImportFunctionsTrait
                 'wind_anlage' => $windAnlage,
             ];
         }
+
         $result[] = $data_pv_ist;
         return $result;
     }

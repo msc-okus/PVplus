@@ -30,6 +30,7 @@ class ImportDataHandler implements MessageHandlerInterface
 
     public function __invoke(ImportData $importData): void
     {
+        date_default_timezone_set('Europe/Berlin');
         $path = $importData->getPath();
         $importType = $importData->getImportType();
         $logId = $importData->getlogId();
