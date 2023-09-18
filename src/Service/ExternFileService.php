@@ -99,6 +99,6 @@ private PdoService $pdoService,
     public function callImportDataFromApiManuel($path, $importType, $from, $to, $logId = ''): void
     {
         $currentDir = __DIR__;
-        exec("php -dsafe_mode=Off $currentDir/../../../anlagen/goldbeck/$path/loadDataFromApi.php ".$from." ".$to." ".$importType." ".$logId);
+        exec("php -dsafe_mode=Off $currentDir/../../../anlagen/$path/loadDataFromApi.php ".$from." ".$to." ".$importType." ".$logId);
     }
 }
