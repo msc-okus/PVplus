@@ -163,6 +163,8 @@ class ImportService
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
+
+                    unset($result);
                 }
 
                 if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
@@ -209,7 +211,6 @@ class ImportService
         }
 
         //write Data in the tables
-
         switch ($importType) {
             case 'api-import-weather':
                     $tableName = "db__pv_ws_$weatherDbIdent";
