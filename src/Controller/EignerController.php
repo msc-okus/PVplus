@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\AnlageFile;
 use App\Entity\Eigner;
 use App\Form\Owner\OwnerFormType;
+use App\Helper\G4NTrait;
 use App\Repository\AnlageFileRepository;
 use App\Repository\EignerRepository;
 use App\Service\UploaderHelper;
@@ -21,6 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('ROLE_G4N')]
 class EignerController extends BaseController
 {
+    use G4NTrait;
     #[Route(path: '/admin/owner/new', name: 'app_admin_owner_new')]
     public function new(EntityManagerInterface $em, Request $request): Response
     {
@@ -70,24 +72,13 @@ class EignerController extends BaseController
     public function edit($id, EntityManagerInterface $em, Request $request, EignerRepository $ownerRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): Response
     {
         $tempFile = '';
-        //with this we clear our temp files folder
-        $it = new RecursiveDirectoryIterator("uploads/temp", RecursiveDirectoryIterator::SKIP_DOTS);
-        $files = new RecursiveIteratorIterator($it,
-            RecursiveIteratorIterator::CHILD_FIRST);
-        foreach($files as $file) {
-            unlink($file->getRealPath());
-        }
-
-        $tempFile = '';
-        $upload = new AnlageFile();
         $owner = $ownerRepo->find($id);
         $imageuploaded = $RepositoryUpload->findOneBy(['path' => $owner->getLogo()]);
         $form = $this->createForm(OwnerFormType::class, $owner);
         if ($imageuploaded != null) {
             $isupload = 'yes';
             if ($fileSystemFtp->fileExists($imageuploaded->getPath())) {
-                $tempFile = 'temp/temp'.random_int(0, 10000).'.png';
-                $filesystem->write($tempFile, $fileSystemFtp->read($imageuploaded->getPath()));
+                $tempFile = self::makeTempFiles([$fileSystemFtp->read($imageuploaded->getPath())], $filesystem)[0];
             }
             else $isupload = 'no';
         } else {
@@ -96,10 +87,9 @@ class EignerController extends BaseController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             // upload image
-            $upload = new AnlageFile();
-
             $uploadedFile = $form['imageFile']->getData();
             if ($uploadedFile) {
+                $upload = new AnlageFile();
                 $isupload = 'yes';
                 $newFile = $uploaderHelper->uploadImageSFTP($uploadedFile,$owner->getFirma(), '' , 'owner');
                 $newFilename = $newFile['newFilename'];
@@ -116,8 +106,7 @@ class EignerController extends BaseController
 
                 $owner->setLogo($uploadsPath);
                 //here we update the pic
-                $tempFile = 'temp/temp'.random_int(0, 10000).'.png';
-                $filesystem->write($tempFile, $fileSystemFtp->read($uploadsPath));
+                $tempFile = self::makeTempFiles([$fileSystemFtp->read($uploadsPath)], $filesystem)[0];
             }
             // the rest
             $em->persist($owner);
@@ -126,23 +115,24 @@ class EignerController extends BaseController
                 $response = $this->render('owner/edit.html.twig', [
                     'ownerForm' => $form->createView(),
                     'isupload' => $isupload,
-                    'imageuploadet' => "/uploads/".$tempFile,
+                    'imageuploadet' => $tempFile,
                 ]);
             }
             if ($form->get('saveclose')->isClicked()) {
                 $response = $this->redirectToRoute('app_admin_owner_list');
             }
-            if ($form->isSubmitted() && $form->get('close')->isClicked()) {
-                $this->addFlash('warning', 'Canceled. No data was saved.');
-
-                $response = $this->redirectToRoute('app_admin_owner_list');
-            }
         }
-        else $response = $this->render('owner/edit.html.twig', [
+        if ($form->isSubmitted() && $form->get('close')->isClicked()) {
+            $this->addFlash('warning', 'Canceled. No data was saved.');
+
+            $response = $this->redirectToRoute('app_admin_owner_list');
+        }
+
+        if (!$form->isSubmitted() || $form->isValid()) $response = $this->render('owner/edit.html.twig', [
                 'ownerForm' => $form->createView(),
                 'fileUploadForm' => $form->createView(),
                 'isupload' => $isupload,
-                'imageuploadet' => "/uploads/".$tempFile,
+                'imageuploadet' => $tempFile,
             ]);
         return $response;
     }

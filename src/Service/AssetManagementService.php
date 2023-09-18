@@ -23,14 +23,10 @@ use Doctrine\ORM\NoResultException;
 use Hisune\EchartsPHP\ECharts;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
-use App\Service\PdoService;
 use Psr\Cache\InvalidArgumentException;
-use RecursiveIteratorIterator;
-use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
 use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemException;
 class AssetManagementService
 {
     use G4NTrait;
@@ -104,34 +100,25 @@ class AssetManagementService
         $this->logMessages->updateEntry($logId, 'working', 95);
         //rendering the header
 
-        //with this we clear our temp files folder
-        $it = new RecursiveDirectoryIterator("uploads/temp", RecursiveDirectoryIterator::SKIP_DOTS);
-        $files = new RecursiveIteratorIterator($it,
-            RecursiveIteratorIterator::CHILD_FIRST);
-        foreach($files as $file) {
-            unlink($file->getRealPath());
-        }
 
         $owner = $anlage->getEigner();
         $tempFileLogo = '';
-
+        //$fileArray = []; //this is the file array we will be using to seand as a parameter to maketempfile
         if ($owner->getLogo() != '') {
             if ($this->fileSystemFtp->fileExists($owner->getLogo())) {
-                $tempFileLogo = 'temp/temp'.random_int(0, 10000).'.png';
-                $this->filesystem->write($tempFileLogo, $this->fileSystemFtp->read($owner->getLogo()));
-                $tempFileLogo = '/uploads/'. $tempFileLogo;
+                $fileArray['Logo'] = $this->fileSystemFtp->read($owner->getLogo());
             }
         }
-
         $tempFilePlantImage = '';
-
         if ($anlage->getPicture() != '') {
             if ($this->fileSystemFtp->fileExists($anlage->getPicture())) {
-                $tempFilePlantImage = 'temp/temp'.random_int(0, 10000).'.png';
-                $this->filesystem->write($tempFilePlantImage, $this->fileSystemFtp->read($anlage->getPicture()));
-                $tempFilePlantImage = '/uploads/'. $tempFilePlantImage;
+                $fileArray['PlantPic'] = $this->fileSystemFtp->read($anlage->getPicture());
             }
         }
+        $images = self::makeTempFiles($fileArray, $this->filesystem);
+
+        if ($images['Logo'] != null)$tempFileLogo = $images['Logo'];
+        if ($images['PlantPic'] != null)$tempFilePlantImage = $images['PlantPic'];
 
         $html = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",

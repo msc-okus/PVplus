@@ -228,28 +228,17 @@ class AnlagenAdminController extends BaseController
     #[Route(path: '/admin/anlagen/editconfig/{id}', name: 'app_admin_anlagen_edit_config')]
     public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): RedirectResponse|Response
     {
-        //with this we clear our temp files folder
-        $it = new RecursiveDirectoryIterator("uploads/temp", RecursiveDirectoryIterator::SKIP_DOTS);
-        $files = new RecursiveIteratorIterator($it,
-            RecursiveIteratorIterator::CHILD_FIRST);
-        foreach($files as $file) {
-                unlink($file->getRealPath());
-        }
-
-        $tempFile = '';
-        $upload = new AnlageFile();
+         $upload = new AnlageFile();
         $anlage = $anlagenRepository->find($id);
         $imageuploaded = $RepositoryUpload->findOneBy(['path' => $anlage->getPicture()]);
         if ($imageuploaded != null) {
             $isupload = 'yes';
-            if ($fileSystemFtp->fileExists($imageuploaded->getPath())) {
-                $tempFile = 'temp/temp'.random_int(0, 10000).'.png';
-                $filesystem->write($tempFile, $fileSystemFtp->read($imageuploaded->getPath()));
-            }
+            if ($fileSystemFtp->fileExists($imageuploaded->getPath())) $tempFile = self::makeTempFiles([$fileSystemFtp->read($imageuploaded->getPath())], $filesystem)[0];
             else $isupload = 'no';
         } else {
             $isupload = 'no';
         }
+
         $economicVarNames1 = new EconomicVarNames();
         if ($ecoNamesRepo->findByAnlage($id)[0] != null) {
             $economicVarNames1 = $ecoNamesRepo->findByAnlage($id)[0]; // will be used to load and display the already defined names
@@ -277,8 +266,7 @@ class AnlagenAdminController extends BaseController
                 $em->flush();
                 $anlage->setPicture($uploadsPath);
                 //here we update the pic
-                $tempFile = 'temp/temp'.random_int(0, 10000).'.png';
-                $filesystem->write($tempFile, $fileSystemFtp->read($uploadsPath));
+                $tempFile = self::makeTempFiles([$fileSystemFtp->read($uploadsPath)], $filesystem)[0];
             }
             if ($economicVarNames1 === null) {
                 $economicVarNames = new EconomicVarNames();
@@ -298,7 +286,7 @@ class AnlagenAdminController extends BaseController
                         'anlage' => $anlage,
                         'econames' => $economicVarNames1,
                         'isupload' => $isupload,
-                        'imageuploadet' => "/uploads/".$tempFile,
+                        'imageuploadet' => $tempFile,
                     ]);
 
             }
@@ -307,18 +295,19 @@ class AnlagenAdminController extends BaseController
 
                 return $this->redirectToRoute('app_admin_anlagen_list');
             }
-            if ( $form->get('close')->isClicked()) {
-                $this->addFlash('warning', 'Canceled. No data was saved.');
-                return $this->redirectToRoute('app_admin_anlagen_list');
 
-            }
         }
-        else $response =  $this->render('anlagen/editconfig.html.twig', [
+        if ($form->isSubmitted() && $form->get('close')->isClicked()) {
+            $this->addFlash('warning', 'Canceled. No data was saved.');
+            return $this->redirectToRoute('app_admin_anlagen_list');
+
+        }
+        if (!$form->isSubmitted() || !$form->isValid())$response =  $this->render('anlagen/editconfig.html.twig', [
                 'anlageForm' => $form->createView(),
                 'anlage' => $anlage,
                 'econames' => $economicVarNames1,
                 'isupload' => $isupload,
-                'imageuploadet' => "/uploads/". $tempFile,
+                'imageuploadet' => $tempFile,
         ]);
         return $response;
     }
