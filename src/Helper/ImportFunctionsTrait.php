@@ -7,7 +7,7 @@ use PDO;
 use PDOException;
 
 trait ImportFunctionsTrait
-{   // ToDo: Replace with $anlage->getPnomInverterArray */
+{
     function getDcPNormPerInvereter($conn, array $groups, array $modules): array
     {
 
@@ -44,7 +44,7 @@ trait ImportFunctionsTrait
      * @param string|null $host
      * @param string|null $passwordPlant
      */
-    function insertData(string $tableName = NULL, array $data = NULL, $host = null, $userPlant = null, $passwordPlant = null): void
+    function insertData($tableName = NULL, $data = NULL): void
     {
         // obtain column template
         $DBDataConnection = $this->pdoService->getPdoPlant();
@@ -112,11 +112,8 @@ trait ImportFunctionsTrait
      * @param $anlagenID
      * @param $stamp
      * @param float $value
-     *
-     * ToDo: Replace with doctrine
-     *
      */
-    function insertDataIntoGridMeterDay($anlagenID, $stamp, float $value): void
+    function insertDataIntoGridMeterDay($anlagenID, $stamp, float $value)
     {
         $DBDataConnection = $this->pdoService->getPdoBase();
 
@@ -156,7 +153,7 @@ trait ImportFunctionsTrait
      * @param  $date
      * @return array
      */
-    function checkSensors(array $anlageSensors, int $length, bool $istOstWest, array $sensors, $date): array
+    function checkSensors(array $anlageSensors, int $length, bool $istOstWest, $sensors, $date): array
     {
 
         if ($istOstWest) {
@@ -363,7 +360,7 @@ trait ImportFunctionsTrait
      * @param object $conn
      * @return array
      */
-    public function getPlantsImportReady($conn): array
+    public function getPlantsImportReady($conn)
     {
         $query = "SELECT `anlage_id` FROM `anlage_settings` where `symfony_import` = 1  ";
         $stmt = $stmt = $conn->query($query);
@@ -389,13 +386,14 @@ trait ImportFunctionsTrait
     function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
     {
 
-        for ($i = 1; $i < count($acGroups); $i++) {
-            $pvpGroupAc = $i;
+        for ($i = 1; $i <= count($acGroups); $i++) {
+
+            $pvpGroupAc = $acGroups[$i-1]['group_ac'];
             $pvpGroupDc = $i;
-            $pvpInverter = $i;
+            $pvpInverter = $acGroups[$i-1]['group_ac'];
 
             if (is_array($inverters) && array_key_exists($date, $inverters)) {
-                $custInverterKennung = $acGroups[$i]['importId'];
+                $custInverterKennung = $acGroups[$i-1]['importId'];
                 $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
                 $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
                 $currentAcP1 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']);
@@ -507,23 +505,24 @@ trait ImportFunctionsTrait
     }
 
     //importiert die Daten für Anlegen ohne Stringboxes
-
     /**
      * @param array $inverters
      * @param string $date
      * @param int $plantId
      * @param string $stamp
      * @param float $eZEvu
-     * @param string $irrAnlage
-     * @param string $tempAnlage
-     * @param string $windAnlage
+     * @param array $irrAnlage
+     * @param array $tempAnlage
+     * @param array $windAnlage
      * @param object $groups
-     * @param $invertersUnits
+     * @param int $stringBoxUnits
      * @return array
      */
     function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
     {
+
         foreach ($groups as $group) {
+
             $pvpInverter = $group->getDcGroup();
             $pvpGroupDc = $group->getDcGroup();
             $pvpGroupAc = $group->getAcGroup();
@@ -623,6 +622,7 @@ trait ImportFunctionsTrait
                 'wind_anlage' => $windAnlage,
             ];
         }
+
         $result[] = $data_pv_ist;
         return $result;
     }
