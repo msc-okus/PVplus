@@ -54,9 +54,20 @@ trait ImportFunctionsTrait
         $columns = array_fill_keys(array_values($stmt->fetchAll(PDO::FETCH_COLUMN)), null);
         unset($columns['db_id']);
 
+        /* ToDo: Following code could be a good altenative to the current used 'double while with breaks'
+
+        foreach ($array as $key => $element) {
+            if ($key === array_key_first($array)) {
+                echo 'FIRST ELEMENT!';
+            }
+
+            if ($key === array_key_last($array)) {
+                echo 'LAST ELEMENT!';
+            }
+        }
+        */
         // multiple INSERT
         $rows = count($data);
-
         $j = 0;
         $i = 0;
         $rows = $rows - 1;
