@@ -23,7 +23,6 @@ use App\Repository\EconomicVarNamesRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
 use RecursiveIteratorIterator;
 use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
@@ -45,6 +44,7 @@ class AnlagenAdminController extends BaseController
     use G4NTrait;
     public function __construct(
         private PdoService $pdoService,
+        private Filesystem $fileSystemFtp
     )
     {
     }
