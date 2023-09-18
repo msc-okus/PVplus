@@ -22,6 +22,7 @@ use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
 use Psr\Cache\InvalidArgumentException;
 use setasign\Fpdi\Fpdi;
 use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
@@ -75,7 +76,7 @@ class ReportingController extends AbstractController
         $reportType = $request->query->get('report-typ');
         $reportMonth = $request->query->get('month');
         $reportYear = $request->query->get('year');
-        $local = $request->query->get('local');
+        //$local = $request->query->get('local');
         $daysOfMonth = date('t', strtotime("$reportYear-$reportMonth-01"));
         $reportDate = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
         $anlageId = $request->query->get('anlage-id');
@@ -95,11 +96,11 @@ class ReportingController extends AbstractController
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
-                if ($local !== null) {
+                if ($_ENV['APP_ENV'] == 'dev') {
                     $report = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
                     $em->persist($report);
                     $em->flush();
-                } else {
+                } else if ($_ENV['APP_ENV'] == 'prod'){
                     $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
                     $messageBus->dispatch($message);
@@ -222,7 +223,7 @@ class ReportingController extends AbstractController
      * @throws CrossReferenceException
      * @throws PdfParserException
      * @throws PdfTypeException
-     * @throws FilterException
+     * @throws FilterException|FilesystemException
      */
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
     public function showReportAsPdf(Request $request, $id, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, PdfService $pdf, Filesystem $fileSystemFtp): Response
@@ -528,16 +529,14 @@ class ReportingController extends AbstractController
      * @param $id
      * @param ReportsRepository $reportsRepository
      * @param Request $request
-     * @param ReportService $reportService
      * @param NormalizerInterface $serializer
      * @param ReportsEpcYieldV2 $epcNewService
-     * @param ReportsMonthlyService $reportsMonthly
      * @return Response
      * @throws ExceptionInterface
      */
 
     #[Route(path: '/reporting/html/{id}', name: 'app_reporting_html')]
-    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, ReportService $reportService, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, ReportsMonthlyService $reportsMonthly) : Response
+    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService) : Response
     {
         $result = "<h2>Something is wrong !!! (perhaps no Report ?)</h2>";
         $report = $reportsRepository->find($id);
@@ -713,6 +712,4 @@ class ReportingController extends AbstractController
             'html' => $result,
         ]);
     }
-
 }
-

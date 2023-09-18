@@ -1,83 +1,16 @@
 <?php
 namespace App\Helper;
 
+require_once __DIR__.'/../../public/config.php';
+
 use PDO;
 use PDOException;
 
 trait ImportFunctionsTrait
 {
-
-    /**
-     * @param string|null $dbdsn
-     * @param string|null $dbusr
-     * @param string|null $dbpass
-     * @return PDO
-     */
-    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
-    {
-        // Config als Array
-        // Check der Parameter wenn null dann nehme default Werte als fallback
-        $config = [
-            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
-            'database_user' => $dbusr,
-            'database_pass' => $dbpass
-        ];
-
-        try {
-            $pdo = new PDO(
-                $config['database_dsn'],
-                $config['database_user'],
-                $config['database_pass'],
-                [
-                    PDO::ATTR_PERSISTENT => true
-                ]
-            );
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            echo 'Error!: ' . $e->getMessage() . '<br/>';
-            exit;
-        }
-
-        return $pdo;
-    }
-
-    /**
-     * @param string|null $dbdsn
-     * @param string|null $dbusr
-     * @param string|null $dbpass
-     * @return PDO
-     */
-    public static function getPdoConnectionBase(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
-    {
-        // Config als Array
-        // Check der Parameter wenn null dann nehme default Werte als fallback
-        $config = [
-            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
-            'database_user' =>  $dbusr,
-            'database_pass' => $dbpass
-        ];
-
-        try {
-            $pdo = new PDO(
-                $config['database_dsn'],
-                $config['database_user'],
-                $config['database_pass'],
-                [
-                    PDO::ATTR_PERSISTENT => true
-                ]
-            );
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            echo 'Error!: ' . $e->getMessage() . '<br/>';
-            exit;
-        }
-
-        return $pdo;
-    }
-
-    //???
     function getDcPNormPerInvereter($conn, array $groups, array $modules): array
     {
+
         $dcPNormPerInvereter = [];
         $pNormControlSum = 0;
 
@@ -105,24 +38,21 @@ trait ImportFunctionsTrait
         return $dcPNormPerInvereter;
     }
 
-
     /**
      * @param string|null $tableName
      * @param array|null $data
      * @param string|null $host
-     * @param string|null $userPlant
      * @param string|null $passwordPlant
      */
-    function insertData(?string$tableName = null, ?array $data = null, ?string $host = null, ?string $userPlant = null, ?string $passwordPlant = null): void
+    function insertData($tableName = NULL, $data = NULL): void
     {
         // obtain column template
-        $DBDataConnection = $this->getPdoConnectionData($host, $userPlant, $passwordPlant);
+        $DBDataConnection = $this->pdoService->getPdoPlant();
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];
         $columns = array_fill_keys(array_values($stmt->fetchAll(PDO::FETCH_COLUMN)), null);
         unset($columns['db_id']);
-
 
         // multiple INSERT
         $rows = count($data);
@@ -174,94 +104,34 @@ trait ImportFunctionsTrait
     }
 
     /**
-     * @param array $tempCorrParams // Parameter aus Anlage
-     * @param float $tempCellTypeAvg // t_cell_avg
-     * @param float|null $modulTemp // gemessene Modul Temperatur
-     * @param float|null $gPOA // Strahlung
-     * @param float $limitGPoa // limit der Strahlung (default: 0)
-     * @return float
-     */
-    function tempCorrectionIEC(array $tempCorrParams, float $tempCellTypeAvg, ?float $modulTemp, ?float $gPOA, float $limitGPoa = 0): float
-    {
-        $gamma = $tempCorrParams['gamma'];
-        $a = $tempCorrParams['a'];
-        $b = $tempCorrParams['b'];
-        $deltaTcnd = $tempCorrParams['deltaTcnd'];
-
-        if ($gPOA !== null && $modulTemp !== null) {
-            ($gPOA > $limitGPoa || $tempCellTypeAvg == 0) ? $tempCorrection = 1 - ($tempCellTypeAvg - $modulTemp) * $gamma / 100 : $tempCorrection = 1;
-        } else {
-            $tempCorrection = 0;
-        }
-
-        return $tempCorrection;
-    }
-
-    /**
-     * @param array $tempCorrParams // Parameter aus Anlage
-     * @param float $tempCellTypeAvg
-     * @param float|null $windSpeed
-     * @param float|null $airTemp
-     * @param float|null $gPOA // Strahlung
-     * @param float $limitGPoa // limit der Strahlung (default: 0)
-     * @return float
+     * Datenimport der Grid Daten in die Tabelle anlage_grid_meter_day<br>
+     * Es werden Tages werte importiert.<br>
+     * Sollte für diesen Tag schon ein Wert vorliegen wird dieser aktualisiert (stamp ist unique key).<br>
+     * Stand: Februar 2021 - GSchu
      *
-     * Temp Correction by NREL
+     * @param $anlagenID
+     * @param $stamp
+     * @param float $value
      */
-    function tempCorrection(array $tempCorrParams, float $tempCellTypeAvg, ?float $windSpeed, ?float $airTemp, ?float $gPOA, float $limitGPoa = 0): float
+    function insertDataIntoGridMeterDay($anlagenID, $stamp, float $value)
     {
-        $gamma = $tempCorrParams['gamma'];
-        $a = $tempCorrParams['a'];
-        $b = $tempCorrParams['b'];
-        $deltaTcnd = $tempCorrParams['deltaTcnd'];
+        $DBDataConnection = $this->pdoService->getPdoBase();
 
-        if ($windSpeed === null) {
-            $windSpeed = 0;
-        }
+        $sql_sel_ins = "INSERT INTO anlage_grid_meter_day SET 
+                    anlage_id = $anlagenID, stamp = '$stamp', grid_meter_value = $value 
+                   ON DUPLICATE KEY UPDATE
+                    grid_meter_value = $value";
 
-        if ($gPOA !== null && $windSpeed !== null && $airTemp !== null) {
-            $tempModulBack = $gPOA * pow(M_E, $a + ($b * $windSpeed)) + $airTemp;
-            $tempCell = $tempModulBack + ($gPOA / 1000) * $deltaTcnd;
-            ($gPOA > $limitGPoa || $tempCellTypeAvg == 0) ? $tempCorrection = 1 - ($tempCellTypeAvg - $tempCell) * $gamma / 100 : $tempCorrection = 1;
-        } else {
-            $tempCorrection = 0;
-        }
-
-        return $tempCorrection;
+        $DBDataConnection->exec($sql_sel_ins);
+        $DBDataConnection = null;
     }
-
-    /**
-     * Calculation of temprature of cell (Tcell) according to NREL
-     *
-     * @param array $tempCorrParams
-     * @param float|null $windSpeed
-     * @param float|null $airTemp
-     * @param float|null $gPOA
-     * @return float|null
-     */
-    function tempCell(array $tempCorrParams, ?float $windSpeed, ?float $airTemp, ?float $gPOA): ?float
-    {
-        if (is_null($airTemp) || is_null($gPOA)) return null;
-        if ($windSpeed < 0 || $windSpeed === null) $windSpeed = 0;
-
-        $a = $tempCorrParams['a'];
-        $b = $tempCorrParams['b'];
-        $deltaTcnd = $tempCorrParams['deltaTcnd'];
-
-        $tempModulBack = $gPOA * pow(M_E, $a + ($b * $windSpeed)) + $airTemp;
-
-        return $tempModulBack + ($gPOA / 1000) * $deltaTcnd;
-    }
-
-
-
 
     /**
      * @param string|null $value
      * @param false $convertToKWH
      * @return string|null
      */
-    private function checkIfValueIsNotNull(?string $value, bool $convertToKWH = false): ?string
+    public function checkIfValueIsNotNull(?string $value, bool $convertToKWH = false): ?string
     {
         if ($value === "" || $value === null) {
             return null;
@@ -274,11 +144,8 @@ trait ImportFunctionsTrait
         }
     }
 
-
-
+    //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu
     /**
-     * Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu
-     *
      * @param array $anlageSensors
      * @param int $length
      * @param bool $istOstWest
@@ -288,6 +155,7 @@ trait ImportFunctionsTrait
      */
     function checkSensors(array $anlageSensors, int $length, bool $istOstWest, $sensors, $date): array
     {
+
         if ($istOstWest) {
             $gmPyHori = [];
             $gmPyWest = [];
@@ -309,6 +177,7 @@ trait ImportFunctionsTrait
                         array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
                         $gmPyHoriAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
+
                 }
 
                 if ($anlageSensors[$i]['virtualSensor'] == 'irr-west' && $anlageSensors[$i]['useToCalc'] == 1) {
@@ -325,6 +194,7 @@ trait ImportFunctionsTrait
                         array_push($gmPyWest, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
                         $gmPyWestAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
+
                 }
 
                 if ($anlageSensors[$i]['virtualSensor'] == 'irr-east' && $anlageSensors[$i]['useToCalc'] == 1) {
@@ -341,6 +211,7 @@ trait ImportFunctionsTrait
                         array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
                         $gmPyEastAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
+
                 }
             }
 
@@ -371,6 +242,7 @@ trait ImportFunctionsTrait
                         array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
                         $gmPyHoriAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
+
                 }
 
                 if ($anlageSensors[$i]['virtualSensor'] == 'irr' && $anlageSensors[$i]['useToCalc'] == 1) {
@@ -386,6 +258,7 @@ trait ImportFunctionsTrait
                     array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
                     $gmPyEastAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                 }
+
             }
             $result[0] = [
                 'irrHorizontal' => $this->mittelwert($gmPyHori),
@@ -414,6 +287,7 @@ trait ImportFunctionsTrait
                     array_push($tempModule, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
                     $tempAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
                 }
+
             }
             if ($anlageSensors[$i]['virtualSensor'] == 'temp-ambient' && $anlageSensors[$i]['useToCalc'] == 1) {
                 $start = 0;
@@ -429,6 +303,7 @@ trait ImportFunctionsTrait
                     array_push($tempAmbientArray, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
                     $tempAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
                 }
+
             }
             if ($anlageSensors[$i]['virtualSensor'] == 'wind-direction' && $anlageSensors[$i]['useToCalc'] == 1) {
                 $start = 0;
@@ -480,6 +355,18 @@ trait ImportFunctionsTrait
 
     }
 
+    //Prüft welche Anlagen für den Import via Symfony freigeschaltet sind
+    /**
+     * @param object $conn
+     * @return array
+     */
+    public function getPlantsImportReady($conn)
+    {
+        $query = "SELECT `anlage_id` FROM `anlage_settings` where `symfony_import` = 1  ";
+        $stmt = $stmt = $conn->query($query);
+        return $stmt->fetchAll();
+    }
+
     //importiert die Daten für Anlegen mit Stringboxes
     /**
      * @param \DateTime $stringBoxesTime
@@ -498,13 +385,15 @@ trait ImportFunctionsTrait
      */
     function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
     {
-        for ($i = 0; $i < count($acGroups); $i++) {
-            $pvpGroupAc = $acGroups[$i]->acGroup;
-            $pvpGroupDc = $i + 1;
-            $pvpInverter = $i + 1;
+
+        for ($i = 1; $i <= count($acGroups); $i++) {
+
+            $pvpGroupAc = $acGroups[$i-1]['group_ac'];
+            $pvpGroupDc = $i;
+            $pvpInverter = $acGroups[$i-1]['group_ac'];
 
             if (is_array($inverters) && array_key_exists($date, $inverters)) {
-                $custInverterKennung = $acGroups[$i]['importId'];
+                $custInverterKennung = $acGroups[$i-1]['importId'];
                 $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
                 $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
                 $currentAcP1 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']);
@@ -573,7 +462,6 @@ trait ImportFunctionsTrait
                 'wind_anlage' => $windAnlage,
 
             ];
-            $i++;
         }
 
         $result[] = $data_pv_ist;
@@ -632,8 +520,9 @@ trait ImportFunctionsTrait
      */
     function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
     {
-        $i = 0;
+
         foreach ($groups as $group) {
+
             $pvpInverter = $group->getDcGroup();
             $pvpGroupDc = $group->getDcGroup();
             $pvpGroupAc = $group->getAcGroup();
@@ -732,8 +621,8 @@ trait ImportFunctionsTrait
                 'temp_inverter' => $tempAnlage,
                 'wind_anlage' => $windAnlage,
             ];
-            $i++;
         }
+
         $result[] = $data_pv_ist;
         return $result;
     }

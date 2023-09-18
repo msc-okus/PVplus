@@ -10,6 +10,9 @@ use App\Repository\EignerRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use League\Flysystem\Filesystem;
+use RecursiveIteratorIterator;
+use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,13 +67,29 @@ class EignerController extends BaseController
     }
 
     #[Route(path: '/admin/owner/edit/{id}', name: 'app_admin_owner_edit')]
-    public function edit($id, EntityManagerInterface $em, Request $request, EignerRepository $ownerRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload): Response
+    public function edit($id, EntityManagerInterface $em, Request $request, EignerRepository $ownerRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): Response
     {
+        $tempFile = '';
+        //with this we clear our temp files folder
+        $it = new RecursiveDirectoryIterator("uploads/temp", RecursiveDirectoryIterator::SKIP_DOTS);
+        $files = new RecursiveIteratorIterator($it,
+            RecursiveIteratorIterator::CHILD_FIRST);
+        foreach($files as $file) {
+            unlink($file->getRealPath());
+        }
+
+        $tempFile = '';
+        $upload = new AnlageFile();
         $owner = $ownerRepo->find($id);
         $imageuploaded = $RepositoryUpload->findOneBy(['path' => $owner->getLogo()]);
         $form = $this->createForm(OwnerFormType::class, $owner);
         if ($imageuploaded != null) {
             $isupload = 'yes';
+            if ($fileSystemFtp->fileExists($imageuploaded->getPath())) {
+                $tempFile = 'temp/temp'.random_int(0, 10000).'.png';
+                $filesystem->write($tempFile, $fileSystemFtp->read($imageuploaded->getPath()));
+            }
+            else $isupload = 'no';
         } else {
             $isupload = 'no';
         }
@@ -82,10 +101,10 @@ class EignerController extends BaseController
             $uploadedFile = $form['imageFile']->getData();
             if ($uploadedFile) {
                 $isupload = 'yes';
-                $newFile = $uploaderHelper->uploadImage($uploadedFile, $id, 'owner');
+                $newFile = $uploaderHelper->uploadImageSFTP($uploadedFile,$owner->getFirma(), '' , 'owner');
                 $newFilename = $newFile['newFilename'];
                 $mimeType = $newFile['mimeType'];
-                $uploadsPath = 'uploads/'.UploaderHelper::EIGNER_LOGO.'/'.$id.'/'.$newFilename;
+                $uploadsPath = $newFile['path'];
                 $upload->setFilename($newFilename)
                     ->setMimeType($mimeType)
                     ->setPath($uploadsPath)
@@ -96,40 +115,35 @@ class EignerController extends BaseController
                 $em->flush();
 
                 $owner->setLogo($uploadsPath);
+                //here we update the pic
+                $tempFile = 'temp/temp'.random_int(0, 10000).'.png';
+                $filesystem->write($tempFile, $fileSystemFtp->read($uploadsPath));
             }
             // the rest
             $em->persist($owner);
             $em->flush();
-            $imageuploaded = $RepositoryUpload->findOneBy(['path' => $owner->getLogo()]);
             if ($form->get('save')->isClicked()) {
-                return $this->render('owner/edit.html.twig', [
+                $response = $this->render('owner/edit.html.twig', [
                     'ownerForm' => $form->createView(),
                     'isupload' => $isupload,
-                    'imageuploadet' => $imageuploaded ? $imageuploaded->getPath() : "",
+                    'imageuploadet' => "/uploads/".$tempFile,
                 ]);
             }
             if ($form->get('saveclose')->isClicked()) {
-                return $this->redirectToRoute('app_admin_owner_list');
+                $response = $this->redirectToRoute('app_admin_owner_list');
+            }
+            if ($form->isSubmitted() && $form->get('close')->isClicked()) {
+                $this->addFlash('warning', 'Canceled. No data was saved.');
+
+                $response = $this->redirectToRoute('app_admin_owner_list');
             }
         }
-        if ($form->isSubmitted() && $form->get('close')->isClicked()) {
-            $this->addFlash('warning', 'Canceled. No data was saved.');
-
-            return $this->redirectToRoute('app_admin_owner_list');
-        }
-        if ($imageuploaded != null) {
-            return $this->render('owner/edit.html.twig', [
+        else $response = $this->render('owner/edit.html.twig', [
                 'ownerForm' => $form->createView(),
                 'fileUploadForm' => $form->createView(),
                 'isupload' => $isupload,
-                'imageuploadet' => $imageuploaded->getPath(),
+                'imageuploadet' => "/uploads/".$tempFile,
             ]);
-        } else {
-            return $this->render('owner/edit.html.twig', [
-                'ownerForm' => $form->createView(),
-                'fileUploadForm' => $form->createView(),
-                'isupload' => $isupload,
-            ]);
-        }
+        return $response;
     }
 }

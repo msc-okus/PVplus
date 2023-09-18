@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 use App\Entity\ApiToken;
 use App\Entity\UserLogin;

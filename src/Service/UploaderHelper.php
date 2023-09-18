@@ -22,8 +22,8 @@ class UploaderHelper
         private readonly string     $tempPathBaseUrl,
         private Filesystem $fileSystemFtp,
         private RequestStackContext $requestStackContext
-       # private KernelInterface     $kernel
     )
+
     {
     }
 
@@ -67,6 +67,37 @@ class UploaderHelper
         return $result;
     }
 
+
+    public function uploadImageSFTP(UploadedFile $uploadedFile, $owner, $anlage,  string $type): array
+    {
+        $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $mimeType = pathinfo($uploadedFile->getClientMimeType(), PATHINFO_FILENAME);
+
+        $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
+        switch ($type) {
+            case 'plant':
+                $fileroute = './images/'.$owner.'/'.$anlage.'/'.self::PLANT_IMAGE.'/';
+                break;
+            case 'owner':
+                $fileroute = './images/'.$owner.'/'.self::EIGNER_LOGO.'/';
+                break;
+            case 'other':
+                $fileroute = './images/'.$owner.'/'.$anlage.'/others/';
+        }
+        $fileroute = str_replace(" ", "_", $fileroute);
+        if ($this->fileSystemFtp->fileExists($fileroute) === false)$this->fileSystemFtp->createDirectory( $fileroute );
+        $this->fileSystemFtp->write(
+            $fileroute.$newFilename,
+            file_get_contents($uploadedFile->getPathname())
+        );
+        $result = [
+            'mimeType' => $mimeType,
+            'newFilename' => $newFilename,
+            'path' => $fileroute.$newFilename,
+        ];
+
+        return $result;
+    }
     /**
      * @throws \Exception
      */

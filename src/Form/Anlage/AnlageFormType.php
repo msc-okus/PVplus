@@ -740,13 +740,13 @@ class AnlageFormType extends AbstractType
                 'attr' => ['data-plant-target' => 'ticket'],
             ])
             ->add('freqBase', TextType::class, [
-                'label' => 'Base frequency of the Plant',
+                'label' => 'Base frequency of the Plant [Hz]',
                 'help' => '[freqBase]',
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '50',
             ])
             ->add('freqTolerance', TextType::class, [
-                'label' => 'Frequency tolerance of the Plant',
+                'label' => 'Frequency tolerance of the Plant [Hz]',
                 'help' => '[hasFrequency]',
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '2',
@@ -757,7 +757,7 @@ class AnlageFormType extends AbstractType
                 'attr' => ['data-plant-target' => 'ticket']
             ])
             ->add('percentageDiff',TextType::class, [
-                'label' => 'Ticket Expected limit',
+                'label' => 'Ticket Expected limit [%]',
                 'help' => '[percentageDiff]',
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '',
@@ -777,8 +777,8 @@ class AnlageFormType extends AbstractType
                 'attr' => ['data-plant-target' => 'ticket']
             ])
             ->add('PowerThreshold', TextType::class, [
-                'label' => 'Ticket Power minimum value',
-                'help' => '[PowerLimit]',
+                'label' => 'Ticket Power minimum value [kW]',
+                'help' => '[PowerThreshold]',
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '0',
             ])

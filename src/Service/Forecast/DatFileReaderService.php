@@ -28,6 +28,7 @@ class DatFileReaderService  {
         $rowDelimiter = "r";
         $dir = 'metodat';
 
+
         $this->delimiter = $delimiter;
         $this->rowDelimiter = $rowDelimiter;
         $this->position = $position;

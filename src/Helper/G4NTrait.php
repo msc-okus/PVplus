@@ -8,13 +8,19 @@ use App\Entity\Anlage;
 use DateTimeZone;
 use Exception;
 use JetBrains\PhpStorm\Deprecated;
+use League\Flysystem\Filesystem;
 use PDO;
 use PDOException;
+use RecursiveIteratorIterator;
+use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
+
 use Symfony\Component\Intl\Timezones;
 use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 
 trait G4NTrait
 {
+
+
     /**
      *  Removes control char from given string.
      */
@@ -100,23 +106,6 @@ trait G4NTrait
         return date('Y-m-d H:i:s', $timestamp);
     }
 
-    /**
-     * erstezen durch getPdoConnection()
-     */
-    #[Deprecated]
-    public static function connectToDatabase(): \mysqli
-    {
-        return new \mysqli('dedi6015.your-server.de', 'pvpluy_2', 'XD4R5XyVHUkK9U5i', 'pvp_data');
-    }
-
-    /**
-     * ersetzen durch 'doctrine'
-     */
-    #[Deprecated]
-    public static function connectToDatabaseAnlage(): \mysqli
-    {
-        return new \mysqli('dedi6015.your-server.de', 'pvpbase', '04qjYWk1oTf9gb7k', 'pvp_base');
-    }
 
     /**
      * Replace all special chars to ascci, need the php normilzer-class.
@@ -189,39 +178,6 @@ trait G4NTrait
         }
     }
 
-    /**
-     * @param string|null $dbdsn
-     * @param string|null $dbusr
-     * @param string|null $dbpass
-     * @return PDO
-     */
-    public static function getPdoConnection(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
-    {
-        // Config als Array
-        // Check der Parameter wenn null dann nehme default Werte als fallback
-        $config = [
-            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
-            'database_user' => $dbusr,
-            'database_pass' => $dbpass,
-        ];
-
-        try {
-            $pdo = new PDO(
-                $config['database_dsn'],
-                $config['database_user'],
-                $config['database_pass'],
-                [
-                    PDO::ATTR_PERSISTENT => true
-                ]
-            );
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            echo 'Error!: '.$e->getMessage().'<br/>';
-            exit;
-        }
-
-        return $pdo;
-    }
 
     public static function g4nLog($meldung, $logfile = 'logfile'): void
     {
@@ -270,6 +226,7 @@ trait G4NTrait
             // wintertime
             $offset -= 3600; // not sure why this is nessary
         }
+
         $of = $offset / 3600;
 
         if ($of < 0) {
@@ -446,5 +403,28 @@ trait G4NTrait
         $returnArray['array1'] = array_diff($array1, $array2);
         $returnArray['array2'] = array_diff($array2, $array1);
         return $returnArray;
+    }
+
+    /**
+     *
+     * @param array $file
+     * @return array
+     */
+    public function makeTempFiles(array $files,  $filesystem):array
+    {
+        //with this we clear our temp files folder
+        $it = new RecursiveDirectoryIterator("uploads/temp", RecursiveDirectoryIterator::SKIP_DOTS);
+        $content = new RecursiveIteratorIterator($it,
+            RecursiveIteratorIterator::CHILD_FIRST);
+        foreach($content as $file) {
+            unlink($file->getRealPath());
+        }
+        $return = [];
+        foreach ($files as $key => $file){
+            $tempFile = 'temp/temp'.random_int(0, 10000).'.png';
+            $filesystem->write($tempFile, $file);
+            $return[$key] = '/uploads/'. $tempFile;
+        }
+        return $return;
     }
 }

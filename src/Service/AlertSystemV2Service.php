@@ -16,6 +16,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
+use App\Service\PdoService;
 use phpDocumentor\Reflection\Types\Boolean;
 
 class AlertSystemV2Service
@@ -25,11 +26,7 @@ class AlertSystemV2Service
     private bool $irr = false;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private PdoService $pdoService,
         private AnlagenRepository       $anlagenRepository,
         private WeatherServiceNew       $weather,
         private WeatherFunctionsService $weatherFunctions,
@@ -275,7 +272,7 @@ class AlertSystemV2Service
     {
         $percentajeDiff = $anlage->getPercentageDiff();
         $invCount = count($anlage->getInverterFromAnlage());
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $powerArray = "";
 
@@ -363,7 +360,7 @@ class AlertSystemV2Service
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $time = G4NTrait::timeAjustment($time, -2);
-        if (($time > $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
+        if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
 
@@ -404,13 +401,13 @@ class AlertSystemV2Service
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
         //we get the frequency values
         $voltLimit = 0;
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
 
-        $powerThreshold = (int) $anlage->getPowerThreshold();
+        $powerThreshold = (float) $anlage->getPowerThreshold() / 4;
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
-
-        if ($irradiation !== null && $irradiation < $irrLimit) $this->irr = true;
+        dump($time, $irradiation);
+        if ($irradiation === null || $irradiation < $irrLimit) $this->irr = true; // about irradiation === null, it is better to miss a ticket than to have a false one
         else $this->irr = false;
 
         if ($anlage->getHasPPC()) {
@@ -432,7 +429,7 @@ class AlertSystemV2Service
 
             $sqlAct = 'SELECT b.unit as unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  b.wr_pac <= '$powerThreshold' ";
+                    WHERE a.stamp = '$time' AND  b.wr_pac <= $powerThreshold ";
             $resp = $conn->query($sqlAct);
             $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
 

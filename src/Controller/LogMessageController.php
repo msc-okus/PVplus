@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 use App\Helper\G4NTrait;
 use App\Repository\LogMessagesRepository;

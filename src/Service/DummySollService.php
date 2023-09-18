@@ -3,18 +3,24 @@
 namespace App\Service;
 
 use App\Helper\G4NTrait;
+use App\Service\PdoService;
+
 
 class DummySollService
 {
     use G4NTrait;
-
+    public function __construct(
+        private PdoService $pdoService,
+    )
+    {
+    }
     public function createDummySoll($from = null): string
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         // Update Dummy DBs
         $output = "Start Dummy Data\n";
         if (!$from) {
-            $currentTime = self::getCetTime();
+            $currentTime = time();
             $start = $currentTime - ($currentTime % 900) - 3600;
             $end = $currentTime;
         } else {
