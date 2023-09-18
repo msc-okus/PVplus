@@ -233,7 +233,7 @@ class AssetManagementeReportFormType extends AbstractType
         }
         if($reportParts['waterfallProd']) {
             $builder->add('waterfallProd', SwitchType::class, [
-                'label' => 'Waterfall Diagram',
+                'label' => 'Bucket Losses Diagram',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']

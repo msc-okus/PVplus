@@ -12,14 +12,13 @@ use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
 use App\Service\WeatherServiceNew;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use PDO;
 use Hisune\EchartsPHP\ECharts;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Twig\Environment;
 
 #[IsGranted('ROLE_G4N')]
@@ -63,7 +62,7 @@ class DefaultJMController extends AbstractController
 
     #[Route(path: '/test/read', name: 'default_read')]
     public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): \Symfony\Component\HttpFoundation\Response{
-        $anlage = $ar->findIdLike("110")[0];
+        $anlage = $ar->findIdLike("104")[0];
 
         return $this->render('base.html.twig');// this is suposed to never run so no problem
     }

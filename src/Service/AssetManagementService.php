@@ -4,7 +4,9 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
+use App\Form\Owner\OwnerFormType;
 use App\Helper\G4NTrait;
+use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
 use App\Repository\EconomicVarValuesRepository;
@@ -23,6 +25,8 @@ use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 use App\Service\PdoService;
 use Psr\Cache\InvalidArgumentException;
+use RecursiveIteratorIterator;
+use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
 use League\Flysystem\Filesystem;
@@ -55,6 +59,8 @@ class AssetManagementService
         private WeatherFunctionsService $weatherFunctions,
         private ForcastDayRepository $forecastDayRepo,
         private Filesystem $fileSystemFtp,
+        private Filesystem $filesystem,
+        private AnlageFileRepository $RepositoryUpload
     )
     {
         $this->conn = $this->pdoService->getPdoPlant();
@@ -91,15 +97,47 @@ class AssetManagementService
             'InvPow' => true,
             'Economics' => true, ];
         $output['data'] = $data;
-        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . 'pdf/AssetReport_' .$reportMonth . '_' . $reportYear ;
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $pdf = $this->pdf;
         $reportParts = [];
         $content = $output;
         $this->logMessages->updateEntry($logId, 'working', 95);
         //rendering the header
+
+        //with this we clear our temp files folder
+        $it = new RecursiveDirectoryIterator("uploads/temp", RecursiveDirectoryIterator::SKIP_DOTS);
+        $files = new RecursiveIteratorIterator($it,
+            RecursiveIteratorIterator::CHILD_FIRST);
+        foreach($files as $file) {
+            unlink($file->getRealPath());
+        }
+
+        $owner = $anlage->getEigner();
+        $tempFileLogo = '';
+
+        if ($owner->getLogo() != '') {
+            if ($this->fileSystemFtp->fileExists($owner->getLogo())) {
+                $tempFileLogo = 'temp/temp'.random_int(0, 10000).'.png';
+                $this->filesystem->write($tempFileLogo, $this->fileSystemFtp->read($owner->getLogo()));
+                $tempFileLogo = '/uploads/'. $tempFileLogo;
+            }
+        }
+
+        $tempFilePlantImage = '';
+
+        if ($anlage->getPicture() != '') {
+            if ($this->fileSystemFtp->fileExists($anlage->getPicture())) {
+                $tempFilePlantImage = 'temp/temp'.random_int(0, 10000).'.png';
+                $this->filesystem->write($tempFilePlantImage, $this->fileSystemFtp->read($anlage->getPicture()));
+                $tempFilePlantImage = '/uploads/'. $tempFilePlantImage;
+            }
+        }
+
         $html = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
             'anlage' => $anlage,
+            'headerImage' => $tempFilePlantImage,
+            'logoImage' => $tempFileLogo,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -121,6 +159,7 @@ class AssetManagementService
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
+            'logoImage' => $tempFileLogo,
             'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
@@ -138,6 +177,7 @@ class AssetManagementService
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
+            'logoImage' => $tempFileLogo,
             'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
@@ -157,6 +197,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -175,6 +216,7 @@ class AssetManagementService
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
                 'year' => $reportYear,
+                'logoImage' => $tempFileLogo,
                 'dataCfArray' => $content['dataCfArray'],
                 'reportmonth' => $content['reportmonth'],
                 'monthArray' => $content['monthArray'],
@@ -193,6 +235,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -210,6 +253,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -229,6 +273,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -246,6 +291,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -282,6 +328,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -296,6 +343,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -314,6 +362,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -330,6 +379,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -347,6 +397,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -364,6 +415,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -381,6 +433,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -399,6 +452,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -422,6 +476,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -443,6 +498,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -461,6 +517,7 @@ class AssetManagementService
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
                 'year' => $reportYear,
+                'logoImage' => $tempFileLogo,
                 'dataCfArray' => $content['dataCfArray'],
                 'reportmonth' => $content['reportmonth'],
                 'monthArray' => $content['monthArray'],
@@ -916,7 +973,7 @@ class AssetManagementService
             'visualMap' => 'false',
         ];
         $series[] = [
-            'name' => 'Yield',
+            'name' => 'Actual(Yield)',
             'type' => 'bar',
             'data' => $powerEvu,
             'visualMap' => 'false',
@@ -956,7 +1013,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:700px;']);
-
+        $series = [];
         $chart = new ECharts(); // We must use AMCharts
         $chart->tooltip->show = false;
         $chart->tooltip->trigger = 'item';
@@ -980,7 +1037,7 @@ class AssetManagementService
             'nameGap' => 80,
             'offset' => -20,
         ];
-        $series[] = [   'name' => 'Yield ',
+        $series[] = [   'name' => 'Actual(Yield) ',
             'type' => 'bar',
             'data' => $powerEvu,
             'visualMap' => 'false',
@@ -2563,16 +2620,30 @@ class AssetManagementService
                             }
                         }
                     } else {
-                        $dcExpDcIst[] = [
-                            'group' => $value[$i]['invgroup'],
-                            'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
-                            'exp_power_dc' => $value[$i]['exp_power_dc'],
-                            'exp_current_dc' => $value[$i]['exp_current_dc'],
-                            'act_power_dc' => $dcIst[$j]['act_power_dc'],
-                            'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                            'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 ,
-                            'diff_power_dc' =>  (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 ,
-                        ];
+                        if ($value[$i]['exp_power_dc'] > 0) {
+                            $dcExpDcIst[] = [
+                                'group' => $value[$i]['invgroup'],
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
+                                'exp_power_dc' => $value[$i]['exp_power_dc'],
+                                'exp_current_dc' => $value[$i]['exp_current_dc'],
+                                'act_power_dc' => $dcIst[$j]['act_power_dc'],
+                                'act_current_dc' => $dcIst[$j]['act_current_dc'],
+                                'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100,
+                                'diff_power_dc' => (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100,
+                            ];
+                        }
+                        else{
+                            $dcExpDcIst[] = [
+                                'group' => $value[$i]['invgroup'],
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
+                                'exp_power_dc' => $value[$i]['exp_power_dc'],
+                                'exp_current_dc' => $value[$i]['exp_current_dc'],
+                                'act_power_dc' => $dcIst[$j]['act_power_dc'],
+                                'act_current_dc' => $dcIst[$j]['act_current_dc'],
+                                'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100,
+                                'diff_power_dc' => 0,
+                            ];
+                        }
                         if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                             $outTableCurrentsPower[] = $dcExpDcIst;
                             unset($dcExpDcIst);
