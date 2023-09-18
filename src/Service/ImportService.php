@@ -206,6 +206,8 @@ class ImportService
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                         $data_ppc[] = $result[0][$j];
                     }
+
+                    unset($result);
                 }
             }
         }
