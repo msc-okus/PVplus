@@ -36,7 +36,7 @@ class ChartService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
+        private PdoService $pdoService,
         private Security $security,
         private AnlagenStatusRepository $statusRepository,
         private AnlageAvailabilityRepository $availabilityRepository,

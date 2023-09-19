@@ -12,7 +12,6 @@ class G4NSendMailService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
         private EntityManagerInterface $em,
         private MailerInterface $mailer
     ) {

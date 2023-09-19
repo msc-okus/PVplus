@@ -5,7 +5,6 @@ namespace App\Service;
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
-use App\Reports\ReportMonthly\ReportMonthly;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
 use App\Repository\PRRepository;
@@ -22,7 +21,6 @@ class ReportsMonthlyService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
         private AnlagenRepository $anlagenRepository,
         private PRRepository $PRRepository,
         private ReportsRepository $reportsRepository,

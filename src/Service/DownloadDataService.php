@@ -15,17 +15,11 @@ class DownloadDataService
 {
     use G4NTrait;
 
-    private AnlageAvailabilityRepository $availabilityRepo;
-
-    private PRRepository $prRepository;
-
     public function __construct(
         private PdoService $pdoService,
-        AnlageAvailabilityRepository $availabilityRepo,
-        PRRepository $prRepository)
+        private AnlageAvailabilityRepository $availabilityRepo,
+        private PRRepository $prRepository)
     {
-        $this->availabilityRepo = $availabilityRepo;
-        $this->prRepository = $prRepository;
     }
 
     /**

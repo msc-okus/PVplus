@@ -29,7 +29,7 @@ class WeatherFunctionsService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
+        private PdoService $pdoService,
         private PVSystDatenRepository   $pvSystRepo,
         private GroupMonthsRepository   $groupMonthsRepo,
         private GroupModulesRepository  $groupModulesRepo,

@@ -25,7 +25,7 @@ class ExpectedService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
+        private PdoService $pdoService,
         private AnlagenRepository $anlagenRepo,
         private GroupsRepository $groupsRepo,
         private GroupMonthsRepository $groupMonthsRepo,

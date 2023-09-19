@@ -19,7 +19,6 @@ class ExternFileService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
         private PVSystDatenRepository $pvSystRepo,
         private AnlagenRepository $anlagenRepository,
         private PRRepository $PRRepository,

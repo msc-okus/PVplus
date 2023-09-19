@@ -13,7 +13,6 @@ class OpenWeatherService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
         private OpenWeatherRepository $openWeatherRepo,
         private EntityManagerInterface $em)
     {

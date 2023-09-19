@@ -180,13 +180,13 @@ class TicketFormType extends AbstractType
                 'label' => 'Ignore',
             ])
             // ### Free Text for descriptions
-            ->add('freeText', CKEditorType::class, [
-                'config' => ['toolbar' => 'my_toolbar'],
+            ->add('freeText', TextType::class, [
+                #'config' => ['toolbar' => 'my_toolbar'],
                 'attr' => ['rows' => '9'],
                 'required' => false,
             ])
-            ->add('answer', CKEditorType::class, [
-                'config' => ['toolbar' => 'my_toolbar'],
+            ->add('answer', TextType::class, [
+                #'config' => ['toolbar' => 'my_toolbar'],
                 'attr' => ['rows' => '9'],
                 'required' => false,
             ])

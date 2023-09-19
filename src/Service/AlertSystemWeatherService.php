@@ -24,7 +24,7 @@ class AlertSystemWeatherService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
+        private PdoService $pdoService,
         private AnlagenRepository       $anlagenRepository,
         private WeatherServiceNew       $weather,
         private WeatherFunctionsService $weatherFunctions,

@@ -2,7 +2,6 @@
 namespace App\Service;
 
 
-use App\ApiModule\Exceptions\SystemException;
 use Exception;
 
 /**

@@ -22,7 +22,7 @@ class AvailabilityService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
+        private PdoService $pdoService,
         private EntityManagerInterface $em,
         private AnlageAvailabilityRepository $availabilityRepository,
         private Case5Repository $case5Repository,

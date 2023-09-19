@@ -4,8 +4,7 @@ namespace App\Service;
 
 class PVSystService
 {
-    public function __construct(
-private PdoService $pdoService,)
+    public function __construct()
     {
     }
 

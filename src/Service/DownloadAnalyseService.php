@@ -21,51 +21,20 @@ class DownloadAnalyseService
 {
     use G4NTrait;
 
-    private AnlagenRepository $anlagenRepository;
-
-    private PRRepository $prRepository;
-
-    private Environment $twig;
-
-    private ReportsRepository $downloadsRepository;
-
-    private EntityManagerInterface $em;
-
-    private MessageService $messageService;
-
-    private PvSystMonthRepository $pvSystMonthRepo;
-
-    private Case5Repository $case5Repo;
-
-    private FunctionsService $functions;
-
-    private NormalizerInterface $serializer;
-
-    private AnlageAvailabilityRepository $availabilityRepo;
-
     public function __construct(
-private PdoService $pdoService,
-        AnlageAvailabilityRepository $availabilityRepo,
-        PRRepository $prRepository,
-        AnlagenRepository $anlagenRepository,
-        ReportsRepository $downloadsRepository,
-        EntityManagerInterface $em,
-        Environment $twig,
-        MessageService $messageService,
-        PvSystMonthRepository $pvSystMonthRepo,
-        Case5Repository $case5Repo,
-        FunctionsService $functions,
-        NormalizerInterface $serializer
+        private PdoService $pdoService,
+        private AnlageAvailabilityRepository $availabilityRepo,
+        private PRRepository $prRepository,
+        private AnlagenRepository $anlagenRepository,
+        private ReportsRepository $downloadsRepository,
+        private EntityManagerInterface $em,
+        private Environment $twig,
+        private MessageService $messageService,
+        private PvSystMonthRepository $pvSystMonthRepo,
+        private Case5Repository $case5Repo,
+        private FunctionsService $functions,
+        private NormalizerInterface $serializer
     ) {
-        $this->availabilityRepo = $availabilityRepo;
-        $this->prRepository = $prRepository;
-        $this->twig = $twig;
-        $this->functions = $functions;
-        $this->em = $em;
-        $this->messageService = $messageService;
-        $this->pvSystMonthRepo = $pvSystMonthRepo;
-        $this->case5Repo = $case5Repo;
-        $this->serializer = $serializer;
     }
 
     public function getAllSingleSystemData(Anlage $anlage, int $year = 0, int $month = 0, int $timerange = 0): array|AnlagenPR|null

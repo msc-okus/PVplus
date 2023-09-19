@@ -16,18 +16,11 @@ class MessageService
 {
     use G4NTrait;
 
-    private $anlageEventMail;
-
-    private $mailer;
-
-    private $em;
-
     public function __construct(
-private PdoService $pdoService,EntityManagerInterface $em, MailerInterface $mailer, AnlageEventMailRepository $anlageEventMail)
+        private EntityManagerInterface $em,
+        private MailerInterface $mailer,
+        private AnlageEventMailRepository $anlageEventMail)
     {
-        $this->anlageEventMail = $anlageEventMail;
-        $this->mailer = $mailer;
-        $this->em = $em;
     }
 
     public function sendMessage(Anlage $anlage, $eventType, $alertType, $subject, $message, $attachedFiles = false, $g4nAlert = true, $g4nAdmin = false, $upAlert = false)

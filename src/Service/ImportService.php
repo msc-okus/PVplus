@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Anlage;
-
 use App\Helper\G4NTrait;
 use App\Helper\ImportFunctionsTrait;
 use App\Repository\AnlageAvailabilityRepository;

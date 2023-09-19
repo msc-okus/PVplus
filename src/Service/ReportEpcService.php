@@ -23,7 +23,6 @@ class ReportEpcService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
         private AnlagenRepository $anlageRepo,
         private GridMeterDayRepository $gridMeterRepo,
         private PRRepository $prRepository,
