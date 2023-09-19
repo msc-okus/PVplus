@@ -25,8 +25,13 @@ framework:
                     delay: 2000
                     max_retries: 1
 
-            dev:
+            import:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: import
+                retry_strategy:
+                    delay: 2000
+                    max_retries: 1
 
 
             # a transport used consuming messages from an external system
@@ -45,4 +50,4 @@ framework:
             'App\Message\Command\GenerateAMReport': async
             'App\Message\Command\LoadAPIData': async
             'App\Message\Command\LoadINAXData': async
-            'App\Message\Command\ImportData': async
+            'App\Message\Command\ImportData': import
