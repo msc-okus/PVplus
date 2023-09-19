@@ -20,7 +20,7 @@ use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\AnlageSunShadingRepository;
 use App\Repository\EconomicVarNamesRepository;
-use App\Service\UploaderHelper;
+use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use League\Flysystem\FilesystemException;

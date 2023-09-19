@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Functions;
+namespace App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\Functions;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;

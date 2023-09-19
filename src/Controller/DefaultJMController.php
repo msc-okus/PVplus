@@ -6,11 +6,12 @@ use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
-use App\Service\AlertSystemV2Service;
+use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\AlertSystemV2Service;
 use App\Service\AssetManagementService;
 use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
+use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\TicketsGeneration\InternalAlertSystemService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -48,13 +49,13 @@ class DefaultJMController extends AbstractController
     }
 
     #[Route(path: '/test/createticket', name: 'default_check')]
-    public function check(AnlagenRepository $anlagenRepository, AlertSystemV2Service $service)
+    public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
     {
         $anlage = $anlagenRepository->findIdLike("207")[0];
-        $fromStamp = strtotime("2023-06-15 00:00");
-        $toStamp = strtotime("2023-06-30 00:00");
+        $fromStamp = strtotime("2023-09-18 00:00");
+        $toStamp = strtotime("2023-09-19 00:00");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-            $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
+            $service->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
         }
         dd("hello World");
     }
@@ -62,7 +63,7 @@ class DefaultJMController extends AbstractController
 
     #[Route(path: '/test/read', name: 'default_read')]
     public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): \Symfony\Component\HttpFoundation\Response{
-        $anlage = $ar->findIdLike("104")[0];
+        $anlage = $ar->findIdLike("206")[0];
 
         return $this->render('base.html.twig');// this is suposed to never run so no problem
     }

@@ -79,16 +79,6 @@ class InternalAlertSystemService
                 if ($ticketArray['countPPC'] == true) $this->generateTickets(92, $anlage, $stamp, "");
             }
 
-            foreach ($ticketArray as $key => $value){
-                $previousQuarter = date('Y-m-d H:i:00', strtotime($key) - 900);
-                $nextQuarter = date('Y-m-d H:i:00', strtotime($key) + 900);
-                if ($value['countIrr'] == true){
-                    if (isset($ticketArray[$previousQuarter]['countIrr']) && $ticketArray[$previousQuarter]['countIrr'] === false){
-                        $ticket = new Ticket();
-                    }
-                }
-                dump($key);
-            }
 
         dd($ticketArray);
         return 'success';
@@ -169,21 +159,17 @@ class InternalAlertSystemService
             $ticket->setProofAM(false);
             $ticket->setInverter('*');
             $ticket->setAlertType(90); //  category = alertType (bsp: datagap, inverter power, etc.)
-
+            $ticket->setInternal(true);
             $ticket->setErrorType(90); // type = errorType (Bsp:  SOR, EFOR, OMC)
             $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
             $begin->getTimestamp();
             $ticket->setBegin($begin);
             $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
             $end->getTimestamp();
-
             $ticket->setEnd($end);
             //default values por the kpi evaluation
-
             $this->em->persist($ticket);
-
         }
-
     }
 
     private function getLastTicket($anlage, $time, $errorCategory): mixed

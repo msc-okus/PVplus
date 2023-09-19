@@ -50,10 +50,6 @@ private PdoService $pdoService,
         private StatusRepository        $statusRepo,
         private TicketRepository        $ticketRepo)
     {
-<<<<<<< HEAD:src/Service/TicketsGeneration/AlertSystemService.php
-=======
-
->>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7:src/Service/AlertSystemService.php
     }
 
     /**

@@ -11,7 +11,7 @@ use App\Repository\ForcastDayRepository;
 use App\Repository\ForcastRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
-use App\Service\PdoService;
+
 
 class CheckSystemStatusService
 {

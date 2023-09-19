@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-use App\Service\checkSystemStatusService;
+use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\checkSystemStatusService;
 use App\Service\MessageService;
 use App\Service\ReportService;
 use JetBrains\PhpStorm\Deprecated;

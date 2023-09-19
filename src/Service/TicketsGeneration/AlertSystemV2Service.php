@@ -1,23 +1,24 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\TicketsGeneration;
 
 use App\Entity\Anlage;
-use App\Entity\Status;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
+use App\Service\FunctionsService;
+use App\Service\MessageService;
+use App\Service\WeatherFunctionsService;
+use App\Service\WeatherServiceNew;
 use DateTimeZone;
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 use App\Service\PdoService;
-use phpDocumentor\Reflection\Types\Boolean;
+;
 
 class AlertSystemV2Service
 {

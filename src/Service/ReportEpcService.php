@@ -11,7 +11,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
-use App\Service\Reports\ReportsEpcYieldV2;
+use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\Reports\ReportsEpcYieldV2;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;

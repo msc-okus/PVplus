@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\TicketsGeneration;
 
 
 use App\Entity\Anlage;
@@ -13,8 +13,8 @@ class AlertSystemMailService
 {
 
     public function __construct(
-private PdoService $pdoService,
-        private MessageService $mailservice,
+    private PdoService $pdoService,
+    private MessageService $mailservice,
     )
     {
         define('EFOR', '10');
