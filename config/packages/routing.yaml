@@ -7,11 +7,6 @@ framework:
         # See https://symfony.com/doc/current/routing.html#generating-urls-in-commands
         #default_uri: http://localhost
 
-when@dev:
-    framework:
-        router:
-            strict_requirements: null
-            default_uri: https://dev.g4npvplus.de/
 
 when@prod:
     framework:

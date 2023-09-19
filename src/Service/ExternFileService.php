@@ -19,14 +19,15 @@ class ExternFileService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
+        private PdoService $pdoService,
         private PVSystDatenRepository $pvSystRepo,
         private AnlagenRepository $anlagenRepository,
         private PRRepository $PRRepository,
         private AnlageAvailabilityRepository $anlageAvailabilityRepo,
         private FunctionsService $functions,
         private EntityManagerInterface $em,
-        private AvailabilityService $availabilityService
+        private AvailabilityService $availabilityService,
+        private $kernelProjectDir
     )
     { }
 
@@ -98,7 +99,7 @@ private PdoService $pdoService,
 
     public function callImportDataFromApiManuel($path, $importType, $from, $to, $logId = ''): void
     {
-        $currentDir = __DIR__;
-        exec("php -dsafe_mode=Off $currentDir/../../../anlagen/$path/loadDataFromApi.php ".$from." ".$to." ".$importType." ".$logId);
+        $currentDir = $this->kernelProjectDir;
+        shell_exec("php -dsafe_mode=Off $currentDir/../anlagen/$path/loadDataFromApi.php ".$from." ".$to." ".$importType." ".$logId);
     }
 }

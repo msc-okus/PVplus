@@ -60,15 +60,14 @@ class ImportDataHandler implements MessageHandlerInterface
 
                 $this->importService->prepareForImport($plantId, $from, $to, $importType);
 
-                $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
+                $this->logMessages->updateEntry($logId, 'working (s)', ($timeCounter / $timeRange) * 100);
                 $timeCounter += 24 * 3600;
                 sleep(1);
             }
+            $this->logMessages->updateEntry($logId, 'done',100);
         } else {
-            $this->logMessages->updateEntry($logId, 'working', 0);
+            $this->logMessages->updateEntry($logId, 'working (ext)', 0);
             $this->externFileService->callImportDataFromApiManuel($path, $importType, $importData->getStartDate()->getTimestamp(), $importData->getEndDate()->getTimestamp(), $logId);
-
         }
-        $this->logMessages->updateEntry($logId, 'done',100);
     }
 }
