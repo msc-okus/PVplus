@@ -62,8 +62,11 @@ class DefaultJMController extends AbstractController
 
     #[Route(path: '/test/read', name: 'default_read')]
     public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): \Symfony\Component\HttpFoundation\Response{
-        $anlage = $ar->findIdLike("104")[0];
-
+        $anlage = $ar->findAlertSystemActive(true);
+        foreach ($anlage as $plant){
+            dump($plant->getAnlName());
+        }
+        dd('hello world ');
         return $this->render('base.html.twig');// this is suposed to never run so no problem
     }
     #[Route(path: '/test/pdf', name: 'default_pdf')]

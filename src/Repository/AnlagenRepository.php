@@ -161,7 +161,6 @@ class AnlagenRepository extends ServiceEntityRepository
     public function findAlertSystemActive(bool $active){
         return $this->createQueryBuilder('a')
             ->andWhere('a.ActivateTicketSystem = (:val)')
-            ->andWhere('a.anlId != 110')
             ->setParameter('val', $active)
             ->getQuery()
             ->getResult()
