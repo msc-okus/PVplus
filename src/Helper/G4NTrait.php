@@ -413,7 +413,7 @@ trait G4NTrait
     public function makeTempFiles(array $files,  $filesystem):array
     {
         //with this we clear our temp files folder
-        if(file_exists('"uploads/temp"')) {
+        if(file_exists('uploads/temp')) {
             $it = new RecursiveDirectoryIterator("uploads/temp", RecursiveDirectoryIterator::SKIP_DOTS);
             $content = new RecursiveIteratorIterator($it,
                 RecursiveIteratorIterator::CHILD_FIRST);
@@ -421,7 +421,7 @@ trait G4NTrait
                 unlink($file->getRealPath());
             }
         }
-        else mkdir('"uploads/temp"');
+        else mkdir('uploads/temp', 755);
         $return = [];
         foreach ($files as $key => $file){
             $tempFile = 'temp/temp'.random_int(0, 10000).'.png';
