@@ -8,6 +8,7 @@
         "php": "^8.1",
         "ext-calendar": "*",
         "ext-ctype": "*",
+        "ext-curl": "*",
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-mysqli": "*",
@@ -27,6 +28,7 @@
         "jblond/twig-trans": "^1.0",
         "knplabs/knp-paginator-bundle": "^6.2.0",
         "knplabs/knp-snappy-bundle": "^1.9",
+        "league/flysystem-sftp-v3": "^3.0",
         "league/html-to-markdown": "^4.10",
         "liip/imagine-bundle": "^2.8",
         "nelmio/cors-bundle": "^2.1",
@@ -77,10 +79,12 @@
         "tecnickcom/tc-lib-pdf": "dev-main",
         "twig/cssinliner-extra": "^3.0",
         "twig/extra-bundle": "^2.12|^3.0",
+        "twig/html-extra": "^3.7",
         "twig/inky-extra": "^3.0",
         "twig/intl-extra": "^3.0",
         "twig/string-extra": "^3.4",
-        "twig/twig": "^3.0"
+        "twig/twig": "^3.0",
+      "ext-openssl": "*"
     },
     "require-dev": {
         "rector/rector": "^0.18.1",
@@ -135,7 +139,7 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
+            "allow-contrib": true,
             "require": "6.3.*"
         }
     }

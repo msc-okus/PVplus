@@ -9,18 +9,15 @@ use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
 use PDO;
-use Symfony\Component\Security\Core\Security;
+use App\Service\PdoService;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class SollIstIrrAnalyseChartService
 {
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private PdoService $pdoService,
         private Security $security,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository $invertersRepo,
@@ -63,7 +60,7 @@ class SollIstIrrAnalyseChartService
         ini_set('memory_limit', '3G');
         $dataArray = [];
         $anlagename = $anlage->getAnlName();
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $tabelArray = [];
 
         switch ($filter) {
@@ -153,10 +150,10 @@ class SollIstIrrAnalyseChartService
                 //$time = date('H:i', strtotime($rowActual['ts']));
                 //$stamp = date('Y-m-d', strtotime($rowActual['ts']));
                 $actPowerAC = $rowActual['act_power_ac'];
-                $actPowerAC = $actPowerAC > 0 ? round(self::checkUnitAndConvert($actPowerAC, $anlage->getAnlDbUnit()), 3) : 0; // neagtive Werte auschließen
+                $actPowerAC = $actPowerAC > 0 ? round($actPowerAC, 3) : 0; // neagtive Werte auschließen
                 $actPowerAC = substr($actPowerAC, 0, 5);
                 $actPowerDC = $rowActual['act_power_dc'];
-                $actPowerDC = $actPowerDC > 0 ? round(self::checkUnitAndConvert($actPowerDC, $anlage->getAnlDbUnit()), 3) : 0; // neagtive Werte auschließen
+                $actPowerDC = $actPowerDC > 0 ? round($actPowerDC, 3) : 0; // neagtive Werte auschließen
                 $actPowerDC = substr($actPowerDC, 0, 5);
                 $przac = $rowActual['przac'];
                 $przac =  $przac > 0 ? $przac : 0;

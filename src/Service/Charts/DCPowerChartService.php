@@ -8,17 +8,14 @@ use App\Repository\AnlagenStatusRepository;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use PDO;
+use App\Service\PdoService;
 
 class DCPowerChartService
 {
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private PdoService $pdoService,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository $invertersRepo,
         private IrradiationChartService $irradiationChart,
@@ -41,7 +38,7 @@ class DCPowerChartService
      */
     public function getDC1(Anlage $anlage, $from, $to, bool $hour = false): ?array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         $sqlDcSoll = 'SELECT a.stamp as stamp, sum(b.soll_pdcwr) as soll
@@ -151,7 +148,7 @@ class DCPowerChartService
                             WHERE a.stamp BETWEEN '$from' AND '$to'
                             GROUP by date_format(a.stamp, '$form')";
 
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $resultExp = $conn->query($sqlExpected);
         if ($resultExp->rowCount() > 0) {
             $counter = 0;
@@ -251,7 +248,7 @@ class DCPowerChartService
                 $form = '%y%m%d%H%i';
             }
 
-            $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+            $conn = $this->pdoService->getPdoPlant();
             $groups = $anlage->getGroupsAc();
             $dataArray = [];
             $inverterNr = 0;
@@ -335,7 +332,7 @@ class DCPowerChartService
             }
         } else {
             $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-            $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+            $conn = $this->pdoService->getPdoPlant();
             $dataArray = [];
             $nameArray = $this->functions->getNameArray($anlage, 'dc');
 
@@ -419,7 +416,7 @@ class DCPowerChartService
                                 $temperature = $rowIst['temp'];
                             }
                             $dataArray['chart'][$counter]['temperature'] = $temperature;
-                            $actPower = self::checkUnitAndConvert($rowIst['actPower'], $anlage->getAnlDbUnit());
+                            $actPower = $rowIst['actPower'];
                             if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                                 switch ($anlage->getConfigType()) {
                                     case 3: // Groningen, Saran
@@ -479,7 +476,7 @@ class DCPowerChartService
      */
     public function getGroupPowerDifferenceDC(Anlage $anlage, $from, $to): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $istGruppenArray = [];
         $dcGroups = $anlage->getGroupsDc();
@@ -509,7 +506,7 @@ class DCPowerChartService
                     'link' => $invGroupSoll,
                     'exp' => round($row['soll'], 2),
                 ];
-                $dataArray['chart'][$counter]['act'] = round(self::checkUnitAndConvert($istGruppenArray[$invGroupSoll], $anlage->getAnlDbUnit()), 2);
+                $dataArray['chart'][$counter]['act'] = round($istGruppenArray[$invGroupSoll], 2);
                 if ($counter > $dataArray['maxSeries']) {
                     $dataArray['maxSeries'] = $counter;
                 }
@@ -534,7 +531,7 @@ class DCPowerChartService
      */
     public function getInverterPowerDifference(Anlage $anlage, $from, $to, $group): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
 
         if (self::isDateToday($to)) {
@@ -582,7 +579,7 @@ class DCPowerChartService
                         $inverter = $rowInv['inverter'];
                         $dataArray['chart'][] = [
                             'category' => "Inverter #$inverter",
-                            'val' => self::checkUnitAndConvert($rowInv['dcinv'], $anlage->getAnlDbUnit()),
+                            'val' => $rowInv['dcinv'],
                             'link' => "$inverter",
                         ];
                         if ($wrcounter > $dataArray['maxSeries']) {

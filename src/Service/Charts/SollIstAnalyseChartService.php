@@ -9,17 +9,14 @@ use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
 use PDO;
+use App\Service\PdoService;
 
 class SollIstAnalyseChartService
 {
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private PdoService $pdoService,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository $invertersRepo,
         private IrradiationChartService $irradiationChart,
@@ -60,7 +57,7 @@ class SollIstAnalyseChartService
     {
         ini_set('memory_limit', '3G');
         $anlagename = $anlage->getAnlName();
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
             case 3:
@@ -111,7 +108,7 @@ class SollIstAnalyseChartService
                 $time = date('H:i', strtotime(self::timeShift($anlage,$rowActual['ts'])));
                 //$stamp = date('Y-m-d', strtotime($rowActual['ts']));self::timeShift($anlage, $rowExp['stamp']);
                 $actPower = $rowActual['actPower'];
-                $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
+                $actPower = $actPower > 0 ? round($actPower, 2) : 0; // neagtive Werte auschließen
                 $prz = $rowActual['prz'];
                 switch (TRUE){
                     case ($prz >= 95 and $prz <= 100);

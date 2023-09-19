@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 use App\Entity\WeatherStation;
 use App\Form\WeatherStation\WeatherStationFormType;
 use App\Helper\G4NTrait;
@@ -19,9 +19,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class WeatherStationController extends BaseController
 {
     use G4NTrait;
-
     use PVPNameArraysTrait;
 
+    public function __construct(
+        private $host,
+        private $userPlant,
+        private $passwordPlant,
+        private PdoService $pdoService,
+    )
+    {
+    }
     #[Route(path: '/admin/weather/new', name: 'app_admin_weather_new')]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
@@ -106,7 +113,7 @@ class WeatherStationController extends BaseController
      */
     public function createWeatherDatabase($databaseIdent): bool
     {
-        $pdo = GetPdoService::getPdoConnection();
+        $conn = $this->pdoService->getPdoPlant();
         $sqlCreateWeatherDatabase = "
         CREATE TABLE IF NOT EXISTS `db__pv_ws_$databaseIdent` (
             `db_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -136,8 +143,8 @@ class WeatherStationController extends BaseController
             PRIMARY KEY (`db_id`),
             UNIQUE KEY `stamp` (`stamp`)
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
-        $pdo->exec($sqlCreateWeatherDatabase);
-        $pdo = null;
+        $conn->exec($sqlCreateWeatherDatabase);
+        $conn = null;
 
         return true;
     }

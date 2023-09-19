@@ -4,7 +4,9 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
+use App\Form\Owner\OwnerFormType;
 use App\Helper\G4NTrait;
+use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
 use App\Repository\EconomicVarValuesRepository;
@@ -24,7 +26,7 @@ use PDO;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
-
+use League\Flysystem\Filesystem;
 class AssetManagementService
 {
     use G4NTrait;
@@ -32,11 +34,7 @@ class AssetManagementService
     private PDO $conn;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+        private PdoService $pdoService,
         private EntityManagerInterface $em,
         private PvSystMonthRepository $pvSystMonthRepo,
         private FunctionsService $functions,
@@ -56,9 +54,12 @@ class AssetManagementService
         private SensorService $sensorService,
         private WeatherFunctionsService $weatherFunctions,
         private ForcastDayRepository $forecastDayRepo,
+        private Filesystem $fileSystemFtp,
+        private Filesystem $filesystem,
+        private AnlageFileRepository $RepositoryUpload
     )
     {
-        $this->conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $this->conn = $this->pdoService->getPdoPlant();
     }
 
     /**
@@ -98,11 +99,35 @@ class AssetManagementService
         $content = $output;
         $this->logMessages->updateEntry($logId, 'working', 95);
         //rendering the header
+
+
+        $owner = $anlage->getEigner();
+        $tempFileLogo = '';
+        //$fileArray = []; //this is the file array we will be using to seand as a parameter to maketempfile
+        if ($owner->getLogo() != '') {
+            if ($this->fileSystemFtp->fileExists($owner->getLogo())) {
+                $fileArray['Logo'] = $this->fileSystemFtp->read($owner->getLogo());
+            }
+        }
+        $tempFilePlantImage = '';
+        if ($anlage->getPicture() != '') {
+            if ($this->fileSystemFtp->fileExists($anlage->getPicture())) {
+                $fileArray['PlantPic'] = $this->fileSystemFtp->read($anlage->getPicture());
+            }
+        }
+        $images = self::makeTempFiles($fileArray, $this->filesystem);
+
+        if ($images['Logo'] != null)$tempFileLogo = $images['Logo'];
+        if ($images['PlantPic'] != null)$tempFilePlantImage = $images['PlantPic'];
+
         $html = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
             'anlage' => $anlage,
+            'headerImage' => $tempFilePlantImage,
+            'logoImage' => $tempFileLogo,
             'month' => $reportMonth,
             'monthName' => $output['month'],
+            'year' => $reportYear,
             'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
@@ -122,6 +147,7 @@ class AssetManagementService
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
+            'logoImage' => $tempFileLogo,
             'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
@@ -139,6 +165,7 @@ class AssetManagementService
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
+            'logoImage' => $tempFileLogo,
             'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
@@ -158,6 +185,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -176,6 +204,7 @@ class AssetManagementService
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
                 'year' => $reportYear,
+                'logoImage' => $tempFileLogo,
                 'dataCfArray' => $content['dataCfArray'],
                 'reportmonth' => $content['reportmonth'],
                 'monthArray' => $content['monthArray'],
@@ -194,6 +223,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -211,6 +241,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -230,6 +261,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -247,6 +279,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -283,6 +316,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -297,6 +331,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -315,6 +350,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -331,6 +367,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -348,6 +385,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -365,6 +403,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -382,6 +421,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -400,6 +440,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -423,6 +464,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -444,6 +486,7 @@ class AssetManagementService
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
+            'logoImage' => $tempFileLogo,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -462,6 +505,7 @@ class AssetManagementService
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
                 'year' => $reportYear,
+                'logoImage' => $tempFileLogo,
                 'dataCfArray' => $content['dataCfArray'],
                 'reportmonth' => $content['reportmonth'],
                 'monthArray' => $content['monthArray'],
@@ -857,7 +901,7 @@ class AssetManagementService
             if ($anlage->getShowEvuDiag()) {
                 (float) $powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
             } else {
-                (float) $powerExpEvu[] = $data1_grid_meter['powerExp'];
+                (float) $powerExpEvu[] = $data1_grid_meter['powerAct'];
             }
             (float) $powerExp[] = $data1_grid_meter['powerExp'];
             (float) $powerExternal[] = $data1_grid_meter['powerEGridExt'];
@@ -917,7 +961,7 @@ class AssetManagementService
             'visualMap' => 'false',
         ];
         $series[] = [
-            'name' => 'Yield',
+            'name' => 'Actual(Yield)',
             'type' => 'bar',
             'data' => $powerEvu,
             'visualMap' => 'false',
@@ -957,7 +1001,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:700px;']);
-
+        $series = [];
         $chart = new ECharts(); // We must use AMCharts
         $chart->tooltip->show = false;
         $chart->tooltip->trigger = 'item';
@@ -981,7 +1025,7 @@ class AssetManagementService
             'nameGap' => 80,
             'offset' => -20,
         ];
-        $series[] = [   'name' => 'Yield ',
+        $series[] = [   'name' => 'Actual(Yield) ',
             'type' => 'bar',
             'data' => $powerEvu,
             'visualMap' => 'false',
@@ -2564,7 +2608,7 @@ class AssetManagementService
                             }
                         }
                     } else {
-                        if ($value[$i]['exp_power_dc'] > 0 && $value[$i]['exp_current_dc'] > 0) {
+                        if ($value[$i]['exp_power_dc'] > 0) {
                             $dcExpDcIst[] = [
                                 'group' => $value[$i]['invgroup'],
                                 'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
@@ -2575,7 +2619,8 @@ class AssetManagementService
                                 'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100,
                                 'diff_power_dc' => (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100,
                             ];
-                        }else{
+                        }
+                        else{
                             $dcExpDcIst[] = [
                                 'group' => $value[$i]['invgroup'],
                                 'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
@@ -2583,7 +2628,7 @@ class AssetManagementService
                                 'exp_current_dc' => $value[$i]['exp_current_dc'],
                                 'act_power_dc' => $dcIst[$j]['act_power_dc'],
                                 'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                                'diff_current_dc' => 0,
+                                'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100,
                                 'diff_power_dc' => 0,
                             ];
                         }

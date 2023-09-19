@@ -12,7 +12,7 @@
                 </div>
                 <div class="grid-x grid-padding-x">
                     <div class="cell medium-4">{{ form_row(sunshading.mod_tilt) }}</div>
-                    <div class="cell medium-4">{{ form_row(sunshading.mod_height) }}</div>
+                    <div class="cell medium-4">{# { form_row(sunshading.mod_height) }#}</div>
                     <div class="cell medium-4">{{ form_row(sunshading.mod_width) }}</div>
                 </div>
             <div class="grid-x grid-padding-x">
@@ -326,10 +326,11 @@
                                     <div class="cell medium-3">{{ form_row(anlageForm.modNeigung) }}</div>
                                     <div class="cell medium-3">{{ form_row(anlageForm.modAzimut) }}</div>
                                     <div class="cell medium-3">{{ form_row(anlageForm.albeto) }}</div>
-                                    <div class="cell medium-6">{{ form_row(anlageForm.datFilename) }}</div>
+                                    <div class="cell medium-6">{{ form_row(anlageForm.datFilename) }} </div>
                                     <div class="cell medium-6"><label>your uploaded file</label><h5 id="dat_file">{{ anlage.getDatFilename }}</h5>
                                         {% if (anlage.getDatFilename is not empty)  %}
-                                        <a href="{{ path('download_file',{'id': anlage.getAnlId,'dir': 'metodat','file': anlage.getDatFilename}) }}" title="download file"><i class="fa fa fa-download"></i></a>
+                                            {% set datf = anlage.getDatFilename|split('.') %}
+                                        <a href="{{ path('download_file', {'id': anlage.getAnlId,'dir': 'metodat','file': datf[0],'ext': datf[1]}) }}" title="download file"><i class="fa fa fa-download"></i></a>
                                         {% endif %}
                                     </div>
                                     <div class="cell medium-12">
@@ -362,14 +363,13 @@
                                                     </div>
                                                     <div class="grid-x grid-padding-x">
                                                         <div class="cell medium-4">{{ form_row(sunshading.mod_tilt) }}</div>
-                                                        <div class="cell medium-4">{{ form_row(sunshading.mod_height) }}</div>
+                                                        <div class="cell medium-4">{{ form_row(sunshading.mod_table_height) }}</div>
                                                         <div class="cell medium-4">{{ form_row(sunshading.mod_width) }}</div>
                                                     </div>
                                                     <div class="grid-x grid-padding-x">
-                                                        <div class="cell medium-3">{{ form_row(sunshading.mod_table_height) }}</div>
-                                                        <div class="cell medium-3">{{ form_row(sunshading.mod_table_distance) }}</div>
-                                                        <div class="cell medium-3">{{ form_row(sunshading.distance_a) }}</div>
-                                                        <div class="cell medium-3">{{ form_row(sunshading.distance_b) }}</div>
+                                                        <div class="cell medium-4">{{ form_row(sunshading.mod_table_distance) }}</div>
+                                                        <div class="cell medium-4">{{ form_row(sunshading.distance_a) }}</div>
+                                                        <div class="cell medium-4">{{ form_row(sunshading.distance_b) }}</div>
                                                     </div>
                                                     <div class="grid-x grid-padding-x">
                                                         <div class="cell medium-6">{{ form_row(sunshading.ground_slope) }}</div>

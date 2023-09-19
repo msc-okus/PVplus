@@ -7,6 +7,7 @@ use App\Helper\G4NTrait;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use PDO;
+use App\Service\PdoService;
 
 class IrradiationChartService
 {
@@ -14,12 +15,12 @@ class IrradiationChartService
 
     public function __construct(
         private $host,
-        private $userBase,
-        private $passwordBase,
         private $userPlant,
         private $passwordPlant,
         private FunctionsService $functions,
-        private InvertersRepository $invertersRep
+        private InvertersRepository $invertersRep,
+        private PdoService $pdoService,
+
     )
     {
     }
@@ -37,7 +38,7 @@ class IrradiationChartService
      */
     public function getIrradiation(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         if ($hour) {
@@ -102,7 +103,7 @@ class IrradiationChartService
      */
     public function getIrradiationPlant(Anlage $anlage, $from, $to, bool $hour): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
@@ -152,10 +153,10 @@ class IrradiationChartService
                         $irrCounter = 1;
                         foreach ($irrAnlageArray as $irrAnlageItem => $irrAnlageValue) {
                             if (!($irrAnlageValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                                if (!isset($irrAnlageValue)) {
+                                if (!isset($irrAnlageValue) or is_array($irrAnlageValue)) {
                                     $irrAnlageValue = 0;
                                 }
-                                $dataArray['chart'][$counter]["val$irrCounter"] = round(($irrAnlageValue < 0) ? 0 : $irrAnlageValue, 2);
+                                $dataArray['chart'][$counter]["val$irrCounter"] = round(max($irrAnlageValue, 0), 2);
                                 if (!isset($dataArray['nameX'][$irrCounter])) {
                                     $dataArray['nameX'][$irrCounter] = $irrAnlageItem;
                                 }

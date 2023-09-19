@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-use App\Controller\BaseController;
+
 use App\Form\ImportTools\ImportToolsFormType;
 use App\Form\Model\ImportToolsModel;
 use App\Helper\G4NTrait;
@@ -11,11 +11,12 @@ use App\Repository\AnlagenRepository;
 use App\Service\ImportService;
 use App\Service\LogMessagesService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
-
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 
 class ImportToolsController extends BaseController
 {
@@ -83,29 +84,82 @@ class ImportToolsController extends BaseController
         ]);
     }
 
+    /**
+     * Cronjob to Import PLants direct by symfony (configured in backend)
+     *
+     * @param AnlagenRepository $anlagenRepo
+     * @param ImportService $importService
+     * @return Response
+     * @throws NonUniqueResultException
+     */
     #[Route('/import/cron', name: 'import_cron')]
-    public function importCron(AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
+    public function importCron(AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
-        //getDB-Connection
-        $conn = $entityManagerInterface->getConnection();
         //get all Plants for Import via via Cron
-        $readyToImport = self::getPlantsImportReady($conn);
+        $anlagen = $anlagenRepo->getSymfonyImportPlants();
 
         $time = time();
         $time -= $time % 900;
-        $start = strtotime(date('Y-m-d H:i', $time - (4 * 3600)));
+        $start = $time - (4 * 3600);
         $end = $time;
 
-
-        sleep(5);
-        for ($i = 0; $i <= count($readyToImport)-1; $i++) {
-            $plantId = $readyToImport[$i]['anlage_id'];
-            $anlage = $anlagenRepo->findOneByIdAndJoin($plantId);
-            #self::prepareForImport($plantId, $start, $end, '');
-            $importService->prepareForImport($plantId, $start, $end, '');
+        foreach ($anlagen as $anlage) {
+            $importService->prepareForImport($anlage, $start, $end);
         }
 
-        return new Response('This is used for import via cron job.', \Symfony\Component\HttpFoundation\Response::HTTP_OK, array('Content-Type' => 'text/html'));
+        return new Response('This is used for import via cron job.', Response::HTTP_OK, array('Content-Type' => 'text/html'));
+    }
+
+    /**
+     * Cronjob to Import PLants direct by symfony (configured in backend)
+     *
+     * @param AnlagenRepository $anlagenRepo
+     * @param ImportService $importService
+     * @return Response
+     * @throws NonUniqueResultException
+     */
+    #[Route('/import/manuel', name: 'import_manuell')]
+    public function importManuell(
+        #[MapQueryParameter] int $id,
+        #[MapQueryParameter] string $from,
+        #[MapQueryParameter] string $to,
+        AnlagenRepository $anlagenRepo,
+        ImportService $importService): Response
+    {
+        date_default_timezone_set('Europe/Berlin');
+
+        $fromts = strtotime("$from 00:00:01");
+        $tots = strtotime("$to 23:59:01");
+
+        //get all Plants for Import via via Cron
+        $anlage = $anlagenRepo->findOneByIdAndJoin($id);
+
+        for ($dayStamp = $fromts; $dayStamp <= $tots; $dayStamp += 24*3600) {
+
+            $from_new = strtotime(date('Y-m-d 00:15', $dayStamp));
+            $to_new = strtotime(date('Y-m-d 23:59', $dayStamp));
+            $currentDay = date('d', $dayStamp);
+
+            // Proof if date = today, if yes set $to to current DateTime
+            if (date('Y', $to_new) == date('Y') && date('m', $to_new) == date('m') && $currentDay == date('d')) {
+                $hour = date('H');
+
+                $to_new = strtotime(date("Y-m-d $hour:00"), $to_new);
+            }
+
+            $minute = (int)date('i');
+            while (($minute >= 28 && $minute < 33) || $minute >= 58 || $minute < 3) {
+                sleep(20);
+                $minute = (int)date('i');
+            }
+
+            $importService->prepareForImport($anlage, $from_new, $to_new);
+
+            sleep(1);
+        }
+
+
+        return new Response('This is used for import via manual Import.', Response::HTTP_OK, array('Content-Type' => 'text/html'));
     }
 
 }

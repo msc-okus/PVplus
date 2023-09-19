@@ -114,8 +114,7 @@ class MeteoControlService
         }
     }
 
-    public function getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $key, $from = 0, $to = 0, $resolution = "fifteen-minutes") {
-
+    public function getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $key, int $from = 0, int $to = 0, $resolution = "fifteen-minutes") {
         if (is_int($from) && is_int($to)) {
             $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $to));
@@ -140,6 +139,10 @@ class MeteoControlService
             ));
 
             $response = json_decode(curl_exec($curl), true);
+
+            if (curl_errno($curl)) {
+                echo curl_error($curl);
+            }
             curl_close($curl);
 
             return $response;
@@ -174,7 +177,6 @@ class MeteoControlService
 
             $response = json_decode(curl_exec($curl), true);
             curl_close($curl);
-
             return $response;
         }
 

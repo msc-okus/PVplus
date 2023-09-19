@@ -12,11 +12,7 @@ class G4NSendMailService
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private PdoService $pdoService,
         private EntityManagerInterface $em,
         private MailerInterface $mailer
     ) {

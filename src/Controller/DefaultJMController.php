@@ -1,49 +1,42 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-<<<<<<< HEAD
-use App\Service\TicketsGeneration\InternalAlertSystemService;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Repository\ReportsRepository;
 use App\Service\AlertSystemV2Service;
-=======
-use App\Repository\StatusRepository;
-use App\Repository\TicketRepository;
-use App\Service\TicketsGeneration\AlertSystemService;
-use App\Service\TicketsGeneration\AlertSystemV2Service;
-use App\Service\AlertSystemWeatherService;
->>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7
 use App\Service\AssetManagementService;
 use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
-use App\Service\TicketsGeneration\InternalAlertSystemService;
 use App\Service\WeatherServiceNew;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use PDO;
 use Hisune\EchartsPHP\ECharts;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Twig\Environment;
 
 #[IsGranted('ROLE_G4N')]
 class DefaultJMController extends AbstractController
 {
     use G4NTrait;
-    private PDO $conn;
+
     public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
         private Environment $twig,
         private PdfService $pdf,
         private FunctionsService $functions,
         private PRCalulationService $PRCalulation,
-
+        private ReportsRepository $reportRepo,
     )
     {
-        $this->conn = GetPdoService::getPdoConnection();
 
     }
     #[Route(path: '/default/j/m', name: 'default_j_m')]
@@ -55,30 +48,21 @@ class DefaultJMController extends AbstractController
     }
 
     #[Route(path: '/test/createticket', name: 'default_check')]
-    public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
+    public function check(AnlagenRepository $anlagenRepository, AlertSystemV2Service $service)
     {
-<<<<<<< HEAD
         $anlage = $anlagenRepository->findIdLike("207")[0];
         $fromStamp = strtotime("2023-06-15 00:00");
         $toStamp = strtotime("2023-06-30 00:00");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-            $service->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
+            $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
         }
-=======
-        $anlage = $anlagenRepository->findIdLike("218")[0];
-        $fromStamp = strtotime("2023-06-15 12:00");
-        $toStamp = strtotime("2023-06-16 00:00");
-
-        $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $fromStamp), date('Y-m-d H:i:00', $toStamp));
-
->>>>>>> 47126e0af2fa6bf8d3fa797c34e97a1ccfc26bb7
         dd("hello World");
     }
 
 
     #[Route(path: '/test/read', name: 'default_read')]
     public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): \Symfony\Component\HttpFoundation\Response{
-        $anlage = $ar->findIdLike("110")[0];
+        $anlage = $ar->findIdLike("104")[0];
 
         return $this->render('base.html.twig');// this is suposed to never run so no problem
     }
@@ -355,5 +339,21 @@ class DefaultJMController extends AbstractController
         }
         $output['avg'][$inverter ] = round($efficiencySum / $efficiencyCount, 2); //we make the last average outside of the loop
         return $output;
+    }
+    #[Route(path: '/test/sftp', name: 'default_sftp_test')]
+    public function sftpTest($fileSystemFtp, AnlagenRepository $ar, EntityManagerInterface $em){
+        $anlage = $ar->findIdLike(54);
+        $reportArray = $this->reportRepo->findOneByAMYT(null, "", "2023","monthly-report");
+        foreach ($reportArray as $report){
+
+            $file = str_replace("/usr/home/pvpluy/public_html/public", "./pdf", $report->getFile());
+            $file = str_replace("//", "/", $file);
+           $report->setFile($file);
+
+           $em->persist($report);
+        }
+        $em->flush();
+        dd($fileSystemFtp);
+
     }
 }

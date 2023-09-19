@@ -11,23 +11,17 @@ use App\Repository\AnlagenRepository;
 use App\Repository\PVSystDatenRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\MeteoControlService;
 use Doctrine\ORM\NonUniqueResultException;
-use Symfony\Config\DoctrineConfig;
 use Doctrine\Persistence\ManagerRegistry;
 
+use Symfony\Component\Serializer\SerializerInterface;
 class ImportService
 {
     use ImportFunctionsTrait;
     use G4NTrait;
 
-
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+        private PdoService $pdoService,
         private PVSystDatenRepository $pvSystRepo,
         private AnlagenRepository $anlagenRepository,
         private AnlageAvailabilityRepository $anlageAvailabilityRepo,
@@ -36,18 +30,16 @@ class ImportService
         private AvailabilityService $availabilityService,
         private MeteoControlService $meteoControlService,
         private ManagerRegistry $doctrine,
+        private SerializerInterface $serializer
     )
     {
-
-        $this->em = $em;
     }
 
     /**
      * @throws NonUniqueResultException
      */
-    public function prepareForImport(Anlage|int $anlage, $start, $end): void
+    public function prepareForImport(Anlage|int $anlage, $start, $end, string $importType = ""): void
     {
-
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
@@ -61,9 +53,15 @@ class ImportService
         $modules = $anlage->getModules();
         $groups = $anlage->getGroups();
         $systemKey = $anlage->getCustomPlantId();
-        $acGroups = self::getACGroups($conn, $plantId);
 
-        $importType = $anlage->getSettings()->getImportType();
+        if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
+            $acGroups = $anlage->getAcGroups()->toArray();
+
+            for ($i = 0; $i < count($acGroups); ++$i) {
+                $acGroupsCleaned[$i]['importId'] = $acGroups[$i]->getImportId();
+                $acGroupsCleaned[$i]['group_ac'] = $acGroups[$i]->getAcGroup();
+            }
+        }
 
         $anlagenTabelle = $anlage->getAnlIntnr();
 
@@ -84,7 +82,6 @@ class ImportService
         //get the Data from vcom
         $bulkMeaserments = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end);
 
-
         $data_pv_ist = [];
         $data_pv_dcist = [];
         if ($bulkMeaserments) {
@@ -92,7 +89,7 @@ class ImportService
             $inverters = $bulkMeaserments['inverters'];
             $sensors = $bulkMeaserments['sensors'];
 
-            $anlageSensors = self::getAnlageSensors($conn, $plantId);
+            $anlageSensors = $this->serializer->normalize($anlage->getSensors(), null);
 
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
                 $stamp = date('Y-m-d H:i', $timestamp);
@@ -103,14 +100,13 @@ class ImportService
 
                 if (array_key_exists($date, $basics)) {
                     $irrAnlageArrayGMO['G_M0'] = $basics[$date]['G_M0'] > 0 ? round($basics[$date]['G_M0'], 4) : 0;   //
-                    $eZEvu = round($basics[$date]['E_Z_EVU'], 0);
+                    $eZEvu = $basics[$date]['E_Z_EVU'];
                 }
 
                 if (is_array($sensors) && array_key_exists($date, $sensors)) {
                     $length = count($anlageSensors);
 
                     $checkSensors = self::checkSensors($anlageSensors, $length, (bool)$isEastWest, $sensors, $date);
-
 
                     $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
@@ -157,7 +153,7 @@ class ImportService
                 $windAnlage = json_encode($windAnlageArray);
 
                 //Import different Types
-                if ($importType == 'standart') {
+                if ($anlage->getSettings()->getImportType() == 'standart') {
                     //Anzahl der Units in eines Inverters
                     $invertersUnits = $anlage->getSettings()->getInvertersUnits();
 
@@ -167,78 +163,90 @@ class ImportService
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
+
+                    unset($result);
                 }
 
-                if ($importType == 'withStringboxes') {
+                if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                     $stringBoxes = $bulkMeaserments['stringboxes'];
                     $stringBoxesTime = $stringBoxes[$date];
 
                     //Anzahl der Units in einer Stringbox
                     $stringBoxUnits = $anlage->getSettings()->getStringboxesUnits();
 
-                    $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
+                    $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroupsCleaned, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
 
                     //built array for pvist
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
+
                     //built array for pvist_dc
                     for ($j = 0; $j <= count($result[1]) - 1; $j++) {
                         $data_pv_dcist[] = $result[1][$j];
                     }
+
+                    unset($result);
                 }
 
-                unset($result);
+
+
+
                 //Anlage hatPPc
                 if ($anlage->getHasPPC()) {
                     $ppcs = $bulkMeaserments['ppcs'];
 
-                    $anlagePpcs = self::getAnlagePpcs($conn, $plantId);
-                    $result = self::getPpc($anlagePpcs, $ppcs, $date, $stamp, $plantId, $anlagenTabelle);
+                    $anlagePpcs = $anlage->getPpcs()->toArray();
+                    for ($i = 0; $i < count($anlagePpcs); ++$i) {
+                        $anlagePpcsCleaned[$i]['vcomId'] = $anlagePpcs[$i]->getVcomId();
+                    }
+
+                    $result = self::getPpc($anlagePpcsCleaned, $ppcs, $date, $stamp, $plantId, $anlagenTabelle);
 
                     for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                         $data_ppc[] = $result[0][$j];
                     }
+
+                    unset($result);
                 }
             }
         }
 
         //write Data in the tables
-
         switch ($importType) {
             case 'api-import-weather':
                     $tableName = "db__pv_ws_$weatherDbIdent";
-                self::insertData($tableName, $data_pv_weather, $this->host, $this->userPlant, $this->passwordPlant);
+                self::insertData($tableName, $data_pv_weather);
                 break;
             case 'api-import-ppc':
                 $tableName = "db__pv_ppc_$anlagenTabelle";
-                self::insertData($tableName, $data_ppc, $this->host, $this->userPlant, $this->passwordPlant);
+                self::insertData($tableName, $data_ppc);
                 break;
             case 'api-import-pvist':
-                if ($importType == 'withStringboxes') {
+                if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                     $tableName = "db__pv_dcist_$anlagenTabelle";
-                    self::insertData($tableName, $data_pv_dcist, $this->host, $this->userPlant, $this->passwordPlant);
+                    self::insertData($tableName, $data_pv_dcist);
                 }
 
                 $tableName = "db__pv_ist_$anlagenTabelle";
-                self::insertData($tableName, $data_pv_ist, $this->host, $this->userPlant, $this->passwordPlant);
+                self::insertData($tableName, $data_pv_ist);
                 break;
             default:
                 $tableName = "db__pv_ws_$weatherDbIdent";
-                self::insertData($tableName, $data_pv_weather, $this->host, $this->userPlant, $this->passwordPlant);
+                self::insertData($tableName, $data_pv_weather);
 
                 if ($anlage->getHasPPC()) {
                     $tableName = "db__pv_ppc_$anlagenTabelle";
-                    self::insertData($tableName, $data_ppc, $this->host, $this->userPlant, $this->passwordPlant);
+                    self::insertData($tableName, $data_ppc);
                 }
 
-                if ($importType == 'withStringboxes') {
+                if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                     $tableName = "db__pv_dcist_$anlagenTabelle";
-                    self::insertData($tableName, $data_pv_dcist, $this->host, $this->userPlant, $this->passwordPlant);
+                    self::insertData($tableName, $data_pv_dcist);
                 }
 
                 $tableName = "db__pv_ist_$anlagenTabelle";
-                self::insertData($tableName, $data_pv_ist, $this->host, $this->userPlant, $this->passwordPlant);
+                self::insertData($tableName, $data_pv_ist);
                 break;
         }
     }

@@ -381,7 +381,7 @@ class Anlage
     private bool $useGridMeterDayData = false;
     #[ORM\Column(type: 'string', length: 20)]
     private string $country = '';
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: OpenWeather::class)]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: OpenWeather::class, cascade: ['persist', 'remove'] )]
     private Collection $openWeather;
     #[ORM\Column(type: 'boolean')]
     private bool $calcPR = false;
@@ -547,7 +547,7 @@ class Anlage
     #[ORM\Column(type: 'boolean')]
     private bool $RetrieveAllData = false;
 
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: DayLightData::class)]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: DayLightData::class, cascade: ['persist', 'remove'])]
     private Collection $dayLightData;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageSunShading::class, cascade: ['persist', 'remove'])]
@@ -814,12 +814,14 @@ class Anlage
         return $this->anlBetrieb;
     }
 
-    public function getBetriebsJahre(): ?float
+    public function getBetriebsJahre(): float
     {
         if ($this->getAnlBetrieb()) {
-            return  (int) date('Y') - (int) $this->getAnlBetrieb()->format('Y');
+            $interval = $this->getAnlBetrieb()->diff(new DateTime());
+
+            return (int) ($interval->format('%a') / 356) + 1;
         } else {
-            return false;
+            return -1;
         }
 
     }

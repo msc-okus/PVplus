@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
 use App\Entity\EconomicVarNames;
 use App\Entity\WeatherStation;
+use League\Flysystem\Filesystem;
 use App\Form\Anlage\AnlageAcGroupsFormType;
 use App\Form\Anlage\AnlageConfigFormType;
 use App\Form\Anlage\AnlageDcGroupsFormType;
@@ -22,12 +23,15 @@ use App\Repository\EconomicVarNamesRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use League\Flysystem\FilesystemException;
+use RecursiveIteratorIterator;
+use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -38,6 +42,12 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class AnlagenAdminController extends BaseController
 {
     use G4NTrait;
+    public function __construct(
+        private PdoService $pdoService,
+        private Filesystem $fileSystemFtp
+    )
+    {
+    }
 
     #[Route(path: '/admin/anlagen/new', name: 'app_admin_anlagen_new')]
     public function new(EntityManagerInterface $em, Request $request, WeatherStationController $weatherStationController): RedirectResponse|Response
@@ -214,18 +224,22 @@ class AnlagenAdminController extends BaseController
      * @param UploaderHelper $uploaderHelper
      * @param AnlageFileRepository $RepositoryUpload
      * @return RedirectResponse|Response
+     * @throws FilesystemException
      */
     #[Route(path: '/admin/anlagen/editconfig/{id}', name: 'app_admin_anlagen_edit_config')]
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload): RedirectResponse|Response
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): RedirectResponse|Response
     {
-        $upload = new AnlageFile();
+         $upload = new AnlageFile();
         $anlage = $anlagenRepository->find($id);
         $imageuploaded = $RepositoryUpload->findOneBy(['path' => $anlage->getPicture()]);
         if ($imageuploaded != null) {
             $isupload = 'yes';
+            if ($fileSystemFtp->fileExists($imageuploaded->getPath())) $tempFile = self::makeTempFiles([$fileSystemFtp->read($imageuploaded->getPath())], $filesystem)[0];
+            else $isupload = 'no';
         } else {
             $isupload = 'no';
         }
+
         $economicVarNames1 = new EconomicVarNames();
         if ($ecoNamesRepo->findByAnlage($id)[0] != null) {
             $economicVarNames1 = $ecoNamesRepo->findByAnlage($id)[0]; // will be used to load and display the already defined names
@@ -236,12 +250,13 @@ class AnlagenAdminController extends BaseController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $uploadedFile = $form['picture']->getData();
-            if ($uploadedFile) {
+
+            if ($uploadedFile != '') {
                 $isupload = 'yes';
-                $newFile = $uploaderHelper->uploadImage($uploadedFile, $id, 'owner');
+                $newFile = $uploaderHelper->uploadImageSFTP($uploadedFile, $anlage->getEigner()->getFirma(), $anlage->getAnlName(), 'plant');
                 $newFilename = $newFile['newFilename'];
                 $mimeType = $newFile['mimeType'];
-                $uploadsPath = 'uploads/'.UploaderHelper::EIGNER_LOGO.'/'.$id.'/'.$newFilename;
+                $uploadsPath = $newFile['path'];
                 $upload->setFilename($newFilename)
                     ->setMimeType($mimeType)
                     ->setPath($uploadsPath)
@@ -250,8 +265,9 @@ class AnlagenAdminController extends BaseController
 
                 $em->persist($upload);
                 $em->flush();
-
                 $anlage->setPicture($uploadsPath);
+                //here we update the pic
+                $tempFile = self::makeTempFiles([$fileSystemFtp->read($uploadsPath)], $filesystem)[0];
             }
             if ($economicVarNames1 === null) {
                 $economicVarNames = new EconomicVarNames();
@@ -265,73 +281,68 @@ class AnlagenAdminController extends BaseController
             $successMessage = 'Plant data saved!';
             $em->persist($anlage);
             $em->flush();
-            $imageuploaded = $RepositoryUpload->findOneBy(['path' => $anlage->getPicture()]);
             if ($form->get('save')->isClicked()) {
-                if ($imageuploaded != null) {
-                    return $this->render('anlagen/editconfig.html.twig', [
+                     $response = $this->render('anlagen/editconfig.html.twig', [
                         'anlageForm' => $form->createView(),
                         'anlage' => $anlage,
                         'econames' => $economicVarNames1,
                         'isupload' => $isupload,
-                        'imageuploadet' => $imageuploaded->getPath(),
+                        'imageuploadet' => $tempFile,
                     ]);
-                } else {
-                    return $this->render('anlagen/editconfig.html.twig', [
-                        'anlageForm' => $form->createView(),
-                        'anlage' => $anlage,
-                        'econames' => $economicVarNames1,
-                        'isupload' => $isupload,
-                    ]);
-                }
+
             }
             if ($form->get('saveclose')->isClicked()) {
                 $this->addFlash('success', $successMessage);
 
                 return $this->redirectToRoute('app_admin_anlagen_list');
             }
+
         }
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
             return $this->redirectToRoute('app_admin_anlagen_list');
 
         }
-
-        if ($imageuploaded != null) {
-            return $this->render('anlagen/editconfig.html.twig', [
+        if (!$form->isSubmitted() || !$form->isValid())$response =  $this->render('anlagen/editconfig.html.twig', [
                 'anlageForm' => $form->createView(),
                 'anlage' => $anlage,
                 'econames' => $economicVarNames1,
                 'isupload' => $isupload,
-                'imageuploadet' => $imageuploaded->getPath(),
-            ]);
-        } else {
-            return $this->render('anlagen/editconfig.html.twig', [
-                'anlageForm' => $form->createView(),
-                'anlage' => $anlage,
-                'econames' => $economicVarNames1,
-                'isupload' => $isupload,
-            ]);
-        }
+                'imageuploadet' => $tempFile,
+        ]);
+        return $response;
     }
 
-    #[Route(path: '/admin/anlagen/download/{id}/{dir}/{file}', name: 'download_file', methods: ['GET','POST'])]
-    public function downloadFile($id, $dir, $file, AnlagenRepository $anlagenRepository, KernelInterface $kernel) {
+    #[Route(path: '/admin/anlagen/download/{id}/{dir}/{file}/{ext}', name: 'download_file', methods: ['GET','POST'])]
+    public function downloadFile($id, $dir, $file, $ext, AnlagenRepository $anlagenRepository, KernelInterface $kernel): BinaryFileResponse|Response
+    {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageDcGroupsFormType::class, $anlage, [
             'anlagenId' => $id,
         ]);
 
-        $datfile_folder = $kernel->getProjectDir()."/public/uploads"; //
-        $filename = $file;
-        $dwnlink = $datfile_folder.'/'.$dir.'/'.$filename;
+        $filename = $file.'.'.$ext;
+        $ftplink = $dir.'/'.$file.'.'.$ext;
 
-        if (file_exists($dwnlink)) {
-            $response = new BinaryFileResponse($dwnlink);
+        if ($this->fileSystemFtp->fileExists($ftplink)) {
+
+            $resource = $this->fileSystemFtp->readStream($ftplink);
+            $metadata = stream_get_meta_data($resource);
+            $resourcedata = $this->fileSystemFtp->read($ftplink);
+            $path = $metadata['uri']; // alternative
+
+            $tmpfile = tempnam(sys_get_temp_dir(), '~g4n'); // Erstellt ein Tmp file
+            $handle = fopen($tmpfile, "w");
+            fwrite($handle,  $resourcedata);
+            fclose($handle);
+
+            $response = new BinaryFileResponse($tmpfile);
             $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $filename);
+
             $this->addFlash('success', 'File was downloaded.');
             return $response;
-        } else {
-            $this->addFlash('warning', 'File not found.');
+          } else {
+            $this->addFlash('warning', 'Sorry file not found.');
             return $this->render('anlagen/edit.html.twig', [
                 'anlageForm' => $form->createView(),
                 'anlage' => $anlage,
@@ -339,13 +350,15 @@ class AnlagenAdminController extends BaseController
         }
 
     }
+
+    /**
+     * @throws \Exception
+     */
     #[Route(path: '/admin/anlagen/buildforcast/{id}', name: 'app_admin_anlagen_build_forecast', methods: ['GET','POST'])]
     public function buildForcast($id,  AnlagenRepository $anlagenRepository, KernelInterface $kernel): RedirectResponse|Response
     {
-
-        $anlage = $anlagenRepository->find($id);
         $response = new Response();
-        $response->setStatusCode(\Symfony\Component\HttpFoundation\Response::HTTP_OK);
+        $response->setStatusCode(Response::HTTP_OK);
 
         $application = new Application($kernel);
         $application->setAutoExit(false);
@@ -357,8 +370,8 @@ class AnlagenAdminController extends BaseController
 
         $output = new BufferedOutput();
         $application->run($input, $output);
-        return $response;
 
+        return $response;
     }
 
     #[Route(path: '/admin/anlagen/editdcgroups/{id}', name: 'app_admin_anlagen_edit_dcgroups')]
@@ -492,7 +505,7 @@ class AnlagenAdminController extends BaseController
             $em->flush();
         }
 
-        return $this->redirectToRoute('app_anlagen_list');
+        return $this->redirectToRoute('app_admin_anlagen_list');
     }
 
     /**
@@ -635,7 +648,7 @@ class AnlagenAdminController extends BaseController
                                   UNIQUE INDEX `stamp_section` (`stamp` ASC, `section` ASC));
                                 ";
 
-            $conn = GetPdoService::getPdoConnection();
+            $conn = $this->pdoService->getPdoPlant();
             $conn->exec($databaseAcIst);
             $conn->exec($databaseDcIst);
             // $conn->exec($databaseAcSoll);

@@ -28,6 +28,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use DateTime;
+use App\Service\PdoService;
 
 /**
  *
@@ -37,11 +38,7 @@ class ReportsMonthlyV2Service
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+        private PdoService $pdoService,
         private AnlagenRepository $anlagenRepository,
         private PRRepository $PRRepository,
         private ReportsRepository $reportsRepository,
@@ -177,7 +174,12 @@ class ReportsMonthlyV2Service
 
         for ($n = 1; $n <= $days; ++$n) {
             $xAxis[] = $table[$n]['datum_alt'];
-            $number = $anlage->getUseGridMeterDayData() ? $table[$n]['powerEGridExt'] : $table[$n]['powerEvu'];
+            if ($anlage->getShowEvuDiag()){
+                $number = $anlage->getUseGridMeterDayData() ? $table[$n]['powerEGridExt'] : $table[$n]['powerEvu'];
+            } else {
+                $number = $table[$n]['powerAct'];
+            }
+
             $yAxis[] = round($number,2);
         }
         $chart = new ECharts();

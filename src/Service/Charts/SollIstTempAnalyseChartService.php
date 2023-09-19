@@ -9,18 +9,15 @@ use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
 use PDO;
-use Symfony\Component\Security\Core\Security;
+use App\Service\PdoService;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class SollIstTempAnalyseChartService
 {
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private PdoService $pdoService,
         private Security $security,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository $invertersRepo,
@@ -62,7 +59,7 @@ class SollIstTempAnalyseChartService
     {
         ini_set('memory_limit', '3G');
         $anlagename = $anlage->getAnlName();
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
             case 3:
@@ -117,7 +114,7 @@ class SollIstTempAnalyseChartService
                 //$stamp = date('Y-m-d', strtotime($rowActual['ts']));
                 $time = date('H:i', strtotime(self::timeShift($anlage,$rowActual['ts'])));
                 $actPower = $rowActual['act_power_ac'];
-                $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
+                $actPower = $actPower > 0 ? round($actPower, 2) : 0; // neagtive Werte auschließen
                 $prz = $rowActual['prz'];
                 $temp = $rowActual['wr_temp'];
                 switch (TRUE){

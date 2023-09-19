@@ -9,18 +9,15 @@ use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
 use PDO;
-use Symfony\Component\Security\Core\Security;
+use App\Service\PdoService;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class HeatmapChartService
 {
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private PdoService $pdoService,
         private AnlagenStatusRepository $statusRepository,
         private InvertersRepository     $invertersRepo,
         private IrradiationChartService $irradiationChart,
@@ -62,7 +59,7 @@ class HeatmapChartService
     {
         ini_set('memory_limit', '3G');
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $pnominverter = $anlage->getPnomInverterArray();
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.

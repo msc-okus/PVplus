@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 use App\Entity\Anlage;
 use App\Form\Model\WeatherToolsModel;
@@ -24,6 +24,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Exception;
 use Omines\DataTablesBundle\DataTableFactory;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,6 +40,16 @@ class SpecialOperationsController extends AbstractController
 {
     use G4NTrait;
 
+    public function __construct(
+        private $host,
+        private $userBase,
+        private $passwordBase,
+        private $userPlant,
+        private $passwordPlant,
+
+    )
+    {
+    }
     /**
      * @throws InvalidArgumentException
      * @throws NonUniqueResultException
@@ -90,11 +101,12 @@ class SpecialOperationsController extends AbstractController
      * @throws Exception
      * @throws InvalidArgumentException
      */
-    #[IsGranted('ROLE_G4N')]
+
     #[IsGranted('ROLE_BETA')]
     #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
-    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, DataTableFactory $dataTableFactory): Response
+    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, Security $security): Response
     {
+
         $output = $table = null;
         $startDay = $request->request->get('start-day');
         $endDay = $request->request->get('end-day');
@@ -114,12 +126,12 @@ class SpecialOperationsController extends AbstractController
         }
 
         return $this->render('special_operations/reportMonthlyNew.html.twig', [
-            'headline'      => $headline,
-            'anlagen'       => $anlagen,
-            'anlage'        => $anlage,
-            'report'        => $output,
-            'status'        => $anlageId,
-            'datatable'     => $table,
+            'headline' => $headline,
+            'anlagen' => $anlagen,
+            'anlage' => $anlage,
+            'report' => $output,
+            'status' => $anlageId,
+            'datatable' => $table,
         ]);
 
     }
@@ -192,8 +204,7 @@ class SpecialOperationsController extends AbstractController
         $headline = '';
 
         if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
-            /* @var WeatherToolsModel $toolsModel
-             */
+            /* @var WeatherToolsModel $toolsModel */
             $toolsModel = $form->getData();
             $toolsModel->endDate->add(new \DateInterval('P1D')); //->sub(new \DateInterval('PT1S'))
             $anlage = $anlagenRepo->findOneBy(['anlId' => $toolsModel->anlage]);
@@ -350,7 +361,7 @@ class SpecialOperationsController extends AbstractController
                 // Here we upload the file and read it
                 $newFile = $uploaderHelper->uploadFile($uploadedFile, '/xlsx/1', 'xlsx');
 
-                $conn = GetPdoService::getPdoConnection();
+                $conn = $this->pdoService->getPdoPlant();
 
                 if ( $xlsx = simpleXLSX::parse($uploadsPath . '/xlsx/1/'.$newFile) ) {
                     $i = 0;

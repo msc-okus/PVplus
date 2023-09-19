@@ -11,7 +11,7 @@
             <thead>
             <tr>
                 <th>Period / Duration</th>
-                <th>Power Grid</th>
+                {% if anlage.showEvuDiag %}<th>Power Grid</th>{% endif %}
                 <th>Power Inverter</th>
                 <th>Power Expected (G4N)</th>
             </tr>
@@ -20,7 +20,7 @@
             {% for power in overviewsPower %}
             <tr>
                 <td>{{ power.period }}</td>
-                <td>{{ power.grid|number_format(2,',','.') }}</td>
+                {% if anlage.showEvuDiag %}<td>{{ power.grid|number_format(2,',','.') }}</td>{% endif %}
                 <td>{{ power.inverter|number_format(2,',','.') }}</td>
                 <td>{{ power.expected|number_format(2,',','.') }}</td>
             </tr>
@@ -33,7 +33,7 @@
             <thead>
             <tr>
                 <th>Period / Duration</th>
-                <th>PR Grid</th>
+                {% if anlage.showEvuDiag %}<th>PR Grid</th>{% endif %}
                 <th>PR Inverter</th>
                 <th>PR Expected (G4N)</th>
                 <th>Availability</th>
@@ -43,7 +43,7 @@
             {% for pr in overviewsPR %}
                 <tr>
                     <td>{{ pr.period }}</td>
-                    <td>{{ pr.grid|number_format(2,',','.') }}</td>
+                    {% if anlage.showEvuDiag %}<td>{{ pr.grid|number_format(2,',','.') }}</td>{% endif %}
                     <td>{{ pr.inverter|number_format(2,',','.') }}</td>
                     <td>{{ pr.expected|number_format(2,',','.') }}</td>
                     <td>{{ pr.pa|number_format(3,',','.') }}</td>

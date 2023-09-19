@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 use App\Entity\ApiToken;
 use App\Entity\UserLogin;
@@ -10,13 +10,11 @@ use App\Repository\UserLoginRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends BaseController
 {
-
-
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils, UserLoginRepository $userLoginRepository,UserRepository $userRepository): Response
     {
@@ -43,7 +41,6 @@ class SecurityController extends BaseController
             'session' => $session,
         ]);
     }
-
 
 
     #[Route(path: '/logout', name: 'app_logout')]

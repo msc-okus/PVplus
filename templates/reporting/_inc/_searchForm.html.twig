@@ -6,10 +6,12 @@
         <select name="searchstatus">
             <option value=""   {% if status == ''   %}   selected {% endif %} > status             </option>
             <option value="0"  {% if status == '0'  %}   selected {% endif %} > final              </option>
+            {% if is_granted('ROLE_G4N') %}<option value="1"  {% if status == '1'  %}   selected {% endif %} > final FAC          </option>{% endif %}
+            {% if is_granted('ROLE_G4N') %}<option value="3"  {% if status == '3'  %}   selected {% endif %} > under observation  </option>{% endif %}
             <option value="5"  {% if status == '5'  %}   selected {% endif %} > proof reading      </option>
-            <option value="9"  {% if status == '9'  %}   selected {% endif %} > archive (g4n only) </option>
-            <option value="10" {% if status == '10' %}   selected {% endif %} > draft (g4n only)   </option>
-            <option value="11" {% if status == '11' %}   selected {% endif %} > wrong (g4n only)   </option>
+            {% if is_granted('ROLE_G4N') %}<option value="9"  {% if status == '9'  %}   selected {% endif %} > archive (g4n only) </option>{% endif %}
+            {% if is_granted('ROLE_G4N') %}<option value="10" {% if status == '10' %}   selected {% endif %} > draft (g4n only)   </option>{% endif %}
+            {% if is_granted('ROLE_G4N') %}<option value="11" {% if status == '11' %}   selected {% endif %} > wrong (g4n only)   </option>{% endif %}
         </select>
     </div>
     <div class="cell medium-2">

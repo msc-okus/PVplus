@@ -1,10 +1,8 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
-use App\Entity\AnlageCase5;
 use App\Entity\User;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
@@ -17,9 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\Charts\SollIstHeatmapChartService;
-
-use function _PHPStan_c900ee2af\React\Promise\all;
 
 class DashboardPlantsController extends BaseController
 {
@@ -194,40 +189,5 @@ class DashboardPlantsController extends BaseController
         ]);
     }
 
-    /**
-     * Speicher bzw Updaten der Case 5 Einträge.
-     *
-     * @param Anlage $anlage
-     * @param $case5id
-     * @param $date
-     * @param $from
-     * @param $to
-     * @param $inverter
-     * @param $reason
-     * @param EntityManagerInterface $em
-     * @param AvailabilityService $availabilityService
-     * @throws Exception
-     */
-    private function updateCase5Availability(Anlage $anlage, $case5id, $date, $from, $to, $inverter, $reason, EntityManagerInterface $em, AvailabilityService $availabilityService)
-    {
-        $from = date('Y-m-d ', strtotime($date)).$from;
-        $to = date('Y-m-d ', strtotime($date)).$to;
 
-        $case5Repository = $em->getRepository(AnlageCase5::class);
-        $case5 = $case5Repository->findOneBy(['id' => $case5id]);
-
-        if (!$case5) {
-            $case5 = new AnlageCase5();
-        }
-        $case5
-            ->setAnlage($anlage)
-            ->setInverter($inverter)
-            ->setStampFrom($from)
-            ->setStampTo($to)
-            ->setReason($reason)
-        ;
-        $em->persist($case5);
-        $em->flush();
-        $availabilityService->checkAvailability($anlage, strtotime($date));
-    }
 }

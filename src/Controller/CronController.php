@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
@@ -9,12 +8,12 @@ use App\Repository\AnlagenRepository;
 use App\Service\checkSystemStatusService;
 use App\Service\MessageService;
 use App\Service\ReportService;
-use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use JetBrains\PhpStorm\Deprecated;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-#[deprecated]
+#[Deprecated]
 #[IsGranted('ROLE_G4N')]
 class CronController extends BaseController
 {

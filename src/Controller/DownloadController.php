@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-use App\Service\GetPdoService;
+use App\Service\PdoService;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
@@ -10,17 +10,18 @@ use App\Form\DownloadAnalyse\DownloadAnalyseFormType;
 use App\Form\DownloadData\DownloadDataFormType;
 use App\Form\Model\DownloadAnalyseModel;
 use App\Form\Model\DownloadDataModel;
-use App\Reports\Download\DownloadReport;
 use App\Service\DownloadAnalyseService;
 use App\Service\DownloadDataService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DownloadController extends AbstractController
 {
     #[Route(path: '/download', name: 'app_download')]
-    public function dataDownload(Request $request, DownloadDataService $downloadData)
+    public function dataDownload(Request $request, DownloadDataService $downloadData): RedirectResponse|Response
     {
         $form = $this->createForm(DownloadDataFormType::class);
         $form->handleRequest($request);
@@ -68,7 +69,7 @@ class DownloadController extends AbstractController
     }
 
     #[Route(path: '/download/analyse/{formview}/{plantIdexp}', name: 'app_analyse_download', defaults: ['formview' => '-', 'plantIdexp' => 0])]
-    public function downloadAnalyse($formview, $plantIdexp, Request $request, DownloadAnalyseService $analyseService)
+    public function downloadAnalyse($formview, $plantIdexp, Request $request, DownloadAnalyseService $analyseService): RedirectResponse|Response
     {
         // das Formular für die Datumsselektion
         $form = $this->createForm(DownloadAnalyseFormType::class);

@@ -17,7 +17,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class ImportToolsFormType extends AbstractType
 {
@@ -43,7 +43,14 @@ class ImportToolsFormType extends AbstractType
         $anlagen_toShow = [];
         $i = 0;
         foreach ($anlagen as $anlage) {
-            if($anlage->getPathToImportScript() != ''){
+            $isSymfonyImport = null;
+            $settings = $anlage->getSettings();
+            if($settings){
+                $isSymfonyImport = $settings->isSymfonyImport();
+            }
+            
+            if($anlage->getPathToImportScript() != '' || $isSymfonyImport){
+
                 $anlagen_toShow[$i] = $anlage;
                 $i++;
             }

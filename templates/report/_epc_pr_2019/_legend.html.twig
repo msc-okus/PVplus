@@ -44,9 +44,7 @@
         </table>
     {% endif %}
 
-
-
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Remarks</h3>
-    {{ headline.epcNote }}
+    {{ headline.epcNote|raw }}
 
 {% endblock %}

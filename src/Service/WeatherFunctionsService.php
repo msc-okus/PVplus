@@ -18,6 +18,7 @@ use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
+use App\Service\PdoService;
 use DateTime;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -28,11 +29,7 @@ class WeatherFunctionsService
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private PdoService $pdoService,
         private PVSystDatenRepository   $pvSystRepo,
         private GroupMonthsRepository   $groupMonthsRepo,
         private GroupModulesRepository  $groupModulesRepo,
@@ -81,7 +78,7 @@ class WeatherFunctionsService
     {
         return $this->cache->get('getWeather_'.md5($weatherStation->getId().$from.$to.$ppc.$anlage->getAnlId()), function(CacheItemInterface $cacheItem) use ($weatherStation, $from, $to, $ppc, $anlage, $inverterID) {
             $cacheItem->expiresAfter(60);
-            $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+            $conn = $this->pdoService->getPdoPlant();
             $weather = [];
             $dbTable = $weatherStation->getDbNameWeather();
             $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp >= '$from' and stamp < '$to'";
@@ -259,7 +256,8 @@ class WeatherFunctionsService
      */
     public function getIrrByStampForTicket(Anlage $anlage, DateTime $stamp): ?float
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+
+        $conn = $this->pdoService->getPdoPlant();
         $irr = null;
         $sqlw = 'SELECT g_lower, g_upper FROM ' . $anlage->getDbNameWeather() . " WHERE stamp = '" . $stamp->format('Y-m-d H:i') . "' ";
         $respirr = $conn->query($sqlw);
@@ -268,32 +266,29 @@ class WeatherFunctionsService
             $pdataw = $respirr->fetch(PDO::FETCH_ASSOC);
             $irrUpper =  $pdataw['g_upper'] !== ''  ? (float)$pdataw['g_upper'] : null;
             $irrLower =  $pdataw['g_lower'] !== ''  ? (float)$pdataw['g_lower'] : null;
+          
             if ($irrUpper < 0) $irrUpper = 0;
             if ($irrLower < 0) $irrLower = 0;
-            // Sensoren sind vertauscht, Werte tauschen
+
+// Sensoren sind vertauscht, Werte tauschen
+
             if ($anlage->getWeatherStation()->getChangeSensor()) {
                 $irrHelp = $irrLower;
                 $irrLower = $irrUpper;
                 $irrUpper = $irrHelp;
             }
+            $irr = $irrUpper;
             if ($irrUpper !== null && $irrLower !== null) {
                 if ($anlage->getIsOstWestAnlage() && $anlage->getPowerEast() > 0 && $anlage->getPowerWest() > 0) {
                     $gwoben = $anlage->getPowerEast() / ($anlage->getPowerWest() + $anlage->getPowerEast());
                     $gwunten = $anlage->getPowerWest() / ($anlage->getPowerWest() + $anlage->getPowerEast());
-
                     $irr = $irrUpper * $gwoben + $irrLower * $gwunten;
-                } else {
-                    if ($anlage->getWeatherStation()->getHasUpper() && !$anlage->getWeatherStation()->getHasLower()) {
-                        $irr = $irrUpper;
-                    } elseif (!$anlage->getWeatherStation()->getHasUpper() && $anlage->getWeatherStation()->getHasLower()) {
-                        // Station hat nur unteren Sensor => Die Strahlung OHNE Gewichtung zurückgeben, Verluste werden dann über die Verschattung berechnet
-                        $irr = $irrLower;
-                    }
                 }
             }
         }
         $conn = null;
         return $irr;
+
     }
 
     /**
@@ -307,7 +302,7 @@ class WeatherFunctionsService
      */
     public function getSensors(Anlage $anlage, DateTime $from, DateTime $to): array
     {
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $result = [];
 
         $dbTable = $anlage->getDbNameIst();

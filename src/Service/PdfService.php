@@ -4,17 +4,14 @@ namespace App\Service;
 
 use chromeheadlessio\Service;
 use Knp\Snappy\Pdf;
+use League\Flysystem\Filesystem;
 
 class PdfService
 {
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
         private Pdf $snappyPdf,
+        private Filesystem $fileSystemFtp,
     )
     {
     }
@@ -27,7 +24,6 @@ class PdfService
      */
     public function createPdf(string $html, ?string $source = null, string $filename = 'tempPDF.pdf', string $orientation = 'landscape', bool $store = false): void
     {
-
             $pdf = "";
             if ($source === null) {
                 // Create ChromeHeadless service with your token key specified
@@ -108,31 +104,27 @@ class PdfService
             'print-media-type'  => true,
             'disable-smart-shrinking' => true,
         ]);
-        $filepath = '/usr/home/pvpluy/public_html/public/' . $fileroute . '/' . $name . '.pdf';
+        $filepath = './pdf/' . $fileroute . '/' . $name . '.pdf';
         $filepath = str_replace(" ", "_", $filepath);
+        $fileroute = './pdf/' . $fileroute;
         $fileroute = str_replace(" ", "_", $fileroute);
-        if (!is_dir('/usr/home/pvpluy/public_html/public/' . $fileroute )) {
-            mkdir('/usr/home/pvpluy/public_html/public/' . $fileroute , 0755, true);
-        }
-        $filePdf = fopen($filepath, 'w+') or die("Unable to open file!");
-
-        fwrite($filePdf, $pdf);
+       // if ($this->fileSystemFtp->fileExists($fileroute) === false)$this->fileSystemFtp->createDirectory( $fileroute );
+        $this->fileSystemFtp->write($filepath, $pdf);
         if ($view) {
-            fseek($filePdf, 0);
-            header("Content-Disposition: attachment; filename=" . urlencode($fileroute . '/' . $name . '.pdf'));
-            header("Content-Type: application/force-download");
-            header("Content-Type: application/octet-stream");
-            header("Content-Type: application/download");
-            header("Content-Description: File Transfer");
-            header("Content-Length: " . filesize(stream_get_meta_data($filePdf)['uri']));
+           $resource = $this->fileSystemFtp->readStream($filepath);
+           fseek($resource, 0);
+           header("Content-Disposition: attachment; filename=" . urlencode($fileroute . '/' . $name . '.pdf'));
+           header("Content-Type: application/force-download");
+           header("Content-Type: application/octet-stream");
+           header("Content-Type: application/download");
+           header("Content-Description: File Transfer");
+           header("Content-Length: " . filesize(stream_get_meta_data($resource)['uri']));
 
-            while (!feof($filePdf)) {
-                echo fread($filePdf, 65536);
-                flush(); // this is essential for large downloads
-            }
+           while (!feof($resource)) {
+               echo fread($resource, 65536);
+               flush(); // this is essential for large downloads
+           }
         }
-
-        fclose($filePdf);
         return $filepath;
     }
 

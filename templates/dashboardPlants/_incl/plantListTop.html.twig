@@ -1,4 +1,5 @@
 {% if (is_granted('ROLE_G4N')) %}
+{#
     <div class="grid-x">
         <div class="cell medium-6">
             <button type="button" class="button" id="showGrid" value="NO" data-toggle="showGrid"><i id="bton" class="fa fa-bars"></i></button>
@@ -7,60 +8,23 @@
             <input class="showLinetoogle" type="text" id="Search" onkeyup="searchFunction()" placeholder="find your plant .." title="Type in a name" style="display: none">
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById("showGrid").addEventListener('click',function () {
-
-                const coll = document.getElementsByClassName("showGridtoogle");
-                const coll2 = document.getElementsByClassName("showLinetoogle");
-
-                var t = document.getElementById("showGrid");
-
-                if(t.value=="YES"){
-                    t.value="NO";
-                    document.getElementById("bton").className = "fa fa-bars";
-                    changeDisplay(coll,'block');
-                    changeDisplay(coll2,'none');
-                }
-                else if(t.value=="NO"){
-                    t.value="YES";
-                    document.getElementById("bton").className = "fa fa-pause";
-                    changeDisplay(coll,'none');
-                    changeDisplay(coll2,'block');
-                }
-
-             } );
-        } );
-
-        function changeDisplay(coll, value){
-            for(var i=0, len=coll.length; i<len; i++) {
-                coll[i].style["display"] = value;
-            }
-        }
-
-        function searchFunction() {
-            var input = document.getElementById("Search");
-            var filter = input.value.toLowerCase();
-            var nodes = document.getElementsByClassName('target');
-
-            for (i = 0; i < nodes.length; i++) {
-                if (nodes[i].innerText.toLowerCase().includes(filter)) {
-                    nodes[i].style.display = "block";
-                } else {
-                    nodes[i].style.display = "none";
-                }
-            }
-        }
-    </script>
+#}
 {% endif %}
-
+<div class="grid-x grid-padding-x">
+    <div class="cell">
+        <div class="input-group">
+            <input class="showLinetoogle input-group-field" type="text" id="searchText" placeholder="find your plant .." title="Type in a plant name">
+            <input type="button" class="small button" id="clearButton" value="clear">
+        </div>
+    </div>
+</div>
 <div class="grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y">
     {% for anlage in anlagen %}
         {% if anlage.lastStatus[0] is defined %}{% set status = anlage.lastStatus[0] %}{% endif %}
         {% if anlage.yesterdayPR[0] is defined %}{% set pr = anlage.yesterdayPR[0] %}{% endif %}
         {% if anlage.lastOpenWeather[0] is defined %}{% set openWeather = anlage.lastOpenWeather[0] %}{% endif %}
         {% if loop.index == 1 or not aktAnlage %}
-            <div class="showGridtoogle cell medium-6 large-4 xlarge-3 box kachel shadow {% if aktAnlage %}fb{% endif %}">
+            <div class="showGridtoogle cell medium-6 large-4 xlarge-3 box kachel shadow {% if aktAnlage %}fb {% else %}target {% endif %}">
                 <a href='{{ path('app_dashboard_plant', {eignerId: anlage.eignerId, anlageId: anlage.anlagenId}) }}' class="plant">
                     <div class="grid-x">
                         <div class="cell small-8">
@@ -76,7 +40,7 @@
                                 {% endif %}
                             {% endif %}
                             {% if anlage.country %}
-                                <img height='25' width='25' style='margin-top: -9px;' src='/images/flag/flag-{{ anlage.country }}.png' />
+                                <img height='25' width='25' style='margin-top: -9px;' src='/images/flag/flag-{{ anlage.country }}.png'  alt="{{ anlage.country }}"/>
                             {% endif %}
                         </div>
                     </div>
@@ -388,7 +352,7 @@
                 <div class="showGridtoogle cell medium-6 large-8 xlarge-9 scroll-area">
                     <div class="grid-x grid-margin-x grid-margin-x-bottom grid-padding-x grid-padding-y">
             {% endif %}
-                <div class='showGridtoogle cell medium-6 large-4 xlarge-3 box shadow text-center'>
+                <div class='showGridtoogle cell medium-6 large-4 xlarge-3 box shadow text-center target'>
                     <a href='{{ path('app_dashboard_plant', {eignerId: anlage.eignerId, anlageId: anlage.anlagenId}) }}' class="plant">
                         <div class="charts-grids">
                             <div class="grid-x">

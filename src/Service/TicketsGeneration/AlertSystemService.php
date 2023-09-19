@@ -20,6 +20,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
+use App\Service\PdoService;
 use phpDocumentor\Reflection\Types\Boolean;
 define('EFOR', '10');
 define('SOR', '20');
@@ -38,11 +39,7 @@ class AlertSystemService
     private bool $irr = false;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
+private PdoService $pdoService,
         private AnlagenRepository       $anlagenRepository,
         private WeatherServiceNew       $weather,
         private WeatherFunctionsService $weatherFunctions,
@@ -288,7 +285,7 @@ class AlertSystemService
     {
         $percentajeDiff = $anlage->getPercentageDiff();
         $invCount = count($anlage->getInverterFromAnlage());
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $powerArray = "";
 
@@ -450,7 +447,7 @@ class AlertSystemService
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
         //we get the frequency values
         $voltLimit = 0;
-        $conn = self::getPdoConnection($this->host, $this->userPlant, $this->passwordPlant);
+        $conn = $this->pdoService->getPdoPlant();
 
         $return['ppc'] = false;
         $return['Power0'] = "";

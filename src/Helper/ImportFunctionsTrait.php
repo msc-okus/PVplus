@@ -6,80 +6,8 @@ require_once __DIR__.'/../../public/config.php';
 use PDO;
 use PDOException;
 
-
 trait ImportFunctionsTrait
 {
-
-    /**
-     * @param string|null $dbdsn
-     * @param string|null $dbusr
-     * @param string|null $dbpass
-     * @return PDO
-     */
-    public static function getPdoConnectionData(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
-    {
-
-        // Config als Array
-        // Check der Parameter wenn null dann nehme default Werte als fallback
-        $config = [
-            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
-            'database_user' => $dbusr,
-            'database_pass' => $dbpass
-        ];
-
-        try {
-            $pdo = new PDO(
-                $config['database_dsn'],
-                $config['database_user'],
-                $config['database_pass'],
-                [
-                    PDO::ATTR_PERSISTENT => true
-                ]
-            );
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            echo 'Error!: ' . $e->getMessage() . '<br/>';
-            exit;
-        }
-
-        return $pdo;
-    }
-
-    /**
-     * @param string|null $dbdsn
-     * @param string|null $dbusr
-     * @param string|null $dbpass
-     * @return PDO
-     */
-    public static function getPdoConnectionBase(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
-    {
-        // Config als Array
-        // Check der Parameter wenn null dann nehme default Werte als fallback
-        $config = [
-            'database_dsn' => 'mysql:dbname=pvp_data;host='.$dbdsn,
-            'database_user' =>  $dbusr,
-            'database_pass' => $dbpass
-        ];
-
-        try {
-            $pdo = new PDO(
-                $config['database_dsn'],
-                $config['database_user'],
-                $config['database_pass'],
-                [
-                    PDO::ATTR_PERSISTENT => true
-                ]
-            );
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            echo 'Error!: ' . $e->getMessage() . '<br/>';
-            exit;
-        }
-
-        return $pdo;
-    }
-
-    //???
     function getDcPNormPerInvereter($conn, array $groups, array $modules): array
     {
 
@@ -111,57 +39,35 @@ trait ImportFunctionsTrait
     }
 
     /**
-     * @param string|DateTime $dateTime
-     * @return int
-     */
-    function calcYearOfOperation(DateTime $currentDate, DateTime $installationDate): int
-    {
-        $years = ($currentDate->getTimestamp() - $installationDate->getTimestamp()) / (60 * 60 * 24 * 356);
-        #echo (int)$years.'<br>';
-
-        return (int)$years; //(int)$currentDate->format('Y') - (int)$installationDate->format('Y'); // betriebsjahre;
-    }
-
-
-    /**
-     * Funktion g4nTimeCET() um immer Winterzeit zu bekommen
-     *
-     * @return int
-     */
-    function g4nTimeCET()
-    {
-        if (date("I") == "1") {
-            //wir haben Sommerzeit
-            $_time = time() - 3600;
-        } else {
-            // wir haben Winterzeit
-            $_time = time();
-        }
-
-        return $_time;
-    }
-
-
-    /**
      * @param string|null $tableName
      * @param array|null $data
      * @param string|null $host
      * @param string|null $passwordPlant
      */
-    function insertData($tableName = NULL, $data = NULL, $host = null, $userPlant = null, $passwordPlant = null): void
+    function insertData($tableName = NULL, $data = NULL): void
     {
         // obtain column template
-        $DBDataConnection = $this->getPdoConnectionData($host, $userPlant, $passwordPlant);
+        $DBDataConnection = $this->pdoService->getPdoPlant();
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];
         $columns = array_fill_keys(array_values($stmt->fetchAll(PDO::FETCH_COLUMN)), null);
         unset($columns['db_id']);
 
+        /* ToDo: Following code could be a good altenative to the current used 'double while with breaks'
 
+        foreach ($array as $key => $element) {
+            if ($key === array_key_first($array)) {
+                echo 'FIRST ELEMENT!';
+            }
+
+            if ($key === array_key_last($array)) {
+                echo 'LAST ELEMENT!';
+            }
+        }
+        */
         // multiple INSERT
         $rows = count($data);
-
         $j = 0;
         $i = 0;
         $rows = $rows - 1;
@@ -209,87 +115,6 @@ trait ImportFunctionsTrait
     }
 
     /**
-     * @param array $tempCorrParams // Parameter aus Anlage
-     * @param float $tempCellTypeAvg // t_cell_avg
-     * @param float|null $modulTemp // gemessene Modul Temperatur
-     * @param float|null $gPOA // Strahlung
-     * @param float $limitGPoa // limit der Strahlung (default: 0)
-     * @return float
-     */
-    function tempCorrectionIEC(array $tempCorrParams, float $tempCellTypeAvg, ?float $modulTemp, ?float $gPOA, float $limitGPoa = 0): float
-    {
-        $gamma = $tempCorrParams['gamma'];
-        $a = $tempCorrParams['a'];
-        $b = $tempCorrParams['b'];
-        $deltaTcnd = $tempCorrParams['deltaTcnd'];
-
-        if ($gPOA !== null && $modulTemp !== null) {
-            ($gPOA > $limitGPoa || $tempCellTypeAvg == 0) ? $tempCorrection = 1 - ($tempCellTypeAvg - $modulTemp) * $gamma / 100 : $tempCorrection = 1;
-        } else {
-            $tempCorrection = 0;
-        }
-
-        return $tempCorrection;
-    }
-
-    /**
-     * @param array $tempCorrParams // Parameter aus Anlage
-     * @param float $tempCellTypeAvg
-     * @param float|null $windSpeed
-     * @param float|null $airTemp
-     * @param float|null $gPOA // Strahlung
-     * @param float $limitGPoa // limit der Strahlung (default: 0)
-     * @return float
-     *
-     * Temp Correction by NREL
-     */
-    function tempCorrection(array $tempCorrParams, float $tempCellTypeAvg, ?float $windSpeed, ?float $airTemp, ?float $gPOA, float $limitGPoa = 0): float
-    {
-        $gamma = $tempCorrParams['gamma'];
-        $a = $tempCorrParams['a'];
-        $b = $tempCorrParams['b'];
-        $deltaTcnd = $tempCorrParams['deltaTcnd'];
-
-        if ($windSpeed === null) {
-            $windSpeed = 0;
-        }
-
-        if ($gPOA !== null && $windSpeed !== null && $airTemp !== null) {
-            $tempModulBack = $gPOA * pow(M_E, $a + ($b * $windSpeed)) + $airTemp;
-            $tempCell = $tempModulBack + ($gPOA / 1000) * $deltaTcnd;
-            ($gPOA > $limitGPoa || $tempCellTypeAvg == 0) ? $tempCorrection = 1 - ($tempCellTypeAvg - $tempCell) * $gamma / 100 : $tempCorrection = 1;
-        } else {
-            $tempCorrection = 0;
-        }
-
-        return $tempCorrection;
-    }
-
-    /**
-     * Calculation of temprature of cell (Tcell) according to NREL
-     *
-     * @param array $tempCorrParams
-     * @param float|null $windSpeed
-     * @param float|null $airTemp
-     * @param float|null $gPOA
-     * @return float|null
-     */
-    function tempCell(array $tempCorrParams, ?float $windSpeed, ?float $airTemp, ?float $gPOA): ?float
-    {
-        if (is_null($airTemp) || is_null($gPOA)) return null;
-        if ($windSpeed < 0 || $windSpeed === null) $windSpeed = 0;
-
-        $a = $tempCorrParams['a'];
-        $b = $tempCorrParams['b'];
-        $deltaTcnd = $tempCorrParams['deltaTcnd'];
-
-        $tempModulBack = $gPOA * pow(M_E, $a + ($b * $windSpeed)) + $airTemp;
-
-        return $tempModulBack + ($gPOA / 1000) * $deltaTcnd;
-    }
-
-
-    /**
      * Datenimport der Grid Daten in die Tabelle anlage_grid_meter_day<br>
      * Es werden Tages werte importiert.<br>
      * Sollte für diesen Tag schon ein Wert vorliegen wird dieser aktualisiert (stamp ist unique key).<br>
@@ -301,7 +126,7 @@ trait ImportFunctionsTrait
      */
     function insertDataIntoGridMeterDay($anlagenID, $stamp, float $value)
     {
-        $DBDataConnection = getPdoConnectionAnlage();
+        $DBDataConnection = $this->pdoService->getPdoBase();
 
         $sql_sel_ins = "INSERT INTO anlage_grid_meter_day SET 
                     anlage_id = $anlagenID, stamp = '$stamp', grid_meter_value = $value 
@@ -311,37 +136,6 @@ trait ImportFunctionsTrait
         $DBDataConnection->exec($sql_sel_ins);
         $DBDataConnection = null;
     }
-
-    //???
-
-    /**
-     * Schreibt Eintraege, in die Tabelle 'log'.
-     * Stand: August 2021 - GSCH
-     * @param $anlage_id
-     * @param $created_at
-     * @param $created_by
-     * @param $type
-     * @param $description
-     * @param $stamp
-     */
-    function insertDataIntoLog($anlage_id, $created_at, $created_by, $type, $description, $stamp)
-    {
-        $DBBaseConnection = getPdoConnectionAnlage();
-        $sql_insert = "INSERT INTO log SET 
-                    anlage_id = $anlage_id, 
-                    created_at = '$created_at', 
-                    created_by = '$created_by',
-                    type = '$type', 
-                    description = '$description', 
-                    stamp = '$stamp'
-                   ON DUPLICATE KEY UPDATE 
-                    anlage_id = '$anlage_id'";
-        echo "Log: $sql_insert \n";
-        $DBBaseConnection->exec($sql_insert);
-        $DBBaseConnection = null;
-
-    }
-
 
     /**
      * @param string|null $value
@@ -361,45 +155,6 @@ trait ImportFunctionsTrait
         }
     }
 
-    //Liest die Sensoren der Anlage aus dem Backend
-    /**
-     * @param object $conn
-     * @param int $anlId
-     * @return array
-     */
-    function getAnlageSensors($conn, string $anlId): array
-    {
-        $query = "SELECT * FROM pvp_base.anlage_sensors  WHERE anlage_id  = " . $anlId;
-        $stmt = $conn->query($query);
-        return $stmt->fetchAll();
-    }
-
-    //Liest die PPCs der Anlage aus dem Backend
-    /**
-     * @param object $conn
-     * @param int $anlId
-     * @return array
-     */
-    function getAnlagePpcs($conn, string $anlId): array
-    {
-        $query = "SELECT * FROM pvp_base.anlage_ppcs  WHERE anlage_id  = " . $anlId;
-        $stmt = $conn->query($query);
-        return $stmt->fetchAll();
-    }
-
-    //Liest die AC-Gruppen aus dem Backend aus
-    /**
-     * @param object $conn
-     * @param int $anlId
-     * @return array
-     */
-    function getACGroups($conn, string $anlId): array
-    {
-        $query = "SELECT * FROM `anlage_groups_ac` where `anlage_id` = " . $anlId;
-        $stmt = $conn->query($query);
-        return $stmt->fetchAll();
-    }
-
     //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu
     /**
      * @param array $anlageSensors
@@ -411,6 +166,7 @@ trait ImportFunctionsTrait
      */
     function checkSensors(array $anlageSensors, int $length, bool $istOstWest, $sensors, $date): array
     {
+
         if ($istOstWest) {
             $gmPyHori = [];
             $gmPyWest = [];
@@ -418,53 +174,53 @@ trait ImportFunctionsTrait
             $gmPyHori = $gmPyHoriAnlage = $gmPyWest = $gmPyWestAnlage = $gmPyEast = $gmPyEastAnlage = [];
             $result = [];
             for ($i = 0; $i < $length; $i++) {
-                if ($anlageSensors[$i]['virtual_sensor'] == 'irr-hori' && $anlageSensors[$i]['use_to_calc'] == 1) {
+                if ($anlageSensors[$i]['virtualSensor'] == 'irr-hori' && $anlageSensors[$i]['useToCalc'] == 1) {
                     $start = 0;
                     $end = 0;
-                    if ($anlageSensors[$i]['start_date_sensor'] != null) {
-                        $start = strtotime($anlageSensors[$i]['start_date_sensor']);
+                    if ($anlageSensors[$i]['startDateSensor'] != null) {
+                        $start = strtotime($anlageSensors[$i]['startDateSensor']);
                     }
-                    if ($anlageSensors[$i]['end_date_sensor'] != null) {
-                        $end = strtotime($anlageSensors[$i]['end_date_sensor']);
+                    if ($anlageSensors[$i]['endDateSensor'] != null) {
+                        $end = strtotime($anlageSensors[$i]['endDateSensor']);
                     }
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                        array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0));
-                        $gmPyHoriAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0);
+                        array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
+                        $gmPyHoriAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
 
                 }
 
-                if ($anlageSensors[$i]['virtual_sensor'] == 'irr-west' && $anlageSensors[$i]['use_to_calc'] == 1) {
+                if ($anlageSensors[$i]['virtualSensor'] == 'irr-west' && $anlageSensors[$i]['useToCalc'] == 1) {
                     $start = 0;
                     $end = 0;
-                    if ($anlageSensors[$i]['start_date_sensor'] != null) {
-                        $start = strtotime($anlageSensors[$i]['start_date_sensor']);
+                    if ($anlageSensors[$i]['startDateSensor'] != null) {
+                        $start = strtotime($anlageSensors[$i]['startDateSensor']);
                     }
-                    if ($anlageSensors[$i]['end_date_sensor'] != null) {
-                        $end = strtotime($anlageSensors[$i]['end_date_sensor']);
+                    if ($anlageSensors[$i]['endDateSensor'] != null) {
+                        $end = strtotime($anlageSensors[$i]['endDateSensor']);
                     }
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                        array_push($gmPyWest, max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0));
-                        $gmPyWestAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0);
+                        array_push($gmPyWest, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
+                        $gmPyWestAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
 
                 }
 
-                if ($anlageSensors[$i]['virtual_sensor'] == 'irr-east' && $anlageSensors[$i]['use_to_calc'] == 1) {
+                if ($anlageSensors[$i]['virtualSensor'] == 'irr-east' && $anlageSensors[$i]['useToCalc'] == 1) {
                     $start = 0;
                     $end = 0;
-                    if ($anlageSensors[$i]['start_date_sensor'] != null) {
-                        $start = strtotime($anlageSensors[$i]['start_date_sensor']);
+                    if ($anlageSensors[$i]['startDateSensor'] != null) {
+                        $start = strtotime($anlageSensors[$i]['startDateSensor']);
                     }
-                    if ($anlageSensors[$i]['end_date_sensor'] != null) {
-                        $end = strtotime($anlageSensors[$i]['end_date_sensor']);
+                    if ($anlageSensors[$i]['endDateSensor'] != null) {
+                        $end = strtotime($anlageSensors[$i]['endDateSensor']);
                     }
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                        array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0));
-                        $gmPyEastAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0);
+                        array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
+                        $gmPyEastAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
 
                 }
@@ -482,36 +238,36 @@ trait ImportFunctionsTrait
             $gmPyHori = $gmPyHoriAnlage = $gmPyEast = $gmPyEastAnlage = [];
 
             for ($i = 0; $i < $length; $i++) {
-                if ($anlageSensors[$i]['virtual_sensor'] == 'irr-hori' && $anlageSensors[$i]['use_to_calc'] == 1) {
+                if ($anlageSensors[$i]['virtualSensor'] == 'irr-hori' && $anlageSensors[$i]['useToCalc'] == 1) {
 
                     $start = 0;
                     $end = 0;
-                    if ($anlageSensors[$i]['start_date_sensor'] != null) {
-                        $start = strtotime($anlageSensors[$i]['start_date_sensor']);
+                    if ($anlageSensors[$i]['startDateSensor'] != null) {
+                        $start = strtotime($anlageSensors[$i]['startDateSensor']);
                     }
-                    if ($anlageSensors[$i]['end_date_sensor'] != null) {
-                        $end = strtotime($anlageSensors[$i]['end_date_sensor']);
+                    if ($anlageSensors[$i]['endDateSensor'] != null) {
+                        $end = strtotime($anlageSensors[$i]['endDateSensor']);
                     }
                     $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                        array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0));
-                        $gmPyHoriAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0);
+                        array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
+                        $gmPyHoriAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                     }
 
                 }
 
-                if ($anlageSensors[$i]['virtual_sensor'] == 'irr' && $anlageSensors[$i]['use_to_calc'] == 1) {
+                if ($anlageSensors[$i]['virtualSensor'] == 'irr' && $anlageSensors[$i]['useToCalc'] == 1) {
                     $start = 0;
                     $end = 0;
-                    if ($anlageSensors[$i]['start_date_sensor'] != null) {
-                        $start = strtotime($anlageSensors[$i]['start_date_sensor']);
+                    if ($anlageSensors[$i]['startDateSensor'] != null) {
+                        $start = strtotime($anlageSensors[$i]['startDateSensor']);
                     }
-                    if ($anlageSensors[$i]['end_date_sensor'] != null) {
-                        $end = strtotime($anlageSensors[$i]['end_date_sensor']);
+                    if ($anlageSensors[$i]['endDateSensor'] != null) {
+                        $end = strtotime($anlageSensors[$i]['endDateSensor']);
                     }
                     $now = strtotime($date);
-                    array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0));
-                    $gmPyEastAnlage[$anlageSensors[$i]['name_short']] = max($sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']], 0);
+                    array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
+                    $gmPyEastAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                 }
 
             }
@@ -528,71 +284,71 @@ trait ImportFunctionsTrait
         //mNodulTemp, ambientTemp, windSpeed
         $tempModule = $tempAmbientArray = $tempAnlage = $windSpeedEWD = $windSpeedEWS = $windAnlage = [];
         for ($i = 0; $i < $length; $i++) {
-            if ($anlageSensors[$i]['virtual_sensor'] == 'temp-modul' && $anlageSensors[$i]['use_to_calc'] == 1) {
+            if ($anlageSensors[$i]['virtualSensor'] == 'temp-modul' && $anlageSensors[$i]['useToCalc'] == 1) {
                 $start = 0;
                 $end = 0;
-                if ($anlageSensors[$i]['start_date_sensor'] != null) {
-                    $start = strtotime($anlageSensors[$i]['start_date_sensor']);
+                if ($anlageSensors[$i]['startDateSensor'] != null) {
+                    $start = strtotime($anlageSensors[$i]['startDateSensor']);
                 }
-                if ($anlageSensors[$i]['end_date_sensor'] != null) {
-                    $end = strtotime($anlageSensors[$i]['end_date_sensor']);
+                if ($anlageSensors[$i]['endDateSensor'] != null) {
+                    $end = strtotime($anlageSensors[$i]['endDateSensor']);
                 }
                 $now = strtotime($date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                    array_push($tempModule, $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']]);
-                    $tempAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']];
+                    array_push($tempModule, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
+                    $tempAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
                 }
 
             }
-            if ($anlageSensors[$i]['virtual_sensor'] == 'temp-ambient' && $anlageSensors[$i]['use_to_calc'] == 1) {
+            if ($anlageSensors[$i]['virtualSensor'] == 'temp-ambient' && $anlageSensors[$i]['useToCalc'] == 1) {
                 $start = 0;
                 $end = 0;
-                if ($anlageSensors[$i]['start_date_sensor'] != null) {
-                    $start = strtotime($anlageSensors[$i]['start_date_sensor']);
+                if ($anlageSensors[$i]['startDateSensor'] != null) {
+                    $start = strtotime($anlageSensors[$i]['startDateSensor']);
                 }
-                if ($anlageSensors[$i]['end_date_sensor'] != null) {
-                    $end = strtotime($anlageSensors[$i]['end_date_sensor']);
+                if ($anlageSensors[$i]['endDateSensor'] != null) {
+                    $end = strtotime($anlageSensors[$i]['endDateSensor']);
                 }
                 $now = strtotime($date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                    array_push($tempAmbientArray, $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']]);
-                    $tempAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']];
+                    array_push($tempAmbientArray, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
+                    $tempAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
                 }
 
             }
-            if ($anlageSensors[$i]['virtual_sensor'] == 'wind-direction' && $anlageSensors[$i]['use_to_calc'] == 1) {
+            if ($anlageSensors[$i]['virtualSensor'] == 'wind-direction' && $anlageSensors[$i]['useToCalc'] == 1) {
                 $start = 0;
                 $end = 0;
-                if ($anlageSensors[$i]['start_date_sensor'] != null) {
-                    $start = strtotime($anlageSensors[$i]['start_date_sensor']);
+                if ($anlageSensors[$i]['startDateSensor'] != null) {
+                    $start = strtotime($anlageSensors[$i]['startDateSensor']);
                 }
-                if ($anlageSensors[$i]['end_date_sensor'] != null) {
-                    $end = strtotime($anlageSensors[$i]['end_date_sensor']);
+                if ($anlageSensors[$i]['endDateSensor'] != null) {
+                    $end = strtotime($anlageSensors[$i]['endDateSensor']);
                 }
                 $now = strtotime($date);
-                $x = (string)$anlageSensors[$i]['start_date_sensor'];
-                $y = (string)$anlageSensors[$i]['end_date_sensor'];
+                $x = (string)$anlageSensors[$i]['startDateSensor'];
+                $y = (string)$anlageSensors[$i]['endDateSensor'];
                 #echo "Sensor Start $date = $now /BE $x = $start \n\n";
                 #echo "Sensor End $date = $now /BE $y = $end \n";
                 if (($now >= $start && ($end == 0 || $now < $end)) || ($start == 0 && $end == 0)) {
-                    array_push($windSpeedEWD, $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']]);
-                    $windAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']];
+                    array_push($windSpeedEWD, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
+                    $windAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
                 }
 
             }
-            if ($anlageSensors[$i]['virtual_sensor'] == 'wind-speed' && $anlageSensors[$i]['use_to_calc'] == 1) {
+            if ($anlageSensors[$i]['virtualSensor'] == 'wind-speed' && $anlageSensors[$i]['useToCalc'] == 1) {
                 $start = 0;
                 $end = 0;
-                if ($anlageSensors[$i]['start_date_sensor'] != null) {
-                    $start = strtotime($anlageSensors[$i]['start_date_sensor']);
+                if ($anlageSensors[$i]['startDateSensor'] != null) {
+                    $start = strtotime($anlageSensors[$i]['startDateSensor']);
                 }
-                if ($anlageSensors[$i]['end_date_sensor'] != null) {
-                    $end = strtotime($anlageSensors[$i]['end_date_sensor']);
+                if ($anlageSensors[$i]['endDateSensor'] != null) {
+                    $end = strtotime($anlageSensors[$i]['endDateSensor']);
                 }
                 $now = strtotime($date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
-                    array_push($windSpeedEWS, $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']]);
-                    $windAnlage[$anlageSensors[$i]['name_short']] = $sensors[$date][$anlageSensors[$i]['vcom_id']][$anlageSensors[$i]['vcom_abbr']];
+                    array_push($windSpeedEWS, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
+                    $windAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
                 }
             }
         }
@@ -640,14 +396,15 @@ trait ImportFunctionsTrait
      */
     function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
     {
-        $i = 0;
-        for ($i = 0; $i < count($acGroups); $i++) {
-            $pvpGroupAc = $acGroups[$i]->ac_group_id;
-            $pvpGroupDc = $i + 1;
-            $pvpInverter = $i + 1;
+
+        for ($i = 1; $i <= count($acGroups); $i++) {
+
+            $pvpGroupAc = $acGroups[$i-1]['group_ac'];
+            $pvpGroupDc = $i;
+            $pvpInverter = $acGroups[$i-1]['group_ac'];
 
             if (is_array($inverters) && array_key_exists($date, $inverters)) {
-                $custInverterKennung = $acGroups[$i]['import_id'];
+                $custInverterKennung = $acGroups[$i-1]['importId'];
                 $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
                 $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
                 $currentAcP1 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']);
@@ -716,7 +473,6 @@ trait ImportFunctionsTrait
                 'wind_anlage' => $windAnlage,
 
             ];
-            $i++;
         }
 
         $result[] = $data_pv_ist;
@@ -775,8 +531,9 @@ trait ImportFunctionsTrait
      */
     function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
     {
-        $i = 0;
+
         foreach ($groups as $group) {
+
             $pvpInverter = $group->getDcGroup();
             $pvpGroupDc = $group->getDcGroup();
             $pvpGroupAc = $group->getAcGroup();
@@ -875,8 +632,8 @@ trait ImportFunctionsTrait
                 'temp_inverter' => $tempAnlage,
                 'wind_anlage' => $windAnlage,
             ];
-            $i++;
         }
+
         $result[] = $data_pv_ist;
         return $result;
     }
@@ -897,9 +654,9 @@ trait ImportFunctionsTrait
             $p_ac_inv = $pf_set = $p_set_gridop_rel = $p_set_rel = null;
             $p_set_rpc_rel = $q_set_rel = $p_set_ctrl_rel = $p_set_ctrl_rel_mean = null;
             if (isset($ppcs[$date])) {
-                $p_set_gridop_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcom_id']]['PPC_P_SET_GRIDOP_REL']); // Regelung durch Grid Operator
-                $p_set_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcom_id']]['PPC_P_SET_REL']);#
-                $p_set_rpc_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcom_id']]['PPC_P_SET_RPC_REL']); // Regelung durch Direktvermarkter
+                $p_set_gridop_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcomId']]['PPC_P_SET_GRIDOP_REL']); // Regelung durch Grid Operator
+                $p_set_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcomId']]['PPC_P_SET_REL']);#
+                $p_set_rpc_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcomId']]['PPC_P_SET_RPC_REL']); // Regelung durch Direktvermarkter
             }
 
             $data_ppc[] = [

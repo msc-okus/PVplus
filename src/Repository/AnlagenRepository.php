@@ -10,7 +10,7 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 /**
  * @method Anlage|null find($id, $lockMode = null, $lockVersion = null)
@@ -24,6 +24,17 @@ class AnlagenRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry, private Security $security)
     {
         parent::__construct($registry, Anlage::class);
+    }
+
+    public function getSymfonyImportPlants()
+    {
+        $qb = $this->createQueryBuilder('plants')
+            ->leftJoin('plants.settings', 'settings')
+            ->where('settings.symfonyImport = true')
+        ;
+
+        return $qb->getQuery()
+            ->getResult();
     }
 
     public static function selectLegendType($type): Criteria
@@ -446,9 +457,4 @@ class AnlagenRepository extends ServiceEntityRepository
         return $qb->orderBy('eigner.firma', 'ASC')
             ->addOrderBy('a.anlName', 'ASC');
     }
-
-
-
-
-
 }
