@@ -3,8 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\OwnerSettingsRepository;
+use App\Service\PiiCryptoService;
 use Doctrine\ORM\Mapping as ORM;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\PiiCryptoService;
+
 
 
 #[ORM\Entity(repositoryClass: OwnerSettingsRepository::class)]
