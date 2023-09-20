@@ -9,7 +9,7 @@ use App\Form\Case6\Case6ArrayFormType;
 use App\Form\FileUpload\FileUploadFormType;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case6DraftRepository;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\UploaderHelper;
+use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Finder;

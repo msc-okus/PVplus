@@ -32,7 +32,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Helper\simpleXLSX;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\UploaderHelper;
+use App\Service\UploaderHelper;
 use App\Helper\G4NTrait;
 use Knp\Component\Pager\PaginatorInterface;
 

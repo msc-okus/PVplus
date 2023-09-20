@@ -6,12 +6,12 @@ use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\AlertSystemV2Service;
+use App\Service\TicketsGeneration\InternalAlertSystemService;
+use App\Service\TicketsGeneration\AlertSystemV2Service;
 use App\Service\AssetManagementService;
 use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\TicketsGeneration\InternalAlertSystemService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,13 +40,7 @@ class DefaultJMController extends AbstractController
     {
 
     }
-    #[Route(path: '/default/j/m', name: 'default_j_m')]
-    public function index() : Response
-    {
-        return $this->render('default_jm/index.html.twig', [
-            'controller_name' => 'DefaultJMController',
-        ]);
-    }
+
 
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
@@ -60,13 +54,6 @@ class DefaultJMController extends AbstractController
         dd("hello World");
     }
 
-
-    #[Route(path: '/test/read', name: 'default_read')]
-    public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): \Symfony\Component\HttpFoundation\Response{
-        $anlage = $ar->findIdLike("206")[0];
-
-        return $this->render('base.html.twig');// this is suposed to never run so no problem
-    }
     #[Route(path: '/test/pdf', name: 'default_pdf')]
     public function testpdf(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am){
         $anlage = $ar->findIdLike("110")[0];

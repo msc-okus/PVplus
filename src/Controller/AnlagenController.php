@@ -11,7 +11,7 @@ use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\UploaderHelper;
+use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
