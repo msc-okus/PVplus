@@ -46,8 +46,8 @@ class DefaultJMController extends AbstractController
     public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
     {
         $anlage = $anlagenRepository->findIdLike("207")[0];
-        $fromStamp = strtotime("2023-09-18 00:00");
-        $toStamp = strtotime("2023-09-19 00:00");
+        $fromStamp = strtotime("2023-09-19 00:00");
+        $toStamp = strtotime("2023-09-20 00:00");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
             $service->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
         }

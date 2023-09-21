@@ -59,27 +59,18 @@ class InternalAlertSystemService
      * @return string
      */
 
-    public function checkSystem(Anlage $anlage, string $from, ?string $to = null  ): string
+    public function checkSystem(Anlage $anlage, string $time): string
     {
+        $timeStamp = strtotime($time);
 
-        $fromStamp = strtotime($from);
-        if ($to != null) $toStamp = strtotime($to);
-        else $toStamp = strtotime($from);
-
-        $ticketArray['countIrr'] = false;
-        $ticketArray['countExp'] = false;
-        $ticketArray['countPPC'] = false;
-
-            for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                $plant_status = self::RetrievePlant($anlage, date('Y-m-d H:i:00', $stamp));
-
-
-                if ($plant_status['countIrr'] == true) $this->generateTickets(90, $anlage, date('Y-m-d H:i:00', $stamp), "");
-                if ($plant_status['countExp'] == true) $this->generateTickets(91, $anlage, date('Y-m-d H:i:00', $stamp), "");
-                if ($plant_status['countPPC'] == true) $this->generateTickets(92, $anlage, date('Y-m-d H:i:00', $stamp), "");
-            }
-
-
+        $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', $timeStamp));
+        $time = G4NTrait::timeAjustment($timeStamp, -2);
+        if (($time > $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
+                $plant_status = self::RetrievePlant($anlage, date('Y-m-d H:i:00', strtotime($time)));
+                if ($plant_status['countIrr'] == true) $this->generateTickets(90, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
+                if ($plant_status['countExp'] == true) $this->generateTickets(91, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
+                if ($plant_status['countPPC'] == true) $this->generateTickets(92, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
+        }
         dump($plant_status);
         return 'success';
     }
@@ -101,7 +92,6 @@ class InternalAlertSystemService
         $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
         $tolerance = 240; // here we have the ammount of time we "look" in the past to generate the internal errors
         $begin = date('Y-m-d H:i:s', strtotime($time) - $totalOffset - $tolerance);
-
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameWeather()."
                 WHERE stamp BETWEEN '$begin' AND'$time' ";
@@ -176,12 +166,41 @@ class InternalAlertSystemService
     private function getLastTicket($anlage, $time, $errorCategory): mixed
     {
 
-        $ticket = $this->ticketRepo->findByAnlageInverterTime($anlage, $time, $errorCategory, "*"); // we try to retrieve the ticket in the previous quarter
-        dump($errorCategory, $time, $ticket);
+        $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+        if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) return $this->getTicketYesterday($anlage, $time, $errorCategory,  '*');
+        else return  $this->getLastTicketInverter($anlage, $time, $errorCategory, '*');
+    }
+    /**
+     * this is normal function for retrieval of previous tickets
+     * @param $anlage
+     * @param $time
+     * @param $errorCategory
+     * @param $inverter
+     * @return mixed
+     */
+    private function getLastTicketInverter($anlage, $time, $errorCategory, $inverter): mixed
+    {
+        $ticket = $this->ticketRepo->findByAnlageInverterTime($anlage, $time, $errorCategory, $inverter); // we try to retrieve the ticket in the previous quarter
         return $ticket != null ? $ticket[0] : null;
     }
 
 
+    /**
+     * We will use this function to retrieve all the tickets from yesterday (work in progress to link tickets)
+     * @param $anlage
+     * @param $time
+     * @param $errorCategory
+     * @param $inverter
+     * @return mixed
+     */
+    private function getTicketYesterday($anlage, $time, $errorCategory, $inverter): mixed
+    {
+        $today = date('Y-m-d', strtotime($time));
+        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+        $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+        $ticket = $this->ticketRepo->findLastByAnlageInverterTime($anlage, $today, $lastQuarterYesterday, $errorCategory, $inverter); // we try to retrieve the last quarter of yesterday
+        return $ticket != null ? $ticket[0] : null;
+    }
         //AUXILIAR FUNCTIONS
     /**
      * We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30.
