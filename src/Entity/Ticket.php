@@ -432,4 +432,18 @@ class Ticket
         return $this;
     }
 
+    /**
+     * Wenn alert Type zwischen 70 und 80 liegt, dann ist diese Ticket ein Performance Ticket
+     *
+     * @return bool
+     */
+    public function isPerfomanceTicket(): bool
+    {
+        if ($this->alertType >= 70 && $this->alertType < 80){
+            return true;
+        }
+
+        return false;
+    }
+
 }
