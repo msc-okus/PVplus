@@ -201,7 +201,7 @@ class InternalAlertSystemService
         $ticket = $this->ticketRepo->findLastByAnlageInverterTime($anlage, $today, $lastQuarterYesterday, $errorCategory, $inverter); // we try to retrieve the last quarter of yesterday
         return $ticket != null ? $ticket[0] : null;
     }
-        //AUXILIAR FUNCTIONS
+    //AUXILIAR FUNCTIONS
     /**
      * We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30.
      *
