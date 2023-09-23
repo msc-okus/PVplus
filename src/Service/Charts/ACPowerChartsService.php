@@ -71,7 +71,7 @@ private PdoService $pdoService,
             $counter = 0;
             $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             while ($rowExp = $resExp->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = self::timeShift($anlage, $rowExp['stamp']);
+                $stamp = $rowExp['stamp']; #self::timeShift($anlage, $rowExp['stamp']);
                 $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 

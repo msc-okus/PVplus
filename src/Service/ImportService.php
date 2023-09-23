@@ -39,6 +39,7 @@ class ImportService
      */
     public function prepareForImport(Anlage|int $anlage, $start, $end, string $importType = ""): void
     {
+
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
@@ -65,6 +66,9 @@ class ImportService
         $anlagenTabelle = $anlage->getAnlIntnr();
 
         $isEastWest = $anlage->getIsOstWestAnlage();
+        $timeZonePlant = $this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry()));
+
+
         $tempCorrParams['tempCellTypeAvg'] = (float)$anlage->getTempCorrCellTypeAvg();
         $tempCorrParams['gamma'] = (float)$anlage->getTempCorrGamma();
         $tempCorrParams['a'] = (float)$anlage->getTempCorrA();
@@ -79,11 +83,13 @@ class ImportService
         $mcToken = $owner->getSettings()->getMcToken();
 
         //get the Data from vcom
-        $bulkMeaserments = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end);
+        $bulkMeaserments = $this->meteoControlService->getSystemsKeyBulkMeaserments($timeZonePlant, $mcUser, $mcPassword, $mcToken, $systemKey, $start, $end);
 
         $data_pv_ist = [];
         $data_pv_dcist = [];
         if ($bulkMeaserments) {
+
+
             $basics = $bulkMeaserments['basics'];
             $inverters = $bulkMeaserments['inverters'];
             $sensors = $bulkMeaserments['sensors'];
@@ -91,6 +97,7 @@ class ImportService
             $anlageSensors = $this->serializer->normalize($anlage->getSensors(), null);
 
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
+
                 $stamp = date('Y-m-d H:i', $timestamp);
                 $date = date('c', $timestamp);
 
@@ -212,41 +219,44 @@ class ImportService
         }
 
         //write Data in the tables
+
         switch ($importType) {
             case 'api-import-weather':
-                    $tableName = "db__pv_ws_$weatherDbIdent";
+                    $tableName = "db__pv_ws_$weatherDbIdent".'_copy';
                 self::insertData($tableName, $data_pv_weather);
                 break;
             case 'api-import-ppc':
-                $tableName = "db__pv_ppc_$anlagenTabelle";
+                $tableName = "db__pv_ppc_$anlagenTabelle".'_copy';
                 self::insertData($tableName, $data_ppc);
                 break;
             case 'api-import-pvist':
                 if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
-                    $tableName = "db__pv_dcist_$anlagenTabelle";
+                    $tableName = "db__pv_dcist_$anlagenTabelle".'_copy';
                     self::insertData($tableName, $data_pv_dcist);
                 }
 
-                $tableName = "db__pv_ist_$anlagenTabelle";
+                $tableName = "db__pv_ist_$anlagenTabelle".'_copy';
                 self::insertData($tableName, $data_pv_ist);
                 break;
             default:
-                $tableName = "db__pv_ws_$weatherDbIdent";
+                $tableName = "db__pv_ws_$weatherDbIdent".'_copy';
                 self::insertData($tableName, $data_pv_weather);
 
                 if ($anlage->getHasPPC()) {
-                    $tableName = "db__pv_ppc_$anlagenTabelle";
+                    $tableName = "db__pv_ppc_$anlagenTabelle".'_copy';
                     self::insertData($tableName, $data_ppc);
                 }
 
                 if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
-                    $tableName = "db__pv_dcist_$anlagenTabelle";
+                    $tableName = "db__pv_dcist_$anlagenTabelle".'_copy';
                     self::insertData($tableName, $data_pv_dcist);
                 }
 
-                $tableName = "db__pv_ist_$anlagenTabelle";
+                $tableName = "db__pv_ist_$anlagenTabelle".'_copy';
                 self::insertData($tableName, $data_pv_ist);
                 break;
         }
+
     }
+
 }

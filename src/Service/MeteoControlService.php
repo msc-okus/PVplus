@@ -113,9 +113,13 @@ class MeteoControlService
         }
     }
 
-    public function getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $key, int $from = 0, int $to = 0, $resolution = "fifteen-minutes") {
+    public function getSystemsKeyBulkMeaserments($timeZonePlant, $mcUser, $mcPassword, $mcToken, $key, int $from = 0, int $to = 0, $resolution = "fifteen-minutes") {
         if (is_int($from) && is_int($to)) {
-            $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            $offsetServer = new \DateTimeZone("UTC");
+            $plantoffset = new \DateTimeZone($timeZonePlant);
+            $totalOffset = $plantoffset->getOffset(new \DateTime("now")) - $offsetServer->getOffset(new \DateTime("now"));
+            date_default_timezone_set($timeZonePlant);
+            $from = urlencode(date('c', ($from) - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $to));
 
             $curl = curl_init();
