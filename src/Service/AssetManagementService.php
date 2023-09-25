@@ -117,8 +117,8 @@ class AssetManagementService
         }
         $images = self::makeTempFiles($fileArray, $this->filesystem);
 
-        if ($images['Logo'] != null)$tempFileLogo = $images['Logo'];
-        if ($images['PlantPic'] != null)$tempFilePlantImage = $images['PlantPic'];
+        if ($images['Logo'] != null) $tempFileLogo = $images['Logo'];
+        if ($images['PlantPic'] != null) $tempFilePlantImage = $images['PlantPic'];
 
         $html = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
@@ -127,7 +127,6 @@ class AssetManagementService
             'logoImage' => $tempFileLogo,
             'month' => $reportMonth,
             'monthName' => $output['month'],
-            'year' => $reportYear,
             'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],

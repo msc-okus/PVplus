@@ -35,8 +35,6 @@ private PdoService $pdoService,
      */
     public function getAC1(Anlage $anlage, $from, $to, bool $hour = false): array
     {
-        #ini_set('memory_limit', '3G');
-        #set_time_limit(500);
         $conn = $this->pdoService->getPdoPlant();
         $formExp = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $form = $hour ? '%y%m%d%' : '%y%m%d%H%i';
@@ -71,7 +69,7 @@ private PdoService $pdoService,
             $counter = 0;
             $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             while ($rowExp = $resExp->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = self::timeShift($anlage, $rowExp['stamp']);
+                $stamp = $rowExp['stamp']; //self::timeShift($anlage, $rowExp['stamp']);
                 $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
@@ -85,7 +83,11 @@ private PdoService $pdoService,
                 $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
                         WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
 
-                $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
+                if ($hour) {
+                    $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
+                } else {
+                    $sqlEvu = 'SELECT e_z_evu as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
+                }
 
                 $resActual = $conn->query($sqlActual);
                 $resEvu = $conn->query($sqlEvu);
@@ -104,8 +106,12 @@ private PdoService $pdoService,
                 }
                 if ($resEvu->rowCount() == 1) {
                     $rowEvu = $resEvu->fetch(PDO::FETCH_ASSOC);
-                    $eZEvu = $rowEvu['eZEvu']; # / $anlage->getAnzInverterFromGroupsAC();
-                    $eZEvu = max($eZEvu, 0);
+                    if ($rowEvu['eZEvu'] == ""){
+                        $eZEvu = null;
+                    } else {
+                        $eZEvu = max($rowEvu['eZEvu'], 0);
+                    }
+
                     $evuSum += $eZEvu;
                 } else {
                     $eZEvu = null;
@@ -160,7 +166,8 @@ private PdoService $pdoService,
                         if ($anlage->getShowOnlyUpperIrr() || !$anlage->getWeatherStation()->getHasLower()) {
                             $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
                         } else {
-                            $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
+                            $dataArray['chart'][$counter]['irradiation'] = self::mittelwert([$dataArrayIrradiation['chart'][$counter]['val1'], $dataArrayIrradiation['chart'][$counter]['val2']]);
+                                //($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
                         }
                     }
                     $irrSum += $hour ? $dataArray['chart'][$counter]['irradiation'] : $dataArray['chart'][$counter]['irradiation'] / 4;
@@ -175,14 +182,11 @@ private PdoService $pdoService,
             $dataArray['expNoLimitSum'] = round($expNoLimitSum, 2);
             $dataArray['evuSum'] = round($evuSum, 2);
             $dataArray['cosPhiSum'] = round($cosPhiSum, 2);
-            $conn = null;
-
-            return $dataArray;
-        } else {
-            $conn = null;
-
-            return [];
         }
+        $conn = null;
+
+        dump($dataArray);
+        return $dataArray;
     }
 
     /**
@@ -243,7 +247,7 @@ private PdoService $pdoService,
             foreach ($expectedArray as $rowExp) {
                 $stamp = $rowExp['stamp'];
                 $rowExp['soll'] == null || $rowExp['soll'] < 0 ? $expected = 0 : $expected = $rowExp['soll'];
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $rowExp['stamp']);
+                $dataArray['chart'][$counter]['date'] = $rowExp['stamp']; //self::timeShift($anlage, $rowExp['stamp']);
                 $counterInv = 1;
                 if ($hour) {
                     $endStamp = date('Y-m-d H:i', strtotime($stamp) + 3600);
@@ -376,7 +380,7 @@ private PdoService $pdoService,
                 $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone() * (-1));
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
-                $dataArray['chart'][$counter]['date'] = self::timeAjustment(self::timeShift($anlage, $rowIst['stamp']), $anlage->getAnlZeitzone() * (-1));
+                $dataArray['chart'][$counter]['date'] = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone() * (-1));
 
                 $queryf = $hour ? "stamp BETWEEN '$stampAdjust' AND '$stampAdjust2'" : "stamp = '$stampAdjust'";
                 $sqlSoll = "SELECT stamp, sum(ac_exp_power) as soll FROM ".$anlage->getDbNameDcSoll()." WHERE $queryf AND $groupQuery GROUP BY date_format(stamp, '$form')";
@@ -569,7 +573,7 @@ private PdoService $pdoService,
                 if ($hour) {
                     $dataArray['chart'][$counter] = [
                         // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                        'date' => self::timeShift($anlage, $stamp),
+                        'date' => $stamp, //self::timeShift($anlage, $stamp),
                         'u_ac' => round($row['uac_ist'], 2) / 4,
                         'u_ac_phase1' => round($row['u_ac_p1'], 2) / 4,
                         'u_ac_phase2' => round($row['u_ac_p2'], 2) / 4,
@@ -578,7 +582,7 @@ private PdoService $pdoService,
                 } else {
                     $dataArray['chart'][$counter] = [
                         // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                        'date' => self::timeShift($anlage, $stamp),
+                        'date' => $stamp, //self::timeShift($anlage, $stamp),
                         'u_ac' => round($row['uac_ist'], 2),
                         'u_ac_phase1' => round($row['u_ac_p1'], 2),
                         'u_ac_phase2' => round($row['u_ac_p2'], 2),
@@ -661,7 +665,7 @@ private PdoService $pdoService,
                 if ($hour) {
                     $dataArray['chart'][$counter] = [
                         // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                        'date' => self::timeShift($anlage, $stamp),
+                        'date' => $stamp, //self::timeShift($anlage, $stamp),
 
                         'i_ac_sum' => round($row['iac_sum'], 2) / 4,
                         'i_ac_phase1' => round($row['i_ac_p1'], 2) / 4,
@@ -671,7 +675,7 @@ private PdoService $pdoService,
                 } else {
                     $dataArray['chart'][$counter] = [
                         // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                        'date' => self::timeShift($anlage, $stamp),
+                        'date' => $stamp, // self::timeShift($anlage, $stamp),
 
                         'i_ac_sum' => round($row['iac_sum'], 2),
                         'i_ac_phase1' => round($row['i_ac_p1'], 2),
@@ -763,7 +767,7 @@ private PdoService $pdoService,
                 if (!($frequency == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                     $dataArray['chart'][$counter] = [
                         // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                        'date' => self::timeShift($anlage, $stamp),
+                        'date' => $stamp, //self::timeShift($anlage, $stamp),
                         'frequency' => $frequency,
                     ];
                 }
@@ -829,7 +833,7 @@ private PdoService $pdoService,
                 $stamp = $row['stamp'];
                 $dataArray['chart'][$counter] = [
                     // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                    'date' => self::timeShift($anlage, $stamp),
+                    'date' => $stamp, //self::timeShift($anlage, $stamp),
                     'reactive_power' => round($row['p_ac_blind'], 2),
                 ];
 

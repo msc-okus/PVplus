@@ -122,9 +122,6 @@ class ChartService
             $form['selectedGroup'] = -1;
         }
 
-        $from = self::timeShift($anlage, $form['from'], true);
-        $to = self::timeShift($anlage, $form['to'], true);
-
         $from =  $form['from'];
         $to =  $form['to'];
 
@@ -663,7 +660,7 @@ class ChartService
             $stamp = $ro['stamp'];  // utc_date($stamp,$anintzzws);
 
             // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-            $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+            $dataArray['chart'][$counter]['date'] = $stamp; // self::timeShift($anlage, $stamp);
             if (!($tempAmbient + $tempPannel == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                 $dataArray['chart'][$counter]['tempAmbient'] = $tempAmbient; // Temp. ambient
                 $dataArray['chart'][$counter]['tempCellMeasuerd'] = $tempPannel; // Temp. cell measuerd
@@ -699,7 +696,7 @@ class ChartService
         foreach ($prs as $pr) {
             $stamp = $pr->getstamp()->format('Y-m-d');
             // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-            $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+            $dataArray['chart'][$counter]['date'] = $stamp; // self::timeShift($anlage, $stamp);
             if ($anlage->getShowEvuDiag()) {
                 $dataArray['chart'][$counter]['pr_act'] = $pr->getPrEvu();
                 $dataArray['chart'][$counter]['pr_default'] = $pr->getPrDefaultEvu();

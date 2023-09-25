@@ -71,12 +71,12 @@ private PdoService $pdoService,
             $dataArray['sumSeries'] = $invertersInGroup;
             $counter = 0;
             foreach ($expectedResult as $rowSoll) {
-                $stamp = self::timeShift($anlage, $rowSoll['stamp']);
+                $stamp = $rowSoll['stamp']; // self::timeShift($anlage, $rowSoll['stamp']);
                 $stampAdjust = self::timeAjustment($rowSoll['stamp'], $anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                $dataArray['chart'][$counter]['date'] = $stamp; //self::timeShift($anlage, $stamp);
 
                 if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stampAdjust) && self::getCetTime() - strtotime($stampAdjust) < 7200))) {
                     switch ($anlage->getConfigType()) {
@@ -158,7 +158,7 @@ private PdoService $pdoService,
                 $stampAdjust = self::timeAjustment($stamp, (float) $anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                $dataArray['chart'][$counter]['date'] = $stamp; // self::timeShift($anlage, $stamp);
                 $gruppenProSet = 1;
                 foreach ($dcGroups as $dcGroupKey => $dcGroup) {
                     if ($dcGroupKey > (($set - 1) * 10) && $dcGroupKey <= ($set * 10)) {
@@ -245,7 +245,7 @@ private PdoService $pdoService,
                     if ($mppVoltageJson != '') {
                         $mppvoltageArray = json_decode($mppVoltageJson);
                         // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                        $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                        $dataArray['chart'][$counter]['date'] = $stamp; // self::timeShift($anlage, $stamp);
                         $mppCounter = 1;
                         foreach ($mppvoltageArray as $mppVoltageItem => $mppVoltageValue) {
                             if (!($mppVoltageValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
