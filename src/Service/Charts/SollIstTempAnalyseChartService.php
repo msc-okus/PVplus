@@ -112,7 +112,7 @@ private PdoService $pdoService,
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
                 //$time = date('H:i', strtotime($rowActual['ts']));
                 //$stamp = date('Y-m-d', strtotime($rowActual['ts']));
-                $time = date('H:i', strtotime(self::timeShift($anlage,$rowActual['ts'])));
+                $time = date('H:i', strtotime($rowActual['ts']));
                 $actPower = $rowActual['act_power_ac'];
                 $actPower = $actPower > 0 ? round($actPower, 2) : 0; // neagtive Werte auschließen
                 $prz = $rowActual['prz'];

@@ -179,7 +179,7 @@ private PdoService $pdoService,
         // SOLL Strom für diesen Zeitraum und diese Gruppe
         if ($resultActual->rowCount() > 0) {
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = self::timeShift($anlage,$rowActual['ts']);
+                $stamp = $rowActual['ts']; // self::timeShift($anlage,$rowActual['ts']);
                 $e = explode(' ', $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
                 ($rowActual['sollCurrent'] == null) ? $powersoll = 0 : $powersoll = $rowActual['sollCurrent'];

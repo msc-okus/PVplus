@@ -52,14 +52,20 @@ class IrradiationChartService
             $counter = 0;
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 // upper pannel
-                $irr_upper = (float) str_replace(',', '.', $ro['g_upper']);
-                if ($hour) $irr_upper = $irr_upper / 4;
-                if ($ro['g_upper'] = "") $irr_upper = null;
+                if ($ro['g_upper'] == "") {
+                    $irr_upper = null;
+                } else {
+                    $irr_upper = (float) str_replace(',', '.', $ro['g_upper']);
+                    if ($hour) $irr_upper = $irr_upper / 4;
+                }
 
                 // lower pannel
-                $irr_lower = (float) str_replace(',', '.', $ro['g_lower']);
-                if ($hour) $irr_lower = $irr_lower / 4;
-                if ($ro['g_lower'] = "") $irr_lower = null;
+                if ($ro['g_lower'] == "") {
+                    $irr_lower = null;
+                } else {
+                    $irr_lower = (float) str_replace(',', '.', $ro['g_lower']);
+                    if ($hour) $irr_lower = $irr_lower / 4;
+                }
 
                 $stamp = self::timeAjustment(strtotime($ro['stamp']), $anlage->getWeatherStation()->gettimeZoneWeatherStation());
                 if ($anlage->getWeatherStation()->getChangeSensor() == 'Yes') {
@@ -68,18 +74,18 @@ class IrradiationChartService
                     $irr_upper = $swap;
                 }
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                $dataArray['chart'][$counter]['date'] = $stamp; // self::timeShift($anlage, $stamp);
                 if (!($irr_upper + $irr_lower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                     switch ($mode) {
                         case 'all':
-                            $dataArray['chart'][$counter]['val1'] = $irr_upper > 0 ? $irr_upper: 0; // upper pannel
-                            $dataArray['chart'][$counter]['val2'] = $irr_lower > 0 ? $irr_lower : 0; // lower pannel
+                            $dataArray['chart'][$counter]['val1'] = $irr_upper < 0 ? 0 : $irr_upper; // upper pannel
+                            $dataArray['chart'][$counter]['val2'] = $irr_lower < 0 ? 0 : $irr_lower; // lower pannel
                             break;
                         case 'upper':
-                            $dataArray['chart'][$counter]['val1'] = $irr_upper > 0 ? $irr_upper: 0; // upper pannel
+                            $dataArray['chart'][$counter]['val1'] = $irr_upper < 0 ? 0 : $irr_upper; // upper pannel
                             break;
                         case 'lower':
-                            $dataArray['chart'][$counter]['val1'] = $irr_lower > 0 ? $irr_lower : 0; // upper pannel
+                            $dataArray['chart'][$counter]['val1'] = $irr_lower < 0 ? 0 : $irr_lower; // upper pannel
                             break;
                     }
                 }
@@ -87,7 +93,7 @@ class IrradiationChartService
             }
         }
         $conn = null;
-
+        dump($dataArray);
         return $dataArray;
     }
 
@@ -121,7 +127,7 @@ class IrradiationChartService
                     $stamp = self::timeAjustment($row['stamp'], (int) $anlage->getAnlZeitzone(), true);
                     $stamp2 = self::timeAjustment($stamp, 1);
                     // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                    $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                    $dataArray['chart'][$counter]['date'] = $stamp; // self::timeShift($anlage, $stamp);
 
                     if ($hour) {
                         $sqlWeather = 'SELECT * FROM '.$anlage->getDbNameWeather()." WHERE stamp >= '$stamp' AND stamp < '$stamp2' group by date_format(stamp, '$form')";

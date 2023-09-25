@@ -105,8 +105,7 @@ private PdoService $pdoService,
             $dataArray['maxSeries'] = 0;
             $counter = 0;
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $time = date('H:i', strtotime(self::timeShift($anlage,$rowActual['ts'])));
-                //$stamp = date('Y-m-d', strtotime($rowActual['ts']));self::timeShift($anlage, $rowExp['stamp']);
+                $time = date('H:i', strtotime($rowActual['ts']));
                 $actPower = $rowActual['actPower'];
                 $actPower = $actPower > 0 ? round($actPower, 2) : 0; // neagtive Werte auschließen
                 $prz = $rowActual['prz'];
