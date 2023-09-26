@@ -360,6 +360,7 @@ class AlertSystemV2Service
         }
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+        dump($sungap['sunrise'], $sungap['sunset'], '--------');
         $time = G4NTrait::timeAjustment($time, -2);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
             //here we retrieve the values from the plant and set soma flags to generate tickets
@@ -395,7 +396,8 @@ class AlertSystemV2Service
 
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
-        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        //$totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        $totalOffset = 0;
         $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
         $irrLimit = $anlage->getMinIrrThreshold() != "0" ? (float)$anlage->getMinIrrThreshold() : 20; // we get the irradiation limit from the plant config
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
@@ -407,7 +409,7 @@ class AlertSystemV2Service
         $powerThreshold = (float) $anlage->getPowerThreshold() / 4;
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
-        dump($time, $irradiation);
+
         if ($irradiation === null || $irradiation < $irrLimit) $this->irr = true; // about irradiation === null, it is better to miss a ticket than to have a false one
         else $this->irr = false;
 

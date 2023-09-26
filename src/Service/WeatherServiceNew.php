@@ -188,14 +188,17 @@ private PdoService $pdoService,
      */
     public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
+        date_default_timezone_set($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
-        $offsetServer = new DateTimeZone("Europe/Luxembourg");
-        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
-        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
-
+        //$offsetServer = new DateTimeZone("Europe/Luxembourg");
+        //$plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
+        //$totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        $totalOffset = 0; // quick fix to stop considering time zones
 
         $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
         $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
+        date_default_timezone_set('Europe/Vienna');
+
         return $returnArray;
     }
 

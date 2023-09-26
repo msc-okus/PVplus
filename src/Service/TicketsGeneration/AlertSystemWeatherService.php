@@ -88,12 +88,6 @@ private PdoService $pdoService,
                 if ($status_report['Temperature']) $ticketData = $ticketData . "Problem with the Temperature";
                 if ($status_report['wspeed'] != "") $ticketData = $ticketData . "Problem with the Wind Speed";
                 $this->generateTicket($ticketData, $time, $anlage);
-
-                /* disabled by now.
-                if ($ticketData != "") {
-                    self::messagingFunction($ticketData, $anlage);
-                }
-                */
                 unset($status_report);
             }
         }
@@ -108,10 +102,7 @@ private PdoService $pdoService,
      */
     private function WData(Anlage $anlage, $time): mixed
     {
-        $offsetServer = new DateTimeZone("Europe/Luxembourg");
-        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
-        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
-        $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
+        $time = date('Y-m-d H:i:s', strtotime($time));
         $conn = $this->pdoService->getPdoPlant();
         $sqlw = 'SELECT b.g_lower as gi , b.g_upper as gmod, b.temp_ambient as temp, b.wind_speed as wspeed 
                     FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 

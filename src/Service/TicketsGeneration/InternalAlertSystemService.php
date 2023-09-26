@@ -71,7 +71,6 @@ class InternalAlertSystemService
                 if ($plant_status['countExp'] == true) $this->generateTickets(91, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
                 if ($plant_status['countPPC'] == true) $this->generateTickets(92, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
         }
-        dump($plant_status);
         return 'success';
     }
 
@@ -86,30 +85,31 @@ class InternalAlertSystemService
     private function RetrievePlant(Anlage $anlage, $time): array
     {
         $conn = $this->pdo->getPdoPlant();
-        $offsetServer = new DateTimeZone("Europe/Luxembourg");
-        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
-        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
-        $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
-        $tolerance = 240; // here we have the ammount of time we "look" in the past to generate the internal errors
-        $begin = date('Y-m-d H:i:s', strtotime($time) - $totalOffset - $tolerance);
+        $time = date('Y-m-d H:i:s', strtotime($time) );
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameWeather()."
-                WHERE stamp BETWEEN '$begin' AND'$time' ";
+                WHERE stamp = '$time' ";
         $resp = $conn->query($sql);
-        $plantStatus['countIrr']  = $resp->rowCount() === 0;
+        $sql = "SELECT *
+                FROM ". $anlage->getDbNameWeather()."
+                WHERE stamp ='$time' and g_upper  is null and g_lower is null";
+        $respNull = $conn->query($sql);
+        $plantStatus['countIrr']  = $resp->rowCount() === 0  ||  $respNull->rowCount() === 1;
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameDcSoll()."
-                WHERE stamp BETWEEN '$begin' AND'$time' ";
+                WHERE stamp ='$time' ";
         $resp = $conn->query($sql);
         $plantStatus['countExp']  = $resp->rowCount() !== count($anlage->getInverterFromAnlage());
+        /*
         $sql = "SELECT *
                 FROM ". $anlage->getDbNamePPC()."
 
-                WHERE stamp BETWEEN '$begin' AND'$time' ";
+                WHERE stamp = '$time' ";
         $resp = $conn->query($sql);
 
         $plantStatus['countPPC'] =  $resp->rowCount() === 0;
-
+*/
+        $plantStatus['countPPC'] = false;
         return $plantStatus;
     }
 

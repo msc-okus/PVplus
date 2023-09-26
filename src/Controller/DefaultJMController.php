@@ -344,4 +344,14 @@ class DefaultJMController extends AbstractController
         dd($fileSystemFtp);
 
     }
+    #[Route(path: '/test/bs', name: 'default_bs_test')]
+    public function testTime(AnlagenRepository $ar, WeatherServiceNew $ws){
+         $saran = $ar->find(104);//findOneBy(['id' => 104]);
+        //date_default_timezone_set($ws->getNearestTimezone($saran->getAnlGeoLat(), $saran->getAnlGeoLon(),strtoupper($saran->getCountry())));
+
+        $sunrisedata = date_sun_info(strtotime("2023-01-01"), (float) $saran->getAnlGeoLat(), (float) $saran->getAnlGeoLon());
+        //date_default_timezone_set('Europe/Vienna);
+        dd(Date("Y-m-d H:i:s", $sunrisedata['sunrise']), date_default_timezone_get());
+    }
+
 }
