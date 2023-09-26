@@ -44,10 +44,10 @@ trait ImportFunctionsTrait
      * @param string|null $host
      * @param string|null $passwordPlant
      */
-    function insertData($tableName = NULL, $data = NULL): void
+    function insertData($tableName = NULL, $data = NULL, $DBDataConnection): void
     {
         // obtain column template
-        $DBDataConnection = $this->pdoService->getPdoPlant();
+
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];
