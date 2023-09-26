@@ -425,6 +425,8 @@ trait ImportFunctionsTrait
                 } else {
                     $powerDc = '';
                 }
+                echo "currentAc $date<br>";
+                echo "currentAc $currentAc <br>";
 
             } else {
                 $powerAc = $currentAc = $voltageAc = $powerDc = $voltageDc = $currentDc = $temp = null;
@@ -560,7 +562,8 @@ trait ImportFunctionsTrait
                 } else {
                     $powerDc = '';
                 }
-
+                echo "currentAc $date<br>";
+                echo "currentAc $currentAc <br>";
                 // tempCorr nach NREL und dann theoPower berechnen
                 // prüfe auf OST / WEST Sensoren und Strahlung ermitteln
                 /*
