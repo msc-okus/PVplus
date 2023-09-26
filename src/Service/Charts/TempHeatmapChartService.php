@@ -16,41 +16,23 @@ class TempHeatmapChartService
 {
     use G4NTrait;
 
-    private Security $security;
-
-    private AnlagenStatusRepository $statusRepository;
-
-    private InvertersRepository $invertersRepo;
-
-    public functionsService $functions;
-
-    private IrradiationChartService $irradiationChart;
-
-    private WeatherServiceNew $weatherService;
-
     public function __construct(
-private PdoService $pdoService,Security $security,
-        AnlagenStatusRepository $statusRepository,
-        InvertersRepository $invertersRepo,
-        IrradiationChartService $irradiationChart,
-        DCPowerChartService $DCPowerChartService,
-        ACPowerChartsService $ACPowerChartService,
-        WeatherServiceNew $weatherService,
-        FunctionsService $functions)
+        private PdoService $pdoService,
+        private Security $security,
+        private AnlagenStatusRepository $statusRepository,
+        private InvertersRepository $invertersRepo,
+        private IrradiationChartService $irradiationChart,
+        private DCPowerChartService $DCPowerChartService,
+        private ACPowerChartsService $ACPowerChartService,
+        private WeatherServiceNew $weatherServiceNew,
+        private FunctionsService $functions)
     {
-        $this->security = $security;
-        $this->statusRepository = $statusRepository;
-        $this->invertersRepo = $invertersRepo;
-        $this->functions = $functions;
-        $this->irradiationChart = $irradiationChart;
-        $this->DCPowerChartService = $DCPowerChartService;
-        $this->ACPowerChartService = $ACPowerChartService;
-        $this->WeatherServiceNew = $weatherService;
+
     }
 
     // Help Function for Array search
     // MS
-    public static function array_recursive_search_key_map($needle, $haystack)
+    private static function array_recursive_search_key_map($needle, $haystack): array|bool
     {
         foreach ($haystack as $first_level_key => $value) {
             if ($needle === $value) {
@@ -67,12 +49,14 @@ private PdoService $pdoService,Security $security,
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param int $group
+     * @param $sets
+     * @param bool $hour
+     * @return array|null [Heatmap]
      *
-     * @return array
-     *               [Heatmap]
+     * @throws \Exception
      */
     // MS 06/2022
     public function getTempHeatmap(Anlage $anlage, $from, $to, $sets, bool $hour = false): ?array
@@ -154,7 +138,7 @@ private PdoService $pdoService,Security $security,
         if ($resultActual->rowCount() > 0) {
             #
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = self::timeShift($anlage,$rowActual['ts']);
+                $stamp = $rowActual['ts']; // self::timeShift($anlage,$rowActual['ts']);
                 $dataIrr = $rowActual['g_upper'];
                 (empty($dataIrr) ? $dataIrr = 0 : $dataIrr = $dataIrr);
                 $e = explode(' ', $stamp);

@@ -34,7 +34,7 @@ class AnlageFormType extends AbstractType
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
@@ -153,6 +153,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('notes', TextareaType::class, [
                 'label' => 'Notizen zur Anlage',
+                'help'  => '[notes]',
                 'attr' => ['rows' => '6'],
                 'empty_data' => '',
                 'required' => false,

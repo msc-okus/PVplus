@@ -54,7 +54,7 @@ private PdoService $pdoService,
         if ($resultExpected->rowCount() > 0) {
             $counter = 0;
             while ($rowExp = $resultExpected->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = self::timeShift($anlage, $rowExp['stamp']);
+                $stamp = $rowExp['stamp']; //self::timeShift($anlage, $rowExp['stamp']);
                 $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 $soll = round($rowExp['soll'], 2);
@@ -172,7 +172,7 @@ private PdoService $pdoService,
             foreach ($expectedArray as $rowExp) {
                 $stamp = $rowExp['stamp'];
                 $rowExp['expected'] === null || $rowExp['expected'] < 0 ? $expected = 0 : $expected = $rowExp['expected'];
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $rowExp['stamp']);
+                $dataArray['chart'][$counter]['date'] = $rowExp['stamp']; //self::timeShift($anlage, $rowExp['stamp']);
                 $counterInv = 1;
                 if ($hour) {
                     $endStamp = date('Y-m-d H:i', strtotime($stamp) + 3600);
@@ -301,7 +301,7 @@ private PdoService $pdoService,
                     $stamp = $rowExp['stamp'];
                     ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
                     $counterInv = 1;
-                    $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                    $dataArray['chart'][$counter]['date'] = $stamp; //self::timeShift($anlage, $stamp);
                     #$dataArray['chart'][$counter]['expected'] = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] == 0 ? $rowExp['expected'] : $rowExp['expected'] / ($groups[$group]['GMAX'] - $groups[$group]['GMIN']);
                     $dataArray['chart'][$counter]['expected'] = $expected;
                     while ($counterInv <= $maxInverter) {
@@ -392,7 +392,7 @@ private PdoService $pdoService,
                     }
 
                     // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                    $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                    $dataArray['chart'][$counter]['date'] = $stamp; // self::timeShift($anlage, $stamp);
                     if (!($expected == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                         $dataArray['chart'][$counter]['expected'] = $expected;
                     }

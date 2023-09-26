@@ -17,6 +17,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -180,13 +181,13 @@ class TicketFormType extends AbstractType
                 'label' => 'Ignore',
             ])
             // ### Free Text for descriptions
-            ->add('freeText', CKEditorType::class, [
-                'config' => ['toolbar' => 'my_toolbar'],
+            ->add('freeText', TextareaType::class, [
+                #'config' => ['toolbar' => 'my_toolbar'],
                 'attr' => ['rows' => '9'],
                 'required' => false,
             ])
-            ->add('answer', CKEditorType::class, [
-                'config' => ['toolbar' => 'my_toolbar'],
+            ->add('answer', TextareaType::class, [
+                #'config' => ['toolbar' => 'my_toolbar'],
                 'attr' => ['rows' => '9'],
                 'required' => false,
             ])

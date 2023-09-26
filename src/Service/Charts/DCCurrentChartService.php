@@ -74,7 +74,7 @@ private PdoService $pdoService,
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                $dataArray['chart'][$counter]['date'] = $stamp; //self::timeShift($anlage, $stamp);
                 $dataArray['chart'][$counter]['expectedUR'] = $rowSoll['expected'];
 
                 if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stampAdjust) && self::getCetTime() - strtotime($stampAdjust) < 7200))) {
@@ -166,7 +166,7 @@ private PdoService $pdoService,
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                $dataArray['chart'][$counter]['date'] = $stamp; //self::timeShift($anlage, $stamp);
                 $gruppenProSet = 1;
                 foreach ($dcGroups as $dcGroupKey => $dcGroup) {
                     if ($dcGroupKey > (($set - 1) * 10) && $dcGroupKey <= ($set * 10)) {
@@ -255,7 +255,7 @@ private PdoService $pdoService,
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                $dataArray['chart'][$counter]['date'] = $stamp; //self::timeShift($anlage, $stamp);
 
                 $currentExp = $row['sollCurrent'] > 0 ? round($row['sollCurrent'], 2) : 0.0;
 
@@ -366,7 +366,7 @@ private PdoService $pdoService,
                     if ($mppCurrentJson != '') {
                         $mppCurrentArray = json_decode($mppCurrentJson);
                         // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                        $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                        $dataArray['chart'][$counter]['date'] = $stamp; //self::timeShift($anlage, $stamp);
                         $mppCounter = 1;
                         foreach ($mppCurrentArray as $mppCurrentItem => $mppCurrentValue) {
                             if (!($mppCurrentValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
