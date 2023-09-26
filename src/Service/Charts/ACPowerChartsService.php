@@ -185,7 +185,6 @@ private PdoService $pdoService,
         }
         $conn = null;
 
-        dump($dataArray);
         return $dataArray;
     }
 

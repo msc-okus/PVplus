@@ -93,7 +93,7 @@ class IrradiationChartService
             }
         }
         $conn = null;
-        dump($dataArray);
+
         return $dataArray;
     }
 

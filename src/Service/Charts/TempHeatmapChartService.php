@@ -61,32 +61,16 @@ class TempHeatmapChartService
     // MS 06/2022
     public function getTempHeatmap(Anlage $anlage, $from, $to, $sets, bool $hour = false): ?array
     {
-        ini_set('memory_limit', '3G');
-        $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
-        $zenith = 90 + 50 / 60;
-        $current_date = strtotime($from);
-        $counter = 0;
-        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-
-        if ($hour) {
-            $form = '%y%m%d%H';
-        } else {
-            $form = '%y%m%d%H%i';
-        }
-
-        // $sunArray = $this->WeatherServiceNew->getSunrise($anlage,$from);
-        // $sunrise = $sunArray[$anlagename]['sunrise'];
-        // $sunset = $sunArray[$anlagename]['sunset'];
-
-        $from = date('Y-m-d H:00', $sunrise - 3600);
-        $to = date('Y-m-d H:00', $sunset + 5400);
-
-        $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
-        $to = self::timeAjustment($to, 1);
-
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
+        $counter = 0;
+
+        $sunArray = $this->weatherServiceNew->getSunrise($anlage, $from);
+        $sunrise = strtotime($sunArray['sunrise']);
+        $sunset = strtotime($sunArray['sunset']);
+
+        $from = date('Y-m-d H:00', $sunrise);
+        $to = date('Y-m-d H:00', $sunset + 3600);
 
         switch ($anlage->getConfigType()) {
             case 3:

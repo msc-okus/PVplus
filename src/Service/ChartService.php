@@ -26,6 +26,7 @@ use App\Service\Charts\VoltageChartService;
 use DateTime;
 use PDO;
 use App\Service\PdoService;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -67,6 +68,7 @@ class ChartService
      * @param bool|null $hour
      * @return array
      * @throws \Exception
+     * @throws InvalidArgumentException
      */
     public function getGraphsAndControl($form, ?Anlage $anlage, ?bool $hour): array
     {
