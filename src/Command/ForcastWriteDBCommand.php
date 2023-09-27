@@ -23,10 +23,10 @@ class ForcastWriteDBCommand extends Command {
 
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private AnlagenRepository $anlagenRepository,
-        private KernelInterface $kernel,
-        private Service\ExpectedService $expectedService,
-        private Forecast\DatFileReaderService $datFileReaderService
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly KernelInterface $kernel,
+        private readonly Service\ExpectedService $expectedService,
+        private readonly Forecast\DatFileReaderService $datFileReaderService
     ) {
         parent::__construct();
     }
@@ -70,7 +70,7 @@ class ForcastWriteDBCommand extends Command {
         }
 
         // Wenn datfile current
-        if (count($this->datFileReaderService->current()) > 1) {
+        if ((is_countable($this->datFileReaderService->current()) ? count($this->datFileReaderService->current()) : 0) > 1) {
             $io->info("data read ! please wait");
             $reg_data = new Service\Forecast\APINasaGovService($input_gl, $input_gb, $startapidate, $endapidate);
             $dec_data = new Service\Forecast\ForcastDEKService($input_gl, $input_gb, $input_mer, $input_mn, $input_ma, $input_ab, $this->datFileReaderService->current());
@@ -84,7 +84,7 @@ class ForcastWriteDBCommand extends Command {
 #print_R($reg_array);
 #exit;
             $forcarstarray = $this->array_merge_recursive_distinct($dec_array,$reg_array);
-            $endprz = count($forcarstarray) -1;
+            $endprz = (is_countable($forcarstarray) ? count($forcarstarray) : 0) -1;
             $io->progressStart($endprz);
             $query_del = "DELETE FROM `anlage_forcast_day` WHERE `anlage_id` = $anlageId";
             $query = "
@@ -191,7 +191,7 @@ class ForcastWriteDBCommand extends Command {
             // successfull return
             $io->progressFinish();
             $io->success("forecast DB completed ".$anlage->getAnlName()." !");
-            $outs = array("status" => 'good');
+            $outs = ["status" => 'good'];
             echo json_encode($outs);
             return command::SUCCESS;
 
@@ -199,7 +199,7 @@ class ForcastWriteDBCommand extends Command {
             $io->error("the dat file could not be found for anlage ID ! ". $datfile_name);
             // unsuccessfull return
             $io->error('no anlage ID ! or datfile not found !');
-            $outs = array("status" => 'fail');
+            $outs = ["status" => 'fail'];
             echo json_encode($outs);
             return command::FAILURE;
          }
@@ -207,7 +207,7 @@ class ForcastWriteDBCommand extends Command {
         } else {
             // unsuccessfull return
             $io->error('no anlage ID ! or datfile not found !');
-            $outs = array("status" => 'fail');
+            $outs = ["status" => 'fail'];
             echo json_encode($outs);
             return command::FAILURE;
         }

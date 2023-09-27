@@ -83,7 +83,7 @@ class AnlageGroupsTypeForm extends AbstractType
                 'label' => 'Weatherstation',
                 'help' => '[weatherStation]',
                 'class' => WeatherStation::class,
-                'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
+                'choice_label' => fn(WeatherStation $station) => sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()),
                 'placeholder' => 'select a Weatherstation',
                 'required' => false,
                 'empty_data' => null,

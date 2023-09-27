@@ -20,8 +20,8 @@ class UpdateOpenWeatherCommand extends Command
     use G4NTrait;
 
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private OpenWeatherService $openWeatherService
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly OpenWeatherService $openWeatherService
     )
     {
         parent::__construct();

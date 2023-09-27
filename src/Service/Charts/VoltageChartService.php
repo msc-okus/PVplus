@@ -16,23 +16,20 @@ class VoltageChartService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private Security $security,
-        private AnlagenStatusRepository $statusRepository,
-        private InvertersRepository $invertersRepo,
-        private IrradiationChartService $irradiationChart,
-        private FunctionsService $functions)
+private readonly PdoService $pdoService,
+        private readonly Security $security,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly InvertersRepository $invertersRepo,
+        private readonly IrradiationChartService $irradiationChart,
+        private readonly FunctionsService $functions)
     {
     }
 
     /**
      * Erzeugt Daten für das DC Spannung Diagram Diagramm, eine Linie je Inverter gruppiert nach Gruppen.
      *
-     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param int $group
-     * @param bool $hour
      * @return array
      * @throws \Exception
      */
@@ -114,7 +111,7 @@ private PdoService $pdoService,
                 while ($rowAct = $resultAct->fetch(PDO::FETCH_ASSOC)) {
                     $currentAct = $hour ? $rowAct['istCurrent'] / 4 : $rowAct['istCurrent'];
                     $currentAct = round($currentAct, 2);
-                    if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                    if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                         $dataArray['chart'][$counter][$nameArray[$rowAct['dc_num']]] = $currentAct;
                     }
                 }
@@ -130,11 +127,8 @@ private PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Spannung Diagram Diagramm, eine Linie je Inverter gruppiert nach Gruppen.
      *
-     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param int $set
-     * @param bool $hour
      * @return array
      * @throws \Exception
      */
@@ -184,7 +178,7 @@ private PdoService $pdoService,
                             } else {
                                 $voltageAct = round($rowIst['actVoltage'], 2);
                             }
-                            if (!($voltageAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                            if (!($voltageAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                                 $dataArray['chart'][$counter]["val$gruppenProSet"] = $voltageAct;
                             }
                         }
@@ -204,11 +198,8 @@ private PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Spannungs Diagram Diagramm, eine Linie je MPP gruppiert nach Inverter.
      *
-     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param int $inverter
-     * @param bool $hour
      * @return array
      * @throws \Exception
      */
@@ -243,7 +234,7 @@ private PdoService $pdoService,
                         $mppVoltageJson = $row['mpp_voltage'];
                     }
                     if ($mppVoltageJson != '') {
-                        $mppvoltageArray = json_decode($mppVoltageJson);
+                        $mppvoltageArray = json_decode((string) $mppVoltageJson, null, 512, JSON_THROW_ON_ERROR);
                         // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                         $dataArray['chart'][$counter]['date'] = $stamp; // self::timeShift($anlage, $stamp);
                         $mppCounter = 1;

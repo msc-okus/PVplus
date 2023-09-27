@@ -21,27 +21,20 @@ class ReportService
     use G4NTrait;
 
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private PRRepository $PRRepository,
-        private ReportsRepository $reportsRepository,
-        private EntityManagerInterface $em,
-        private PvSystMonthRepository $pvSystMonthRepo,
-        private Case5Repository $case5Repo,
-        private FunctionsService $functions,
-        private NormalizerInterface $serializer,
-        private PRCalulationService $PRCalulation)
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PRRepository $PRRepository,
+        private readonly ReportsRepository $reportsRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly PvSystMonthRepository $pvSystMonthRepo,
+        private readonly Case5Repository $case5Repo,
+        private readonly FunctionsService $functions,
+        private readonly NormalizerInterface $serializer,
+        private readonly PRCalulationService $PRCalulation)
     {
     }
 
     /**
      * @param $anlagen
-     * @param int $month
-     * @param int $year
-     * @param int $docType
-     * @param int $chartTypeToExport
-     * @param bool $storeDocument
-     * @param bool $exit
-     * @param bool $export
      * @return string
      * @throws ExceptionInterface
      */
@@ -106,12 +99,9 @@ class ReportService
     }
 
     /**
-     * @param Anlage $anlage
-     * @param array $report
      * @param $reportCreationDate
      * @param int $docType (0 = PDF, 1 = Excel, 2 = PNG (Grafiken))
      * @param int $chartTypeToExport (0 = , 1 = )
-     * @param bool $exit
      * @return string
      * @throws ExceptionInterface
      * @deprecated
@@ -137,8 +127,8 @@ class ReportService
         $case5Values = [];
         // beginn case5
         // die Daten nur im korrekten Monat ausgeben
-        for ($i = 0; $i < count($case5); ++$i) {
-            if (date('m', strtotime($case5[$i]['stampFrom'])) == $month || date('m', strtotime($case5[$i]['stampTo'])) == $month) {
+        for ($i = 0; $i < ($case5 === null ? 0 : count($case5)); ++$i) {
+            if (date('m', strtotime((string) $case5[$i]['stampFrom'])) == $month || date('m', strtotime((string) $case5[$i]['stampTo'])) == $month) {
                 $case5Values[] = [
                     'stampFrom' => $case5[$i]['stampFrom'],
                     'stampTo' => $case5[$i]['stampTo'],
@@ -152,7 +142,7 @@ class ReportService
         // beginn create Array for Day Values Table
         $dayValuesFinal = [];
         // die Daten dem Array hinzufuegen
-        for ($i = 0; $i < count($report['prs']); ++$i) {
+        for ($i = 0; $i < (is_countable($report['prs']) ? count($report['prs']) : 0); ++$i) {
             $stamp = $report['prs'][$i]->getstamp();
             $dayValues['datum'] = $report['prs'][$i]->getstamp()->format('m-d');
             $dayValues['PowerEvuMonth'] = ($anlage->getShowEvuDiag()) ? (float) $report['prs'][$i]->getPowerEvu() : (float) $report['prs'][$i]->getPowerAct();
@@ -211,7 +201,7 @@ class ReportService
 
         // beginn create Array for Energy Production Chart
         // die Daten dem Array hinzufuegen
-        for ($i = 0; $i < count($report['prs']); ++$i) {
+        for ($i = 0; $i < (is_countable($report['prs']) ? count($report['prs']) : 0); ++$i) {
             $dayChartValues[] =
                 [
                     'datum' => $report['prs'][$i]->getstamp()->format('d'),
@@ -226,7 +216,7 @@ class ReportService
         // beginn create Array for Heat and Temperatur Table
         // die Daten dem Array hinzufuegen
         $heatAndTempValues = [];
-        for ($i = 0; $i < count($report['prs']); ++$i) {
+        for ($i = 0; $i < (is_countable($report['prs']) ? count($report['prs']) : 0); ++$i) {
             $heatValues = [];
             $heatValues['datum'] = $report['prs'][$i]->getstamp()->format('m-d');
             foreach ($report['prs'][$i]->getirradiationJson() as $key => $value) {
@@ -434,7 +424,6 @@ class ReportService
     }
 
     /**
-     * @param Anlage $anlage
      * @param $month
      * @param $year
      * @return array
@@ -459,7 +448,7 @@ class ReportService
         /* @var AnlagenPvSystMonth[] $pvSystPac */
         if ($anlage->getUsePac()) {
             $pvSystPac = $this->pvSystMonthRepo->findAllPac($anlage, (int) $month);
-            $anzRecordspvSystPac = count($pvSystPac);
+            $anzRecordspvSystPac = is_countable($pvSystPac) ? count($pvSystPac) : 0;
             foreach ($pvSystPac as $pvSystPacValue) {
                 // Wenn Anzahl Monate kleiner 12 dann muss der erste Moanat nur anteilig berechnet werden.
                 // Wenn 12 oder mehr dann kann der ganze Moant addiert werden

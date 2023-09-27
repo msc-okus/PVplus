@@ -13,10 +13,10 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class GenerateTicketsHandler
 {
     public function __construct(
-        private AlertSystemService $alertService,
-        private AlertSystemv2Service $alertServiceV2,
-        private LogMessagesService $logMessages,
-        private AnlagenRepository $anlagenRepo
+        private readonly AlertSystemService $alertService,
+        private readonly AlertSystemv2Service $alertServiceV2,
+        private readonly LogMessagesService $logMessages,
+        private readonly AnlagenRepository $anlagenRepo
     )
     {
     }

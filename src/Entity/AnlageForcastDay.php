@@ -14,7 +14,7 @@ class AnlageForcastDay
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageForecastDays')]
-    private ?Anlage $anlage;
+    private ?Anlage $anlage = null;
 
     #[ORM\Column(type: 'integer')]
     private int $week;
@@ -50,7 +50,7 @@ class AnlageForcastDay
     private string $irrday;
 
     #[ORM\Column(type: 'datetime')]
-    private $updated_at ;
+    private ?\DateTimeInterface $updated_at = null ;
 
     public function getId(): ?int
     {

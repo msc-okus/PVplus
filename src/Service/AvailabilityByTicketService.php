@@ -29,21 +29,21 @@ class AvailabilityByTicketService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private EntityManagerInterface $em,
-        private AnlageAvailabilityRepository $availabilityRepository,
-        private Case5Repository $case5Repository,
-        private Case6Repository $case6Repository,
-        private TimesConfigRepository $timesConfigRepo,
-        private FunctionsService $functions,
-        private AnlagenRepository $anlagenRepository,
-        private TicketRepository $ticketRepo,
-        private TicketDateRepository $ticketDateRepo,
-        private AvailabilityService $availabilityService,
-        private WeatherFunctionsService $weatherFunctionsService,
-        private ReplaceValuesTicketRepository $replaceValuesTicketRepo,
-        private IrradiationService $irradiationService,
-        private CacheInterface $cache
+        private readonly PdoService $pdoService,
+        private readonly EntityManagerInterface $em,
+        private readonly AnlageAvailabilityRepository $availabilityRepository,
+        private readonly Case5Repository $case5Repository,
+        private readonly Case6Repository $case6Repository,
+        private readonly TimesConfigRepository $timesConfigRepo,
+        private readonly FunctionsService $functions,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly TicketRepository $ticketRepo,
+        private readonly TicketDateRepository $ticketDateRepo,
+        private readonly AvailabilityService $availabilityService,
+        private readonly WeatherFunctionsService $weatherFunctionsService,
+        private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
+        private readonly IrradiationService $irradiationService,
+        private readonly CacheInterface $cache
     )
     {}
 
@@ -216,11 +216,7 @@ class AvailabilityByTicketService
      * CASE 6 = Manuel, durch Operator korriegierte Datenlücke (Datenlücke ist Ausfall des Inverters) <br>
      * CONTROL = wenn Gmod > 0<br>.
      *
-     * @param Anlage $anlage
      * @param $timestampModulo
-     * @param TimesConfig $timesConfig
-     * @param array $inverterPowerDc
-     * @param int $department
      * @return array
      * @throws InvalidArgumentException
      */
@@ -270,7 +266,7 @@ class AvailabilityByTicketService
 
                     for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                         foreach ($inverters as $inverter) {
-                            $inverter = trim($inverter, ' ');
+                            $inverter = trim((string) $inverter, ' ');
                             $commIssuArray[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                         }
                     }
@@ -288,7 +284,7 @@ class AvailabilityByTicketService
                 $inverters = $this->functions->readInverters($perfTicketsSkip->getInverter(), $anlage);
                 for ($skipStamp = $skipFrom; $skipStamp < $skipTo; $skipStamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($inverters as $inverter) {
-                        $inverter = trim($inverter, ' ');
+                        $inverter = trim((string) $inverter, ' ');
                         $skipTiAndTitheoArray[$inverter][date('Y-m-d H:i:00', $skipStamp)] = false;
                         $skipTiOnlyArray[$inverter][date('Y-m-d H:i:00', $skipStamp)] = false;
                         if ($perfTicketsSkip->getPRExcludeMethod() == 10) {
@@ -304,12 +300,12 @@ class AvailabilityByTicketService
 
             // suche Case 5 Fälle und schreibe diese in case5Array[inverter][stamp] = true|false
             foreach ($this->case5Repository->findAllCase5($anlage, $from, $to) as $case) {
-                $c5From = strtotime($case['stampFrom']);
-                $c5To = strtotime($case['stampTo']);
+                $c5From = strtotime((string) $case['stampFrom']);
+                $c5To = strtotime((string) $case['stampTo']);
                 $inverters = $this->functions->readInverters($case['inverter'], $anlage);
                 for ($c5Stamp = $c5From; $c5Stamp <= $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($inverters as $inverter) {
-                        $inverter = trim($inverter, ' ');
+                        $inverter = trim((string) $inverter, ' ');
                         $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                     }
                 }
@@ -327,7 +323,7 @@ class AvailabilityByTicketService
                 $inverters = $this->functions->readInverters($case5Ticket->getInverter(), $anlage);
                 for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($inverters as $inverter) {
-                        $inverter = trim($inverter, ' ');
+                        $inverter = trim((string) $inverter, ' ');
                         $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                     }
                 }
@@ -337,12 +333,12 @@ class AvailabilityByTicketService
 
             // suche Case 6 Fälle und schreibe diese in case6Array[inverter][stamp] = true|false
             foreach ($this->case6Repository->findAllCase6($anlage, $from, $to) as $case) {
-                $c6From = strtotime($case['stampFrom']);
-                $c6To = strtotime($case['stampTo']);
+                $c6From = strtotime((string) $case['stampFrom']);
+                $c6To = strtotime((string) $case['stampTo']);
                 $inverters = $this->functions->readInverters($case['inverter'], $anlage);
                 for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($inverters as $inverter) {
-                        $inverter = trim($inverter, ' ');
+                        $inverter = trim((string) $inverter, ' ');
                         $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
                     }
                 }
@@ -356,7 +352,7 @@ class AvailabilityByTicketService
                 $c6To = $case6Ticket->getEnd()->getTimestamp();
                 for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($this->functions->readInverters($case6Ticket->getInverter(), $anlage) as $inverter) {
-                        $inverter = trim($inverter, ' ');
+                        $inverter = trim((string) $inverter, ' ');
                         $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
                     }
                 }
@@ -582,20 +578,17 @@ class AvailabilityByTicketService
 
 
        /**
-        * Berechnet die PA TEIL 1 (OHNE GEWICHTUNG)
-        *
-        * <b>Wobei:</b><br>
-        * ti = case1 + case 2 <br>
-        * titheo = control<br>
-        * tiFM = case5 (?? + case6)<br>
-        *<br>
-        * sollte ti und titheo = 0 sein so wird PA auf 100% definiert<br>
-        *
-        * @param Anlage $anlage
-        * @param array $row
-        * @param int $department
-        * @return float
-        */
+     * Berechnet die PA TEIL 1 (OHNE GEWICHTUNG)
+     *
+     * <b>Wobei:</b><br>
+     * ti = case1 + case 2 <br>
+     * titheo = control<br>
+     * tiFM = case5 (?? + case6)<br>
+     *<br>
+     * sollte ti und titheo = 0 sein so wird PA auf 100% definiert<br>
+     *
+     * @return float
+     */
     private function calcInvAPart1(Anlage $anlage, array $row, int $department = 0): float
     {
         $paInvPart1 = 0.0;

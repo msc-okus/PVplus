@@ -29,17 +29,10 @@ class TicketFormType extends AbstractType
     use PVPNameArraysTrait;
 
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private TranslatorInterface $translator,
-        private Security $security)
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly TranslatorInterface $translator,
+        private readonly Security $security)
     {
-    }
-
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => Ticket::class,
-        ]);
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -213,5 +206,12 @@ class TicketFormType extends AbstractType
             ]);
 
 
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => Ticket::class,
+        ]);
     }
 }

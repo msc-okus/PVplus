@@ -14,9 +14,9 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class GenerateAMReportHandler
 {
     public function __construct(
-        private AssetManagementService $assetManagement,
-        private LogMessagesService $logMessages,
-        private AnlagenRepository $anlagenRepo
+        private readonly AssetManagementService $assetManagement,
+        private readonly LogMessagesService $logMessages,
+        private readonly AnlagenRepository $anlagenRepo
     )
     {
     }

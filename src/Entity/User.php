@@ -39,7 +39,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    public const ARRAY_OF_G4N_ROLES = [
+    final public const ARRAY_OF_G4N_ROLES = [
         'Developer'         => 'ROLE_DEV',
         'Admin'             => 'ROLE_ADMIN',
         'Green4Net User'    => 'ROLE_G4N',
@@ -48,12 +48,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'Beta Tester'       => 'ROLE_BETA',
         'Admin Owner'       => 'ROLE_OWNER_ADMIN',
     ];
-    public const ARRAY_OF_ROLES_USER = [
+    final public const ARRAY_OF_ROLES_USER = [
         'Owner (full)'      => 'ROLE_OWNER_FULL',
         'Owner'             => 'ROLE_OWNER',
     ];
 
-    public const ARRAY_OF_ROLES = [
+    final public const ARRAY_OF_ROLES = [
         'Developer'         => 'ROLE_DEV',
         'Admin'             => 'ROLE_ADMIN',
         'Green4Net User'    => 'ROLE_G4N',
@@ -67,7 +67,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'Analyse'           => 'ROLE_ANALYSE',
     ];
 
-    public const ARRAY_OF_FUNCTIONS_BY_ROLE = [
+    final public const ARRAY_OF_FUNCTIONS_BY_ROLE = [
         'AssetManagement'   => 'ROLE_AM',
         'Analyse'           => 'ROLE_ANALYSE',
     ];
@@ -275,7 +275,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return null;
     }
 
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;

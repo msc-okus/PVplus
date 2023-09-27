@@ -20,10 +20,10 @@ class AnlagePpcs
     private ?string $vcomId = null;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $startDatePpc;
+    private ?\DateTimeInterface $startDatePpc = null;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $endDatePpc;
+    private ?\DateTimeInterface $endDatePpc = null;
 
     public function getId(): ?int
     {

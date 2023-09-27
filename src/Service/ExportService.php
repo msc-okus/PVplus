@@ -21,14 +21,14 @@ class ExportService
     use G4NTrait;
 
     public function __construct(
-		private PdoService $pdoService,
-        private FunctionsService $functions,
-        private PRRepository $PRRepository,
-        private AnlageAvailabilityRepository $availabilityRepo,
-        private GridMeterDayRepository $gridRepo,
-        private WeatherFunctionsService $weatherFunctions,
-        private PowerService $powerService,
-        private AvailabilityByTicketService $availabilityByTicket
+		private readonly PdoService $pdoService,
+        private readonly FunctionsService $functions,
+        private readonly PRRepository $PRRepository,
+        private readonly AnlageAvailabilityRepository $availabilityRepo,
+        private readonly GridMeterDayRepository $gridRepo,
+        private readonly WeatherFunctionsService $weatherFunctions,
+        private readonly PowerService $powerService,
+        private readonly AvailabilityByTicketService $availabilityByTicket
     )
     {
     }
@@ -533,8 +533,6 @@ class ExportService
     /**
      * Exportiert die FAC relevanten Daten, Summiert auf Tage
      *
-     * @param Anlage $anlage
-     * @param DateTime $from
      * @param DateTime|null $to
      * @param string $target (array = php array zur Weiterverarbeitung, csv = export als csv Datei)
      * @return array
@@ -638,9 +636,9 @@ class ExportService
                 $export['temp_corr'] = (float) $row['temp_corr'];
                 $export['theo_power'] = (float) $row['theo_power'];
                 $export['pNormInv'] = $dcPNormPerInverter[$row['unit']] / 1000; // Umrechnung von Wp auf kWp
-                $irrAnlage = json_decode($row['irr_anlage'], true);
-                $tempAnlage = json_decode($row['temp_anlage'], true);
-                $windAnlage = json_decode($row['wind_anlage'], true);
+                $irrAnlage = json_decode((string) $row['irr_anlage'], true, 512, JSON_THROW_ON_ERROR);
+                $tempAnlage = json_decode((string) $row['temp_anlage'], true, 512, JSON_THROW_ON_ERROR);
+                $windAnlage = json_decode((string) $row['wind_anlage'], true, 512, JSON_THROW_ON_ERROR);
 
                 foreach ($irrAnlage as $key => $value) {
                     $export[$key] = $value;

@@ -26,7 +26,7 @@ class LogMessages
     private \DateTimeImmutable $startedAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $finishedAt;
+    private ?\DateTimeImmutable $finishedAt = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $state;

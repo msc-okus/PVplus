@@ -22,21 +22,20 @@ class AvailabilityService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private EntityManagerInterface $em,
-        private AnlageAvailabilityRepository $availabilityRepository,
-        private Case5Repository $case5Repository,
-        private Case6Repository $case6Repository,
-        private TimesConfigRepository $timesConfigRepo,
-        private FunctionsService $functions,
-        private AnlagenRepository $anlagenRepository)
+        private readonly PdoService $pdoService,
+        private readonly EntityManagerInterface $em,
+        private readonly AnlageAvailabilityRepository $availabilityRepository,
+        private readonly Case5Repository $case5Repository,
+        private readonly Case6Repository $case6Repository,
+        private readonly TimesConfigRepository $timesConfigRepo,
+        private readonly FunctionsService $functions,
+        private readonly AnlagenRepository $anlagenRepository)
     {
     }
 
     /**
      * @param Anlage|int $anlage
      * @param $date
-     * @param bool $second
      * @return string
      * @throws \Exception
      */
@@ -166,9 +165,7 @@ class AvailabilityService
      * CASE 6 = Manuel, durch Operator koriegierte Datenlücke (Datenlücke ist Ausfall des Inverters) <br>
      * CONTROL = wenn Gmod > 0<br>.
      *
-     * @param Anlage $anlage
      * @param $timestampModulo
-     * @param TimesConfig $timesConfig
      * @return array
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig): array
@@ -200,12 +197,12 @@ class AvailabilityService
 
             // suche Case 5 Fälle und schreibe diese in case5Array[inverter][stamp] = true|false
             foreach ($this->case5Repository->findAllCase5($anlage, $from, $to) as $case) {
-                $c5From = strtotime($case['stampFrom']);
-                $c5To = strtotime($case['stampTo']);
+                $c5From = strtotime((string) $case['stampFrom']);
+                $c5To = strtotime((string) $case['stampTo']);
                 for ($c5Stamp = $c5From; $c5Stamp <= $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     // foreach (explode(',', $case['inverter'], 999) as $inverter) {
                     foreach ($this->functions->readInverters($case['inverter'], $anlage) as $inverter) {
-                        $inverter = trim($inverter, ' ');
+                        $inverter = trim((string) $inverter, ' ');
                         $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                     }
                 }
@@ -213,10 +210,10 @@ class AvailabilityService
 
             // suche Case 6 Fälle und schreibe diese in case6Array[inverter][stamp] = true|false
             foreach ($this->case6Repository->findAllCase6($anlage, $from, $to) as $case) {
-                $c6From = strtotime($case['stampFrom']);
-                $c6To = strtotime($case['stampTo']);
+                $c6From = strtotime((string) $case['stampFrom']);
+                $c6To = strtotime((string) $case['stampTo']);
                 for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
-                    foreach (explode(',', $case['inverter'], 999) as $inverter) {
+                    foreach (explode(',', (string) $case['inverter'], 999) as $inverter) {
                         $inverter = trim($inverter, ' ');
                         $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
                     }

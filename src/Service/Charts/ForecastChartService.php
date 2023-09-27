@@ -17,11 +17,11 @@ class ForecastChartService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private ForcastRepository $forcastRepo,
-        private ForcastDayRepository $forcastDayRepo,
-        private InvertersRepository $invertersRepo,
-        private FunctionsService $functions)
+private readonly PdoService $pdoService,
+        private readonly ForcastRepository $forcastRepo,
+        private readonly ForcastDayRepository $forcastDayRepo,
+        private readonly InvertersRepository $invertersRepo,
+        private readonly FunctionsService $functions)
     {
 
     }
@@ -106,7 +106,7 @@ private PdoService $pdoService,
         $dataArray = [];
 
         $conn = $this->pdoService->getPdoPlant();
-        $currentYear = date('Y', strtotime($to));
+        $currentYear = date('Y', strtotime((string) $to));
         if ($anlage->getShowEvuDiag()) {
             $sql = 'SELECT (dayofyear(stamp)-mod(dayofyear(stamp),7))+1 AS startDayWeek, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
                 FROM '.$anlage->getDbNameAcIst()." 
@@ -122,11 +122,11 @@ private PdoService $pdoService,
         $result->execute();
         foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if ($anlage->getShowEvuDiag()) {
-                if ($value['startDayWeek'] < date('z', strtotime($to))) {
+                if ($value['startDayWeek'] < date('z', strtotime((string) $to))) {
                     $actPerWeek[$value['startDayWeek']] = $value['sumEvu'];
                 }
             } else {
-                if ($value['startDayWeek'] < date('z', strtotime($to))) {
+                if ($value['startDayWeek'] < date('z', strtotime((string) $to))) {
                     $actPerWeek[$value['startDayWeek']] = $value['sumInvOut'];
                 }
             }
@@ -141,7 +141,7 @@ private PdoService $pdoService,
         $divMinus = 0;
         $divPlus = 0;
         foreach ($forecasts as $forecast) {
-            $year = date('Y', strtotime($to));
+            $year = date('Y', strtotime((string) $to));
             $stamp = strtotime($year.'W'.str_pad($forecast->getWeek(), 2, '0', STR_PAD_LEFT));
 
             $dataArray['chart'][$counter]['date'] = date('Y-m-d', $stamp);
@@ -178,7 +178,7 @@ private PdoService $pdoService,
         $form = '%y%m%d';
 
         $conn = $this->pdoService->getPdoPlant();
-        $currentYear = date('Y', strtotime($to));
+        $currentYear = date('Y', strtotime((string) $to));
         if ($anlage->getShowEvuDiag()) {
             $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
                 FROM ".$anlage->getDbNameAcIst()." 
@@ -194,11 +194,11 @@ private PdoService $pdoService,
         $result->execute();
         foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if ($anlage->getShowEvuDiag()) {
-                if ($value['startDay'] < date('z', strtotime($to))) {
+                if ($value['startDay'] < date('z', strtotime((string) $to))) {
                     $actPerDay[(int) $value['startDay']] = round($value['sumEvu'], 2);
                 }
             } else {
-                if ($value['startDay'] < date('z', strtotime($to))) {
+                if ($value['startDay'] < date('z', strtotime((string) $to))) {
                     $actPerDay[(int) $value['startDay']] = round($value['sumInvOut'], 2);
                 }
             }
@@ -213,7 +213,7 @@ private PdoService $pdoService,
         $divMinus = 0;
         $divPlus = 0;
         foreach ($forecasts as $count => $forecast) {
-            $year = date('Y', strtotime($to));
+            $year = date('Y', strtotime((string) $to));
             $stamp = DateTime::createFromFormat('Y z', $year.' '.$forecast->getDay()-1);
             $dataArray['chart'][$counter]['date'] = $stamp->format('Y-m-d');
 
@@ -248,7 +248,7 @@ private PdoService $pdoService,
         $form = '%y%m%d';
 
         $conn = $this->pdoService->getPdoPlant();
-        $currentYear = date('Y', strtotime($to));
+        $currentYear = date('Y', strtotime((string) $to));
         if ($anlage->getShowEvuDiag()) {
             $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
                 FROM ".$anlage->getDbNameAcIst()." 
@@ -264,11 +264,11 @@ private PdoService $pdoService,
         $result->execute();
         foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if ($anlage->getShowEvuDiag()) {
-                if ($value['startDay'] < date('z', strtotime($to))) {
+                if ($value['startDay'] < date('z', strtotime((string) $to))) {
                     $actPerDay[(int) $value['startDay']] = round($value['sumEvu'], 2);
                 }
             } else {
-                if ($value['startDay'] < date('z', strtotime($to))) {
+                if ($value['startDay'] < date('z', strtotime((string) $to))) {
                     $actPerDay[(int) $value['startDay']] = round($value['sumInvOut'], 2);
                 }
             }
@@ -284,7 +284,7 @@ private PdoService $pdoService,
         $divPlus = 0;
 
         foreach ($forecasts as $count => $forecast) {
-            $year = date('Y', strtotime($to));
+            $year = date('Y', strtotime((string) $to));
             $stamp = DateTime::createFromFormat('Y z', $year.' '.$forecast->getDay()-1);
             $dataArray['chart'][$counter]['date'] = $stamp->format('Y-m-d');
 

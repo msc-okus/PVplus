@@ -71,10 +71,10 @@ class AnlageGroups
     private Collection $modules;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'groups')]
-    private ?Anlage $anlage;
+    private ?Anlage $anlage = null;
 
     #[ORM\ManyToOne(targetEntity: WeatherStation::class)]
-    private ?WeatherStation $weatherStation;
+    private ?WeatherStation $weatherStation = null;
 
     public function __construct()
     {

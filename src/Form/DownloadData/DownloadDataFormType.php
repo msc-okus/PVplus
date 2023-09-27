@@ -15,14 +15,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DownloadDataFormType extends AbstractType
 {
-    private $anlagenRepository;
-
-    public function __construct(AnlagenRepository $anlagenRepository)
+    public function __construct(private readonly AnlagenRepository $anlagenRepository)
     {
-        $this->anlagenRepository = $anlagenRepository;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $today = (new \DateTime('now'))->format('Y-m-d');
         $builder
@@ -80,7 +77,7 @@ class DownloadDataFormType extends AbstractType
             ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => DownloadDataModel::class,

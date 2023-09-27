@@ -20,16 +20,16 @@ class ImportService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private PVSystDatenRepository $pvSystRepo,
-        private AnlagenRepository $anlagenRepository,
-        private AnlageAvailabilityRepository $anlageAvailabilityRepo,
-        private FunctionsService $functions,
-        private EntityManagerInterface $em,
-        private AvailabilityService $availabilityService,
-        private MeteoControlService $meteoControlService,
-        private ManagerRegistry $doctrine,
-        private SerializerInterface $serializer
+        private readonly PdoService $pdoService,
+        private readonly PVSystDatenRepository $pvSystRepo,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly AnlageAvailabilityRepository $anlageAvailabilityRepo,
+        private readonly FunctionsService $functions,
+        private readonly EntityManagerInterface $em,
+        private readonly AvailabilityService $availabilityService,
+        private readonly MeteoControlService $meteoControlService,
+        private readonly ManagerRegistry $doctrine,
+        private readonly SerializerInterface $serializer
     )
     {
     }
@@ -112,7 +112,7 @@ class ImportService
                 }
 
                 if (is_array($sensors) && array_key_exists($date, $sensors)) {
-                    $length = count($anlageSensors);
+                    $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
 
                     $checkSensors = self::checkSensors($anlageSensors, $length, (bool)$isEastWest, $sensors, $date);
 
@@ -156,9 +156,9 @@ class ImportService
                     'irr_flag' => NULL
                 ];
 
-                $irrAnlage = json_encode($irrAnlageArray);
-                $tempAnlage = json_encode($tempAnlageArray);
-                $windAnlage = json_encode($windAnlageArray);
+                $irrAnlage = json_encode($irrAnlageArray, JSON_THROW_ON_ERROR);
+                $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
+                $windAnlage = json_encode($windAnlageArray, JSON_THROW_ON_ERROR);
 
                 //Import different Types
                 if ($anlage->getSettings()->getImportType() == 'standart') {
@@ -168,7 +168,7 @@ class ImportService
                     $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits);
 
                     //built array for pvist
-                    for ($j = 0; $j <= count($result[0]) - 1; $j++) {
+                    for ($j = 0; $j <= (is_countable($result[0]) ? count($result[0]) : 0) - 1; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
 
@@ -185,12 +185,12 @@ class ImportService
                     $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroupsCleaned, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
 
                     //built array for pvist
-                    for ($j = 0; $j <= count($result[0]) - 1; $j++) {
+                    for ($j = 0; $j <= (is_countable($result[0]) ? count($result[0]) : 0) - 1; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
 
                     //built array for pvist_dc
-                    for ($j = 0; $j <= count($result[1]) - 1; $j++) {
+                    for ($j = 0; $j <= (is_countable($result[1]) ? count($result[1]) : 0) - 1; $j++) {
                         $data_pv_dcist[] = $result[1][$j];
                     }
 
@@ -211,7 +211,7 @@ class ImportService
 
                     $result = self::getPpc($anlagePpcsCleaned, $ppcs, $date, $stamp, $plantId, $anlagenTabelle);
 
-                    for ($j = 0; $j <= count($result[0]) - 1; $j++) {
+                    for ($j = 0; $j <= (is_countable($result[0]) ? count($result[0]) : 0) - 1; $j++) {
                         $data_ppc[] = $result[0][$j];
                     }
 

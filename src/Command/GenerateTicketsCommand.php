@@ -23,10 +23,10 @@ class GenerateTicketsCommand extends Command
     use G4NTrait;
 
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private AlertSystemService $alertService,
-        private AlertSystemv2Service $alertServiceV2,
-        private EntityManagerInterface $em
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly AlertSystemService $alertService,
+        private readonly AlertSystemv2Service $alertServiceV2,
+        private readonly EntityManagerInterface $em
     )
     {
         parent::__construct();
@@ -62,8 +62,8 @@ class GenerateTicketsCommand extends Command
         }
 
         if ($from <= $to) {
-            $fromStamp = strtotime($from);
-            $toStamp = strtotime($to);
+            $fromStamp = strtotime((string) $from);
+            $toStamp = strtotime((string) $to);
 
             if (is_numeric($plantid)) {
                 $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
@@ -73,7 +73,7 @@ class GenerateTicketsCommand extends Command
                 $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
             }
 
-            $counter = (($toStamp - $fromStamp) / 3600) * count($anlagen);
+            $counter = (($toStamp - $fromStamp) / 3600) * (is_countable($anlagen) ? count($anlagen) : 0);
             $io->progressStart($counter);
             $counter = ($counter * 4) - 1;
 

@@ -29,18 +29,18 @@ class WeatherFunctionsService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private PVSystDatenRepository   $pvSystRepo,
-        private GroupMonthsRepository   $groupMonthsRepo,
-        private GroupModulesRepository  $groupModulesRepo,
-        private GroupsRepository        $groupsRepo,
-        private GridMeterDayRepository  $gridMeterDayRepo,
-        private ForcastRepository       $forecastRepo,
-        private TicketRepository        $ticketRepo,
-        private TicketDateRepository    $ticketDateRepo,
-        private ReplaceValuesTicketRepository $replaceValuesTicketRepo,
-        private CacheInterface $cache,
-        private MonthlyDataRepository $monthlyDataRepo,)
+        private readonly PdoService $pdoService,
+        private readonly PVSystDatenRepository   $pvSystRepo,
+        private readonly GroupMonthsRepository   $groupMonthsRepo,
+        private readonly GroupModulesRepository  $groupModulesRepo,
+        private readonly GroupsRepository        $groupsRepo,
+        private readonly GridMeterDayRepository  $gridMeterDayRepo,
+        private readonly ForcastRepository       $forecastRepo,
+        private readonly TicketRepository        $ticketRepo,
+        private readonly TicketDateRepository    $ticketDateRepo,
+        private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
+        private readonly CacheInterface $cache,
+        private readonly MonthlyDataRepository $monthlyDataRepo,)
     {
     }
 
@@ -65,11 +65,8 @@ class WeatherFunctionsService
      * $weather['theoPowerTempCorr'] Theoretical Energie Tempertatur koriegiert<br>
      * $weather['theoPowerTempCorr'] Theoretical Energie Tempertatur koriegiert + degradation<br>
      *
-     * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
-     * @param bool $ppc
-     * @param Anlage $anlage
      * @param int|null $inverterID
      * @return array|null
      * @throws InvalidArgumentException
@@ -111,7 +108,7 @@ class WeatherFunctionsService
             $gamma = $anlage->getTempCorrGamma() / 100;
             $tempCorrFunctionNREL = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
             $tempCorrFunctionIEC = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
-            $degradation = pow(1 - $anlage->getDegradationPR() / 100, $anlage->getBetriebsJahre());
+            $degradation = (1 - $anlage->getDegradationPR() / 100) ** $anlage->getBetriebsJahre();
 
             // depending on $department generate correct SQL code to calculate
             if ($anlage->getIsOstWestAnlage()) {
@@ -250,8 +247,6 @@ class WeatherFunctionsService
      * Function to retrieve weighted irradiation
      * definition is optimized for ticket generation, have a look into ducumentation
      *
-     * @param Anlage $anlage
-     * @param DateTime $stamp
      * @return float
      */
     public function getIrrByStampForTicket(Anlage $anlage, DateTime $stamp): ?float
@@ -295,9 +290,6 @@ class WeatherFunctionsService
      * Function to retrieve All Sensor (Irr) Data from Databse 'db_ist' for selected Daterange
      * Return Array with
      *
-     * @param Anlage $anlage
-     * @param DateTime $from
-     * @param DateTime $to
      * @return array
      */
     public function getSensors(Anlage $anlage, DateTime $from, DateTime $to): array
@@ -312,7 +304,7 @@ class WeatherFunctionsService
         if ($res->rowCount() >= 1) {
             $rows = $res->fetchAll(PDO::FETCH_ASSOC);
             foreach ($rows as $row) {
-                $result[$row['stamp']] = json_decode($row['irr_anlage'], true);
+                $result[$row['stamp']] = json_decode((string) $row['irr_anlage'], true, 512, JSON_THROW_ON_ERROR);
             }
         }
         unset($res);

@@ -11,8 +11,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class CalcPRHandler
 {
     public function __construct(
-        private PRCalulationService $PRCalulation,
-        private LogMessagesService $logMessages)
+        private readonly PRCalulationService $PRCalulation,
+        private readonly LogMessagesService $logMessages)
     {
     }
 

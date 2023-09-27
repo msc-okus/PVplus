@@ -10,17 +10,17 @@ use League\Flysystem\FilesystemAdapter;
 
 
 class DatFileReaderService  {
-    private $delimiter;
-    private $rowDelimiter;
+    private readonly string $delimiter;
+    private readonly string $rowDelimiter;
     private $fileHandle = null;
-    private $position = 3;
-    private $data = array();
+    private int $position = 3;
+    private array $data = [];
 
     use G4NTrait;
 
 
     public function __construct(
-        private Filesystem $fileSystemFtp,
+        private readonly Filesystem $fileSystemFtp,
     )
     {
         $position = 0;
@@ -63,7 +63,7 @@ class DatFileReaderService  {
     }
 //
     private function parseLine()  {
-        $this->data = array();
+        $this->data = [];
         while (!feof($this->fileHandle)) {
             $line = utf8_encode(fgets($this->fileHandle));
             $this->data[] = str_getcsv($line, $this->delimiter);
@@ -71,7 +71,7 @@ class DatFileReaderService  {
     }
 //
     public function current() {
-        $out = array();
+        $out = [];
 
         foreach ($this->data as $key => $value) {
             if ($key > $this->position) {
@@ -92,16 +92,16 @@ class DatFileReaderService  {
                     $h = "NN";
                 }
                 if ($h != "NN") {
-                    $y = trim($value[0]);
-                    $m = trim($value[1]);
-                    $d = trim($value[2]);
+                    $y = trim((string) $value[0]);
+                    $m = trim((string) $value[1]);
+                    $d = trim((string) $value[2]);
                     $gd = str_pad($d, 2, "0", STR_PAD_LEFT);
                     $gm = str_pad($m, 2, "0", STR_PAD_LEFT);
                     $datekey = "$y$gm$gd";
                     $orderdate = date('Y-m-d-z', strtotime(trim($datekey)));
-                    list($year, $month, $day, $dayofyear) = explode("-", $orderdate);
+                    [$year, $month, $day, $dayofyear] = explode("-", $orderdate);
                     $doy = $dayofyear + 1;
-                    $out[$doy][$h] = array('m' => $month, 'd' => $day, 'h' => $h, 'gdir' => $gdir, 'gh' => $gh, 'dh' => $dh, 'ta' => $ta, 'ff' => $ff);
+                    $out[$doy][$h] = ['m' => $month, 'd' => $day, 'h' => $h, 'gdir' => $gdir, 'gh' => $gh, 'dh' => $dh, 'ta' => $ta, 'ff' => $ff];
                 }
             }
         }

@@ -6,11 +6,11 @@ namespace App\Message\Command;
 class GenerateAMReport
 {
     public function __construct(
-        private int $anlageId,
-        private string $month,
-        private string $year,
-        private ?string $userId, // e-mail
-        private int $logId
+        private readonly int $anlageId,
+        private readonly string $month,
+        private readonly string $year,
+        private readonly ?string $userId, // e-mail
+        private readonly int $logId
     )
     {
     }

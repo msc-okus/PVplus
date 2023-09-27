@@ -20,8 +20,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class GenerateMultiInverterTicketsCommand extends Command
 {
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private AlertSystemService $alertService
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly AlertSystemService $alertService
     )
     {
         parent::__construct();
@@ -56,10 +56,10 @@ class GenerateMultiInverterTicketsCommand extends Command
         }
 
         if ($from <= $to) {
-            $fromStamp = strtotime($from);
-            $toStamp = strtotime($to);
+            $fromStamp = strtotime((string) $from);
+            $toStamp = strtotime((string) $to);
 
-            if (strtoupper($plantid) == 'ALL') {
+            if (strtoupper((string) $plantid) == 'ALL') {
                 $io->comment("Generate Tickets: $from - $to | All Plants");
                 $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => true]);
             }

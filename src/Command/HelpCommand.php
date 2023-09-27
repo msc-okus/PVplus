@@ -25,10 +25,10 @@ class HelpCommand extends Command
     use G4NTrait;
 
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private ReportEpcService $reportEpc,
-        private AssetManagementService $assetManagement,
-        private ExportService $exportService,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly ReportEpcService $reportEpc,
+        private readonly AssetManagementService $assetManagement,
+        private readonly ExportService $exportService,
     )
     {
         parent::__construct();

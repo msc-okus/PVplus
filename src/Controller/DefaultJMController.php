@@ -30,11 +30,11 @@ class DefaultJMController extends AbstractController
         private $host,
         private $userBase,
         private $passwordBase,
-        private Environment $twig,
-        private PdfService $pdf,
-        private FunctionsService $functions,
-        private PRCalulationService $PRCalulation,
-        private ReportsRepository $reportRepo,
+        private readonly Environment $twig,
+        private readonly PdfService $pdf,
+        private readonly FunctionsService $functions,
+        private readonly PRCalulationService $PRCalulation,
+        private readonly ReportsRepository $reportRepo,
     )
     {
 
@@ -48,7 +48,7 @@ class DefaultJMController extends AbstractController
     }
 
     #[Route(path: '/test/createticket', name: 'default_check')]
-    public function check(AnlagenRepository $anlagenRepository, AlertSystemV2Service $service)
+    public function check(AnlagenRepository $anlagenRepository, AlertSystemV2Service $service): never
     {
         $anlage = $anlagenRepository->findIdLike("207")[0];
         $fromStamp = strtotime("2023-06-15 00:00");
@@ -78,7 +78,7 @@ class DefaultJMController extends AbstractController
         $index = 0;
         $index2 = 0;
         $index3 = 0;
-        while (count($efficiencyArray['avg']) !== 0){
+        while ((is_countable($efficiencyArray['avg']) ? count($efficiencyArray['avg']) : 0) !== 0){
             $keys = array_keys($efficiencyArray['avg'], min($efficiencyArray['avg']));
             foreach($keys as $key ){
                 $orderedArray[$index2]['avg'][$index] = $efficiencyArray['avg'][$key];
@@ -349,7 +349,7 @@ class DefaultJMController extends AbstractController
         $reportArray = $this->reportRepo->findOneByAMYT(null, "", "2023","monthly-report");
         foreach ($reportArray as $report){
 
-            $file = str_replace("/usr/home/pvpluy/public_html/public", "./pdf", $report->getFile());
+            $file = str_replace("/usr/home/pvpluy/public_html/public", "./pdf", (string) $report->getFile());
             $file = str_replace("//", "/", $file);
            $report->setFile($file);
 

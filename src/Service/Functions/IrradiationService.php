@@ -22,12 +22,12 @@ class IrradiationService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private TicketRepository $ticketRepo,
-        private TicketDateRepository $ticketDateRepo,
-        private ReplaceValuesTicketRepository $replaceValuesTicketRepo,
-        private WeatherFunctionsService $weatherFunctionsService,
-        private CacheInterface $cache
+private readonly PdoService $pdoService,
+        private readonly TicketRepository $ticketRepo,
+        private readonly TicketDateRepository $ticketDateRepo,
+        private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
+        private readonly WeatherFunctionsService $weatherFunctionsService,
+        private readonly CacheInterface $cache
     )
     {
 
@@ -157,12 +157,8 @@ private PdoService $pdoService,
      * Umrechnung Globalstrahlung in Modulstrahlung
      * Methode ist NICHT geprüft – Verwendung ist nicht angeraten
      *
-     * @param Anlage $anlage
      * @param DateTime $stamp (Zeitpunkt für den die Umrechnung erfolgen soll)
      * @param float|null $ghi (Globalstrahlung zu oben genantem Zeitpunkt)
-     * @param float $bezugsmeridian
-     * @param float $azimuthModul
-     * @param float $neigungModul
      * @return float|null (Berechnete Modulstrahlung)
      */
     #[Deprecated]
@@ -235,7 +231,6 @@ private PdoService $pdoService,
     /**
      * Calculation of temprature of cell (Tcell) according to NREL
      *
-     * @param Anlage $anlage
      * @param float|null $windSpeed
      * @param float|null $airTemp
      * @param float|null $gPOA
@@ -250,7 +245,7 @@ private PdoService $pdoService,
         $b                  = $anlage->getTempCorrB();
         $deltaTcnd          = $anlage->getTempCorrDeltaTCnd();
 
-        $tempModulBack  = $gPOA * pow(M_E, $a + ($b * $windSpeed)) + $airTemp;
+        $tempModulBack  = $gPOA * M_E ** ($a + ($b * $windSpeed)) + $airTemp;
 
         return $tempModulBack + ($gPOA / 1000) * $deltaTcnd;
     }

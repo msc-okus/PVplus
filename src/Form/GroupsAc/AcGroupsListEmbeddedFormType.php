@@ -13,7 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AcGroupsListEmbeddedFormType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('acGroup')
@@ -38,7 +38,7 @@ class AcGroupsListEmbeddedFormType extends AbstractType
                 'label' => 'Wetterstation',
                 'help' => '[weatherStation]',
                 'class' => WeatherStation::class,
-                'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
+                'choice_label' => fn(WeatherStation $station) => sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()),
                 'placeholder' => 'select a Weatherstation',
                 'required' => false,
                 'empty_data' => null,
@@ -85,7 +85,7 @@ class AcGroupsListEmbeddedFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => AnlageAcGroups::class,

@@ -22,9 +22,9 @@ class UpdateWeatherFromUPCommand extends Command
     use G4NTrait;
 
     public function __construct(
-        private WeatherStationRepository $weatherStationRepo,
-        private WeatherServiceNew $weatherService,
-        private DummySollService $dummySollService
+        private readonly WeatherStationRepository $weatherStationRepo,
+        private readonly WeatherServiceNew $weatherService,
+        private readonly DummySollService $dummySollService
     )
     {
         parent::__construct();

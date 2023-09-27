@@ -17,7 +17,7 @@ class DummySollCommand extends Command
     use G4NTrait;
 
     public function __construct(
-        private DummySollService $dummySoll
+        private readonly DummySollService $dummySoll
     )
     {
         parent::__construct();
@@ -37,7 +37,7 @@ class DummySollCommand extends Command
         $day = $input->getArgument('day');
 
         if ($day) {
-            $from = strtotime($day);
+            $from = strtotime((string) $day);
         } else {
             $from = null;
         }

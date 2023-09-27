@@ -16,7 +16,7 @@ class AnlageAcGroupsFormType extends AbstractType
 {
     use G4NTrait;
 
-    public function __construct(private Security $security)
+    public function __construct(private readonly Security $security)
     {
     }
 
@@ -58,7 +58,7 @@ class AnlageAcGroupsFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Anlage::class,

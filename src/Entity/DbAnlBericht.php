@@ -22,17 +22,11 @@ class DbAnlBericht
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $reportId;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'eigner_id', type: 'string', length: 25, nullable: false)]
-    private $eignerId;
+    private ?string $eignerId = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'anl_id', type: 'string', length: 50, nullable: false)]
-    private $anlId;
+    private ?string $anlId = null;
 
     /**
      * @var \DateTime
@@ -40,35 +34,20 @@ class DbAnlBericht
     #[ORM\Column(name: 'report_create_date', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $reportCreateDate = 'CURRENT_TIMESTAMP';
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'report_ist', type: 'string', length: 10, nullable: false)]
-    private $reportIst;
+    private ?string $reportIst = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'report_kw', type: 'string', length: 10, nullable: false)]
-    private $reportKw;
+    private ?string $reportKw = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'report_month', type: 'string', length: 10, nullable: false)]
-    private $reportMonth;
+    private ?string $reportMonth = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'report_year', type: 'string', length: 10, nullable: false)]
-    private $reportYear;
+    private ?string $reportYear = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'report_code', type: 'text', length: 0, nullable: false)]
-    private $reportCode;
+    private ?string $reportCode = null;
 
     public function getReportId(): ?string
     {

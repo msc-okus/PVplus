@@ -17,7 +17,7 @@ use Symfony\Bundle\SecurityBundle\Security;
  */
 class LogMessagesRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry, private Security $security)
+    public function __construct(ManagerRegistry $registry, private readonly Security $security)
     {
         parent::__construct($registry, LogMessages::class);
     }

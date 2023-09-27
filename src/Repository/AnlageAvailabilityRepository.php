@@ -115,32 +115,25 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
                 ->orderBy("a.inverter * 1, a.stamp");
         }
 
-        switch($departement) {
-            case 0:
-                $result
-                    ->groupBy("a.inverter")
-                    ->select("a.stamp, a.inverter,
-                    sum(a.case_0_0) as case_0, sum(a.case_1_0) as case_1, sum(a.case_2_0) as case_2, sum(a.case_3_0) as case_3, sum(a.case_4_0) as case_4, sum(a.case_5_0) as case_5, sum(a.case_6_0) as case_6, sum(a.control_0) as control");
-                break;
-            case 1:
-                $result
-                    ->groupBy("a.inverter")
-                    ->select("a.stamp, a.inverter,
-                    sum(a.case_0_1) as case_0, sum(a.case_1_1) as case_1, sum(a.case_2_1) as case_2, sum(a.case_3_1) as case_3, sum(a.case_4_1) as case_4, sum(a.case_5_1) as case_5, sum(a.case_6_1) as case_6, sum(a.control_1) as control");
-                break;
-            case 2:
-                $result
-                    ->groupBy("a.inverter")
-                    ->select("a.stamp, a.inverter,
-                    sum(a.case_0_2) as case_0, sum(a.case_1_2) as case_1, sum(a.case_2_2) as case_2, sum(a.case_3_2) as case_3, sum(a.case_4_2) as case_4, sum(a.case_5_2) as case_5, sum(a.case_6_2) as case_6, sum(a.control_2) as control");
-                break;
-            case 3:
-                $result
-                    ->groupBy("a.inverter")
-                    ->select("a.stamp, a.inverter,
-                    sum(a.case_0_3) as case_0, sum(a.case_1_3) as case_1, sum(a.case_2_3) as case_2, sum(a.case_3_3) as case_3, sum(a.case_4_3) as case_4, sum(a.case_5_3) as case_5, sum(a.case_6_3) as case_6, sum(a.control_3) as control");
-                break;
-        }
+        match ($departement) {
+            0 => $result
+                ->groupBy("a.inverter")
+                ->select("a.stamp, a.inverter,
+                    sum(a.case_0_0) as case_0, sum(a.case_1_0) as case_1, sum(a.case_2_0) as case_2, sum(a.case_3_0) as case_3, sum(a.case_4_0) as case_4, sum(a.case_5_0) as case_5, sum(a.case_6_0) as case_6, sum(a.control_0) as control"),
+            1 => $result
+                ->groupBy("a.inverter")
+                ->select("a.stamp, a.inverter,
+                    sum(a.case_0_1) as case_0, sum(a.case_1_1) as case_1, sum(a.case_2_1) as case_2, sum(a.case_3_1) as case_3, sum(a.case_4_1) as case_4, sum(a.case_5_1) as case_5, sum(a.case_6_1) as case_6, sum(a.control_1) as control"),
+            2 => $result
+                ->groupBy("a.inverter")
+                ->select("a.stamp, a.inverter,
+                    sum(a.case_0_2) as case_0, sum(a.case_1_2) as case_1, sum(a.case_2_2) as case_2, sum(a.case_3_2) as case_3, sum(a.case_4_2) as case_4, sum(a.case_5_2) as case_5, sum(a.case_6_2) as case_6, sum(a.control_2) as control"),
+            3 => $result
+                ->groupBy("a.inverter")
+                ->select("a.stamp, a.inverter,
+                    sum(a.case_0_3) as case_0, sum(a.case_1_3) as case_1, sum(a.case_2_3) as case_2, sum(a.case_3_3) as case_3, sum(a.case_4_3) as case_4, sum(a.case_5_3) as case_5, sum(a.case_6_3) as case_6, sum(a.control_3) as control"),
+            default => $result->getQuery()->getResult(),
+        };
 
         return $result->getQuery()->getResult();
     }

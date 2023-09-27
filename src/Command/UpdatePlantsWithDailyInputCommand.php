@@ -23,9 +23,9 @@ class UpdatePlantsWithDailyInputCommand extends Command
     use G4NTrait;
 
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private PRCalulationService $prCalulation,
-        private AvailabilityService $availability)
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PRCalulationService $prCalulation,
+        private readonly AvailabilityService $availability)
     {
         parent::__construct();
     }
@@ -46,7 +46,7 @@ class UpdatePlantsWithDailyInputCommand extends Command
         $anlageId = $input->getOption('anlage');
 
         if ($day) {
-            $day = strtotime($day);
+            $day = strtotime((string) $day);
             $from = date('Y-m-d', $day);
         } else {
             $from = date('Y-m-d', time() - 86400);

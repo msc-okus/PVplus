@@ -18,7 +18,7 @@ class LoadSunsetCommand extends Command
     use G4NTrait;
 
     public function __construct(
-        private WeatherServiceNew $weatherService
+        private readonly WeatherServiceNew $weatherService
     )
     {
         parent::__construct();

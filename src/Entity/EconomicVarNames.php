@@ -61,7 +61,7 @@ class EconomicVarNames
 
     #[ORM\OneToOne(targetEntity: Anlage::class, inversedBy: 'economicVarNames')]
     #[ORM\JoinColumn(nullable: false)]
-    private $anlage;
+    private \App\Entity\Anlage|array|null $anlage = null;
 
     public function __construct()
     {

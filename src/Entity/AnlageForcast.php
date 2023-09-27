@@ -15,7 +15,7 @@ class AnlageForcast
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageForecasts')]
-    private ?Anlage $anlage;
+    private ?Anlage $anlage = null;
 
     #[ORM\Column(type: 'integer')]
     private int $week;

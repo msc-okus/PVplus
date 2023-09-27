@@ -13,7 +13,7 @@ class AlertSystemMailService
 {
 
     public function __construct(
-        private MessageService $mailservice,
+        private readonly MessageService $mailservice,
     )
     {
         define('EFOR', '10');
@@ -30,7 +30,6 @@ class AlertSystemMailService
 
     /**
      * In this function we will analyze the tickets that are open for the current given time and decide if we have to notify by mail
-     * @param Anlage $anlage
      * @param $time
      */
     public function checkTickets(Anlage $anlage, $time){

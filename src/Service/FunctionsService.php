@@ -32,19 +32,19 @@ class FunctionsService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private PVSystDatenRepository $pvSystRepo,
-        private GroupMonthsRepository $groupMonthsRepo,
-        private GroupModulesRepository $groupModulesRepo,
-        private GroupsRepository $groupsRepo,
-        private AcGroupsRepository $acGroupsRepo,
-        private InvertersRepository $inverterRepo,
-        private GridMeterDayRepository $gridMeterDayRepo,
-        private ForcastRepository $forcastRepo,
-        private ForcastDayRepository $forcastDayRepo,
-        private MonthlyDataRepository $monthlyDataRepo,
-        private WeatherFunctionsService $weatherFunctions,
-        private CacheInterface $cache)
+        private readonly PdoService $pdoService,
+        private readonly PVSystDatenRepository $pvSystRepo,
+        private readonly GroupMonthsRepository $groupMonthsRepo,
+        private readonly GroupModulesRepository $groupModulesRepo,
+        private readonly GroupsRepository $groupsRepo,
+        private readonly AcGroupsRepository $acGroupsRepo,
+        private readonly InvertersRepository $inverterRepo,
+        private readonly GridMeterDayRepository $gridMeterDayRepo,
+        private readonly ForcastRepository $forcastRepo,
+        private readonly ForcastDayRepository $forcastDayRepo,
+        private readonly MonthlyDataRepository $monthlyDataRepo,
+        private readonly WeatherFunctionsService $weatherFunctions,
+        private readonly CacheInterface $cache)
     {
     }
 
@@ -72,9 +72,9 @@ class FunctionsService
         if ($resIrr->rowCount() > 0) {
             while ($row = $resIrr->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $row['stamp'];
-                $irrAnlage[$stamp]  = json_decode($row['irr_anlage']);
-                $tempAnlage[$stamp] = json_decode($row['temp_anlage'], true);
-                $windAnlage[$stamp] = json_decode($row['wind_anlage'], true);
+                $irrAnlage[$stamp]  = json_decode((string) $row['irr_anlage'], null, 512, JSON_THROW_ON_ERROR);
+                $tempAnlage[$stamp] = json_decode((string) $row['temp_anlage'], true, 512, JSON_THROW_ON_ERROR);
+                $windAnlage[$stamp] = json_decode((string) $row['wind_anlage'], true, 512, JSON_THROW_ON_ERROR);
             }
         }
         unset($res);
@@ -85,7 +85,7 @@ class FunctionsService
         $theoPowerMonth = $theoPowerPac = $theoPowerYear = 0;
 
         // ############ für das ganze Jahr #############
-        $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
+        $jahresanfang = date('Y-01-01 00:00', strtotime((string) $from)); // für das ganze Jahr - Zeitraum
         // LIMIT 1 muss sein, da der evu Wert in jedem Datensatz gespeichert ist (Wert entspricht summe aller Gruppen), er darf aber nur einaml pro Zeiteinheit abgefragt werden.
         if ($anlage->isIgnoreNegativEvu()) {
             $sql_year = "SELECT sum(e_z_evu) as power_evu_year FROM $dbTable where stamp between '$jahresanfang' and '$to' AND e_z_evu > 0 group by unit LIMIT 1";
@@ -151,7 +151,7 @@ class FunctionsService
         }
 
         // ################# Month ################
-        $startMonth = date('Y-m-01 00:00', strtotime($from));
+        $startMonth = date('Y-m-01 00:00', strtotime((string) $from));
         if ($anlage->isIgnoreNegativEvu()) {
             $sql = "SELECT sum(e_z_evu) as power_evu FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
         } else {
@@ -252,7 +252,7 @@ class FunctionsService
         unset($res);
 
         // Month
-        $startMonth = date('Y-m-01 00:00', strtotime($to));
+        $startMonth = date('Y-m-01 00:00', strtotime((string) $to));
         $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to'";
         $res = $conn->query($sql);
         if ($res) {
@@ -277,7 +277,7 @@ class FunctionsService
         }
 
         // Year
-        $startYear = date('Y-01-01 00:00', strtotime($to));
+        $startYear = date('Y-01-01 00:00', strtotime((string) $to));
         $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM $dbTable WHERE stamp BETWEEN '$startYear' AND '$to'";
         $res = $conn->query($sql);
         if ($res) {
@@ -372,7 +372,7 @@ class FunctionsService
      */
     public function getPvSyst(Anlage $anlage, $from, $to, $pacDate): array
     {
-        $startYear = date('Y-01-01 00:00', strtotime($to));
+        $startYear = date('Y-01-01 00:00', strtotime((string) $to));
         $powerPvSystArray['powerPvSyst'] = 0;
         $powerPvSystArray['powerPvSystYear'] = 0;
         $powerPvSystArray['powerPvSystPac'] = 0;
@@ -385,7 +385,6 @@ class FunctionsService
     }
 
     /**
-     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $pacDateStart
@@ -397,9 +396,9 @@ class FunctionsService
      */
     public function getSumPowerEGridExt(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd, string $select = 'all'): array
     {
-        $startYear = date('Y-01-01 00:00', strtotime($from));
-        $startMonth = date('Y-m-01 00:00', strtotime($from));
-        $from = date('Y-m-d', strtotime($from));
+        $startYear = date('Y-01-01 00:00', strtotime((string) $from));
+        $startMonth = date('Y-m-01 00:00', strtotime((string) $from));
+        $from = date('Y-m-d', strtotime((string) $from));
         $powerGridEvuArray['powerGridEvu'] = 0;
         $powerGridEvuArray['powerGridEvuMonth'] = 0;
         $powerGridEvuArray['powerGridEvuYear'] = 0;
@@ -422,8 +421,6 @@ class FunctionsService
     }
 
     /**
-     * @param Anlage $anlage
-     * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
      * @param $pacDateStart
@@ -434,8 +431,8 @@ class FunctionsService
     public function getWeather(Anlage $anlage, WeatherStation $weatherStation, $from, $to, $pacDateStart, $pacDateEnd): array
     {
         $conn = $this->pdoService->getPdoPlant();
-        $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
-        $startMonth = date('Y-m-01 00:00', strtotime($to));
+        $jahresanfang = date('Y-01-01 00:00', strtotime((string) $from)); // für das ganze Jahr - Zeitraum
+        $startMonth = date('Y-m-01 00:00', strtotime((string) $to));
         $weather = [];
         $dbTable = $weatherStation->getDbNameWeather();
         $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp BETWEEN '$from' and '$to'";
@@ -556,8 +553,6 @@ class FunctionsService
     }
 
     /**
-     * @param Anlage $anlage
-     * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
      * @return array
@@ -695,12 +690,7 @@ class FunctionsService
     }
 
     /**
-     * @param float $irrUpper
-     * @param float $irrLower
      * @param $date
-     * @param Anlage $anlage
-     * @param AnlageGroups $group
-     * @param WeatherStation $weatherStation
      * @param AnlageGroupMonths|null $groupMonth
      * @return float
      * @deprecated
@@ -710,7 +700,7 @@ class FunctionsService
     public function calcIrr(float $irrUpper, float $irrLower, $date, Anlage $anlage, AnlageGroups $group, WeatherStation $weatherStation, ?AnlageGroupMonths $groupMonth): float
     {
         $gewichtetStrahlung = 0;
-        $month = date('m', strtotime($date));
+        $month = date('m', strtotime((string) $date));
 
         if ($irrUpper < 0) {
             $irrUpper = 0;
@@ -761,10 +751,8 @@ class FunctionsService
     }
 
     /**
-     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param bool $day
      * @return float
      */
     public function getSumeGridMeter(Anlage $anlage, $from, $to, bool $day = false): float
@@ -779,12 +767,12 @@ class FunctionsService
 
             // prüfe ob $from Datum und das $to datum weniger al einen Monat auseinaderliegen
             // wenn das so ist darf die korrektur nicht ausgeführt werden
-            if (!$day) $day = strtotime($to) - strtotime($from) <= (3600 *25); // mal 25 um Schaltung auf Winterzeit zu berücksichtigen
+            if (!$day) $day = strtotime((string) $to) - strtotime((string) $from) <= (3600 *25); // mal 25 um Schaltung auf Winterzeit zu berücksichtigen
 
             // wenn Tageswerte angefordert, dann nicht mit Monatswerten verrechnen, wenn keine Tageswerte vorhanden sind, wird 0 zurückgegeben.
             if (!$day) {
-                $year = (int) date('Y', strtotime($from));
-                $month = (int) date('m', strtotime($from));
+                $year = (int) date('Y', strtotime((string) $from));
+                $month = (int) date('m', strtotime((string) $from));
                 $monthes = self::g4nDateDiffMonth($from, $to);
                 for ($n = 1; $n <= $monthes; ++$n) {
                     $monthlyData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);// calculate the first and the last day of the given month and year in $monthlyData
@@ -811,10 +799,8 @@ class FunctionsService
     }
 
     /**
-     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
      * @return array
      */
     public function getSumAcPower(Anlage $anlage, $from, $to): array
@@ -890,7 +876,7 @@ class FunctionsService
         if ($evu) {
             if ($anlage->getUseGridMeterDayData() === false) {
                 $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, $fromObj, $toObj);
-                $countMonthes = count($monthlyDatas);
+                $countMonthes = is_countable($monthlyDatas) ? count($monthlyDatas) : 0;
 
                 foreach ($monthlyDatas as $monthlyData) {
                     // calculate the first and the last day of the given month and year in $monthlyData
@@ -1049,7 +1035,7 @@ class FunctionsService
             if ($_counter == 0) {
                 $_html .= '<thead><tr><th>Key</th>';
                 foreach ($content[$key] as $subkey => $subvalue) {
-                    $_html .= '<th>'.substr($subkey, 0, 30).'</th>';
+                    $_html .= '<th>'.substr((string) $subkey, 0, 30).'</th>';
                 }
                 $_html .= '</tr></thead>';
             }

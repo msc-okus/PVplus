@@ -25,20 +25,20 @@ class PRCalulationService
     use G4NTrait;
 
     public function __construct(
-        private PVSystDatenRepository $pvSystRepo,
-        private AnlagenRepository $anlagenRepository,
-        private PRRepository $PRRepository,
-        private AnlageAvailabilityRepository $anlageAvailabilityRepo,
-        private FunctionsService $functions,
-        private PowerService $powerServicer,
-        private EntityManagerInterface $em,
-        private Case5Repository $case5Repo,
-        private MonthlyDataRepository $monthlyDataRepo,
-        private WeatherFunctionsService $weatherFunctions,
-        private GridMeterDayRepository $gridMeterDayRepo,
-        private AvailabilityService $availabilityService,
-        private AvailabilityByTicketService $availabilityByTicket,
-        private SensorService $sensorService
+        private readonly PVSystDatenRepository $pvSystRepo,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PRRepository $PRRepository,
+        private readonly AnlageAvailabilityRepository $anlageAvailabilityRepo,
+        private readonly FunctionsService $functions,
+        private readonly PowerService $powerServicer,
+        private readonly EntityManagerInterface $em,
+        private readonly Case5Repository $case5Repo,
+        private readonly MonthlyDataRepository $monthlyDataRepo,
+        private readonly WeatherFunctionsService $weatherFunctions,
+        private readonly GridMeterDayRepository $gridMeterDayRepo,
+        private readonly AvailabilityService $availabilityService,
+        private readonly AvailabilityByTicketService $availabilityByTicket,
+        private readonly SensorService $sensorService
     )
     {
     }
@@ -726,9 +726,6 @@ class PRCalulationService
     }
 
     /**
-     * @param Anlage $anlage
-     * @param int $inverterID
-     * @param DateTime $startDate
      * @param DateTime|null $endDate
      * @return array
      * @throws NonUniqueResultException
@@ -767,7 +764,7 @@ class PRCalulationService
         // Wetter Daten ermitteln
         $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
         if (is_array($weather)) {
-            $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate), $inverterID);
+            $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate));
         }
         // Leistungsdaten ermitteln
         $power = $this->powerServicer->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate), $inverterID);
@@ -863,9 +860,6 @@ class PRCalulationService
 
     /**
      * we will use this function to calculate the PR inverter-based
-     * @param Anlage $anlage
-     * @param int $inverterID
-     * @param DateTime $startDate
      * @param DateTime|null $endDate
      * @return array
      * @throws NonUniqueResultException
@@ -885,7 +879,7 @@ class PRCalulationService
         $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), $inverterID, 3);
         $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
         if (is_array($weather)) {
-            $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate), $inverterID);
+            $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate));
         }
         if ($anlage->getIsOstWestAnlage()) {
             $irr = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
@@ -911,9 +905,6 @@ class PRCalulationService
 
     /**
      * We use this function to
-     * @param Anlage $anlage
-     * @param int $inverterID
-     * @param DateTime $startDate
      * @return array
      * @throws NonUniqueResultException
      * @throws InvalidArgumentException
@@ -928,7 +919,7 @@ class PRCalulationService
 
         $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
         if (is_array($weather)) {
-            $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate), $inverterID);
+            $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate));
         }
         if ($anlage->getIsOstWestAnlage()) {
             $irr = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
@@ -945,11 +936,6 @@ class PRCalulationService
     }
 
     /**
-     * @param Anlage $anlage
-     * @param float $irr
-     * @param float $spezYield
-     * @param float $eGrid
-     * @param float $theoPowerFT
      * @param $pa
      * @return ?float
      * @throws InvalidArgumentException
@@ -963,11 +949,6 @@ class PRCalulationService
 
     /**
      * Return value is in percentage
-     * @param Anlage $anlage
-     * @param int $dep
-     * @param float $irr
-     * @param float $eGrid
-     * @param float $theoPower
      * @param float|null $pa
      * @param int|null $inverterID
      * @return float|null
@@ -1004,14 +985,14 @@ class PRCalulationService
             case 'Ladenburg': // not tested (2023-03-22 MR)
                 if ($years >= 0){
                     // entspricht Standard PR plus degradation (Faktor = $years int)
-                    $powerTheo = $pnom * pow(1 - ($anlage->getDegradationPR()/100), $years) * $irr;
+                    $powerTheo = $pnom * (1 - ($anlage->getDegradationPR()/100)) ** $years * $irr;
                     $result = ($irr > 0) ? ($eGrid / $powerTheo) * 100 : null;
                 }
                 break;
             case 'Doellen': // not finaly tested (2023-09-12 MR)
                 if ($years >= 0){
                     // entspricht Standard PR plus degradation in Zwei Faktoren (Faktor = $years int)
-                    $powerTheo = $pnom * pow(1 - ($anlage->getDegradationPR()/100), ($years - 1)) * (1 - ($anlage->getDegradationPR()/100) / 2) * $irr;
+                    $powerTheo = $pnom * (1 - ($anlage->getDegradationPR()/100)) ** ($years - 1) * (1 - ($anlage->getDegradationPR()/100) / 2) * $irr;
                     $result = ($irr > 0) ? ($eGrid / $powerTheo) * 100 : null;
                 }
 

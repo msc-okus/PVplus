@@ -11,8 +11,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class CalcExpectedHandler
 {
     public function __construct(
-        private ExpectedService $expectedService,
-        private LogMessagesService $logMessages)
+        private readonly ExpectedService $expectedService,
+        private readonly LogMessagesService $logMessages)
     {
     }
 

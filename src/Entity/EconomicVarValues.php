@@ -14,62 +14,62 @@ class EconomicVarValues
     private $id;
 
     #[ORM\Column(type: 'integer')]
-    private $Month;
+    private ?int $Month = null;
 
     #[ORM\Column(type: 'integer')]
-    private $year;
+    private ?int $year = null;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'economicVarValues')]
     #[ORM\JoinColumn(nullable: false)]
-    private $anlage;
+    private ?\App\Entity\Anlage $anlage = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_1;
+    private ?string $var_1 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_2;
+    private ?string $var_2 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_3;
+    private ?string $var_3 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_4;
+    private ?string $var_4 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_5;
+    private ?string $var_5 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_6;
+    private ?string $var_6 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_7;
+    private ?string $var_7 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_8;
+    private ?string $var_8 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_9;
+    private ?string $var_9 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_10;
+    private ?string $var_10 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_11;
+    private ?string $var_11 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_12;
+    private ?string $var_12 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_13;
+    private ?string $var_13 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_14;
+    private ?string $var_14 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $var_15;
+    private ?string $var_15 = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $KwHPrice;
+    private ?string $KwHPrice = null;
 
     public function getId(): ?int
     {

@@ -14,14 +14,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DownloadAnalyseFormExportType extends AbstractType
 {
-    private $anlagenRepository;
-
-    public function __construct(AnlagenRepository $anlagenRepository)
+    public function __construct(private readonly AnlagenRepository $anlagenRepository)
     {
-        $this->anlagenRepository = $anlagenRepository;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('anlageexport', EntityType::class, [
@@ -38,7 +35,7 @@ class DownloadAnalyseFormExportType extends AbstractType
             ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'anlagenid' => null,

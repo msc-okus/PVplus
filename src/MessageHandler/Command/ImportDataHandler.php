@@ -15,10 +15,10 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class ImportDataHandler
 {
     public function __construct(
-        private ExternFileService  $externFileService,
-        private ImportService      $importService,
-        private LogMessagesService $logMessages,
-        private AnlagenRepository $anlagenRepo,
+        private readonly ExternFileService  $externFileService,
+        private readonly ImportService      $importService,
+        private readonly LogMessagesService $logMessages,
+        private readonly AnlagenRepository $anlagenRepo,
     )
     {
     }

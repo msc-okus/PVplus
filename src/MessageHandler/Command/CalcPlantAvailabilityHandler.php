@@ -12,9 +12,9 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class CalcPlantAvailabilityHandler
 {
     public function __construct(
-        private AvailabilityService $availabilityService,
-        private LogMessagesService $logMessages,
-        private AnlagenRepository $anlagenRepository
+        private readonly AvailabilityService $availabilityService,
+        private readonly LogMessagesService $logMessages,
+        private readonly AnlagenRepository $anlagenRepository
     )
     {
     }

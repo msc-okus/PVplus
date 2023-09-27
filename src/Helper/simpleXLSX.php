@@ -171,7 +171,7 @@ class simpleXLSX
         }
         */
 // Explode to each part
-        $aE = explode("\x50\x4b\x03\x04", $vZ);
+        $aE = explode("\x50\x4b\x03\x04", (string) $vZ);
         array_shift($aE);
 
         $aEL = count($aE);
@@ -214,7 +214,7 @@ class simpleXLSX
 
 // Special case : value block after the compressed data
             if ($aP['GPF'] & 0x0008) {
-                $aP1 = unpack('V1CRC/V1CS/V1UCS', $this->_substr($vZ, -12));
+                $aP1 = unpack('V1CRC/V1CS/V1UCS', (string) $this->_substr($vZ, -12));
 
                 $aP['CRC'] = $aP1['CRC'];
                 $aP['CS'] = $aP1['CS'];
@@ -228,7 +228,7 @@ class simpleXLSX
 
 // Getting stored filename
             $aI['N'] = $this->_substr($vZ, 26, $nF);
-            $aI['N'] = str_replace('\\', '/', $aI['N']);
+            $aI['N'] = str_replace('\\', '/', (string) $aI['N']);
 
             if ($this->_substr($aI['N'], -1) === '/') {
 // is a directory entry - will be skipped
@@ -313,7 +313,7 @@ class simpleXLSX
 
     protected function _strlen($str)
     {
-        return (ini_get('mbstring.func_overload') & 2) ? mb_strlen($str, '8bit') : strlen($str);
+        return (ini_get('mbstring.func_overload') & 2) ? mb_strlen((string) $str, '8bit') : strlen((string) $str);
     }
 
     public function error($num = null, $str = null)
@@ -322,7 +322,7 @@ class simpleXLSX
             $this->errno = $num;
             $this->error = $str;
             if ($this->debug) {
-                trigger_error(__CLASS__ . ': ' . $this->error, E_USER_WARNING);
+                trigger_error(self::class . ': ' . $this->error, E_USER_WARNING);
             }
         }
 
@@ -331,7 +331,7 @@ class simpleXLSX
 
     protected function _substr($str, $start, $length = null)
     {
-        return (ini_get('mbstring.func_overload') & 2) ? mb_substr($str, $start, ($length === null) ? mb_strlen($str, '8bit') : $length, '8bit') : substr($str, $start, ($length === null) ? strlen($str) : $length);
+        return (ini_get('mbstring.func_overload') & 2) ? mb_substr((string) $str, $start, $length ?? mb_strlen((string) $str, '8bit'), '8bit') : substr((string) $str, $start, $length ?? strlen((string) $str));
     }
 
     protected function _parse()
@@ -365,11 +365,11 @@ class simpleXLSX
                     }
 
 
-                    if ($workbookRelations = $this->getEntryXML(dirname($rel_target) . '/_rels/workbook.xml.rels')) {
+                    if ($workbookRelations = $this->getEntryXML(dirname((string) $rel_target) . '/_rels/workbook.xml.rels')) {
 // Loop relations for workbook and extract sheets...
                         foreach ($workbookRelations->Relationship as $workbookRelation) {
                             $wrel_type = basename(trim((string)$workbookRelation['Type'])); // worksheet
-                            $wrel_path = $this->_getTarget(dirname($rel_target), (string)$workbookRelation['Target']);
+                            $wrel_path = $this->_getTarget(dirname((string) $rel_target), (string)$workbookRelation['Target']);
                             if (!$this->entryExists($wrel_path)) {
                                 continue;
                             }
@@ -457,7 +457,7 @@ class simpleXLSX
         if ($entry_xml = $this->getEntryData($name)) {
             $this->deleteEntry($name); // economy memory
 // dirty remove namespace prefixes and empty rows
-            $entry_xml = preg_replace('/xmlns[^=]*="[^"]*"/i', '', $entry_xml); // remove namespaces
+            $entry_xml = preg_replace('/xmlns[^=]*="[^"]*"/i', '', (string) $entry_xml); // remove namespaces
             $entry_xml .= ' '; // force run garbage collector
             $entry_xml = preg_replace('/[a-zA-Z0-9]+:([a-zA-Z0-9]+="[^"]+")/', '$1', $entry_xml); // remove namespaced attrs
             $entry_xml .= ' ';
@@ -466,7 +466,7 @@ class simpleXLSX
             $entry_xml = preg_replace('/<\/[a-zA-Z0-9]+:([^>]+)>/', '</$1>', $entry_xml); // fix namespaced closed tags
             $entry_xml .= ' ';
 
-            if (strpos($name, '/sheet')) { // dirty skip empty rows
+            if (strpos((string) $name, '/sheet')) { // dirty skip empty rows
 // remove <row...> <c /><c /></row>
                 $entry_xml = preg_replace('/<row[^>]+>\s*(<c[^\/]+\/>\s*)+<\/row>/', '', $entry_xml, -1, $cnt);
                 $entry_xml .= ' ';
@@ -522,7 +522,7 @@ class simpleXLSX
 
     public function getEntryData($name)
     {
-        $name = ltrim(str_replace('\\', '/', $name), '/');
+        $name = ltrim(str_replace('\\', '/', (string) $name), '/');
         $dir = $this->_strtoupper(dirname($name));
         $name = $this->_strtoupper(basename($name));
         foreach ($this->package['entries'] as &$entry) {
@@ -558,7 +558,7 @@ class simpleXLSX
                     } elseif ($this->_strlen($entry['data']) !== (int)$entry['ucs']) {
                         $entry['error'] = 3;
                         $entry['error_msg'] = 'Uncompressed size is not equal with the value in header information.';
-                    } elseif (crc32($entry['data']) !== $entry['crc']) {
+                    } elseif (crc32((string) $entry['data']) !== $entry['crc']) {
                         $entry['error'] = 4;
                         $entry['error_msg'] = 'CRC32 checksum is not equal with the value in header information.';
                     }
@@ -574,7 +574,7 @@ class simpleXLSX
     }
     public function deleteEntry($name)
     {
-        $name = ltrim(str_replace('\\', '/', $name), '/');
+        $name = ltrim(str_replace('\\', '/', (string) $name), '/');
         $dir = $this->_strtoupper(dirname($name));
         $name = $this->_strtoupper(basename($name));
         foreach ($this->package['entries'] as $k => $entry) {
@@ -588,13 +588,13 @@ class simpleXLSX
 
     protected function _strtoupper($str)
     {
-        return (ini_get('mbstring.func_overload') & 2) ? mb_strtoupper($str, '8bit') : strtoupper($str);
+        return (ini_get('mbstring.func_overload') & 2) ? mb_strtoupper((string) $str, '8bit') : strtoupper((string) $str);
     }
 
     protected function _getTarget($base, $target)
     {
-        $target = trim($target);
-        if (strpos($target, '/') === 0) {
+        $target = trim((string) $target);
+        if (str_starts_with($target, '/')) {
             return $this->_substr($target, 1);
         }
         $target = ($base ? $base . '/' : '') . $target;
@@ -622,8 +622,8 @@ class simpleXLSX
     public function entryExists($name)
     {
         // 0.6.6
-        $dir = $this->_strtoupper(dirname($name));
-        $name = $this->_strtoupper(basename($name));
+        $dir = $this->_strtoupper(dirname((string) $name));
+        $name = $this->_strtoupper(basename((string) $name));
         foreach ($this->package['entries'] as $entry) {
             if ($this->_strtoupper($entry['path']) === $dir && $this->_strtoupper($entry['name']) === $name) {
                 return true;
@@ -711,7 +711,7 @@ class simpleXLSX
 
             if (!isset($this->hyperlinks[$worksheetIndex]) && isset($ws->hyperlinks)) {
                 $this->hyperlinks[$worksheetIndex] = [];
-                $sheet_rels = str_replace('worksheets', 'worksheets/_rels', $this->sheetFiles[$worksheetIndex]) . '.rels';
+                $sheet_rels = str_replace('worksheets', 'worksheets/_rels', (string) $this->sheetFiles[$worksheetIndex]) . '.rels';
                 $link_ids = [];
 
                 if ($rels = $this->getEntryXML($sheet_rels)) {
@@ -753,7 +753,7 @@ class simpleXLSX
 
     protected function _strpos($haystack, $needle, $offset = 0)
     {
-        return (ini_get('mbstring.func_overload') & 2) ? mb_strpos($haystack, $needle, $offset, '8bit') : strpos($haystack, $needle, $offset);
+        return (ini_get('mbstring.func_overload') & 2) ? mb_strpos((string) $haystack, (string) $needle, $offset, '8bit') : strpos((string) $haystack, (string) $needle, $offset);
     }
 
     /**
@@ -822,7 +822,7 @@ class simpleXLSX
     public function getIndex($cell = 'A1')
     {
 
-        if (preg_match('/([A-Z]+)(\d+)/', $cell, $m)) {
+        if (preg_match('/([A-Z]+)(\d+)/', (string) $cell, $m)) {
             $col = $m[1];
             $row = $m[2];
 
@@ -830,7 +830,7 @@ class simpleXLSX
             $index = 0;
 
             for ($i = $colLen - 1; $i >= 0; $i--) {
-                $index += (ord($col[$i]) - 64) * pow(26, $colLen - $i - 1);
+                $index += (ord($col[$i]) - 64) * 26 ** ($colLen - $i - 1);
             }
 
             return [$index - 1, $row - 1];
@@ -851,7 +851,7 @@ class simpleXLSX
             if ($s > 0 && isset($this->cellFormats[$s])) {
                 if (array_key_exists('format', $this->cellFormats[$s])) {
                     $format = $this->cellFormats[$s]['format'];
-                    if (preg_match('/[mM]/', preg_replace('/\"[^"]+\"/', '', $format))) { // [mm]onth,AM|PM
+                    if (preg_match('/[mM]/', preg_replace('/\"[^"]+\"/', '', (string) $format))) { // [mm]onth,AM|PM
                         $dataType = 'D';
                     }
                 } else {
@@ -952,7 +952,7 @@ class simpleXLSX
     public function href($worksheetIndex, $cell)
     {
         $ref = (string)$cell['r'];
-        return isset($this->hyperlinks[$worksheetIndex][$ref]) ? $this->hyperlinks[$worksheetIndex][$ref] : '';
+        return $this->hyperlinks[$worksheetIndex][$ref] ?? '';
     }
 
     public function toHTML($worksheetIndex = 0)
@@ -961,7 +961,7 @@ class simpleXLSX
         foreach ($this->readRows($worksheetIndex) as $r) {
             $s .= '<tr>';
             foreach ($r as $c) {
-                $s .= '<td nowrap>' . ($c === '' ? '&nbsp' : htmlspecialchars($c, ENT_QUOTES)) . '</td>';
+                $s .= '<td nowrap>' . ($c === '' ? '&nbsp' : htmlspecialchars((string) $c, ENT_QUOTES)) . '</td>';
             }
             $s .= "</tr>\r\n";
         }
@@ -987,7 +987,7 @@ class simpleXLSX
                 if ($x === 0 && $c['height']) {
                     $css .= 'height: '.round($c['height'] * 1.3333).'px;';
                 }
-                $s .= '<'.$tag.' style="'.$css.'" nowrap>' . ($c['value'] === '' ? '&nbsp' : htmlspecialchars($c['value'], ENT_QUOTES)) . '</'.$tag.'>';
+                $s .= '<'.$tag.' style="'.$css.'" nowrap>' . ($c['value'] === '' ? '&nbsp' : htmlspecialchars((string) $c['value'], ENT_QUOTES)) . '</'.$tag.'>';
                 $x++;
             }
             $s .= "</tr>\r\n";
@@ -1105,7 +1105,7 @@ class simpleXLSX
         }
         if (is_string($cell)) {
             $result = $ws->sheetData->xpath("row/c[@r='" . $cell . "']");
-            if (count($result)) {
+            if (is_countable($result) ? count($result) : 0) {
                 return $this->value($result[0]);
             }
         }
@@ -1131,17 +1131,14 @@ class simpleXLSX
 
     public function sheetsCount()
     {
-        return count($this->sheets);
+        return is_countable($this->sheets) ? count($this->sheets) : 0;
     }
 
     public function sheetName($worksheetIndex)
     {
         $sn = $this->sheetNames();
-        if (isset($sn[$worksheetIndex])) {
-            return $sn[$worksheetIndex];
-        }
 
-        return false;
+        return $sn[$worksheetIndex] ?? false;
     }
 
     public function sheetNames()
@@ -1157,7 +1154,7 @@ class simpleXLSX
         if ($worksheetIndex === null) {
             return $this->sheetMetaData;
         }
-        return isset($this->sheetMetaData[$worksheetIndex]) ? $this->sheetMetaData[$worksheetIndex] : false;
+        return $this->sheetMetaData[$worksheetIndex] ?? false;
     }
     public function isHiddenSheet($worksheetIndex)
     {

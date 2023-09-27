@@ -7,10 +7,10 @@ use DateTime;
 class CalcPlantAvailability
 {
     public function __construct(
-        private int $anlageId,
-        private DateTime $startDate,
-        private DateTime $endDate,
-        private int $logId)
+        private readonly int $anlageId,
+        private readonly DateTime $startDate,
+        private readonly DateTime $endDate,
+        private readonly int $logId)
     {
     }
 

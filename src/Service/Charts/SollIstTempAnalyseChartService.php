@@ -17,15 +17,15 @@ class SollIstTempAnalyseChartService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private Security $security,
-        private AnlagenStatusRepository $statusRepository,
-        private InvertersRepository $invertersRepo,
-        private IrradiationChartService $irradiationChart,
-        private DCPowerChartService $DCPowerChartService,
-        private ACPowerChartsService $ACPowerChartService,
-        private WeatherServiceNew $weatherService,
-        private FunctionsService $functions)
+private readonly PdoService $pdoService,
+        private readonly Security $security,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly InvertersRepository $invertersRepo,
+        private readonly IrradiationChartService $irradiationChart,
+        private readonly DCPowerChartService $DCPowerChartService,
+        private readonly ACPowerChartsService $ACPowerChartService,
+        private readonly WeatherServiceNew $weatherService,
+        private readonly FunctionsService $functions)
     {    }
 
     // Help Function for Array search
@@ -47,11 +47,9 @@ private PdoService $pdoService,
     }
 
     /**
-     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param int|null $inverter
-     * @param bool $hour
      * @return array|null
      */
     // MS first development 08 / 2022
@@ -60,14 +58,10 @@ private PdoService $pdoService,
     {
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
-        switch ($anlage->getConfigType()) {
-            case 3:
-            case 4:
-                $nameArray = $this->functions->getNameArray($anlage, 'ac');
-                break;
-            default:
-                $nameArray = $this->functions->getNameArray($anlage, 'dc');
-        }
+        $nameArray = match ($anlage->getConfigType()) {
+            3, 4 => $this->functions->getNameArray($anlage, 'ac'),
+            default => $this->functions->getNameArray($anlage, 'dc'),
+        };
         if ($inverter >= 0) {
             $sql_add_where_b = "AND b.wr_num = '$inverter'";
             $sql_add_where_a = "AND c.unit = '$inverter'";
@@ -111,27 +105,17 @@ private PdoService $pdoService,
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
                 //$time = date('H:i', strtotime($rowActual['ts']));
                 //$stamp = date('Y-m-d', strtotime($rowActual['ts']));
-                $time = date('H:i', strtotime($rowActual['ts']));
+                $time = date('H:i', strtotime((string) $rowActual['ts']));
                 $actPower = $rowActual['act_power_ac'];
                 $actPower = $actPower > 0 ? round($actPower, 2) : 0; // neagtive Werte auschließen
                 $prz = $rowActual['prz'];
                 $temp = $rowActual['wr_temp'];
-                switch (TRUE){
-                    case ($prz >= 95 and $prz <= 100);
-                    $color = "#009900";
-                    break;
-                    case ($prz >= 90 and $prz <= 94);
-                    $color = "#ffff00";
-                    break;
-                   // case ($prz >= 85 and $prz <= 89);
-                   // $color = "#ff8800";
-                   // break;
-                    case ($prz > 0 and $prz <= 89);
-                    $color = "#f30000";
-                    break;
-                    default:
-                    $color = "#0DD00";
-                }
+                $color = match (TRUE) {
+                    $prz >= 95 and $prz <= 100 => "#009900",
+                    $prz >= 90 and $prz <= 94 => "#ffff00",
+                    $prz > 0 and $prz <= 89 => "#f30000",
+                    default => "#0DD00",
+                };
                 //$dataArray['maxSeries'] = $maxInverter;
                 //$dataArray['chart'][$counter]['title'] = $anlagename;
                 $dataArray['chart'][$counter]['temp'] = round($temp,2);

@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 
 class CreateTokenAuthenticator extends AbstractAuthenticator
 {
-    public function __construct( private UrlGeneratorInterface $urlGenerator)
+    public function __construct( private readonly UrlGeneratorInterface $urlGenerator)
     {
     }
 

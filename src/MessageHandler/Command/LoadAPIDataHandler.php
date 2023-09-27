@@ -11,8 +11,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class LoadAPIDataHandler
 {
     public function __construct(
-        private ExternFileService  $externFileService,
-        private LogMessagesService $logMessages)
+        private readonly ExternFileService  $externFileService,
+        private readonly LogMessagesService $logMessages)
     {
     }
 

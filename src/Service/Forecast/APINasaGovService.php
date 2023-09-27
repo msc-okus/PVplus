@@ -28,16 +28,7 @@ class APINasaGovService {
         // Curl response from NASA Gov - ALLSKY_SFC_SW_DWN
         set_time_limit(550); //
         $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude='.$this->lon.'&latitude='.$this->lat.'&start='.$this->start.'&end='.$this->ende.'&format=JSON&user=DAV',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-        ));
+        curl_setopt_array($curl, [CURLOPT_URL => 'https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude='.$this->lon.'&latitude='.$this->lat.'&start='.$this->start.'&end='.$this->ende.'&format=JSON&user=DAV', CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => '', CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => 'GET']);
 
         $response = curl_exec($curl);
         curl_close($curl);
@@ -51,13 +42,13 @@ class APINasaGovService {
      faktor: return the faktor min max
     */
     public function make_sortable_data($sort = "non") {
-        $dataarray = json_decode( $this->get_json_data_curl() );
+        $dataarray = json_decode( (string) $this->get_json_data_curl(), null, 512, JSON_THROW_ON_ERROR );
         $dasa = $dataarray->properties->parameter->ALLSKY_SFC_SW_DWN;
 
         foreach ($dasa as $datekey => $value) {
-            $orderdate = date('Y-m-d-z',strtotime($datekey));
-            list($year, $month, $day, $dayofyear) = explode("-",$orderdate);
-            $outarray[$datekey] = array("year" => $year,"month" => $month,"day" => $day,"doy" => $dayofyear + 1,"value" => ($value == -999) ? "2.0" : $value);
+            $orderdate = date('Y-m-d-z',strtotime((string) $datekey));
+            [$year, $month, $day, $dayofyear] = explode("-",$orderdate);
+            $outarray[$datekey] = ["year" => $year, "month" => $month, "day" => $day, "doy" => $dayofyear + 1, "value" => ($value == -999) ? "2.0" : $value];
         }
 
         switch ($sort){
@@ -82,8 +73,8 @@ class APINasaGovService {
         for ($x = 1; $x <= 365; $x++) {
 
             $gendoy = str_pad($x, 2, "0", STR_PAD_LEFT);
-            $searcharray_A = $this->multiSearch($this->sort_avg_val_doy($outarray), array('doy' => $gendoy));
-            $searcharray_B = $this->multiSearch($this->sort_avg_stabw($outarray), array('doy' => $gendoy));
+            $searcharray_A = static::multiSearch($this->sort_avg_val_doy($outarray), ['doy' => $gendoy]);
+            $searcharray_B = static::multiSearch($this->sort_avg_stabw($outarray), ['doy' => $gendoy]);
 
             $value_avg_day = $searcharray_A[$x]['value'];
             $value_stabw_day = $searcharray_B[$x]['value'];
@@ -94,7 +85,7 @@ class APINasaGovService {
             $faktor_min = round(($min_set / $value_avg_day),2);
             $faktor_max = round(($max_set / $value_avg_day),2);
 
-            $outfaktor[$gendoy] = array("avg_day" => $value_avg_day,"stabw_day" => $value_stabw_day,"min_set" => $min_set,"max_set" => $max_set,"faktor_min" => $faktor_min,"faktor_max" => $faktor_max,"doy" => $gendoy);
+            $outfaktor[$gendoy] = ["avg_day" => $value_avg_day, "stabw_day" => $value_stabw_day, "min_set" => $min_set, "max_set" => $max_set, "faktor_min" => $faktor_min, "faktor_max" => $faktor_max, "doy" => $gendoy];
         }
 
         return $outfaktor;
@@ -108,7 +99,7 @@ class APINasaGovService {
             for ($x = 1; $x <= 365; $x++) {
 
                 $gendoy = str_pad($x, 2, "0", STR_PAD_LEFT);
-                $searcharray = $this->multiSearch($outarray, array('doy' => $gendoy));
+                $searcharray = static::multiSearch($outarray, ['doy' => $gendoy]);
 
                 foreach ($searcharray as $key => $value) {
                     $doyarray[]  = $value['value'];
@@ -116,8 +107,8 @@ class APINasaGovService {
                 }
 
                 $devi = $this->calculateDeviation($doyarray);
-                $outdevi[$doy] = array("value" => $devi, "doy" => $doy);
-                $doyarray = array();
+                $outdevi[$doy] = ["value" => $devi, "doy" => $doy];
+                $doyarray = [];
 
             }
 
@@ -135,7 +126,7 @@ class APINasaGovService {
             for ($x = 1; $x <= 365; $x++) {
 
                 $gendoy = str_pad($x, 2, "0", STR_PAD_LEFT);
-                $searcharray = $this->multiSearch($outarray, array('doy' => $gendoy));
+                $searcharray = static::multiSearch($outarray, ['doy' => $gendoy]);
                 $cn = sizeof($searcharray);
 
                 foreach ($searcharray as $key => $value) {
@@ -145,7 +136,7 @@ class APINasaGovService {
 
                 $cnavg = round(($avg / $cn),2);
 
-                $outavg[$doy] = array("value" => $cnavg, "doy" => $doy);
+                $outavg[$doy] = ["value" => $cnavg, "doy" => $doy];
                 $avg = 0;
             }
 
@@ -172,7 +163,7 @@ class APINasaGovService {
     }
     // Array Key Search Helper
     public static function multiSearch(array $array, array $pairs) {
-        $found = array();
+        $found = [];
         foreach ($array as $aKey => $aVal) {
             $coincidences = 0;
             foreach ($pairs as $pKey => $pVal) {

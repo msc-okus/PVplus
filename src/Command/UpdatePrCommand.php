@@ -22,8 +22,8 @@ class UpdatePrCommand extends Command
     use G4NTrait;
 
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private PRCalulationService $prCalulation
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PRCalulationService $prCalulation
     )
     {
         parent::__construct();
@@ -53,7 +53,7 @@ class UpdatePrCommand extends Command
         $optionLastMonth = $input->getOption('lastMonth');
 
         if ($day) {
-            $day = strtotime($day);
+            $day = strtotime((string) $day);
             $from = date('Y-m-d 00:00', $day);
             $to = date('Y-m-d 23:50', $day);
         } elseif ($optionLastMonth) {

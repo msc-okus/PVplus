@@ -19,7 +19,7 @@ class UpdateSystemStatusCommand extends Command
     use G4NTrait;
 
     public function __construct(
-        private CheckSystemStatusService $checkSystemStatus
+        private readonly CheckSystemStatusService $checkSystemStatus
     )
     {
         parent::__construct();

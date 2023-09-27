@@ -20,7 +20,7 @@ class AnlagenPvSystMonth
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlagenPvSystMonths')]
-    private ?Anlage $anlage;
+    private ?Anlage $anlage = null;
 
     /**
      * @deprecated

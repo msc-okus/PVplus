@@ -25,17 +25,17 @@ class ExpectedService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private AnlagenRepository $anlagenRepo,
-        private GroupsRepository $groupsRepo,
-        private GroupMonthsRepository $groupMonthsRepo,
-        private GroupModulesRepository $groupModulesRepo,
-        private AnlageMonthRepository $anlageMonthRepo,
-        private FunctionsService $functions,
-        private WeatherFunctionsService $weatherFunctions,
-        private OpenWeatherService $openWeather,
-        private OpenWeatherRepository $openWeatherRepo,
-        private IrradiationService $irradiationService)
+        private readonly PdoService $pdoService,
+        private readonly AnlagenRepository $anlagenRepo,
+        private readonly GroupsRepository $groupsRepo,
+        private readonly GroupMonthsRepository $groupMonthsRepo,
+        private readonly GroupModulesRepository $groupModulesRepo,
+        private readonly AnlageMonthRepository $anlageMonthRepo,
+        private readonly FunctionsService $functions,
+        private readonly WeatherFunctionsService $weatherFunctions,
+        private readonly OpenWeatherService $openWeather,
+        private readonly OpenWeatherRepository $openWeatherRepo,
+        private readonly IrradiationService $irradiationService)
     {
     }
 
@@ -80,9 +80,9 @@ class ExpectedService
     private function calcExpected(Anlage $anlage, $from, $to): array
     {
         $resultArray = [];
-        $aktuellesJahr = date('Y', strtotime($from));
+        $aktuellesJahr = date('Y', strtotime((string) $from));
         $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre
-        $month = date('m', strtotime($from));
+        $month = date('m', strtotime((string) $from));
 
         $conn = $this->pdoService->getPdoPlant();
         // Lade Wetter (Wetterstation der Anlage) Daten für die angegebene Zeit und Speicher diese in ein Array
@@ -110,7 +110,7 @@ class ExpectedService
 
             // Wetterstation auswählen, von der die Daten kommen sollen
             /* @var WeatherStation $currentWeatherStation */
-            $currentWeatherStation = $group->getWeatherStation() ? $group->getWeatherStation() : $anlage->getWeatherStation();
+            $currentWeatherStation = $group->getWeatherStation() ?: $anlage->getWeatherStation();
 
             foreach ($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
                 $stamp = $weather['stamp'];
@@ -310,7 +310,7 @@ class ExpectedService
         $modulisbif = false; // Sollte aus der Modul DB kommen
         $TcellTypDay = $theoday = $irrYear = $irrDay = 0;
 
-        if (count($decarray) > 0) {
+        if ((is_countable($decarray) ? count($decarray) : 0) > 0) {
         // Eerstelle Jahres Werte
             foreach ($decarray as $key_out => $val_out) {
 
@@ -515,7 +515,7 @@ class ExpectedService
                 // Catch Division by zero and Set the var fktday with theoretical data
                 try {
                     $fktday = $expEvuSumDay /  $expEvuSumYear;
-                } catch( DivisionByZeroError $e ){
+                } catch( DivisionByZeroError ){
                     $fktday = $theoday /  $theoYear;
                 }
 

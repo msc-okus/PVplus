@@ -18,14 +18,14 @@ class HeatmapChartService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private AnlagenStatusRepository $statusRepository,
-        private InvertersRepository     $invertersRepo,
-        private IrradiationChartService $irradiationChart,
-        private DCPowerChartService     $DCPowerChartService,
-        private ACPowerChartsService    $ACPowerChartService,
-        private WeatherServiceNew       $weatherService,
-        private FunctionsService        $functions)
+private readonly PdoService $pdoService,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly InvertersRepository     $invertersRepo,
+        private readonly IrradiationChartService $irradiationChart,
+        private readonly DCPowerChartService     $DCPowerChartService,
+        private readonly ACPowerChartsService    $ACPowerChartService,
+        private readonly WeatherServiceNew       $weatherService,
+        private readonly FunctionsService        $functions)
     {
     }
 
@@ -49,11 +49,9 @@ private PdoService $pdoService,
 
     /**
      * [Heatmap]
-     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param null|int $sets
-     * @param bool $hour
      * @return array|null
      *
      * @throws InvalidArgumentException
@@ -66,8 +64,8 @@ private PdoService $pdoService,
         $pnominverter = $anlage->getPnomInverterArray();
 
         $sunArray = $this->weatherService->getSunrise($anlage, $from);
-        $sunrise = strtotime($sunArray['sunrise']);
-        $sunset = strtotime($sunArray['sunset']);
+        $sunrise = strtotime((string) $sunArray['sunrise']);
+        $sunset = strtotime((string) $sunArray['sunset']);
 
         $from = date('Y-m-d H:00', $sunrise);
         $to = date('Y-m-d H:00', $sunset + 3600);
@@ -128,7 +126,7 @@ private PdoService $pdoService,
 
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowActual['ts'];
-                $e = explode(' ', $stamp);
+                $e = explode(' ', (string) $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
                 $dataIrr = $rowActual['g_upper'];
                 $powerist = $rowActual['istPower'];

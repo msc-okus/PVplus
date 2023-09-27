@@ -19,13 +19,13 @@ class ExternFileService
     use G4NTrait;
 
     public function __construct(
-        private PVSystDatenRepository $pvSystRepo,
-        private AnlagenRepository $anlagenRepository,
-        private PRRepository $PRRepository,
-        private AnlageAvailabilityRepository $anlageAvailabilityRepo,
-        private FunctionsService $functions,
-        private EntityManagerInterface $em,
-        private AvailabilityService $availabilityService,
+        private readonly PVSystDatenRepository $pvSystRepo,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PRRepository $PRRepository,
+        private readonly AnlageAvailabilityRepository $anlageAvailabilityRepo,
+        private readonly FunctionsService $functions,
+        private readonly EntityManagerInterface $em,
+        private readonly AvailabilityService $availabilityService,
         private $kernelProjectDir
     )
     { }

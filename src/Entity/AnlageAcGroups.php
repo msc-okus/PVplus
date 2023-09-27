@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * anlage_groups_ac.
  */
 #[ORM\Table(name: 'anlage_groups_ac')]
-#[ORM\Entity(repositoryClass: 'App\Repository\AcGroupsRepository')]
+#[ORM\Entity(repositoryClass: \App\Repository\AcGroupsRepository::class)]
 class AnlageAcGroups
 {
     use G4NTrait;
@@ -21,7 +21,7 @@ class AnlageAcGroups
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'acGroups')]
-    private $anlage;
+    private ?\App\Entity\Anlage $anlage = null;
 
     #[ORM\Column(name: 'ac_group_id', type: 'string', length: 20, nullable: false)]
     private string $acGroup;
@@ -45,13 +45,13 @@ class AnlageAcGroups
     private bool $isEastWestGroup;
 
     #[ORM\ManyToOne(targetEntity: WeatherStation::class, inversedBy: 'anlageAcGroups')]
-    private $weatherStation;
+    private ?\App\Entity\WeatherStation $weatherStation = null;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private ?string $gewichtungAnlagenPR;
+    private ?string $gewichtungAnlagenPR = null;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $tCellAvg;
+    private string|array|null $tCellAvg = null;
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $powerEast = null;
@@ -66,7 +66,7 @@ class AnlageAcGroups
     private ?string $pyro2 = null;
 
     #[ORM\Column(type: 'string', length: 40, nullable: true)]
-    private ?string $importId;
+    private ?string $importId = null;
 
     public function getId(): ?string
     {

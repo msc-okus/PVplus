@@ -23,8 +23,8 @@ class CheckWeatherStationCommand extends Command
     use G4NTrait;
 
     public function __construct(
-        private AlertSystemWeatherService $alertService,
-        private AnlagenRepository $anlRepo
+        private readonly AlertSystemWeatherService $alertService,
+        private readonly AnlagenRepository $anlRepo
     )
     {
         parent::__construct();
@@ -59,8 +59,8 @@ class CheckWeatherStationCommand extends Command
             $to = date('Y-m-d H:i:00', $time);
         }
         if ($from <= $to) {
-            $fromStamp = strtotime($from);
-            $toStamp = strtotime($to);
+            $fromStamp = strtotime((string) $from);
+            $toStamp = strtotime((string) $to);
 
             if (is_numeric($plantid)) {
                 $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
@@ -70,7 +70,7 @@ class CheckWeatherStationCommand extends Command
                 $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
             }
 
-            $counter = (($toStamp - $fromStamp) / 3600) * count($anlagen);
+            $counter = (($toStamp - $fromStamp) / 3600) * (is_countable($anlagen) ? count($anlagen) : 0);
             $io->progressStart($counter);
             $counter = ($counter * 4) - 1;
 

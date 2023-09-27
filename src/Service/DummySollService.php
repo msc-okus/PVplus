@@ -10,7 +10,7 @@ class DummySollService
 {
     use G4NTrait;
     public function __construct(
-        private PdoService $pdoService,
+        private readonly PdoService $pdoService,
     )
     {
     }

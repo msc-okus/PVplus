@@ -15,7 +15,7 @@ class AnlageLegendReport
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageLegendReports')]
-    private ?Anlage $anlage;
+    private ?Anlage $anlage = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $type;

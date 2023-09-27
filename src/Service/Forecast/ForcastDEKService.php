@@ -30,14 +30,14 @@ class ForcastDEKService {
     }
 
     public function get_DEK_Data($doy = 'all') {
-        $valueofdayandhour = Array();
+        $valueofdayandhour = [];
         $SGES = 0;
 
 // Erstelle den Deklationswinkel pro Tag
         for ($i = 1; $i <= 365; $i++) {
 
             $DEK = -23.45 * (COS((2*PI()/365.25)*($i+10)));
-            $dekofday[$i] = array('DAY' => $i, 'DEK' => deg2rad($DEK));
+            $dekofday[$i] = ['DAY' => $i, 'DEK' => deg2rad($DEK)];
 
         }
 
@@ -46,7 +46,7 @@ class ForcastDEKService {
 
             $MOZ = (($this->lon - $this->mer) / 15) + $i; // Mittlere Ortszeit
             $SW = 15 * ($MOZ - 12); // Stundenwinkel der Sonne
-            $mozofhour[$i] = array('HUR' => $i, 'MOZ' => $MOZ, 'SW' => $SW);
+            $mozofhour[$i] = ['HUR' => $i, 'MOZ' => $MOZ, 'SW' => $SW];
 
         }
 
@@ -68,7 +68,7 @@ class ForcastDEKService {
                 $AT = asin((-cos($DEK) * sin($SW)) / cos($SH) ); // Azimutwinkel in RAD
                 $ATGD = rad2deg($AT); // Azimutwinkel in GRAD
 
-                $AZW = array("180", "90", "270"); // Modul Azimutwinkel Süd / Ost / West
+                $AZW = ["180", "90", "270"]; // Modul Azimutwinkel Süd / Ost / West
 
                 foreach ($AZW as $winkel) {
 
@@ -129,7 +129,7 @@ class ForcastDEKService {
                         $SGES += $RGES;
                         $DGES += $RGES;
                        # $valueofdayandhour[$i][$h] = array('DOY' => $i, 'SW' => $SW, 'SWGD' => $SWGD,'DEK' => $DEK ,'DEKGD' => $DEKGD ,'AT' => $AT,'ATGD' => $ATGD, 'SH' => $SH, 'SHGD' => $SHGD , 'SZ' => $SZ,'CSZ' => $CSZ, 'SZGD' => $SZGD, 'SA' => $SA, 'AOI' => $AOI,'AOIGD' => $AOIGD, 'IAM' => $IAM, 'GDIR' => $GDIR,'TMP' => $TMP ,'DNI' => $DNI,'DIRtmp' => $DIRtmp ,'DIRpoa' => $DIRpoa, 'DIFpoa' => $DIFpoa, 'REFpoa' => $REFpoa, 'RGES' => $RGES,'SUMDAY' =>  $DGES,'SUMYEAR' => $SGES);
-                        $valueofdayandhour[$gendoy][$h] = array('DOY' => $gendoy, 'HR' => $h, 'TMP' => $TMP, 'FF' => $FF, "SUED" => array( 'RGES' => $RGES, 'RGESBIF' => $RGESBIF, ),"OSTWEST" => array( 'RGES_UPPER' => $RGES_UPPER, 'RGES_LOWER' => $RGES_LOWER, 'RGESBIF_UPPER' => $RGESBIF_UPPER, 'RGESBIF_LOWER' => $RGESBIF_LOWER,));
+                        $valueofdayandhour[$gendoy][$h] = ['DOY' => $gendoy, 'HR' => $h, 'TMP' => $TMP, 'FF' => $FF, "SUED" => ['RGES' => $RGES, 'RGESBIF' => $RGESBIF], "OSTWEST" => ['RGES_UPPER' => $RGES_UPPER, 'RGES_LOWER' => $RGES_LOWER, 'RGESBIF_UPPER' => $RGESBIF_UPPER, 'RGESBIF_LOWER' => $RGESBIF_LOWER]];
                     }
 
                   }

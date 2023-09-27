@@ -17,8 +17,8 @@ use Symfony\Bundle\SecurityBundle\Security;
 class CalcToolsFormType extends AbstractType
 {
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private Security          $security
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly Security          $security
     )
     {
     }
@@ -80,7 +80,7 @@ class CalcToolsFormType extends AbstractType
     }
 
 ##
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => ToolsModel::class,

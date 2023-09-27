@@ -12,14 +12,12 @@ use Symfony\Component\Validator\Constraints\Image;
 
 class FileUploadFormType extends AbstractType
 {
-    private $anlagenRepository;
-
-    public function __construct(AnlagenRepository $anlagenRepository)
+    public function __construct(
+    )
     {
-        $this->anlagenRepository = $anlagenRepository;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('imageFile', FileType::class, [

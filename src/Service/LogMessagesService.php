@@ -9,8 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 class LogMessagesService
 {
     public function __construct(
-        private EntityManagerInterface $em,
-        private LogMessagesRepository $logMessagesRepo
+        private readonly EntityManagerInterface $em,
+        private readonly LogMessagesRepository $logMessagesRepo
     )
     {
     }

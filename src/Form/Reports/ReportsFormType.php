@@ -18,7 +18,7 @@ class ReportsFormType extends AbstractType
     use G4NTrait;
     use PVPNameArraysTrait;
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /** @var AnlagenReports $report */
         $report = $options['data'] ?? null;
@@ -53,7 +53,7 @@ class ReportsFormType extends AbstractType
             ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => AnlagenReports::class,

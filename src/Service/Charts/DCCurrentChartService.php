@@ -16,20 +16,17 @@ class DCCurrentChartService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private AnlagenStatusRepository $statusRepository,
-        private InvertersRepository     $invertersRepo,
-        private IrradiationChartService $irradiationChart,
-        private FunctionsService        $functions)
+private readonly PdoService $pdoService,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly InvertersRepository     $invertersRepo,
+        private readonly IrradiationChartService $irradiationChart,
+        private readonly FunctionsService        $functions)
     {
     }
 
     /**
-     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param int $group
-     * @param bool $hour
      * @return array
      * @throws \Exception
      */
@@ -113,7 +110,7 @@ private PdoService $pdoService,
                 while ($rowAct = $resultAct->fetch(PDO::FETCH_ASSOC)) {
                     $currentAct = $hour ? $rowAct['istCurrent'] / 4 : $rowAct['istCurrent'];
                     $currentAct = round($currentAct, 2);
-                    if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                    if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                         $dataArray['chart'][$counter][$nameArray[$rowAct['dc_num']]] = $currentAct;
                     }
                 }
@@ -140,11 +137,8 @@ private PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Strom Diagram Diagramm, eine Linie je Gruppe.
      *
-     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param int $set
-     * @param bool $hour
      * @return array
      *
      * @throws \Exception
@@ -190,7 +184,7 @@ private PdoService $pdoService,
                         if ($resultIst->num_rows > 0) {
                             $rowIst = $resultIst->fetch_assoc();
                             $currentIst = round($rowIst['istCurrent'], 2);
-                            if (!($currentIst == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                            if (!($currentIst == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                                 $dataArray['chart'][$counter]["val$gruppenProSet"] = $currentIst;
                             }
                         }
@@ -210,11 +204,8 @@ private PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Strom Diagram Diagramm, eine Linie je Inverter gruppiert nach Gruppen.
      *
-     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param int $group
-     * @param bool $hour
      * @return array
      *
      * @throws \Exception
@@ -226,14 +217,10 @@ private PdoService $pdoService,
         $dcGroups = $anlage->getGroupsDc();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
-        switch ($anlage->getConfigType()) {
-            case 3: // Groningen
-            case 4:
-                $nameArray = $this->functions->getNameArray($anlage, 'scb');
-                break;
-            default:
-                $nameArray = $this->functions->getNameArray($anlage, 'ac');
-        }
+        $nameArray = match ($anlage->getConfigType()) {
+            3, 4 => $this->functions->getNameArray($anlage, 'scb'),
+            default => $this->functions->getNameArray($anlage, 'ac'),
+        };
         $dataArray['inverterArray'] = $nameArray;
 
         // Strom für diesen Zeitraum und diesen Inverter
@@ -259,7 +246,7 @@ private PdoService $pdoService,
 
                 $currentExp = $row['sollCurrent'] > 0 ? round($row['sollCurrent'], 2) : 0.0;
 
-                if (!($currentExp == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                if (!($currentExp == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                     $dataArray['chart'][$counter]['soll'] = $currentExp;
                 }
                 $mppCounter = 0;
@@ -288,7 +275,7 @@ private PdoService $pdoService,
                         if ($hour) {
                             $currentIst = $currentIst / 4;
                         }
-                        if (!($currentIst == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                        if (!($currentIst == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                             // $dataArray['chart'][$counter]["val$mppCounter"] = $currentIst;
                             switch ($anlage->getConfigType()) {
                                 case 3: // Groningen
@@ -323,11 +310,9 @@ private PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Strom Diagram, eine Linie je MPP gruppiert nach Inverter.
      *
-     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param int|null $inverter
-     * @param bool $hour
      * @return bool|array // dc_current_mpp
      *                    // dc_current_mpp
      * @throws \Exception
@@ -364,7 +349,7 @@ private PdoService $pdoService,
                     // $stamp = $row['stamp'];
                     $mppCurrentJson = $row['mpp_current'];
                     if ($mppCurrentJson != '') {
-                        $mppCurrentArray = json_decode($mppCurrentJson);
+                        $mppCurrentArray = json_decode((string) $mppCurrentJson, null, 512, JSON_THROW_ON_ERROR);
                         // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                         $dataArray['chart'][$counter]['date'] = $stamp; //self::timeShift($anlage, $stamp);
                         $mppCounter = 1;
@@ -410,7 +395,7 @@ private PdoService $pdoService,
         $counterInv = 0;
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
         $zenith = 90 + 50 / 60;
-        $current_date = strtotime(str_replace("T", "", $from));
+        $current_date = strtotime(str_replace("T", "", (string) $from));
         $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
         $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
 
@@ -423,17 +408,10 @@ private PdoService $pdoService,
         $dcGroups = $anlage->getGroupsDc();
         $groupct = count($dcGroups);
 
-        switch ($anlage->getConfigType()) {
-            case 3: // Groningen
-            case 4:
-                $groupdc = 'wr_group';
-               // $nameArray = $this->functions->getNameArray($anlage, 'dc');
-                break;
-            default:
-                $groupdc = 'group_dc';
-               // $nameArray = $this->functions->getNameArray($anlage, 'dc');
-                break;
-        }
+        $groupdc = match ($anlage->getConfigType()) {
+            3, 4 => 'wr_group',
+            default => 'group_dc',
+        };
 
         /** @var AnlageGroupModules[] $modules */
         foreach ($anlage->getGroups() as $group) {
@@ -452,7 +430,7 @@ private PdoService $pdoService,
                 $max = (($max > 50) ? '50' : $max);
                 $sqladd = "AND $groupdc BETWEEN '$min' AND '$max'";
             } else {
-                $res = explode(',', $sets);
+                $res = explode(',', (string) $sets);
                 $min = (int)ltrim($res[0], "[");
                 $max = (int)rtrim($res[1], "]");
                 $max > $groupct ? $max = $groupct : $max = $max;

@@ -17,7 +17,7 @@ class AnlageGridMeterDay
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageGridMeterDays')]
-    private $anlage;
+    private ?\App\Entity\Anlage $anlage = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $stamp;

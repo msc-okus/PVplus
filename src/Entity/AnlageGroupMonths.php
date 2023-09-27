@@ -26,7 +26,7 @@ class AnlageGroupMonths
     private string $shadowLoss;
 
     #[ORM\ManyToOne(targetEntity: AnlageGroups::class, inversedBy: 'months')]
-    private $anlageGroup;
+    private ?\App\Entity\AnlageGroups $anlageGroup = null;
 
     public function getId(): ?int
     {

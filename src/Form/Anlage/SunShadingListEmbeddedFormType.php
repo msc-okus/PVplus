@@ -20,12 +20,12 @@ use Doctrine\ORM\EntityManagerInterface;
 class SunShadingListEmbeddedFormType extends AbstractType
 {
     public function __construct(
-        private EntityManagerInterface $em
+        private readonly EntityManagerInterface $em
     )
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
            $builder
             ->add('description', TextareaType::class, [

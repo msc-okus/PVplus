@@ -22,17 +22,11 @@ class DbAnlBerichte
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $brId;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'eigner_id', type: 'string', length: 25, nullable: false)]
-    private $eignerId;
+    private ?string $eignerId = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'anl_id', type: 'string', length: 50, nullable: false)]
-    private $anlId;
+    private ?string $anlId = null;
 
     /**
      * @var \DateTime
@@ -40,35 +34,20 @@ class DbAnlBerichte
     #[ORM\Column(name: 'br_create_date', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $brCreateDate = 'CURRENT_TIMESTAMP';
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'rep_id', type: 'string', length: 5, nullable: false)]
-    private $repId;
+    private ?string $repId = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'br_name', type: 'string', length: 50, nullable: false)]
-    private $brName;
+    private ?string $brName = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'br_dateiname', type: 'string', length: 50, nullable: false)]
-    private $brDateiname;
+    private ?string $brDateiname = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'br_ist', type: 'string', length: 20, nullable: false)]
-    private $brIst;
+    private ?string $brIst = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'br_gelesen', type: 'string', length: 5, nullable: false)]
-    private $brGelesen = '0';
+    private string $brGelesen = '0';
 
     /**
      * @var \DateTime
@@ -76,17 +55,11 @@ class DbAnlBerichte
     #[ORM\Column(name: 'br_viewdate', type: 'datetime', nullable: false, options: ['default' => '0000-00-00 00:00:00'])]
     private $brViewdate = '0000-00-00 00:00:00';
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'br_folder', type: 'text', length: 65535, nullable: false)]
-    private $brFolder;
+    private ?string $brFolder = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'br_checkin', type: 'string', length: 2, nullable: false)]
-    private $brCheckin;
+    private ?string $brCheckin = null;
 
     public function getBrId(): ?string
     {

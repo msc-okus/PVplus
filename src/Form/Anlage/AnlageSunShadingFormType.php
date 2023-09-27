@@ -24,11 +24,11 @@ class AnlageSunShadingFormType extends AbstractType {
     use G4NTrait;
     use PVPNameArraysTrait;
 
-    public function __construct( private Security $security )
+    public function __construct( private readonly Security $security )
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');

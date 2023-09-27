@@ -13,8 +13,8 @@ class OpenWeatherService
     use G4NTrait;
 
     public function __construct(
-        private OpenWeatherRepository $openWeatherRepo,
-        private EntityManagerInterface $em)
+        private readonly OpenWeatherRepository $openWeatherRepo,
+        private readonly EntityManagerInterface $em)
     {
     }
 
@@ -33,7 +33,7 @@ class OpenWeatherService
         if ($lat and $lng) {
             $urli = "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lng&lang=en&APPID=$apiKey";
             $contents = file_get_contents($urli);
-            $clima = json_decode($contents);
+            $clima = json_decode($contents, null, 512, JSON_THROW_ON_ERROR);
             if ($clima) {
                 $openWeather = $this->openWeatherRepo->findOneBy(['stamp' => $date, 'anlage' => $anlage]);
 
@@ -47,7 +47,7 @@ class OpenWeatherService
                 $openWeather
                     ->setTempC(round($clima->main->temp - 273.15, 2))
                     ->setWindSpeed($clima->wind->speed)
-                    ->setIconWeather(strtolower($clima->weather[0]->icon))
+                    ->setIconWeather(strtolower((string) $clima->weather[0]->icon))
                     ->setDescription($clima->weather[0]->description);
                     #->setData(json_decode($contents, true));
                 $this->em->persist($openWeather);

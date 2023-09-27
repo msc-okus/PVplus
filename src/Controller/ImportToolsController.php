@@ -88,8 +88,6 @@ class ImportToolsController extends BaseController
     /**
      * Cronjob to Import PLants direct by symfony (configured in backend)
      *
-     * @param AnlagenRepository $anlagenRepo
-     * @param ImportService $importService
      * @return Response
      * @throws NonUniqueResultException
      */
@@ -109,14 +107,12 @@ class ImportToolsController extends BaseController
             $importService->prepareForImport($anlage, $start, $end);
         }
 
-        return new Response('This is used for import via cron job.', Response::HTTP_OK, array('Content-Type' => 'text/html'));
+        return new Response('This is used for import via cron job.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
     }
 
     /**
      * Manuel Import PLants direct by symfony via URL (configured in backend)
      *
-     * @param AnlagenRepository $anlagenRepo
-     * @param ImportService $importService
      * @return Response
      * @throws NonUniqueResultException
      */
@@ -158,7 +154,7 @@ class ImportToolsController extends BaseController
         }
 
 
-        return new Response('This is used for import via manual Import.', Response::HTTP_OK, array('Content-Type' => 'text/html'));
+        return new Response('This is used for import via manual Import.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
     }
 
 }

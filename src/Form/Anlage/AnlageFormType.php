@@ -29,7 +29,7 @@ class AnlageFormType extends AbstractType
     use PVPNameArraysTrait;
 
     public function __construct(
-        private Security $security
+        private readonly Security $security
     )
     {
     }
@@ -227,7 +227,7 @@ class AnlageFormType extends AbstractType
                 'label' => 'Wetterstation',
                 'help' => '[WeatherStation]',
                 'class' => WeatherStation::class,
-                'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
+                'choice_label' => fn(WeatherStation $station) => sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()),
                 'required' => true,
                 'disabled' => !$isDeveloper,
             ])

@@ -61,7 +61,7 @@ class UserController extends BaseController
                 return $this->redirectToRoute('app_admin_user_list');
             }
 
-            return $this->redirectToRoute('app_admin_user_edit',array('id' => $lastId ));
+            return $this->redirectToRoute('app_admin_user_edit',['id' => $lastId]);
         }
 
         return $this->render('user/new.html.twig', [

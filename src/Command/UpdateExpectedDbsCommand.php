@@ -22,8 +22,8 @@ class UpdateExpectedDbsCommand extends Command
     use G4NTrait;
 
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private ExpectedService $expected
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly ExpectedService $expected
     )
     {
         parent::__construct();
@@ -69,8 +69,8 @@ class UpdateExpectedDbsCommand extends Command
             $anlagen = $this->anlagenRepository->findUpdateExpected();
         }
 
-        $fromStamp = strtotime($from);
-        $toStamp = strtotime($to);
+        $fromStamp = strtotime((string) $from);
+        $toStamp = strtotime((string) $to);
         $counter = 0;
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
             ++$counter;

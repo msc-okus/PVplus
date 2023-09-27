@@ -22,8 +22,8 @@ class ExportPvIstCommand extends Command
 
 
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private ExportService $exportService)
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly ExportService $exportService)
     {
         parent::__construct();
     }

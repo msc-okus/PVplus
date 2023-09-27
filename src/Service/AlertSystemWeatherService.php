@@ -24,16 +24,16 @@ class AlertSystemWeatherService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private AnlagenRepository       $anlagenRepository,
-        private WeatherServiceNew       $weather,
-        private WeatherFunctionsService $weatherFunctions,
-        private AnlagenRepository       $AnlRepo,
-        private EntityManagerInterface  $em,
-        private MessageService          $mailservice,
-        private FunctionsService        $functions,
-        private StatusRepository        $statusRepo,
-        private TicketRepository        $ticketRepo)
+        private readonly PdoService $pdoService,
+        private readonly AnlagenRepository       $anlagenRepository,
+        private readonly WeatherServiceNew       $weather,
+        private readonly WeatherFunctionsService $weatherFunctions,
+        private readonly AnlagenRepository       $AnlRepo,
+        private readonly EntityManagerInterface  $em,
+        private readonly MessageService          $mailservice,
+        private readonly FunctionsService        $functions,
+        private readonly StatusRepository        $statusRepo,
+        private readonly TicketRepository        $ticketRepo)
     {
         define('EFOR', '10');
         define('SOR', '20');
@@ -49,8 +49,6 @@ class AlertSystemWeatherService
 
     /**
      * this is the function we use to generate tickets from the command
-     * @param Anlage $anlage
-     * @param string $from
      * @param string|null $to
      * @return void
      */
@@ -69,8 +67,6 @@ class AlertSystemWeatherService
 
     /**
      * main function from the class to work with the tickets, but should never be called from outside the class
-     * @param Anlage $anlage
-     * @param string $time
      * @return void
      */
     public function checkWeatherStation(Anlage $anlage, string $time)
@@ -98,7 +94,6 @@ class AlertSystemWeatherService
 
     /**
      * here we analyze the data from the weather station and generate the status.
-     * @param Anlage $anlage
      * @param $time
      * @return mixed
      */
@@ -107,7 +102,7 @@ class AlertSystemWeatherService
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
-        $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
+        $time = date('Y-m-d H:i:s', strtotime((string) $time) - $totalOffset);
         $conn = $this->pdoService->getPdoPlant();
         $sqlw = 'SELECT b.g_lower as gi , b.g_upper as gmod, b.temp_ambient as temp, b.wind_speed as wspeed 
                     FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
@@ -164,7 +159,7 @@ class AlertSystemWeatherService
         $ticket = self::getLastTicketWeather($anlage, $time);
 
          if ($ticket != null) {
-            $timetempend = date('Y-m-d H:i:s', strtotime($time));
+            $timetempend = date('Y-m-d H:i:s', strtotime((string) $time));
             $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
             $end->getTimestamp();
             $ticket->setEnd($end);
@@ -196,11 +191,11 @@ class AlertSystemWeatherService
      */
     public function getLastTicketWeather($anlage, $time): mixed
     {
-        $today = date('Y-m-d', strtotime($time));
-        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+        $today = date('Y-m-d', strtotime((string) $time));
+        $yesterday = date('Y-m-d', strtotime((string) $time) - 86400); // this is the date of yesterday
         $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-        $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
+        $quarter = date('Y-m-d H:i', strtotime((string) $time) - 900); // the quarter before the actual
         if ($quarter <= $sunrise) {
             $ticket = $this->ticketRepo->findLastByAnlageInverterTime($anlage, $today, $lastQuarterYesterday, 40, "*")[0]; // the same as above but for weather station
         } else {
@@ -231,8 +226,8 @@ class AlertSystemWeatherService
      */
     private function getLastQuarter($stamp): string
     {
-        $mins = date('i', strtotime($stamp));
-        $rest = date('Y-m-d H', strtotime($stamp));
+        $mins = date('i', strtotime((string) $stamp));
+        $rest = date('Y-m-d H', strtotime((string) $stamp));
         if ($mins >= '00' && $mins < '15') {
             $quarter = '00';
         } elseif ($mins >= '15' && $mins < '30') {

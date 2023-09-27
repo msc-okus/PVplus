@@ -18,11 +18,8 @@ class AssetManagementController extends BaseController
 {
     use G4NTrait;
 
-    private string $kernelProjectDir;
-
-    public function __construct(string $kernelProjectDir = '')
+    public function __construct(private readonly string $kernelProjectDir = '')
     {
-        $this->kernelProjectDir = $kernelProjectDir;
     }
 
     /**
@@ -31,9 +28,6 @@ class AssetManagementController extends BaseController
      * @param $year
      * @param $export
      * @param $pages
-     * @param AssetManagementService $assetManagement
-     * @param AnlagenRepository $anlagenRepository
-     * @param Request $request
      * @return Response|void
      * @throws NoResultException
      * @deprecated
@@ -174,8 +168,8 @@ class AssetManagementController extends BaseController
                 $str = $str2;
             }
 
-            $pos = strpos($str, $needle);
-            $str2 = substr($str, $pos + 1);
+            $pos = strpos((string) $str, (string) $needle);
+            $str2 = substr((string) $str, $pos + 1);
             $posTotal += $pos + 1;
         }
 

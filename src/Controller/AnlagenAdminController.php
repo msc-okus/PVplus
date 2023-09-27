@@ -44,8 +44,8 @@ class AnlagenAdminController extends BaseController
 {
     use G4NTrait;
     public function __construct(
-        private PdoService $pdoService,
-        private Filesystem $fileSystemFtp
+        private readonly PdoService $pdoService,
+        private readonly Filesystem $fileSystemFtp
     )
     {
     }
@@ -219,14 +219,6 @@ class AnlagenAdminController extends BaseController
 
     /**
      * @param $id
-     * @param EntityManagerInterface $em
-     * @param Request $request
-     * @param AnlagenRepository $anlagenRepository
-     * @param EconomicVarNamesRepository $ecoNamesRepo
-     * @param UploaderHelper $uploaderHelper
-     * @param AnlageFileRepository $RepositoryUpload
-     * @param Filesystem $fileSystemFtp
-     * @param Filesystem $filesystem
      * @return RedirectResponse|Response
      * @throws FilesystemException
      */
@@ -370,10 +362,7 @@ class AnlagenAdminController extends BaseController
         $application = new Application($kernel);
         $application->setAutoExit(false);
 
-        $input = new ArrayInput(array(
-            'command' => 'pvp:forcastwritedb',
-            '-a'  => $id,
-        ));
+        $input = new ArrayInput(['command' => 'pvp:forcastwritedb', '-a'  => $id]);
 
         $output = new BufferedOutput();
         $application->run($input, $output);

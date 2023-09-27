@@ -52,8 +52,8 @@ class Case5Repository extends ServiceEntityRepository
 
     public function countCase5DayAnlage(Anlage $anlage, $startday, $endday = null): int
     {
-        $startMonth = date('Y-m-d 00:00', strtotime($startday));
-        $endMonth = date('Y-m-d 23:59', strtotime($endday ? $endday : $startday));
+        $startMonth = date('Y-m-d 00:00', strtotime((string) $startday));
+        $endMonth = date('Y-m-d 23:59', strtotime((string) ($endday ?: $startday)));
 
         return $this->createQueryBuilder('c5')
             ->andWhere('c5.anlage = :anlage')
@@ -69,9 +69,9 @@ class Case5Repository extends ServiceEntityRepository
 
     public function findAllAnlageDay(Anlage $anlage, $day)
     {
-        $lastDayMonth = date('t', strtotime($day));
-        $startMonth = date('Y-m-01 00:00', strtotime($day));
-        $endMonth = date("Y-m-$lastDayMonth 23:59", strtotime($day));
+        $lastDayMonth = date('t', strtotime((string) $day));
+        $startMonth = date('Y-m-01 00:00', strtotime((string) $day));
+        $endMonth = date("Y-m-$lastDayMonth 23:59", strtotime((string) $day));
         $result = $this->createQueryBuilder('c5')
             ->andWhere('c5.anlage = :anlage')
             ->andWhere('c5.stampFrom >= :start and c5.stampTo <= :end')

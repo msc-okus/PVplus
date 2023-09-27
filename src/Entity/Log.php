@@ -15,10 +15,10 @@ class Log
     private $id;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'logs')]
-    private $anlage;
+    private ?\App\Entity\Anlage $anlage = null;
 
     #[ORM\Column(type: 'datetime')]
-    private $createdAt;
+    private ?\DateTime $createdAt = null;
 
     #[ORM\Column(type: 'string', length: 50)]
     private string $createdBy;
@@ -30,7 +30,7 @@ class Log
     private string $description;
 
     #[ORM\Column(type: 'datetime')]
-    private $stamp;
+    private ?\DateTimeInterface $stamp = null;
 
     public function getId(): ?int
     {

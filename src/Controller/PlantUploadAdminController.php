@@ -15,11 +15,8 @@ use JetBrains\PhpStorm\Deprecated;
 #[Deprecated]
 class PlantUploadAdminController extends BaseController
 {
-    private string $uploadsPath;
-
-    public function __construct(string $uploadsPath)
+    public function __construct(private readonly string $uploadsPath)
     {
-        $this->uploadsPath = $uploadsPath;
     }
 
     #[Route(path: '/admin/upload/{id}', name: 'upload_test')]

@@ -17,9 +17,9 @@ class IrradiationChartService
         private $host,
         private $userPlant,
         private $passwordPlant,
-        private FunctionsService $functions,
-        private InvertersRepository $invertersRep,
-        private PdoService $pdoService,
+        private readonly FunctionsService $functions,
+        private readonly InvertersRepository $invertersRep,
+        private readonly PdoService $pdoService,
 
     )
     {
@@ -28,7 +28,6 @@ class IrradiationChartService
     /**
      * Erzeugt Daten für das Strahlungs Diagramm.
      *
-     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param string|null $mode
@@ -55,7 +54,7 @@ class IrradiationChartService
                 if ($ro['g_upper'] == "") {
                     $irr_upper = null;
                 } else {
-                    $irr_upper = (float) str_replace(',', '.', $ro['g_upper']);
+                    $irr_upper = (float) str_replace(',', '.', (string) $ro['g_upper']);
                     if ($hour) $irr_upper = $irr_upper / 4;
                 }
 
@@ -63,11 +62,11 @@ class IrradiationChartService
                 if ($ro['g_lower'] == "") {
                     $irr_lower = null;
                 } else {
-                    $irr_lower = (float) str_replace(',', '.', $ro['g_lower']);
+                    $irr_lower = (float) str_replace(',', '.', (string) $ro['g_lower']);
                     if ($hour) $irr_lower = $irr_lower / 4;
                 }
 
-                $stamp = self::timeAjustment(strtotime($ro['stamp']), $anlage->getWeatherStation()->gettimeZoneWeatherStation());
+                $stamp = self::timeAjustment(strtotime((string) $ro['stamp']), $anlage->getWeatherStation()->gettimeZoneWeatherStation());
                 if ($anlage->getWeatherStation()->getChangeSensor() == 'Yes') {
                     $swap = $irr_lower;
                     $irr_lower = $irr_upper;
@@ -100,10 +99,8 @@ class IrradiationChartService
     /**
      * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wir.
      *
-     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param bool $hour
      * @return array
      * @throws \Exception
      */
@@ -155,7 +152,7 @@ class IrradiationChartService
                     }
 
                     if ($row['irr_anlage'] != '') {
-                        $irrAnlageArray = json_decode($row['irr_anlage']);
+                        $irrAnlageArray = json_decode((string) $row['irr_anlage'], null, 512, JSON_THROW_ON_ERROR);
                         $irrCounter = 1;
                         foreach ($irrAnlageArray as $irrAnlageItem => $irrAnlageValue) {
                             if (!($irrAnlageValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {

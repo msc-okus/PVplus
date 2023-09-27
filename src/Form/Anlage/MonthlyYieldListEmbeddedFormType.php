@@ -16,11 +16,11 @@ class MonthlyYieldListEmbeddedFormType extends AbstractType
 
     use PVPNameArraysTrait;
 
-    public function __construct(private Security $security)
+    public function __construct(private readonly Security $security)
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isDeveloper    = $this->security->isGranted('ROLE_DEV');
         $isG4N          = $this->security->isGranted('ROLE_G4N');
@@ -73,7 +73,7 @@ class MonthlyYieldListEmbeddedFormType extends AbstractType
         }
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => AnlagenMonthlyData::class,

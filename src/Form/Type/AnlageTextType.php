@@ -11,14 +11,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AnlageTextType extends AbstractType
 {
-    private AnlagenRepository $anlnRepo;
-
-    public function __construct(AnlagenRepository $anlRepo)
+    public function __construct(private readonly AnlagenRepository $anlnRepo)
     {
-        $this->anlnRepo = $anlRepo;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'invalid_message' => 'No plant found by that name',
@@ -30,7 +27,7 @@ class AnlageTextType extends AbstractType
         return 'anlage_text_type';
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addModelTransformer(new NameToAnlageTransformer($this->anlnRepo));
     }

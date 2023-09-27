@@ -10,8 +10,8 @@ use Exception;
  */
 class PiiCryptoService
 {
-    const PII_KEY = 'aW33$rftTZG&hfggREz456$44';//This key should be passed as an ENV var and be kept in secret vault
-    const CIPHERING = "AES-128-CBC";
+    public const PII_KEY = 'aW33$rftTZG&hfggREz456$44';//This key should be passed as an ENV var and be kept in secret vault
+    public const CIPHERING = "AES-128-CBC";
 
     /**
      * @var false|int
@@ -24,7 +24,6 @@ class PiiCryptoService
     private $encryption_key;
 
     /**
-     * @param string $data
      * @return string
      */
     public function encryptData(string $data): string
@@ -37,7 +36,6 @@ class PiiCryptoService
     }
 
     /**
-     * @param string $encodedData
      * @return string
      */
     public function decryptData(string $encodedData): string
@@ -51,7 +49,6 @@ class PiiCryptoService
     }
 
     /**
-     * @param string $data
      * @return string
      */
     public function hashData(string $data): string
@@ -59,11 +56,10 @@ class PiiCryptoService
         $hexString = unpack('H*', $data);
         $hex = array_shift($hexString);
 
-        return base64_encode($hex);
+        return base64_encode((string) $hex);
     }
 
     /**
-     * @param string $encodedData
      * @return string
      */
     public function unHashData(string $encodedData): string

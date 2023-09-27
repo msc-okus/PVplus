@@ -32,27 +32,24 @@ class ReportsMonthlyService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private AnlagenRepository $anlagenRepository,
-        private PRRepository $PRRepository,
-        private ReportsRepository $reportsRepository,
-        private EntityManagerInterface $em,
-        private PvSystMonthRepository $pvSystMonthRepo,
-        private Case5Repository $case5Repo,
-        private FunctionsService $functions,
-        private NormalizerInterface $serializer,
-        private PRCalulationService $PRCalulation,
-        private ReportService $reportService,
-        private TicketDateRepository $ticketDateRepo)
+        private readonly PdoService $pdoService,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PRRepository $PRRepository,
+        private readonly ReportsRepository $reportsRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly PvSystMonthRepository $pvSystMonthRepo,
+        private readonly Case5Repository $case5Repo,
+        private readonly FunctionsService $functions,
+        private readonly NormalizerInterface $serializer,
+        private readonly PRCalulationService $PRCalulation,
+        private readonly ReportService $reportService,
+        private readonly TicketDateRepository $ticketDateRepo)
     {
     }
 
     /**
-     * @param Anlage $anlage
-     * @param int $reportMonth
-     * @param int $reportYear
      * @return string
-     * 
+     *
      * @throws ExceptionInterface
      */
     public function createMonthlyReport(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): string
@@ -85,9 +82,6 @@ class ReportsMonthlyService
     }
 
     /**
-     * @param Anlage $anlage
-     * @param int $reportMonth
-     * @param int $reportYear
      * @return array
      *
      * @throws ExceptionInterface
@@ -107,8 +101,8 @@ class ReportsMonthlyService
         $case5Values = [];
         // beginn case5
         // die Daten nur im korrekten Monat ausgeben
-        for ($i = 0; $i < count($case5); ++$i) {
-            if (date('m', strtotime($case5[$i]['stampFrom'])) == $month || date('m', strtotime($case5[$i]['stampTo'])) == $month) {
+        for ($i = 0; $i < ($case5 === null ? 0 : count($case5)); ++$i) {
+            if (date('m', strtotime((string) $case5[$i]['stampFrom'])) == $month || date('m', strtotime((string) $case5[$i]['stampTo'])) == $month) {
                 $case5Values[] = [
                     'stampFrom' => $case5[$i]['stampFrom'],
                     'stampTo' => $case5[$i]['stampTo'],
@@ -200,7 +194,7 @@ class ReportsMonthlyService
         // die Daten dem Array hinzufuegen
         $heatAndTempValues = [];
         $prs = $this->PRRepository->findPRInMonth($anlage, $reportMonth, $reportYear);
-        for ($i = 0; $i < count($prs); ++$i) {
+        for ($i = 0; $i < (is_countable($prs) ? count($prs) : 0); ++$i) {
             $heatValues = [];
             $heatValues['datum'] = $prs[$i]->getstamp()->format('m-d');
             foreach ($prs[$i]->getirradiationJson() as $key => $value) {
@@ -347,9 +341,6 @@ class ReportsMonthlyService
     }
 
     /**
-     * @param Anlage $anlage
-     * @param int $month
-     * @param int $year
      * @return array
      *
      * @throws Exception|InvalidArgumentException
@@ -393,7 +384,7 @@ class ReportsMonthlyService
 
 
     #[NoReturn]
-    public function exportReportToPDF(Anlage $anlage, AnlagenReports $report): void
+    public function exportReportToPDF(Anlage $anlage, AnlagenReports $report): never
     {
         // übergabe der Werte an KoolReport
         $reportout = new ReportMonthly($report->getContentArray());
@@ -422,7 +413,7 @@ class ReportsMonthlyService
 
     #[NoReturn]
     #[Deprecated]
-    public function exportReportToExcel(Anlage $anlage, AnlagenReports $report)
+    public function exportReportToExcel(Anlage $anlage, AnlagenReports $report): never
     {
         $excelFilename = $anlage->getAnlName().' '.$report->getYear().$report->getMonth().' Monthly Report.xlsx';
 

@@ -32,10 +32,10 @@ class DefaultMREController extends BaseController
     use G4NTrait;
 
     public function __construct(
-        private UrlGeneratorInterface $urlGenerator,
-        private PRCalulationService $prCalulation,
-        private AvailabilityByTicketService $availabilityByTicket,
-        private AvailabilityService $availabilityService
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly PRCalulationService $prCalulation,
+        private readonly AvailabilityByTicketService $availabilityByTicket,
+        private readonly AvailabilityService $availabilityService
     )
     {
     }

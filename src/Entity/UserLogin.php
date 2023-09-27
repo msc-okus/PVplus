@@ -44,13 +44,10 @@ class UserLogin
     #[ORM\Column]
     private ?\DateTimeImmutable $loggedAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'userLogins')]
+    public function __construct(#[ORM\ManyToOne(inversedBy: 'userLogins')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
-
-    public function __construct(User $user)
+    private ?User $user)
     {
-        $this->user=$user;
         $this->loggedAt= new \DateTimeImmutable();
     }
 

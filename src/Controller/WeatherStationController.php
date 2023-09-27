@@ -25,7 +25,7 @@ class WeatherStationController extends BaseController
         private $host,
         private $userPlant,
         private $passwordPlant,
-        private PdoService $pdoService,
+        private readonly PdoService $pdoService,
     )
     {
     }

@@ -40,16 +40,11 @@ trait G4NTrait
             $date->modify('+1 hours');
         }
 
-        switch (strtoupper($format)) {
-            case 'SQL':
-                $_time = $date->format('Y-m-d H:i');
-                break;
-            case 'OBJECT':
-                $_time = $date;
-                break;
-            default:
-                $_time = $date->format('U') - 7200; // -7200 = Zeitzonen Korrektur
-        }
+        $_time = match (strtoupper((string) $format)) {
+            'SQL' => $date->format('Y-m-d H:i'),
+            'OBJECT' => $date,
+            default => $date->format('U') - 7200,
+        };
 
         return $_time;
     }
@@ -63,7 +58,6 @@ trait G4NTrait
      * return Zeitstempel im SQL Format
      *
      * @param $timestamp
-     * @param float $val
      * @param $reverse
      * @return string
      */
@@ -72,7 +66,7 @@ trait G4NTrait
         $format = 'Y-m-d H:i:s';
         // Sollte die Zeit als String übergeben worden sein, dann wandele in TimeStamp um
         if (gettype($timestamp) != 'integer') {
-            $timestamp = strtotime($timestamp);
+            $timestamp = strtotime((string) $timestamp);
         }
         $reverse ? $timestamp -= ($val * 3600) : $timestamp += ($val * 3600);
 
@@ -81,7 +75,7 @@ trait G4NTrait
 
     public static function isDateToday($date)
     {
-        return date('Y-m-d', strtotime($date)) == date('Y-m-d', self::getCetTime());
+        return date('Y-m-d', strtotime((string) $date)) == date('Y-m-d', self::getCetTime());
     }
 
     public static function isInTimeRange($stamp = '')
@@ -89,7 +83,7 @@ trait G4NTrait
         if ($stamp == '') {
             $currentTime = self::getCetTime();
         } else {
-            $currentTime = strtotime($stamp);
+            $currentTime = strtotime((string) $stamp);
         }
         $month = date('m', $currentTime);
         $currentHour = date('H', $currentTime);
@@ -134,7 +128,7 @@ trait G4NTrait
         // exmaple:  Ú => U´,  á => a`
         $s = Normalizer::normalize($s, Normalizer::FORM_D);
 
-        $s = preg_replace('@\pM@u', '', $s);    // removes diacritics
+        $s = preg_replace('@\pM@u', '', (string) $s);    // removes diacritics
 
         $s = preg_replace('@\x{00df}@u', 'ss', $s);    // maps German ß onto ss
         $s = preg_replace('@\x{00c6}@u', 'AE', $s);    // Æ => AE
@@ -193,7 +187,7 @@ trait G4NTrait
     {
         $arr = [];
         foreach ($apiResponseArray as $key => $value) {
-            $key = lcfirst(implode('', array_map('ucfirst', explode('_', $key))));
+            $key = lcfirst(implode('', array_map('ucfirst', explode('_', (string) $key))));
             if (is_array($value)) {
                 $value = self::convertKeysToCamelCase($value);
             }
@@ -207,9 +201,7 @@ trait G4NTrait
      * Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms<br>
      * adjust Plant timestamp with offset from entity plant ($anlage->getAnlZeitzone()).
      *
-     * @param Anlage $anlage
      * @param $stamp
-     * @param false $reverse
      *
      * @return string
      * @throws Exception
@@ -230,19 +222,19 @@ trait G4NTrait
         $of = $offset / 3600;
 
         if ($of < 0) {
-            $offset_time = strtotime($stamp) - $offset;
+            $offset_time = strtotime((string) $stamp) - $offset;
             if ($reverse) {
-                $offset_time = strtotime($stamp) + $offset;
+                $offset_time = strtotime((string) $stamp) + $offset;
             }
             $result = date('Y-m-d H:i', $offset_time);
         } elseif ($of > 0) {
-            $offset_time = strtotime($stamp) + $offset;
+            $offset_time = strtotime((string) $stamp) + $offset;
             if ($reverse) {
-                $offset_time = strtotime($stamp) - $offset;
+                $offset_time = strtotime((string) $stamp) - $offset;
             }
             $result = date('Y-m-d H:i', $offset_time);
         } else {
-            $result = date('Y-m-d H:i', strtotime($stamp));
+            $result = date('Y-m-d H:i', strtotime((string) $stamp));
         }
 
         return $result;
@@ -251,9 +243,6 @@ trait G4NTrait
     /**
      * as the name of the function describs, get the plants nearest timezone.
      *
-     * @param float $cur_lat
-     * @param float $cur_long
-     * @param string $country_code
      * @return string
      */
     public function getNearestTimezone(float $cur_lat, float $cur_long, string $country_code = ''): string
@@ -305,13 +294,13 @@ trait G4NTrait
      */
     public function g4nDateDiffMonth($from, $to): int
     {
-        $fromYear = (int) date('Y', strtotime($from));
-        $fromMonth = (int) date('m', strtotime($from));
-        $fromDay = (int) date('d', strtotime($from));
-        $toYear = (int) date('Y', strtotime($to));
-        $toMonth = (int) date('m', strtotime($to));
-        $toDay = (int) date('d', strtotime($to));
-        $daysInMonth = (int) date('t', strtotime($from));
+        $fromYear = (int) date('Y', strtotime((string) $from));
+        $fromMonth = (int) date('m', strtotime((string) $from));
+        $fromDay = (int) date('d', strtotime((string) $from));
+        $toYear = (int) date('Y', strtotime((string) $to));
+        $toMonth = (int) date('m', strtotime((string) $to));
+        $toDay = (int) date('d', strtotime((string) $to));
+        $daysInMonth = (int) date('t', strtotime((string) $from));
         // prüfe, ob Start Monat und Jahr gleich dem End Monat und Jahr, wenn dann die Anzahl der Tage < max Tage des Monats dann kein ganzer Monat ($month = 0)
         if ($fromMonth == $toMonth && $fromYear == $toYear && $toDay - $fromDay < $daysInMonth) {
             $month = 1; // muss 1 damit auch Rumpf Monate bearbeitet werden ?? TODO: nicht sicher ob das immer passt - beobachetn
@@ -347,7 +336,7 @@ trait G4NTrait
             if ($_counter === 0) {
                 $_html .= '<tr><th>Key</th>';
                 foreach ($contentRow as $subkey => $subvalue) {
-                    $_html .= '<th>'.substr($subkey, 0, 20).'</th>';
+                    $_html .= '<th>'.substr((string) $subkey, 0, 20).'</th>';
                 }
                 $_html .= '</tr>';
                 $_html .= '</thead>';

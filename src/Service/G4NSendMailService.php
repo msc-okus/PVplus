@@ -12,8 +12,8 @@ class G4NSendMailService
     use G4NTrait;
 
     public function __construct(
-        private EntityManagerInterface $em,
-        private MailerInterface $mailer
+        private readonly EntityManagerInterface $em,
+        private readonly MailerInterface $mailer
     ) {
     }
 
@@ -45,7 +45,7 @@ class G4NSendMailService
         $alertMessage->setMessage($message);
         $alertMessage->setStatusId('0');
         $alertMessage->setStatusIdLast('0');
-        $alertMessage->setStamp($this->getCetTime('OBJECT'));
+        $alertMessage->setStamp(static::getCetTime('OBJECT'));
         $this->em->persist($alertMessage);
         $this->em->flush();
     }

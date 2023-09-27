@@ -22,17 +22,11 @@ class PvpAccesslist
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
 
-    /**
-     * @var int
-     */
     #[ORM\Column(name: 'eigner_id', type: 'bigint', nullable: false)]
-    private $eignerId;
+    private ?string $eignerId = null;
 
-    /**
-     * @var int
-     */
     #[ORM\Column(name: 'user_id', type: 'bigint', nullable: false)]
-    private $userId;
+    private ?string $userId = null;
 
     public function getId(): ?string
     {

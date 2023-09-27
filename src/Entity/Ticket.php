@@ -18,16 +18,16 @@ use Symfony\Component\Serializer\Serializer;
 class Ticket
 {
 
-    const EFOR = 10;
-    const SOR = 20;
-    const OMC = 30;
+    final public const EFOR = 10;
+    final public const SOR = 20;
+    final public const OMC = 30;
 
-    const DATA_GAP = 10;
-    const INVERTER_ERROR = 20;
-    const GRID_ERROR = 30;
-    const WEATHER_STATION_ERROR = 40;
-    const EXTERNAL_CONTROL = 50; // Regelung vom Direktvermarketr oder Netztbetreiber
-    const POWER_DIFF = 60;
+    final public const DATA_GAP = 10;
+    final public const INVERTER_ERROR = 20;
+    final public const GRID_ERROR = 30;
+    final public const WEATHER_STATION_ERROR = 40;
+    final public const EXTERNAL_CONTROL = 50; // Regelung vom Direktvermarketr oder Netztbetreiber
+    final public const POWER_DIFF = 60;
 
     use TimestampableEntity;
     use BlameableEntity;
@@ -107,7 +107,7 @@ class Ticket
     private ?bool $needsProof = null; // this is proof by TAM
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private ?bool $openTicket;
+    private ?bool $openTicket = null;
 
     #[ORM\Column]
     private ?bool $ignoreTicket = false;

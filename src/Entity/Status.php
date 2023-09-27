@@ -14,17 +14,17 @@ class Status
     private int $id;
 
     #[ORM\Column(type: 'string', length: 50)]
-    private ?string $stamp;
+    private ?string $stamp = null;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'statuses')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Anlage $Anlage;
+    private ?Anlage $Anlage = null;
 
     #[ORM\Column(type: 'text')]
-    private $Status;
+    private ?string $Status = null;
 
     #[ORM\Column(type: 'boolean')]
-    private ?bool $isWeather;
+    private ?bool $isWeather = null;
 
     public function getId(): ?int
     {

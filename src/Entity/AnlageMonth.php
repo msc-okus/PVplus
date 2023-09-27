@@ -15,7 +15,7 @@ class AnlageMonth
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageMonth')]
     #[ORM\JoinColumn(nullable: false)]
-    private $anlage;
+    private ?\App\Entity\Anlage $anlage = null;
 
     #[ORM\Column(type: 'integer')]
     private int $month;

@@ -18,15 +18,15 @@ class ReportEpcPRNewService
     use G4NTrait;
 
     public function __construct(
-        private AnlagenRepository $anlageRepo,
-        private GridMeterDayRepository $gridMeterRepo,
-        private PRRepository $prRepository,
-        private MonthlyDataRepository $monthlyDataRepo,
-        private EntityManagerInterface $em,
-        private NormalizerInterface $serializer,
-        private FunctionsService $functions,
-        private PRCalulationService $PRCalulation,
-        private AvailabilityService $availabilityService)
+        private readonly AnlagenRepository $anlageRepo,
+        private readonly GridMeterDayRepository $gridMeterRepo,
+        private readonly PRRepository $prRepository,
+        private readonly MonthlyDataRepository $monthlyDataRepo,
+        private readonly EntityManagerInterface $em,
+        private readonly NormalizerInterface $serializer,
+        private readonly FunctionsService $functions,
+        private readonly PRCalulationService $PRCalulation,
+        private readonly AvailabilityService $availabilityService)
     {
     }
 

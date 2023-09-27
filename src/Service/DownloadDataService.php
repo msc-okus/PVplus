@@ -16,19 +16,17 @@ class DownloadDataService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private AnlageAvailabilityRepository $availabilityRepo,
-        private PRRepository $prRepository)
+        private readonly PdoService $pdoService,
+        private readonly AnlageAvailabilityRepository $availabilityRepo,
+        private readonly PRRepository $prRepository)
     {
     }
 
     /**
-     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $intervall
      * @param $headlineDate
-     *
      * @return string
      */
     public function getAllSingleSystemData(Anlage $anlage, $from, $to, $intervall, $headlineDate)

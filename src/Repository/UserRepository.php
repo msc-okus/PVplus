@@ -22,7 +22,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
-    public function __construct(ManagerRegistry $registry, private ApiTokenRepository $apiTokenRepository, private Security $security)
+    public function __construct(ManagerRegistry $registry, private readonly ApiTokenRepository $apiTokenRepository, private readonly Security $security)
     {
         parent::__construct($registry, User::class);
     }
@@ -58,7 +58,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         if (!$user instanceof User) {
-            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
+            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', $user::class));
         }
 
         $user->setPassword($newHashedPassword);
@@ -66,8 +66,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * @param string $query
-     * @param int $limit
      * @return array
      */
     public function findByAllMatching(string $query, int $limit = 100): array
@@ -83,7 +81,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * @param string $apiToken
      * @return User|null
      */
     public function findByApiToken(string $apiToken): ?User

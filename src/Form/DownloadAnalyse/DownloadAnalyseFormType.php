@@ -14,14 +14,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DownloadAnalyseFormType extends AbstractType
 {
-    private $anlagenRepository;
-
-    public function __construct(AnlagenRepository $anlagenRepository)
+    public function __construct(private readonly AnlagenRepository $anlagenRepository)
     {
-        $this->anlagenRepository = $anlagenRepository;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('anlage', EntityType::class, [
@@ -61,7 +58,7 @@ class DownloadAnalyseFormType extends AbstractType
             ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => DownloadAnalyseModel::class,
@@ -69,7 +66,7 @@ class DownloadAnalyseFormType extends AbstractType
         ]);
     }
 
-    public function getYears()
+    public function getYears(): array
     {
         $years = range(date('Y'), 2016);
         $yearsfinal = [];
@@ -81,7 +78,7 @@ class DownloadAnalyseFormType extends AbstractType
         return $yearsfinal;
     }
 
-    public function getMonths()
+    public function getMonths(): array
     {
         $formattedMonthArray = [
             'January' => '01', 'February' => '02', 'March' => '03', 'April' => '04',
@@ -92,7 +89,7 @@ class DownloadAnalyseFormType extends AbstractType
         return $formattedMonthArray;
     }
 
-    public function getDays()
+    public function getDays(): array
     {
         $dayArray = range(1, 31);
         $daysfinal = [];

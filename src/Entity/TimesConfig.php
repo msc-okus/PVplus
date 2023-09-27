@@ -14,10 +14,10 @@ class TimesConfig
     private $id;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'timesConfigs')]
-    private $anlage;
+    private ?\App\Entity\Anlage $anlage = null;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $type;
+    private ?string $type = null;
 
     #[ORM\Column(type: 'integer')]
     private int $startDateMonth;
@@ -26,7 +26,7 @@ class TimesConfig
     private int $startDateDay;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $startDate;
+    private ?string $startDate = null;
 
     #[ORM\Column(type: 'integer')]
     private int $endDateMonth;
@@ -35,16 +35,16 @@ class TimesConfig
     private int $endDateDay;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $endDate;
+    private ?string $endDate = null;
 
     #[ORM\Column(type: 'time')]
-    private $startTime;
+    private ?\DateTimeInterface $startTime = null;
 
     #[ORM\Column(type: 'time')]
-    private $endTime;
+    private ?\DateTimeInterface $endTime = null;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $maxFailTime;
+    private ?string $maxFailTime = null;
 
     public function getId(): ?int
     {

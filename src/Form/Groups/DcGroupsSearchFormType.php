@@ -30,9 +30,7 @@ class DcGroupsSearchFormType extends AbstractType
                 'empty_data'=>'',
                 'label'=>false,
                 'class'=> Anlage::class,
-                'choice_label'=>function(Anlage $anlage){
-                    return $anlage->getAnlName();
-                },
+                'choice_label'=>fn(Anlage $anlage) => $anlage->getAnlName(),
                 'query_builder' => fn(AnlagenRepository $anlagenRepository)
                 => $anlagenRepository->querBuilderFindAllActiveAndAllowed(),
                 'attr'=>[

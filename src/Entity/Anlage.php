@@ -44,9 +44,9 @@ use Symfony\Contracts\Cache\CacheInterface;
  *
  */
 #[ORM\Table(name: 'anlage')]
-#[ORM\Entity(repositoryClass: 'App\Repository\AnlagenRepository')]
+#[ORM\Entity(repositoryClass: \App\Repository\AnlagenRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-class Anlage
+class Anlage implements \Stringable
 {
     private string $dbAnlagenData = 'pvp_data';
 
@@ -70,7 +70,7 @@ class Anlage
     private string $anlDbase = 'web32_db2'; // ready to delete
 
     #[ORM\Column(name: 'anl_betrieb', type: 'date', nullable: true)]
-    private ?DateTime $anlBetrieb;
+    private ?DateTime $anlBetrieb = null;
 
     #[Groups(['main','api:read'])]
     #[SerializedName('plant_name')]
@@ -90,7 +90,7 @@ class Anlage
 
     #[Groups(['main'])]
     #[ORM\Column(name: 'anl_intnr', type: 'string', length: 50, nullable: true)]
-    private ?string $anlIntnr;
+    private ?string $anlIntnr = null;
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     private ?string $customPlantId = '';
@@ -182,10 +182,10 @@ class Anlage
     private string $anlMute = 'No';
 
     #[ORM\Column(name: 'anl_mute_until', type: 'datetime', nullable: true)]
-    private ?DateTime $anlMuteUntil;
+    private ?DateTime $anlMuteUntil = null;
 
     #[ORM\ManyToOne(targetEntity: Eigner::class, inversedBy: 'anlage')]
-    private ?Eigner $eigner;
+    private ?Eigner $eigner = null;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageAcGroups::class, cascade: ['persist', 'remove'])]
     private Collection $acGroups;
@@ -214,7 +214,7 @@ class Anlage
 
     #[Deprecated]
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
-    private ?string $useCustPRAlgorithm;
+    private ?string $useCustPRAlgorithm = null;
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     private ?string $pldAlgorithm = 'Lelystad';
@@ -300,13 +300,13 @@ class Anlage
     private bool $showPvSyst = false;
 
     #[ORM\ManyToOne(targetEntity: WeatherStation::class, cascade: ['persist'], inversedBy: 'anlagen')]
-    private ?weatherStation $weatherStation;
+    private ?weatherStation $weatherStation = null;
 
     #[ORM\Column(type: 'date', nullable: true)]
-    private ?DateTime $pacDate;
+    private ?DateTime $pacDate = null;
 
     #[ORM\Column(type: 'date', nullable: true)]
-    private ?DateTime $facDate;
+    private ?DateTime $facDate = null;
 
     #[ORM\Column(type: 'boolean')]
     private bool $usePac = false;
@@ -390,21 +390,21 @@ class Anlage
     #[Groups(['api:read'])]
     #[SerializedName('p_nom_simulation')]
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $kwPeakPvSyst;
+    private ?string $kwPeakPvSyst = null;
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $kwPeakPLDCalculation;
+    private ?string $kwPeakPLDCalculation = null;
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $designPR;
+    private ?string $designPR = null;
     #[ORM\Column(type: 'date', nullable: true)]
-    private ?DateTime $facDateStart;
+    private ?DateTime $facDateStart = null;
     #[ORM\Column(type: 'date', nullable: true)]
-    private ?DateTime $pacDateEnd;
+    private ?DateTime $pacDateEnd = null;
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private string $lid;
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private float|string|null $annualDegradation;
+    private float|string|null $annualDegradation = null;
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $pldPR;
+    private ?string $pldPR = null;
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $treatingDataGapsAsOutage = true;
     #[ORM\Column(type: 'string', length: 20)]
@@ -437,7 +437,7 @@ class Anlage
     private Collection $anlageLegendReports;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $Notes;
+    private ?string $Notes = null;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageMonth::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $anlageMonth;
@@ -473,10 +473,10 @@ class Anlage
     private string $pldDivisor = '';
 
     #[ORM\Column(type: 'date', nullable: true)]
-    private ?DateTime $epcReportStart;
+    private ?DateTime $epcReportStart = null;
 
     #[ORM\Column(type: 'date', nullable: true)]
-    private ?DateTime $epcReportEnd;
+    private ?DateTime $epcReportEnd = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $inverterStartVoltage = '540';
@@ -485,7 +485,7 @@ class Anlage
     private bool $useLowerIrrForExpected = false;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $epcReportNote;
+    private ?string $epcReportNote = null;
 
     #[ORM\Column(type: 'integer')]
     private int $configType;
@@ -512,7 +512,7 @@ class Anlage
     private Collection $tickets;
 
     #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: EconomicVarNames::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private ?EconomicVarNames $economicVarNames;
+    private ?EconomicVarNames $economicVarNames = null;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: EconomicVarValues::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private ?Collection $economicVarValues;
@@ -530,7 +530,7 @@ class Anlage
     private Collection $anlageFiles;
 
     #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: AnlageSettings::class, cascade: ['persist', 'remove'])]
-    private ?AnlageSettings $settings;
+    private ?AnlageSettings $settings = null;
 
     #[ORM\Column(type: 'string', length: 150, nullable: true)]
     private ?string $picture = '';
@@ -542,7 +542,7 @@ class Anlage
     private bool $hasWindSpeed = true;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $DataSourceAM;
+    private ?string $DataSourceAM = null;
 
     #[ORM\Column(type: 'boolean')]
     private bool $RetrieveAllData = false;
@@ -587,7 +587,7 @@ class Anlage
     private ?bool $kpiTicket = false;
 
     #[ORM\Column(nullable: true)]
-    private ?string $pathToImportScript;
+    private ?string $pathToImportScript = null;
 
     #[ORM\Column(nullable: true)]
     private ?bool $gridTicket = false;
@@ -647,7 +647,7 @@ class Anlage
     private ?string $albeto = '';
 
     #[ORM\Column(name: 'dat_filename', type: 'string', nullable: true)]
-    private ?string $datFilename;
+    private ?string $datFilename = null;
 
     #[ORM\Column(nullable: true)]
     private ?bool $ppcBlockTicket = false;
@@ -1706,12 +1706,12 @@ class Anlage
         if ($lat and $lng) {
             $urli = "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lng&lang=en&APPID=$apiKey";
             $contents = file_get_contents($urli);
-            $clima = json_decode($contents);
+            $clima = json_decode($contents, null, 512, JSON_THROW_ON_ERROR);
             if ($clima) {
                 $weatherArray['tempC'] = round($clima->main->temp - 273.15, 0);
                 $weatherArray['tempF'] = round((($clima->main->temp * 9) / 5) + 32, 0);
-                $weatherArray['iconCountry'] = strtolower($clima->sys->country);
-                $weatherArray['iconWeather'] = 'https://openweathermap.org/img/w/'.strtolower($clima->weather[0]->icon).'.png';
+                $weatherArray['iconCountry'] = strtolower((string) $clima->sys->country);
+                $weatherArray['iconWeather'] = 'https://openweathermap.org/img/w/'.strtolower((string) $clima->weather[0]->icon).'.png';
                 $weatherArray['description'] = @$clima->weather[0]->description;
                 $weatherArray['cityName'] = @$clima->name;
 
@@ -2123,7 +2123,7 @@ class Anlage
 
     public function getThreshold1PA0(): ?string
     {
-        return $this->threshold1PA0 === null ? 0 : $this->threshold1PA0;
+        return $this->threshold1PA0 ?? 0;
     }
 
     public function setThreshold1PA0(?string $threshold1PA0): self
@@ -2134,7 +2134,7 @@ class Anlage
 
     public function getThreshold1PA1(): ?string
     {
-        return $this->threshold1PA1 === null ? 0 : $this->threshold1PA1;
+        return $this->threshold1PA1 ?? 0;
     }
 
     public function setThreshold1PA1(?string $threshold1PA1): self
@@ -2145,7 +2145,7 @@ class Anlage
 
     public function getThreshold1PA2(): ?string
     {
-        return $this->threshold1PA2 === null ? 0 : $this->threshold1PA2;
+        return $this->threshold1PA2 ?? 0;
     }
 
     public function setThreshold1PA2(?string $threshold1PA2): self
@@ -2156,7 +2156,7 @@ class Anlage
 
     public function getThreshold1PA3(): ?string
     {
-        return $this->threshold1PA3 === null ? 0 : $this->threshold1PA3;
+        return $this->threshold1PA3 ?? 0;
     }
 
     public function setThreshold1PA3(?string $threshold1PA3): self
@@ -2167,7 +2167,7 @@ class Anlage
 
     public function getThreshold2PA0(): ?string
     {
-        return $this->threshold2PA0 === null ? 50 : $this->threshold2PA0;
+        return $this->threshold2PA0 ?? 50;
     }
 
     public function setThreshold2PA0(?string $threshold2PA0): self
@@ -2178,7 +2178,7 @@ class Anlage
 
     public function getThreshold2PA1(): ?string
     {
-        return $this->threshold2PA1 === null ? 50 : $this->threshold2PA1;
+        return $this->threshold2PA1 ?? 50;
     }
 
     public function setThreshold2PA1(?string $threshold2PA1): self
@@ -2189,7 +2189,7 @@ class Anlage
 
     public function getThreshold2PA2(): ?string
     {
-        return $this->threshold2PA2 === null ? 50 : $this->threshold2PA2;
+        return $this->threshold2PA2 ?? 50;
     }
 
     public function setThreshold2PA2(?string $threshold2PA2): self
@@ -2200,7 +2200,7 @@ class Anlage
 
     public function getThreshold2PA3(): ?string
     {
-        return $this->threshold2PA3 === null ? 50 : $this->threshold2PA3;
+        return $this->threshold2PA3 ?? 50;
     }
 
     public function setThreshold2PA3(?string $threshold2PA3): self
@@ -3214,7 +3214,7 @@ class Anlage
         return $this;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
 
         return $this->getAnlId() ;
@@ -3846,7 +3846,7 @@ class Anlage
 
     public function getPowerThreshold(): ?string
     {
-        return $this->PowerThreshold !== null ? $this->PowerThreshold : '0';
+        return $this->PowerThreshold ?? '0';
     }
 
     public function setPowerThreshold(?string $PowerThreshold): static

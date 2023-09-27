@@ -14,22 +14,22 @@ class AnlageGroupModules
     private $id;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $numStringsPerUnit;
+    private ?string $numStringsPerUnit = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private $numStringsPerUnitEast;
+    private ?string $numStringsPerUnitEast = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private $numStringsPerUnitWest;
+    private ?string $numStringsPerUnitWest = null;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $numModulesPerString;
+    private ?string $numModulesPerString = null;
 
     #[ORM\ManyToOne(targetEntity: AnlageGroups::class, inversedBy: 'modules')]
-    private $anlageGroup;
+    private ?\App\Entity\AnlageGroups $anlageGroup = null;
 
     #[ORM\ManyToOne(targetEntity: AnlageModules::class, inversedBy: 'anlageGroupModules')]
-    private $moduleType;
+    private ?\App\Entity\AnlageModules $moduleType = null;
 
     public function getId(): ?int
     {

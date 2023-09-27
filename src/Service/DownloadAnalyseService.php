@@ -22,18 +22,18 @@ class DownloadAnalyseService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private AnlageAvailabilityRepository $availabilityRepo,
-        private PRRepository $prRepository,
-        private AnlagenRepository $anlagenRepository,
-        private ReportsRepository $downloadsRepository,
-        private EntityManagerInterface $em,
-        private Environment $twig,
-        private MessageService $messageService,
-        private PvSystMonthRepository $pvSystMonthRepo,
-        private Case5Repository $case5Repo,
-        private FunctionsService $functions,
-        private NormalizerInterface $serializer
+        private readonly PdoService $pdoService,
+        private readonly AnlageAvailabilityRepository $availabilityRepo,
+        private readonly PRRepository $prRepository,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly ReportsRepository $downloadsRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly Environment $twig,
+        private readonly MessageService $messageService,
+        private readonly PvSystMonthRepository $pvSystMonthRepo,
+        private readonly Case5Repository $case5Repo,
+        private readonly FunctionsService $functions,
+        private readonly NormalizerInterface $serializer
     ) {
     }
 
@@ -75,13 +75,10 @@ class DownloadAnalyseService
     public function getDcSingleSystemData($anlage, $from, $to, $intervall): array
     {
         $conn = $this->pdoService->getPdoPlant();
-        switch ($anlage->getConfigType()) {
-            case 2:
-            case 1: $dbnameist = $anlage->getDbNameIst();
-                break;
-            default:$dbnameist = $anlage->getDbNameDCIst();
-                break;
-        }
+        $dbnameist = match ($anlage->getConfigType()) {
+            2, 1 => $anlage->getDbNameIst(),
+            default => $anlage->getDbNameDCIst(),
+        };
 
         $arrayout1a = $output = [];
         // Ist Daten laden

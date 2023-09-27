@@ -33,7 +33,7 @@ class AnlageFile
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageFiles')]
     #[ORM\JoinColumn(nullable: true)]
-    private $plant;
+    private ?\App\Entity\Anlage $plant = null;
 
     public function getId(): ?int
     {

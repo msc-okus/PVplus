@@ -24,17 +24,17 @@ class MonthlyService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private AnlagenRepository $anlagenRepository,
-        private PRRepository $PRRepository,
-        private ReportsRepository $reportsRepository,
-        private EntityManagerInterface $em,
-        private PvSystMonthRepository $pvSystMonthRepo,
-        private Case5Repository $case5Repo,
-        private FunctionsService $functions,
-        private NormalizerInterface $serializer,
-        private PRCalulationService $PRCalulation,
-        private ReportService $reportService)
+        private readonly PdoService $pdoService,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PRRepository $PRRepository,
+        private readonly ReportsRepository $reportsRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly PvSystMonthRepository $pvSystMonthRepo,
+        private readonly Case5Repository $case5Repo,
+        private readonly FunctionsService $functions,
+        private readonly NormalizerInterface $serializer,
+        private readonly PRCalulationService $PRCalulation,
+        private readonly ReportService $reportService)
     {
     }
 
@@ -84,7 +84,7 @@ class MonthlyService
         // beginn case5
         // die Daten nur im korrekten Monat ausgeben
         foreach ($case5 as $iValue) {
-            if (date('m', strtotime($iValue['stampFrom'])) === $month || date('m', strtotime($iValue['stampTo'])) === $month) {
+            if (date('m', strtotime((string) $iValue['stampFrom'])) === $month || date('m', strtotime((string) $iValue['stampTo'])) === $month) {
                 $case5Values[] = [
                     'stampFrom' => $iValue['stampFrom'],
                     'stampTo' => $iValue['stampTo'],
@@ -327,7 +327,7 @@ class MonthlyService
     }
 
     #[NoReturn]
-    public function exportReportToPDF(Anlage $anlage, AnlagenReports $report)
+    public function exportReportToPDF(Anlage $anlage, AnlagenReports $report): never
     {
         // übergabe der Werte an KoolReport
 
@@ -356,7 +356,7 @@ class MonthlyService
     }
 
     #[NoReturn]
-    public function exportReportToExcel(Anlage $anlage, AnlagenReports $report)
+    public function exportReportToExcel(Anlage $anlage, AnlagenReports $report): never
     {
         $excelFilename = $anlage->getAnlName().' '.$report->getYear().$report->getMonth().' Monthly Report.xlsx';
 

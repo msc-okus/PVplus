@@ -9,8 +9,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserVoter extends Voter
 {
-    public const EDIT = 'EDIT';
-    public const VIEW = 'VIEW';
+    final public const EDIT = 'EDIT';
+    final public const VIEW = 'VIEW';
 
     protected function supports(string $attribute, mixed $subject): bool
     {

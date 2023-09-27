@@ -21,7 +21,7 @@ class AnlagenRepository extends ServiceEntityRepository
 {
     use G4NTrait;
 
-    public function __construct(ManagerRegistry $registry, private Security $security)
+    public function __construct(ManagerRegistry $registry, private readonly Security $security)
     {
         parent::__construct($registry, Anlage::class);
     }
@@ -401,8 +401,6 @@ class AnlagenRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string $query
-     * @param int $limit
      * @return array
      */
     public function findByAllMatching(string $query, int $limit = 100): array

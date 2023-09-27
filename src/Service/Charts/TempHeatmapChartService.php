@@ -17,15 +17,15 @@ class TempHeatmapChartService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private Security $security,
-        private AnlagenStatusRepository $statusRepository,
-        private InvertersRepository $invertersRepo,
-        private IrradiationChartService $irradiationChart,
-        private DCPowerChartService $DCPowerChartService,
-        private ACPowerChartsService $ACPowerChartService,
-        private WeatherServiceNew $weatherServiceNew,
-        private FunctionsService $functions)
+        private readonly PdoService $pdoService,
+        private readonly Security $security,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly InvertersRepository $invertersRepo,
+        private readonly IrradiationChartService $irradiationChart,
+        private readonly DCPowerChartService $DCPowerChartService,
+        private readonly ACPowerChartsService $ACPowerChartService,
+        private readonly WeatherServiceNew $weatherServiceNew,
+        private readonly FunctionsService $functions)
     {
 
     }
@@ -49,11 +49,9 @@ class TempHeatmapChartService
     }
 
     /**
-     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $sets
-     * @param bool $hour
      * @return array|null [Heatmap]
      *
      * @throws \Exception
@@ -66,8 +64,8 @@ class TempHeatmapChartService
         $counter = 0;
 
         $sunArray = $this->weatherServiceNew->getSunrise($anlage, $from);
-        $sunrise = strtotime($sunArray['sunrise']);
-        $sunset = strtotime($sunArray['sunset']);
+        $sunrise = strtotime((string) $sunArray['sunrise']);
+        $sunset = strtotime((string) $sunArray['sunset']);
 
         $from = date('Y-m-d H:00', $sunrise);
         $to = date('Y-m-d H:00', $sunset + 3600);
@@ -92,7 +90,7 @@ class TempHeatmapChartService
                 $max = (($max > 50) ? '50' : $max);
                 $sqladd = "AND $group BETWEEN '$min' AND '$max'";
             } else {
-                $res = explode(',', $sets);
+                $res = explode(',', (string) $sets);
                 $min = (int)ltrim($res[0], "[");
                 $max = (int)rtrim($res[1], "]");
                 (($max > $groupct) ? $max = $groupct : $max = $max);
@@ -125,11 +123,11 @@ class TempHeatmapChartService
                 $stamp = $rowActual['ts']; // self::timeShift($anlage,$rowActual['ts']);
                 $dataIrr = $rowActual['g_upper'];
                 (empty($dataIrr) ? $dataIrr = 0 : $dataIrr = $dataIrr);
-                $e = explode(' ', $stamp);
+                $e = explode(' ', (string) $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
                 $value = round($rowActual['istTemp']);
                 $value = ($value > 100) ?  100 : $value;
-                $e = explode(' ', $stamp);
+                $e = explode(' ', (string) $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
                 $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual[$group]];
                 $dataArray['chart'][$counter]['value'] = $value;

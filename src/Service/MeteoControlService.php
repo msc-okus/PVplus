@@ -38,7 +38,7 @@ class MeteoControlService
 
         $response_curl = curl_exec($curl);
         #echo($response_curl);
-        $response = json_decode($response_curl, true);
+        $response = json_decode($response_curl, true, 512, JSON_THROW_ON_ERROR);
         #echo $response;
         #print_r($response);
         curl_close($curl);
@@ -58,22 +58,12 @@ class MeteoControlService
             curl_setopt($curl, CURLOPT_USERPWD, $mcUser);
             curl_setopt($curl, CURLOPT_PASSWORD, $mcPassword);
             curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/sensors/$device/abbreviations/$abbrevationId/measurements?from=$from&to=$to&resolution=$resolution",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "GET",
-                CURLOPT_HTTPHEADER => [
-                    "X-API-KEY: ". $mcToken,
-                    "Cache-Control: no-cache"
-                ],
-            ));
+            curl_setopt_array($curl, [CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/sensors/$device/abbreviations/$abbrevationId/measurements?from=$from&to=$to&resolution=$resolution", CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => "", CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => "GET", CURLOPT_HTTPHEADER => [
+                "X-API-KEY: ". $mcToken,
+                "Cache-Control: no-cache"
+            ]]);
 
-            $response = json_decode(curl_exec($curl), true);
+            $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
             curl_close($curl);
 
             return $response;
@@ -91,22 +81,12 @@ class MeteoControlService
             curl_setopt($curl, CURLOPT_USERPWD, $mcUser);
             curl_setopt($curl, CURLOPT_PASSWORD, $mcPassword);
             curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/$type/bulk/measurements?from=$from&to=$to&resolution=$resolution",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "GET",
-                CURLOPT_HTTPHEADER => [
-                    "X-API-KEY: ". $mcToken,
-                    "Cache-Control: no-cache"
-                ],
-            ));
+            curl_setopt_array($curl, [CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/$type/bulk/measurements?from=$from&to=$to&resolution=$resolution", CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => "", CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => "GET", CURLOPT_HTTPHEADER => [
+                "X-API-KEY: ". $mcToken,
+                "Cache-Control: no-cache"
+            ]]);
 
-            $response = json_decode(curl_exec($curl), true);
+            $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
             curl_close($curl);
 
             return $response;
@@ -128,22 +108,12 @@ class MeteoControlService
             curl_setopt($curl, CURLOPT_USERPWD, $mcUser);
             curl_setopt($curl, CURLOPT_PASSWORD, $mcPassword);
             curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "GET",
-                CURLOPT_HTTPHEADER => [
-                    "X-API-KEY: ". $mcToken,
-                    "Cache-Control: no-cache"
-                ],
-            ));
+            curl_setopt_array($curl, [CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution", CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => "", CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => "GET", CURLOPT_HTTPHEADER => [
+                "X-API-KEY: ". $mcToken,
+                "Cache-Control: no-cache"
+            ]]);
 
-            $response = json_decode(curl_exec($curl), true);
+            $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
 
             if (curl_errno($curl)) {
                 echo curl_error($curl);
@@ -165,22 +135,12 @@ class MeteoControlService
             curl_setopt($curl, CURLOPT_USERPWD, $mcUser);
             curl_setopt($curl, CURLOPT_PASSWORD, $mcPassword);
             curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/sensors/bulk/measurements?from=$from&to=$to&resolution=$resolution",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "GET",
-                CURLOPT_HTTPHEADER => [
-                    "X-API-KEY: ". $mcToken,
-                    "Cache-Control: no-cache"
-                ],
-            ));
+            curl_setopt_array($curl, [CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/sensors/bulk/measurements?from=$from&to=$to&resolution=$resolution", CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => "", CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => "GET", CURLOPT_HTTPHEADER => [
+                "X-API-KEY: ". $mcToken,
+                "Cache-Control: no-cache"
+            ]]);
 
-            $response = json_decode(curl_exec($curl), true);
+            $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
             curl_close($curl);
             return $response;
         }
@@ -198,22 +158,12 @@ class MeteoControlService
             curl_setopt($curl, CURLOPT_USERPWD, $mcUser);
             curl_setopt($curl, CURLOPT_PASSWORD, $mcPassword);
             curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/basics/bulk/measurements?from=$from&to=$to&resolution=$resolution",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "GET",
-                CURLOPT_HTTPHEADER => [
-                    "X-API-KEY: ". $mcToken,
-                    "Cache-Control: no-cache"
-                ],
-            ));
+            curl_setopt_array($curl, [CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/basics/bulk/measurements?from=$from&to=$to&resolution=$resolution", CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => "", CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => "GET", CURLOPT_HTTPHEADER => [
+                "X-API-KEY: ". $mcToken,
+                "Cache-Control: no-cache"
+            ]]);
 
-            $response = json_decode(curl_exec($curl), true);
+            $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
             curl_close($curl);
 
             return $response;
@@ -230,22 +180,12 @@ class MeteoControlService
         curl_setopt($curl, CURLOPT_USERPWD, $mcUser);
         curl_setopt($curl, CURLOPT_PASSWORD, $mcPassword);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/inverters",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => [
-                "X-API-KEY: ". $mcToken,
-                "Cache-Control: no-cache"
-            ],
-        ));
+        curl_setopt_array($curl, [CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/inverters", CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => "", CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => "GET", CURLOPT_HTTPHEADER => [
+            "X-API-KEY: ". $mcToken,
+            "Cache-Control: no-cache"
+        ]]);
 
-        $response = json_decode(curl_exec($curl), true);
+        $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
         curl_close($curl);
 
         return $response;

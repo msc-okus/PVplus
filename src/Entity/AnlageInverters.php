@@ -14,7 +14,7 @@ class AnlageInverters
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'Inverters')]
-    private ?Anlage $anlage;
+    private ?Anlage $anlage = null;
 
     #[ORM\Column(type: 'integer')]
     private int $invNr;
