@@ -121,7 +121,6 @@ class AnlagenAdminController extends BaseController
     #[IsGranted('ROLE_DEV')]
     public function delete_sunshading_model($id,$sadid, $token, EntityManagerInterface $em, AnlageSunShadingRepository $anlageSunShadingRepository): Response
     {
-
         if ($this->isCsrfTokenValid('deletesunshadingmodel'.$sadid, $token)) {
             $sunshadding = $anlageSunShadingRepository->find($sadid);
             $em->remove($sunshadding);
