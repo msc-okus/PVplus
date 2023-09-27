@@ -5,9 +5,10 @@ namespace App\MessageHandler\Command;
 use App\Message\Command\LoadINAXData;
 use App\Service\LogMessagesService;
 use App\Service\ExternFileService;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class LoadINAXDataHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+class LoadINAXDataHandler
 {
     public function __construct(
         private ExternFileService  $externFileService,
@@ -15,11 +16,7 @@ class LoadINAXDataHandler implements MessageHandlerInterface
     {
     }
 
-    /**
-     * @throws \Exception
-     */
-
-    public function __invoke(LoadINAXData $dta)
+    public function __invoke(LoadINAXData $dta): void
     {
         $anlageId = $dta->getAnlageId();
         $logId = $dta->getlogId();

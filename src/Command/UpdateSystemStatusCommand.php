@@ -4,23 +4,28 @@ namespace App\Command;
 
 use App\Helper\G4NTrait;
 use App\Service\CheckSystemStatusService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:updateSystemStatus',
+    description: '',
+)]
 class UpdateSystemStatusCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:updateSystemStatus';
-
-    public function __construct(private CheckSystemStatusService $checkSystemStatus)
+    public function __construct(
+        private CheckSystemStatusService $checkSystemStatus
+    )
     {
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setDescription('Aktualisierung des System Status');
     }

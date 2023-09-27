@@ -7,17 +7,20 @@ use App\Repository\AnlagenRepository;
 use App\Service\AlertSystemService;
 use App\Service\AlertSystemV2Service;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:generateTicketsV2',
+    description: '',
+)]
 class GenerateTicketsV2Command extends Command
 {
     use G4NTrait;
-
-    protected static $defaultName = 'pvp:generateTicketsV2';
 
     public function __construct(
         private AnlagenRepository $anlagenRepository,

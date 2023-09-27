@@ -16,8 +16,6 @@ class DummySollCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:dummysoll';
-
     public function __construct(
         private DummySollService $dummySoll
     )
@@ -25,7 +23,7 @@ class DummySollCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Lege Datensätze in DummySoll Datenbanken an.')

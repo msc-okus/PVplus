@@ -13,7 +13,7 @@
         "ext-json": "*",
         "ext-mysqli": "*",
         "ext-pdo": "*",
-        "api-platform/core": "^2.6",
+        "api-platform/core": "^3.0",
         "babdev/pagerfanta-bundle": "^4.2.1",
         "beberlei/doctrineextensions": "^1.3",
         "chromeheadlessio/php-client": "^1.3",

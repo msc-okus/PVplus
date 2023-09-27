@@ -11,8 +11,6 @@ framework:
                 default_middleware: allow_no_handlers
                 middleware:
 
-        # reset services after consuming messages
-        reset_on_message: true
 
         # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
         failure_transport: failed
