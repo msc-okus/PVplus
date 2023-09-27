@@ -6,6 +6,7 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AlertSystemService;
 use App\Service\AlertSystemWeatherService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,22 +14,20 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:weatherCheck',
+    description: '',
+)]
 class CheckWeatherStationCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:weatherCheck';
-
-    private AlertSystemWeatherService $alertService;
-
-
-    private AnlagenRepository $anlagenRepository;
-
-    public function __construct(AlertSystemWeatherService $alertService, AnlagenRepository $anlRepo)
+    public function __construct(
+        private AlertSystemWeatherService $alertService,
+        private AnlagenRepository $anlRepo
+    )
     {
         parent::__construct();
-        $this->alertService = $alertService;
-        $this->anlagenRepository = $anlRepo;
     }
 
     protected function configure(): void

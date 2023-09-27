@@ -5,18 +5,18 @@ namespace App\MessageHandler\Command;
 use App\Message\Command\CalcExpected;
 use App\Service\ExpectedService;
 use App\Service\LogMessagesService;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class CalcExpectedHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+class CalcExpectedHandler
 {
-
     public function __construct(
         private ExpectedService $expectedService,
         private LogMessagesService $logMessages)
     {
     }
 
-    public function __invoke(CalcExpected $calcExpected)
+    public function __invoke(CalcExpected $calcExpected): void
     {
         $anlageId = $calcExpected->getAnlageId();
         $logId = $calcExpected->getlogId();

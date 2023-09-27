@@ -9,10 +9,10 @@ use App\Repository\AnlagenRepository;
 use App\Service\LogMessagesService;
 use App\Service\ExternFileService;
 use App\Service\ImportService;
-use Doctrine\Instantiator\Exception\ExceptionInterface;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class ImportDataHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+class ImportDataHandler
 {
     public function __construct(
         private ExternFileService  $externFileService,

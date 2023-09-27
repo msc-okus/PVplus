@@ -1,9 +1,11 @@
 <?php
 namespace App\Command;
+
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service;
 use App\Service\Forecast;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,14 +14,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-#[AsCommand(name: 'pvp:forcastwritedb')]
-/**
- * @return bool
- */
+#[AsCommand(
+    name: 'pvp:forcastwritedb',
+    description: 'Write the forcast DB',
+)]
 class ForcastWriteDBCommand extends Command {
     use G4NTrait;
-    protected static $defaultName = 'pvp:forcastwritedb';
-    protected static $defaultDescription = 'write the forcast DB';
 
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -31,7 +31,8 @@ class ForcastWriteDBCommand extends Command {
         parent::__construct();
     }
 
-    protected function configure() {
+    protected function configure(): void
+    {
         $this
             ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'the plant ID must set to run the calculation')
         ;

@@ -7,17 +7,20 @@ use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\AvailabilityService;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:updatePA',
+    description: '',
+)]
 class UpdateAvailabilityCommand extends Command
 {
     use G4NTrait;
-
-    protected static $defaultName = 'pvp:updatePA';
 
     public function __construct(
         private AnlagenRepository $anlagenRepository,
@@ -26,7 +29,7 @@ class UpdateAvailabilityCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Berechnung der Verfügbarkeit (availability) ')
