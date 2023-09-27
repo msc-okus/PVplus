@@ -625,14 +625,11 @@ class AssetManagementService
         $pr_rank_graph = [];
         $index = 0;
         $index2 = 0;
-        $sumPr = 0;
         $avgPr = $inverterPRArray['PRAvg'];
         $InverterOverAvgCount = 0;
         $prSumaryTable = [];
-
         while (count($inverterPRArray['powerYield']) !== 0){
             $keys = array_keys($inverterPRArray['powerYield'], min($inverterPRArray['powerYield']));
-
             foreach($keys as $key ){
                 $orderedArray[$index2][$index]['name'] = $inverterPRArray['name'][$key];
                 $orderedArray[$index2][$index]['powerYield'] = $inverterPRArray['powerYield'][$key];
@@ -645,16 +642,11 @@ class AssetManagementService
                 $orderedArray[$index2][$index]['calcPR'] = $inverterPRArray['calcPR'][$key];
                 $graphDataPR[$index2]['name'][] = $inverterPRArray['name'][$key];
                 $graphDataPR[$index2]['PR'][]= $inverterPRArray['invPR'][$key];
-
-                $sumPr = $sumPr + $inverterPRArray['invPR'][$key];
                 $graphDataPR[$index2]['power'][]= $inverterPRArray['power'][$key];
-
                 if ($inverterPRArray['invPR'][$key] > $avgPr){
                     $InverterOverAvgCount = $InverterOverAvgCount + 1;
                 }
-                $sumPr = $sumPr + $inverterPRArray['invPR'][$key];
                 $graphDataPR[$index2]['powerYield'][]= $inverterPRArray['powerYield'][$key];
-
                 $graphDataPR[$index2]['yield'] = $inverterPRArray['calcPR'][$key];
                 unset($inverterPRArray['powerYield'][$key]);
                 $index = $index + 1;
@@ -664,9 +656,6 @@ class AssetManagementService
                 }
             }
         }
-
-        $avgPr = round($sumPr / count($inverterPRArray['invPR']), 2);
-
         $invPercentage = $InverterOverAvgCount / count($invArray) * 100;
         $prSumaryTable[1]['InvCount'] = $InverterOverAvgCount;
         $prSumaryTable[1]['percentage'] = $invPercentage;
@@ -4227,6 +4216,7 @@ class AssetManagementService
         $efficiencySum = 0;
         $efficiencyCount = 0;
         foreach($res->fetchAll(PDO::FETCH_ASSOC) as $result){
+            dump($result);
             if ($result['inverter'] != $inverter){
                 $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0;
                 $inverter = $result['inverter'];

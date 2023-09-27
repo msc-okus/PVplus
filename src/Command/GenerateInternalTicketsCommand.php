@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 
 #[AsCommand(
-    name: 'GenerateInternalTickets',
+    name: 'pvp:GenerateInternalTickets',
     description: 'Command to generate internal tickets',
 )]
 class GenerateInternalTicketsCommand extends Command

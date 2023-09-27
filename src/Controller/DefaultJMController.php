@@ -45,9 +45,9 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
     {
-        $anlage = $anlagenRepository->findIdLike("207")[0];
-        $fromStamp = strtotime("2023-09-19 00:00");
-        $toStamp = strtotime("2023-09-20 00:00");
+        $anlage = $anlagenRepository->findIdLike("96")[0];
+        $fromStamp = strtotime("2023-09-26 00:00");
+        $toStamp = strtotime("2023-09-27 14:00");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
             $service->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
         }
