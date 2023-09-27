@@ -25,7 +25,7 @@ class AnlageSunShading {
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageSunShading')]
     private $anlage;
 
-    #[ORM\OneToOne(targetEntity: AnlageModulesDB::class, inversedBy:"modulesDBData", cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: "modulesDBData", targetEntity: AnlageModulesDB::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: 'modules_db_id', referencedColumnName: 'id', nullable: false)]
     private AnlageModulesDB $modulesDB;
 

@@ -173,12 +173,6 @@ class AnlagenController extends BaseController
 
             $successMessage = 'Plant data saved!';
 
-            if ($form->get('savecreatedb')->isClicked()) {
-                if ($this->createDatabasesForPlant($anlage)) {
-                    $successMessage = 'Plant data saved and DB created.';
-                }
-            }
-
             $em->persist($anlage);
             $em->flush();
             $this->addFlash('success', $successMessage);

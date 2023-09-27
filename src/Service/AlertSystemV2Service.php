@@ -406,7 +406,7 @@ class AlertSystemV2Service
         $powerThreshold = (float) $anlage->getPowerThreshold() / 4;
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
-        dump($time, $irradiation);
+
         if ($irradiation === null || $irradiation < $irrLimit) $this->irr = true; // about irradiation === null, it is better to miss a ticket than to have a false one
         else $this->irr = false;
 

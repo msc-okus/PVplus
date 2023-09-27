@@ -186,8 +186,9 @@ class WeatherServiceNew
     /** Given a plant and no date it will return the sunrise info of the given plant for the current day
      * Given a plant and a time it will return the sunrise info of the given plant for the given date.
      */
-    public function getSunrise(Anlage $anlage, ?string $time = null): array
+    public function getSunrise(Anlage $anlage, string $time): array
     {
+        $time = date("Y-m-d", strtotime($time)); // to make sure its alwas only a day without time information (Exp.: "2023-05-12"
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));

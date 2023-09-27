@@ -47,18 +47,17 @@ private PdoService $pdoService,
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param int $group
-     *
-     * @return array
+     * @param int|null $inverter
+     * @param bool $hour
+     * @return array|null
      */
     // MS first development 08 / 2022
     //  - Update Select 12 / 2022
     public function getSollIstTempDeviationAnalyse(Anlage $anlage, $from, $to, ?int $inverter = 0, bool $hour = false): ?array
     {
-        ini_set('memory_limit', '3G');
-        $anlagename = $anlage->getAnlName();
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
