@@ -84,7 +84,7 @@ class ImportService
 
         //get the Data from vcom
         $curl = curl_init();
-        $bulkMeaserments = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end, $timeZonePlant, $curl);
+        $bulkMeaserments = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
         curl_close($curl);
 
         $data_pv_ist = [];
@@ -224,37 +224,37 @@ class ImportService
         $DBDataConnection = $this->pdoService->getPdoPlant();
         switch ($importType) {
             case 'api-import-weather':
-                    $tableName = "db__pv_ws_$weatherDbIdent".'_copy';
+                    $tableName = "db__pv_ws_$weatherDbIdent";
                 self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                 break;
             case 'api-import-ppc':
-                $tableName = "db__pv_ppc_$anlagenTabelle".'_copy';
+                $tableName = "db__pv_ppc_$anlagenTabelle";
                 self::insertData($tableName, $data_ppc, $DBDataConnection);
                 break;
             case 'api-import-pvist':
                 if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
-                    $tableName = "db__pv_dcist_$anlagenTabelle".'_copy';
+                    $tableName = "db__pv_dcist_$anlagenTabelle";
                     self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
                 }
 
-                $tableName = "db__pv_ist_$anlagenTabelle".'_copy';
+                $tableName = "db__pv_ist_$anlagenTabelle";
                 self::insertData($tableName, $data_pv_ist, $DBDataConnection);
                 break;
             default:
-                $tableName = "db__pv_ws_$weatherDbIdent".'_copy';
+                $tableName = "db__pv_ws_$weatherDbIdent";
                 self::insertData($tableName, $data_pv_weather, $DBDataConnection);
 
                 if ($anlage->getHasPPC()) {
-                    $tableName = "db__pv_ppc_$anlagenTabelle".'_copy';
+                    $tableName = "db__pv_ppc_$anlagenTabelle";
                     self::insertData($tableName, $data_ppc, $DBDataConnection);
                 }
 
                 if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
-                    $tableName = "db__pv_dcist_$anlagenTabelle".'_copy';
+                    $tableName = "db__pv_dcist_$anlagenTabelle";
                     self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
                 }
 
-                $tableName = "db__pv_ist_$anlagenTabelle".'_copy';
+                $tableName = "db__pv_ist_$anlagenTabelle";
                 self::insertData($tableName, $data_pv_ist, $DBDataConnection);
                 break;
         }
