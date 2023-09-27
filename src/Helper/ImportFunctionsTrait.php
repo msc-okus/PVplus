@@ -44,10 +44,10 @@ trait ImportFunctionsTrait
      * @param string|null $host
      * @param string|null $passwordPlant
      */
-    function insertData($tableName = NULL, $data = NULL): void
+    function insertData($tableName = NULL, $data = NULL, object $DBDataConnection = NULL): void
     {
         // obtain column template
-        $DBDataConnection = $this->pdoService->getPdoPlant();
+
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];
@@ -425,8 +425,6 @@ trait ImportFunctionsTrait
                 } else {
                     $powerDc = '';
                 }
-                echo "currentAc $date<br>";
-                echo "currentAc $currentAc <br>";
 
             } else {
                 $powerAc = $currentAc = $voltageAc = $powerDc = $voltageDc = $currentDc = $temp = null;
@@ -562,8 +560,7 @@ trait ImportFunctionsTrait
                 } else {
                     $powerDc = '';
                 }
-                echo "currentAc $date<br>";
-                echo "currentAc $currentAc <br>";
+
                 // tempCorr nach NREL und dann theoPower berechnen
                 // prüfe auf OST / WEST Sensoren und Strahlung ermitteln
                 /*
