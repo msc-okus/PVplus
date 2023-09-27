@@ -121,16 +121,9 @@ private PdoService $pdoService,
                 $expNoLimitSum += $expectedNoLimit;
                 $dataArray['chart'][$counter]['date'] = $stamp;
                 if ($anlage->getHasPPC()) {
-
-                    // Hack für Olli um Duerrenried richtig anzuzeigen, muss durch generiche PPC Lösung erstetzt werden
                     // 'else Zweig' funktioniert für Bavelse
-                    if ($anlage->getAnlId() == 111) {
-                        $dataArray['chart'][$counter]['p_set_rpc_rel'] = $rowExp['p_set_rel'];
-                        $dataArray['chart'][$counter]['p_set_gridop_rel'] = null;
-                    } else {
-                        $dataArray['chart'][$counter]['p_set_rpc_rel'] = $rowExp['p_set_rpc_rel'];
-                        $dataArray['chart'][$counter]['p_set_gridop_rel'] = $rowExp['p_set_gridop_rel'];
-                    }
+                    $dataArray['chart'][$counter]['p_set_rpc_rel'] = $rowExp['p_set_rpc_rel'];
+                    $dataArray['chart'][$counter]['p_set_gridop_rel'] = $rowExp['p_set_gridop_rel'];
                 }
 
                 if (!($expectedInvOut == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
