@@ -168,7 +168,7 @@ class UserController extends BaseController
             }
 
             return $this->render('user/edit.html.twig', [
-                'userForm' => $form->createView(),
+                'userForm' => $form,
             ]);
 
         } else {
@@ -219,7 +219,7 @@ class UserController extends BaseController
             }
 
             return $this->render('user/show.html.twig', [
-                'userForm' => $form->createView(),
+                'userForm' => $form,
             ]);
 
         } else {

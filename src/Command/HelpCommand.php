@@ -24,8 +24,6 @@ class HelpCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:help';
-
     public function __construct(
         private AnlagenRepository $anlagenRepository,
         private ReportEpcService $reportEpc,
@@ -39,7 +37,6 @@ class HelpCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Hilfs Command zum testen.')
             ->addArgument('plantid', InputArgument::REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll.')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem berechnet werden soll')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Datum bis zu dem berechnet werden soll')

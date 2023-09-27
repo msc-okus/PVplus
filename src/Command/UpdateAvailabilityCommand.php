@@ -32,7 +32,6 @@ class UpdateAvailabilityCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Berechnung der Verfügbarkeit (availability) ')
             ->addArgument('plantid')
             ->addOption('day', null, InputOption::VALUE_REQUIRED, 'Tag (day) im Format \'yyyy-mm-dd\' für den, die \'Verfügbarkeit\' berechnet werden soll.')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem berechnet werden soll')

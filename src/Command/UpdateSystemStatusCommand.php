@@ -27,7 +27,6 @@ class UpdateSystemStatusCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription('Aktualisierung des System Status');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

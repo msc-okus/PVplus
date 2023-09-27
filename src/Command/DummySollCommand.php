@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'pvp:dummysoll')]
+#[AsCommand(name: 'pvp:dummysoll', description: 'Lege Datensätze in DummySoll Datenbanken an.')]
 class DummySollCommand extends Command
 {
     use G4NTrait;
@@ -26,7 +26,6 @@ class DummySollCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Lege Datensätze in DummySoll Datenbanken an.')
             ->addArgument('day', InputArgument::OPTIONAL, 'Tag (day) im Format \'yyyy-mm-dd\' für den, \'DummySoll\' berechnet werden soll.')
         ;
     }

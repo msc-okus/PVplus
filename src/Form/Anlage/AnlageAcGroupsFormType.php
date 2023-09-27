@@ -20,7 +20,7 @@ class AnlageAcGroupsFormType extends AbstractType
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $builder

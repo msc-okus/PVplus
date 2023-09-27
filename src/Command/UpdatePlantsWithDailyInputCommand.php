@@ -33,7 +33,6 @@ class UpdatePlantsWithDailyInputCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Berechnung der Verfügbarkeit und PR für Anlagen die nur täglich Daten erhalten. ')
             ->addArgument('day', InputArgument::OPTIONAL, 'Tag (day) im Format \'yyyy-mm-dd\' für den, der \'AC/DC Expected\' berechnet werden soll.')
             ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
         ;

@@ -32,7 +32,6 @@ class UpdateExpectedDbsCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Erzeugt die SOll Daten für AC und DC')
             ->addArgument('plantid', InputArgument::OPTIONAL, 'Anlagen ID für die, die Berechnung ausgeführt werden soll oder nichts, dann werden alle Anlagen berechnet')
             // ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem berechnet werden soll')

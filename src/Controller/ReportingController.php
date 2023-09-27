@@ -649,7 +649,7 @@ class ReportingController extends AbstractController
                         break;
                     }
                     return $this->render('report/_form.html.twig', [
-                        'assetForm' => $form->createView(),
+                        'assetForm' => $form,
                         'anlage' => $anlage
                     ]);
 

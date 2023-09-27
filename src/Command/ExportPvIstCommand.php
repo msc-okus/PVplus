@@ -31,7 +31,6 @@ class ExportPvIstCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Export der pv_ist Tabelle ')
             ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem berechnet werden soll')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Datum bis zu dem berechnet werden soll')

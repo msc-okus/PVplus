@@ -33,7 +33,6 @@ class CheckWeatherStationCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Generate Tickets')
             ->addArgument('plantid')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to start')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to end')

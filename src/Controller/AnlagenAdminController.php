@@ -85,7 +85,7 @@ class AnlagenAdminController extends BaseController
         }
 
         return $this->render('anlagen/new.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
         ]);
     }
 
@@ -170,7 +170,7 @@ class AnlagenAdminController extends BaseController
 
                 if ($checkfields === false){
                     return $this->render('anlagen/edit.html.twig', [
-                        'anlageForm' => $form->createView(),
+                        'anlageForm' => $form,
                         'anlage' => $anlage,
                     ]);
                 }
@@ -212,7 +212,7 @@ class AnlagenAdminController extends BaseController
 
 
         return $this->render('anlagen/edit.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
         ]);
     }
@@ -287,7 +287,7 @@ class AnlagenAdminController extends BaseController
             $em->flush();
             if ($form->get('save')->isClicked()) {
                      $response = $this->render('anlagen/editconfig.html.twig', [
-                        'anlageForm' => $form->createView(),
+                        'anlageForm' => $form,
                         'anlage' => $anlage,
                         'econames' => $economicVarNames1,
                         'isupload' => $isupload,
@@ -308,7 +308,7 @@ class AnlagenAdminController extends BaseController
 
         }
         if (!$form->isSubmitted() || !$form->isValid())$response =  $this->render('anlagen/editconfig.html.twig', [
-                'anlageForm' => $form->createView(),
+                'anlageForm' => $form,
                 'anlage' => $anlage,
                 'econames' => $economicVarNames1,
                 'isupload' => $isupload,
@@ -351,7 +351,7 @@ class AnlagenAdminController extends BaseController
         } else {
             $this->addFlash('warning', 'Sorry file not found.');
             return $this->render('anlagen/edit.html.twig', [
-                'anlageForm' => $form->createView(),
+                'anlageForm' => $form,
                 'anlage' => $anlage,
             ]);
         }
@@ -406,7 +406,7 @@ class AnlagenAdminController extends BaseController
         }
 
         return $this->render('anlagen/edit_dcgroups.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
         ]);
     }
@@ -436,7 +436,7 @@ class AnlagenAdminController extends BaseController
         }
 
         return $this->render('anlagen/edit_acgroups.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
         ]);
     }
@@ -466,7 +466,7 @@ class AnlagenAdminController extends BaseController
         }
 
         return $this->render('anlagen/edit_sensors.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
         ]);
     }
@@ -496,7 +496,7 @@ class AnlagenAdminController extends BaseController
         }
 
         return $this->render('anlagen/edit_ppcs.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
         ]);
     }

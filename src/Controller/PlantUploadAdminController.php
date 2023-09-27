@@ -71,7 +71,7 @@ class PlantUploadAdminController extends BaseController
         }
 
         return $this->render('fileUpload/fileupload.html.twig', [
-            'fileUploadForm' => $form->createView(),
+            'fileUploadForm' => $form,
             'isupload' => $isupload,
             'fileseindb' => $filesInDB,
         ]);

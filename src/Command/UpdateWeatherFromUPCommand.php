@@ -33,7 +33,6 @@ class UpdateWeatherFromUPCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Lade Wetterdaten von UP.')
             ->addOption('station', 'a', InputOption::VALUE_REQUIRED, 'Wetter Station (ident) für die, Daten geladen werden sollen werden soll')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem die Daten geleaden werden soll')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Datum bis zu dem die Daten geleaden werden soll')

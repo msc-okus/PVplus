@@ -29,9 +29,6 @@ class UpdateOpenWeatherCommand extends Command
 
     protected function configure(): void
     {
-        $this
-            ->setDescription('Laden der Open Weather Daten für die aktuelle Uhrzeit, für alle Anlagen.')
-        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

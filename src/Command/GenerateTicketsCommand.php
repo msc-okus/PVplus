@@ -22,8 +22,6 @@ class GenerateTicketsCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:generateTickets';
-
     public function __construct(
         private AnlagenRepository $anlagenRepository,
         private AlertSystemService $alertService,
@@ -37,7 +35,6 @@ class GenerateTicketsCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Generate Tickets')
             ->addArgument('plantid')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to start')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to end')

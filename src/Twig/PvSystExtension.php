@@ -18,7 +18,7 @@ class PvSystExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('pvSystDayResult', [$this, 'pvSystDayResult']),
+            new TwigFunction('pvSystDayResult', $this->pvSystDayResult(...)),
         ];
     }
 

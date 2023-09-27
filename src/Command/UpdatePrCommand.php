@@ -32,7 +32,6 @@ class UpdatePrCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Berechnung des PR ')
             ->addArgument('plantid', InputArgument::OPTIONAL, 'Anlagen ID für die, die Berechnung ausgeführt werden soll oder nichts, dann werden alle Anlagen berechnet')
             ->addOption('day', null, InputOption::VALUE_REQUIRED, 'Tag (day) im Format \'yyyy-mm-dd\' für den, der PR berechnet werden soll.')
            // ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')

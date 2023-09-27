@@ -62,7 +62,7 @@ class DownloadController extends AbstractController
         }
 
         return $this->render('downloadData/index.html.twig', [
-            'downloadForm' => $form->createView(),
+            'downloadForm' => $form,
             'output' => $output,
             'section' => 'data',
         ]);
@@ -241,8 +241,8 @@ class DownloadController extends AbstractController
 
 
         return $this->render('downloadData/download.html.twig', [
-            'downloadAnalysesExportForm' => $formPdfDownload->createView(),
-            'downloadAnalysesForm' => $form->createView(),
+            'downloadAnalysesExportForm' => $formPdfDownload,
+            'downloadAnalysesForm' => $form,
             'tableType' => $tableType,
             'showAvailability' => $showAvailability,
             'showAvailabilitySecond' => $showAvailabilitySecond,
