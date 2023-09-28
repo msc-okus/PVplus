@@ -583,6 +583,9 @@ class Anlage implements \Stringable
     #[ORM\Column]
     private ?bool $ActivateTicketSystem = false;
 
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $internalTicketSystem = false;
+
     #[ORM\Column]
     private ?bool $kpiTicket = false;
 

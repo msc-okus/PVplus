@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\Reports;
+namespace App\Service\Reports;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
