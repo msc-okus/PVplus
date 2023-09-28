@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\Forecast;
+namespace App\Service\Forecast;
 
 use App\Entity\Anlage;
 use App\Repository\AnlagenRepository;

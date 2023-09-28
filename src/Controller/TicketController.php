@@ -282,7 +282,6 @@ class TicketController extends BaseController
 
         if ($request->query->get('filtering') == 'filtered')
         {
-            //$page = 1;
             $request->query->set('filtering', 'non-filtered');
 
         } // we do this to reset the page if the user uses the filter

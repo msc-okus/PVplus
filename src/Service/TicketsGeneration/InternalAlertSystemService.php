@@ -67,9 +67,9 @@ class InternalAlertSystemService
         $time = G4NTrait::timeAjustment($timeStamp, -2);
         if (($time > $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
                 $plant_status = self::RetrievePlant($anlage, date('Y-m-d H:i:00', strtotime($time)));
-                if ($plant_status['countIrr'] == true) $this->generateTickets(90, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
-                if ($plant_status['countExp'] == true) $this->generateTickets(91, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
-                if ($plant_status['countPPC'] == true) $this->generateTickets(92, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
+                if ($plant_status['countIrr'] == true) $this->generateTickets(91, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
+                if ($plant_status['countExp'] == true) $this->generateTickets(92, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
+                if ($plant_status['countPPC'] == true) $this->generateTickets(93, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
         }
         return 'success';
     }

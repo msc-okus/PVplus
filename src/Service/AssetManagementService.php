@@ -2141,7 +2141,7 @@ class AssetManagementService
         $availabilityYearToDateTable = [
             'expectedAvailability' => (int) $anlage->getContractualAvailability(),
             'expectedSOF' => 0, // this will be a variable in the future
-            'expectedEFOR' => 0, // and this
+            'expectedEFOR' => 0,// and this
             'expectedOMC' => 0, // and this
             'expectedGaps' => 0,
             'actualAvailability' => $actualAvailabilityPorcent,
