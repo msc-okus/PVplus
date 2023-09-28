@@ -18,14 +18,14 @@ class CheckSystemStatusService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private AnlagenRepository $anlagenRepository,
-        private AnlagenStatusRepository $statusRepository,
-        private EntityManagerInterface $em,
-        private MessageService $messageService,
-        private ForcastRepository $forecastRepo,
-        private ForcastDayRepository $forecastDayRepo,
-        private FunctionsService $functions)
+        private readonly PdoService $pdoService,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly MessageService $messageService,
+        private readonly ForcastRepository $forecastRepo,
+        private readonly ForcastDayRepository $forecastDayRepo,
+        private readonly FunctionsService $functions)
     {
     }
 
@@ -70,7 +70,7 @@ class CheckSystemStatusService
                 $res = $conn->query("SELECT stamp FROM $dbNameIst ORDER BY stamp DESC LIMIT 1");
                 if ($res) {
                     $rowTemp = $res->fetch(PDO::FETCH_OBJ);
-                    $lastRecStampIst = strtotime($rowTemp->stamp);
+                    $lastRecStampIst = strtotime((string) $rowTemp->stamp);
                     if ($anlage->getAnlInputDaily() !== 'Yes') { // Wenn daten kontinuierlich kommen
                         if ($currentTimeStamp - $lastRecStampIst <= $GLOBALS['abweichung']['io']['normal']) {
                             $lastDataStatus = 'normal';
@@ -100,7 +100,7 @@ class CheckSystemStatusService
                 if ($res) {
                     if ($res->rowCount() > 0) {
                         $rowTemp = $res->fetch(PDO::FETCH_OBJ);
-                        $lastRecStampWeather = strtotime($rowTemp->stamp);
+                        $lastRecStampWeather = strtotime((string) $rowTemp->stamp);
                         if ($currentTimeStamp - $lastRecStampWeather <= $GLOBALS['abweichung']['io']['normal']) {
                             $lastWeatherStatus = 'normal';
                         }
@@ -375,7 +375,7 @@ class CheckSystemStatusService
                         // AlertType = 2 , Anlagen IO Daten Fehler
                         if ($lastDataStatus == 'alert' && ($arrayAlertStatusLast['lastDataStatus'] !== 'alert' || $firstRun)) {
                             // Anlagen Daten fehlen seit mehr als 2 Stunden
-                            if (strtotime($acActStamp) <= $currentTimeStamp - 2 * 3600) {
+                            if (strtotime((string) $acActStamp) <= $currentTimeStamp - 2 * 3600) {
                                 // Send Alert Email an G4N
                                 $subject = "Keine Daten von der Anlage: $anlagenName";
                                 $message = "<h3 class='block'>Keine Daten von der Anlage $anlagenName ($anlagenId), seit $acActStamp</h3>";
@@ -654,7 +654,7 @@ class CheckSystemStatusService
                 $anzStringsCurrent = 0;
                 $anzStringsVoltage = 0;
                 if (isset($rowAnlage->wr_mpp_current)) {
-                    $stringCurrent = json_decode($rowAnlage->wr_mpp_current, true);
+                    $stringCurrent = json_decode((string) $rowAnlage->wr_mpp_current, true, 512, JSON_THROW_ON_ERROR);
                     if (is_array($stringCurrent)) {
                         $anzStringsCurrent = count($stringCurrent);
                         $sumStringCurrent = array_sum($stringCurrent);
@@ -662,7 +662,7 @@ class CheckSystemStatusService
                     }
                 }
                 if (isset($rowAnlage->wr_mpp_current)) {
-                    $stringVoltage = json_decode($rowAnlage->wr_mpp_voltage, true);
+                    $stringVoltage = json_decode((string) $rowAnlage->wr_mpp_voltage, true, 512, JSON_THROW_ON_ERROR);
                     if (is_array($stringVoltage)) {
                         $anzStringsVoltage = count($stringVoltage);
                         $sumStringVoltage = array_sum($stringVoltage);

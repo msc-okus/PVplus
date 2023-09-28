@@ -46,7 +46,7 @@ class EignerController extends BaseController
         }
 
         return $this->render('owner/new.html.twig', [
-            'ownerForm' => $form->createView(),
+            'ownerForm' => $form,
             'isupload' => '',
         ]);
     }
@@ -113,7 +113,7 @@ class EignerController extends BaseController
             $em->flush();
             if ($form->get('save')->isClicked()) {
                 $response = $this->render('owner/edit.html.twig', [
-                    'ownerForm' => $form->createView(),
+                    'ownerForm' => $form,
                     'isupload' => $isupload,
                     'imageuploadet' => $tempFile,
                 ]);
@@ -129,8 +129,8 @@ class EignerController extends BaseController
         }
 
         if (!$form->isSubmitted() || $form->isValid()) $response = $this->render('owner/edit.html.twig', [
-                'ownerForm' => $form->createView(),
-                'fileUploadForm' => $form->createView(),
+                'ownerForm' => $form,
+                'fileUploadForm' => $form,
                 'isupload' => $isupload,
                 'imageuploadet' => $tempFile,
             ]);

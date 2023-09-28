@@ -8,6 +8,7 @@ use App\Service\AssetManagementService;
 use App\Service\ExportService;
 use App\Service\Reports\ReportEpcService;
 use Doctrine\Instantiator\Exception\ExceptionInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,26 +16,27 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:help',
+    description: '',
+)]
 class HelpCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:help';
-
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private ReportEpcService $reportEpc,
-        private AssetManagementService $assetManagement,
-        private ExportService $exportService,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly ReportEpcService $reportEpc,
+        private readonly AssetManagementService $assetManagement,
+        private readonly ExportService $exportService,
     )
     {
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Hilfs Command zum testen.')
             ->addArgument('plantid', InputArgument::REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll.')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem berechnet werden soll')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Datum bis zu dem berechnet werden soll')
@@ -43,9 +45,6 @@ class HelpCommand extends Command
         ;
     }
 
-    /**
-     * @throws ExceptionInterface
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $ergebniss = '';

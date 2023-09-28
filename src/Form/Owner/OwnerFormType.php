@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints\Image;
 
 class OwnerFormType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /** @var Eigner $owner */
         $owner = $options['data'] ?? null;
@@ -58,81 +58,12 @@ class OwnerFormType extends AbstractType
                 'label' => 'Lastname',
                 'empty_data' => '',
             ])
-            /*
-            ->add('telefon1', TextType::class, [
-                'label' => 'Phone 1',
-                'empty_data' => '',
-            ])
-            ->add('telefon2', TextType::class, [
-                'label' => 'Phone 2',
-                'empty_data' => '',
-            ])
-            ->add('mobil', TextType::class, [
-                'label' => 'Mobile Phone',
-                'empty_data' => '',
-            ])
-            ->add('fax', TextType::class, [
-                'label' => 'Fax',
-                'empty_data' => '',
-            ])
-            ->add('email', TextType::class, [
-                'label' => 'eMail',
-                'empty_data' => '',
-            ])
-
-            ->add('bv_anrede', ChoiceType::class, [
-                'label' => 'Operator Salutation',
-                'choices' => [
-                    'Mr.' => 'Mr.',
-                    'Mrs.' => 'Mrs.',
-                ],
-            ])
-            ->add('bv_vorname', TextType::class, [
-                'label' => 'Operator Firstname',
-                'empty_data' => '',
-            ])
-            ->add('bv_nachname', TextType::class, [
-                'label' => 'Operator Lastname',
-                'empty_data' => '',
-            ])
-            ->add('bv_email', TextType::class, [
-                'label' => 'Operator eMail',
-                'empty_data' => '',
-            ])
-            ->add('bv_telefon1', TextType::class, [
-                'label' => 'Operator Phone 1',
-                'empty_data' => '',
-            ])
-            ->add('bv_telefon2', TextType::class, [
-                'label' => 'Operator Phone 2',
-                'empty_data' => '',
-            ])
-            ->add('bv_mobil', TextType::class, [
-                'label' => 'Operator Mobile',
-                'empty_data' => '',
-            ])
-            */
             ->add('active', ChoiceType::class, [
                 'label' => 'Eigner aktiv ?',
                 'choices' => ['Yes' => '1', 'No' => '0'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => '1',
             ])
-
-           /*
-            ->add('editlock', ChoiceType::class, [
-                'label' => '?? deprecatetd',
-                'choices' => ['Yes' => '1', 'No' => '0'],
-                'placeholder' => 'Please Choose',
-                'empty_data' => '0',
-            ])
-            ->add('userlock', ChoiceType::class, [
-                'label' => '?? deprecatetd',
-                'choices' => ['Yes' => '1', 'No' => '0'],
-                'placeholder' => 'Please Choose',
-                'empty_data' => '0',
-            ])
-            */
             ->add('language', ChoiceType::class, [
                 'label' => 'Sprache (im Moment nur EN)',
                 'choices' => ['EN' => 'EN', 'DE' => 'DE'],
@@ -192,7 +123,7 @@ class OwnerFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Eigner::class,

@@ -8,7 +8,7 @@
                     {{ knp_pagination_sortable(pagination, 'Ticket ID', ['ticket.id'], {'data-action': 'ticket-list#sortId'}) }}
                     <span data-tooltip tabindex="1" title="With '•' means: is created by 'AlertSystem'"><i class="fa fa-info-circle"></i></span>
                 </th>
-                <th> <span data-tooltip tabindex="1" title="For a Performance Ticket a red green means it is active, a red one means it is no"><i class="fa fa-info-circle"></i></span> </th>
+                <th> <span data-tooltip tabindex="1" title="For a Performance Ticket a green dot means it is active, a red one means it is not"><i class="fa fa-info-circle"></i></span> </th>
                 <th>Plant</th>
                 <th>Identifier</th>
                 <th class="text-center">Status</th>
@@ -38,10 +38,12 @@
                 <tr>
                     <td>{{ ticket.id }}{% if ticket.createdBy == 'AlertSystem' %} •{% endif %}</td>
                     <td>
-                        {% if (ticket.kpiStatus == 10) %} {# Activ #}
-                            <span style="color: green;font-size: 20px">●</span>
-                        {% elseif (ticket.kpiStatus == 20) %}{# inactiv #}
-                            <span style="color: red;font-size: 20px">●</span>
+                        {% if ticket.isPerfomanceTicket %}
+                            {% if (ticket.kpiStatus == 10) %} {# Activ #}
+                                <span style="color: green;font-size: 20px">●</span>
+                            {% elseif (ticket.kpiStatus == 20) %}{# inactiv #}
+                                <span style="color: red;font-size: 20px">●</span>
+                            {% endif %}
                         {% endif %}
                     </td>
                     <td>{{ ticket.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ ticket.anlage.anlId }}) {% endif %}</td>

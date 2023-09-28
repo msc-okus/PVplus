@@ -26,11 +26,11 @@ class TicketDate
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private ?int $id;
+    private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Ticket::class, inversedBy: 'dates')]
     #[ORM\JoinColumn(nullable: true)]
-    private ?Ticket $ticket;
+    private ?Ticket $ticket = null;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class)]
     #[ORM\JoinColumn(nullable: false)]

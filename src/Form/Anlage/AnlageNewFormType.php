@@ -23,11 +23,11 @@ class AnlageNewFormType extends AbstractType
     use G4NTrait;
     use PVPNameArraysTrait;
 
-    public function __construct(private Security $security)
+    public function __construct(private readonly Security $security)
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
@@ -160,7 +160,7 @@ class AnlageNewFormType extends AbstractType
                 'label' => 'Wetterstation',
                 'help' => '[WeatherStation]',
                 'class' => WeatherStation::class,
-                'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
+                'choice_label' => fn(WeatherStation $station) => sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()),
                 'placeholder' => 'Please Choose',
                 'required' => true,
                 'empty_data' => null,
@@ -192,7 +192,7 @@ class AnlageNewFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Anlage::class,

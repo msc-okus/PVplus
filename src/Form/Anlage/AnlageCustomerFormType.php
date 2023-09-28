@@ -14,14 +14,11 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 class AnlageCustomerFormType extends AbstractType
 {
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('anlName', TextType::class, [
@@ -211,7 +208,7 @@ class AnlageCustomerFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Anlage::class,

@@ -13,7 +13,7 @@ class AdminGroupsContextBuilder implements SerializerContextBuilderInterface
 
 
 
-    public function __construct(private SerializerContextBuilderInterface $decorated, private AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(private readonly SerializerContextBuilderInterface $decorated, private readonly AuthorizationCheckerInterface $authorizationChecker)
     {
 
     }

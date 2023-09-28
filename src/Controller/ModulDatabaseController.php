@@ -41,7 +41,7 @@ class ModulDatabaseController extends BaseController
         }
 
         return $this->render('modul_database/new.html.twig', [
-            'modulesDBForm' => $form->createView(),
+            'modulesDBForm' => $form,
         ]);
     }
     /*
@@ -73,7 +73,7 @@ class ModulDatabaseController extends BaseController
         }
 
         return $this->render('modul_database/copy.html.twig', [
-            'modulesDBForm' => $form->createView(),
+            'modulesDBForm' => $form,
         ]);
     }
     /*
@@ -102,7 +102,7 @@ class ModulDatabaseController extends BaseController
         }
 
         return $this->render('modul_database/edit.html.twig', [
-            'modulesDBForm' => $form->createView(),
+            'modulesDBForm' => $form,
         ]);
     }
     /*

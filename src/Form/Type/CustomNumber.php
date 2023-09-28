@@ -14,7 +14,7 @@ class CustomNumber extends AbstractType
     {
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'invalid_message' => 'Non Numeric value inserted',
@@ -26,7 +26,7 @@ class CustomNumber extends AbstractType
         return 'custom_number_type';
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addModelTransformer(new StringToNumberTransformer());
     }

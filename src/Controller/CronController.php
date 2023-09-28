@@ -19,14 +19,8 @@ class CronController extends BaseController
 {
     use G4NTrait;
 
-    private $urlGenerator;
-
-    private $messageService;
-
-    public function __construct(UrlGeneratorInterface $urlGenerator, MessageService $messageService)
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator, private readonly MessageService $messageService)
     {
-        $this->urlGenerator = $urlGenerator;
-        $this->messageService = $messageService;
     }
 
     #[Route(path: '/cron/checkSystemStatus', name: 'app_cron_checksystemstatus')]

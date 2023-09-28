@@ -6,14 +6,15 @@ use App\Message\Command\CalcPlantAvailability;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityService;
 use App\Service\LogMessagesService;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class CalcPlantAvailabilityHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+class CalcPlantAvailabilityHandler
 {
     public function __construct(
-        private AvailabilityService $availabilityService,
-        private LogMessagesService $logMessages,
-        private AnlagenRepository $anlagenRepository
+        private readonly AvailabilityService $availabilityService,
+        private readonly LogMessagesService $logMessages,
+        private readonly AnlagenRepository $anlagenRepository
     )
     {
     }
@@ -21,7 +22,7 @@ class CalcPlantAvailabilityHandler implements MessageHandlerInterface
     /**
      * @throws \Exception
      */
-    public function __invoke(CalcPlantAvailability $calc)
+    public function __invoke(CalcPlantAvailability $calc): void
     {
         $anlageId = $calc->getAnlageId();
         $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlageId]);

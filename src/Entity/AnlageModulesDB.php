@@ -19,7 +19,7 @@ class AnlageModulesDB
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private ?int $id;
+    private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 30)]
     private string $type;
@@ -55,10 +55,10 @@ class AnlageModulesDB
     private string $operatorPowerC;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $operatorPowerD;
+    private ?string $operatorPowerD = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $operatorPowerE;
+    private ?string $operatorPowerE = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $operatorPowerHighA;
@@ -100,31 +100,31 @@ class AnlageModulesDB
     private string $operatorVoltageHightC;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $backSideFactor;
+    private ?string $backSideFactor = null;
 
     #[ORM\Column(type: 'integer', length: 1, nullable: false)]
-    private ?bool $isBifacial;
+    private ?bool $isBifacial = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $modulPicture;
+    private ?string $modulPicture = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $dataSheet_1;
+    private ?string $dataSheet_1 = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $dataSheet_2;
+    private ?string $dataSheet_2 = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $annotation;
+    private ?string $annotation = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $producer;
+    private ?string $producer = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $dimensionHeight;
+    private ?string $dimensionHeight = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $dimensionWidth;
+    private ?string $dimensionWidth = null;
 
     #[ORM\OneToOne(targetEntity: AnlageSunShading::class, mappedBy:"modulesDB", fetch:"EAGER")]
     private $modulesDBData;
@@ -602,7 +602,6 @@ class AnlageModulesDB
      * This Factor has to multiply by the numbers of modules, to calculate the expected current.<br>
      * The Parameter $irr (Irradiation) must be of type float.
      *
-     * @param float $irr
      * @return float
      */
     public function getFactorCurrent(float $irr): float
@@ -620,7 +619,6 @@ class AnlageModulesDB
      * Calculate the expected voltage for the given irradiation.
      * generate only values if $irr is greater then 2 Watt
      *
-     * @param float $irr
      * @return float
      */
     public function getExpVoltage(float $irr): float
@@ -639,7 +637,6 @@ class AnlageModulesDB
      * This Factor has to multiply by the numbers of modules, to calculate the expected power.<br>
      * The Parameter $irr (Irradiation) must be of type float.
      *
-     * @param float $irr
      * @return float
      */
     public function getFactorPower(float $irr): float

@@ -24,7 +24,7 @@ class GridMeterDayRepository extends ServiceEntityRepository
 
     public function sumByDate(Anlage $anlage, $from)
     {
-        $from = date('Y-m-d', strtotime($from));
+        $from = date('Y-m-d', strtotime((string) $from));
         try {
             $result = $this->createQueryBuilder('a')
                 ->andWhere('a.anlage = :anlage')
@@ -35,7 +35,7 @@ class GridMeterDayRepository extends ServiceEntityRepository
                 ->select('SUM(a.gridMeterValue) AS eGrid')
                 ->getQuery()
                 ->getSingleScalarResult();
-        } catch (NoResultException|NonUniqueResultException $e) {
+        } catch (NoResultException|NonUniqueResultException) {
             $result = 0;
         }
 
@@ -44,8 +44,8 @@ class GridMeterDayRepository extends ServiceEntityRepository
 
     public function sumByDateRange(Anlage $anlage, $from, $to)
     {
-        $from = date('Y-m-d', strtotime($from));
-        $to = date('Y-m-d', strtotime($to));
+        $from = date('Y-m-d', strtotime((string) $from));
+        $to = date('Y-m-d', strtotime((string) $to));
         try {
             $result = $this->createQueryBuilder('a')
                 ->andWhere('a.anlage = :anlage')
@@ -57,7 +57,7 @@ class GridMeterDayRepository extends ServiceEntityRepository
                 ->select('SUM(a.gridMeterValue) AS eGrid')
                 ->getQuery()
                 ->getSingleScalarResult();
-        } catch (NoResultException|NonUniqueResultException $e) {
+        } catch (NoResultException|NonUniqueResultException) {
             $result = 0;
         }
 
@@ -66,8 +66,8 @@ class GridMeterDayRepository extends ServiceEntityRepository
 
     public function getDateRange($anlage, $from, $to)
     {
-        $from = date('Y-m-d', strtotime($from));
-        $to = date('Y-m-d', strtotime($to));
+        $from = date('Y-m-d', strtotime((string) $from));
+        $to = date('Y-m-d', strtotime((string) $to));
 
         $result = $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')

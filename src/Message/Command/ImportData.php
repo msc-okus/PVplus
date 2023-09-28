@@ -7,12 +7,12 @@ use DateTime;
 class ImportData
 {
     public function __construct(
-        private int $anlageId,
-        private DateTime $startDate,
-        private DateTime $endDate,
-        private string $path,
-        private string $importType,
-        private int $logId,
+        private readonly int $anlageId,
+        private readonly DateTime $startDate,
+        private readonly DateTime $endDate,
+        private readonly string $path,
+        private readonly string $importType,
+        private readonly int $logId,
     )
     {
     }

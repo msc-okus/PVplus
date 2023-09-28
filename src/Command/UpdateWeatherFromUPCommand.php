@@ -6,31 +6,33 @@ use App\Helper\G4NTrait;
 use App\Repository\WeatherStationRepository;
 use App\Service\DummySollService;
 use App\Service\WeatherServiceNew;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:UpdateWeatherUP',
+    description: '',
+)]
 class UpdateWeatherFromUPCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:UpdateWeatherUP';
-
     public function __construct(
-        private WeatherStationRepository $weatherStationRepo,
-        private WeatherServiceNew $weatherService,
-        private DummySollService $dummySollService
+        private readonly WeatherStationRepository $weatherStationRepo,
+        private readonly WeatherServiceNew $weatherService,
+        private readonly DummySollService $dummySollService
     )
     {
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Lade Wetterdaten von UP.')
             ->addOption('station', 'a', InputOption::VALUE_REQUIRED, 'Wetter Station (ident) für die, Daten geladen werden sollen werden soll')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem die Daten geleaden werden soll')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Datum bis zu dem die Daten geleaden werden soll')

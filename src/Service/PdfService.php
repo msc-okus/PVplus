@@ -10,8 +10,8 @@ class PdfService
 {
 
     public function __construct(
-        private Pdf $snappyPdf,
-        private Filesystem $fileSystemFtp,
+        private readonly Pdf $snappyPdf,
+        private readonly Filesystem $fileSystemFtp,
     )
     {
     }
@@ -85,10 +85,7 @@ class PdfService
      * We use this to create the page of a Pdf that we will store in the db and later join to make the final pdf
      *
      * @param string $html contains html or filename or url
-     * @param string $fileroute
      * @param $name
-     * @param bool $view
-     * @param string $orientation
      * @return string this contains the route of the file that should be stored in the db
      */
     public function createPage(string $html, string $fileroute, $name, bool $view, string $orientation = 'landscape'): string

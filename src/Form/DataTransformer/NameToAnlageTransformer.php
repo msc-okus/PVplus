@@ -8,11 +8,8 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 
 class NameToAnlageTransformer implements DataTransformerInterface
 {
-    private AnlagenRepository $anlnRepo;
-
-    public function __construct(AnlagenRepository $anlRepo)
+    public function __construct(private readonly AnlagenRepository $anlnRepo)
     {
-        $this->anlnRepo = $anlRepo;
     }
 
     public function transform($value): mixed
@@ -30,7 +27,7 @@ class NameToAnlageTransformer implements DataTransformerInterface
     {
         $Anlage = $this->anlnRepo->findOneBy(['anlName' => $value]);
         if (!$Anlage) {
-            throw new TransformationFailedException(sprintf('No plant found by that name'));
+            throw new TransformationFailedException('No plant found by that name');
         }
 
         return $Anlage;

@@ -2,17 +2,12 @@
 
 namespace App\Form\Anlage;
 
-use App\Entity\AnlageModules;
 use App\Entity\AnlageModulesDB;
 use App\Entity\AnlageSunShading;
-use App\Repository\AnlageModulesDBRepository;
-use App\Repository\AnlageSunShadingRepository;
-use App\Repository\ModulesRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,16 +20,12 @@ use Doctrine\ORM\EntityManagerInterface;
 class SunShadingListEmbeddedFormType extends AbstractType
 {
     public function __construct(
-        private ModulesRepository $modulesRepository,
-        private AnlageModulesDBRepository $anlageModulesDBRepository,
-        private AnlageSunShadingRepository $anlageSunShadingRepository,
-        private EntityManagerInterface $em
+        private readonly EntityManagerInterface $em
     )
     {
-
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
            $builder
             ->add('description', TextareaType::class, [
@@ -123,14 +114,16 @@ class SunShadingListEmbeddedFormType extends AbstractType
         ;
     }
 
-    public function getModules() {
+    public function getModules(): array
+    {
         $conn = $this->em->getConnection();
         $query = "SELECT `type`, `id` FROM `anlage_modules` order by `type`";
         $stmt = $conn->executeQuery($query);
+
         return $stmt->fetchAllKeyValue();
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => AnlageSunShading::class,

@@ -10,7 +10,7 @@ class ProcessCheckerExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('check_process', [$this, 'checkProcess']),
+            new TwigFunction('check_process', $this->checkProcess(...)),
         ];
     }
 

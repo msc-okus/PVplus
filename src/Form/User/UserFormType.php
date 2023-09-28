@@ -23,8 +23,8 @@ class UserFormType extends AbstractType
 {
 
     public function __construct(
-        private AnlagenRepository $anlagenRepo,
-        private Security $security)
+        private readonly AnlagenRepository $anlagenRepo,
+        private readonly Security $security)
     {
     }
 
@@ -59,14 +59,14 @@ class UserFormType extends AbstractType
 
         if ($anlagen){
             foreach ($anlagen as $key => $anlage){
-                $anlagenid[] = [strtoupper($anlage['country'])." | ".$anlage['anlName'] => $anlage['anlId']];
+                $anlagenid[] = [strtoupper((string) $anlage['country'])." | ".$anlage['anlName'] => $anlage['anlId']];
             }
         }
 
        if ($this->security->isGranted('ROLE_G4N')){
-           $choicesRolesArray = array_merge(User::ARRAY_OF_G4N_ROLES, User::ARRAY_OF_ROLES_USER, User::ARRAY_OF_FUNCTIONS_BY_ROLE);
+           $choicesRolesArray = [...User::ARRAY_OF_G4N_ROLES, ...User::ARRAY_OF_ROLES_USER, ...User::ARRAY_OF_FUNCTIONS_BY_ROLE];
           } else {
-           $choicesRolesArray = array_merge(User::ARRAY_OF_ROLES_USER, User::ARRAY_OF_FUNCTIONS_BY_ROLE);
+           $choicesRolesArray = [...User::ARRAY_OF_ROLES_USER, ...User::ARRAY_OF_FUNCTIONS_BY_ROLE];
        }
 
        $singlechoince = [$eigner?->getFirma() => $eigner?->getId()];
@@ -99,7 +99,7 @@ class UserFormType extends AbstractType
             ])
             ->add('eigners', EntityType::class, [
                 'class' => Eigner::class,
-                'attr' => array('class' =>'type_label'),
+                'attr' => ['class' =>'type_label'],
                 'multiple' => true,
                 'expanded' => true,
                 'required' => true,
@@ -130,9 +130,7 @@ class UserFormType extends AbstractType
                 'required' => true,
                 'data' => $grantedArray,
                 'mapped' => false,
-                'choice_attr' => function($choice, $key, $value) {
-                    return ['class' => 'plant_'.strtolower($value)];
-                },
+                'choice_attr' => fn($choice, $key, $value) => ['class' => 'plant_'.strtolower((string) $value)],
             ])
             // #############################################
             // ###          STEUERELEMENTE              ####
@@ -151,7 +149,7 @@ class UserFormType extends AbstractType
             ]) ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => User::class,

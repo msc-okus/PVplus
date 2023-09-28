@@ -13,15 +13,15 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class UploaderHelper
 {
-    public const PLANT_IMAGE = 'plants';
-    public const PLANT_REFERENCE = 'plant_reference';
-    public const EIGNER_LOGO = 'eigners';
-    public const CSV = 'csv';
+    final public const PLANT_IMAGE = 'plants';
+    final public const PLANT_REFERENCE = 'plant_reference';
+    final public const EIGNER_LOGO = 'eigners';
+    final public const CSV = 'csv';
 
     public function __construct(
         private readonly string     $tempPathBaseUrl,
-        private Filesystem $fileSystemFtp,
-        private RequestStackContext $requestStackContext
+        private readonly Filesystem $fileSystemFtp,
+        private readonly RequestStackContext $requestStackContext
     )
 
     {
@@ -36,22 +36,13 @@ class UploaderHelper
         $mimeType = pathinfo($uploadedFile->getClientMimeType(), PATHINFO_FILENAME);
 
         $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
-        switch ($type) {
-            case 'plant':
-                $foldern = self::PLANT_IMAGE.'/';
-                break;
-            case 'owner':
-                $foldern = self::EIGNER_LOGO.'/';
-                break;
-            case 'reference':
-            $foldern = self::PLANT_REFERENCE.'/';
-            break;
-            case 'csv':
-            $foldern = self::CSV.'/';
-            break;
-            default:
-                $foldern = '/';
-        }
+        $foldern = match ($type) {
+            'plant' => self::PLANT_IMAGE.'/',
+            'owner' => self::EIGNER_LOGO.'/',
+            'reference' => self::PLANT_REFERENCE.'/',
+            'csv' => self::CSV.'/',
+            default => '/',
+        };
 
         $this->fileSystemFtp->write(
             $foldern.$id.'/'.$newFilename,
@@ -111,7 +102,7 @@ class UploaderHelper
         $fullPath = $this->tempPathBaseUrl.'/'.$path;
         echo $fullPath.'<br>';
         // if it's already absolute, just return
-        if (strpos($fullPath, '://') !== false) {
+        if (str_contains($fullPath, '://')) {
             return $fullPath;
         }
 

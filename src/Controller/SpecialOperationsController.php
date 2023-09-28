@@ -183,7 +183,7 @@ class SpecialOperationsController extends AbstractController
         }
 
         return $this->render('tools/weatherStations.html.twig', [
-            'toolsForm'     => $form->createView(),
+            'toolsForm'     => $form,
             'output'        => $output,
         ]);
     }
@@ -268,7 +268,7 @@ class SpecialOperationsController extends AbstractController
         }
 
         return $this->render('tools/index.html.twig', [
-            'toolsForm'     => $form->createView(),
+            'toolsForm'     => $form,
             'output'        => $output,
         ]);
     }
@@ -397,7 +397,7 @@ class SpecialOperationsController extends AbstractController
         }
 
         return $this->render('tools/importExcel.html.twig', [
-            'toolsForm'     => $form->createView(),
+            'toolsForm'     => $form,
             'output'        => $output,
         ]);
     }

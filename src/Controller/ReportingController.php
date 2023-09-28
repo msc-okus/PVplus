@@ -527,14 +527,9 @@ class ReportingController extends AbstractController
 
     /**
      * @param $id
-     * @param ReportsRepository $reportsRepository
-     * @param Request $request
-     * @param NormalizerInterface $serializer
-     * @param ReportsEpcYieldV2 $epcNewService
      * @return Response
      * @throws ExceptionInterface
      */
-
     #[Route(path: '/reporting/html/{id}', name: 'app_reporting_html')]
     public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService) : Response
     {
@@ -561,7 +556,7 @@ class ReportingController extends AbstractController
                     if ($form->isSubmitted() && $form->isValid()) {
 
                         $result = $this->renderView('report/assetreport.html.twig', [
-                            'invNr' => count($output["plantAvailabilityMonth"]),
+                            'invNr' => is_countable($output["plantAvailabilityMonth"]) ? count($output["plantAvailabilityMonth"]) : 0,
                             'comments' => $report->getComments(),
                             'data' => $data,
                             'anlage' => $anlage,
@@ -649,7 +644,7 @@ class ReportingController extends AbstractController
                         break;
                     }
                     return $this->render('report/_form.html.twig', [
-                        'assetForm' => $form->createView(),
+                        'assetForm' => $form,
                         'anlage' => $anlage
                     ]);
 

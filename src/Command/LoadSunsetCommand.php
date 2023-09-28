@@ -3,23 +3,22 @@
 namespace App\Command;
 
 use App\Helper\G4NTrait;
-use App\Service\CheckSystemStatusService;
+use App\Service\WeatherServiceNew;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'pvp:updateSystemStatus',
+    name: 'pvp:loadSunset',
     description: '',
 )]
-class UpdateSystemStatusCommand extends Command
+class LoadSunsetCommand extends Command
 {
     use G4NTrait;
 
     public function __construct(
-        private readonly CheckSystemStatusService $checkSystemStatus
+        private readonly WeatherServiceNew $weatherService
     )
     {
         parent::__construct();
@@ -31,10 +30,7 @@ class UpdateSystemStatusCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-        $io->comment('System Status aktualisieren: Alle Anlagen');
-        $ergebniss = $this->checkSystemStatus->checkSystemStatus();
-        $io->success('Berechnung des System Status abgeschlossen!');
+        $this->weatherService->calculateSunrise();
 
         return Command::SUCCESS;
     }

@@ -23,24 +23,12 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
-    public const LOGIN_ROUTE = 'app_login';
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private CsrfTokenManagerInterface $csrfTokenManager;
-
-    private UserPasswordHasherInterface $passwordHasher;
-
-    private EntityManagerInterface $em;
+    final public const LOGIN_ROUTE = 'app_login';
 
 
 
-    public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordHasherInterface $asswordHasher, EntityManagerInterface $em)
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator, private readonly CsrfTokenManagerInterface $csrfTokenManager, private readonly UserPasswordHasherInterface $passwordHasher, private readonly EntityManagerInterface $em)
     {
-        $this->urlGenerator = $urlGenerator;
-        $this->csrfTokenManager = $csrfTokenManager;
-        $this->passwordHasher = $asswordHasher;
-        $this->em = $em;
     }
 
     public function supports(Request $request): bool

@@ -16,41 +16,23 @@ class TempHeatmapChartService
 {
     use G4NTrait;
 
-    private Security $security;
-
-    private AnlagenStatusRepository $statusRepository;
-
-    private InvertersRepository $invertersRepo;
-
-    public functionsService $functions;
-
-    private IrradiationChartService $irradiationChart;
-
-    private WeatherServiceNew $weatherService;
-
     public function __construct(
-private PdoService $pdoService,Security $security,
-        AnlagenStatusRepository $statusRepository,
-        InvertersRepository $invertersRepo,
-        IrradiationChartService $irradiationChart,
-        DCPowerChartService $DCPowerChartService,
-        ACPowerChartsService $ACPowerChartService,
-        WeatherServiceNew $weatherService,
-        FunctionsService $functions)
+        private readonly PdoService $pdoService,
+        private readonly Security $security,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly InvertersRepository $invertersRepo,
+        private readonly IrradiationChartService $irradiationChart,
+        private readonly DCPowerChartService $DCPowerChartService,
+        private readonly ACPowerChartsService $ACPowerChartService,
+        private readonly WeatherServiceNew $weatherServiceNew,
+        private readonly FunctionsService $functions)
     {
-        $this->security = $security;
-        $this->statusRepository = $statusRepository;
-        $this->invertersRepo = $invertersRepo;
-        $this->functions = $functions;
-        $this->irradiationChart = $irradiationChart;
-        $this->DCPowerChartService = $DCPowerChartService;
-        $this->ACPowerChartService = $ACPowerChartService;
-        $this->WeatherServiceNew = $weatherService;
+
     }
 
     // Help Function for Array search
     // MS
-    public static function array_recursive_search_key_map($needle, $haystack)
+    private static function array_recursive_search_key_map($needle, $haystack): array|bool
     {
         foreach ($haystack as $first_level_key => $value) {
             if ($needle === $value) {
@@ -69,40 +51,24 @@ private PdoService $pdoService,Security $security,
     /**
      * @param $from
      * @param $to
-     * @param int $group
+     * @param $sets
+     * @return array|null [Heatmap]
      *
-     * @return array
-     *               [Heatmap]
+     * @throws \Exception
      */
     // MS 06/2022
     public function getTempHeatmap(Anlage $anlage, $from, $to, $sets, bool $hour = false): ?array
     {
-        ini_set('memory_limit', '3G');
-        $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
-        $zenith = 90 + 50 / 60;
-        $current_date = strtotime($from);
-        $counter = 0;
-        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-
-        if ($hour) {
-            $form = '%y%m%d%H';
-        } else {
-            $form = '%y%m%d%H%i';
-        }
-
-        // $sunArray = $this->WeatherServiceNew->getSunrise($anlage,$from);
-        // $sunrise = $sunArray[$anlagename]['sunrise'];
-        // $sunset = $sunArray[$anlagename]['sunset'];
-
-        $from = date('Y-m-d H:00', $sunrise - 3600);
-        $to = date('Y-m-d H:00', $sunset + 5400);
-
-        $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
-        $to = self::timeAjustment($to, 1);
-
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
+        $counter = 0;
+
+        $sunArray = $this->weatherServiceNew->getSunrise($anlage, $from);
+        $sunrise = strtotime((string) $sunArray['sunrise']);
+        $sunset = strtotime((string) $sunArray['sunset']);
+
+        $from = date('Y-m-d H:00', $sunrise);
+        $to = date('Y-m-d H:00', $sunset + 3600);
 
         switch ($anlage->getConfigType()) {
             case 3:
@@ -124,7 +90,7 @@ private PdoService $pdoService,Security $security,
                 $max = (($max > 50) ? '50' : $max);
                 $sqladd = "AND $group BETWEEN '$min' AND '$max'";
             } else {
-                $res = explode(',', $sets);
+                $res = explode(',', (string) $sets);
                 $min = (int)ltrim($res[0], "[");
                 $max = (int)rtrim($res[1], "]");
                 (($max > $groupct) ? $max = $groupct : $max = $max);
@@ -154,14 +120,14 @@ private PdoService $pdoService,Security $security,
         if ($resultActual->rowCount() > 0) {
             #
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = self::timeShift($anlage,$rowActual['ts']);
+                $stamp = $rowActual['ts']; // self::timeShift($anlage,$rowActual['ts']);
                 $dataIrr = $rowActual['g_upper'];
                 (empty($dataIrr) ? $dataIrr = 0 : $dataIrr = $dataIrr);
-                $e = explode(' ', $stamp);
+                $e = explode(' ', (string) $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
                 $value = round($rowActual['istTemp']);
                 $value = ($value > 100) ?  100 : $value;
-                $e = explode(' ', $stamp);
+                $e = explode(' ', (string) $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
                 $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual[$group]];
                 $dataArray['chart'][$counter]['value'] = $value;

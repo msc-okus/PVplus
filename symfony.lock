@@ -1,16 +1,16 @@
 {
     "api-platform/core": {
-        "version": "2.6",
+        "version": "3.1",
         "recipe": {
             "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "2.5",
-            "ref": "05b57782a78c21a664a42055dc11cf1954ca36bb"
+            "branch": "main",
+            "version": "3.1",
+            "ref": "adf0c75f4bed8b0043a6680376323404953578c5"
         },
         "files": [
             "config/packages/api_platform.yaml",
             "config/routes/api_platform.yaml",
-            "src/Entity/.gitignore"
+            "src/ApiResource/.gitignore"
         ]
     },
     "babdev/pagerfanta-bundle": {

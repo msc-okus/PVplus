@@ -17,11 +17,11 @@ use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 class PowerService
 {
     public function __construct(
-private PdoService $pdoService,
-        private FunctionsService $functions,
-        private MonthlyDataRepository $monthlyDataRepo,
-        private GridMeterDayRepository $gridMeterDayRepo,
-        private TicketDateRepository $ticketDateRepo
+private readonly PdoService $pdoService,
+        private readonly FunctionsService $functions,
+        private readonly MonthlyDataRepository $monthlyDataRepo,
+        private readonly GridMeterDayRepository $gridMeterDayRepo,
+        private readonly TicketDateRepository $ticketDateRepo
     )
     {
     }
@@ -32,9 +32,6 @@ private PdoService $pdoService,
      * Get Sum(power_prod) from 'Meters' Database.
      * By default we retriev the un filterd power
      *
-     * @param Anlage $anlage
-     * @param DateTime $from
-     * @param DateTime $to
      * @param false $ppc if true select only values if plant is not controlled ( p_set_gridop_rel = 100 AND p_set_rpc_rel = 100 )
      * @return float
      */
@@ -70,9 +67,6 @@ private PdoService $pdoService,
     /**
      * Shortcut to get sum(power_prod from 'meters' DB if plant is not controlled
      *
-     * @param Anlage $anlage
-     * @param DateTime $from
-     * @param DateTime $to
      * @return float
      */
     public function getGridSumPpc(Anlage $anlage, DateTime $from, DateTime $to): float
@@ -86,10 +80,6 @@ private PdoService $pdoService,
      * By default we retrieve the unfiltered power (without ppc)
      *
      *
-     * @param Anlage $anlage
-     * @param DateTime $from
-     * @param DateTime $to
-     * @param bool $ppc
      * @param int|null $inverterID
      * @return array
      * @throws \Exception
@@ -241,7 +231,6 @@ private PdoService $pdoService,
      * Get sum from different AC Values from 'ist' Database.
      * Sum only values with ppc = 100
      *
-     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param int|null $inverterID
@@ -256,7 +245,6 @@ private PdoService $pdoService,
 
     /**
      * schold be removed and replaced by correction by Tickets
-     * @param Anlage $anlage
      * @param float|null $evu
      * @param $from
      * @param $to
@@ -273,7 +261,7 @@ private PdoService $pdoService,
         if ($evu) {
             if ($anlage->getUseGridMeterDayData() === false) {
                 $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, $fromObj, $toObj);
-                $countMonthes = count($monthlyDatas);
+                $countMonthes = is_countable($monthlyDatas) ? count($monthlyDatas) : 0;
 
                 foreach ($monthlyDatas as $monthlyData) {
                     // calculate the first and the last day of the given month and year in $monthlyData
@@ -370,7 +358,6 @@ private PdoService $pdoService,
     /**
      * Wird für den Bericht Bavelse Berg genutzt
      *
-     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $section
@@ -387,8 +374,8 @@ private PdoService $pdoService,
 
         // Wenn externe Tagesdaten genutzt werden sollen, lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
         if ($anlage->getUseGridMeterDayData()) {
-            $year = date('Y', strtotime($from));
-            $month = date('m', strtotime($from));
+            $year = date('Y', strtotime((string) $from));
+            $month = date('m', strtotime((string) $from));
             $monthlyData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
             if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
                 // Es gibt keine tages Daten des externen Grid Zählers

@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\PRCalulationService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,24 +13,25 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:updatePr',
+    description: '',
+)]
 class UpdatePrCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:updatePr';
-
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private PRCalulationService $prCalulation
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PRCalulationService $prCalulation
     )
     {
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Berechnung des PR ')
             ->addArgument('plantid', InputArgument::OPTIONAL, 'Anlagen ID für die, die Berechnung ausgeführt werden soll oder nichts, dann werden alle Anlagen berechnet')
             ->addOption('day', null, InputOption::VALUE_REQUIRED, 'Tag (day) im Format \'yyyy-mm-dd\' für den, der PR berechnet werden soll.')
            // ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
@@ -51,7 +53,7 @@ class UpdatePrCommand extends Command
         $optionLastMonth = $input->getOption('lastMonth');
 
         if ($day) {
-            $day = strtotime($day);
+            $day = strtotime((string) $day);
             $from = date('Y-m-d 00:00', $day);
             $to = date('Y-m-d 23:50', $day);
         } elseif ($optionLastMonth) {

@@ -13,7 +13,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
  * Eigner.
  */
 #[ORM\Table(name: 'eigner')]
-#[ORM\Entity(repositoryClass: 'App\Repository\EignerRepository')]
+#[ORM\Entity(repositoryClass: \App\Repository\EignerRepository::class)]
 class Eigner
 {
     /**
@@ -26,31 +26,31 @@ class Eigner
 
     #[ORM\Column(name: 'created', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     #[Gedmo\Timestampable(on: 'create')]
-    private  $created;
+    private  ?\DateTimeInterface $created = null;
 
     #[ORM\Column(name: 'firma', type: 'string', length: 100, nullable: false)]
-    private ?string $firma;
+    private ?string $firma = null;
 
     #[ORM\Column(name: 'zusatz', type: 'string', length: 100, nullable: true)]
-    private ?string $zusatz;
+    private ?string $zusatz = null;
 
     #[ORM\Column(name: 'anrede', type: 'string', length: 100, nullable: true)]
-    private ?string $anrede;
+    private ?string $anrede = null;
 
     #[ORM\Column(name: 'vorname', type: 'string', length: 100, nullable: true)]
-    private ?string $vorname;
+    private ?string $vorname = null;
 
     #[ORM\Column(name: 'nachname', type: 'string', length: 100, nullable: true)]
-    private ?string $nachname;
+    private ?string $nachname = null;
 
     #[ORM\Column(name: 'strasse', type: 'string', length: 100, nullable: true)]
-    private ?string $strasse;
+    private ?string $strasse = null;
 
     #[ORM\Column(name: 'plz', type: 'string', length: 10, nullable: true)]
-    private ?string $plz;
+    private ?string $plz = null;
 
     #[ORM\Column(name: 'ort', type: 'string', length: 100, nullable: true)]
-    private ?string $ort;
+    private ?string $ort = null;
 
     #[ORM\Column(name: 'active', type: 'bigint', nullable: false)]
     private string|int $active = '0';
@@ -69,7 +69,7 @@ class Eigner
     private ?Collection $user;
 
     #[ORM\Column(type: 'string', length: 15, nullable: true)]
-    private ?string $activateAlertMessage;
+    private ?string $activateAlertMessage = null;
 
     #[ORM\OneToMany(mappedBy: 'eigner', targetEntity: Anlage::class)]
     private ?Collection $anlage;
@@ -321,8 +321,6 @@ class Eigner
         return $this->anlage;
     }
     /**
-     * @param bool $role
-     *
      * @return Collection|Anlage[]
      */
     public function getActiveAnlage(bool $role = false): Collection
@@ -388,10 +386,7 @@ class Eigner
 
     public function getCustomerLogo(): ?string
     {
-        if (isset($this->logo)) {
-            return $this->logo;
-        }
-        return 'images/pixi.png';
+        return $this->logo ?? 'images/pixi.png';
     }
 
     public function getFontColor(): ?string

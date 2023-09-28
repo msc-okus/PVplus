@@ -42,10 +42,10 @@ class AnlageSensors
     private ?string $vcomAbbr = null;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $startDateSensor;
+    private ?\DateTimeInterface $startDateSensor = null;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $endDateSensor;
+    private ?\DateTimeInterface $endDateSensor = null;
 
     public function getId(): ?int
     {

@@ -8,17 +8,14 @@ use Twig\TwigFunction;
 
 class PvSystExtension extends AbstractExtension
 {
-    private $pvSystRepo;
-
-    public function __construct(PVSystDatenRepository $pvSystRepo)
+    public function __construct(private readonly PVSystDatenRepository $pvSystRepo)
     {
-        $this->pvSystRepo = $pvSystRepo;
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('pvSystDayResult', [$this, 'pvSystDayResult']),
+            new TwigFunction('pvSystDayResult', $this->pvSystDayResult(...)),
         ];
     }
 

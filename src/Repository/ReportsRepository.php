@@ -18,12 +18,9 @@ use Symfony\Bundle\SecurityBundle\Security;
  */
 class ReportsRepository extends ServiceEntityRepository
 {
-    private Security $security;
-
-    public function __construct(ManagerRegistry $registry, Security $security)
+    public function __construct(ManagerRegistry $registry, private readonly Security $security)
     {
         parent::__construct($registry, AnlagenReports::class);
-        $this->security = $security;
     }
 
     /**

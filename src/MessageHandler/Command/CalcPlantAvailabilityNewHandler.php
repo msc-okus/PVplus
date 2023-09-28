@@ -6,21 +6,22 @@ use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\LogMessagesService;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class CalcPlantAvailabilityNewHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+class CalcPlantAvailabilityNewHandler
 {
     public function __construct(
-        private AvailabilityByTicketService $availabilityByTicket,
-        private LogMessagesService $logMessages,
-        private AnlagenRepository $anlagenRepository)
+        private readonly AvailabilityByTicketService $availabilityByTicket,
+        private readonly LogMessagesService $logMessages,
+        private readonly AnlagenRepository $anlagenRepository)
     {
     }
 
     /**
      * @throws \Exception
      */
-    public function __invoke(CalcPlantAvailabilityNew $calc)
+    public function __invoke(CalcPlantAvailabilityNew $calc): void
     {
         $anlageId = $calc->getAnlageId();
         $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlageId]);

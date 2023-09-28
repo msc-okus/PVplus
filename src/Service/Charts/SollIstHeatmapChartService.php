@@ -17,14 +17,14 @@ class SollIstHeatmapChartService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private AnlagenStatusRepository $statusRepository,
-        private InvertersRepository $invertersRepo,
-        private IrradiationChartService $irradiationChart,
-        private DCPowerChartService $DCPowerChartService,
-        private ACPowerChartsService $ACPowerChartService,
-        private WeatherServiceNew $weatherService,
-        private FunctionsService $functions)
+private readonly PdoService $pdoService,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly InvertersRepository $invertersRepo,
+        private readonly IrradiationChartService $irradiationChart,
+        private readonly DCPowerChartService $DCPowerChartService,
+        private readonly ACPowerChartsService $ACPowerChartService,
+        private readonly WeatherServiceNew $weatherService,
+        private readonly FunctionsService $functions)
     {
     }
 
@@ -47,34 +47,28 @@ private PdoService $pdoService,
     }
 
     /**
+     * DC Curtrent Heatmap
      * @param $from
      * @param $to
-     * @param int $group
+     * @param null|int $sets
+     * @return array [Heatmap]
      *
-     * @return array
-     *               [Heatmap]
      */
     // MS 06/2022
-    public function getSollIstHeatmap(Anlage $anlage, $from, $to, $sets = 0, bool $hour = false): ?array
+    public function getSollIstHeatmap(Anlage $anlage, $from, $to, ?int $sets = 0, bool $hour = false): array
     {
-        ini_set('memory_limit', '3G');
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $counter = 0;
-
-        $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
-        $zenith = 90 + 50 / 60;
-
-        $current_date = strtotime($from);
-        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-
-        $from = date('Y-m-d H:00', $sunrise - 3600);
-        $to = date('Y-m-d H:00', $sunset + 5400);
-
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
+        $counter = 0;
 
-// fix the sql Query with an select statement in the join this is much faster
+        $sunArray = $this->weatherService->getSunrise($anlage, $from);
+        $sunrise = strtotime((string) $sunArray['sunrise']);
+        $sunset = strtotime((string) $sunArray['sunset']);
+
+        $from = date('Y-m-d H:00', $sunrise);
+        $to = date('Y-m-d H:00', $sunset + 3600);
+
+        // fix the sql Query with an select statement in the join this is much faster
         if ($anlage->getUseNewDcSchema()) {
             $nameArray = $this->functions->getNameArray($anlage, 'dc');
             $groupct = count($anlage->getGroupsDc());
@@ -179,8 +173,8 @@ private PdoService $pdoService,
         // SOLL Strom für diesen Zeitraum und diese Gruppe
         if ($resultActual->rowCount() > 0) {
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = self::timeShift($anlage,$rowActual['ts']);
-                $e = explode(' ', $stamp);
+                $stamp = $rowActual['ts']; // self::timeShift($anlage,$rowActual['ts']);
+                $e = explode(' ', (string) $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
                 ($rowActual['sollCurrent'] == null) ? $powersoll = 0 : $powersoll = $rowActual['sollCurrent'];
                 ($rowActual['istCurrent'] == null) ? $powerist = 0 : $powerist = $rowActual['istCurrent'];

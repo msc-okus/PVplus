@@ -8,14 +8,15 @@ use App\Service\AssetManagementService;
 use App\Service\LogMessagesService;
 use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class GenerateAMReportHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+class GenerateAMReportHandler
 {
     public function __construct(
-        private AssetManagementService $assetManagement,
-        private LogMessagesService $logMessages,
-        private AnlagenRepository $anlagenRepo
+        private readonly AssetManagementService $assetManagement,
+        private readonly LogMessagesService $logMessages,
+        private readonly AnlagenRepository $anlagenRepo
     )
     {
     }
@@ -24,7 +25,7 @@ class GenerateAMReportHandler implements MessageHandlerInterface
      * @throws ExceptionInterface
      * @throws InvalidArgumentException
      */
-    public function __invoke(GenerateAMReport $generateAMReport)
+    public function __invoke(GenerateAMReport $generateAMReport): void
     {
         /** @var $anlage Anlage */
         $anlage = $this->anlagenRepo->find($generateAMReport->getAnlageId());

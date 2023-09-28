@@ -24,13 +24,13 @@ use Symfony\Bundle\SecurityBundle\Security;
 class WeatherToolsFormType extends AbstractType
 {
     public function __construct(
-        private WeatherStationRepository $weatherStationRepo,
-        private Security          $security
+        private readonly WeatherStationRepository $weatherStationRepo,
+        private readonly Security          $security
     )
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
@@ -76,7 +76,7 @@ class WeatherToolsFormType extends AbstractType
     }
 
 ##
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => WeatherToolsModel::class,

@@ -5,13 +5,14 @@ namespace App\MessageHandler\Command;
 use App\Message\Command\LoadAPIData;
 use App\Service\LogMessagesService;
 use App\Service\ExternFileService;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class LoadAPIDataHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+class LoadAPIDataHandler
 {
     public function __construct(
-        private ExternFileService  $externFileService,
-        private LogMessagesService $logMessages)
+        private readonly ExternFileService  $externFileService,
+        private readonly LogMessagesService $logMessages)
     {
     }
 
@@ -19,7 +20,7 @@ class LoadAPIDataHandler implements MessageHandlerInterface
      * @throws \Exception
      */
 
-    public function __invoke(LoadAPIData $dta)
+    public function __invoke(LoadAPIData $dta): void
     {
         $anlageId = $dta->getAnlageId();
         $logId = $dta->getlogId();

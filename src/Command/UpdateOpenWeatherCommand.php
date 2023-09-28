@@ -5,30 +5,30 @@ namespace App\Command;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\OpenWeatherService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:updateOpenWeather',
+    description: '',
+)]
 class UpdateOpenWeatherCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:updateOpenWeather';
-
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private OpenWeatherService $openWeatherService
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly OpenWeatherService $openWeatherService
     )
     {
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
-        $this
-            ->setDescription('Laden der Open Weather Daten für die aktuelle Uhrzeit, für alle Anlagen.')
-        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

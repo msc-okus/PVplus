@@ -25,7 +25,7 @@ class WeatherStationController extends BaseController
         private $host,
         private $userPlant,
         private $passwordPlant,
-        private PdoService $pdoService,
+        private readonly PdoService $pdoService,
     )
     {
     }
@@ -51,7 +51,7 @@ class WeatherStationController extends BaseController
         }
 
         return $this->render('weather_station/new.html.twig', [
-            'stationForm' => $form->createView(),
+            'stationForm' => $form,
         ]);
     }
 
@@ -76,7 +76,7 @@ class WeatherStationController extends BaseController
         }
 
         return $this->render('weather_station/edit.html.twig', [
-            'stationForm' => $form->createView(),
+            'stationForm' => $form,
         ]);
     }
 

@@ -16,18 +16,11 @@ class MessageService
 {
     use G4NTrait;
 
-    private $anlageEventMail;
-
-    private $mailer;
-
-    private $em;
-
     public function __construct(
-private PdoService $pdoService,EntityManagerInterface $em, MailerInterface $mailer, AnlageEventMailRepository $anlageEventMail)
+        private readonly EntityManagerInterface $em,
+        private readonly MailerInterface $mailer,
+        private readonly AnlageEventMailRepository $anlageEventMail)
     {
-        $this->anlageEventMail = $anlageEventMail;
-        $this->mailer = $mailer;
-        $this->em = $em;
     }
 
     public function sendMessage(Anlage $anlage, $eventType, $alertType, $subject, $message, $attachedFiles = false, $g4nAlert = true, $g4nAdmin = false, $upAlert = false)
@@ -117,7 +110,7 @@ private PdoService $pdoService,EntityManagerInterface $em, MailerInterface $mail
         $alertMessage->setMessage($message);
         $alertMessage->setStatusId('0');
         $alertMessage->setStatusIdLast('0');
-        $alertMessage->setStamp($this->getCetTime('OBJECT'));
+        $alertMessage->setStamp(static::getCetTime('OBJECT'));
         $this->em->persist($alertMessage);
         $this->em->flush();
     }

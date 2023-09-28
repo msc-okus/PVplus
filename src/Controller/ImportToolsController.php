@@ -29,6 +29,7 @@ class ImportToolsController extends BaseController
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
     public function importManuel(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
     {
+
         //Wenn der Import aus dem Backend angestoßen wird
         $form = $this->createForm(ImportToolsFormType::class);
         $form->handleRequest($request);
@@ -87,14 +88,13 @@ class ImportToolsController extends BaseController
     /**
      * Cronjob to Import PLants direct by symfony (configured in backend)
      *
-     * @param AnlagenRepository $anlagenRepo
-     * @param ImportService $importService
      * @return Response
      * @throws NonUniqueResultException
      */
     #[Route('/import/cron', name: 'import_cron')]
     public function importCron(AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
+
         //get all Plants for Import via via Cron
         $anlagen = $anlagenRepo->getSymfonyImportPlants();
 
@@ -107,14 +107,12 @@ class ImportToolsController extends BaseController
             $importService->prepareForImport($anlage, $start, $end);
         }
 
-        return new Response('This is used for import via cron job.', Response::HTTP_OK, array('Content-Type' => 'text/html'));
+        return new Response('This is used for import via cron job.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
     }
 
     /**
-     * Cronjob to Import PLants direct by symfony (configured in backend)
+     * Manuel Import PLants direct by symfony via URL (configured in backend)
      *
-     * @param AnlagenRepository $anlagenRepo
-     * @param ImportService $importService
      * @return Response
      * @throws NonUniqueResultException
      */
@@ -126,10 +124,8 @@ class ImportToolsController extends BaseController
         AnlagenRepository $anlagenRepo,
         ImportService $importService): Response
     {
-        date_default_timezone_set('Europe/Berlin');
-
-        $fromts = strtotime("$from 00:00:01");
-        $tots = strtotime("$to 23:59:01");
+        $fromts = strtotime("$from 00:00:00");
+        $tots = strtotime("$to 23:59:00");
 
         //get all Plants for Import via via Cron
         $anlage = $anlagenRepo->findOneByIdAndJoin($id);
@@ -152,14 +148,13 @@ class ImportToolsController extends BaseController
                 sleep(20);
                 $minute = (int)date('i');
             }
-
             $importService->prepareForImport($anlage, $from_new, $to_new);
 
             sleep(1);
         }
 
 
-        return new Response('This is used for import via manual Import.', Response::HTTP_OK, array('Content-Type' => 'text/html'));
+        return new Response('This is used for import via manual Import.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
     }
 
 }

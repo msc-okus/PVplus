@@ -14,23 +14,23 @@ class AnlageEventMail
     private $id;
 
     #[ORM\Column(type: 'string', length: 40)]
-    private $event;
+    private ?string $event = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $mail;
+    private ?string $mail = null;
 
     #[ORM\Column(type: 'string', length: 10)]
-    private $sendType;
+    private ?string $sendType = null;
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
-    private $firstName;
+    private ?string $firstName = null;
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
-    private $lastName;
+    private ?string $lastName = null;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'eventMails')]
     #[ORM\JoinColumn(nullable: true)]
-    private $anlage;
+    private ?\App\Entity\Anlage $anlage = null;
 
     public function getId(): ?int
     {

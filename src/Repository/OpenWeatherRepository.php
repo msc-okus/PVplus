@@ -23,8 +23,6 @@ class OpenWeatherRepository extends ServiceEntityRepository
     /**
      * Sucht einen OpenWeather Eintrag für die angebenen Anlage und den angebenen TimeStamp (nur auf Stunden Basis)
      *
-     * @param Anlage $anlage
-     * @param \DateTime $stamp
      * @return OpenWeather|null
      * @throws \Doctrine\ORM\NonUniqueResultException
      */

@@ -50,10 +50,10 @@ class AnlageModules
     private string $operatorPowerC;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $operatorPowerD;
+    private ?string $operatorPowerD = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $operatorPowerE;
+    private ?string $operatorPowerE = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $operatorPowerHighA;
@@ -95,7 +95,7 @@ class AnlageModules
     private string $operatorVoltageHightC;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $backSideFactor;
+    private ?string $backSideFactor = null;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'modules')]
     private Anlage $anlage;
@@ -426,7 +426,6 @@ class AnlageModules
      * This Factor has to multiply by the numbers of modules, to calculate the expected current.<br>
      * The Parameter $irr (Irradiation) must be of type float.
      *
-     * @param float $irr
      * @return float
      */
     public function getFactorCurrent(float $irr): float
@@ -444,7 +443,6 @@ class AnlageModules
      * Calculate the expected voltage for the given irradiation.
      * generate only values if $irr is greater then 2 Watt
      *
-     * @param float $irr
      * @return float
      */
     public function getExpVoltage(float $irr): float
@@ -463,7 +461,6 @@ class AnlageModules
      * This Factor has to multiply by the numbers of modules, to calculate the expected power.<br>
      * The Parameter $irr (Irradiation) must be of type float.
      *
-     * @param float $irr
      * @return float
      */
     public function getFactorPower(float $irr): float

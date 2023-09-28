@@ -21,8 +21,8 @@ class TicketRepository extends ServiceEntityRepository
 
     public function __construct(
         ManagerRegistry $registry,
-        private Security $security,
-        private AnlagenRepository $anlRepo)
+        private readonly Security $security,
+        private readonly AnlagenRepository $anlRepo)
     {
         parent::__construct($registry, Ticket::class);
     }
@@ -79,16 +79,6 @@ class TicketRepository extends ServiceEntityRepository
      * @param string|null $category
      * @param string|null $type
      * @param string|null $inverter
-     * @param int $prooftam
-     * @param int $proofepc
-     * @param int $proofam
-     * @param string $sort
-     * @param string $direction
-     * @param bool $ignore
-     * @param string $TicketName
-     * @param int $kpistatus
-     * @param string $begin
-     * @param string $end
      * @return QueryBuilder
      */
     public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, string $sort = "", string $direction = "", bool $ignore = false, string $TicketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder

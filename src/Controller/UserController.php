@@ -61,7 +61,7 @@ class UserController extends BaseController
                 return $this->redirectToRoute('app_admin_user_list');
             }
 
-            return $this->redirectToRoute('app_admin_user_edit',array('id' => $lastId ));
+            return $this->redirectToRoute('app_admin_user_edit',['id' => $lastId]);
         }
 
         return $this->render('user/new.html.twig', [
@@ -168,7 +168,7 @@ class UserController extends BaseController
             }
 
             return $this->render('user/edit.html.twig', [
-                'userForm' => $form->createView(),
+                'userForm' => $form,
             ]);
 
         } else {
@@ -219,7 +219,7 @@ class UserController extends BaseController
             }
 
             return $this->render('user/show.html.twig', [
-                'userForm' => $form->createView(),
+                'userForm' => $form,
             ]);
 
         } else {

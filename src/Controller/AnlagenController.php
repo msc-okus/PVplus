@@ -115,7 +115,7 @@ class AnlagenController extends BaseController
         }
 
         return $this->render('anlagen/edit_customer.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
             'econames' => $economicVarNames1,
         ]);
@@ -154,7 +154,7 @@ class AnlagenController extends BaseController
 
                 if ($checkfields === false){
                     return $this->render('anlagen/edit.html.twig', [
-                        'anlageForm' => $form->createView(),
+                        'anlageForm' => $form,
                         'anlage' => $anlage,
                     ]);
                 }
@@ -173,12 +173,6 @@ class AnlagenController extends BaseController
 
             $successMessage = 'Plant data saved!';
 
-            if ($form->get('savecreatedb')->isClicked()) {
-                if ($this->createDatabasesForPlant($anlage)) {
-                    $successMessage = 'Plant data saved and DB created.';
-                }
-            }
-
             $em->persist($anlage);
             $em->flush();
             $this->addFlash('success', $successMessage);
@@ -195,7 +189,7 @@ class AnlagenController extends BaseController
 
 
         return $this->render('anlagen/edit.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
         ]);
     }

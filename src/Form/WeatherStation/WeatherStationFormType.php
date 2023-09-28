@@ -19,7 +19,7 @@ class WeatherStationFormType extends AbstractType
 
     use PVPNameArraysTrait;
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /** @var WeatherStation $station */
         $station = $options['data'] ?? null;
@@ -126,7 +126,7 @@ class WeatherStationFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => WeatherStation::class,

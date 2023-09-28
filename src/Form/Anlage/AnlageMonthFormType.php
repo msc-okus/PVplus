@@ -15,11 +15,11 @@ class AnlageMonthFormType extends AbstractType
 {
     use G4NTrait;
 
-    public function __construct(private Security $security)
+    public function __construct(private readonly Security $security)
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $monthArray = [
             'January' => '1',
@@ -59,7 +59,7 @@ class AnlageMonthFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => AnlageMonth::class,

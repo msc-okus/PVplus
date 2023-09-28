@@ -12,7 +12,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 #[ORM\Table(name: 'anlagen_pr')]
 #[ORM\Index(name: 'stamp', columns: ['stamp'])]
 #[ORM\UniqueConstraint(name: 'uniquePR', columns: ['anlage_id', 'stamp'])]
-#[ORM\Entity(repositoryClass: 'App\Repository\PRRepository')]
+#[ORM\Entity(repositoryClass: \App\Repository\PRRepository::class)]
 class AnlagenPR
 {
     /**
@@ -76,7 +76,7 @@ class AnlagenPR
     private string $prEvuProz;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'pr')]
-    private ?Anlage $anlage;
+    private ?Anlage $anlage = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $plantAvailability;
@@ -130,7 +130,7 @@ class AnlagenPR
     private string $tempCorrection;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private ?string $theoPowerPac;
+    private ?string $theoPowerPac = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $theoPowerYear;
@@ -166,13 +166,13 @@ class AnlagenPR
     private string $prActMonth;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $powerEGridExt;
+    private ?string $powerEGridExt = null;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $powerEGridExtPac;
+    private ?string $powerEGridExtPac = null;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $powerEGridExtYear;
+    private ?string $powerEGridExtYear = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $prEGridExt;
@@ -184,7 +184,7 @@ class AnlagenPR
     private string $prEGridExtYear;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $powerEGridExtMonth;
+    private ?string $powerEGridExtMonth = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $prEGridExtMonth;

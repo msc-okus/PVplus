@@ -21,23 +21,14 @@ class PvpUserlog
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $userId;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'eigner_id', type: 'string', length: 25, nullable: false)]
-    private $eignerId;
+    private ?string $eignerId = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'login_ip', type: 'string', length: 25, nullable: false)]
-    private $loginIp;
+    private ?string $loginIp = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'online', type: 'string', length: 5, nullable: false, options: ['default' => 1])]
-    private $online = '1';
+    private string $online = '1';
 
     /**
      * @var \DateTime
@@ -51,11 +42,8 @@ class PvpUserlog
     #[ORM\Column(name: 'logout', type: 'datetime', nullable: false, options: ['default' => '0000-00-00 00:00:00'])]
     private $logout = '0000-00-00 00:00:00';
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'pvp_userlogcol', type: 'string', length: 45, nullable: true)]
-    private $pvpUserlogcol;
+    private ?string $pvpUserlogcol = null;
 
     public function getUserId(): ?string
     {

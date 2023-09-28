@@ -7,6 +7,7 @@ use App\Entity\Anlage;
 use App\Entity\AnlageFile;
 use App\Entity\EconomicVarNames;
 use App\Entity\WeatherStation;
+use Doctrine\ORM\NonUniqueResultException;
 use League\Flysystem\Filesystem;
 use App\Form\Anlage\AnlageAcGroupsFormType;
 use App\Form\Anlage\AnlageConfigFormType;
@@ -43,8 +44,8 @@ class AnlagenAdminController extends BaseController
 {
     use G4NTrait;
     public function __construct(
-        private PdoService $pdoService,
-        private Filesystem $fileSystemFtp
+        private readonly PdoService $pdoService,
+        private readonly Filesystem $fileSystemFtp
     )
     {
     }
@@ -84,7 +85,7 @@ class AnlagenAdminController extends BaseController
         }
 
         return $this->render('anlagen/new.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
         ]);
     }
 
@@ -120,7 +121,6 @@ class AnlagenAdminController extends BaseController
     #[IsGranted('ROLE_DEV')]
     public function delete_sunshading_model($id,$sadid, $token, EntityManagerInterface $em, AnlageSunShadingRepository $anlageSunShadingRepository): Response
     {
-
         if ($this->isCsrfTokenValid('deletesunshadingmodel'.$sadid, $token)) {
             $sunshadding = $anlageSunShadingRepository->find($sadid);
             $em->remove($sunshadding);
@@ -135,17 +135,19 @@ class AnlagenAdminController extends BaseController
 
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     #[Route(path: '/admin/anlagen/edit/{id}', name: 'app_admin_anlagen_edit')]
     public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, UploaderHelper $uploaderHelper ): RedirectResponse|Response
     {
-        $anlage = $anlagenRepository->find($id);
+        $anlage = $anlagenRepository->findOneByIdAndJoin($id);
         $form = $this->createForm(AnlageFormType::class, $anlage, [
             'anlagenId' => $id,
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() || $form->get('savecreatedb')->isClicked())) {
-
             // Forecast Tab Field Check
             if($form['useDayForecast']->getData() === true) {
                 $checkfields = true;
@@ -168,7 +170,7 @@ class AnlagenAdminController extends BaseController
 
                 if ($checkfields === false){
                     return $this->render('anlagen/edit.html.twig', [
-                        'anlageForm' => $form->createView(),
+                        'anlageForm' => $form,
                         'anlage' => $anlage,
                     ]);
                 }
@@ -210,19 +212,13 @@ class AnlagenAdminController extends BaseController
 
 
         return $this->render('anlagen/edit.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
         ]);
     }
 
     /**
      * @param $id
-     * @param EntityManagerInterface $em
-     * @param Request $request
-     * @param AnlagenRepository $anlagenRepository
-     * @param EconomicVarNamesRepository $ecoNamesRepo
-     * @param UploaderHelper $uploaderHelper
-     * @param AnlageFileRepository $RepositoryUpload
      * @return RedirectResponse|Response
      * @throws FilesystemException
      */
@@ -283,7 +279,7 @@ class AnlagenAdminController extends BaseController
             $em->flush();
             if ($form->get('save')->isClicked()) {
                      $response = $this->render('anlagen/editconfig.html.twig', [
-                        'anlageForm' => $form->createView(),
+                        'anlageForm' => $form,
                         'anlage' => $anlage,
                         'econames' => $economicVarNames1,
                         'isupload' => $isupload,
@@ -304,7 +300,7 @@ class AnlagenAdminController extends BaseController
 
         }
         if (!$form->isSubmitted() || !$form->isValid())$response =  $this->render('anlagen/editconfig.html.twig', [
-                'anlageForm' => $form->createView(),
+                'anlageForm' => $form,
                 'anlage' => $anlage,
                 'econames' => $economicVarNames1,
                 'isupload' => $isupload,
@@ -313,6 +309,9 @@ class AnlagenAdminController extends BaseController
         return $response;
     }
 
+    /**
+     * @throws FilesystemException
+     */
     #[Route(path: '/admin/anlagen/download/{id}/{dir}/{file}/{ext}', name: 'download_file', methods: ['GET','POST'])]
     public function downloadFile($id, $dir, $file, $ext, AnlagenRepository $anlagenRepository, KernelInterface $kernel): BinaryFileResponse|Response
     {
@@ -341,10 +340,10 @@ class AnlagenAdminController extends BaseController
 
             $this->addFlash('success', 'File was downloaded.');
             return $response;
-          } else {
+        } else {
             $this->addFlash('warning', 'Sorry file not found.');
             return $this->render('anlagen/edit.html.twig', [
-                'anlageForm' => $form->createView(),
+                'anlageForm' => $form,
                 'anlage' => $anlage,
             ]);
         }
@@ -355,7 +354,7 @@ class AnlagenAdminController extends BaseController
      * @throws \Exception
      */
     #[Route(path: '/admin/anlagen/buildforcast/{id}', name: 'app_admin_anlagen_build_forecast', methods: ['GET','POST'])]
-    public function buildForcast($id,  AnlagenRepository $anlagenRepository, KernelInterface $kernel): RedirectResponse|Response
+    public function buildForcast($id, KernelInterface $kernel): RedirectResponse|Response
     {
         $response = new Response();
         $response->setStatusCode(Response::HTTP_OK);
@@ -363,10 +362,7 @@ class AnlagenAdminController extends BaseController
         $application = new Application($kernel);
         $application->setAutoExit(false);
 
-        $input = new ArrayInput(array(
-            'command' => 'pvp:forcastwritedb',
-            '-a'  => $id,
-        ));
+        $input = new ArrayInput(['command' => 'pvp:forcastwritedb', '-a'  => $id]);
 
         $output = new BufferedOutput();
         $application->run($input, $output);
@@ -399,7 +395,7 @@ class AnlagenAdminController extends BaseController
         }
 
         return $this->render('anlagen/edit_dcgroups.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
         ]);
     }
@@ -429,7 +425,7 @@ class AnlagenAdminController extends BaseController
         }
 
         return $this->render('anlagen/edit_acgroups.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
         ]);
     }
@@ -459,7 +455,7 @@ class AnlagenAdminController extends BaseController
         }
 
         return $this->render('anlagen/edit_sensors.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
         ]);
     }
@@ -489,7 +485,7 @@ class AnlagenAdminController extends BaseController
         }
 
         return $this->render('anlagen/edit_ppcs.html.twig', [
-            'anlageForm' => $form->createView(),
+            'anlageForm' => $form,
             'anlage' => $anlage,
         ]);
     }
@@ -514,156 +510,153 @@ class AnlagenAdminController extends BaseController
      */
     private function createDatabasesForPlant(Anlage $anlage): bool
     {
-        if ($anlage) {
-            $databaseAcIst = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameIst()." (
+        $databaseAcIst = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameIst()." (
+              `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
+              `anl_id` int(11) NOT NULL,
+              `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+              `inv` int(11) NOT NULL,
+              `group_dc` int(11) NOT NULL,
+              `group_ac` int(11) NOT NULL,
+              `unit` int(11) NOT NULL,
+              `wr_num` int(11) NOT NULL,
+              `wr_idc` varchar(20) DEFAULT NULL,
+              `wr_pac` varchar(20) DEFAULT NULL,
+              `p_ac_blind` varchar(20) DEFAULT NULL,
+              `i_ac` varchar(20) DEFAULT NULL,
+              `i_ac_p1` varchar(20) DEFAULT NULL,
+              `i_ac_p2` varchar(20) DEFAULT NULL,
+              `i_ac_p3` varchar(20) DEFAULT NULL,
+              `u_ac` varchar(20) DEFAULT NULL,
+              `u_ac_p1` varchar(20) DEFAULT NULL,
+              `u_ac_p2` varchar(20) DEFAULT NULL,
+              `u_ac_p3` varchar(20) DEFAULT NULL,
+              `p_ac_apparent` varchar(20) DEFAULT NULL,
+              `frequency` varchar(20) DEFAULT NULL,
+              `wr_udc` varchar(20) DEFAULT NULL,
+              `wr_pdc` varchar(20) DEFAULT NULL,
+              `wr_temp` varchar(20) DEFAULT NULL,
+              `wr_cos_phi_korrektur` varchar(20) DEFAULT NULL,
+              `e_z_evu` varchar(20) DEFAULT NULL,
+              `temp_corr` varchar(20) DEFAULT NULL,
+              `theo_power` varchar(20) DEFAULT NULL,
+              `temp_cell` VARCHAR(20) DEFAULT NULL,
+              `temp_cell_multi_irr` VARCHAR(20) DEFAULT NULL,
+              `wr_mpp_current` json NOT NULL,
+              `wr_mpp_voltage` json NOT NULL,
+              `irr_anlage` json NOT NULL,
+              `temp_anlage` json NOT NULL,
+              `temp_inverter` json NOT NULL,
+              `wind_anlage` json NOT NULL,
+              PRIMARY KEY (`db_id`),
+              UNIQUE KEY `unique_ist_record` (`stamp`,`group_ac`,`unit`) USING BTREE,
+              KEY `stamp` (`stamp`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+
+        $databaseDcIst = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameIstDc()." (
+              `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
+              `anl_id` int(11) NOT NULL,
+              `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+              `wr_group` int(11) NOT NULL,
+              `group_ac` int(11) NOT NULL,
+              `wr_num` int(11) NOT NULL,
+              `wr_idc` varchar(20) DEFAULT NULL,
+              `wr_udc` varchar(20) DEFAULT NULL,
+              `wr_pdc` varchar(20) DEFAULT NULL,
+              `wr_temp` varchar(20) DEFAULT NULL,
+              `wr_mpp_current` json NOT NULL,
+              `wr_mpp_voltage` json NOT NULL,
+              PRIMARY KEY (`db_id`),
+              UNIQUE KEY `unique_ist_record` (`stamp`,`wr_group`,`wr_num`) USING BTREE,
+              KEY `stamp` (`stamp`),
+              KEY `wr_group` (`wr_group`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+
+
+        $databaseDcSoll = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameDcSoll()." (
                   `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                   `anl_id` int(11) NOT NULL,
                   `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-                  `inv` int(11) NOT NULL,
+                  `wr` int(11) NOT NULL,
+                  `wr_num` int(11) NOT NULL,
                   `group_dc` int(11) NOT NULL,
                   `group_ac` int(11) NOT NULL,
-                  `unit` int(11) NOT NULL,
-                  `wr_num` int(11) NOT NULL,
-                  `wr_idc` varchar(20) DEFAULT NULL,
-                  `wr_pac` varchar(20) DEFAULT NULL,
-                  `p_ac_blind` varchar(20) DEFAULT NULL,
-                  `i_ac` varchar(20) DEFAULT NULL,
-                  `i_ac_p1` varchar(20) DEFAULT NULL,
-                  `i_ac_p2` varchar(20) DEFAULT NULL,
-                  `i_ac_p3` varchar(20) DEFAULT NULL,
-                  `u_ac` varchar(20) DEFAULT NULL,
-                  `u_ac_p1` varchar(20) DEFAULT NULL,
-                  `u_ac_p2` varchar(20) DEFAULT NULL,
-                  `u_ac_p3` varchar(20) DEFAULT NULL,
-                  `p_ac_apparent` varchar(20) DEFAULT NULL,
-                  `frequency` varchar(20) DEFAULT NULL,
-                  `wr_udc` varchar(20) DEFAULT NULL,
-                  `wr_pdc` varchar(20) DEFAULT NULL,
-                  `wr_temp` varchar(20) DEFAULT NULL,
-                  `wr_cos_phi_korrektur` varchar(20) DEFAULT NULL,
-                  `e_z_evu` varchar(20) DEFAULT NULL,
-                  `temp_corr` varchar(20) DEFAULT NULL,
-                  `theo_power` varchar(20) DEFAULT NULL,
-                  `temp_cell` VARCHAR(20) DEFAULT NULL,
-                  `temp_cell_multi_irr` VARCHAR(20) DEFAULT NULL,
-                  `wr_mpp_current` json NOT NULL,
-                  `wr_mpp_voltage` json NOT NULL,
-                  `irr_anlage` json NOT NULL,
-                  `temp_anlage` json NOT NULL,
-                  `temp_inverter` json NOT NULL,
-                  `wind_anlage` json NOT NULL,
+                  `ac_exp_power` varchar(20) NOT NULL,
+                  `ac_exp_power_evu` varchar(20) NOT NULL,
+                  `ac_exp_power_no_limit` varchar(20) NOT NULL,
+                  `dc_exp_power` varchar(20) NOT NULL,
+                  `dc_exp_current` varchar(20) NOT NULL,
+                  `dc_exp_voltage` varchar(20) NOT NULL,
+                  `soll_imppmo` varchar(20) NOT NULL,
+                  `soll_imppwr` varchar(20) NOT NULL,
+                  `soll_pdcmo` varchar(20) NOT NULL,
+                  `soll_pdcwr` varchar(20) NOT NULL,
+                  `ws_tmp` varchar(20) NOT NULL,
                   PRIMARY KEY (`db_id`),
-                  UNIQUE KEY `unique_ist_record` (`stamp`,`group_ac`,`unit`) USING BTREE,
+                  UNIQUE KEY `stamp_inverter` (`stamp`,`wr`),
                   KEY `stamp` (`stamp`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
 
-            $databaseDcIst = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameIstDc()." (
+    $databaseMeters = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameMeters()." (
                   `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                   `anl_id` int(11) NOT NULL,
                   `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-                  `wr_group` int(11) NOT NULL,
-                  `group_ac` int(11) NOT NULL,
-                  `wr_num` int(11) NOT NULL,
-                  `wr_idc` varchar(20) DEFAULT NULL,
-                  `wr_udc` varchar(20) DEFAULT NULL,
-                  `wr_pdc` varchar(20) DEFAULT NULL,
-                  `wr_temp` varchar(20) DEFAULT NULL,
-                  `wr_mpp_current` json NOT NULL,
-                  `wr_mpp_voltage` json NOT NULL,
+                  `group` int(11) NOT NULL DEFAULT '1',                      
+                  `prod_power` varchar(20) NOT NULL,
+                  `unit` varchar(20) NOT NULL,                      
                   PRIMARY KEY (`db_id`),
-                  UNIQUE KEY `unique_ist_record` (`stamp`,`wr_group`,`wr_num`) USING BTREE,
-                  KEY `stamp` (`stamp`),
-                  KEY `wr_group` (`wr_group`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+                  UNIQUE KEY `stamp_inverter` (`stamp`),
+                  KEY `stamp` (`stamp`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
 
-
-            $databaseDcSoll = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameDcSoll()." (
+    $databasePPC = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNamePPC()." (
                       `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
-                      `anl_id` int(11) NOT NULL,
+                      `anl_id` bigint(11) NOT NULL,
+                      `anl_intnr` varchar(50),
                       `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-                      `wr` int(11) NOT NULL,
-                      `wr_num` int(11) NOT NULL,
-                      `group_dc` int(11) NOT NULL,
-                      `group_ac` int(11) NOT NULL,
-                      `ac_exp_power` varchar(20) NOT NULL,
-                      `ac_exp_power_evu` varchar(20) NOT NULL,
-                      `ac_exp_power_no_limit` varchar(20) NOT NULL,
-                      `dc_exp_power` varchar(20) NOT NULL,
-                      `dc_exp_current` varchar(20) NOT NULL,
-                      `dc_exp_voltage` varchar(20) NOT NULL,
-                      `soll_imppmo` varchar(20) NOT NULL,
-                      `soll_imppwr` varchar(20) NOT NULL,
-                      `soll_pdcmo` varchar(20) NOT NULL,
-                      `soll_pdcwr` varchar(20) NOT NULL,
-                      `ws_tmp` varchar(20) NOT NULL,
-                      PRIMARY KEY (`db_id`),
-                      UNIQUE KEY `stamp_inverter` (`stamp`,`wr`),
-                      KEY `stamp` (`stamp`)
-                ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
+                      `p_ac_inv` varchar(20) DEFAULT NULL,
+                      `q_ac_inv` varchar(20) DEFAULT NULL,
+                      `pf_set` int(3) DEFAULT NULL,
+                      `p_set_gridop_rel` int(3) DEFAULT NULL,
+                      `p_set_rel` int(3) DEFAULT NULL,
+                      `p_set_rpc_rel` int(3) DEFAULT NULL,
+                      `q_set_rel` int(3) DEFAULT NULL,
+                      `p_set_ctrl_rel` int(3) DEFAULT NULL,
+                      `p_set_ctrl_rel_mean` int(3) DEFAULT NULL,
+                        PRIMARY KEY (`db_id`),
+                        UNIQUE KEY `unique_stamp` (`stamp`),
+                        KEY `stamp` (`stamp`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
-        $databaseMeters = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameMeters()." (
-                      `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
-                      `anl_id` int(11) NOT NULL,
-                      `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-                      `group` int(11) NOT NULL DEFAULT '1',                      
-                      `prod_power` varchar(20) NOT NULL,
-                      `unit` varchar(20) NOT NULL,                      
-                      PRIMARY KEY (`db_id`),
-                      UNIQUE KEY `stamp_inverter` (`stamp`),
-                      KEY `stamp` (`stamp`)
-                ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
+        $databaseSections = "CREATE TABLE IF NOT EXISTS `pvp_data`.`db__pv_section_".$anlage->getAnlIntnr()."BX107` (
+                              `id` BIGINT(11) NOT NULL AUTO_INCREMENT,
+                              `stamp` VARCHAR(45) NOT NULL DEFAULT '0000-00-00 00:00:00',
+                              `section` VARCHAR(45) NOT NULL,
+                              `ac_power` VARCHAR(20) NOT NULL,
+                              `dc_power` VARCHAR(20) NOT NULL,
+                              `grid_power` VARCHAR(20) NULL,
+                              `theo_power` VARCHAR(20) NULL,
+                              `theo_power_ft` VARCHAR(20) NULL,
+                              `ft_cor_factor` VARCHAR(20) NULL,
+                              `temp_module` VARCHAR(20) NULL,
+                              `temp_module_nrel` VARCHAR(20) NULL,
+                              PRIMARY KEY (`id`),
+                              UNIQUE INDEX `stamp_section` (`stamp` ASC, `section` ASC));
+                            ";
 
-        $databasePPC = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNamePPC()." (
-                          `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
-                          `anl_id` bigint(11) NOT NULL,
-                          `anl_intnr` varchar(50),
-                          `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-                          `p_ac_inv` varchar(20) DEFAULT NULL,
-                          `q_ac_inv` varchar(20) DEFAULT NULL,
-                          `pf_set` int(3) DEFAULT NULL,
-                          `p_set_gridop_rel` int(3) DEFAULT NULL,
-                          `p_set_rel` int(3) DEFAULT NULL,
-                          `p_set_rpc_rel` int(3) DEFAULT NULL,
-                          `q_set_rel` int(3) DEFAULT NULL,
-                          `p_set_ctrl_rel` int(3) DEFAULT NULL,
-                          `p_set_ctrl_rel_mean` int(3) DEFAULT NULL,
-                            PRIMARY KEY (`db_id`),
-                            UNIQUE KEY `unique_stamp` (`stamp`),
-                            KEY `stamp` (`stamp`)
-                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-
-            $databaseSections = "CREATE TABLE IF NOT EXISTS `pvp_data`.`db__pv_section_".$anlage->getAnlIntnr()."BX107` (
-                                  `id` BIGINT(11) NOT NULL AUTO_INCREMENT,
-                                  `stamp` VARCHAR(45) NOT NULL DEFAULT '0000-00-00 00:00:00',
-                                  `section` VARCHAR(45) NOT NULL,
-                                  `ac_power` VARCHAR(20) NOT NULL,
-                                  `dc_power` VARCHAR(20) NOT NULL,
-                                  `grid_power` VARCHAR(20) NULL,
-                                  `theo_power` VARCHAR(20) NULL,
-                                  `theo_power_ft` VARCHAR(20) NULL,
-                                  `ft_cor_factor` VARCHAR(20) NULL,
-                                  `temp_module` VARCHAR(20) NULL,
-                                  `temp_module_nrel` VARCHAR(20) NULL,
-                                  PRIMARY KEY (`id`),
-                                  UNIQUE INDEX `stamp_section` (`stamp` ASC, `section` ASC));
-                                ";
-
-            $conn = $this->pdoService->getPdoPlant();
-            $conn->exec($databaseAcIst);
-            $conn->exec($databaseDcIst);
-            // $conn->exec($databaseAcSoll);
-            if ($anlage->getUseGridMeterDayData() == 1){
-                $conn->exec($databaseMeters);
-            }
-            $conn->exec($databaseDcSoll);
-            $conn->exec($databasePPC);
-            if (false) $conn->exec($databaseSections);
-            $conn = null;
-
-            return true;
-        } else {
-            return false;
+        $conn = $this->pdoService->getPdoPlant();
+        $conn->exec($databaseAcIst);
+        $conn->exec($databaseDcIst);
+        // $conn->exec($databaseAcSoll);
+        if ($anlage->getUseGridMeterDayData() == 1){
+            $conn->exec($databaseMeters);
         }
+        $conn->exec($databaseDcSoll);
+        $conn->exec($databasePPC);
+        if (false) $conn->exec($databaseSections);
+        $conn = null;
+
+        return true;
+
     }
 
 

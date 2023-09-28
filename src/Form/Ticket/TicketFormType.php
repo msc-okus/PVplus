@@ -17,6 +17,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -28,17 +29,10 @@ class TicketFormType extends AbstractType
     use PVPNameArraysTrait;
 
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private TranslatorInterface $translator,
-        private Security $security)
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly TranslatorInterface $translator,
+        private readonly Security $security)
     {
-    }
-
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => Ticket::class,
-        ]);
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -180,13 +174,13 @@ class TicketFormType extends AbstractType
                 'label' => 'Ignore',
             ])
             // ### Free Text for descriptions
-            ->add('freeText', CKEditorType::class, [
-                'config' => ['toolbar' => 'my_toolbar'],
+            ->add('freeText', TextareaType::class, [
+                #'config' => ['toolbar' => 'my_toolbar'],
                 'attr' => ['rows' => '9'],
                 'required' => false,
             ])
-            ->add('answer', CKEditorType::class, [
-                'config' => ['toolbar' => 'my_toolbar'],
+            ->add('answer', TextareaType::class, [
+                #'config' => ['toolbar' => 'my_toolbar'],
                 'attr' => ['rows' => '9'],
                 'required' => false,
             ])
@@ -212,5 +206,12 @@ class TicketFormType extends AbstractType
             ]);
 
 
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => Ticket::class,
+        ]);
     }
 }

@@ -40,7 +40,7 @@ class AnlageGroupsController extends AbstractController
             25
         );
         return $this->render('anlage_groups/index.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'anlage_groups'=>$pagination,
             'show_form2'=>false,
             'anlage'=>null
@@ -118,9 +118,9 @@ class AnlageGroupsController extends AbstractController
                     25
                 );
                 return $this->render('anlage_groups/index.html.twig', [
-                    'form' => $form->createView(),
+                    'form' => $form,
                     'anlage_groups'=>$pagination,
-                    'form2'=>$form2->createView(), // anlagen für Select Box
+                    'form2'=>$form2, // anlagen für Select Box
                     'show_form2'=>true,
                     'searchTerm'=>$searchTerm,
                     'anlage'=>$anlage
@@ -151,9 +151,9 @@ class AnlageGroupsController extends AbstractController
         }
 
         return $this->render('anlage_groups/index.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'anlage_groups'=>$pagination,
-            'form2'=>$form2->createView(),
+            'form2'=>$form2,
             'show_form2'=>true,
             'searchTerm'=>$searchTerm,
             'anlage'=>$anlage

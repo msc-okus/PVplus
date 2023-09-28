@@ -67,16 +67,16 @@ class AnlagenReports
     private string $rawReport;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlagenReports')]
-    private ?Anlage $anlage;
+    private ?Anlage $anlage = null;
 
     #[ORM\ManyToOne(targetEntity: Eigner::class, inversedBy: 'anlagenReports')]
-    private ?Eigner $eigner;
+    private ?Eigner $eigner = null;
 
     #[ORM\Column(type: 'string', length: 10, nullable: true)]
-    private ?string $month;
+    private ?string $month = null;
 
     #[ORM\Column(type: 'string', length: 10, nullable: true)]
-    private ?string $year;
+    private ?string $year = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private string $contentArray;
@@ -86,7 +86,7 @@ class AnlagenReports
     private int $reportStatus = 10;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $comments;
+    private ?string $comments = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $headline = "";

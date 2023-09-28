@@ -688,9 +688,9 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods: ['GET', 'POST'])]
     public function join(TicketRepository $ticketRepo, EntityManagerInterface $em): Response
     {
-        $tickets = json_decode(file_get_contents('php://input'));
+        $tickets = json_decode(file_get_contents('php://input'), null, 512, JSON_THROW_ON_ERROR);
         $masterTicket = new Ticket();
-        if (count($tickets) > 0) {
+        if ((is_countable($tickets) ? count($tickets) : 0) > 0) {
             $ticket = $ticketRepo->findOneById($tickets[0]);
             $ticketdate = new TicketDate();
             $anlage = $ticket->getAnlage();
@@ -698,7 +698,7 @@ class TicketController extends BaseController
             $end = $ticket->getEnd();
             $ticketdate->copyTicket($ticket);
             $masterTicket->addDate($ticketdate);
-            for ($i = 1; $i < count($tickets); ++$i) {
+            for ($i = 1; $i < (is_countable($tickets) ? count($tickets) : 0); ++$i) {
                 $ticket = $ticketRepo->findOneById($tickets[$i]);
                 $ticketdate = new TicketDate();
                 if ($ticket->getBegin()->format('Y/m/d H:i') < $begin) {
@@ -731,10 +731,10 @@ class TicketController extends BaseController
         $ticketDate = null; // = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
 
         $found = false;
-        while (($found !== true) && (strtotime($stamp) < $ticket->getEnd()->getTimestamp())) {
+        while (($found !== true) && (strtotime((string) $stamp) < $ticket->getEnd()->getTimestamp())) {
             $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
             if ($ticketDate) $found = true;
-            else  $stamp = date('Y-m-d H:i', strtotime($stamp) + 900);
+            else  $stamp = date('Y-m-d H:i', strtotime((string) $stamp) + 900);
         }
 
         return $ticketDate;
@@ -744,10 +744,10 @@ class TicketController extends BaseController
     {
         $ticketDate = null; //$ticketDateRepo->findOneByEndTicket($stamp, $ticket); we cannot do this because if there is a gap between the intervals we will not be able to find the next interval to link with
         $found = false;
-        while (($found !== true) && (strtotime($stamp) > $ticket->getBegin()->getTimestamp())) {
+        while (($found !== true) && (strtotime((string) $stamp) > $ticket->getBegin()->getTimestamp())) {
             $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
             if ($ticketDate) $found = true;
-            else  $stamp = date('Y-m-d H:i', strtotime($stamp) - 900);
+            else  $stamp = date('Y-m-d H:i', strtotime((string) $stamp) - 900);
         }
 
         return $ticketDate;

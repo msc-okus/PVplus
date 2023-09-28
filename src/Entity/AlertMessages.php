@@ -15,31 +15,31 @@ class AlertMessages
     private $id;
 
     #[ORM\Column(type: 'datetime')]
-    private $stamp;
+    private ?\DateTimeInterface $stamp = null;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $AlertType;
+    private ?string $AlertType = null;
 
     #[ORM\Column(type: 'integer')]
-    private $AnlagenId;
+    private ?int $AnlagenId = null;
 
     #[ORM\Column(type: 'string', length: 60)]
-    private $emailRecipient;
+    private ?string $emailRecipient = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $subject;
+    private ?string $subject = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private $message;
+    private ?string $message = null;
 
     #[ORM\Column(type: 'integer')]
-    private $statusId;
+    private ?int $statusId = null;
 
     #[ORM\Column(type: 'integer')]
-    private $statusIdLast;
+    private ?string $statusIdLast = null;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $eventType;
+    private ?string $eventType = null;
 
     public function getId(): ?int
     {

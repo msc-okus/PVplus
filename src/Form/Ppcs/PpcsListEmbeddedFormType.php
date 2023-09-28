@@ -18,7 +18,7 @@ class PpcsListEmbeddedFormType extends AbstractType
 {
     use G4NTrait;
     use PVPNameArraysTrait;
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('vcomId', TextType::class, [
@@ -38,7 +38,7 @@ class PpcsListEmbeddedFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => AnlagePpcs::class,

@@ -7,20 +7,21 @@ use App\Repository\AnlagenRepository;
 use App\Service\TicketsGeneration\AlertSystemService;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use App\Service\LogMessagesService;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class GenerateTicketsHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+class GenerateTicketsHandler
 {
     public function __construct(
-        private AlertSystemService $alertService,
-        private AlertSystemv2Service $alertServiceV2,
-        private LogMessagesService $logMessages,
-        private AnlagenRepository $anlagenRepo
+        private readonly AlertSystemService $alertService,
+        private readonly AlertSystemv2Service $alertServiceV2,
+        private readonly LogMessagesService $logMessages,
+        private readonly AnlagenRepository $anlagenRepo
     )
     {
     }
 
-    public function __invoke(GenerateTickets $generateTickets)
+    public function __invoke(GenerateTickets $generateTickets): void
     {
         /** @var $anlage Anlage */
         $anlage = $this->anlagenRepo->find($generateTickets->getAnlageId());

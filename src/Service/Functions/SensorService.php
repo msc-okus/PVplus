@@ -18,18 +18,15 @@ class SensorService
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private WeatherFunctionsService $weatherFunctionsService,
-        private TicketDateRepository    $ticketDateRepo,
-        private ReplaceValuesTicketRepository $replaceValuesTicketRepo)
+        private readonly PdoService $pdoService,
+        private readonly WeatherFunctionsService $weatherFunctionsService,
+        private readonly TicketDateRepository    $ticketDateRepo,
+        private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo)
     {
     }
 
     /**
-     * @param Anlage $anlage
      * @param array $sensorData (Wetter / Starahlungs Daten)
-     * @param DateTime $startDate
-     * @param DateTime $endDate
      * @return array|null
      * @throws NonUniqueResultException
      * @throws InvalidArgumentException

@@ -6,6 +6,7 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityService;
 use App\Service\PRCalulationService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,24 +14,25 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:UpdatePlantsWithDailyInput',
+    description: '',
+)]
 class UpdatePlantsWithDailyInputCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:UpdatePlantsWithDailyInput';
-
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private PRCalulationService $prCalulation,
-        private AvailabilityService $availability)
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PRCalulationService $prCalulation,
+        private readonly AvailabilityService $availability)
     {
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Berechnung der Verfügbarkeit und PR für Anlagen die nur täglich Daten erhalten. ')
             ->addArgument('day', InputArgument::OPTIONAL, 'Tag (day) im Format \'yyyy-mm-dd\' für den, der \'AC/DC Expected\' berechnet werden soll.')
             ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
         ;
@@ -44,7 +46,7 @@ class UpdatePlantsWithDailyInputCommand extends Command
         $anlageId = $input->getOption('anlage');
 
         if ($day) {
-            $day = strtotime($day);
+            $day = strtotime((string) $day);
             $from = date('Y-m-d', $day);
         } else {
             $from = date('Y-m-d', time() - 86400);

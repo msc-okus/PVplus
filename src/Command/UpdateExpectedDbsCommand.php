@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\ExpectedService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,24 +13,25 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:updateExpected',
+    description: '',
+)]
 class UpdateExpectedDbsCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:updateExpected';
-
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private ExpectedService $expected
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly ExpectedService $expected
     )
     {
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Erzeugt die SOll Daten für AC und DC')
             ->addArgument('plantid', InputArgument::OPTIONAL, 'Anlagen ID für die, die Berechnung ausgeführt werden soll oder nichts, dann werden alle Anlagen berechnet')
             // ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem berechnet werden soll')
@@ -67,8 +69,8 @@ class UpdateExpectedDbsCommand extends Command
             $anlagen = $this->anlagenRepository->findUpdateExpected();
         }
 
-        $fromStamp = strtotime($from);
-        $toStamp = strtotime($to);
+        $fromStamp = strtotime((string) $from);
+        $toStamp = strtotime((string) $to);
         $counter = 0;
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
             ++$counter;

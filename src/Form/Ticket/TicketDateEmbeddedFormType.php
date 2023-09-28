@@ -21,8 +21,7 @@ class TicketDateEmbeddedFormType extends AbstractType
     use PVPNameArraysTrait;
 
     public function __construct(
-        private Security $security,
-        private TranslatorInterface $translator,
+        private readonly Security $security,
     )
     {
     }

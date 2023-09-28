@@ -6,20 +6,14 @@ use App\Entity\Anlage;
 use App\Entity\LogMessages;
 use App\Repository\LogMessagesRepository;
 use Doctrine\ORM\EntityManagerInterface;
-
 class LogMessagesService
 {
-    private EntityManagerInterface $em;
-
-    private LogMessagesRepository $logMessagesRepo;
-
     public function __construct(
-private PdoService $pdoService,EntityManagerInterface $em, LogMessagesRepository $logMessagesRepo)
+        private readonly EntityManagerInterface $em,
+        private readonly LogMessagesRepository $logMessagesRepo
+    )
     {
-        $this->em = $em;
-        $this->logMessagesRepo = $logMessagesRepo;
     }
-
     public function writeNewEntry(Anlage $anlage, string $function, string $job): int
     {
         $log = new LogMessages();

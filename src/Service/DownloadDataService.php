@@ -15,26 +15,18 @@ class DownloadDataService
 {
     use G4NTrait;
 
-    private AnlageAvailabilityRepository $availabilityRepo;
-
-    private PRRepository $prRepository;
-
     public function __construct(
-        private PdoService $pdoService,
-        AnlageAvailabilityRepository $availabilityRepo,
-        PRRepository $prRepository)
+        private readonly PdoService $pdoService,
+        private readonly AnlageAvailabilityRepository $availabilityRepo,
+        private readonly PRRepository $prRepository)
     {
-        $this->availabilityRepo = $availabilityRepo;
-        $this->prRepository = $prRepository;
     }
 
     /**
-     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $intervall
      * @param $headlineDate
-     *
      * @return string
      */
     public function getAllSingleSystemData(Anlage $anlage, $from, $to, $intervall, $headlineDate)

@@ -193,10 +193,8 @@ class TicketDateRepository extends ServiceEntityRepository
      * Search for all DataGap Tickets wich are outage and not evaluated data gaps (case 6)
      * means search for all Ticketdates wich are dataGaps (alertType = 10) and NOT defined as comm. issue (
      *
-     * @param Anlage $anlage
      * @param $begin
      * @param $end
-     * @param int $department
      * @return mixed
      */
     public function findDataGapOutage(Anlage $anlage, $begin, $end, int $department): mixed
@@ -228,10 +226,8 @@ class TicketDateRepository extends ServiceEntityRepository
     /**
      * Search for all tiFM Cases (case 5)
      *
-     * @param Anlage $anlage
      * @param $begin
      * @param $end
-     * @param int $department
      * @return mixed
      */
     public function findTiFm(Anlage $anlage, $begin, $end, int $department): mixed
@@ -245,19 +241,12 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('begin', $begin)
             ->setParameter('end', $end)
             ->setParameter('anlage', $anlage);
-        switch ($department){
-            case 1:
-                $q->andWhere('t.kpiPaDep1 = 20');
-                break;
-            case 2:
-                $q->andWhere('t.kpiPaDep2 = 20');
-                break;
-            case 3: // AssetManagemet should not set any outage to ForecMajour
-                $q->andWhere('t.kpiPaDep3 = 99');
-                break;
-            default:
-                $q->andWhere('t.kpiPaDep3 = 99');
-        };
+        match ($department) {
+            1 => $q->andWhere('t.kpiPaDep1 = 20'),
+            2 => $q->andWhere('t.kpiPaDep2 = 20'),
+            3 => $q->andWhere('t.kpiPaDep3 = 99'),
+            default => $q->andWhere('t.kpiPaDep3 = 99'),
+        };;
 
         return $q->getQuery()->getResult();
     }
@@ -265,10 +254,8 @@ class TicketDateRepository extends ServiceEntityRepository
     /**
      * Search for Communication Issus
      *
-     * @param Anlage $anlage
      * @param $begin
      * @param $end
-     * @param int $department
      * @return mixed
      */
     public function findCommIssu(Anlage $anlage, $begin, $end, int $department): mixed
@@ -295,10 +282,8 @@ class TicketDateRepository extends ServiceEntityRepository
 
     /**
      * Search all Performance Tickets wich a relatet to PA calculation (alertType = 72)
-     * @param Anlage $anlage
      * @param string|DateTime $startDate
      * @param string|DateTime $endDate
-     * @param int $department
      * @param int $behaviour (10 = Skip for PA, 20 = Replace outage with TiFM for PA, )
      * @return float|int|mixed|string
      */
@@ -328,7 +313,6 @@ class TicketDateRepository extends ServiceEntityRepository
     /**
      * Search for Performance Tickets
      *
-     * @param Anlage $anlage
      * @param string|DateTime $startDate
      * @param string|DateTime $endDate
      * @return array
@@ -351,7 +335,6 @@ class TicketDateRepository extends ServiceEntityRepository
     /**
      * Search for Performance Tickets
      *
-     * @param Anlage $anlage
      * @param string|DateTime $startDate
      * @param string|DateTime $endDate
      * @return array

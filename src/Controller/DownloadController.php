@@ -62,7 +62,7 @@ class DownloadController extends AbstractController
         }
 
         return $this->render('downloadData/index.html.twig', [
-            'downloadForm' => $form->createView(),
+            'downloadForm' => $form,
             'output' => $output,
             'section' => 'data',
         ]);
@@ -186,7 +186,7 @@ class DownloadController extends AbstractController
                 $dcDataExpected = $analyseService->getEcpectedDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
 
                 if ($output) {
-                    for ($i = 0; $i < count($output); ++$i) {
+                    for ($i = 0; $i < (is_countable($output) ? count($output) : 0); ++$i) {
                         $outputtable[] =
                             [
                                 'time' => $output[$i]->getstamp()->format('M-d'),
@@ -241,8 +241,8 @@ class DownloadController extends AbstractController
 
 
         return $this->render('downloadData/download.html.twig', [
-            'downloadAnalysesExportForm' => $formPdfDownload->createView(),
-            'downloadAnalysesForm' => $form->createView(),
+            'downloadAnalysesExportForm' => $formPdfDownload,
+            'downloadAnalysesForm' => $form,
             'tableType' => $tableType,
             'showAvailability' => $showAvailability,
             'showAvailabilitySecond' => $showAvailabilitySecond,

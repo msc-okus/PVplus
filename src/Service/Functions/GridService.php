@@ -12,8 +12,8 @@ use DateTime;
 class GridService
 {
     public function __construct(
-private PdoService $pdoService,
-        private FunctionsService $functions
+private readonly PdoService $pdoService,
+        private readonly FunctionsService $functions
     )
     {
     }
@@ -24,9 +24,6 @@ private PdoService $pdoService,
      * Get Sum(power_prod) from 'Meters' Database.
      * By default we retriev the un filterd power
      *
-     * @param Anlage $anlage
-     * @param DateTime $from
-     * @param DateTime $to
      * @param false $ppc if true select only values if plant is not controlled ( p_set_gridop_rel = 100 AND p_set_rpc_rel = 100 )
      * @return float
      */
@@ -58,9 +55,6 @@ private PdoService $pdoService,
     /**
      * Shortcut to get sum(power_prod from 'meters' DB if plant is not controlled
      *
-     * @param Anlage $anlage
-     * @param DateTime $from
-     * @param DateTime $to
      * @return float
      */
     public function getGridSumPpc(Anlage $anlage, DateTime $from, DateTime $to): float

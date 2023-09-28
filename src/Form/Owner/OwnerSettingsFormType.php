@@ -10,7 +10,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class OwnerSettingsFormType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
         $builder
             ->add('nameDep1', TextType::class, [
 
@@ -33,7 +34,7 @@ class OwnerSettingsFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => OwnerSettings::class,

@@ -38,29 +38,26 @@ class ReportsMonthlyV2Service
     use G4NTrait;
 
     public function __construct(
-        private PdoService $pdoService,
-        private AnlagenRepository $anlagenRepository,
-        private PRRepository $PRRepository,
-        private ReportsRepository $reportsRepository,
-        private EntityManagerInterface $em,
-        private PvSystMonthRepository $pvSystMonthRepo,
-        private Case5Repository $case5Repo,
-        private FunctionsService $functions,
-        private NormalizerInterface $serializer,
-        private PRCalulationService $PRCalulation,
-        private ReportService $reportService,
-        private TicketRepository $ticketRepo,
-        private TicketDateRepository $ticketDateRepo,
-        private Environment $twig,
-        private PdfService $pdf,
-        private TranslatorInterface $translator)
+        private readonly PdoService $pdoService,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PRRepository $PRRepository,
+        private readonly ReportsRepository $reportsRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly PvSystMonthRepository $pvSystMonthRepo,
+        private readonly Case5Repository $case5Repo,
+        private readonly FunctionsService $functions,
+        private readonly NormalizerInterface $serializer,
+        private readonly PRCalulationService $PRCalulation,
+        private readonly ReportService $reportService,
+        private readonly TicketRepository $ticketRepo,
+        private readonly TicketDateRepository $ticketDateRepo,
+        private readonly Environment $twig,
+        private readonly PdfService $pdf,
+        private readonly TranslatorInterface $translator)
     {
     }
 
     /**
-     * @param Anlage $anlage
-     * @param int $reportMonth
-     * @param int $reportYear
      * @return string
      *
      * @throws InvalidArgumentException

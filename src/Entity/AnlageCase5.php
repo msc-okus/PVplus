@@ -29,7 +29,7 @@ class AnlageCase5
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageCase5s')]
-    private ?Anlage $anlage;
+    private ?Anlage $anlage = null;
 
     #[Groups(['case5'])]
     #[ORM\Column(type: 'string', length: 20)]

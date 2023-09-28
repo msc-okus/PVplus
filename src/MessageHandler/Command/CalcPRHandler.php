@@ -5,17 +5,18 @@ namespace App\MessageHandler\Command;
 use App\Message\Command\CalcPR;
 use App\Service\LogMessagesService;
 use App\Service\PRCalulationService;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class CalcPRHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+class CalcPRHandler
 {
     public function __construct(
-        private PRCalulationService $PRCalulation,
-        private LogMessagesService $logMessages)
+        private readonly PRCalulationService $PRCalulation,
+        private readonly LogMessagesService $logMessages)
     {
     }
 
-    public function __invoke(CalcPR $calc)
+    public function __invoke(CalcPR $calc): void
     {
         $anlageId = $calc->getAnlageId();
         $logId = $calc->getlogId();

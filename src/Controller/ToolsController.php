@@ -113,7 +113,7 @@ class ToolsController extends BaseController
         }
 
         return $this->render('tools/index.html.twig', [
-            'toolsForm' => $form->createView(),
+            'toolsForm' => $form,
             'output' => $output,
         ]);
     }

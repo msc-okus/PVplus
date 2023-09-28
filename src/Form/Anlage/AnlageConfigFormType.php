@@ -19,14 +19,11 @@ use Symfony\Component\Validator\Constraints\Image;
 
 class AnlageConfigFormType extends AbstractType
 {
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $variable_lenght = 20;
 
@@ -298,7 +295,7 @@ class AnlageConfigFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Anlage::class,

@@ -17,15 +17,15 @@ class SollIstIrrAnalyseChartService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private Security $security,
-        private AnlagenStatusRepository $statusRepository,
-        private InvertersRepository $invertersRepo,
-        private IrradiationChartService $irradiationChart,
-        private DCPowerChartService $DCPowerChartService,
-        private ACPowerChartsService $ACPowerChartService,
-        private WeatherServiceNew $weatherService,
-        private FunctionsService $functions)
+private readonly PdoService $pdoService,
+        private readonly Security $security,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly InvertersRepository $invertersRepo,
+        private readonly IrradiationChartService $irradiationChart,
+        private readonly DCPowerChartService $DCPowerChartService,
+        private readonly ACPowerChartsService $ACPowerChartService,
+        private readonly WeatherServiceNew $weatherService,
+        private readonly FunctionsService $functions)
     {    }
 
     // Help Function for Array search
@@ -46,15 +46,12 @@ private PdoService $pdoService,
     }
 
     /**
-     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param int|null $inverter
-     * @param int $filter
-     * @param bool $hour
      * @return array|null
      */
-     // MS 10 / 2022
+    // MS 10 / 2022
     public function getSollIstIrrDeviationAnalyse(Anlage $anlage, $from, $to, ?int $inverter = 0, int $filter = 400, bool $hour = false): ?array
     {
         ini_set('memory_limit', '3G');
@@ -78,14 +75,10 @@ private PdoService $pdoService,
                 break;
         }
 
-        switch ($anlage->getConfigType()) {
-            case 3:
-            case 4:
-                $nameArray = $this->functions->getNameArray($anlage, 'ac');
-                break;
-            default:
-                $nameArray = $this->functions->getNameArray($anlage, 'dc');
-        }
+        $nameArray = match ($anlage->getConfigType()) {
+            3, 4 => $this->functions->getNameArray($anlage, 'ac'),
+            default => $this->functions->getNameArray($anlage, 'dc'),
+        };
 
         if ($inverter >= 0) {
             $sql_add_where_b = "AND b.wr_num = '$inverter'";
@@ -244,6 +237,6 @@ private PdoService $pdoService,
         $tabelArray['tabel'][0]['DCsum95'] =  "$DCsum95";
         $tabelArray['tabel'][0]['DCsum100'] =  "$DCsum100";
 
-        return array($dataArray,$tabelArray);
+        return [$dataArray, $tabelArray];
     }
 }

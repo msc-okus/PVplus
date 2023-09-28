@@ -19,7 +19,7 @@ class AnlageAvailability
     private $id;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'availability')]
-    private ?Anlage $anlage;
+    private ?Anlage $anlage = null;
 
     #[ORM\Column(type: 'date')]
     private DateTimeInterface $stamp;
@@ -28,103 +28,103 @@ class AnlageAvailability
     private string $inverter;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_0_0;
+    private ?int $case_0_0 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_0_1;
+    private ?int $case_0_1 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_0_2;
+    private ?int $case_0_2 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_0_3;
+    private ?int $case_0_3 = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_1_0;
+    private ?int $case_1_0 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_1_1;
+    private ?int $case_1_1 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_1_2;
+    private ?int $case_1_2 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_1_3;
+    private ?int $case_1_3 = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_2_0;
+    private ?int $case_2_0 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_2_1;
+    private ?int $case_2_1 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_2_2;
+    private ?int $case_2_2 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_2_3;
+    private ?int $case_2_3 = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_3_0;
+    private ?int $case_3_0 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_3_1;
+    private ?int $case_3_1 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_3_2;
+    private ?int $case_3_2 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_3_3;
+    private ?int $case_3_3 = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_4_0;
+    private ?int $case_4_0 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_4_1;
+    private ?int $case_4_1 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_4_2;
+    private ?int $case_4_2 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_4_3;
+    private ?int $case_4_3 = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_5_0;
+    private ?int $case_5_0 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_5_1;
+    private ?int $case_5_1 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_5_2;
+    private ?int $case_5_2 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_5_3;
+    private ?int $case_5_3 = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_6_0;
+    private ?int $case_6_0 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_6_1;
+    private ?int $case_6_1 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_6_2;
+    private ?int $case_6_2 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $case_6_3;
+    private ?int $case_6_3 = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $control_0;
+    private ?int $control_0 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $control_1;
+    private ?int $control_1 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $control_2;
+    private ?int $control_2 = null;
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $control_3;
+    private ?int $control_3 = null;
 
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invAPart1_0;
+    private ?float $invAPart1_0 = null;
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invAPart1_1;
+    private ?float $invAPart1_1 = null;
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invAPart1_2;
+    private ?float $invAPart1_2 = null;
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invAPart1_3;
+    private ?float $invAPart1_3 = null;
 
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invAPart2_0;
+    private ?float $invAPart2_0 = null;
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invAPart2_1;
+    private ?float $invAPart2_1 = null;
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invAPart2_2;
+    private ?float $invAPart2_2 = null;
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invAPart2_3;
+    private ?float $invAPart2_3 = null;
 
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invA_0;
+    private ?float $invA_0 = null;
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invA_1;
+    private ?float $invA_1 = null;
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invA_2;
+    private ?float $invA_2 = null;
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $invA_3;
+    private ?float $invA_3 = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private string $remarks_0;

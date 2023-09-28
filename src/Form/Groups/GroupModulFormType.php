@@ -16,12 +16,12 @@ class GroupModulFormType extends AbstractType
 {
 
 
-    public function __construct(private ModulesRepository $modulesRepository)
+    public function __construct(private readonly ModulesRepository $modulesRepository)
     {
 
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $choices=[];
         if ($options['anlage']){
@@ -54,7 +54,7 @@ class GroupModulFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => AnlageGroupModules::class,

@@ -16,7 +16,8 @@ use Symfony\Component\Form\FormTypeInterface;
 class AnlageSettingsFormType extends AbstractType
 {
     use PVPNameArraysTrait;
-    public function buildForm(FormBuilderInterface $builder, array $options) {
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
         $builder
             ######## Handling Departments ########
             ->add('disableDep0', SwitchType::class, [
@@ -226,7 +227,7 @@ class AnlageSettingsFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => AnlageSettings::class,

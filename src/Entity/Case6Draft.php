@@ -21,22 +21,22 @@ class Case6Draft
 
     #[ORM\ManyToOne(targetEntity: Anlage::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private $anlage;
+    private ?\App\Entity\Anlage $anlage = null;
 
     #[ORM\Column(type: 'string', length: 30)]
-    private $stampFrom;
+    private ?string $stampFrom = null;
 
     #[ORM\Column(type: 'string', length: 30)]
-    private $stampTo;
+    private ?string $stampTo = null;
 
     #[ORM\Column(type: 'string', length: 30)]
-    private $inverter;
+    private ?string $inverter = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $reason;
+    private ?string $reason = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $error;
+    private ?string $error = null;
 
     public function getId(): ?int
     {
@@ -131,20 +131,20 @@ class Case6Draft
     {
         $nrInv = $this->anlage->getAnzInverterFromGroupsAC();
         $answer = '';
-        if (strtotime($this->stampFrom) > strtotime($this->stampTo)) {
+        if (strtotime((string) $this->stampFrom) > strtotime((string) $this->stampTo)) {
             $answer = $answer.' Date inconsistent; ';
         }
-        if (strtotime($this->stampFrom) > strtotime('now') or (strtotime($this->stampTo) > strtotime('now'))) {
+        if (strtotime((string) $this->stampFrom) > strtotime('now') or (strtotime((string) $this->stampTo) > strtotime('now'))) {
             $answer = $answer.' Date in the future; ';
         }
         if ((int) $this->inverter > $nrInv) {
             $answer = $answer.' Inverter not in the plant';
         }
 
-        if (date('i', strtotime($this->stampFrom)) != '00' && date('i', strtotime($this->stampFrom)) != '15' && date('i', strtotime($this->stampFrom)) != '30' && date('i', strtotime($this->stampFrom)) != '45') {
+        if (date('i', strtotime((string) $this->stampFrom)) != '00' && date('i', strtotime((string) $this->stampFrom)) != '15' && date('i', strtotime((string) $this->stampFrom)) != '30' && date('i', strtotime((string) $this->stampFrom)) != '45') {
             $answer = $answer.' stampFrom minutes must be 00, 15, 30, 45;';
         }
-        if (date('i', strtotime($this->stampTo)) != '00' && date('i', strtotime($this->stampTo)) != '15' && date('i', strtotime($this->stampTo)) != '30' && date('i', strtotime($this->stampTo)) != '45') {
+        if (date('i', strtotime((string) $this->stampTo)) != '00' && date('i', strtotime((string) $this->stampTo)) != '15' && date('i', strtotime((string) $this->stampTo)) != '30' && date('i', strtotime((string) $this->stampTo)) != '45') {
             $answer = $answer.' stampTo minutes must be 00, 15, 30, 45';
         }
 

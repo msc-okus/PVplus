@@ -21,13 +21,13 @@ use Symfony\Bundle\SecurityBundle\Security;
 class ToolsFormType extends AbstractType
 {
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private Security          $security
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly Security          $security
     )
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
@@ -92,7 +92,7 @@ class ToolsFormType extends AbstractType
     }
 
 ##
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => ToolsModel::class,

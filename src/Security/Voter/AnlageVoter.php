@@ -9,12 +9,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class AnlageVoter extends Voter
 {
-    public const EDIT = 'EDIT';
-    public const VIEW = 'VIEW';
-    public const DELETE = 'DELETE';
+    final public const EDIT = 'EDIT';
+    final public const VIEW = 'VIEW';
+    final public const DELETE = 'DELETE';
 
 
-    public function __construct(private  Security $security)
+    public function __construct(private readonly Security $security)
     {
     }
 

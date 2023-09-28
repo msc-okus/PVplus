@@ -44,10 +44,10 @@ trait ImportFunctionsTrait
      * @param string|null $host
      * @param string|null $passwordPlant
      */
-    function insertData($tableName = NULL, $data = NULL): void
+    function insertData($tableName = NULL, $data = NULL, object $DBDataConnection = NULL): void
     {
         // obtain column template
-        $DBDataConnection = $this->pdoService->getPdoPlant();
+
         $stmt = $DBDataConnection->prepare("SHOW COLUMNS FROM $tableName");
         $stmt->execute();
         $columns = [];
@@ -72,7 +72,7 @@ trait ImportFunctionsTrait
         $i = 0;
         $rows = $rows - 1;
         while ($j <= $rows) {
-            $values = array();
+            $values = [];
             while ($j <= $rows) {
 
                 // reset row
@@ -122,7 +122,6 @@ trait ImportFunctionsTrait
      *
      * @param $anlagenID
      * @param $stamp
-     * @param float $value
      */
     function insertDataIntoGridMeterDay($anlagenID, $stamp, float $value)
     {
@@ -139,7 +138,6 @@ trait ImportFunctionsTrait
 
     /**
      * @param string|null $value
-     * @param false $convertToKWH
      * @return string|null
      */
     public function checkIfValueIsNotNull(?string $value, bool $convertToKWH = false): ?string
@@ -157,9 +155,6 @@ trait ImportFunctionsTrait
 
     //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu
     /**
-     * @param array $anlageSensors
-     * @param int $length
-     * @param bool $istOstWest
      * @param array $sensors
      * @param  $date
      * @return array
@@ -178,12 +173,12 @@ trait ImportFunctionsTrait
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]['startDateSensor'] != null) {
-                        $start = strtotime($anlageSensors[$i]['startDateSensor']);
+                        $start = strtotime((string) $anlageSensors[$i]['startDateSensor']);
                     }
                     if ($anlageSensors[$i]['endDateSensor'] != null) {
-                        $end = strtotime($anlageSensors[$i]['endDateSensor']);
+                        $end = strtotime((string) $anlageSensors[$i]['endDateSensor']);
                     }
-                    $now = strtotime($date);
+                    $now = strtotime((string) $date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                         array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
                         $gmPyHoriAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
@@ -195,12 +190,12 @@ trait ImportFunctionsTrait
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]['startDateSensor'] != null) {
-                        $start = strtotime($anlageSensors[$i]['startDateSensor']);
+                        $start = strtotime((string) $anlageSensors[$i]['startDateSensor']);
                     }
                     if ($anlageSensors[$i]['endDateSensor'] != null) {
-                        $end = strtotime($anlageSensors[$i]['endDateSensor']);
+                        $end = strtotime((string) $anlageSensors[$i]['endDateSensor']);
                     }
-                    $now = strtotime($date);
+                    $now = strtotime((string) $date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                         array_push($gmPyWest, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
                         $gmPyWestAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
@@ -212,12 +207,12 @@ trait ImportFunctionsTrait
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]['startDateSensor'] != null) {
-                        $start = strtotime($anlageSensors[$i]['startDateSensor']);
+                        $start = strtotime((string) $anlageSensors[$i]['startDateSensor']);
                     }
                     if ($anlageSensors[$i]['endDateSensor'] != null) {
-                        $end = strtotime($anlageSensors[$i]['endDateSensor']);
+                        $end = strtotime((string) $anlageSensors[$i]['endDateSensor']);
                     }
-                    $now = strtotime($date);
+                    $now = strtotime((string) $date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                         array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
                         $gmPyEastAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
@@ -243,12 +238,12 @@ trait ImportFunctionsTrait
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]['startDateSensor'] != null) {
-                        $start = strtotime($anlageSensors[$i]['startDateSensor']);
+                        $start = strtotime((string) $anlageSensors[$i]['startDateSensor']);
                     }
                     if ($anlageSensors[$i]['endDateSensor'] != null) {
-                        $end = strtotime($anlageSensors[$i]['endDateSensor']);
+                        $end = strtotime((string) $anlageSensors[$i]['endDateSensor']);
                     }
-                    $now = strtotime($date);
+                    $now = strtotime((string) $date);
                     if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                         array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
                         $gmPyHoriAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
@@ -260,12 +255,12 @@ trait ImportFunctionsTrait
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]['startDateSensor'] != null) {
-                        $start = strtotime($anlageSensors[$i]['startDateSensor']);
+                        $start = strtotime((string) $anlageSensors[$i]['startDateSensor']);
                     }
                     if ($anlageSensors[$i]['endDateSensor'] != null) {
-                        $end = strtotime($anlageSensors[$i]['endDateSensor']);
+                        $end = strtotime((string) $anlageSensors[$i]['endDateSensor']);
                     }
-                    $now = strtotime($date);
+                    $now = strtotime((string) $date);
                     array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0));
                     $gmPyEastAnlage[$anlageSensors[$i]['nameShort']] = max($sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']], 0);
                 }
@@ -288,12 +283,12 @@ trait ImportFunctionsTrait
                 $start = 0;
                 $end = 0;
                 if ($anlageSensors[$i]['startDateSensor'] != null) {
-                    $start = strtotime($anlageSensors[$i]['startDateSensor']);
+                    $start = strtotime((string) $anlageSensors[$i]['startDateSensor']);
                 }
                 if ($anlageSensors[$i]['endDateSensor'] != null) {
-                    $end = strtotime($anlageSensors[$i]['endDateSensor']);
+                    $end = strtotime((string) $anlageSensors[$i]['endDateSensor']);
                 }
-                $now = strtotime($date);
+                $now = strtotime((string) $date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                     array_push($tempModule, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
                     $tempAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
@@ -304,12 +299,12 @@ trait ImportFunctionsTrait
                 $start = 0;
                 $end = 0;
                 if ($anlageSensors[$i]['startDateSensor'] != null) {
-                    $start = strtotime($anlageSensors[$i]['startDateSensor']);
+                    $start = strtotime((string) $anlageSensors[$i]['startDateSensor']);
                 }
                 if ($anlageSensors[$i]['endDateSensor'] != null) {
-                    $end = strtotime($anlageSensors[$i]['endDateSensor']);
+                    $end = strtotime((string) $anlageSensors[$i]['endDateSensor']);
                 }
-                $now = strtotime($date);
+                $now = strtotime((string) $date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                     array_push($tempAmbientArray, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
                     $tempAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
@@ -320,12 +315,12 @@ trait ImportFunctionsTrait
                 $start = 0;
                 $end = 0;
                 if ($anlageSensors[$i]['startDateSensor'] != null) {
-                    $start = strtotime($anlageSensors[$i]['startDateSensor']);
+                    $start = strtotime((string) $anlageSensors[$i]['startDateSensor']);
                 }
                 if ($anlageSensors[$i]['endDateSensor'] != null) {
-                    $end = strtotime($anlageSensors[$i]['endDateSensor']);
+                    $end = strtotime((string) $anlageSensors[$i]['endDateSensor']);
                 }
-                $now = strtotime($date);
+                $now = strtotime((string) $date);
                 $x = (string)$anlageSensors[$i]['startDateSensor'];
                 $y = (string)$anlageSensors[$i]['endDateSensor'];
                 #echo "Sensor Start $date = $now /BE $x = $start \n\n";
@@ -340,12 +335,12 @@ trait ImportFunctionsTrait
                 $start = 0;
                 $end = 0;
                 if ($anlageSensors[$i]['startDateSensor'] != null) {
-                    $start = strtotime($anlageSensors[$i]['startDateSensor']);
+                    $start = strtotime((string) $anlageSensors[$i]['startDateSensor']);
                 }
                 if ($anlageSensors[$i]['endDateSensor'] != null) {
-                    $end = strtotime($anlageSensors[$i]['endDateSensor']);
+                    $end = strtotime((string) $anlageSensors[$i]['endDateSensor']);
                 }
-                $now = strtotime($date);
+                $now = strtotime((string) $date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                     array_push($windSpeedEWS, $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']]);
                     $windAnlage[$anlageSensors[$i]['nameShort']] = $sensors[$date][$anlageSensors[$i]['vcomId']][$anlageSensors[$i]['vcomAbbr']];
@@ -493,7 +488,7 @@ trait ImportFunctionsTrait
             $voltageDc = round($stringBoxesTime[$scbNo]['U_DC'], 4);
             $powerDc = round($currentDcSCB * $voltageDc / 1000 / 4, 4); // Umrechnung von W auf kW/h
 
-            $dcCurrentMpp = json_encode($dcCurrentMppArray);
+            $dcCurrentMpp = json_encode($dcCurrentMppArray, JSON_THROW_ON_ERROR);
             $dcVoltageMpp = "{}";
 
             $data_pv_dcist[] = [
@@ -577,13 +572,13 @@ trait ImportFunctionsTrait
                         $key = "I_DC$n";
                         $dcCurrentMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
                     }
-                    $dcCurrentMpp = json_encode($dcCurrentMppArray);
+                    $dcCurrentMpp = json_encode($dcCurrentMppArray, JSON_THROW_ON_ERROR);
 
                     for ($n = 1; $n <= $invertersUnits; $n++) {
                         $key = "U_DC$n";
                         $dcVoltageMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
                     }
-                    $dcVoltageMpp = json_encode($dcVoltageMppArray);
+                    $dcVoltageMpp = json_encode($dcVoltageMppArray, JSON_THROW_ON_ERROR);
                 }
 
             } else {

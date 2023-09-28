@@ -21,7 +21,7 @@ class AnlagenRepository extends ServiceEntityRepository
 {
     use G4NTrait;
 
-    public function __construct(ManagerRegistry $registry, private Security $security)
+    public function __construct(ManagerRegistry $registry, private readonly Security $security)
     {
         parent::__construct($registry, Anlage::class);
     }
@@ -148,10 +148,12 @@ class AnlagenRepository extends ServiceEntityRepository
             ->leftJoin('groups.modules', 'moduls')
             ->leftJoin('a.acGroups', 'ac_groups')
             ->leftJoin('a.settings', 'settings')
+            ->join('a.eigner', 'eigner')
             ->addSelect('groups')
             ->addSelect('moduls')
             ->addSelect('ac_groups')
             ->addSelect('settings')
+            ->addSelect('eigner')
             ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult()
@@ -161,7 +163,6 @@ class AnlagenRepository extends ServiceEntityRepository
     public function findAlertSystemActive(bool $active){
         return $this->createQueryBuilder('a')
             ->andWhere('a.ActivateTicketSystem = (:val)')
-            ->andWhere('a.anlId != 110')
             ->setParameter('val', $active)
             ->getQuery()
             ->getResult()
@@ -400,8 +401,6 @@ class AnlagenRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string $query
-     * @param int $limit
      * @return array
      */
     public function findByAllMatching(string $query, int $limit = 100): array

@@ -12,8 +12,8 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 #[ORM\Index(name: 'stamp', columns: ['stamp'])]
 #[ORM\Index(name: 'anlage_id', columns: ['anlage_id'])]
 #[ORM\UniqueConstraint(name: 'unique_key', columns: ['unique_key'])]
-#[ORM\Entity(repositoryClass: 'App\Repository\AnlagenStatusRepository')]
-class AnlagenStatus
+#[ORM\Entity(repositoryClass: \App\Repository\AnlagenStatusRepository::class)]
+class AnlagenStatus implements \Stringable
 {
     #[ORM\Column(name: 'id', type: 'bigint', nullable: true)]
     #[ORM\Id]
@@ -48,10 +48,10 @@ class AnlagenStatus
     private ?string $lastWeatherStatus = 'normal';
 
     #[ORM\Column(name: 'act_stamp', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $actStamp;
+    private ?\DateTimeInterface $actStamp = null;
 
     #[ORM\Column(name: 'exp_stamp', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $expStamp;
+    private ?\DateTimeInterface $expStamp = null;
 
     #[ORM\Column(name: 'ac_act_all', type: 'decimal', precision: 10, scale: 2, nullable: false)]
     private string $acActAll;
@@ -72,88 +72,88 @@ class AnlagenStatus
     private string $dcDiffAll;
 
     #[ORM\Column(name: 'stamp_last_both', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $stampLastBoth;
+    private ?\DateTimeInterface $stampLastBoth = null;
 
     #[ORM\Column(name: 'ac_error_code', type: 'integer', nullable: true)]
-    private ?int $acErrorCode;
+    private ?int $acErrorCode = null;
 
     #[ORM\Column(name: 'ac_diff_status', type: 'string', length: 20, nullable: true, options: ['default' => 'normal'])]
     private ?string $acDiffStatus = 'normal';
 
     #[ORM\Column(name: 'ac_act_both', type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?string $acActBoth;
+    private ?string $acActBoth = null;
 
     #[ORM\Column(name: 'ac_exp_both', type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?string $acExpBoth;
+    private ?string $acExpBoth = null;
 
     #[ORM\Column(name: 'ac_lost_percent', type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?string $acLostPercent;
+    private ?string $acLostPercent = null;
 
     #[ORM\Column(name: 'dc_error_code', type: 'integer', nullable: true)]
-    private ?int $dcErrorCode;
+    private ?int $dcErrorCode = null;
 
     #[ORM\Column(name: 'dc_diff_status', type: 'string', length: 20, nullable: true, options: ['default' => 'normal'])]
     private ?string $dcDiffStatus = 'normal';
 
     #[ORM\Column(name: 'dc_act_both', type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?string $dcActBoth;
+    private ?string $dcActBoth = null;
 
     #[ORM\Column(name: 'dc_exp_both', type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?string $dcExpBoth;
+    private ?string $dcExpBoth = null;
 
     #[ORM\Column(name: 'dc_lost_percent', type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?string $dcLostPercent;
+    private ?string $dcLostPercent = null;
 
     #[ORM\Column(name: 'string_i_warnings', type: 'integer', nullable: true)]
-    private ?int $stringIWarnings;
+    private ?int $stringIWarnings = null;
 
     #[ORM\Column(name: 'string_i_alerts', type: 'integer', nullable: true)]
-    private ?int $stringIAlerts;
+    private ?int $stringIAlerts = null;
 
     #[ORM\Column(name: 'string_i_score', type: 'integer', nullable: false)]
     private int $stringIScore;
 
     #[ORM\Column(name: 'string_i_status', type: 'string', length: 20, nullable: true)]
-    private ?string $stringIStatus;
+    private ?string $stringIStatus = null;
 
     #[ORM\Column(name: 'string_u_warnings', type: 'integer', nullable: true)]
-    private ?int $stringUWarnings;
+    private ?int $stringUWarnings = null;
 
     #[ORM\Column(name: 'string_u_alerts', type: 'integer', nullable: true)]
-    private ?int $stringUAlerts;
+    private ?int $stringUAlerts = null;
 
     #[ORM\Column(name: 'string_u_score', type: 'integer', nullable: false)]
     private int $stringUScore;
 
     #[ORM\Column(name: 'string_u_status', type: 'string', length: 20, nullable: true)]
-    private ?string $stringUStatus;
+    private ?string $stringUStatus = null;
 
     #[ORM\Column(name: 'dc_status', type: 'string', length: 20, nullable: true)]
-    private ?string $dcStatus;
+    private ?string $dcStatus = null;
 
     #[ORM\Column(name: 'string_error_messages', type: 'text', length: 65535, nullable: true)]
-    private ?string $stringErrorMessages;
+    private ?string $stringErrorMessages = null;
 
     #[ORM\Column(name: 'inv_score', type: 'integer', nullable: true)]
-    private ?int $invScore;
+    private ?int $invScore = null;
 
     #[ORM\Column(name: 'inv_anz', type: 'integer', nullable: true)]
-    private ?int $invAnz;
+    private ?int $invAnz = null;
 
     #[ORM\Column(name: 'inv_anz_warning', type: 'integer', nullable: true)]
-    private ?int $invAnzWarning;
+    private ?int $invAnzWarning = null;
 
     #[ORM\Column(name: 'inv_anz_alert', type: 'integer', nullable: true)]
-    private ?int $invAnzAlert;
+    private ?int $invAnzAlert = null;
 
     #[ORM\Column(name: 'inv_error_message', type: 'text', length: 65535, nullable: true)]
-    private ?string $invErrorMessage;
+    private ?string $invErrorMessage = null;
 
     #[ORM\Column(name: 'inv_status', type: 'string', length: 20, nullable: true)]
-    private ?string $invStatus;
+    private ?string $invStatus = null;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'status')]
-    private $anlage;
+    private ?\App\Entity\Anlage $anlage = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $forecastDivYear = '';
@@ -709,11 +709,11 @@ class AnlagenStatus
         return $this;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         $help = $this->stamp - formatTimeStampToSql();
 
-        return $help;
+        return (string) $help;
     }
 
     public function getAnlage(): ?Anlage

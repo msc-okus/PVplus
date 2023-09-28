@@ -7,23 +7,26 @@ use App\Repository\AnlagenRepository;
 use App\Service\TicketsGeneration\AlertSystemService;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:generateTickets',
+    description: '',
+)]
 class GenerateTicketsCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:generateTickets';
-
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private AlertSystemService $alertService,
-        private AlertSystemv2Service $alertServiceV2,
-        private EntityManagerInterface $em
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly AlertSystemService $alertService,
+        private readonly AlertSystemv2Service $alertServiceV2,
+        private readonly EntityManagerInterface $em
     )
     {
         parent::__construct();
@@ -32,7 +35,6 @@ class GenerateTicketsCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Generate Tickets')
             ->addArgument('plantid')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to start')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to end')
@@ -59,8 +61,8 @@ class GenerateTicketsCommand extends Command
         }
 
         if ($from <= $to) {
-            $fromStamp = strtotime($from);
-            $toStamp = strtotime($to);
+            $fromStamp = strtotime((string) $from);
+            $toStamp = strtotime((string) $to);
 
             if (is_numeric($plantid)) {
                 $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
@@ -70,7 +72,7 @@ class GenerateTicketsCommand extends Command
                 $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
             }
 
-            $counter = (($toStamp - $fromStamp) / 3600) * count($anlagen);
+            $counter = (($toStamp - $fromStamp) / 3600) * (is_countable($anlagen) ? count($anlagen) : 0);
             $io->progressStart($counter);
             $counter = ($counter * 4) - 1;
 

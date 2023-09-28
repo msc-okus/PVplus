@@ -26,12 +26,12 @@ class PvPlusExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('getJson', [$this, 'getJson']),
+            new TwigFunction('getJson', $this->getJson(...)),
         ];
     }
 
     public function getJson($json)
     {
-        return json_decode($json);
+        return json_decode((string) $json, null, 512, JSON_THROW_ON_ERROR);
     }
 }

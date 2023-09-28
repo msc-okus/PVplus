@@ -29,12 +29,12 @@ class AnlageFormType extends AbstractType
     use PVPNameArraysTrait;
 
     public function __construct(
-        private Security $security
+        private readonly Security $security
     )
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
@@ -153,6 +153,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('notes', TextareaType::class, [
                 'label' => 'Notizen zur Anlage',
+                'help'  => '[notes]',
                 'attr' => ['rows' => '6'],
                 'empty_data' => '',
                 'required' => false,
@@ -226,7 +227,7 @@ class AnlageFormType extends AbstractType
                 'label' => 'Wetterstation',
                 'help' => '[WeatherStation]',
                 'class' => WeatherStation::class,
-                'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
+                'choice_label' => fn(WeatherStation $station) => sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()),
                 'required' => true,
                 'disabled' => !$isDeveloper,
             ])
@@ -993,7 +994,7 @@ class AnlageFormType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Anlage::class,

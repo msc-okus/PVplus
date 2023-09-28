@@ -10,6 +10,7 @@ use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
 use PDO;
 use App\Service\PdoService;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class HeatmapChartService
@@ -17,14 +18,14 @@ class HeatmapChartService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private AnlagenStatusRepository $statusRepository,
-        private InvertersRepository     $invertersRepo,
-        private IrradiationChartService $irradiationChart,
-        private DCPowerChartService     $DCPowerChartService,
-        private ACPowerChartsService    $ACPowerChartService,
-        private WeatherServiceNew       $weatherService,
-        private FunctionsService        $functions)
+private readonly PdoService $pdoService,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly InvertersRepository     $invertersRepo,
+        private readonly IrradiationChartService $irradiationChart,
+        private readonly DCPowerChartService     $DCPowerChartService,
+        private readonly ACPowerChartsService    $ACPowerChartService,
+        private readonly WeatherServiceNew       $weatherService,
+        private readonly FunctionsService        $functions)
     {
     }
 
@@ -47,36 +48,27 @@ private PdoService $pdoService,
     }
 
     /**
+     * [Heatmap]
      * @param $from
      * @param $to
-     * @param int $group
+     * @param null|int $sets
+     * @return array|null
      *
-     * @return array
-     *               [Heatmap]
+     * @throws InvalidArgumentException
      */
     // MS 05/2022
-    public function getHeatmap(Anlage $anlage, $from, $to, $sets = 0, bool $hour = false): ?array
+    public function getHeatmap(Anlage $anlage, $from, $to, ?int $sets = 0, bool $hour = false): ?array
     {
-        ini_set('memory_limit', '3G');
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $pnominverter = $anlage->getPnomInverterArray();
-        $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
-        $zenith = 90 + 50 / 60;
-        $current_date = strtotime(str_replace("T", "", $from));
-        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
 
-        // $sunArray = $this->WeatherServiceNew->getSunrise($anlage,$from);
-        // $sunrise = $sunArray[$anlagename]['sunrise'];
-        // $sunset = $sunArray[$anlagename]['sunset'];
+        $sunArray = $this->weatherService->getSunrise($anlage, $from);
+        $sunrise = strtotime((string) $sunArray['sunrise']);
+        $sunset = strtotime((string) $sunArray['sunset']);
 
-        $from = date('Y-m-d H:00', $sunrise - 3600);
-        $to = date('Y-m-d H:00', $sunset + 5400);
-
-        $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
-        $to = self::timeAjustment($to, 1);
+        $from = date('Y-m-d H:00', $sunrise);
+        $to = date('Y-m-d H:00', $sunset + 3600);
 
         switch ($anlage->getConfigType()) {
             case 3:
@@ -91,8 +83,7 @@ private PdoService $pdoService,
                 $groupct = count($anlage->getGroupsDc());
         }
 
-
-           if ($groupct) {
+        if ($groupct) {
             if ($sets == null) {
                 $min = 1;
                 $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
@@ -100,13 +91,11 @@ private PdoService $pdoService,
                 $sqladd = "AND $group BETWEEN '$min' AND '$max'";
             } else {
                 $res = explode(',', $sets);
-
                 $min = (int)ltrim($res[0], "[");
                 $max = (int)rtrim($res[1], "]");
-                (($max > $groupct) ? $max = $groupct:$max = $max);
-                (($groupct > $min) ? $min = $min:$min = 1);
+                if ($max > $groupct) $max = $groupct;
+                if (($groupct <= $min)) $min = 1;
                 $sqladd = "AND $group BETWEEN ".(empty($min)? '0' : $min)." AND ".(empty($max)? '50' : $max)."";
-
             }
         } else {
                $min = 1;
@@ -118,14 +107,13 @@ private PdoService $pdoService,
         $dataArray['maxSeries'] = $max;
         $dataArray['sumSeries'] = $groupct;
 
-//fix the sql Query with an select statement in the join this is much faster
-      $sql = "SELECT T1.istPower,T1.".$group.",T1.ts,T2.g_upper
-            FROM (SELECT stamp as ts, wr_pac as istPower, ".$group."  FROM ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' and '$to'  ".$sqladd." GROUP BY ts, ".$group." ORDER BY ".$group." DESC)
-
-            AS T1
-            JOIN (SELECT stamp as ts, g_lower as g_lower , g_upper as g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp BETWEEN '$from' and '$to' ) 
-            AS T2 
-            on (T1.ts = T2.ts) ;";
+        //fix the sql Query with an select statement in the join this is much faster
+        $sql = "SELECT T1.istPower,T1.$group,T1.ts,T2.g_upper
+                FROM (SELECT stamp as ts, wr_pac as istPower, ".$group."  FROM ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' and '$to' $sqladd GROUP BY ts, $group ORDER BY $group DESC)
+                AS T1
+                JOIN (SELECT stamp as ts, g_lower as g_lower , g_upper as g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp BETWEEN '$from' and '$to' ) 
+                AS T2 
+                on (T1.ts = T2.ts) ;";
 
         $resultActual = $conn->query($sql);
         $dataArray['inverterArray'] = $nameArray;
@@ -137,9 +125,8 @@ private PdoService $pdoService,
             $counterInv = 1;
 
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-
                 $stamp = $rowActual['ts'];
-                $e = explode(' ', $stamp);
+                $e = explode(' ', (string) $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
                 $dataIrr = $rowActual['g_upper'];
                 $powerist = $rowActual['istPower'];

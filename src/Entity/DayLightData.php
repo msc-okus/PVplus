@@ -14,16 +14,16 @@ class DayLightData
     private $id;
 
     #[ORM\Column(type: 'string', length: 40)]
-    private $Sunrise;
+    private ?string $Sunrise = null;
 
     #[ORM\Column(type: 'string', length: 40)]
-    private $Sunset;
+    private ?string $Sunset = null;
 
     #[ORM\Column(type: 'string', length: 40)]
-    private $date;
+    private ?string $date = null;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'dayLightData')]
-    private $anlage;
+    private ?\App\Entity\Anlage $anlage = null;
 
     public function getId(): ?int
     {

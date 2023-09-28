@@ -53,7 +53,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
                     'type' => $propertyType,
                     'strategy' => $propertyStrategy,
                     'required' => $isPropertyRequired,
-                    'is_collection' => '[]' === substr((string) $filterParameterName, -2),
+                    'is_collection' => str_ends_with((string) $filterParameterName, '[]'),
                 ];
             }
         }
@@ -99,23 +99,12 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
         // manage filters per type
         $type = $this->getPropertyType($property);
 
-        switch ($type) {
-            case self::TYPE_STRING:
-                $this->addStringFilter($property, $values, $queryBuilder, $queryNameGenerator);
-                break;
-
-            case self::TYPE_INT:
-            case self::TYPE_FLOAT:
-                $this->addNumericFilter($property, $values, $queryBuilder, $queryNameGenerator);
-                break;
-
-            case self::TYPE_BOOLEAN:
-                $this->addBooleanFilter($property, $values, $queryBuilder, $queryNameGenerator);
-                break;
-
-            default:
-                throw new InvalidArgumentException("Type \"{$type}\" specified for property \"{$property}\" is not supported (yet).");
-        }
+        match ($type) {
+            self::TYPE_STRING => $this->addStringFilter($property, $values, $queryBuilder, $queryNameGenerator),
+            self::TYPE_INT, self::TYPE_FLOAT => $this->addNumericFilter($property, $values, $queryBuilder, $queryNameGenerator),
+            self::TYPE_BOOLEAN => $this->addBooleanFilter($property, $values, $queryBuilder, $queryNameGenerator),
+            default => throw new InvalidArgumentException("Type \"{$type}\" specified for property \"{$property}\" is not supported (yet)."),
+        };
     }
 
     /**
@@ -136,17 +125,11 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
 
         $propertyType = $this->getPropertyType($property);
 
-        switch ($propertyType) {
-            case self::TYPE_INT:
-            case self::TYPE_FLOAT:
-                return !$this->isNumericValue($values, $property) ? [] : array_values($values);
-
-            case self::TYPE_BOOLEAN:
-                return $this->getBooleanValue($values, $property);
-
-            default:
-                return array_values($values);
-        }
+        return match ($propertyType) {
+            self::TYPE_INT, self::TYPE_FLOAT => !$this->isNumericValue($values, $property) ? [] : array_values($values),
+            self::TYPE_BOOLEAN => $this->getBooleanValue($values, $property),
+            default => array_values($values),
+        };
     }
 
     //
@@ -196,10 +179,8 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
 
     /**
      * Checked if a property is required.
-     *
-     * @param mixed $config
      */
-    private function isPropertyRequired($config): bool
+    private function isPropertyRequired(mixed $config): bool
     {
         return isset($config['required']) ? filter_var($config['required'], FILTER_VALIDATE_BOOLEAN) : false;
     }
@@ -352,9 +333,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
                     $propertyType == self::TYPE_FLOAT ? DBALType::FLOAT : DBALType::INTEGER
                 );
         } else {
-            $condition = implode(' OR ', array_map(function ($value) use ($alias, $jsonColumn, $jsonKey) {
-                return "JSON_UNQUOTE(JSON_EXTRACT({$alias}.{$jsonColumn}, '$.{$jsonKey}')) = {$value}";
-            }, $values));
+            $condition = implode(' OR ', array_map(fn($value) => "JSON_UNQUOTE(JSON_EXTRACT({$alias}.{$jsonColumn}, '$.{$jsonKey}')) = {$value}", $values));
 
             $queryBuilder
                 ->andWhere("({$condition})");
@@ -410,7 +389,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
         $caseSensitive = true;
 
         // prefixing the strategy with i makes it case insensitive
-        if (0 === strpos($strategy, 'i')) {
+        if (str_starts_with($strategy, 'i')) {
             $strategy = substr($strategy, 1);
             $caseSensitive = false;
         }
@@ -457,7 +436,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
             $valueParameter = $queryNameGenerator->generateParameterName($jsonColumn.$index);
             $condition .= "JSON_UNQUOTE(JSON_EXTRACT({$jsonColumnWithAlias}, '$.{$jsonKey}')) = :{$valueParameter}";
 
-            $value = $caseSensitive ? $value : strtolower($value);
+            $value = $caseSensitive ? $value : strtolower((string) $value);
 
             $queryBuilder->setParameter($valueParameter, $value, Types::STRING);
         }

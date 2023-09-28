@@ -11,24 +11,21 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'pvp:dummysoll')]
+#[AsCommand(name: 'pvp:dummysoll', description: 'Lege Datensätze in DummySoll Datenbanken an.')]
 class DummySollCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:dummysoll';
-
     public function __construct(
-        private DummySollService $dummySoll
+        private readonly DummySollService $dummySoll
     )
     {
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Lege Datensätze in DummySoll Datenbanken an.')
             ->addArgument('day', InputArgument::OPTIONAL, 'Tag (day) im Format \'yyyy-mm-dd\' für den, \'DummySoll\' berechnet werden soll.')
         ;
     }
@@ -40,7 +37,7 @@ class DummySollCommand extends Command
         $day = $input->getArgument('day');
 
         if ($day) {
-            $from = strtotime($day);
+            $from = strtotime((string) $day);
         } else {
             $from = null;
         }
