@@ -96,7 +96,7 @@ class ImportService
             $inverters = $bulkMeaserments['inverters'];
             $sensors = $bulkMeaserments['sensors'];
 
-            $anlageSensors = $this->serializer->normalize($anlage->getSensors(), null);
+            $anlageSensors = $anlage->getSensors();
 
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
 
@@ -114,7 +114,7 @@ class ImportService
                 if (is_array($sensors) && array_key_exists($date, $sensors)) {
                     $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
 
-                    $checkSensors = self::checkSensors($anlageSensors, $length, (bool)$isEastWest, $sensors, $date);
+                    $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
 
                     $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
