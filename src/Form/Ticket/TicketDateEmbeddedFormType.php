@@ -22,6 +22,7 @@ class TicketDateEmbeddedFormType extends AbstractType
 
     public function __construct(
         private readonly Security $security,
+        private readonly TranslatorInterface $translator
     )
     {
     }

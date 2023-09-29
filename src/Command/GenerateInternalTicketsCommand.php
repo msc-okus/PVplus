@@ -64,7 +64,7 @@ class GenerateInternalTicketsCommand extends Command
                 $anlagen = $this->anlagenRepository->findIdLike([$plantid]);
             } else {
                 $io->comment("Generate Tickets: $from - $to | All Plants");
-                $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
+                $anlagen = $this->anlagenRepository->findInternalAlertSystemActive(true);
             }
             $counter = (($toStamp - $fromStamp) / 3600) * count($anlagen);
             $io->progressStart($counter);
