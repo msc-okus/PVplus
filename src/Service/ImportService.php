@@ -13,7 +13,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
-use Symfony\Component\Serializer\SerializerInterface;
 class ImportService
 {
     use ImportFunctionsTrait;
@@ -28,8 +27,7 @@ class ImportService
         private readonly EntityManagerInterface $em,
         private readonly AvailabilityService $availabilityService,
         private readonly MeteoControlService $meteoControlService,
-        private readonly ManagerRegistry $doctrine,
-        private readonly SerializerInterface $serializer
+        private readonly ManagerRegistry $doctrine
     )
     {
     }
