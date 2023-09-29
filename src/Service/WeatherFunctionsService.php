@@ -53,7 +53,24 @@ class WeatherFunctionsService
      * $weather['windSpeedAvg']<br>
      * $weather['horizontalIrr']<br>
      * $weather['horizontalIrrAvg']<br>
+     * $weather['upperIrr']<br>
      * $weather['lowerIrr']<br>
+     * $weather['Irr0']<br>
+     * $weather['Irr1']<br>
+     * $weather['Irr2']<br>
+     * $weather['Irr3']<br>
+     * $weather['IrrEast0']<br>
+     * $weather['IrrEast1']<br>
+     * $weather['IrrEast2']<br>
+     * $weather['IrrEast3']<br>
+     * $weather['IrrWest0']<br>
+     * $weather['IrrWest1']<br>
+     * $weather['IrrWest2']<br>
+     * $weather['IrrWest3']<br>
+     * $weather['IrrHor0']<br>
+     * $weather['IrrHor1']<br>
+     * $weather['IrrHor2']<br>
+     * $weather['IrrHor3']<br>
      * $weather['temp_cell_corr']<br>
      * $weather['temp_cell_multi_irr']<br>
      * $weather['theoPower'] Theoretical Energie RAW (Pnom * Irr)<br>
@@ -65,8 +82,11 @@ class WeatherFunctionsService
      * $weather['theoPowerTempCorr'] Theoretical Energie Tempertatur koriegiert<br>
      * $weather['theoPowerTempCorr'] Theoretical Energie Tempertatur koriegiert + degradation<br>
      *
+     * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
+     * @param bool $ppc
+     * @param Anlage $anlage
      * @param int|null $inverterID
      * @return array|null
      * @throws InvalidArgumentException
@@ -134,9 +154,9 @@ class WeatherFunctionsService
                     SUM(((g_upper + g_lower) / 2) * $tempCorrFunctionNREL * $pNom) as theo_power_temp_corr_nrel,
                     SUM(((g_upper + g_lower) / 2) * $tempCorrFunctionIEC * $pNom * $degradation) as theo_power_temp_corr_deg_iec,
                     SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
-                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA2() . ", pa2, 1))  as theo_power_pa2,
-                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA1() . ", pa1, 1))  as theo_power_pa1,
-                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA0() . ", pa0, 1))  as theo_power_pa0,
+                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
+                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA1() . ", pa1, 1)) as theo_power_pa1,
+                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA0() . ", pa0, 1)) as theo_power_pa0,
                 ";
                 }
 
@@ -168,6 +188,7 @@ class WeatherFunctionsService
                     WHERE s.stamp >= '$from' AND s.stamp < '$to'
                         $sqlPPCpart2;
                  ";
+
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -183,6 +204,22 @@ class WeatherFunctionsService
                         $weather['upperIrr'] = $row['irr_upper'];
                         $weather['lowerIrr'] = $row['irr_lower'];
                     }
+                    $weather['irr0'] = $weather['upperIrr'];
+                    $weather['irr1'] = $weather['upperIrr'];
+                    $weather['irr2'] = $weather['upperIrr'];
+                    $weather['irr3'] = $weather['upperIrr'];
+                    $weather['irrEast0'] = $weather['upperIrr'];
+                    $weather['irrEast1'] = $weather['upperIrr'];
+                    $weather['irrEast2'] = $weather['upperIrr'];
+                    $weather['irrEast3'] = $weather['upperIrr'];
+                    $weather['irrWest0'] = $weather['lowerIrr'];
+                    $weather['irrWest1'] = $weather['lowerIrr'];
+                    $weather['irrWest2'] = $weather['lowerIrr'];
+                    $weather['irrWest3'] = $weather['lowerIrr'];
+                    $weather['irrHor0'] = $weather['horizontalIrr'];
+                    $weather['irrHor1'] = $weather['horizontalIrr'];
+                    $weather['irrHor2'] = $weather['horizontalIrr'];
+                    $weather['irrHor3'] = $weather['horizontalIrr'];
                     $weather['temp_cell_corr'] = $row['temp_cell_corr'];
                     $weather['temp_cell_multi_irr'] = $row['temp_cell_multi_irr'];
                     $weather['theoPowerPA0'] = $row['theo_power_pa0'] / 1000 / 4;
@@ -204,6 +241,9 @@ class WeatherFunctionsService
         });
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     private function determineTModAvg(Anlage $anlage, string|DateTime $from, string|DateTime $to): float
     {
         if (is_string($from)) $from = date_create($from);
@@ -265,8 +305,7 @@ class WeatherFunctionsService
             if ($irrUpper < 0) $irrUpper = 0;
             if ($irrLower < 0) $irrLower = 0;
 
-// Sensoren sind vertauscht, Werte tauschen
-
+            // Sensoren sind vertauscht, Werte tauschen
             if ($anlage->getWeatherStation()->getChangeSensor()) {
                 $irrHelp = $irrLower;
                 $irrLower = $irrUpper;
@@ -290,7 +329,11 @@ class WeatherFunctionsService
      * Function to retrieve All Sensor (Irr) Data from Databse 'db_ist' for selected Daterange
      * Return Array with
      *
+     * @param Anlage $anlage
+     * @param DateTime $from
+     * @param DateTime $to
      * @return array
+     * @throws \JsonException
      */
     public function getSensors(Anlage $anlage, DateTime $from, DateTime $to): array
     {

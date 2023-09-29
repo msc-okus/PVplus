@@ -385,6 +385,10 @@ class Ticket
         return explode(", ",$this->scope);
     }
 
+    public function isScope($value): bool
+    {
+        return in_array($value, $this->getScope());
+    }
     public function setScope(?array $scope): self
     {
         $this->scope = implode(", ",$scope);
