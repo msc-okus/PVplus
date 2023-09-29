@@ -2,14 +2,11 @@
 
 namespace App\Entity;
 
-
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
-
+use ApiPlatform\Doctrine\Odm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\AnlagenRepository;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -19,10 +16,19 @@ use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
-use Symfony\Contracts\Cache\CacheInterface;
 
+#[ApiResource(
+    shortName: 'analges',
+    operations: [
+        new GetCollection(normalizationContext: ['groups' => 'api:read']),
+        new Get(normalizationContext: ['groups' => 'api:read'])
+    ],
+    security: 'ROLE_ADMIN, ROLE_API_USER'
+
+)]
+#[ApiFilter(SearchFilter::class, properties: ['anlName' => 'partial'])]
 /**
- * @ApiResource(
+ * ApiResource(
  *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={
  *      "get"={"security"="is_granted('ROLE_API_USER')"},
@@ -40,7 +46,7 @@ use Symfony\Contracts\Cache\CacheInterface;
  *          "formats"={ "json", "jsonld","html", "csv"={"text/csv"}}
  *     }
  * )
- * @ApiFilter(SearchFilter::class, properties={"anlName":"partial"})
+ * ApiFilter(SearchFilter::class, properties={"anlName":"partial"})
  *
  */
 #[ORM\Table(name: 'anlage')]
