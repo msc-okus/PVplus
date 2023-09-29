@@ -23,7 +23,8 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
         new GetCollection(normalizationContext: ['groups' => 'api:read']),
         new Get(normalizationContext: ['groups' => 'api:read'])
     ],
-    security: 'ROLE_ADMIN, ROLE_API_USER'
+    security: 'ROLE_ADMIN, ROLE_API_USER',
+
 
 )]
 #[ApiFilter(SearchFilter::class, properties: ['anlName' => 'partial'])]

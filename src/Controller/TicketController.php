@@ -19,9 +19,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TicketController extends BaseController
 {
+    public function __construct(
+        private readonly TranslatorInterface $translator)
+    {
+    }
+
     use PVPNameArraysTrait;
 
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
