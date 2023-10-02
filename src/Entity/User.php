@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Odm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,9 +13,18 @@ use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+#[ApiResource(
+    shortName: 'users',
+    formats: ['jsonld', 'json'],
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
+    paginationItemsPerPage: 10,
+    security: "ROLE_ADMIN"
+)]
+#[ApiFilter(SearchFilter::class, properties: ['anlName' => 'partital'])]
 
 /**
- * @ApiResource(
+ * ApiResource(
  *      security="is_granted('ROLE_ADMIN')",
  *      securityMessage="Only Admin can access to this page",
  *      collectionOperations={
@@ -27,7 +39,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
  *     }
  * )
- * @ApiFilter(SearchFilter::class, properties={"anlName":"partial"})
+ * ApiFilter(SearchFilter::class, properties={"anlName":"partial"})
  *
  */
 #[ORM\Table(name: 'pvp_user')]
