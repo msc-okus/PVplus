@@ -5,10 +5,8 @@ namespace App\Form\Ticket;
 use App\Entity\TicketDate;
 use App\Form\Type\SwitchType;
 use App\Helper\PVPNameArraysTrait;
-use FluidTYPO3\Flux\Form\Field\DateTime;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -18,14 +16,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TicketDateEmbeddedFormType extends AbstractType
 {
-    use PVPNameArraysTrait;
-
     public function __construct(
         private readonly Security $security,
         private readonly TranslatorInterface $translator
     )
     {
     }
+
+    use PVPNameArraysTrait;
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

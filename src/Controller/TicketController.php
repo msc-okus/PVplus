@@ -24,6 +24,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class TicketController extends BaseController
 {
 
+    public function __construct(
+        private readonly TranslatorInterface $translator)
+    {
+    }
+
+    use PVPNameArraysTrait;
 
     public function __construct(private readonly TranslatorInterface $translator)
     {
