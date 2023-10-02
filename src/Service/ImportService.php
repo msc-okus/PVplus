@@ -96,8 +96,8 @@ class ImportService
             $inverters = $bulkMeaserments['inverters'];
             $sensors = $bulkMeaserments['sensors'];
 
-            $anlageSensors = $this->serializer->normalize($anlage->getSensors(), null);
-
+            #$anlageSensors = $this->serializer->normalize($anlage->getSensors(), null);
+            $anlageSensors = $anlage->getSensors()->toArray();
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
 
                 $stamp = date('Y-m-d H:i', $timestamp);

@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ApiResource(
@@ -23,6 +24,9 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
         new GetCollection(normalizationContext: ['groups' => 'api:read']),
         new Get(normalizationContext: ['groups' => 'api:read'])
     ],
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
+    paginationItemsPerPage: 30,
     security: 'ROLE_ADMIN, ROLE_API_USER',
 
 
@@ -3863,17 +3867,11 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    /**
-     * @return Collection<int, AnlageSensors>
-     */
     public function getSensors(): Collection
     {
         return $this->sensors;
     }
 
-    /**
-     * @return Collection<int, AnlageSensors>
-     */
     public function getSensorsInUse(): Collection
     {
         $criteria = AnlagenRepository::sensorsInUse();
