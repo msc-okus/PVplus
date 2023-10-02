@@ -13,7 +13,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
-use Symfony\Component\Serializer\SerializerInterface;
 class ImportService
 {
     use ImportFunctionsTrait;
@@ -28,8 +27,7 @@ class ImportService
         private readonly EntityManagerInterface $em,
         private readonly AvailabilityService $availabilityService,
         private readonly MeteoControlService $meteoControlService,
-        private readonly ManagerRegistry $doctrine,
-        private readonly SerializerInterface $serializer
+        private readonly ManagerRegistry $doctrine
     )
     {
     }
@@ -96,8 +94,8 @@ class ImportService
             $inverters = $bulkMeaserments['inverters'];
             $sensors = $bulkMeaserments['sensors'];
 
-            #$anlageSensors = $this->serializer->normalize($anlage->getSensors(), null);
-            $anlageSensors = $anlage->getSensors()->toArray();
+            $anlageSensors = $anlage->getSensors();
+
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
 
                 $stamp = date('Y-m-d H:i', $timestamp);
@@ -114,7 +112,7 @@ class ImportService
                 if (is_array($sensors) && array_key_exists($date, $sensors)) {
                     $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
 
-                    $checkSensors = self::checkSensors($anlageSensors, $length, (bool)$isEastWest, $sensors, $date);
+                    $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
 
                     $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
