@@ -31,32 +31,32 @@ class AssetManagementService
 {
     use G4NTrait;
 
-    private readonly PDO $conn;
+    private PDO $conn;
 
     public function __construct(
-        private readonly PdoService $pdoService,
-        private readonly EntityManagerInterface $em,
-        private readonly PvSystMonthRepository $pvSystMonthRepo,
-        private readonly FunctionsService $functions,
-        private readonly NormalizerInterface $serializer,
-        private readonly DownloadAnalyseService $DownloadAnalyseService,
-        private readonly EconomicVarValuesRepository $ecoVarValueRepo,
-        private readonly PRCalulationService $PRCalulation,
-        private readonly EconomicVarNamesRepository $ecoVarNameRepo,
-        private readonly AvailabilityByTicketService $availability,
-        private readonly TicketDateRepository $ticketDateRepo,
-        private readonly ReportsRepository $reportRepo,
-        private readonly Environment $twig,
+        private PdoService $pdoService,
+        private EntityManagerInterface $em,
+        private PvSystMonthRepository $pvSystMonthRepo,
+        private FunctionsService $functions,
+        private NormalizerInterface $serializer,
+        private DownloadAnalyseService $DownloadAnalyseService,
+        private EconomicVarValuesRepository $ecoVarValueRepo,
+        private PRCalulationService $PRCalulation,
+        private EconomicVarNamesRepository $ecoVarNameRepo,
+        private AvailabilityByTicketService $availability,
+        private TicketDateRepository $ticketDateRepo,
+        private ReportsRepository $reportRepo,
+        private Environment $twig,
         private PdfService $pdf,
-        private readonly LogMessagesService $logMessages,
-        private readonly ReportsMonthlyV2Service $reportsMonthly,
-        private readonly AnlagenRepository $anlagenRepository,
-        private readonly SensorService $sensorService,
-        private readonly WeatherFunctionsService $weatherFunctions,
-        private readonly ForcastDayRepository $forecastDayRepo,
-        private readonly Filesystem $fileSystemFtp,
-        private readonly Filesystem $filesystem,
-        private readonly AnlageFileRepository $RepositoryUpload
+        private LogMessagesService $logMessages,
+        private ReportsMonthlyV2Service $reportsMonthly,
+        private AnlagenRepository $anlagenRepository,
+        private SensorService $sensorService,
+        private WeatherFunctionsService $weatherFunctions,
+        private ForcastDayRepository $forecastDayRepo,
+        private Filesystem $fileSystemFtp,
+        private Filesystem $filesystem,
+        private AnlageFileRepository $RepositoryUpload
     )
     {
         $this->conn = $this->pdoService->getPdoPlant();
@@ -117,8 +117,8 @@ class AssetManagementService
         }
         $images = self::makeTempFiles($fileArray, $this->filesystem);
 
-        if ($images['Logo'] != null) $tempFileLogo = $images['Logo'];
-        if ($images['PlantPic'] != null) $tempFilePlantImage = $images['PlantPic'];
+        if ($images['Logo'] != null)$tempFileLogo = $images['Logo'];
+        if ($images['PlantPic'] != null)$tempFilePlantImage = $images['PlantPic'];
 
         $html = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
@@ -127,6 +127,7 @@ class AssetManagementService
             'logoImage' => $tempFileLogo,
             'month' => $reportMonth,
             'monthName' => $output['month'],
+            'year' => $reportYear,
             'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
@@ -389,7 +390,7 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
-            'invNr' => is_countable($content['plantAvailabilityMonth']) ? count($content['plantAvailabilityMonth']) : 0,
+            'invNr' => count($content['plantAvailabilityMonth']),
             'operations_currents_dayly_table' => $content['operations_currents_dayly_table'],
             'acGroups' => $content['acGroups'],
         ]);
@@ -407,7 +408,7 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
-            'invNr' => is_countable($content['plantAvailabilityMonth']) ? count($content['plantAvailabilityMonth']) : 0,
+            'invNr' => count($content['plantAvailabilityMonth']),
             'operations_currents_dayly_table' => $content['operations_currents_dayly_table'],
             'acGroups' => $content['acGroups'],
         ]);
@@ -425,7 +426,7 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
-            'invNr' => is_countable($content['plantAvailabilityMonth']) ? count($content['plantAvailabilityMonth']) : 0,
+            'invNr' => count($content['plantAvailabilityMonth']),
             'operations_currents_dayly_table' => $content['operations_currents_dayly_table'],
             'acGroups' => $content['acGroups'],
             'plantAvailabilityCurrentYear' => $content['plantAvailabilityCurrentYear'],
@@ -444,7 +445,7 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
-            'invNr' => is_countable($content['plantAvailabilityMonth']) ? count($content['plantAvailabilityMonth']) : 0,
+            'invNr' => count($content['plantAvailabilityMonth']),
             'Availability_Year_To_Date_Table' => $content['Availability_Year_To_Date_Table'],
             'availability_Year_To_Date' => $content['availability_Year_To_Date'],
             'failures_Year_To_Date' => $content['failures_Year_To_Date'],
@@ -490,7 +491,7 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
-            'invNr' => is_countable($content['plantAvailabilityMonth']) ? count($content['plantAvailabilityMonth']) : 0,
+            'invNr' => count($content['plantAvailabilityMonth']),
             'plantAvailabilityMonth' => $content['plantAvailabilityMonth'],
             'acGroups' => $content['acGroups']
         ]);
@@ -509,7 +510,7 @@ class AssetManagementService
                 'reportmonth' => $content['reportmonth'],
                 'monthArray' => $content['monthArray'],
                 //until here all the parameters must be used in all the renders
-                'invNr' => is_countable($content['plantAvailabilityMonth']) ? count($content['plantAvailabilityMonth']) : 0,
+                'invNr' => count($content['plantAvailabilityMonth']),
                 'plantAvailabilityMonth' => $content['plantAvailabilityMonth'],
                 'acGroups' => $content['acGroups'],
                 'income_per_month' => $content['income_per_month'],
@@ -580,6 +581,8 @@ class AssetManagementService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param array $report
      * @param int|null $logId
      * @return array
      * @throws NoResultException
@@ -622,14 +625,11 @@ class AssetManagementService
         $pr_rank_graph = [];
         $index = 0;
         $index2 = 0;
-        $sumPr = 0;
         $avgPr = $inverterPRArray['PRAvg'];
         $InverterOverAvgCount = 0;
         $prSumaryTable = [];
-
-        while ((is_countable($inverterPRArray['powerYield']) ? count($inverterPRArray['powerYield']) : 0) !== 0){
+        while (count($inverterPRArray['powerYield']) !== 0){
             $keys = array_keys($inverterPRArray['powerYield'], min($inverterPRArray['powerYield']));
-
             foreach($keys as $key ){
                 $orderedArray[$index2][$index]['name'] = $inverterPRArray['name'][$key];
                 $orderedArray[$index2][$index]['powerYield'] = $inverterPRArray['powerYield'][$key];
@@ -642,16 +642,11 @@ class AssetManagementService
                 $orderedArray[$index2][$index]['calcPR'] = $inverterPRArray['calcPR'][$key];
                 $graphDataPR[$index2]['name'][] = $inverterPRArray['name'][$key];
                 $graphDataPR[$index2]['PR'][]= $inverterPRArray['invPR'][$key];
-
-                $sumPr = $sumPr + $inverterPRArray['invPR'][$key];
                 $graphDataPR[$index2]['power'][]= $inverterPRArray['power'][$key];
-
                 if ($inverterPRArray['invPR'][$key] > $avgPr){
                     $InverterOverAvgCount = $InverterOverAvgCount + 1;
                 }
-                $sumPr = $sumPr + $inverterPRArray['invPR'][$key];
                 $graphDataPR[$index2]['powerYield'][]= $inverterPRArray['powerYield'][$key];
-
                 $graphDataPR[$index2]['yield'] = $inverterPRArray['calcPR'][$key];
                 unset($inverterPRArray['powerYield'][$key]);
                 $index = $index + 1;
@@ -661,9 +656,6 @@ class AssetManagementService
                 }
             }
         }
-
-        $avgPr = round($sumPr / (is_countable($inverterPRArray['invPR']) ? count($inverterPRArray['invPR']) : 0), 2);
-
         $invPercentage = $InverterOverAvgCount / count($invArray) * 100;
         $prSumaryTable[1]['InvCount'] = $InverterOverAvgCount;
         $prSumaryTable[1]['percentage'] = $invPercentage;
@@ -837,7 +829,7 @@ class AssetManagementService
         $currentMonth = date('m');
 
         if ($report['reportMonth'] < 10) {
-            $report['reportMonth'] = str_replace(0, '', (string) $report['reportMonth']);
+            $report['reportMonth'] = str_replace(0, '', $report['reportMonth']);
         }
 
 
@@ -850,7 +842,7 @@ class AssetManagementService
 
         $acGroups = $anlage->getAcGroups()->toArray();
         for ($i = 0; $i < count($acGroups); ++$i) {
-            $acGroupsCleaned[] = substr((string) $acGroups[$i]->getacGroupName(), strpos((string) $acGroups[$i]->getacGroupName(), 'INV'));
+            $acGroupsCleaned[] = substr($acGroups[$i]->getacGroupName(), strpos($acGroups[$i]->getacGroupName(), 'INV'));
         }
 
         for ($i = 1; $i <= 12; ++$i) {
@@ -869,7 +861,7 @@ class AssetManagementService
             if ($anlage->hasPVSYST()) {
                 try {
                     $resultErtrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
-                } catch (NonUniqueResultException) {
+                } catch (NonUniqueResultException $e) {
                 }
             } else {
                 $resultErtrag_design = 0;
@@ -2149,7 +2141,7 @@ class AssetManagementService
         $availabilityYearToDateTable = [
             'expectedAvailability' => (int) $anlage->getContractualAvailability(),
             'expectedSOF' => 0, // this will be a variable in the future
-            'expectedEFOR' => 0, // and this
+            'expectedEFOR' => 0,// and this
             'expectedOMC' => 0, // and this
             'expectedGaps' => 0,
             'actualAvailability' => $actualAvailabilityPorcent,
@@ -2447,7 +2439,7 @@ class AssetManagementService
                         if ($dcIst[$j]['group'] == $value[$i]['invgroup']) {
                             $dcExpDcIst[] = [
                                 'group' => $value[$i]['invgroup'],
-                                'form_date' => date('d', strtotime((string) $value['form_date'])),
+                                'form_date' => date('d', strtotime($value['form_date'])),
                                 'exp_power_dc' => $value[$i]['exp_power_dc'],
                                 'exp_current_dc' => $value[$i]['exp_current_dc'],
                                 'act_power_dc' => 0,
@@ -2455,7 +2447,7 @@ class AssetManagementService
                                 'diff_current_dc' => -101,
                                 'diff_power_dc' => -101,
                             ];
-                            if (date('d', strtotime((string) $value[$i]['form_date'])) >= $daysInReportMonth) {
+                            if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                                 $outTableCurrentsPower[] = $dcExpDcIst;
                                 unset($dcExpDcIst);
                             }
@@ -2463,7 +2455,7 @@ class AssetManagementService
                         } else {
                             $dcExpDcIst[] = [
                                 'group' => $dcIst[$j]['invgroup'],
-                                'form_date' => date('d', strtotime((string) $dcIst[$j]['form_date'])),
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
                                 'exp_power_dc' => 0,
                                 'exp_current_dc' => 0,
                                 'act_power_dc' => $dcIst[$j]['act_power_dc'],
@@ -2471,7 +2463,7 @@ class AssetManagementService
                                 'diff_current_dc' => -101,
                                 'diff_power_dc' => -101,
                             ];
-                            if (date('d', strtotime((string) $dcIst[$j]['form_date'])) >= $daysInReportMonth) {
+                            if (date('d', strtotime($dcIst[$j]['form_date'])) >= $daysInReportMonth) {
                                 $outTableCurrentsPower[] = $dcExpDcIst;
                                 unset($dcExpDcIst);
                             }
@@ -2481,7 +2473,7 @@ class AssetManagementService
                         if ($dcIst[$j]['group'] == $value[$i]['invgroup']) {
                             $dcExpDcIst[] = [
                                 'group' => $dcIst[$j]['invgroup'],
-                                'form_date' => date('d', strtotime((string) $dcIst[$j]['form_date'])),
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
                                 'exp_power_dc' => 0,
                                 'exp_current_dc' => 0,
                                 'act_power_dc' => $dcIst[$j]['act_power_dc'],
@@ -2489,7 +2481,7 @@ class AssetManagementService
                                 'diff_current_dc' => -101,
                                 'diff_power_dc' => -101,
                             ];
-                            if (date('d', strtotime((string) $dcIst[$j]['form_date'])) >= $daysInReportMonth) {
+                            if (date('d', strtotime($dcIst[$j]['form_date'])) >= $daysInReportMonth) {
                                 $outTableCurrentsPower[] = $dcExpDcIst;
                                 unset($dcExpDcIst);
                             }
@@ -2498,7 +2490,7 @@ class AssetManagementService
                             if ($dcIst[$j]['group'] == $value[$i]['invgroup']) {
                                 $dcExpDcIst[] = [
                                     'group' => $value[$i]['invgroup'],
-                                    'form_date' => date('d', strtotime((string) $value['form_date'])),
+                                    'form_date' => date('d', strtotime($value['form_date'])),
                                     'exp_power_dc' => $value[$i]['exp_power_dc'],
                                     'exp_current_dc' => $value[$i]['exp_current_dc'],
                                     'act_power_dc' => 0,
@@ -2506,7 +2498,7 @@ class AssetManagementService
                                     'diff_current_dc' => -101,
                                     'diff_power_dc' => -101,
                                 ];
-                                if (date('d', strtotime((string) $value[$i]['form_date'])) >= $daysInReportMonth) {
+                                if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                                     $outTableCurrentsPower[] = $dcExpDcIst;
                                     unset($dcExpDcIst);
                                 }
@@ -2516,7 +2508,7 @@ class AssetManagementService
                     } else {
                         $dcExpDcIst[] = [
                             'group' => $value[$i]['invgroup'],
-                            'form_date' => date('d', strtotime((string) $dcIst[$j]['form_date'])),
+                            'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
                             'exp_power_dc' => $value[$i]['exp_power_dc'],
                             'exp_current_dc' => $value[$i]['exp_current_dc'],
                             'act_power_dc' => $dcIst[$j]['act_power_dc'],
@@ -2524,7 +2516,7 @@ class AssetManagementService
                             'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 : 0,
                             'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 : 0,
                         ];
-                        if (date('d', strtotime((string) $value[$i]['form_date'])) >= $daysInReportMonth) {
+                        if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                             $outTableCurrentsPower[] = $dcExpDcIst;
                             unset($dcExpDcIst);
                         }
@@ -2538,7 +2530,7 @@ class AssetManagementService
                         if ($dcIst[$j]['group'] == $value[$i]['invgroup']) {
                             $dcExpDcIst[] = [
                                 'group' => $value[$i]['invgroup'],
-                                'form_date' => date('d', strtotime((string) $value['form_date'])),
+                                'form_date' => date('d', strtotime($value['form_date'])),
                                 'exp_power_dc' => $value[$i]['exp_power_dc'],
                                 'exp_current_dc' => $value[$i]['exp_current_dc'],
                                 'act_power_dc' => 0,
@@ -2546,7 +2538,7 @@ class AssetManagementService
                                 'diff_current_dc' => -101,
                                 'diff_power_dc' => -101,
                             ];
-                            if (date('d', strtotime((string) $value[$i]['form_date'])) >= $daysInReportMonth) {
+                            if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                                 $outTableCurrentsPower[] = $dcExpDcIst;
                                 unset($dcExpDcIst);
                             }
@@ -2554,7 +2546,7 @@ class AssetManagementService
                         } else {
                             $dcExpDcIst[] = [
                                 'group' => $dcIst[$j]['invgroup'],
-                                'form_date' => date('d', strtotime((string) $dcIst[$j]['form_date'])),
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
                                 'exp_power_dc' => 0,
                                 'exp_current_dc' => 0,
                                 'act_power_dc' => $dcIst[$j]['act_power_dc'],
@@ -2562,7 +2554,7 @@ class AssetManagementService
                                 'diff_current_dc' => -101,
                                 'diff_power_dc' => -101,
                             ];
-                            if (date('d', strtotime((string) $dcIst[$j]['form_date'])) >= $daysInReportMonth) {
+                            if (date('d', strtotime($dcIst[$j]['form_date'])) >= $daysInReportMonth) {
                                 $outTableCurrentsPower[] = $dcExpDcIst;
                                 unset($dcExpDcIst);
                             }
@@ -2572,7 +2564,7 @@ class AssetManagementService
                         if ($dcIst[$j]['group'] == $value[$i]['invgroup']) {
                             $dcExpDcIst[] = [
                                 'group' => $dcIst[$j]['invgroup'],
-                                'form_date' => date('d', strtotime((string) $dcIst[$j]['form_date'])),
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
                                 'exp_power_dc' => 0,
                                 'exp_current_dc' => 0,
                                 'act_power_dc' => $dcIst[$j]['act_power_dc'],
@@ -2580,7 +2572,7 @@ class AssetManagementService
                                 'diff_current_dc' => -101,
                                 'diff_power_dc' => -101,
                             ];
-                            if (date('d', strtotime((string) $dcIst[$j]['form_date'])) >= $daysInReportMonth) {
+                            if (date('d', strtotime($dcIst[$j]['form_date'])) >= $daysInReportMonth) {
                                 $outTableCurrentsPower[] = $dcExpDcIst;
                                 unset($dcExpDcIst);
                             }
@@ -2589,7 +2581,7 @@ class AssetManagementService
                             if ($dcIst[$j]['group'] == $value[$i]['invgroup']) {
                                 $dcExpDcIst[] = [
                                     'group' => $value[$i]['invgroup'],
-                                    'form_date' => date('d', strtotime((string) $value['form_date'])),
+                                    'form_date' => date('d', strtotime($value['form_date'])),
                                     'exp_power_dc' => $value[$i]['exp_power_dc'],
                                     'exp_current_dc' => $value[$i]['exp_current_dc'],
                                     'act_power_dc' => 0,
@@ -2597,7 +2589,7 @@ class AssetManagementService
                                     'diff_current_dc' => -101,
                                     'diff_power_dc' => -101,
                                 ];
-                                if (date('d', strtotime((string) $value[$i]['form_date'])) >= $daysInReportMonth) {
+                                if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                                     $outTableCurrentsPower[] = $dcExpDcIst;
                                     unset($dcExpDcIst);
                                 }
@@ -2608,7 +2600,7 @@ class AssetManagementService
                         if ($value[$i]['exp_power_dc'] > 0) {
                             $dcExpDcIst[] = [
                                 'group' => $value[$i]['invgroup'],
-                                'form_date' => date('d', strtotime((string) $dcIst[$j]['form_date'])),
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
                                 'exp_power_dc' => $value[$i]['exp_power_dc'],
                                 'exp_current_dc' => $value[$i]['exp_current_dc'],
                                 'act_power_dc' => $dcIst[$j]['act_power_dc'],
@@ -2620,7 +2612,7 @@ class AssetManagementService
                         else{
                             $dcExpDcIst[] = [
                                 'group' => $value[$i]['invgroup'],
-                                'form_date' => date('d', strtotime((string) $dcIst[$j]['form_date'])),
+                                'form_date' => date('d', strtotime($dcIst[$j]['form_date'])),
                                 'exp_power_dc' => $value[$i]['exp_power_dc'],
                                 'exp_current_dc' => $value[$i]['exp_current_dc'],
                                 'act_power_dc' => $dcIst[$j]['act_power_dc'],
@@ -2629,7 +2621,7 @@ class AssetManagementService
                                 'diff_power_dc' => 0,
                             ];
                         }
-                        if (date('d', strtotime((string) $value[$i]['form_date'])) >= $daysInReportMonth) {
+                        if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                             $outTableCurrentsPower[] = $dcExpDcIst;
                             unset($dcExpDcIst);
                         }
@@ -2644,7 +2636,7 @@ class AssetManagementService
                 if ($j == $actualCounter) {
                     $dcExpDcIst[] = [
                         'group' => $dcIst[$actualCounter]['group'],
-                        'form_date' => date('d', strtotime((string) $dcIst[$actualCounter]['form_date'])),
+                        'form_date' => date('d', strtotime($dcIst[$actualCounter]['form_date'])),
                         'exp_power_dc' => 0,
                         'exp_current_dc' => 0,
                         'act_power_dc' => $dcIst[$actualCounter]['act_power_dc'],
@@ -2971,7 +2963,7 @@ class AssetManagementService
                             $var9[$i] +
                             $var10[$i];
                         (float)$kwhPrice[$i] = $ecoVarValues[$counter]->getKwHPrice();
-                        if ($counter < (is_countable($ecoVarValues) ? count($ecoVarValues) : 0) - 1) $counter++;
+                        if ($counter < count($ecoVarValues) - 1) $counter++;
                     }       else{
                         $economicsMandy [$i] = 0;
                         $var1[$i] = 0.0;
@@ -3075,7 +3067,7 @@ class AssetManagementService
             if ($anlage->hasPVSYST()) {
                 try {
                     $resultErtrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i + 1);
-                } catch (NonUniqueResultException) {
+                } catch (NonUniqueResultException $e) {
                 }
             } else {
                 $resultErtrag_design = 0;
@@ -3668,15 +3660,15 @@ class AssetManagementService
         $monthDate = $report['reportYear'].'-'.$report['reportMonth']."-01 00:00";
 
 
-        $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($monthDate))), date_create(date("Y-m-d ",strtotime((string) $report['to']))));
-        $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['reportYear']."-01-01"))), date_create(date("Y-m-d ",strtotime((string) $report['to']))));
+        $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($monthDate))), date_create(date("Y-m-d ",strtotime($report['to']))));
+        $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['reportYear']."-01-01"))), date_create(date("Y-m-d ",strtotime($report['to']))));
 
         $efficiencyArray= $this->calcPRInvArrayDayly($anlage, "01", "2023");
         $orderedEfficiencyArray = [];
         $index = 0;
         $index2 = 0;
         $index3 = 0;
-        while ((is_countable($efficiencyArray['avg']) ? count($efficiencyArray['avg']) : 0) !== 0){
+        while (count($efficiencyArray['avg']) !== 0){
             $keys = array_keys($efficiencyArray['avg'], min($efficiencyArray['avg']));
             foreach($keys as $key ){
                 $orderedEfficiencyArray[$index2]['avg'][$index] = $efficiencyArray['avg'][$key];
@@ -4081,10 +4073,13 @@ class AssetManagementService
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
             foreach($date->getInverterArray() as $inverter) {
                 if($inverter != "*") {
-                    $inverterQuery = match ($anlage->getConfigType()) {
-                        1 => " AND group_dc = '$inverter'",
-                        default => " AND group_ac = '$inverter'",
-                    };
+                    switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
+                        case 1 :
+                            $inverterQuery = " AND group_dc = '$inverter'";
+                            break;
+                        default:
+                            $inverterQuery = " AND group_ac = '$inverter'";
+                    }
                 }
                 else $inverterQuery = "";
                 if ($date->getAlertType() == 10 ) {
@@ -4162,6 +4157,7 @@ class AssetManagementService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $month
      * @param $year
      *
@@ -4203,6 +4199,7 @@ class AssetManagementService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $month
      * @param $year
      * @return array
@@ -4219,6 +4216,7 @@ class AssetManagementService
         $efficiencySum = 0;
         $efficiencyCount = 0;
         foreach($res->fetchAll(PDO::FETCH_ASSOC) as $result){
+            dump($result);
             if ($result['inverter'] != $inverter){
                 $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0;
                 $inverter = $result['inverter'];
@@ -4239,6 +4237,7 @@ class AssetManagementService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $month
      * @return float|int|mixed
      */

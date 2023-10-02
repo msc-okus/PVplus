@@ -6,7 +6,8 @@ use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
-use App\Service\AlertSystemV2Service;
+use App\Service\TicketsGeneration\InternalAlertSystemService;
+use App\Service\TicketsGeneration\AlertSystemV2Service;
 use App\Service\AssetManagementService;
 use App\Service\FunctionsService;
 use App\Service\PdfService;
@@ -30,45 +31,29 @@ class DefaultJMController extends AbstractController
         private $host,
         private $userBase,
         private $passwordBase,
-        private readonly Environment $twig,
-        private readonly PdfService $pdf,
-        private readonly FunctionsService $functions,
-        private readonly PRCalulationService $PRCalulation,
-        private readonly ReportsRepository $reportRepo,
+        private Environment $twig,
+        private PdfService $pdf,
+        private FunctionsService $functions,
+        private PRCalulationService $PRCalulation,
+        private ReportsRepository $reportRepo,
     )
     {
 
     }
-    #[Route(path: '/default/j/m', name: 'default_j_m')]
-    public function index() : Response
-    {
-        return $this->render('default_jm/index.html.twig', [
-            'controller_name' => 'DefaultJMController',
-        ]);
-    }
+
 
     #[Route(path: '/test/createticket', name: 'default_check')]
-    public function check(AnlagenRepository $anlagenRepository, AlertSystemV2Service $service): never
+    public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
     {
-        $anlage = $anlagenRepository->findIdLike("207")[0];
-        $fromStamp = strtotime("2023-06-15 00:00");
-        $toStamp = strtotime("2023-06-30 00:00");
+        $anlage = $anlagenRepository->findIdLike("96")[0];
+        $fromStamp = strtotime("2023-09-26 00:00");
+        $toStamp = strtotime("2023-09-27 14:00");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-            $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
+            $service->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
         }
         dd("hello World");
     }
 
-
-    #[Route(path: '/test/read', name: 'default_read')]
-    public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): \Symfony\Component\HttpFoundation\Response{
-        $anlage = $ar->findAlertSystemActive(true);
-        foreach ($anlage as $plant){
-            dump($plant->getAnlName());
-        }
-        dd('hello world ');
-        return $this->render('base.html.twig');// this is suposed to never run so no problem
-    }
     #[Route(path: '/test/pdf', name: 'default_pdf')]
     public function testpdf(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am){
         $anlage = $ar->findIdLike("110")[0];
@@ -78,7 +63,7 @@ class DefaultJMController extends AbstractController
         $index = 0;
         $index2 = 0;
         $index3 = 0;
-        while ((is_countable($efficiencyArray['avg']) ? count($efficiencyArray['avg']) : 0) !== 0){
+        while (count($efficiencyArray['avg']) !== 0){
             $keys = array_keys($efficiencyArray['avg'], min($efficiencyArray['avg']));
             foreach($keys as $key ){
                 $orderedArray[$index2]['avg'][$index] = $efficiencyArray['avg'][$key];
@@ -349,7 +334,7 @@ class DefaultJMController extends AbstractController
         $reportArray = $this->reportRepo->findOneByAMYT(null, "", "2023","monthly-report");
         foreach ($reportArray as $report){
 
-            $file = str_replace("/usr/home/pvpluy/public_html/public", "./pdf", (string) $report->getFile());
+            $file = str_replace("/usr/home/pvpluy/public_html/public", "./pdf", $report->getFile());
             $file = str_replace("//", "/", $file);
            $report->setFile($file);
 
@@ -359,4 +344,14 @@ class DefaultJMController extends AbstractController
         dd($fileSystemFtp);
 
     }
+    #[Route(path: '/test/bs', name: 'default_bs_test')]
+    public function testTime(AnlagenRepository $ar, WeatherServiceNew $ws){
+         $saran = $ar->find(104);//findOneBy(['id' => 104]);
+        //date_default_timezone_set($ws->getNearestTimezone($saran->getAnlGeoLat(), $saran->getAnlGeoLon(),strtoupper($saran->getCountry())));
+
+        $sunrisedata = date_sun_info(strtotime("2023-01-01"), (float) $saran->getAnlGeoLat(), (float) $saran->getAnlGeoLon());
+        //date_default_timezone_set('Europe/Vienna);
+        dd(Date("Y-m-d H:i:s", $sunrisedata['sunrise']), date_default_timezone_get());
+    }
+
 }

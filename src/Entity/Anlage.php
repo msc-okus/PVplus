@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ApiResource(
-    shortName: 'analges',
+    shortName: 'anlages',
     operations: [
         new GetCollection(normalizationContext: ['groups' => 'api:read']),
         new Get(normalizationContext: ['groups' => 'api:read'])
@@ -593,6 +593,10 @@ class Anlage implements \Stringable
 
     #[ORM\Column]
     private ?bool $ActivateTicketSystem = false;
+
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $internalTicketSystem = false;
+
 
     #[ORM\Column]
     private ?bool $kpiTicket = false;
@@ -3997,6 +4001,16 @@ class Anlage implements \Stringable
         $this->ppcBlockTicket = $ppcBlockTicket;
 
         return $this;
+    }
+
+    public function getInternalTicketSystem(): ?bool
+    {
+        return $this->internalTicketSystem;
+    }
+
+    public function setInternalTicketSystem(?bool $internalTicketSystem): void
+    {
+        $this->internalTicketSystem = $internalTicketSystem;
     }
 
 }

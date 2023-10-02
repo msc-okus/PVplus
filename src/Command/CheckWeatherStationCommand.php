@@ -4,9 +4,7 @@ namespace App\Command;
 
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-use App\Service\AlertSystemService;
-use App\Service\AlertSystemWeatherService;
-use Symfony\Component\Console\Attribute\AsCommand;
+use App\Service\TicketsGeneration\AlertSystemWeatherService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,25 +12,28 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name: 'pvp:weatherCheck',
-    description: '',
-)]
 class CheckWeatherStationCommand extends Command
 {
     use G4NTrait;
 
-    public function __construct(
-        private readonly AlertSystemWeatherService $alertService,
-        private readonly AnlagenRepository $anlRepo
-    )
+    protected static $defaultName = 'pvp:weatherCheck';
+
+    private AlertSystemWeatherService $alertService;
+
+
+    private AnlagenRepository $anlagenRepository;
+
+    public function __construct(AlertSystemWeatherService $alertService, AnlagenRepository $anlRepo)
     {
         parent::__construct();
+        $this->alertService = $alertService;
+        $this->anlagenRepository = $anlRepo;
     }
 
     protected function configure(): void
     {
         $this
+            ->setDescription('Generate Tickets')
             ->addArgument('plantid')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to start')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to end')
@@ -59,8 +60,8 @@ class CheckWeatherStationCommand extends Command
             $to = date('Y-m-d H:i:00', $time);
         }
         if ($from <= $to) {
-            $fromStamp = strtotime((string) $from);
-            $toStamp = strtotime((string) $to);
+            $fromStamp = strtotime($from);
+            $toStamp = strtotime($to);
 
             if (is_numeric($plantid)) {
                 $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
@@ -70,7 +71,7 @@ class CheckWeatherStationCommand extends Command
                 $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
             }
 
-            $counter = (($toStamp - $fromStamp) / 3600) * (is_countable($anlagen) ? count($anlagen) : 0);
+            $counter = (($toStamp - $fromStamp) / 3600) * count($anlagen);
             $io->progressStart($counter);
             $counter = ($counter * 4) - 1;
 

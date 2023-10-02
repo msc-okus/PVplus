@@ -226,7 +226,12 @@ trait PVPNameArraysTrait
         $errorCategory[$this->translator->trans('ticket.error.category.72')] = 72; //performance ticket
         $errorCategory[$this->translator->trans('ticket.error.category.73')] = 73; //performance ticket
         $errorCategory[$this->translator->trans('ticket.error.category.74')] = 74; //performance ticket
-
+        if( $this->isGranted('ROLE_G4N')) {
+            $errorCategory[$this->translator->trans('ticket.error.category.9')] = 9;
+            $errorCategory[$this->translator->trans('ticket.error.category.91')] = 91; //internal ticket
+            $errorCategory[$this->translator->trans('ticket.error.category.92')] = 92; //internal ticket
+            $errorCategory[$this->translator->trans('ticket.error.category.93')] = 93; //internal ticket
+        }
         return $errorCategory;
     }
     public function errorType(): array

@@ -4,8 +4,8 @@ namespace App\Command;
 
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-use App\Service\AlertSystemService;
-use App\Service\AlertSystemV2Service;
+use App\Service\TicketsGeneration\AlertSystemService;
+use App\Service\TicketsGeneration\AlertSystemV2Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -47,7 +47,6 @@ class GenerateTicketsCommand extends Command
         $plantid = $input->getArgument('plantid');
         $optionFrom = $input->getOption('from');
         $optionTo = $input->getOption('to');
-
         $time = time();
         $time = $time - ($time % 900);
         if ($optionFrom) {
