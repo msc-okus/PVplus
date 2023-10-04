@@ -548,7 +548,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('modAzimut', TextType::class, [
                 'label' => 'Modul azimut',
-                'help' => '[Modul azimut in degrees for S=180 O=90 W=180 ]',
+                'help' => '[Modul azimut in degrees for S=180 O=90 W=270 ]',
                 'label_html' => true,
                 'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3,'style' => 'width: 55px']
@@ -588,7 +588,14 @@ class AnlageFormType extends AbstractType
                 'label' => 'Has Frequency',
                 'help' => '[hasFrequency]',
             ])
-
+            // ###############################################
+            // ###          SUNSHADING MODEL              ####
+            // ###############################################
+            ->add('hasSunshadingModel', SwitchType::class, [
+                'label' => 'Use the Sunshading Model for this plant',
+                'help' => '[On / Off]',
+                'required' => false,
+            ])
             // ###############################################
             // ###            Availability                ####
             // ###############################################

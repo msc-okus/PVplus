@@ -188,6 +188,7 @@ private PdoService $pdoService,
      */
     public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
+        $time = date('Y-m-d',strtotime($time)); // reformat the passed $time to an only day stamp
         date_default_timezone_set($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
         //$offsetServer = new DateTimeZone("Europe/Luxembourg");

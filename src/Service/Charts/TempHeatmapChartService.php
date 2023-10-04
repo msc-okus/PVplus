@@ -24,7 +24,7 @@ class TempHeatmapChartService
         private readonly IrradiationChartService $irradiationChart,
         private readonly DCPowerChartService $DCPowerChartService,
         private readonly ACPowerChartsService $ACPowerChartService,
-        private readonly WeatherServiceNew $weatherServiceNew,
+        private readonly WeatherServiceNew $weatherService,
         private readonly FunctionsService $functions)
     {
 
@@ -63,12 +63,13 @@ class TempHeatmapChartService
         $dataArray = [];
         $counter = 0;
 
-        $sunArray = $this->weatherServiceNew->getSunrise($anlage, $from);
+        $sunArray = $this->weatherService->getSunrise($anlage, $from);
         $sunrise = strtotime((string) $sunArray['sunrise']);
+        $sunArray = $this->weatherService->getSunrise($anlage, $to);
         $sunset = strtotime((string) $sunArray['sunset']);
 
-        $from = date('Y-m-d H:00', $sunrise);
-        $to = date('Y-m-d H:00', $sunset + 3600);
+        $from = date('Y-m-d H:i', $sunrise);
+        $to = date('Y-m-d H:i', $sunset + 3600);
 
         switch ($anlage->getConfigType()) {
             case 3:

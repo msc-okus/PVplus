@@ -28,7 +28,7 @@
                         or form.selectedChart == 'acpnom' %}
                 maxSpan: {months: 3,},
                 showCustomRangeLabel: true,
-                singleDatePicker: false,
+                singleDatePicker: true,
                 linkedCalendars: true,
                     {% else %}
                 maxSpan: {months: 1,},
@@ -234,11 +234,8 @@
                     range: true,
                     min: 1,
                     max: {% if content.sumSeries|raw %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
-                values
-        : {% if  form.selectedSet %} {{ form.selectedSet }},
-                {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
-                slide
-        :
+                    values: {% if form.selectedSet %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
+                slide:
             function (event, ui) {
                 $("#sview").val("" + ui.values[0] + "-" + ui.values[1] + "");
                 $("#sviewhidden").val("[" + ui.values[0] + "," + ui.values[1] + "]");

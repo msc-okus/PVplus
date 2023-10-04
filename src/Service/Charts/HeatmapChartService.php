@@ -18,7 +18,7 @@ class HeatmapChartService
     use G4NTrait;
 
     public function __construct(
-private readonly PdoService $pdoService,
+        private readonly PdoService $pdoService,
         private readonly AnlagenStatusRepository $statusRepository,
         private readonly InvertersRepository     $invertersRepo,
         private readonly IrradiationChartService $irradiationChart,
@@ -57,7 +57,7 @@ private readonly PdoService $pdoService,
      * @throws InvalidArgumentException
      */
     // MS 05/2022
-    public function getHeatmap(Anlage $anlage, $from, $to, ?int $sets = 0, bool $hour = false): ?array
+    public function getHeatmap(Anlage $anlage, $from, $to, $sets = 0, bool $hour = false): ?array
     {
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
@@ -65,10 +65,11 @@ private readonly PdoService $pdoService,
 
         $sunArray = $this->weatherService->getSunrise($anlage, $from);
         $sunrise = strtotime((string) $sunArray['sunrise']);
+        $sunArray = $this->weatherService->getSunrise($anlage, $to);
         $sunset = strtotime((string) $sunArray['sunset']);
 
-        $from = date('Y-m-d H:00', $sunrise);
-        $to = date('Y-m-d H:00', $sunset + 3600);
+        $from = date('Y-m-d H:i', $sunrise);
+        $to = date('Y-m-d H:i', $sunset + 3600);
 
         switch ($anlage->getConfigType()) {
             case 3:
@@ -111,10 +112,10 @@ private readonly PdoService $pdoService,
         $sql = "SELECT T1.istPower,T1.$group,T1.ts,T2.g_upper
                 FROM (SELECT stamp as ts, wr_pac as istPower, ".$group."  FROM ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' and '$to' $sqladd GROUP BY ts, $group ORDER BY $group DESC)
                 AS T1
-                JOIN (SELECT stamp as ts, g_lower as g_lower , g_upper as g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp BETWEEN '$from' and '$to' ) 
+                JOIN (SELECT stamp as ts, g_lower as g_lower , g_upper as g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp BETWEEN '$from' and '$to') 
                 AS T2 
-                on (T1.ts = T2.ts) ;";
-
+                on (T1.ts = T2.ts);";
+      #  dd($from,$to, $sql);
         $resultActual = $conn->query($sql);
         $dataArray['inverterArray'] = $nameArray;
 

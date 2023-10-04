@@ -49,23 +49,32 @@ class ForcastWriteDBCommand extends Command {
 
         if ($anlageId and $anlage) {
         // Inputs die aus der DB werden gelesen
+        $usedayforecast = (float)$anlage->getUseDayForecast();  // Yes / No
         $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
         $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
         $input_mer = (integer)$anlage->getBezMeridan();   // Bezugsmeridan Mitteleuropa
         $input_mn = (integer)$anlage->getModNeigung();    // Modulneigung Grad in radiat deg2rad(45) <----
         $input_ma = (integer)$anlage->getModAzimut();     // Modul Azimut Grad Wert wenn Ausrichtung nach Süden: 0° nach Südwest: +45° nach Nord: +/-180° nach Osten: -90°
         $input_ab = (float)$anlage->getAlbeto();          // Albedo 0.15 Gras 0.3 Dac
-        // Start und End Datum für die API Abfrage Zeitraum  20 Jahre
+        // Start und End Datum für die API Abfrage Zeitraum 20 Jahre
         $startapidate = date("Y",strtotime("-21 year", time())).'1231';
         $endapidate = date("Y",strtotime("-1 year", time())).'0101';
         // Function zur Umkreissuche anhand der Lat & Log fehlt noch
         // hole den *.dat File Name aus der Datenbank
         $datfile_name = $anlage->getDatFilename();
-        if ($datfile_name) {
-            $datfile = "$datfile_name";
-            $this->datFileReaderService->read($datfile);
-          } else {
-            $io->error("abort : load the metodat file first");
+
+        if ($usedayforecast == 1) {
+
+            if ($datfile_name) {
+                $datfile = "$datfile_name";
+                $this->datFileReaderService->read($datfile);
+            } else {
+                $io->error("abort : load the metodat file first");
+                exit();
+            }
+
+        } else {
+            $io->error("abort : enable this features in the settings");
             exit();
         }
 
