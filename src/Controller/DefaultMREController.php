@@ -7,24 +7,16 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\AvailabilityService;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\CheckSystemStatusService;
+use App\Service\CheckSystemStatusService;
+use App\Service\ExportService;
 use App\Service\ExpectedService;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\ExportService;
-use App\Service\Functions\SensorService;
-use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\ReportEpcPRNewService;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\Reports\ReportsMonthlyV2Service;
-use App\Service\WeatherFunctionsService;
 use Doctrine\ORM\NonUniqueResultException;
-use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
-use Knp\Snappy\Pdf;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Twig\Environment;
 
 #[IsGranted('ROLE_G4N')]
 class DefaultMREController extends BaseController
@@ -68,7 +60,31 @@ class DefaultMREController extends BaseController
     }
 
     /**
-     * @throws \Exception
+     * @throws InvalidArgumentException
+     */
+    #[Route(path: '/mr/pa/{plant}', defaults: ['plant' => 211])]
+    public function updatePA($plant, AvailabilityByTicketService $availability, AnlagenRepository $anlagenRepository): Response
+    {
+        $anlage = $anlagenRepository->find($plant);
+        $from = '2023-06-01 00:00'; //date('Y-m-d 00:00');
+        $to =  '2023-09-30 23:59';// date('Y-m-d 13:59');
+        $ergebniss = "";
+        for ($stamp = strtotime($from); $stamp <= strtotime($to); $stamp = $stamp + (24 * 3600)) {
+            $from = date('Y-m-d 00:00', $stamp);
+            #$ergebniss .= $availability->checkAvailability($anlage, $from, 0) . "<br>";
+            #$ergebniss .= $availability->checkAvailability($anlage, $from, 1) . "<br>";
+            $ergebniss .= $availability->checkAvailability($anlage, $from, 2) . "<br>";
+            #$ergebniss .= $availability->checkAvailability($anlage, $from, 3) . "<hr>";
+        }
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Update PA',
+            'availabilitys' => '',
+            'output' => $ergebniss,
+        ]);
+    }
+
+    /**
+     * @throws \Exception|InvalidArgumentException
      */
     #[Route(path: '/mr/pa/test/{plant}/{year}/{month}/{day}', defaults: ['plant' => 108, 'year' => 2022, 'month' => 3, 'day' => 31])]
     public function testPA(int $plant, int $year, int $month, int $day, AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
@@ -166,80 +182,4 @@ class DefaultMREController extends BaseController
     }
 
 
-    #[Route(path: '/test/epc/{id}', defaults: ['id' => 92])]
-    public function testNewEpc($id, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew, Environment $twig, Pdf $pdf): Response
-    {
-        /** @var Anlage $anlage */
-        $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $date = date_create('2022-09-01 00:00');
-        $result = $epcNew->monthTable($anlage, $date);
-        $pldTable = $epcNew->pldTable($anlage, $result->table, $date);
-        $forcastTable = $epcNew->forcastTable($anlage, $result->table, $pldTable, $date);
-        // $chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $result->table, $date);
-        // $chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $result->table, $date);
-
-        // $output = "<br>riskForecastUpToDate: ". $result->riskForecastUpToDate . "<br>riskForecastRollingPeriod: " . $result->riskForecastRollingPeriod;
-
-        $html = $twig->render('report/epcReportPR.html.twig', [
-            'anlage' => $anlage,
-            'monthsTable' => $result->table,
-            'forcast' => $forcastTable,
-            'pldTable' => $pldTable,
-            'legend' => $anlage->getLegendEpcReports(),
-            // 'chart1'            => $chartYieldPercenDiff,
-            // 'chart2'            => $chartYieldCumulativ,
-        ]);
-
-        #$output = $pdf->getOutputFromHtml($html, ['enable-local-file-access' => true]);
-        return new PdfResponse(
-            $pdf->getOutputFromHtml($html, ['enable-local-file-access' => true]),
-            'file.pdf'
-        );
-    }
-
-    /**
-     * @throws \Exception
-     * @throws InvalidArgumentException
-     */
-    #[Route(path: '/test/monthly/{id}/{year}/{month}', defaults: ['id' => 188, 'year' => '2023', 'month' => '4'])]
-    public function testNewMonthly($id, $year, $month, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, SensorService $sensorService): Response
-    {
-
-        $date = date_create("$year-$month-01 12:00");
-        $daysInMonth = $date->format("t");
-        $anlage = $anlagenRepository->find($id);
-
-        $output = $reportsMonthly->createReportV2($anlage, $month, $year);
-
-
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => $anlage->getAnlName().' Test new Monthly Report',
-            'availabilitys' => '',
-            'output' => $output,
-        ]);
-    }
-
-    /**
-     * @throws NonUniqueResultException
-     */
-    #[Route(path: '/test/pr')]
-    public function testPR(AnlagenRepository $anlagenRepository, WeatherFunctionsService $weatherFunctions, SensorService $sensorService): Response
-    {
-        $startDate = date_create("2023-02-08 00:00");
-        $endDate = date_create("2023-02-09 23:59");
-
-        $anlage = $anlagenRepository->find('110');
-
-        $weather = $weatherFunctions->getWeather($anlage->getWeatherStation(), $startDate->format('Y-m-d 00:00'), $endDate->format('Y-m-d 23:59'), false, $anlage);
-        $output = "<h3>Vor der Einbindung der Tickets</h3> <pre>".print_r($weather, true)."</pre> <hr>";
-
-        $weather = $sensorService->correctSensorsByTicket($anlage, $weather, $startDate, $endDate);
-        $output .= "<h3>Nach der Einbindung der Tickets</h3><pre>".print_r($weather, true)."</pre>";
-
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => $anlage->getAnlName().' PR Test für Ticket Einbindung',
-            'availabilitys' => '',
-            'output' => $output,
-        ]);
-    }
 }
