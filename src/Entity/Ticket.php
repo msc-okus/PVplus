@@ -286,13 +286,15 @@ class Ticket
         return $this;
     }
 
-    public function getGeneratedFrom(){
+    public function getGeneratedFrom()
+    {
         return $this->generatedFrom;
     }
-    public function setGeneratedFrom(String $generated){
+    public function setGeneratedFrom(String $generated)
+    {
         $this->generatedFrom = $generated;
     }
-    public function copyTicket(Ticket $ticket)
+    public function copyTicket(Ticket $ticket): void
     {
         $this->begin = $ticket->getBegin();
         $this->end = $ticket->getEnd();

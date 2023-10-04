@@ -23,9 +23,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class SafelyDeleteTicketsCommand extends Command
 {
     public function __construct(
-        private TicketRepository $ticketRepository,
-        private AnlagenRepository $anlagenRepository,
-        private EntityManagerInterface $em,
+        private readonly TicketRepository       $ticketRepository,
+        private readonly AnlagenRepository      $anlagenRepository,
+        private readonly EntityManagerInterface $em,
     )
     {
         parent::__construct();
@@ -45,7 +45,8 @@ class SafelyDeleteTicketsCommand extends Command
         $plantid = $input->getArgument('plantid');
         $optionFrom = $input->getOption('from');
         $optionTo = $input->getOption('to');
-        $anlage = $this->anlagenRepository->findIdLike([$plantid])[0];
+        #$anlage = $this->anlagenRepository->findIdLike([$plantid])[0];
+        $anlage = $this->anlagenRepository->find($plantid);
         $tickets = $this->ticketRepository->findForSafeDelete($anlage, $optionFrom, $optionTo);
         foreach ($tickets as $ticket){
             $dates = $ticket->getDates();

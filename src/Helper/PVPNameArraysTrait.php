@@ -7,9 +7,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 trait PVPNameArraysTrait
 {
-    public function __construct()
-    {
-    }
 
     public static function importTypes(): array
     {

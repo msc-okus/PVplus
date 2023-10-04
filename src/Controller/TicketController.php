@@ -31,9 +31,6 @@ class TicketController extends BaseController
 
     use PVPNameArraysTrait;
 
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
-    }
     use PVPNameArraysTrait;
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
     public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions): Response

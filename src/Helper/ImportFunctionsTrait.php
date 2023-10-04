@@ -382,9 +382,9 @@ trait ImportFunctionsTrait
      * @param int $plantId
      * @param string $stamp
      * @param float $eZEvu
-     * @param array $irrAnlage
-     * @param array $tempAnlage
-     * @param array $windAnlage
+     * @param bool|string $irrAnlage
+     * @param bool|string $tempAnlage
+     * @param bool|string $windAnlage
      * @param object $groups
      * @param int $stringBoxUnits
      * @return array
@@ -517,9 +517,9 @@ trait ImportFunctionsTrait
      * @param int $plantId
      * @param string $stamp
      * @param float $eZEvu
-     * @param array $irrAnlage
-     * @param array $tempAnlage
-     * @param array $windAnlage
+     * @param bool|string $irrAnlage
+     * @param bool|string $tempAnlage
+     * @param bool|string $windAnlage
      * @param object $groups
      * @param int $stringBoxUnits
      * @return array
