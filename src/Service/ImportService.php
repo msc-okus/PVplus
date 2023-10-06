@@ -42,6 +42,7 @@ class ImportService
             $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
         $plantId = $anlage->getAnlId();
+        $vcomId = $anlage->getCustomPlantId();
 
         $conn = $this->doctrine->getConnection();
 
@@ -207,7 +208,7 @@ class ImportService
                         $anlagePpcsCleaned[$i]['vcomId'] = $anlagePpcs[$i]->getVcomId();
                     }
 
-                    $result = self::getPpc($anlagePpcsCleaned, $ppcs, $date, $stamp, $plantId, $anlagenTabelle);
+                    $result = self::getPpc($anlagePpcsCleaned, $ppcs, $date, $stamp, $plantId, $anlagenTabelle, $vcomId);
 
                     for ($j = 0; $j <= (is_countable($result[0]) ? count($result[0]) : 0) - 1; $j++) {
                         $data_ppc[] = $result[0][$j];

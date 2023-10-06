@@ -649,9 +649,9 @@ trait ImportFunctionsTrait
             $p_ac_inv = $pf_set = $p_set_gridop_rel = $p_set_rel = null;
             $p_set_rpc_rel = $q_set_rel = $p_set_ctrl_rel = $p_set_ctrl_rel_mean = null;
             if (isset($ppcs[$date])) {
-                $p_set_gridop_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]->getVcomId()]['PPC_P_SET_GRIDOP_REL']); // Regelung durch Grid Operator
-                $p_set_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]->getVcomId()]['PPC_P_SET_REL']);#
-                $p_set_rpc_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]->getVcomId()]['PPC_P_SET_RPC_REL']); // Regelung durch Direktvermarkter
+                $p_set_gridop_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcomId']]['PPC_P_SET_GRIDOP_REL']); // Regelung durch Grid Operator
+                $p_set_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcomId']]['PPC_P_SET_REL']);#
+                $p_set_rpc_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcomId']]['PPC_P_SET_RPC_REL']); // Regelung durch Direktvermarkter
             }
 
             $data_ppc[] = [
