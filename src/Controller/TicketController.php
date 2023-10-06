@@ -23,6 +23,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TicketController extends BaseController
 {
+
     public function __construct(
         private readonly TranslatorInterface $translator)
     {
@@ -30,6 +31,7 @@ class TicketController extends BaseController
 
     use PVPNameArraysTrait;
 
+    use PVPNameArraysTrait;
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
     public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions): Response
     {
@@ -288,7 +290,6 @@ class TicketController extends BaseController
 
         if ($request->query->get('filtering') == 'filtered')
         {
-            //$page = 1;
             $request->query->set('filtering', 'non-filtered');
 
         } // we do this to reset the page if the user uses the filter
@@ -341,7 +342,6 @@ class TicketController extends BaseController
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;
         $filter['kpistatus']['array'] = self::kpiStatus();
-
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
 

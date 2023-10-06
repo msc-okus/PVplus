@@ -13,16 +13,22 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Contracts\Cache\CacheInterface;
 
 #[ApiResource(
-    shortName: 'analges',
+    shortName: 'anlages',
     operations: [
         new GetCollection(normalizationContext: ['groups' => 'api:read']),
         new Get(normalizationContext: ['groups' => 'api:read'])
     ],
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
+    paginationItemsPerPage: 30,
     security: 'ROLE_ADMIN, ROLE_API_USER',
 
 
@@ -590,6 +596,10 @@ class Anlage implements \Stringable
     #[ORM\Column]
     private ?bool $ActivateTicketSystem = false;
 
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $internalTicketSystem = false;
+
+
     #[ORM\Column]
     private ?bool $kpiTicket = false;
 
@@ -677,7 +687,7 @@ class Anlage implements \Stringable
         $this->pathToImportScript = $pathToImportScript;
     }
 
-    public function __construct()
+    public function __construct(private readonly CacheInterface $cache)
     {
         $this->acGroups = new ArrayCollection();
         $this->availability = new ArrayCollection();
@@ -1297,31 +1307,35 @@ class Anlage implements \Stringable
         return $gruppe;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function getInverterFromAnlage(): array
     {
-        $nameArray = [];
+        return $this->cache->get('getNameInverterArray_'.md5($this->getAnlId()), function(CacheItemInterface $cacheItem)
+        {
+            $cacheItem->expiresAfter(120); // Lifetime of cache Item in secunds
 
-        switch ($this->getConfigType()) {
-            case 1:
-                // In diesem Fall gibt es keine SCBs; AC Gruppen = Trafo oder ähnliches; DC Gruppen = Inverter
+            $nameArray = [];
 
-                foreach ($this->getGroups() as $inverter) {
-                    $nameArray[$inverter->getDcGroup()] = $inverter->getDcGroupName();
-                }
-                break;
-            case 2: // Lelystad
-                // In diesem Fall gibt es keine SCBs; AC Gruppen = DC Gruppen = Inverter
-            case 3: // Groningen
-                // AC Gruppen = Inverter; DC Gruppen = SCB Gruppen
-            case 4: // Guben
-                // AC Gruppen = Inverter; DC Gruppen = SCBs
-                foreach ( $this->getAcGroups() as $inverter) {
-                    $nameArray[$inverter->getAcGroup()] = $inverter->getAcGroupName();
-                }
-                break;
-        }
+            switch ($this->getConfigType()) {
+                case 1: // In diesem Fall gibt es keine SCBs; AC Gruppen = Trafo oder ähnliches; DC Gruppen = Inverter
+                    foreach ($this->getGroups() as $inverter) {
+                        $nameArray[$inverter->getDcGroup()] = $inverter->getDcGroupName();
+                    }
+                    break;
+                case 2: // In diesem Fall gibt es keine SCBs; AC Gruppen = DC Gruppen = Inverter Bsp: Lelystad
+                case 3: // AC Gruppen = Inverter; DC Gruppen = SCB Gruppen Bsp: Groningen
+                case 4: // AC Gruppen = Inverter; DC Gruppen = SCBs Bsp: Guben
+                    foreach ( $this->getAcGroups() as $inverter) {
+                        $nameArray[$inverter->getAcGroup()] = $inverter->getAcGroupName();
+                    }
+                    break;
+            }
 
-        return $nameArray;
+            return $nameArray;
+        });
+
     }
     public function getAnzInverter(): int
     {
@@ -3863,17 +3877,11 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    /**
-     * @return Collection<int, AnlageSensors>
-     */
     public function getSensors(): Collection
     {
         return $this->sensors;
     }
 
-    /**
-     * @return Collection<int, AnlageSensors>
-     */
     public function getSensorsInUse(): Collection
     {
         $criteria = AnlagenRepository::sensorsInUse();
@@ -3999,6 +4007,16 @@ class Anlage implements \Stringable
         $this->ppcBlockTicket = $ppcBlockTicket;
 
         return $this;
+    }
+
+    public function getInternalTicketSystem(): ?bool
+    {
+        return $this->internalTicketSystem;
+    }
+
+    public function setInternalTicketSystem(?bool $internalTicketSystem): void
+    {
+        $this->internalTicketSystem = $internalTicketSystem;
     }
 
 }

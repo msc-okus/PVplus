@@ -7,7 +7,7 @@ use App\Entity\User;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityService;
-use App\Service\Charts\HeatmapChartService;
+use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\Charts\HeatmapChartService;
 use App\Service\ChartService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;

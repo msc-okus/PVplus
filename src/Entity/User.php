@@ -23,6 +23,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 #[ApiFilter(SearchFilter::class, properties: ['anlName' => 'partital'])]
 
+#[ApiResource(
+    shortName: 'users',
+    formats: ['jsonld', 'json'],
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
+    paginationItemsPerPage: 10,
+    security: "ROLE_ADMIN"
+)]
+#[ApiFilter(SearchFilter::class, properties: ['anlName' => 'partital'])]
 /**
  * ApiResource(
  *      security="is_granted('ROLE_ADMIN')",

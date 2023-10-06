@@ -168,6 +168,15 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getResult()
             ;
     }
+
+    public function findInternalAlertSystemActive(bool $active){
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.internalTicketSystem = (:val)')
+            ->setParameter('val', $active)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
     /**
      * @return Anlage[]
      */

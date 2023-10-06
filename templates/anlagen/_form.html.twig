@@ -559,6 +559,13 @@
                                         {{ form_row(anlageForm.PowerThreshold) }}
                                     </div>
                                 </div>
+                                {% if is_granted('ROLE_G4N') %}
+                                    <div class="grid-x grid-margin-x">
+                                        <div class="cell small-6">
+                                            {{ form_row(anlageForm.internalTicketSystem) }}
+                                        </div>
+                                    </div>
+                                {% endif %}
                                 {{ form_row(anlageForm.newAlgorythm) }}
                                 <div class="grid-x grid-margin-x">
                                     <div class="cell small-6">

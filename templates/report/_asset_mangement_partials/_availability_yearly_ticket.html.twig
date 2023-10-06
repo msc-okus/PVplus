@@ -98,14 +98,9 @@
                     {% if ((anlage.hasPVSYST == true) == true) %}
                         <tr>
                             <td style="text-align: center" class="tr_next_columns" rowspan="2"> Planned Values</td>
-                            <td style="text-align: left" class="tr_next_columns"> Forecast g4n </td>
+                            <td style="text-align: left" class="tr_next_columns"> Forecast </td>
                             <td class="tr_next_columns">{{ yearLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
                             <td class="tr_next_columns">{{ PercentageTableYear['forecast'] |number_format(2, ',', '.') }}</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align: left" class="tr_next_columns"> Plant Simulation</td>
-                            <td class="tr_next_columns">{{ yearLossesHelpTable['ExpectedPVSYS'] |number_format(2, ',', '.') }}</td>
-                            <td class="tr_next_columns">{{ PercentageTableYear['PVSYSExpected'] |number_format(2, ',', '.') }}</td>
                         </tr>
                     {% else %}
                         <tr>
