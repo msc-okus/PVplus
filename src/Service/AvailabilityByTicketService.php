@@ -216,7 +216,11 @@ class AvailabilityByTicketService
      * CASE 6 = Manuel, durch Operator korriegierte Datenlücke (Datenlücke ist Ausfall des Inverters) <br>
      * CONTROL = wenn Gmod > 0<br>.
      *
+     * @param Anlage $anlage
      * @param $timestampModulo
+     * @param TimesConfig $timesConfig
+     * @param array $inverterPowerDc
+     * @param int $department
      * @return array
      * @throws InvalidArgumentException
      */
@@ -273,7 +277,6 @@ class AvailabilityByTicketService
                 }
                 unset($commIssus);
             }
-            dump($commIssuArray);
 
             // suche Performance Tickets die die PA beeinflussen (alertType = 72)
             $perfTicketsSkips  = $this->ticketDateRepo->findPerformanceTicketWithPA($anlage, $from, $to, $department, 0); // behaviour = Replace outage with TiFM for PA
@@ -431,9 +434,9 @@ class AvailabilityByTicketService
                                 $case3Helper[$inverter] = 0;
                             }
                             // Case 2 (second part of ti - means case1 + case2 = ti)
-                            #if ($inverter == 41) dump("Stamp: $stamp || CommIssue: ". (int) $commIssu." | skipTi: ".(int) $skipTi." | CondIrrCase2: $conditionIrrCase2 | AC Power: $powerAc");
+                           # if ($inverter == 36 && $department == 1) dump("Stamp: $stamp || CommIssue: ". (int) $commIssu." | skipTi: ".(int) $skipTi." | CondIrrCase2: $conditionIrrCase2 | AC Power: $powerAc | case5: ".(int) $case5."  | case6: ".(int) $case6."");
                             if (($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
-                                ($conditionIrrCase2 && ($powerAc > 0 || $powerAc !== null) && $case5 === false && $case6 === false && $skipTi === false)) {
+                                ($conditionIrrCase2 && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false)) {
                                 $case2 = true;
                                 ++$availability[$inverter]['case2'];
                                 ++$availabilityPlantByStamp['case2'];
@@ -477,7 +480,7 @@ class AvailabilityByTicketService
                                 ++$availabilityPlantByStamp['case5'];
                             }
                             // Case 6
-                            if ($case6 === true && $case3 === false && $case0 === true) {
+                            if ($case6 === true && $case3 === false && $case0 === true) { //
                                 ++$availability[$inverter]['case6'];
                                 ++$availabilityPlantByStamp['case6'];
                             }
@@ -606,26 +609,28 @@ class AvailabilityByTicketService
 
         // calculate pa depending on the chose formular
         switch ($formel) {
-            case 1: // PA = ti / (ti,theo - tiFM)
+            case '1': // PA = ti / (ti,theo - tiFM)
                 if ($row['case1'] + $row['case2'] + $row['case5'] != 0 && $row['control'] - $row['case5'] != 0) {
-                    if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
+                    if ((int) $row['case1'] + (int) $row['case2'] === 0 && (int) $row['control'] - (int) $row['case5'] === 0) {
                         // Sonderfall wenn Dividend und Divisor = 0 => dann ist PA per definition 100%
                         $paInvPart1 = 100;
                     } else {
                         $paInvPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
                     }
+                } else {
+                    $paInvPart1 = 100;
                 }
                 break;
 
             ## Formulars from case 2 and 3 are not Testes yet
-            case 2: // PA = ti / ti,theo
+            case '2': // PA = ti / ti,theo
                 if ($row['case1'] + $row['case2'] != 0 && $row['control'] != 0) {
                     $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control']) * 100;
                 }
                 break;
 
-            case 3: // PA = (ti + tiFM) / ti,theo
-                if ($row['case1'] + $row['case2']  + $row['case5'] != 0 && $row['control'] != 0) {
+            case '3': // PA = (ti + tiFM) / ti,theo
+                if ($row['case1'] + $row['case2'] + $row['case5'] != 0 && $row['control'] != 0) {
                     $paInvPart1 = (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
                 }
                 break;

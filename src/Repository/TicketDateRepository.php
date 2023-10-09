@@ -203,8 +203,9 @@ class TicketDateRepository extends ServiceEntityRepository
             ->join('t.ticket', 'ticket')
             ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end and :begin >= t.begin)')
             ->andWhere('t.Anlage = :anlage')
-            ->andWhere('t.dataGapEvaluation = 10')
-            ->andWhere('ticket.ignoreTicket = false');
+            ->andWhere('ticket.ignoreTicket = false')
+            ->andWhere('t.alertType = 10 AND t.dataGapEvaluation = 10')
+        ;
         switch ($department){
             case 1:
                 $q->andWhere('t.kpiPaDep1 = 10');
