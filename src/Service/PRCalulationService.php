@@ -496,7 +496,15 @@ class PRCalulationService
      * Returns Array with all Information for given Date (Daterange)<br>
      *  $result['powerEGridExt']<br>
      *  $result['powerEvu']<br>
+     *  $result['powerEvuDep0']<br>
+     *  $result['powerEvuDep1']<br>
+     *  $result['powerEvuDep2']<br>
+     *  $result['powerEvuDep3']<br>
      *  $result['powerAct']<br>
+     *  $result['powerActDep0']<br>
+     *  $result['powerActDep1']<br>
+     *  $result['powerActDep2']<br>
+     *  $result['powerActDep3']<br>
      *  $result['powerExp']<br>
      *  $result['powerTheo']<br>
      *  $result['powerTheoTempCorr']<br>
@@ -592,7 +600,15 @@ class PRCalulationService
         // Leistungsdaten ermitteln
         $power = $this->powerServicer->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate));
 
-        $result['powerEvu'] = $power['powerEvu'];
+        $result['powerEvu']     = $power['powerEvu'];
+        $result['powerEvuDep0'] = $power['powerEvuDep0'];
+        $result['powerEvuDep1'] = $power['powerEvuDep1'];
+        $result['powerEvuDep2'] = $power['powerEvuDep2'];
+        $result['powerEvuDep3'] = $power['powerEvuDep3'];
+        $result['powerActDep0'] = $power['powerActDep0'];
+        $result['powerActDep1'] = $power['powerActDep1'];
+        $result['powerActDep2'] = $power['powerActDep2'];
+        $result['powerActDep3'] = $power['powerActDep3'];
         $result['powerAct'] = $power['powerAct'];
         $result['powerExp'] = $power['powerExpEvu'] > 0 ? $power['powerExpEvu'] : $power['powerExp'];
         $result['powerEGridExt'] = $power['powerEGridExt'];
@@ -636,8 +652,8 @@ class PRCalulationService
         };
         $result['powerTheo'] = $result['powerTheoDep0'];
         if ($result['powerTheoDep0'] !== null) {
-            $result['prDep0Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr0, $result['powerAct'], $result['powerTheoDep0'], $pa0); //(($power['powerAct'] / $tempTheoPower) * 100;
-            $result['prDep0Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr0, $result['powerEvu'], $result['powerTheoDep0'], $pa0); //($power['powerEvu'] / $tempTheoPower) * 100;
+            $result['prDep0Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr0, $result['powerActDep0'], $result['powerTheoDep0'], $pa0); //(($power['powerAct'] / $tempTheoPower) * 100;
+            $result['prDep0Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr0, $result['powerEvuDep0'], $result['powerTheoDep0'], $pa0); //($power['powerEvu'] / $tempTheoPower) * 100;
             $result['prDep0Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irrNoPpc0, $result['powerExp'], $result['powerTheoDep0NoPpc'], $pa0); //(($result['powerExp'] / $tempTheoPower) * 100;
             $result['prDep0EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr0, $result['powerEGridExt'], $result['powerTheoDep0'], $pa0); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
         } else {
@@ -655,12 +671,12 @@ class PRCalulationService
             'Lelystad'          => $power['powerTheoNoPpc'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'IEC61724-1:2021'   => $weatherNoPpc['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weatherNoPpc['theoPowerPA1'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
-            default             => $anlage->getPnom() * $irrNoPpc1    // all others calc by Pnom and Irr.
+            default             => $anlage->getPnom() * $irrNoPpc0    // all others calc by Pnom and Irr.
         };
         if ($result['powerTheoDep1'] !== null) {
-            $result['prDep1Act'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr1, $result['powerAct'], $result['powerTheoDep1'], $pa1); //(($power['powerAct'] / $tempTheoPower) * 100;
-            $result['prDep1Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr1, $result['powerEvu'], $result['powerTheoDep1'], $pa1); //($power['powerEvu'] / $tempTheoPower) * 100;
-            $result['prDep1Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irrNoPpc1, $result['powerExp'], $result['powerTheoDep1NoPpc'], $pa1); //(($result['powerExp'] / $tempTheoPower) * 100;
+            $result['prDep1Act'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr1, $result['powerActDep1'], $result['powerTheoDep1'], $pa1); //(($power['powerAct'] / $tempTheoPower) * 100;
+            $result['prDep1Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr1, $result['powerEvuDep1'], $result['powerTheoDep1'], $pa1); //($power['powerEvu'] / $tempTheoPower) * 100;
+            $result['prDep1Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irrNoPpc0, $result['powerExp'], $result['powerTheoDep1NoPpc'], $pa1); //(($result['powerExp'] / $tempTheoPower) * 100;
             $result['prDep1EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr1, $result['powerEGridExt'], $result['powerTheoDep1'], $pa1); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
         } else {
             $result['prDep1Act'] = $result['prDep1Evu'] = $result['prDep1Exp'] = $result['prDep1EGridExt'] = 0;
@@ -677,12 +693,12 @@ class PRCalulationService
             'Lelystad'          => $power['powerTheoNoPpc'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'IEC61724-1:2021'   => $weatherNoPpc['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weatherNoPpc['theoPowerPA2'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
-            default             => $anlage->getPnom() * $irrNoPpc2    // all others calc by Pnom and Irr.
+            default             => $anlage->getPnom() * $irrNoPpc0    // all others calc by Pnom and Irr.
         };
         if ($result['powerTheoDep2'] !== null) {
-            $result['prDep2Act'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerAct'], $result['powerTheoDep2'], $pa2); //(($power['powerAct'] / $tempTheoPower) * 100;
-            $result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerEvu'], $result['powerTheoDep2'], $pa2); //($power['powerEvu'] / $tempTheoPower) * 100;
-            $result['prDep2Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irrNoPpc2, $result['powerExp'], $result['powerTheoDep2NoPpc'], $pa2); //(($result['powerExp'] / $tempTheoPower) * 100;
+            $result['prDep2Act'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerActDep2'], $result['powerTheoDep2'], $pa2); //(($power['powerAct'] / $tempTheoPower) * 100;
+            $result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerEvuDep2'], $result['powerTheoDep2'], $pa2); //($power['powerEvu'] / $tempTheoPower) * 100;
+            $result['prDep2Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irrNoPpc0, $result['powerExp'], $result['powerTheoDep2NoPpc'], $pa2); //(($result['powerExp'] / $tempTheoPower) * 100;
             $result['prDep2EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerEGridExt'], $result['powerTheoDep2'], $pa2); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
         } else {
             $result['prDep2Act'] = $result['prDep2Evu'] = $result['prDep2Exp'] = $result['prDep2EGridExt'] = 0;
@@ -699,12 +715,12 @@ class PRCalulationService
             'Lelystad'          => $power['powerTheoNoPpc'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'IEC61724-1:2021'   => $weatherNoPpc['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weatherNoPpc['theoPowerPA3'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
-            default             => $anlage->getPnom() * $irrNoPpc3    // all others calc by Pnom and Irr.
+            default             => $anlage->getPnom() * $irrNoPpc0    // all others calc by Pnom and Irr.
         };
         if ($result['powerTheoDep3'] !== null) {
-            $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr3, $result['powerAct'], $result['powerTheoDep3'], $pa3); //(($power['powerAct'] / $tempTheoPower) * 100;
-            $result['prDep3Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr3, $result['powerEvu'], $result['powerTheoDep3'], $pa3); //($power['powerEvu'] / $tempTheoPower) * 100;
-            $result['prDep3Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irrNoPpc3, $result['powerExp'], $result['powerTheoDep3NoPpc'], $pa3); //(($result['powerExp'] / $tempTheoPower) * 100;
+            $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr3, $result['powerActDep3'], $result['powerTheoDep3'], $pa3); //(($power['powerAct'] / $tempTheoPower) * 100;
+            $result['prDep3Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr3, $result['powerEvuDep3'], $result['powerTheoDep3'], $pa3); //($power['powerEvu'] / $tempTheoPower) * 100;
+            $result['prDep3Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irrNoPpc0, $result['powerExp'], $result['powerTheoDep3NoPpc'], $pa3); //(($result['powerExp'] / $tempTheoPower) * 100;
             $result['prDep3EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr3, $result['powerEGridExt'], $result['powerTheoDep3'], $pa3); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
         } else {
             $result['prDep3Act'] = $result['prDep3Evu'] = $result['prDep3Exp'] = $result['prDep3EGridExt'] = 0;

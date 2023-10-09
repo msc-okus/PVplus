@@ -390,6 +390,12 @@ class Ticket
         return explode(", ",$this->scope);
     }
 
+    /**
+     * returns true if we have scope for the given 'value'<br>
+     * 10 = Dep1; 20 = Dep2; 30 = Dep3
+     * @param $value
+     * @return bool
+     */
     public function isScope($value): bool
     {
         return in_array($value, $this->getScope());

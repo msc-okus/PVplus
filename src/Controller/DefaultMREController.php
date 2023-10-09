@@ -66,7 +66,7 @@ class DefaultMREController extends BaseController
     public function updatePA($plant, AvailabilityByTicketService $availability, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
-        $from = '2023-06-01 00:00'; //date('Y-m-d 00:00');
+        $from = '2023-03-01 00:00'; //date('Y-m-d 00:00');
         $to =  '2023-09-30 23:59';// date('Y-m-d 13:59');
         $ergebniss = "";
         for ($stamp = strtotime($from); $stamp <= strtotime($to); $stamp = $stamp + (24 * 3600)) {
