@@ -273,6 +273,7 @@ class AvailabilityByTicketService
                 }
                 unset($commIssus);
             }
+            dump($commIssuArray);
 
             // suche Performance Tickets die die PA beeinflussen (alertType = 72)
             $perfTicketsSkips  = $this->ticketDateRepo->findPerformanceTicketWithPA($anlage, $from, $to, $department, 0); // behaviour = Replace outage with TiFM for PA
@@ -395,7 +396,7 @@ class AvailabilityByTicketService
                     $powerAc = isset($istData[$stamp][$inverter]['power_ac']) ? (float) $istData[$stamp][$inverter]['power_ac'] : null;
                     $cosPhi  = isset($istData[$stamp][$inverter]['cos_phi'])  ? (float) $istData[$stamp][$inverter]['cos_phi'] :  null;
 
-                    // Wenn Strahlung keine Datenlücke hat dann:
+                    // Wenn die Strahlung keine Datenlücke hat dann:
                     if ($strahlung !== null) {
                         $case0 = $case1 = $case2 = $case3 = $case4  = $case5 = $case6 = false;
                         $commIssu = $skipTi = $skipTiTheo = $skipTiFM = false;
@@ -430,8 +431,9 @@ class AvailabilityByTicketService
                                 $case3Helper[$inverter] = 0;
                             }
                             // Case 2 (second part of ti - means case1 + case2 = ti)
+                            #if ($inverter == 41) dump("Stamp: $stamp || CommIssue: ". (int) $commIssu." | skipTi: ".(int) $skipTi." | CondIrrCase2: $conditionIrrCase2 | AC Power: $powerAc");
                             if (($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
-                                ($conditionIrrCase2 && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false)) {
+                                ($conditionIrrCase2 && ($powerAc > 0 || $powerAc !== null) && $case5 === false && $case6 === false && $skipTi === false)) {
                                 $case2 = true;
                                 ++$availability[$inverter]['case2'];
                                 ++$availabilityPlantByStamp['case2'];
@@ -480,7 +482,6 @@ class AvailabilityByTicketService
                                 ++$availabilityPlantByStamp['case6'];
                             }
                         }
-
                     }
 
                     ## virtual Value for PA speichern (by stamp and plant)
@@ -576,8 +577,7 @@ class AvailabilityByTicketService
     }
 
 
-
-       /**
+    /**
      * Berechnet die PA TEIL 1 (OHNE GEWICHTUNG)
      *
      * <b>Wobei:</b><br>
@@ -587,6 +587,9 @@ class AvailabilityByTicketService
      *<br>
      * sollte ti und titheo = 0 sein so wird PA auf 100% definiert<br>
      *
+     * @param Anlage $anlage
+     * @param array $row
+     * @param int $department
      * @return float
      */
     private function calcInvAPart1(Anlage $anlage, array $row, int $department = 0): float

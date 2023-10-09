@@ -254,8 +254,10 @@ class TicketDateRepository extends ServiceEntityRepository
     /**
      * Search for Communication Issus
      *
+     * @param Anlage $anlage
      * @param $begin
      * @param $end
+     * @param int $department
      * @return mixed
      */
     public function findCommIssu(Anlage $anlage, $begin, $end, int $department): mixed
@@ -264,26 +266,28 @@ class TicketDateRepository extends ServiceEntityRepository
             ->join('t.ticket', 'ticket')
             ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end AND :begin >= t.begin)')
             ->andWhere('t.Anlage = :anlage')
-            ->andWhere('(t.alertType = 10 OR t.alertType = 20)')
         ;
         if ($anlage->getTreatingDataGapsAsOutage()) {
-            $q->andWhere('(t.dataGapEvaluation = 20 OR t.dataGapEvaluation = 0)');
+            $q->andWhere('(t.alertType = 10 AND t.dataGapEvaluation = 20) OR (t.alertType = 20 AND t.dataGapEvaluation = 20)');
         } else {
-            $q->andWhere('t.dataGapEvaluation = 20');
+            $q->andWhere('(t.alertType = 10 AND t.dataGapEvaluation != 10) OR (t.alertType = 20 AND t.dataGapEvaluation = 20)');
         }
         $q
             ->andWhere('ticket.ignoreTicket = false')
             ->setParameter('begin', $begin)
             ->setParameter('end', $end)
-            ->setParameter('anlage', $anlage);
+            ->setParameter('anlage', $anlage)
+        ;
 
         return $q->getQuery()->getResult();
     }
 
     /**
      * Search all Performance Tickets wich a relatet to PA calculation (alertType = 72)
+     * @param Anlage $anlage
      * @param string|DateTime $startDate
      * @param string|DateTime $endDate
+     * @param int $department
      * @param int $behaviour (10 = Skip for PA, 20 = Replace outage with TiFM for PA, )
      * @return float|int|mixed|string
      */
@@ -332,9 +336,11 @@ class TicketDateRepository extends ServiceEntityRepository
 
         return $q->getQuery()->getResult();
     }
+
     /**
      * Search for Performance Tickets
      *
+     * @param Anlage $anlage
      * @param string|DateTime $startDate
      * @param string|DateTime $endDate
      * @return array
