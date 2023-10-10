@@ -18,6 +18,8 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
 use App\Service\PdoService;
+use Psr\Cache\InvalidArgumentException;
+
 ;
 
 class AlertSystemV2Service
@@ -346,12 +348,14 @@ class AlertSystemV2Service
         }
 
     }
+
     /**
      * Generate tickets for the given time, check if there is an older ticket for same inverter with same error.
      * Write new ticket to database or extend existing ticket with new end time.
      * @param Anlage $anlage
      * @param string|null $time
      * @return string
+     * @throws InvalidArgumentException
      */
     public function checkSystem(Anlage $anlage, ?string $time = null): string
     {
@@ -360,8 +364,7 @@ class AlertSystemV2Service
         }
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        dump($sungap['sunrise'], $sungap['sunset'], '--------');
-        $time = G4NTrait::timeAjustment($time, -2);
+        $time = self::timeAjustment($time, -2);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);

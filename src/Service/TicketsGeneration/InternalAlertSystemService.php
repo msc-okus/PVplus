@@ -126,7 +126,6 @@ class InternalAlertSystemService
      */
     private function generateTickets($errorCategorie, $anlage, $time, $message)
     {
-        dump($time);
         $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
         //this could be the ticket from  the previous quarter or the last ticket from  the previous day
         if ($ticketOld !== null) { // is there is a previous ticket we just extend it
@@ -136,7 +135,7 @@ class InternalAlertSystemService
             $ticketOld->setOpenTicket(true);
             $this->em->persist($ticketOld);
         } else {// if there is no previous ticket we create a new one, the next lines are just setting the properties of the ticket
-            $ticket = new Ticket();dump('nes');
+            $ticket = new Ticket();
             $ticket->setAnlage($anlage);
             $ticket->setStatus('10'); // Status 10 = open
             $ticket->setEditor('Alert system');
