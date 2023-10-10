@@ -1246,6 +1246,11 @@ class Anlage implements \Stringable
         return $this->dbAnlagenData.'.db__pv_ppc_'.$this->getAnlIntnr();
     }
 
+    public function getDbNameSensorsData(): string
+    {
+        return $this->dbAnlagenData.'.db__pv_sensors_data_'.$this->getAnlIntnr();
+    }
+
     public function getDbNameSection(): string
     {
         return $this->dbAnlagenData.'.db__pv_section_'.$this->getAnlIntnr();

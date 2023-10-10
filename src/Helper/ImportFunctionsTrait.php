@@ -361,6 +361,54 @@ trait ImportFunctionsTrait
 
     }
 
+    //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu
+    /**
+     * @param array $sensors
+     * @param  $date
+     * @return array
+     */
+    function getSensorsData(array $anlageSensors, int $length, array $sensors, $stamp, $date, ): array
+    {
+
+        $gmPyHori = $gmPyHoriAnlage = $gmPyWest = $gmPyWestAnlage = $gmPyEast = $gmPyEastAnlage = [];
+
+        for ($i = 0; $i < $length; $i++) {
+            if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                $start = 0;
+                $end = 0;
+                if ($anlageSensors[$i]->getStartDateSensor() != null) {
+                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor());
+                }
+                if ($anlageSensors[$i]->getEndDateSensor() != null) {
+                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor());
+                }
+                $now = strtotime((string) $date);
+                if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
+                    $sensorId = $anlageSensors[$i]->getId();
+
+                    $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                }
+
+            }
+
+                $data_sensors[] = [
+                    'anl_id'        => 0,
+                    'date'          => $date,
+                    'stamp'         => $stamp,
+                    'id_sensor'     => $sensorId,
+                    'value'         => ($value != '') ? $value : 0
+                ];
+
+
+        }
+
+        $result[] = $data_sensors;
+
+        return $result;
+
+    }
+
+
     //Prüft welche Anlagen für den Import via Symfony freigeschaltet sind
     /**
      * @param object $conn
@@ -389,7 +437,7 @@ trait ImportFunctionsTrait
      * @param int $stringBoxUnits
      * @return array
      */
-    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
+    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $groups, $stringBoxUnits): array
     {
 
         for ($i = 1; $i <= count($acGroups); $i++) {
@@ -462,10 +510,6 @@ trait ImportFunctionsTrait
                 'temp_cell_multi_irr' => NULL,
                 'wr_mpp_current' => $dcCurrentMpp,
                 'wr_mpp_voltage' => $dcVoltageMpp,
-                'irr_anlage' => $irrAnlage,
-                'temp_anlage' => $tempAnlage,
-                'temp_inverter' => $tempAnlage,
-                'wind_anlage' => $windAnlage,
 
             ];
         }
@@ -524,7 +568,7 @@ trait ImportFunctionsTrait
      * @param int $stringBoxUnits
      * @return array
      */
-    function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
+    function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $groups, $invertersUnits): array
     {
 
         foreach ($groups as $group) {
@@ -622,10 +666,6 @@ trait ImportFunctionsTrait
                 'temp_cell_multi_irr' => NULL,
                 'wr_mpp_current' => $dcCurrentMpp,
                 'wr_mpp_voltage' => $dcVoltageMpp,
-                'irr_anlage' => $irrAnlage,
-                'temp_anlage' => $tempAnlage,
-                'temp_inverter' => $tempAnlage,
-                'wind_anlage' => $windAnlage,
             ];
         }
 
@@ -649,9 +689,9 @@ trait ImportFunctionsTrait
             $p_ac_inv = $pf_set = $p_set_gridop_rel = $p_set_rel = null;
             $p_set_rpc_rel = $q_set_rel = $p_set_ctrl_rel = $p_set_ctrl_rel_mean = null;
             if (isset($ppcs[$date])) {
-                $p_set_gridop_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]->getVcomId()]['PPC_P_SET_GRIDOP_REL']); // Regelung durch Grid Operator
-                $p_set_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]->getVcomId()]['PPC_P_SET_REL']);#
-                $p_set_rpc_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]->getVcomId()]['PPC_P_SET_RPC_REL']); // Regelung durch Direktvermarkter
+                $p_set_gridop_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcomId']]['PPC_P_SET_GRIDOP_REL']); // Regelung durch Grid Operator
+                $p_set_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcomId']]['PPC_P_SET_REL']);#
+                $p_set_rpc_rel = $this->checkIfValueIsNotNull($ppcs[$date][$anlagePpcs[0]['vcomId']]['PPC_P_SET_RPC_REL']); // Regelung durch Direktvermarkter
             }
 
             $data_ppc[] = [
