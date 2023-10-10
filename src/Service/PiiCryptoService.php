@@ -2,7 +2,6 @@
 namespace App\Service;
 
 
-use App\ApiModule\Exceptions\SystemException;
 use Exception;
 
 /**
@@ -24,6 +23,7 @@ class PiiCryptoService
     private $encryption_key;
 
     /**
+     * @param string $data
      * @return string
      */
     public function encryptData(string $data): string
@@ -36,6 +36,7 @@ class PiiCryptoService
     }
 
     /**
+     * @param string $encodedData
      * @return string
      */
     public function decryptData(string $encodedData): string
@@ -49,6 +50,7 @@ class PiiCryptoService
     }
 
     /**
+     * @param string $data
      * @return string
      */
     public function hashData(string $data): string
@@ -60,6 +62,7 @@ class PiiCryptoService
     }
 
     /**
+     * @param string $encodedData
      * @return string
      */
     public function unHashData(string $encodedData): string

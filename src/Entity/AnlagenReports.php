@@ -10,7 +10,7 @@ use JetBrains\PhpStorm\Deprecated;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource(
+ * ApiResource(
  *      security="is_granted('ROLE_ADMIN')",
  *      securityMessage="Only Admin can access to this page",
  *     collectionOperations={"get", "post"},
@@ -23,8 +23,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
  *     }
  * )
- * @ApiFilter(SearchFilter::class, properties={"reportType":"partial"})
- * @ApiFilter(NumericFilter::class, properties={"reportStatus"})
+ * ApiFilter(SearchFilter::class, properties={"reportType":"partial"})
+ * ApiFilter(NumericFilter::class, properties={"reportStatus"})
  *
  */
 
