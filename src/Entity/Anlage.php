@@ -1312,9 +1312,6 @@ class Anlage implements \Stringable
      */
     public function getInverterFromAnlage(): array
     {
-        return $this->cache->get('getNameInverterArray_'.md5($this->getAnlId()), function(CacheItemInterface $cacheItem)
-        {
-            $cacheItem->expiresAfter(120); // Lifetime of cache Item in secunds
 
             $nameArray = [];
 
@@ -1334,7 +1331,7 @@ class Anlage implements \Stringable
             }
 
             return $nameArray;
-        });
+
 
     }
     public function getAnzInverter(): int
