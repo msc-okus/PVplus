@@ -4,6 +4,7 @@ namespace App\Form\GroupsAc;
 
 use App\Entity\AnlageAcGroups;
 use App\Entity\WeatherStation;
+use PhpOffice\PhpSpreadsheet\Calculation\TextData\Text;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -28,6 +29,7 @@ class AcGroupsListEmbeddedFormType extends AbstractType
             ->add('unitLast', TextType::class, [
                 'help' => '[unitLast]',
                 'empty_data' => '',
+                'disabled'  => 1,
             ])
             ->add('dcPowerInverter', TextType::class, [
                 'required' => false,
