@@ -22,6 +22,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
+use Yaroslavche\Symfony\UX\Flatpickr\Form\Type\FlatpickrDateTimeType;
+use Yaroslavche\Symfony\UX\Flatpickr\Form\Type\FlatpickrDateType;
 
 class AnlageFormType extends AbstractType
 {

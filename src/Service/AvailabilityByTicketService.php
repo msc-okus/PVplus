@@ -277,7 +277,6 @@ class AvailabilityByTicketService
                 }
                 unset($commIssus);
             }
-            dump($commIssuArray);
 
             // suche Performance Tickets die die PA beeinflussen (alertType = 72)
             $perfTicketsSkips  = $this->ticketDateRepo->findPerformanceTicketWithPA($anlage, $from, $to, $department, 0); // behaviour = Replace outage with TiFM for PA
