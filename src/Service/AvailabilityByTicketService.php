@@ -277,6 +277,7 @@ class AvailabilityByTicketService
                 }
                 unset($commIssus);
             }
+            dump($commIssuArray);
 
             // suche Performance Tickets die die PA beeinflussen (alertType = 72)
             $perfTicketsSkips  = $this->ticketDateRepo->findPerformanceTicketWithPA($anlage, $from, $to, $department, 0); // behaviour = Replace outage with TiFM for PA
@@ -434,9 +435,15 @@ class AvailabilityByTicketService
                                 $case3Helper[$inverter] = 0;
                             }
                             // Case 2 (second part of ti - means case1 + case2 = ti)
-                           # if ($inverter == 36 && $department == 1) dump("Stamp: $stamp || CommIssue: ". (int) $commIssu." | skipTi: ".(int) $skipTi." | CondIrrCase2: $conditionIrrCase2 | AC Power: $powerAc | case5: ".(int) $case5."  | case6: ".(int) $case6."");
-                            if (($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
-                                ($conditionIrrCase2 && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false)) {
+                            if ($anlage->getTreatingDataGapsAsOutage()) {
+                                $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
+                                            ($conditionIrrCase2 && $powerAc > 0 && $case5 === false && $case6 === false && $skipTi === false);
+                            } else {
+                                $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
+                                            ($conditionIrrCase2 && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
+                            }
+                            #if ($inverter == 41) dump("Stamp: $stamp || CommIssue: ". (int) $commIssu." | skipTi: ".(int) $skipTi." | CondIrrCase2: $conditionIrrCase2 | AC Power: ".($powerAc === null ? "null": $powerAc));
+                            if ($hitCase2) {
                                 $case2 = true;
                                 ++$availability[$inverter]['case2'];
                                 ++$availabilityPlantByStamp['case2'];
