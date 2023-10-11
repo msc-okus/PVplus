@@ -435,7 +435,13 @@ private PdoService $pdoService,
                     }
                     break;
                 case 'irradiation_plant':
-                    $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to, $hour);
+                    if($anlage->getSettings()->isUseSensorsData()){
+                        $dataArray = $this->irradiationChart->getIrradiationPlantFromSensorsData($anlage, $from, $to, $hour);
+                    }else{
+                        $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to, $hour);
+                    }
+
+
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];

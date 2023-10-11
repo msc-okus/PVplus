@@ -97,7 +97,7 @@ class IrradiationChartService
     }
 
     /**
-     * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wir.
+     * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wird.
      *
      * @param $from
      * @param $to
@@ -178,4 +178,91 @@ class IrradiationChartService
 
         return $dataArray;
     }
+
+    /**
+     * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wird aus SensorsData Tabelle.
+     *
+     * @param $from
+     * @param $to
+     * @return array
+     * @throws \Exception
+     */
+    public function getIrradiationPlantFromSensorsData(Anlage $anlage, $from, $to, bool $hour): array
+    {
+        $conn = $this->pdoService->getPdoPlant();
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+        $dataArray = [];
+        $dataArray['maxSeries'] = 0;
+        // Strom für diesen Zeitraum und diesen Inverter
+        if ($hour) {
+            $sql_irr_plant = 'SELECT a.stamp as stamp, (b.irr_anlage) AS irr_anlage FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameIst().") b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' group by date_format(a.stamp, '$form');";
+        } else {
+            $sql_irr_plant = 'SELECT a.stamp as stamp, b.irr_anlage AS irr_anlage FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameIst().") b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' group by date_format(a.stamp, '$form');";
+        }
+        echo 'XXL '.$sql_irr_plant;
+        exit;
+
+        $result = $conn->query($sql_irr_plant);
+        if ($result) {
+            if ($result->rowCount() > 0) {
+                $counter = 0;
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $stamp = self::timeAjustment($row['stamp'], (int) $anlage->getAnlZeitzone(), true);
+                    $stamp2 = self::timeAjustment($stamp, 1);
+                    // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
+                    $dataArray['chart'][$counter]['date'] = $stamp; // self::timeShift($anlage, $stamp);
+
+                    if ($hour) {
+                        $sqlWeather = 'SELECT * FROM '.$anlage->getDbNameWeather()." WHERE stamp >= '$stamp' AND stamp < '$stamp2' group by date_format(stamp, '$form')";
+                    } else {
+                        $sqlWeather = 'SELECT * FROM '.$anlage->getDbNameWeather()." WHERE stamp = '$stamp' group by date_format(stamp, '$form')";
+                    }
+                    $resultWeather = $conn->query($sqlWeather);
+
+                    if ($resultWeather->rowCount() == 1) {
+                        $weatherRow = $resultWeather->fetch(PDO::FETCH_ASSOC);
+                        if ($anlage->getIsOstWestAnlage()) {
+                            $dataArray['chart'][$counter]['g4n'] = (((float) $weatherRow['g_upper'] * $anlage->getPowerEast() + (float) $weatherRow['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()));
+                            if ($dataArray['chart'][$counter]['g4n'] < 0) $dataArray['chart'][$counter]['g4n'] = 0;
+                        } else {
+                            if ($anlage->getWeatherStation()->getChangeSensor() == 'Yes') {
+                                $dataArray['chart'][$counter]['g4n'] = (float) $weatherRow['g_lower']; // getauscht, nutze unterene Sensor
+                            } else {
+                                $dataArray['chart'][$counter]['g4n'] = (float) $weatherRow['g_upper']; // nicht getauscht, nutze oberen Sensor
+                            }
+                        }
+                    } else {
+                        if (!(self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                            $dataArray['chart'][$counter]['g4n'] = null;
+                        }
+                    }
+
+                    if ($row['irr_anlage'] != '') {
+                        $irrAnlageArray = json_decode((string) $row['irr_anlage'], null, 512, JSON_THROW_ON_ERROR);
+                        $irrCounter = 1;
+                        foreach ($irrAnlageArray as $irrAnlageItem => $irrAnlageValue) {
+                            if (!($irrAnlageValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                                if (!isset($irrAnlageValue) or is_array($irrAnlageValue)) {
+                                    $irrAnlageValue = 0;
+                                }
+                                $dataArray['chart'][$counter]["val$irrCounter"] = round(max($irrAnlageValue, 0), 2);
+                                if (!isset($dataArray['nameX'][$irrCounter])) {
+                                    $dataArray['nameX'][$irrCounter] = $irrAnlageItem;
+                                }
+                            }
+                            if ($irrCounter > $dataArray['maxSeries']) {
+                                $dataArray['maxSeries'] = $irrCounter;
+                            }
+                            ++$irrCounter;
+                        }
+                    }
+                    ++$counter;
+                }
+            }
+        }
+        $conn = null;
+
+        return $dataArray;
+    }
+
 }

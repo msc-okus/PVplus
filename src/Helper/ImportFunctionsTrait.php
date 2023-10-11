@@ -364,6 +364,7 @@ trait ImportFunctionsTrait
     //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu
     /**
      * @param array $sensors
+     * @param  $stamp
      * @param  $date
      * @return array
      */
