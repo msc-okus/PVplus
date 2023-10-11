@@ -175,7 +175,7 @@ class TicketController extends BaseController
             }
             // Adjust, if neccesary, the start and end Date of the master Ticket, depending on the TicketDates
 
-            if ($ticketDates) { // cambiar aqui para que si el primer y ultimo date estan fuera del ticket se expande el ticket
+            if (count($ticketDates) > 0) { // cambiar aqui para que si el primer y ultimo date estan fuera del ticket se expande el ticket
                 $found = false;
 
                 while(!$found){
@@ -214,7 +214,6 @@ class TicketController extends BaseController
 
             }
             else{
-
                 $date = new ticketDate();
                 $date->copyTicket($ticket);
                 $ticket->addDate($date);
@@ -235,7 +234,6 @@ class TicketController extends BaseController
                 else  $sensorArray[$key]['checked'] = "";
             }
             if ($ticket->getStatus() == '10') $ticket->setStatus(30); // If 'New' Ticket change to work in Progress
-
             $em->persist($ticket);
             $em->flush();
 
@@ -247,12 +245,16 @@ class TicketController extends BaseController
         if ($ticket->getDates()->count() === 0){
             $date = new ticketDate();
             $date->copyTicket($ticket);
+            $date->setAnlage($anlage);
             $ticket->addDate($date);
             $ticket->setNeedsProof(true);
             $ticket->setNeedsProofEPC(true);
             $ticket->setNeedsProofTAM(true);
-            $ticket->setDescription($ticket->getDescription(). "<br> The sub Tickets were lost because of an unknown error, a new sub Ticket has been created");
+            $ticket->setDescription($ticket->getDescription(). "<br> The sub Tickets have been automatically generated");
             $form = $this->createForm(TicketFormType::class, $ticket);
+            $em->persist($ticket);
+            $em->persist($date);
+            $em->flush();
         }
         $namesSensors = $anlage->getSensors();
 
@@ -315,6 +317,7 @@ class TicketController extends BaseController
         $prooftam = $request->query->get('prooftam', 0);
         $proofepc = $request->query->get('proofepc', 0);
         $proofam = $request->query->get('proofam', 0);
+        $proofg4n = $request->query->get('proofg4n', 0);
         $ignored = $request->query->get('ignored', 0);
         $TicketName = $request->query->get('TicketName', "");
         $kpistatus = $request->query->get('kpistatus', 0);
@@ -332,13 +335,13 @@ class TicketController extends BaseController
         $filter['priority']['value'] = $prio;
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
-        $filter['category']['array'] = self::listAllErrorCategorie();
+        $filter['category']['array'] = self::listAllErrorCategorie($this->isGranted('ROLE_G4N'));
         #$filter['category']['array'] = self::errorCategorie(true, true, true);
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;
         $filter['kpistatus']['array'] = self::kpiStatus();
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $proofg4n, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
 
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
@@ -499,7 +502,7 @@ class TicketController extends BaseController
         $filter['priority']['value'] = $prio;
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
-        $filter['category']['array'] = self::listAllErrorCategorie();
+        $filter['category']['array'] = self::listAllErrorCategorie($this->isGranted('ROLE_G4N'));
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;

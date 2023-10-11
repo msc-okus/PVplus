@@ -83,6 +83,11 @@
             </label>
         </div>
         <div class="cell medium-1"  style="margin-top:-17px!important;">
+            <label> Proof by G4N
+                <input type="checkbox" name="proofg4n" class="input-group-field" value="1">
+            </label>
+        </div>
+        <div class="cell medium-1"  style="margin-top:-17px!important;">
 
             {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
                 <label> Ignored Tickets
@@ -90,7 +95,7 @@
                 </label>
             {% endif %}
         </div>
-        <div class="cell medium-3 text-right" style="margin-top:-17px!important;">
+        <div class="cell medium-2 text-right" style="margin-top:-17px!important;">
             <div class="input-group-button" style="height:35px !important; display: inline-flex;">
                 <button type="submit" name="search" class="button" value="yes"
                         data-action="ticket-list#search"
