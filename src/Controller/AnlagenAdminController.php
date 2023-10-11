@@ -629,7 +629,6 @@ class AnlagenAdminController extends BaseController
 
     $databaseSensorData = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNameSensorsData()." (
               `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
-              `anl_id` bigint(11) NOT NULL,
               `date` varchar(50) DEFAULT NULL,
               `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
               `id_sensor` int(3) DEFAULT NULL,
