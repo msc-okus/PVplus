@@ -589,7 +589,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[hasFrequency]',
             ])
             // ###############################################
-            // ###          SUNSHADING MODEL              ####
+            // ###         HAS SUNSHADING MODEL           ####
             // ###############################################
             ->add('hasSunshadingModel', SwitchType::class, [
                 'label' => 'Use the Sunshading Model for this plant',

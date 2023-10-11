@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
+use App\Service\Forecast\ForcastDEKService;
 use Doctrine\ORM\EntityManagerInterface;
 
 #[AsCommand(
@@ -26,8 +27,10 @@ class ForcastWriteDBCommand extends Command {
         private readonly AnlagenRepository $anlagenRepository,
         private readonly KernelInterface $kernel,
         private readonly Service\ExpectedService $expectedService,
-        private readonly Forecast\DatFileReaderService $datFileReaderService
+        private readonly Forecast\DatFileReaderService $datFileReaderService,
+        private readonly ForcastDEKService $forcastDEKService,
     ) {
+        $this->forcastdekservice = $forcastDEKService;
         parent::__construct();
     }
 
@@ -36,6 +39,7 @@ class ForcastWriteDBCommand extends Command {
         $this
             ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'the plant ID must set to run the calculation')
         ;
+
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int{
@@ -56,6 +60,7 @@ class ForcastWriteDBCommand extends Command {
         $input_mn = (integer)$anlage->getModNeigung();    // Modulneigung Grad in radiat deg2rad(45) <----
         $input_ma = (integer)$anlage->getModAzimut();     // Modul Azimut Grad Wert wenn Ausrichtung nach Süden: 0° nach Südwest: +45° nach Nord: +/-180° nach Osten: -90°
         $input_ab = (float)$anlage->getAlbeto();          // Albedo 0.15 Gras 0.3 Dac
+        $has_suns_model = (float)$anlage->getHasSunshadingModel(); // check if has sunshading Model
         // Start und End Datum für die API Abfrage Zeitraum 20 Jahre
         $startapidate = date("Y",strtotime("-21 year", time())).'1231';
         $endapidate = date("Y",strtotime("-1 year", time())).'0101';
@@ -82,8 +87,7 @@ class ForcastWriteDBCommand extends Command {
         if ((is_countable($this->datFileReaderService->current()) ? count($this->datFileReaderService->current()) : 0) > 1) {
             $io->info("data read ! please wait");
             $reg_data = new Service\Forecast\APINasaGovService($input_gl, $input_gb, $startapidate, $endapidate);
-            $dec_data = new Service\Forecast\ForcastDEKService($input_gl, $input_gb, $input_mer, $input_mn, $input_ma, $input_ab, $this->datFileReaderService->current());
-            $decarray = $dec_data->get_DEK_Data();
+            $decarray = $this->forcastdekservice->get_DEK_Data('all',$input_gl, $input_gb, $input_mer, $input_mn, $input_ma, $input_ab, $this->datFileReaderService->current(),$has_suns_model,$anlageId);
             $reg_array = $reg_data->make_sortable_data('faktor');
             $dec_array = $this->expectedService->calcExpectedforForecast($anlage, $decarray);
 
