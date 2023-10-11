@@ -485,6 +485,7 @@ class TicketController extends BaseController
         $prooftam = $request->query->get('prooftam', 0);
         $proofepc = $request->query->get('proofepc', 0);
         $proofam = $request->query->get('proofam', 0);
+        $proofg4n = $request->query->get('proofg4n', 0);
         $ignored = $request->query->get('ignored', 0);
         $TicketName = $request->query->get('TicketName', "");
         $kpistatus = $request->query->get('kpistatus', 0);
@@ -508,7 +509,7 @@ class TicketController extends BaseController
         $filter['kpistatus']['value'] = $kpistatus;
         $filter['kpistatus']['array'] = self::kpiStatus();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $proofg4n, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
 
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
