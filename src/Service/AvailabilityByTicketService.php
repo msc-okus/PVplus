@@ -248,6 +248,7 @@ class AvailabilityByTicketService
         $from = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampModulo);
         $to = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampModulo);
         $maxFailTime = $timesConfig->getMaxFailTime();
+        $powerThersholdkWh = $anlage->getPowerThreshold() / 4; // Umrechnung von kW auf kWh bei 15 minuten werten
 
         // get plant data and irradiation data
         $istData = $this->getIstData($anlage, $from, $to);
@@ -436,10 +437,10 @@ class AvailabilityByTicketService
                             // Case 2 (second part of ti - means case1 + case2 = ti)
                             if ($anlage->getTreatingDataGapsAsOutage()) {
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
-                                            ($conditionIrrCase2 && $powerAc > 0 && $case5 === false && $case6 === false && $skipTi === false);
+                                            ($conditionIrrCase2 && $powerAc > $powerThersholdkWh && $case5 === false && $case6 === false && $skipTi === false);
                             } else {
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
-                                            ($conditionIrrCase2 && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
+                                            ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
                             }
                             #if ($inverter == 41) dump("Stamp: $stamp || CommIssue: ". (int) $commIssu." | skipTi: ".(int) $skipTi." | CondIrrCase2: $conditionIrrCase2 | AC Power: ".($powerAc === null ? "null": $powerAc));
                             if ($hitCase2) {
@@ -456,7 +457,7 @@ class AvailabilityByTicketService
                                 $case3Helper[$inverter] = 0;
                             }
                             // Case 3
-                            if ($conditionIrrCase2 && ($powerAc <= 0 && $powerAc !== null) && !$commIssu) { // ohne case5
+                            if ($conditionIrrCase2 && ($powerAc <= $powerThersholdkWh && $powerAc !== null) && !$commIssu) { // ohne case5
                                 $case3 = true;
                                 ++$availability[$inverter]['case3'];
                                 ++$availabilityPlantByStamp['case3'];

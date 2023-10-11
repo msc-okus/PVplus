@@ -45,7 +45,7 @@ class PRCalulationService
 
 
     /**
-     * @throws NonUniqueResultException|InvalidArgumentException
+     * @throws NonUniqueResultException|InvalidArgumentException|\JsonException
      */
     #[Deprecated]
     public function calcPRAll(Anlage|int $anlage, string $day): string

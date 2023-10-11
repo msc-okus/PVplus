@@ -16,9 +16,10 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\InvalidArgumentException;
 
-
+#[Deprecated]
 class AvailabilityService
 {
     use G4NTrait;
@@ -43,6 +44,7 @@ class AvailabilityService
      * @throws NonUniqueResultException
      * @throws InvalidArgumentException
      */
+    #[Deprecated]
     public function checkAvailability(Anlage|int $anlage, $date, bool $second = false): string
     {
         if (is_int($anlage)) {
@@ -175,7 +177,8 @@ class AvailabilityService
      * @return array
      * @throws InvalidArgumentException
      */
-    public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig): array
+    #[Deprecated]
+    private function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig): array
     {
         $conn = $this->pdoService->getPdoPlant();
         $case3Helper = [];
@@ -382,7 +385,7 @@ class AvailabilityService
         }
     }
 
-
+    #[Deprecated]
     private function getIstData(Anlage $anlage, $from, $to): array
     {
         $conn = $this->pdoService->getPdoPlant();
@@ -407,6 +410,7 @@ class AvailabilityService
         return $istData;
     }
 
+    #[Deprecated]
     private function getIrrData(Anlage $anlage, $from, $to): array
     {
         $conn = $this->pdoService->getPdoPlant();
@@ -436,6 +440,7 @@ class AvailabilityService
         return $irrData;
     }
 
+    #[Deprecated]
     private function calcInvAPart1(array $row): float
     {
         if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
