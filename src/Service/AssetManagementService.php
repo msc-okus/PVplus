@@ -339,7 +339,8 @@ class AssetManagementService
             'InverterPRRankTables' => $content['InverterPRRankTables'],
             'InverterPRRankGraphics' => $content['InverterPRRankGraphics'],
             'prSumaryTable' => $content['prSumaryTable'],
-            'sumary_pie_graph' => $content['sumary_pie_graph']
+            'sumary_pie_graph' => $content['sumary_pie_graph'],
+            'pr_rank_graph_20_inv' => $content['pr_rank_graph_20_inv'],
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
@@ -713,6 +714,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $sumary_pie_graph = $chart->render('sumary_pie_graph'.$key, ['style' => 'height: 250px; width:500px;']);
+        $pr_rank_graph_20_inv = "";
         if (count($anlage->getInverterFromAnlage()) > 20){
             // we do this to join the inverter arrays into one
             $fullArray['name'] = [];
@@ -730,17 +732,25 @@ class AssetManagementService
             $worseTen['powerYield'] = array_slice($fullArray['powerYield'], 0, 10);
             $bestTen['powerYield'] = array_slice($fullArray['powerYield'],count($fullArray['powerYield']) - 10, 10 );
             //we calculate the average pr for the value in the middle
-            $sumBadPr = 0;
+
             $worseTen['PR'] = array_slice($fullArray['PR'], 0, 10);
             $bestTen['PR'] = array_slice($fullArray['PR'],count($fullArray['PR']) - 10, 10 );
-
+            $sumPR = 0;
             foreach ($worseTen['PR'] as $pr){
-
+                $sumPR = $sumPR + $pr;
             }
+            foreach ($bestTen['PR'] as $pr){
+                $sumPR = $sumPR + $pr;
+            }
+            $avgPr = $sumPR / 20;
             $tenArray['name'] = array_merge($worseTen['name'], ["..."]);
             $tenArray['powerYield'] = array_merge($worseTen['powerYield'], [0]);
-            $tenArray['PR'] = array_merge($worseTen['PR']);
-            dd($fullArray, $worseTen, $bestTen);
+            $tenArray['PR'] = array_merge($worseTen['PR'] , [$avgPr]);
+
+            $tenArray['name'] = array_merge($tenArray['name'], $bestTen['name']);
+            $tenArray['powerYield'] = array_merge($tenArray['powerYield'], $bestTen['powerYield']);
+            $tenArray['PR'] = array_merge($tenArray['PR'] , $bestTen['PR']);
+
             $chart = new ECharts();
             $chart->tooltip->show = false;
             $chart->tooltip->trigger = 'item';
@@ -754,7 +764,7 @@ class AssetManagementService
                 'splitArea' => [
                     'show' => true,
                 ],
-                'data' => $data['name'],
+                'data' => $tenArray['name'],
             ];
             $chart->yAxis = [
                 [
@@ -777,13 +787,13 @@ class AssetManagementService
                     [
                         'name' => 'Specific Yield',
                         'type' => 'bar',
-                        'data' => $data['powerYield'],
+                        'data' => $tenArray['powerYield'],
                         'visualMap' => 'false',
                     ],
                     [
                         'name' => 'Inverter PR',
                         'type' => 'line',
-                        'data' => $data['PR'],
+                        'data' => $tenArray['PR'],
                         'visualMap' => 'false',
                         'lineStyle' => [
                             'color' => 'green'
@@ -793,7 +803,7 @@ class AssetManagementService
                             'data' => [
                                 [
                                     'name' => 'Contractual PR',
-                                    'yAxis' => $data['yield'],
+                                    'yAxis' => $anlage->getContractualPR(),
                                     'lineStyle' => [
                                         'type' => 'solid',
                                         'width' => 3,
@@ -842,8 +852,7 @@ class AssetManagementService
                 ],
             ];
             $chart->setOption($option);
-            $pr_rank_graph_20_inv[] = $chart->render('pr_graph_20_inv'.$key, ['style' => 'height: 550px; width:900px;']);
-
+            $pr_rank_graph_20_inv = $chart->render('pr_graph_20_inv'.$key, ['style' => 'height: 550px; width:900px;']);
         }
 
         foreach($graphDataPR as $key => $data) {
@@ -2773,7 +2782,7 @@ class AssetManagementService
                                 'exp_current_dc' => $value[$i]['exp_current_dc'],
                                 'act_power_dc' => $dcIst[$j]['act_power_dc'],
                                 'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                                'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100,
+                                'diff_current_dc' => (($dcIst[$j]['exp_current_dc'] - $value[$i]['act_current_dc']) / $value[$i]['act_current_dc']) * 100,
                                 'diff_power_dc' => 0,
                             ];
                         }
@@ -4203,7 +4212,8 @@ class AssetManagementService
             'prSumaryTable' => $prSumaryTable,
             'sumary_pie_graph' => $sumary_pie_graph,
             'waterfallHelpTable' => $waterfallDiagramHelpTable,
-            'waterfallDiagram' => $waterfallDiagram
+            'waterfallDiagram' => $waterfallDiagram,
+            'pr_rank_graph_20_inv' => $pr_rank_graph_20_inv
         ];
 
         return $output;

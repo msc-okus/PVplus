@@ -551,8 +551,6 @@ class TicketController extends BaseController
         $page = $request->query->getInt('page', 1);
         $ticketDate = $ticketDateRepo->findOneById($id);
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
-
-
         if ($ticket) {
             switch ($option) {
                 case 'Previous':
