@@ -1,10 +1,7 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
-use App\Entity\Anlage;
-use App\Entity\Eigner;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
 use App\Form\Ticket\TicketFormType;
@@ -15,6 +12,7 @@ use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,8 +26,6 @@ class TicketController extends BaseController
         private readonly TranslatorInterface $translator)
     {
     }
-
-    use PVPNameArraysTrait;
 
     use PVPNameArraysTrait;
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
@@ -243,7 +239,7 @@ class TicketController extends BaseController
             $em->persist($ticket);
             $em->flush();
 
-            return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
+            return new Response(null, Response::HTTP_NO_CONTENT);
         }
         if ($ticket->getAlertType() >=70 && $ticket->getAlertType() < 80) $performanceTicket =  true;
         else $performanceTicket = false;
@@ -280,7 +276,7 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/list', name: 'app_ticket_list')]
-    public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, RequestStack $requestStack): Response
+    public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo): Response
     {
         $filter = [];
         $session = $request->getSession();
@@ -384,7 +380,7 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
-    public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, functionsService $functions): Response
+    public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {
         $page = $request->query->getInt('page', 1);
 
@@ -440,7 +436,7 @@ class TicketController extends BaseController
         ]);
     }
     #[Route(path: '/ticket/deleteTicket/{id}', name: 'app_ticket_deleteticket')]
-    public function deleteTicket($id, TicketRepository $ticketRepo,  PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $em, functionsService $functions,  RequestStack $requestStack): Response
+    public function deleteTicket($id, TicketRepository $ticketRepo,  PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $em, RequestStack $requestStack): Response
     {
         $filter = [];
         $session = $requestStack->getSession();
@@ -543,6 +539,9 @@ class TicketController extends BaseController
         ]);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
     public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em, functionsService $functions): Response
     {
@@ -595,7 +594,7 @@ class TicketController extends BaseController
 
 
 
-            return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
+            return new Response(null, Response::HTTP_NO_CONTENT);
         }
         $anlage = $ticket->getAnlage();
 
@@ -640,6 +639,9 @@ class TicketController extends BaseController
         ]);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/ticket/splitbyinverter', name: 'app_ticket_split_inverter')]
     public function splitByInverter(TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em): Response
     {
