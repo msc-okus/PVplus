@@ -533,6 +533,9 @@ class Anlage implements \Stringable
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $useDayForecast = false;
 
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $hasSunshadingModel  = false;
+
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $degradationForecast = '0';
 
@@ -3336,6 +3339,20 @@ class Anlage implements \Stringable
 
         return $this;
     }
+
+
+    public function getHasSunshadingModel(): ?bool
+    {
+        return $this->hasSunshadingModel;
+    }
+
+    public function setHasSunshadingModel(bool $hasSunshadingModel): self
+    {
+        $this->hasSunshadingModel = $hasSunshadingModel;
+
+        return $this;
+    }
+
 
     public function getDegradationForecast(): float
     {
