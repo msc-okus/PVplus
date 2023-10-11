@@ -139,6 +139,11 @@ class Ticket
     #[ORM\Column(nullable: true)]
     private ?bool $internal = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $needsProofg4n = null;
+
+    private ?string $creationLog = null;
+
 
     /*
         #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -409,7 +414,7 @@ class Ticket
 
     public function proof(): ?bool
     {
-        return $this->needsProof || $this->needsProofEPC || $this->ProofAM;
+        return $this->needsProof || $this->needsProofEPC || $this->ProofAM || $this->needsProofg4n;
     }
     public function isProofAM(): ?bool
     {
@@ -455,6 +460,30 @@ class Ticket
     public function setInternal(?bool $internal): static
     {
         $this->internal = $internal;
+
+        return $this;
+    }
+
+    public function isNeedsProofG4N(): ?bool
+    {
+        return $this->needsProofg4n;
+    }
+
+    public function setNeedsProofG4N(?bool $needsProofG4N): static
+    {
+        $this->needsProofg4n = $needsProofG4N;
+
+        return $this;
+    }
+
+    public function getCreationLog(): ?string
+    {
+        return $this->creationLog;
+    }
+
+    public function setCreationLog(?string $creationLog): static
+    {
+        $this->creationLog = $creationLog;
 
         return $this;
     }
