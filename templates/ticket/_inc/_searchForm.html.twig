@@ -52,7 +52,7 @@
                 {{ filter.category.value }}
                 <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
                 {% for key, value in filter.category.array %}
-                    <option value="{{ value }}"{% if filter.category.value == value %} selected {% endif %}>{% if (value >= 70) %}{% if (value < 80) %}&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}{% endif %} {{ key }}</option>
+                    <option value="{{ value }}"{% if filter.category.value == value %} selected {% endif %}>{% if ((value >= 70 and value < 80) or (value >= 90 and value < 100)) %}&nbsp;&nbsp;&nbsp;&nbsp;{% endif %} {{ key }}</option>
                 {% endfor %}
             </select>
         </div>

@@ -122,16 +122,16 @@
                     $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
                     break;
                 case "Last 3 Days":
-                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(2, 'days').format('YYYY-MM-DD'));
-                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(0, 'days').format('YYYY-MM-DD'));
+                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(3, 'days').format('YYYY-MM-DD'));
+                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
                     break;
                 case "Last 7 Days":
-                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(6, 'days').format('YYYY-MM-DD'));
-                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(0, 'days').format('YYYY-MM-DD'));
+                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(7, 'days').format('YYYY-MM-DD'));
+                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
                     break;
                 case "Last 14 Days":
-                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(13, 'days').format('YYYY-MM-DD'));
-                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(0, 'days').format('YYYY-MM-DD'));
+                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(14, 'days').format('YYYY-MM-DD'));
+                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
                     break;
                 case "This Month":
                     $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'month').startOf('month').format('YYYY-MM-DD'));
@@ -150,8 +150,8 @@
                     let dateTwo = moment(endDate, "YYYY-MM-DD");
                     let div = dateTwo.diff(dateOne, 'days');
                     if (div > 0) {
-                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
-                        $('#to').val(moment(endDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(div + 1 , 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(endDate, "YYYY-MM-DD").subtract(div + 1, 'days').format('YYYY-MM-DD'));
                     } else {
                         $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
                         $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
@@ -172,16 +172,16 @@
                         $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD'));
                         break;
                     case "Last 3 Days":
-                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-2, 'days').format('YYYY-MM-DD'));
-                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-4, 'days').format('YYYY-MM-DD'));
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-3, 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-5, 'days').format('YYYY-MM-DD'));
                         break;
                     case "Last 7 Days":
-                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-6, 'days').format('YYYY-MM-DD'));
-                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-12, 'days').format('YYYY-MM-DD'));
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-7, 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-13, 'days').format('YYYY-MM-DD'));
                         break;
                     case "Last 14 Days":
-                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-13, 'days').format('YYYY-MM-DD'));
-                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-24, 'days').format('YYYY-MM-DD'));
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-14, 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-27, 'days').format('YYYY-MM-DD'));
                         break;
                     case "This Month":
                         $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'month').startOf('month').format('YYYY-MM-DD'));
@@ -200,9 +200,9 @@
                         let dateTwo = moment(endDate, "YYYY-MM-DD");
                         let div = dateOne.diff(dateTwo, 'days');
                         if (div < 0) {
-                            let divx = div * 2;
-                            $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
-                            $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(divx, 'days').format('YYYY-MM-DD'));
+                            let divx = (div * 2);
+                            $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(div-1, 'days').format('YYYY-MM-DD'));
+                            $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(divx-1, 'days').format('YYYY-MM-DD'));
                         } else {
                             $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD'));
                             $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD'));
