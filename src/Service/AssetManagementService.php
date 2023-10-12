@@ -336,6 +336,7 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
             'anlage'        => $anlage,
+            'invNr' => count($content['plantAvailabilityMonth']),
             'InverterPRRankTables' => $content['InverterPRRankTables'],
             'InverterPRRankGraphics' => $content['InverterPRRankGraphics'],
             'prSumaryTable' => $content['prSumaryTable'],
@@ -369,6 +370,7 @@ class AssetManagementService
             'monthName' => $output['month'],
             'year' => $reportYear,
             'logoImage' => $tempFileLogo,
+            'invNr' => count($content['plantAvailabilityMonth']),
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -2317,9 +2319,6 @@ class AssetManagementService
 
         $failures_Year_To_Date = [];
 
-
-
-        //$SOFErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 10, $anlage)[0][1];
         $SOFErrorsMonth = 0;
         $EFORErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 20, $anlage)[0][1] + (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, $anlage, "10")[0][1];
         $OMCErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1];
@@ -2396,6 +2395,7 @@ class AssetManagementService
             'PPCQuarters'   => $PPControlMonth,
             'DataGaps'      => $dataGapsMonth,
         ];
+        /* DEPRACATED
         if ($totalErrorsMonth != 0) {
             $failRelativeSOFPorcentMonth = 100 - (($totalErrorsMonth - $SOFErrorsMonth) / $totalErrorsMonth) * 100;
             $failRelativeEFORPorcentMonth = 100 - (($totalErrorsMonth - $EFORErrorsMonth) / $totalErrorsMonth) * 100;
@@ -2407,7 +2407,7 @@ class AssetManagementService
             $failRelativeOMCPorcentMonth = 0;
             $failRelativeGapsPorcentMonth = 0;
         }
-
+*/
         $plant_availability = [];
 
 
