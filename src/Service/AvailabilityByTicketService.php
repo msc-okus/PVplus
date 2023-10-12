@@ -39,7 +39,6 @@ class AvailabilityByTicketService
         private readonly AnlagenRepository $anlagenRepository,
         private readonly TicketRepository $ticketRepo,
         private readonly TicketDateRepository $ticketDateRepo,
-        private readonly AvailabilityService $availabilityService,
         private readonly WeatherFunctionsService $weatherFunctionsService,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
         private readonly IrradiationService $irradiationService,
@@ -192,6 +191,7 @@ class AvailabilityByTicketService
                 3 => "pa3",
                 default => "pa0"
             };
+
             if ($availabilityByStamp) {
                 $sql = "";
                 foreach ($availabilityByStamp as $stamp => $availability){
@@ -442,8 +442,7 @@ class AvailabilityByTicketService
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                             ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
                             }
-                            #if ($inverter == 41) dump("Stamp: $stamp || CommIssue: ". (int) $commIssu." | skipTi: ".(int) $skipTi." | CondIrrCase2: $conditionIrrCase2 | AC Power: ".($powerAc === null ? "null": $powerAc));
-                            if ($hitCase2) {
+                           if ($hitCase2) {
                                 $case2 = true;
                                 ++$availability[$inverter]['case2'];
                                 ++$availabilityPlantByStamp['case2'];
@@ -496,7 +495,7 @@ class AvailabilityByTicketService
 
                     ## virtual Value for PA speichern (by stamp and plant)
                     $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$inverter] > 0) ? $inverterPowerDc[$inverter] / $anlage->getPnom() : 1;
-                    $availabilityByStamp[$stamp] += ($this->calcInvAPart1($anlage, $availabilityPlantByStamp, $department) / 100) * $invWeight ;
+                    $availabilityByStamp[$stamp] += ($this->calcInvAPart1($anlage, $availabilityPlantByStamp, $department) / 100) * $invWeight;
                 }
             }
 
@@ -617,7 +616,19 @@ class AvailabilityByTicketService
         // calculate pa depending on the chose formular
         switch ($formel) {
             case '1': // PA = ti / (ti,theo - tiFM)
-                if ($row['case1'] + $row['case2'] + $row['case5'] != 0 && $row['control'] - $row['case5'] != 0) {
+                if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
+                    $paInvPart1 = 100;
+                } else {
+                    if ($row['control'] - $row['case5'] === 0) {
+                        $paInvPart1 = 100;
+                    } else {
+                        $paInvPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
+                    }
+                }
+
+
+                /*
+                 if ($row['case1'] + $row['case2'] + $row['case5'] != 0 && $row['control'] - $row['case5'] != 0) {
                     if ((int) $row['case1'] + (int) $row['case2'] === 0 && (int) $row['control'] - (int) $row['case5'] === 0) {
                         // Sonderfall wenn Dividend und Divisor = 0 => dann ist PA per definition 100%
                         $paInvPart1 = 100;
@@ -627,6 +638,7 @@ class AvailabilityByTicketService
                 } else {
                     $paInvPart1 = 100;
                 }
+                 */
                 break;
 
             ## Formulars from case 2 and 3 are not Testes yet
