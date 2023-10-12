@@ -554,6 +554,7 @@ class AlertSystemV2Service
                 $ticket->setCreatedBy("AlertSystem");
                 $ticket->setUpdatedBy("AlertSystem");
                 $ticket->setProofAM(false);
+                $ticket->setCreationLog("Irradiation Limit: ". $anlage->getMinIrrThreshold()."; Power Limit: ".$anlage->getPowerThreshold());
                 if ($errorCategorie == ticket::EXTERNAL_CONTROL) {
                     $ticket->setInverter('*');
                     $ticketDate->setInverter('*');

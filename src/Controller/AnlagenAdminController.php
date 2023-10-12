@@ -89,7 +89,6 @@ class AnlagenAdminController extends BaseController
         ]);
     }
 
-   
 
     #[Route(path: '/admin/anlagen/list', name: 'app_admin_anlagen_list')]
     public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
@@ -219,6 +218,14 @@ class AnlagenAdminController extends BaseController
 
     /**
      * @param $id
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     * @param AnlagenRepository $anlagenRepository
+     * @param EconomicVarNamesRepository $ecoNamesRepo
+     * @param UploaderHelper $uploaderHelper
+     * @param AnlageFileRepository $RepositoryUpload
+     * @param Filesystem $fileSystemFtp
+     * @param Filesystem $filesystem
      * @return RedirectResponse|Response
      * @throws FilesystemException
      */
@@ -407,6 +414,7 @@ class AnlagenAdminController extends BaseController
         $form = $this->createForm(AnlageAcGroupsFormType::class, $anlage, [
             'anlagenId' => $id,
         ]);
+        $pNom =
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $successMessage = 'Plant data saved!';

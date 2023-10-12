@@ -1,10 +1,7 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
-use App\Entity\Anlage;
-use App\Entity\Eigner;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
 use App\Form\Ticket\TicketFormType;
@@ -15,6 +12,7 @@ use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,8 +26,6 @@ class TicketController extends BaseController
         private readonly TranslatorInterface $translator)
     {
     }
-
-    use PVPNameArraysTrait;
 
     use PVPNameArraysTrait;
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
@@ -179,7 +175,7 @@ class TicketController extends BaseController
             }
             // Adjust, if neccesary, the start and end Date of the master Ticket, depending on the TicketDates
 
-            if ($ticketDates) { // cambiar aqui para que si el primer y ultimo date estan fuera del ticket se expande el ticket
+            if (count($ticketDates) > 0) { // cambiar aqui para que si el primer y ultimo date estan fuera del ticket se expande el ticket
                 $found = false;
 
                 while(!$found){
@@ -218,7 +214,6 @@ class TicketController extends BaseController
 
             }
             else{
-
                 $date = new ticketDate();
                 $date->copyTicket($ticket);
                 $ticket->addDate($date);
@@ -239,11 +234,10 @@ class TicketController extends BaseController
                 else  $sensorArray[$key]['checked'] = "";
             }
             if ($ticket->getStatus() == '10') $ticket->setStatus(30); // If 'New' Ticket change to work in Progress
-
             $em->persist($ticket);
             $em->flush();
 
-            return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
+            return new Response(null, Response::HTTP_NO_CONTENT);
         }
         if ($ticket->getAlertType() >=70 && $ticket->getAlertType() < 80) $performanceTicket =  true;
         else $performanceTicket = false;
@@ -251,12 +245,16 @@ class TicketController extends BaseController
         if ($ticket->getDates()->count() === 0){
             $date = new ticketDate();
             $date->copyTicket($ticket);
+            $date->setAnlage($anlage);
             $ticket->addDate($date);
             $ticket->setNeedsProof(true);
             $ticket->setNeedsProofEPC(true);
             $ticket->setNeedsProofTAM(true);
-            $ticket->setDescription($ticket->getDescription(). "<br> The sub Tickets were lost because of an unknown error, a new sub Ticket has been created");
+            $ticket->setDescription($ticket->getDescription(). "<br> The sub Tickets have been automatically generated");
             $form = $this->createForm(TicketFormType::class, $ticket);
+            $em->persist($ticket);
+            $em->persist($date);
+            $em->flush();
         }
         $namesSensors = $anlage->getSensors();
 
@@ -280,7 +278,7 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/list', name: 'app_ticket_list')]
-    public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, RequestStack $requestStack): Response
+    public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo): Response
     {
         $filter = [];
         $session = $request->getSession();
@@ -319,6 +317,7 @@ class TicketController extends BaseController
         $prooftam = $request->query->get('prooftam', 0);
         $proofepc = $request->query->get('proofepc', 0);
         $proofam = $request->query->get('proofam', 0);
+        $proofg4n = $request->query->get('proofg4n', 0);
         $ignored = $request->query->get('ignored', 0);
         $TicketName = $request->query->get('TicketName', "");
         $kpistatus = $request->query->get('kpistatus', 0);
@@ -336,13 +335,13 @@ class TicketController extends BaseController
         $filter['priority']['value'] = $prio;
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
-        $filter['category']['array'] = self::listAllErrorCategorie();
+        $filter['category']['array'] = self::listAllErrorCategorie($this->isGranted('ROLE_G4N'));
         #$filter['category']['array'] = self::errorCategorie(true, true, true);
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;
         $filter['kpistatus']['array'] = self::kpiStatus();
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $proofg4n, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
 
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
@@ -384,7 +383,7 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
-    public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, functionsService $functions): Response
+    public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {
         $page = $request->query->getInt('page', 1);
 
@@ -440,7 +439,7 @@ class TicketController extends BaseController
         ]);
     }
     #[Route(path: '/ticket/deleteTicket/{id}', name: 'app_ticket_deleteticket')]
-    public function deleteTicket($id, TicketRepository $ticketRepo,  PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $em, functionsService $functions,  RequestStack $requestStack): Response
+    public function deleteTicket($id, TicketRepository $ticketRepo,  PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $em, RequestStack $requestStack): Response
     {
         $filter = [];
         $session = $requestStack->getSession();
@@ -486,6 +485,7 @@ class TicketController extends BaseController
         $prooftam = $request->query->get('prooftam', 0);
         $proofepc = $request->query->get('proofepc', 0);
         $proofam = $request->query->get('proofam', 0);
+        $proofg4n = $request->query->get('proofg4n', 0);
         $ignored = $request->query->get('ignored', 0);
         $TicketName = $request->query->get('TicketName', "");
         $kpistatus = $request->query->get('kpistatus', 0);
@@ -503,13 +503,13 @@ class TicketController extends BaseController
         $filter['priority']['value'] = $prio;
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
-        $filter['category']['array'] = self::listAllErrorCategorie();
+        $filter['category']['array'] = self::listAllErrorCategorie($this->isGranted('ROLE_G4N'));
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;
         $filter['kpistatus']['array'] = self::kpiStatus();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $proofg4n, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
 
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
@@ -543,6 +543,9 @@ class TicketController extends BaseController
         ]);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
     public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em, functionsService $functions): Response
     {
@@ -595,7 +598,7 @@ class TicketController extends BaseController
 
 
 
-            return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
+            return new Response(null, Response::HTTP_NO_CONTENT);
         }
         $anlage = $ticket->getAnlage();
 
@@ -640,6 +643,9 @@ class TicketController extends BaseController
         ]);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/ticket/splitbyinverter', name: 'app_ticket_split_inverter')]
     public function splitByInverter(TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em): Response
     {

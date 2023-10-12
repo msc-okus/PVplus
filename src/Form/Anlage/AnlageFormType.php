@@ -22,6 +22,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
+use Yaroslavche\Symfony\UX\Flatpickr\Form\Type\FlatpickrDateTimeType;
+use Yaroslavche\Symfony\UX\Flatpickr\Form\Type\FlatpickrDateType;
 
 class AnlageFormType extends AbstractType
 {
@@ -548,7 +550,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('modAzimut', TextType::class, [
                 'label' => 'Modul azimut',
-                'help' => '[Modul azimut in degrees for S=180 O=90 W=180 ]',
+                'help' => '[Modul azimut in degrees for S=180 O=90 W=270 ]',
                 'label_html' => true,
                 'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3,'style' => 'width: 55px']
@@ -588,7 +590,14 @@ class AnlageFormType extends AbstractType
                 'label' => 'Has Frequency',
                 'help' => '[hasFrequency]',
             ])
-
+            // ###############################################
+            // ###         HAS SUNSHADING MODEL           ####
+            // ###############################################
+            ->add('hasSunshadingModel', SwitchType::class, [
+                'label' => 'Use the Sunshading Model for this plant',
+                'help' => '[On / Off]',
+                'required' => false,
+            ])
             // ###############################################
             // ###            Availability                ####
             // ###############################################
@@ -737,11 +746,11 @@ class AnlageFormType extends AbstractType
             ])
             ->add('internalTicketSystem', SwitchType::class, [
                 'label' => 'Activate internal ticket autogeneration',
-                'help' => '[Activate internal Ticket]',
+                'help' => '<br>[internalTicketSystem]',
             ])
             ->add('newAlgorythm', SwitchType::class, [
                 'label' => 'Use the new Algorithm',
-                'help' => 'The new algorithm prioritizes joining tickets that begin at the same time, and the old one joins tickets if the begin and end match',
+                'help' => 'The new algorithm prioritizes joining tickets that begin at the same time, and the old one joins tickets if the begin and end match<br>[newAlgorythm]',
                 'attr' => ['data-plant-target' => 'ticket'],
             ])
             ->add('freqBase', TextType::class, [
@@ -773,10 +782,8 @@ class AnlageFormType extends AbstractType
                 'attr' => ['data-plant-target' => 'ticket']
             ])
             ->add('kpiTicket', SwitchType::class, [
-
                 'label' => 'Activate Performace (KPI) Tickets',
                 'help' => '[kpiTicket]',
-
             ])
             ->add('gridTicket', SwitchType::class, [
                 'label' => 'Activate Grid Ticket',
@@ -785,7 +792,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('PowerThreshold', TextType::class, [
                 'label' => 'Ticket Power minimum value [kW]',
-                'help' => '[PowerThreshold]',
+                'help' => "Minimum Power to set a Inverter to 'working', is also used for PA calculation.<br>[PowerThreshold]",
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '0',
             ])

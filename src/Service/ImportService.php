@@ -134,18 +134,17 @@ class ImportService
                         $irrLower = $checkSensors[0]['irrLower'];
                         $irrUpper = $checkSensors[0]['irrUpper'];
 
-                        $tempPanel = $checkSensors[1]['tempPanel'];
+                    $tempPanel = $checkSensors[1]['tempPanel'];
 
-                        $tempAmbient = $checkSensors[1]['tempAmbient'];
+                    $tempAmbient = $checkSensors[1]['tempAmbient'];
 
-                        $tempAnlageArray = $checkSensors[1]['anlageTemp'];
+                    $tempAnlageArray = $checkSensors[1]['anlageTemp'];
 
-                        $wSEwd = $checkSensors[1]['windDirection'];
+                    $wSEwd = $checkSensors[1]['windDirection'];
 
-                        $windSpeed = $checkSensors[1]['windSpeed'];
+                    $windSpeed = $checkSensors[1]['windSpeed'];
 
-                        $windAnlageArray = $checkSensors[1]['anlageWind'];
-                    }
+                    $windAnlageArray = $checkSensors[1]['anlageWind'];
 
                 }
 

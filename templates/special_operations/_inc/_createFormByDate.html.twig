@@ -10,7 +10,7 @@
                 {% endfor %}
             </select>
         </div>
-        {% if is_granted('ROLE_G4N') %}
+        {% if is_granted('ROLE_G4N') or is_granted('ROLE_BETA') %}
             <div class="cell medium-2">
                 <label for="start-day">Start Day</label>
                 <select id="start-day" name="start-day">
