@@ -90,7 +90,6 @@ class TicketDateRepository extends ServiceEntityRepository
             ->andWhere('t.begin <= :end')
             ->andWhere('t.Anlage = :anlage')
             ->andWhere('t.alertType = :error')
-            ->andWhere('t.alertType = :error')
             ->andWhere('ticket.ignoreTicket = false')
             ->setParameter('begin', $begin)
             ->setParameter('end', $end)

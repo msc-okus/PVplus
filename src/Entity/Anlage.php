@@ -1338,6 +1338,7 @@ class Anlage implements \Stringable
         {
             $cacheItem->expiresAfter(120); // Lifetime of cache Item in secunds
 
+
             $nameArray = [];
 
             switch ($this->getConfigType()) {
@@ -1356,6 +1357,7 @@ class Anlage implements \Stringable
             }
 
             return $nameArray;
+
         });
 */
     }
