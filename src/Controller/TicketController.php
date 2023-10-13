@@ -424,8 +424,16 @@ class TicketController extends BaseController
         if (count($ticketDates) == 0) {
             $ticketDates = null;
         }
-
         $form = $this->createForm(TicketFormType::class, $ticket);
+        $namesSensors = $anlage->getSensors();
+
+        $sensorString = $ticketDates[0]->getSensors();
+        foreach ($namesSensors as $key => $sensor){
+            $sensorArray[$key]['name'] = $sensor->getName();
+            $sensorArray[$key]['nameS'] = $sensor->getNameShort();
+            if ((str_contains($sensorString, $sensor->getNameShort()) !== false)) $sensorArray[$key]['checked'] = "checked";
+            else  $sensorArray[$key]['checked'] = "";
+        }
 
         return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
@@ -435,6 +443,7 @@ class TicketController extends BaseController
             'dates' => $ticketDates,
             'page' => $page,
             'invArray' => $inverterArray,
+            'sensorArray'   => $sensorArray,
             'performanceTicket' => false
         ]);
     }
@@ -685,6 +694,16 @@ class TicketController extends BaseController
         if ($ticket->getDates()->isEmpty()) {
             $inverterArray = null;
         }
+        $namesSensors = $anlage->getSensors();
+
+        $ticketDates = $ticket->getDates();
+        $sensorString = $ticketDates->first()->getSensors();
+        foreach ($namesSensors as $key => $sensor){
+            $sensorArray[$key]['name'] = $sensor->getName();
+            $sensorArray[$key]['nameS'] = $sensor->getNameShort();
+            if ((str_contains($sensorString, $sensor->getNameShort()) !== false)) $sensorArray[$key]['checked'] = "checked";
+            else  $sensorArray[$key]['checked'] = "";
+        }
         return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
@@ -692,7 +711,7 @@ class TicketController extends BaseController
             'edited' => true,
             'invArray' => $inverterArray,
             'performanceTicket' => false,
-            'sensorArray'   => [],
+            'sensorArray'   => $sensorArray,
         ]);
     }
 
