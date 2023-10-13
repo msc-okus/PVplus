@@ -80,15 +80,18 @@ private readonly PdoService $pdoService,
      * By default we retrieve the unfiltered power (without ppc)
      *
      *
+     * @param Anlage $anlage
+     * @param DateTime $from
+     * @param DateTime $to
+     * @param bool $ppc
      * @param int|null $inverterID
      * @return array
-     * @throws \Exception
      */
     public function getSumAcPowerV2(Anlage $anlage, DateTime $from, DateTime $to, bool $ppc = false, ?int $inverterID = null): array
     {
         $conn = $this->pdoService->getPdoPlant();
         $result = [];
-        $powerEvu = $powerExp = $powerExpEvu = $powerEGridExt = $powerTheo = $powerTheoNoPpc = $tCellAvg = $tCellAvgMultiIrr = 0;
+        $powerEvuBase = $powerExp = $powerExpEvu = $powerEGridExt = $powerTheo = $powerTheoNoPpc = $tCellAvg = $tCellAvgMultiIrr = 0;
 
         $ignorNegativEvuSQL = $anlage->isIgnoreNegativEvu() ? 'AND e_z_evu > 0' : '';
         $ppcSQLpart1 = $ppcSQLpart2 = $ppcSQLpart1Meters = '';
@@ -117,7 +120,7 @@ private readonly PdoService $pdoService,
                 $res = $conn->query($sql);
                 if ($res->rowCount() === 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);
-                    $powerEvu = $row['power_grid'];
+                    $powerEvuBase = $row['power_grid'];
                 }
             } else {
                 // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
@@ -150,14 +153,15 @@ private readonly PdoService $pdoService,
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);
-                    $powerEvu = $row['power_evu'];
+                    $powerEvuBase = $row['power_evu'];
                 }
             }
             unset($res);
             #$powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
-            $powerEvu = $this->correctGridByTicket($anlage, $powerEvu, $from, $to);
+            $powerArray = $this->correctGridByTicket($anlage, $powerEvuBase, $from, $to);
         } else {
-            $powerEvu = null;
+            $powerEvuBase = null;
+            $powerArray = null;
         }
 
         if ($inverterID !== null){
@@ -210,10 +214,21 @@ private readonly PdoService $pdoService,
                 WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' AND s.wr_pac > 0 $ppcSQLpart2 $sqlPartInverter";
         $res = $conn->query($sql);
 
+
+
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $result['powerEvu']         = (float) $powerEvu;
-            $result['powerAct']         = (float) $row['sum_power_ac'];
+            $powerArrayAct = $this->correctGridByTicket($anlage, (float) $row['sum_power_ac'], $from, $to, 'act');
+            $result['powerEvu']         = (float) $powerArray['Dep0'];
+            $result['powerEvuDep0']     = (float) $powerArray['Dep0'];
+            $result['powerEvuDep1']     = (float) $powerArray['Dep1'];
+            $result['powerEvuDep2']     = (float) $powerArray['Dep2'];
+            $result['powerEvuDep3']     = (float) $powerArray['Dep3'];
+            $result['powerAct']         = (float) $powerArrayAct['Dep0'];
+            $result['powerActDep0']     = (float) $powerArrayAct['Dep0'];
+            $result['powerActDep1']     = (float) $powerArrayAct['Dep1'];
+            $result['powerActDep2']     = (float) $powerArrayAct['Dep2'];
+            $result['powerActDep3']     = (float) $powerArrayAct['Dep3'];
             $result['powerExp']         = (float) $powerExp;
             $result['powerExpEvu']      = (float) $powerExpEvu;
             $result['powerEGridExt']    = (float) $powerEGridExt;
@@ -231,11 +246,11 @@ private readonly PdoService $pdoService,
      * Get sum from different AC Values from 'ist' Database.
      * Sum only values with ppc = 100
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param int|null $inverterID
      * @return array
-     * @throws \Exception
      */
     public function getSumAcPowerV2Ppc(Anlage $anlage, $from, $to, ?int $inverterID = null): array
     {
@@ -245,6 +260,7 @@ private readonly PdoService $pdoService,
 
     /**
      * schold be removed and replaced by correction by Tickets
+     * @param Anlage $anlage
      * @param float|null $evu
      * @param $from
      * @param $to
@@ -261,7 +277,6 @@ private readonly PdoService $pdoService,
         if ($evu) {
             if ($anlage->getUseGridMeterDayData() === false) {
                 $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, $fromObj, $toObj);
-                $countMonthes = is_countable($monthlyDatas) ? count($monthlyDatas) : 0;
 
                 foreach ($monthlyDatas as $monthlyData) {
                     // calculate the first and the last day of the given month and year in $monthlyData
@@ -311,10 +326,10 @@ private readonly PdoService $pdoService,
         return $evu;
     }
 
-    public function correctGridByTicket(Anlage $anlage, ?float $evu, DateTime $startDate, DateTime $endDate): ?float
+    public function correctGridByTicket(Anlage $anlage, ?float $power, DateTime $startDate, DateTime $endDate, string $source = 'evu'): array
     {
         $conn = $this->pdoService->getPdoPlant();
-
+        $power0 = $power1 = $power2 = $power3 = $power;
         // Suche alle Tickets (Ticketdates) die in den Zeitraum fallen
         // Es werden Nur Tickets mit Energy exclude Bezug gesucht (Performance Tickets mit ID = 72 + ??
         $ticketArray = $this->ticketDateRepo->performanceTicketsExcludeEnergy($anlage, $startDate, $endDate);
@@ -322,42 +337,61 @@ private readonly PdoService $pdoService,
         // Dursuche alle Tickets in Schleife
         // berechne Wert aus Original Daten und Subtrahiere vom Wert
         // berechne ersatz Wert und Addiere zum entsprechenden Wert
-         /** @var TicketDate $ticketArray */
-        foreach ($ticketArray as $ticket) { #loop über query result
+         /** @var TicketDate $ticketDate */
+        foreach ($ticketArray as $ticketDate) { #loop über query result
             // Start und End Zeitpunkt ermitteln, es sollen keine Daten gesucht werden die auserhalb des Übergebenen Zeitaums liegen.
             // Ticket kann ja schon vor dem Zeitraum gestartet oder danach erst beendet werden
-            if ($startDate > $ticket->getBegin()){
+            if ($startDate > $ticketDate->getBegin()){
                 $tempoStartDate = $startDate;
             } else {
-                $tempoStartDate = $ticket->getBegin();
+                $tempoStartDate = $ticketDate->getBegin();
             }
-            if ($endDate < $ticket->getEnd()){
+            if ($endDate < $ticketDate->getEnd()){
                 $tempoEndDate = $endDate;
             } else {
-                $tempoEndDate = $ticket->getEnd();
+                $tempoEndDate = $ticketDate->getEnd();
             }
 
             // Suche und summiere Werte in AC Ist Tabelle
-            if ($anlage->isIgnoreNegativEvu()) {
-                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
-            } else {
-                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
+            switch ($source) {
+                case 'act':
+                    $sql = 'SELECT sum(wr_pac) as power FROM '.$anlage->getDbNameAcIst()." 
+                            WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' AND wr_pac > 0";
+                    break;
+                default:
+                    if ($anlage->isIgnoreNegativEvu()) {
+                        $sql = 'SELECT sum(e_z_evu) as power FROM ' . $anlage->getDbNameAcIst() . " 
+                        WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                    }
+                    else {
+                        $sql = 'SELECT sum(e_z_evu) as power FROM ' . $anlage->getDbNameAcIst() . " 
+                        WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
+                    }
+
+                    break;
             }
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
-                $evu -= $row['power_evu']; // ermittelten Wert vom gesamt evu abziehen
+                // ermittelten Wert vom gesamt evu abziehen
+                if ($ticketDate->getTicket()->isScope(10)) $power1 -= $row['power']; // Department 1
+                if ($ticketDate->getTicket()->isScope(20)) $power2 -= $row['power']; // Department 2
+                if ($ticketDate->getTicket()->isScope(30)) $power3 -= $row['power']; // Department 3
             }
         }
 
+        $powerArray['Dep0'] = $power0;
+        $powerArray['Dep1'] = $power1;
+        $powerArray['Dep2'] = $power2;
+        $powerArray['Dep3'] = $power3;
 
-
-        return $evu;
+        return $powerArray;
     }
 
     /**
      * Wird für den Bericht Bavelse Berg genutzt
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $section

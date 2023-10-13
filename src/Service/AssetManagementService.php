@@ -4382,7 +4382,6 @@ class AssetManagementService
         $efficiencySum = 0;
         $efficiencyCount = 0;
         foreach($res->fetchAll(PDO::FETCH_ASSOC) as $result){
-
             if ($result['inverter'] != $inverter){
                 $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0;
                 $inverter = $result['inverter'];

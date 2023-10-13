@@ -533,6 +533,9 @@ class Anlage implements \Stringable
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $useDayForecast = false;
 
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $hasSunshadingModel  = false;
+
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $degradationForecast = '0';
 
@@ -1312,6 +1315,29 @@ class Anlage implements \Stringable
      */
     public function getInverterFromAnlage(): array
     {
+        $nameArray = [];
+
+        switch ($this->getConfigType()) {
+            case 1: // In diesem Fall gibt es keine SCBs; AC Gruppen = Trafo oder ähnliches; DC Gruppen = Inverter
+                foreach ($this->getGroups() as $inverter) {
+                    $nameArray[$inverter->getDcGroup()] = $inverter->getDcGroupName();
+                }
+                break;
+            case 2: // In diesem Fall gibt es keine SCBs; AC Gruppen = DC Gruppen = Inverter Bsp: Lelystad
+            case 3: // AC Gruppen = Inverter; DC Gruppen = SCB Gruppen Bsp: Groningen
+            case 4: // AC Gruppen = Inverter; DC Gruppen = SCBs Bsp: Guben
+                foreach ( $this->getAcGroups() as $inverter) {
+                    $nameArray[$inverter->getAcGroup()] = $inverter->getAcGroupName();
+                }
+                break;
+        }
+
+        return $nameArray;
+        /*
+        return $this->cache->get('getNameInverterArray_'.md5($this->getAnlId()), function(CacheItemInterface $cacheItem)
+        {
+            $cacheItem->expiresAfter(120); // Lifetime of cache Item in secunds
+
 
             $nameArray = [];
 
@@ -1332,8 +1358,10 @@ class Anlage implements \Stringable
 
             return $nameArray;
 
-
+        });
+*/
     }
+
     public function getAnzInverter(): int
     {
         $anzInverter = 0;
@@ -3313,6 +3341,20 @@ class Anlage implements \Stringable
 
         return $this;
     }
+
+
+    public function getHasSunshadingModel(): ?bool
+    {
+        return $this->hasSunshadingModel;
+    }
+
+    public function setHasSunshadingModel(bool $hasSunshadingModel): self
+    {
+        $this->hasSunshadingModel = $hasSunshadingModel;
+
+        return $this;
+    }
+
 
     public function getDegradationForecast(): float
     {

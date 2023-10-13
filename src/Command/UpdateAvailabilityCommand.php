@@ -72,9 +72,11 @@ class UpdateAvailabilityCommand extends Command
         if ($anlageId) {
             $io->comment("Berechne Verfügbarkeit: $from - $to | Anlage ID: $anlageId");
             $anlagen = $this->anlagenRepository->find($anlageId);
+            $anzAnlagen = 1;
         } else {
             $io->comment("Berechne Verfügbarkeit: $from - $to | Alle Anlagen");
             $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => true]);
+            $anzAnlagen = ($anlagen === null ? 0 : count($anlagen));
         }
 
         $fromStamp = strtotime((string) $from);
@@ -84,7 +86,7 @@ class UpdateAvailabilityCommand extends Command
             ++$counter;
         }
 
-        $io->progressStart(($anlagen === null ? 0 : count($anlagen)) * $counter);
+        $io->progressStart($anzAnlagen * $counter);
         foreach ($anlagen as $anlage) {
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
                 $from = date('Y-m-d 00:00', $stamp);
