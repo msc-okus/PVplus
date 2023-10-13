@@ -10,8 +10,8 @@
                     <thead>
                     <tr>
                         <th class="table-center">Availability</th>
-                        <th class="table-center">Planned</th>
-                        <th class="table-center">Actual</th>
+                        <th class="table-center">Planned<sup><b>d</b></sup></th>
+                        <th class="table-center">Actual<sup><b>e</b></sup></th>
                         <th class="table-center" rowspan="2">Difference</th>
                     </tr>
                     <tr>
@@ -46,10 +46,16 @@
                         <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedEFOR'] - availabilityMonthTable['actualEFOR']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left" class="tr_next_columns">Grid Error/ Grid Off <sup><b> c</b></sup></td>
+                        <td style="text-align: left" class="tr_next_columns">Grid Error <sup><b> c</b></sup></td>
                         <td class="tr_next_columns"> {{ availabilityMonthTable['expectedOMC'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ availabilityMonthTable['actualOMC'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedOMC'] - availabilityMonthTable['actualOMC']) |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns">PPC Errors</td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['expectedPPC'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['actualPPC'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedPPC'] - availabilityMonthTable['actualPPC']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left" class="tr_next_columns">Data Gaps</td>
@@ -114,7 +120,7 @@
                         </tr>
                     {% endif %}
                     <tr>
-                        <td style="text-align: center" class="tr_next_columns" rowspan="4"> Type of Ticket</td>
+                        <td style="text-align: center" class="tr_next_columns" rowspan="5"> Type of Ticket</td>
                         <td style="text-align: left" class="tr_next_columns">  SOR Losses - Planned Outage</td>
                         <td class="tr_next_columns">{{ monthlyLossesHelpTable['SORLosses'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns">{{ percentageTableMonth['SORLosses'] |number_format(2, ',', '.') }}</td>
@@ -125,9 +131,14 @@
                         <td class="tr_next_columns">{{ percentageTableMonth['EFORLosses'] |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left" class="tr_next_columns"> OMC Losses - Grid Error / Grid Off </td>
+                        <td style="text-align: left" class="tr_next_columns"> OMC Losses - Grid Error  </td>
                         <td class="tr_next_columns">{{ monthlyLossesHelpTable['OMCLosses'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns">{{ percentageTableMonth['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns"> PPC Losses </td>
+                        <td class="tr_next_columns">{{ monthlyLossesHelpTable['PPCLosses'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ percentageTableMonth['PPCLosses'] |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td style="text-align: left" class="tr_next_columns"> Data Gaps </td>
@@ -160,9 +171,14 @@
                         <td class="tr_next_columns"> {{ ticketCountTableMonth.EFORQuarters }}</td>
                     </tr>
                     <tr>
-                        <td class="tr_next_columns">Grid Error/Grid Off <sup><b> c</b></sup></td>
+                        <td class="tr_next_columns">Grid Error<sup><b> c</b></sup></td>
                         <td class="tr_next_columns"> {{ ticketCountTableMonth.OMCTickets }} </td>
                         <td class="tr_next_columns"> {{ ticketCountTableMonth.OMCQuarters }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns"> PPC </td>
+                        <td class="tr_next_columns"> {{ ticketCountTableMonth.PPCTickets }} </td>
+                        <td class="tr_next_columns"> {{ ticketCountTableMonth.PPCQuarters }}</td>
                     </tr>
                     <tr>
                         <td class="tr_next_columns"> Data Gaps</td>
@@ -179,7 +195,9 @@
                 <div style="text-align: left">
                     <sup><b>a</b></sup> Maintenance, SOR<br>
                     <sup><b>b</b></sup> Defects, EFOR<br>
-                    <sup><b>c</b></sup> Availability is not effected, OMC
+                    <sup><b>c</b></sup> Availability is not effected, OMC<br>
+                    <sup><b>d</b></sup> Actual availability: the ratio of 15min time steps with production and total 15min time steps<br>
+                    <sup><b>e</b></sup> Planned availability: the contractual availability (cf. explanation page)
                 </div>
             </td>
         </tr>

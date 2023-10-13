@@ -1,7 +1,7 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Inverter level heatmap</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Inverter power level heatmap</h3>
     <span class="subheadline">Overview: daily difference between g4n expected vs. actuals - {{ monthName }} {{ year }}</span>
     <table >
         <tr>
@@ -25,9 +25,7 @@
                                     <table class = "streamdayly" style="margin:0 !important;width:100%!important">
                                         <thead>
                                         {% if (itemcounter == 1 ) %}
-
                                                     <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;" rowspan="3" style="border-left: solid 1px !important;">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*20)+inv] }}</th></tr>
-
                                                     <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
                                         {% endif %}
                                         {% if (itemcounter > 1) %}
