@@ -815,7 +815,7 @@ class AssetManagementService
                                         'formatter' => '{b}:{c}'
                                     ]
                                 ],
-                                [
+                               /* [
                                     'name' => 'average PR:',
 
                                     'yAxis' => $avgPr,
@@ -827,7 +827,9 @@ class AssetManagementService
                                     'label' => [
                                         'formatter' => '{b}:{c}'
                                     ]
+
                                 ]
+                                */
                             ],
                             'symbol' => 'none',
 
@@ -920,6 +922,7 @@ class AssetManagementService
                                         'formatter' => '{b}:{c}'
                                     ]
                                 ],
+                                /*
                                 [
                                     'name' => 'average PR:',
 
@@ -933,6 +936,7 @@ class AssetManagementService
                                         'formatter' => '{b}:{c}'
                                     ]
                                 ]
+                                */
                             ],
                             'symbol' => 'none',
 
@@ -2395,22 +2399,8 @@ class AssetManagementService
             'PPCQuarters'   => $PPControlMonth,
             'DataGaps'      => $dataGapsMonth,
         ];
-        /* DEPRACATED
-        if ($totalErrorsMonth != 0) {
-            $failRelativeSOFPorcentMonth = 100 - (($totalErrorsMonth - $SOFErrorsMonth) / $totalErrorsMonth) * 100;
-            $failRelativeEFORPorcentMonth = 100 - (($totalErrorsMonth - $EFORErrorsMonth) / $totalErrorsMonth) * 100;
-            $failRelativeOMCPorcentMonth = 100 - (($totalErrorsMonth - $OMCErrorsMonth) / $totalErrorsMonth) * 100;
-            $failRelativeGapsPorcentMonth = 100 - (($totalErrorsMonth - $dataGapsMonth) / $totalErrorsMonth) * 100;
-        } else {
-            $failRelativeSOFPorcentMonth = 0;
-            $failRelativeEFORPorcentMonth = 0;
-            $failRelativeOMCPorcentMonth = 0;
-            $failRelativeGapsPorcentMonth = 0;
-        }
-*/
+
         $plant_availability = [];
-
-
         //Tables for the kwh losses with bar graphs
 
         if ($anlage->hasPVSYST()){
@@ -2420,13 +2410,12 @@ class AssetManagementService
             }
         }
 
-        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2] * ((100 - $anlage->getTotalKpi())/100);
+        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-1] * ((100 - $anlage->getTotalKpi())/100);
         $G4NyearExpected = 1;
         for($index = 0; $index < $month -1; $index++){
             $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExp'][$index] * ((100-$anlage->getTotalKpi())/100));
         }
-
-        $ActualPower = $powerEvu[$month-2];
+        $ActualPower = $powerEvu[$month-1];
         $ActualPowerYear = 1;
         for($index = 0; $index < $month -1; $index++){
             $ActualPowerYear = $ActualPowerYear + $powerEvu[$index];
@@ -2435,7 +2424,7 @@ class AssetManagementService
             $percentageTable = [
                 'G4NExpected' => 100,
                 'PVSYSExpected' => (int)($tbody_a_production['forecast'][$month - 2] * 100 / $G4NmonthExpected),
-                'forecast' => (int)($forecast[$month - 2] * 100 / $G4NmonthExpected),
+                'forecast' => (int)($forecast[$month - 1] * 100 / $G4NmonthExpected),
                 'ActualPower' => (int)($ActualPower * 100 / $G4NmonthExpected),
                 'SORLosses' => number_format(-($kwhLossesMonthTable['SORLosses'] * 100 / $G4NmonthExpected), 2),
                 'EFORLosses' => number_format(-($kwhLossesMonthTable['EFORLosses'] * 100 / $G4NmonthExpected), 2),
