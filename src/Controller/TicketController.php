@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use _PHPStan_adbc35a1c\Nette\Utils\DateTime;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
 use App\Form\Ticket\TicketFormType;
@@ -234,6 +235,7 @@ class TicketController extends BaseController
                 else  $sensorArray[$key]['checked'] = "";
             }
             if ($ticket->getStatus() == '10') $ticket->setStatus(30); // If 'New' Ticket change to work in Progress
+            $ticket->setUpdatedAt(new DateTime('now'));
             $em->persist($ticket);
             $em->flush();
 
@@ -407,7 +409,6 @@ class TicketController extends BaseController
             }
         }
 
-
         if ($splitTime) {
             $mainDate = new TicketDate();
             $mainDate->copyTicketDate($ticketDate);
@@ -415,7 +416,7 @@ class TicketController extends BaseController
             $ticketDate->setEnd($splitTime);
             $ticket->addDate($mainDate);
             $ticket->setSplitted(true);
-
+            $ticket->setUpdatedAt(new DateTime('now'));
             $em->persist($ticket);
             $em->flush();
         }
@@ -672,6 +673,7 @@ class TicketController extends BaseController
         $em->persist($newTicket);
         $em->flush();
         $ticket->setDescription($ticket->getDescription()." Ticket splited into Ticket: ". $newTicket->getId());
+        $ticket->setUpdatedAt(new DateTime('now'));
         $em->persist($ticket);
         $em->flush();
 
@@ -701,8 +703,11 @@ class TicketController extends BaseController
         foreach ($namesSensors as $key => $sensor){
             $sensorArray[$key]['name'] = $sensor->getName();
             $sensorArray[$key]['nameS'] = $sensor->getNameShort();
-            if ((str_contains($sensorString, $sensor->getNameShort()) !== false)) $sensorArray[$key]['checked'] = "checked";
-            else  $sensorArray[$key]['checked'] = "";
+            if ((str_contains($sensorString, $sensor->getNameShort()) !== false)) {
+                $sensorArray[$key]['checked'] = "checked";
+            } else {
+                $sensorArray[$key]['checked'] = "";
+            }
         }
         return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
