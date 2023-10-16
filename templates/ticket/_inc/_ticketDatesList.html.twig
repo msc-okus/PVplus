@@ -41,7 +41,11 @@
         }) }}>
             <td>{{ loop.index }} ({{ date.vars.value.intervals }})</td>
             <td>{{ form_widget(date.begin) }}{# {{ date.vars.value.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }} #}</td>
-            <td>{{ form_widget(date.end) }}{# {{ date.vars.value.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }} #}</td>
+            {% if (loop.last) %}
+                <td>{{ form_widget(date.end,{ 'attr':{ 'data-ticket-edit-target':'formEndDate' }}) }}</td>
+            {% else %}
+                <td>{{ form_widget(date.end) }} </td>
+            {% endif %}
             {# Performance Ticket #}
 
             <td class="is-hidden" data-ticket-edit-target="fieldSensor">
