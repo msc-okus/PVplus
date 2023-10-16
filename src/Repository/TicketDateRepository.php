@@ -314,9 +314,11 @@ class TicketDateRepository extends ServiceEntityRepository
 
         return $q->getQuery()->getResult();
     }
+
     /**
      * Search for Performance Tickets
      *
+     * @param Anlage $anlage
      * @param string|DateTime $startDate
      * @param string|DateTime $endDate
      * @return array
