@@ -415,7 +415,11 @@ private PdoService $pdoService,
                     }
                     break;
                 case 'irradiation':
-                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+                    if($anlage->getSettings()->isUseSensorsData()){
+                        $dataArray = $this->irradiationChart->getIrradiationFromSensorsData($anlage, $from, $to, 'all', $hour);
+                    }else{
+                        $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+                    }
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [[W/m²]]';
@@ -440,8 +444,6 @@ private PdoService $pdoService,
                     }else{
                         $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to, $hour);
                     }
-
-
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];

@@ -388,7 +388,7 @@ trait ImportFunctionsTrait
      * @param  $date
      * @return array
      */
-    function getSensorsData(array $anlageSensors, int $length, array $sensors, $stamp, $date, ): array
+    function getSensorsData(array $anlageSensors, int $length, array $sensors, $stamp, $date, $gMo): array
     {
 
         $gmPyHori = $gmPyHoriAnlage = $gmPyWest = $gmPyWestAnlage = $gmPyEast = $gmPyEastAnlage = [];
@@ -406,18 +406,23 @@ trait ImportFunctionsTrait
                 $now = strtotime((string) $date);
                 if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
                     $sensorId = $anlageSensors[$i]->getId();
-
+                    $sensorType = $anlageSensors[$i]->getvirtualSensor();
+                    $sensorShortname = $anlageSensors[$i]->getNameShort();
+                    $sensorUseToCalc = $anlageSensors[$i]->getUseToCalc();
                     $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                 }
 
             }
 
                 $data_sensors[] = [
-                    'anl_id'        => 0,
-                    'date'          => $date,
-                    'stamp'         => $stamp,
-                    'id_sensor'     => $sensorId,
-                    'value'         => ($value != '') ? $value : 0
+                    'date'                  => $date,
+                    'stamp'                 => $stamp,
+                    'id_sensor'             => $sensorId,
+                    'type_sensor'           => $sensorType,
+                    'shortname_sensor'      => $sensorShortname,
+                    'usetocalc_sensor'      => $sensorUseToCalc,
+                    'value'                 => ($value != '') ? $value : 0,
+                    'gmo'                   => $gMo
                 ];
 
 
@@ -458,7 +463,7 @@ trait ImportFunctionsTrait
      * @param int $stringBoxUnits
      * @return array
      */
-    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $groups, $stringBoxUnits): array
+    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
     {
 
         for ($i = 1; $i <= count($acGroups); $i++) {
@@ -531,7 +536,10 @@ trait ImportFunctionsTrait
                 'temp_cell_multi_irr' => NULL,
                 'wr_mpp_current' => $dcCurrentMpp,
                 'wr_mpp_voltage' => $dcVoltageMpp,
-
+                'irr_anlage' => $irrAnlage,
+                'temp_anlage' => $tempAnlage,
+                'temp_inverter' => $tempAnlage,
+                'wind_anlage' => $windAnlage,
             ];
         }
 
@@ -589,7 +597,7 @@ trait ImportFunctionsTrait
      * @param int $stringBoxUnits
      * @return array
      */
-    function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $groups, $invertersUnits): array
+    function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
     {
 
         foreach ($groups as $group) {
@@ -687,6 +695,10 @@ trait ImportFunctionsTrait
                 'temp_cell_multi_irr' => NULL,
                 'wr_mpp_current' => $dcCurrentMpp,
                 'wr_mpp_voltage' => $dcVoltageMpp,
+                'irr_anlage' => $irrAnlage,
+                'temp_anlage' => $tempAnlage,
+                'temp_inverter' => $tempAnlage,
+                'wind_anlage' => $windAnlage,
             ];
         }
 

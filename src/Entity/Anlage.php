@@ -62,6 +62,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 class Anlage implements \Stringable
 {
     private string $dbAnlagenData = 'pvp_data';
+    private string $dbAnlagenBase = 'pvp_base';
 
     #[Groups(['main','api:read'])]
     #[SerializedName('id')]
@@ -1252,6 +1253,11 @@ class Anlage implements \Stringable
     public function getDbNameSensorsData(): string
     {
         return $this->dbAnlagenData.'.db__pv_sensors_data_'.$this->getAnlIntnr();
+    }
+
+    public function getDbNameAnalgeSensors(): string
+    {
+        return $this->dbAnlagenBase.'.anlage_sensors_'.$this->getAnlIntnr();
     }
 
     public function getDbNameSection(): string

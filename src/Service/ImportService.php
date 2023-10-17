@@ -109,6 +109,7 @@ class ImportService
 
                 if (array_key_exists($date, $basics)) {
                     $irrAnlageArrayGMO['G_M0'] = $basics[$date]['G_M0'] > 0 ? round($basics[$date]['G_M0'], 4) : 0;   //
+                    $gMo = $irrAnlageArrayGMO['G_M0'];
                     $eZEvu = $basics[$date]['E_Z_EVU'];
                 }
 
@@ -117,7 +118,7 @@ class ImportService
 
                     //if plant use sensors datatable
                     if($useSensorsDataTable){
-                        $result = self::getSensorsData($anlageSensors->toArray(), $length, $sensors, $stamp, $date);
+                        $result = self::getSensorsData($anlageSensors->toArray(), $length, $sensors, $stamp, $date, $gMo);
 
                         //built array for sensordata
 
@@ -126,7 +127,7 @@ class ImportService
                         }
 
                         unset($result);
-                    }else{
+                    }else {
                         $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
 
                         $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
@@ -134,18 +135,18 @@ class ImportService
                         $irrLower = $checkSensors[0]['irrLower'];
                         $irrUpper = $checkSensors[0]['irrUpper'];
 
-                    $tempPanel = $checkSensors[1]['tempPanel'];
+                        $tempPanel = $checkSensors[1]['tempPanel'];
 
-                    $tempAmbient = $checkSensors[1]['tempAmbient'];
+                        $tempAmbient = $checkSensors[1]['tempAmbient'];
 
-                    $tempAnlageArray = $checkSensors[1]['anlageTemp'];
+                        $tempAnlageArray = $checkSensors[1]['anlageTemp'];
 
-                    $wSEwd = $checkSensors[1]['windDirection'];
+                        $wSEwd = $checkSensors[1]['windDirection'];
 
-                    $windSpeed = $checkSensors[1]['windSpeed'];
+                        $windSpeed = $checkSensors[1]['windSpeed'];
 
-                    $windAnlageArray = $checkSensors[1]['anlageWind'];
-
+                        $windAnlageArray = $checkSensors[1]['anlageWind'];
+                    }
                 }
 
                 if(!$useSensorsDataTable){
@@ -174,6 +175,10 @@ class ImportService
                     $irrAnlage = json_encode($irrAnlageArray, JSON_THROW_ON_ERROR);
                     $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
                     $windAnlage = json_encode($windAnlageArray, JSON_THROW_ON_ERROR);
+                }else{
+                    $irrAnlage = NULL;
+                    $tempAnlage = NULL;
+                    $windAnlage = NULL;
                 }
 
                 //Import different Types
@@ -181,7 +186,7 @@ class ImportService
                     //Anzahl der Units in eines Inverters
                     $invertersUnits = $anlage->getSettings()->getInvertersUnits();
 
-                    $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $groups, $invertersUnits);
+                    $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits);
 
                     //built array for pvist
                     $sizeResult = is_countable($result[0] ? count($result[0])-1 : 0) - 1;
@@ -199,7 +204,7 @@ class ImportService
                     //Anzahl der Units in einer Stringbox
                     $stringBoxUnits = $anlage->getSettings()->getStringboxesUnits();
 
-                    $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroupsCleaned, $inverters, $date, $plantId, $stamp, $eZEvu, $groups, $stringBoxUnits);
+                    $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroupsCleaned, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
 
                     //built array for pvist
                     $sizeResult = is_countable($result[0] ? count($result[0]) : 0) - 1;
@@ -263,7 +268,7 @@ class ImportService
                 self::insertData($tableName, $data_pv_ist, $DBDataConnection);
                 break;
             default:
-                echo "db__pv_sensors_data_$anlagenTabelle".'<pre>';
+                echo '<pre>';
                 print_r($dataSensors);
                 echo '</pre>';
 
