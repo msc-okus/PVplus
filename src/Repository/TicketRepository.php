@@ -129,7 +129,7 @@ class TicketRepository extends ServiceEntityRepository
         else if ((int) $category > 0) {
             $qb->andWhere("ticket.alertType = $category");
         }
-        else if(!$this->security->isGranted('ROLE_G4N')){
+        else {
             $qb->andWhere("ticket.alertType < 90");
         }
         if ($prooftam == 1){
