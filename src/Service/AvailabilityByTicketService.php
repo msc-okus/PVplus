@@ -316,27 +316,22 @@ class AvailabilityByTicketService
                 }
             }
 
-            ######## Inaktiv ############
+
             // Handele case5 by ticket
             /** @var TicketDate $case5Ticket */
-            // suche Performance Tickets die die PA beeinflussen (alertType = 72)
-            $perfTicketsCase5 = $this->ticketDateRepo->findPerformanceTicketWithPA($anlage, $from, $to, $department, 20); // behaviour = Replace outage with TiFM for PA
-            $case5Tickets = array_merge($perfTicketsCase5, $this->ticketDateRepo->findTiFm($anlage, $from, $to, $department));
-
-            foreach ($case5Tickets as $case5Ticket){
+            foreach ($this->ticketDateRepo->findTiFm($anlage, $from, $to, $department) as $case5Ticket){
                 $c5From = $case5Ticket->getBegin()->getTimestamp();
                 $c5To = $case5Ticket->getEnd()->getTimestamp();
                 $inverters = $this->functions->readInverters($case5Ticket->getInverter(), $anlage);
                 for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($inverters as $inverter) {
                         $inverter = trim((string) $inverter, ' ');
-                        #$case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
+                        $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                     }
                 }
             }
             unset($case5Tickets);
             unset($perfTicketsCase5);
-            ######### END of inaktiv Part #############
 
             // suche Case 6 Fälle und schreibe diese in case6Array[inverter][stamp] = true|false
             foreach ($this->case6Repository->findAllCase6($anlage, $from, $to) as $case) {
@@ -407,7 +402,7 @@ class AvailabilityByTicketService
                         $case0 = $case1 = $case2 = $case3 = $case4  = $case5 = $case6 = false;
                         $commIssu = $skipTi = $skipTiTheo = $outageAsTiFm = false;
 
-                        if ($strahlung >= $threshold1PA) {
+                        if ($strahlung > $threshold1PA) {
                             // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);
@@ -477,7 +472,7 @@ class AvailabilityByTicketService
                                 }
                                 $case3Helper[$inverter] = 0;
                             }
-                            // Case 5
+                            // Case 5 ti,FM
                             if (($conditionIrrCase2 === true && $case5 === true)
                                 || ($conditionIrrCase2 === true && $case5 === true && $case3 === true)
                                 || ($conditionIrrCase2 === true && $case3 === true && $outageAsTiFm == true)) {
