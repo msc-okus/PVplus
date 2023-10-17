@@ -397,4 +397,27 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
+    /**
+     * Reports the logins from Users
+     *
+     * @throws Exception
+     */
+    #[Route(path: '/userloginreport', name: 'user_login_report')]
+    public function userLoginReport(Request $request, PaginatorInterface $paginator, UserLoginRepository $userLogin): Response
+    {
+        $q = $request->query->get('q');
+
+        $queryBuilder = $userLogin->getWithSearchQueryBuilder($q);
+        $pagination = $paginator->paginate(
+            $queryBuilder, /* query NOT result */
+            $request->query->getInt('page', 1), /* page number */
+            20                                         /* limit per page */
+        );
+
+
+
+        return $this->render('loguserlogin/list.html.twig', [
+            'pagination' => $pagination,
+        ]);
+    }
 }
