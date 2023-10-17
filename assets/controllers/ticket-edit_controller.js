@@ -922,7 +922,7 @@ export default class extends Controller {
         date.setSeconds(0);
         const timestamp1 = date.getTime();
 
-        if (timestamp1% 300000 == 0){
+        if (timestamp1 % 300000 == 0){
             var hour = date.getHours();
             var minutes = date.getMinutes();
             switch (minutes){
@@ -951,7 +951,7 @@ export default class extends Controller {
                     minutes = 15;
                     break;
             }
-            if (date.getMonth() < 10) {
+            if (date.getMonth() < 9) {
                 var Month = '0'.concat((date.getMonth() + 1).toString());
             } else {
                 var Month = (date.getMonth() + 1).toString();
@@ -979,7 +979,7 @@ export default class extends Controller {
         date.setSeconds(0);
         const timestamp1 = date.getTime();
 
-        if (timestamp1% 300000 == 0){
+        if (timestamp1 % 300000 == 0){
             var hour = date.getHours();
             var minutes = date.getMinutes();
             switch (minutes){
@@ -1008,7 +1008,7 @@ export default class extends Controller {
                     minutes = 15;
                     break;
             }
-            if (date.getMonth() < 10) {
+            if (date.getMonth() < 9) {
                 var Month = '0'.concat((date.getMonth() + 1).toString());
             } else {
                 var Month = (date.getMonth() + 1).toString();

@@ -490,6 +490,7 @@ class AlertSystemV2Service
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
             if($ticketArray != []) {
                 foreach ($ticketArray as $ticketOld) {
+                    $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
                     $result = G4NTrait::subArrayFromArray($inverter, $ticketOld->getInverterArray());
                     $inverter = $result['array1'];
                     $intersection = implode(', ', $result['intersection']);
@@ -498,30 +499,29 @@ class AlertSystemV2Service
                         $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
                         $end->getTimestamp();
                         $ticketDate = $ticketOld->getDates()->last();
-
                         if ($Ticket2Inverters !== "") {
-                            $ticketClose = new Ticket();
-                            $ticketClose->setInverter($intersection);
-                            $ticketClose->copyTicket($ticketOld);
-                            $ticketClose->setEnd($end);
-                            $ticketClose->setOpenTicket(true);
+                            $ticketNew = new Ticket();
+                            $ticketNew->setInverter($intersection);
+                            $ticketNew->copyTicket($ticketOld);
+                            $ticketNew->setEnd($end);
+                            $ticketNew->setOpenTicket(true);
+                            $ticketNew->getDates()->last()->setEnd($end);
                             $ticketDate->setEnd($end);
-                            //$this->em->persist($ticketDate);
-                            $ticketClose->setCreatedBy("AlertSystem");
-                            $ticketClose->setUpdatedBy("AlertSystem");
-                            $this->em->persist($ticketClose);
+                            $ticketNew->setCreatedBy("AlertSystem");
+                            $ticketNew->setUpdatedBy("AlertSystem");
+                            $this->em->persist($ticketNew);
                         } else {
                             $ticketOld->setEnd($end);
                             $ticketOld->setOpenTicket(true);
                             $ticketOld->setInverter($intersection);
                             $ticketDate->setEnd($end);
-                            //$this->em->persist($ticketDate);
                             $this->em->persist($ticketOld);
                         }
                     }
                     if ($Ticket2Inverters !== ""){
                         $ticketOld->setOpenTicket(false);
                         $ticketOld->setInverter($Ticket2Inverters);
+                        $ticketOld->getDates()->last()->setEnd($endclose);
                         $this->em->persist($ticketOld);
                     }
                 }

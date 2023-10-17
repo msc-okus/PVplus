@@ -282,6 +282,7 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/list', name: 'app_ticket_list')]
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo): Response
     {
+
         $filter = [];
         $session = $request->getSession();
         $pageSession = $session->get('page');
