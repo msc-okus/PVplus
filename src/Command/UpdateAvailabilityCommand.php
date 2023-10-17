@@ -71,7 +71,7 @@ class UpdateAvailabilityCommand extends Command
 
         if ($anlageId) {
             $io->comment("Berechne Verfügbarkeit: $from - $to | Anlage ID: $anlageId");
-            $anlagen = $this->anlagenRepository->find($anlageId);
+            $anlagen = $this->anlagenRepository->findIdLike($anlageId);
             $anzAnlagen = 1;
         } else {
             $io->comment("Berechne Verfügbarkeit: $from - $to | Alle Anlagen");
@@ -95,8 +95,8 @@ class UpdateAvailabilityCommand extends Command
                 }
 
                 $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
-                $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
                 $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
+                $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
                 $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 3);
 
                 $io->progressAdvance();

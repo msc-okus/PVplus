@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use _PHPStan_adbc35a1c\Nette\Utils\DateTime;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
 use App\Form\Ticket\TicketFormType;
@@ -234,6 +235,7 @@ class TicketController extends BaseController
                 else  $sensorArray[$key]['checked'] = "";
             }
             if ($ticket->getStatus() == '10') $ticket->setStatus(30); // If 'New' Ticket change to work in Progress
+            $ticket->setUpdatedAt(new DateTime('now'));
             $em->persist($ticket);
             $em->flush();
 
@@ -407,7 +409,6 @@ class TicketController extends BaseController
             }
         }
 
-
         if ($splitTime) {
             $mainDate = new TicketDate();
             $mainDate->copyTicketDate($ticketDate);
@@ -415,7 +416,7 @@ class TicketController extends BaseController
             $ticketDate->setEnd($splitTime);
             $ticket->addDate($mainDate);
             $ticket->setSplitted(true);
-
+            $ticket->setUpdatedAt(new DateTime('now'));
             $em->persist($ticket);
             $em->flush();
         }
@@ -424,8 +425,16 @@ class TicketController extends BaseController
         if (count($ticketDates) == 0) {
             $ticketDates = null;
         }
-
         $form = $this->createForm(TicketFormType::class, $ticket);
+        $namesSensors = $anlage->getSensors();
+
+        $sensorString = $ticketDates[0]->getSensors();
+        foreach ($namesSensors as $key => $sensor){
+            $sensorArray[$key]['name'] = $sensor->getName();
+            $sensorArray[$key]['nameS'] = $sensor->getNameShort();
+            if ((str_contains($sensorString, $sensor->getNameShort()) !== false)) $sensorArray[$key]['checked'] = "checked";
+            else  $sensorArray[$key]['checked'] = "";
+        }
 
         return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
@@ -435,6 +444,7 @@ class TicketController extends BaseController
             'dates' => $ticketDates,
             'page' => $page,
             'invArray' => $inverterArray,
+            'sensorArray'   => $sensorArray,
             'performanceTicket' => false
         ]);
     }
@@ -554,8 +564,6 @@ class TicketController extends BaseController
         $page = $request->query->getInt('page', 1);
         $ticketDate = $ticketDateRepo->findOneById($id);
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
-
-
         if ($ticket) {
             switch ($option) {
                 case 'Previous':
@@ -665,6 +673,7 @@ class TicketController extends BaseController
         $em->persist($newTicket);
         $em->flush();
         $ticket->setDescription($ticket->getDescription()." Ticket splited into Ticket: ". $newTicket->getId());
+        $ticket->setUpdatedAt(new DateTime('now'));
         $em->persist($ticket);
         $em->flush();
 
@@ -687,6 +696,19 @@ class TicketController extends BaseController
         if ($ticket->getDates()->isEmpty()) {
             $inverterArray = null;
         }
+        $namesSensors = $anlage->getSensors();
+
+        $ticketDates = $ticket->getDates();
+        $sensorString = $ticketDates->first()->getSensors();
+        foreach ($namesSensors as $key => $sensor){
+            $sensorArray[$key]['name'] = $sensor->getName();
+            $sensorArray[$key]['nameS'] = $sensor->getNameShort();
+            if ((str_contains($sensorString, $sensor->getNameShort()) !== false)) {
+                $sensorArray[$key]['checked'] = "checked";
+            } else {
+                $sensorArray[$key]['checked'] = "";
+            }
+        }
         return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
@@ -694,7 +716,7 @@ class TicketController extends BaseController
             'edited' => true,
             'invArray' => $inverterArray,
             'performanceTicket' => false,
-            'sensorArray'   => [],
+            'sensorArray'   => $sensorArray,
         ]);
     }
 

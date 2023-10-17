@@ -284,7 +284,7 @@ class AssetManagementeReportFormType extends AbstractType
         }
         if($reportParts['String']){
             $builder->add('StringCurr', SwitchType::class, [
-                'label' => 'String level heatmap',
+                'label' => 'Inverter current level heatmap',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
@@ -292,7 +292,7 @@ class AssetManagementeReportFormType extends AbstractType
         }
         else{
             $builder->add('StringCurr', SwitchType::class, [
-                'label' => 'String level heatmap (Unavailable)',
+                'label' => 'Inverter current level heatmap (Unavailable)',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
@@ -302,7 +302,7 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts){
 
             $builder->add('InvPow', SwitchType::class, [
-                'label' => 'Inverter level heatmap',
+                'label' => 'Inverter power level heatmap',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
@@ -310,7 +310,7 @@ class AssetManagementeReportFormType extends AbstractType
         }
         else{
             $builder->add('InvPow', SwitchType::class, [
-                'label' => 'Inverter level heatmap (Unavailable)',
+                'label' => 'Inverter power level heatmap (Unavailable)',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],

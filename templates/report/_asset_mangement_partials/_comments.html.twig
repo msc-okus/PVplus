@@ -9,7 +9,9 @@
         <p>Data gaps are evaluated as available; Pac > 0; Irradiation > <b>{{ anlage.getThreshold2PA }}</b> W/m<sup>2</sup>{% if(anlage.getUseCosPhi)%}; CosPhi <b> <span>&#8800;</span> </b> 0 {% endif %}</p>
         <p><b>Explanation of terms:</b></p>
         <p>
-            <b>- EXP: </b> Expected production based on the PV System.
+            <b>- EXP: </b> Expected production based on the PV System. <br>
+            <b>- G4N Expected </b> PVPlus 4.0 computes expected 15min-values for current, voltage, and power on the string and inverter level based on the actual weather conditions. <br>
+            These values denominate the power production of the PV plant provided that all technical components work as defined by their technical specifications and by the actual weather conditions, such as  irradiation, temperature, wind, and shading.
         </p>
         <p> <b>PR Calculations formulas</b></p>
         <table>

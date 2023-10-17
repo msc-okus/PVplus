@@ -7,6 +7,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\AnlageSunShadingRepository;
 
 class ForcastDEKService {
+
     /**
      * The constructor
      * @param string $input_gl
@@ -18,15 +19,16 @@ class ForcastDEKService {
      * @param array $datfile
      */
 
-    public function __construct(SunShadingModelService $shadingModelService,AnlagenRepository $anlagenRepository,AnlageSunShadingRepository $anlageSunShadingRepository) {
-        $this->shadingmodelservice = $shadingModelService;
-        $this->anlagenreository = $anlagenRepository;
-        $this->anlagesunshadingrepository = $anlageSunShadingRepository;
+    public function __construct(
+        private readonly SunShadingModelService $shadingModelService,
+        private readonly AnlagenRepository $anlagenRepository,
+        private readonly AnlageSunShadingRepository $anlageSunShadingRepository
+    ) {
       }
 
-    public function get_DEK_Data($doy = 'all',$input_gl,$input_gb,$input_mer,$input_mn,$input_ma,$input_ab,$datfile,$has_suns_model,$anlageId) {
+    public function get_DEK_Data($doy, $input_gl, $input_gb, $input_mer, $input_mn, $input_ma, $input_ab, $datfile, $has_suns_model, $anlageId) {
 // Predefine
-        $sshrep = $this->anlagesunshadingrepository->findBy(['anlage' => $anlageId]);
+        $sshrep = $this->anlageSunShadingRepository->findBy(['anlage' => $anlageId]);
 
         $valueofdayandhour = [];
         $SGES = 0;
@@ -109,7 +111,7 @@ class ForcastDEKService {
                                 $RGES = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour
                                 if ($has_suns_model) {
                                    if ($RGES >= 200 && $RGES <= 400) { // Wenn Strahlung größer 200 kleiner 400 W/m2
-                                       $faktorRV = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
+                                       $faktorRV = $this->shadingModelService->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
                                        $DIRpoa = $DIRpoa * $faktorRV;  // Neuer DIRpoa mit Faktor
                                        $RGES = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour zzg. Verschattungs Faktor
                                    }
@@ -121,7 +123,7 @@ class ForcastDEKService {
                                 $RGES_UPPER = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour OST
                                 if ($has_suns_model) {
                                     if ($RGES_UPPER >= 200 && $RGES_UPPER <= 400) { // Wenn Strahlung größer 200 kleiner 400 W/m2
-                                        $faktorRV = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
+                                        $faktorRV = $this->shadingModelService->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
                                         $DIRpoa = $DIRpoa * $faktorRV; // Neuer DIRpoa mit Faktor
                                         $RGES_UPPER = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour OST zzg. Verschattungs Faktor
                                     }
@@ -133,7 +135,7 @@ class ForcastDEKService {
                                 $RGES_LOWER = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour West
                                 if ($has_suns_model) {
                                     if ($RGES_LOWER >= 200 && $RGES_UPPER <= 400) { // Wenn Strahlung größer 200 kleiner 400 W/m2
-                                        $faktorRV = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
+                                        $faktorRV = $this->shadingModelService->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
                                         $DIRpoa = $DIRpoa * $faktorRV; // Neuer DIRpoa mit Faktor
                                         $RGES_LOWER = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour West zzg. Verschattungs Faktor
                                     }
