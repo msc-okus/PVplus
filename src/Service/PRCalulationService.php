@@ -620,7 +620,7 @@ class PRCalulationService
         $result['powerAct'] = $power['powerAct'];
         $result['powerExp'] = $power['powerExpEvu'] > 0 ? $power['powerExpEvu'] : $power['powerExp'];
         $result['powerEGridExt'] = $power['powerEGridExt'];
-        dump($weather);
+
         // Strahlungen berechnen – (upper = Ost / lower = West)
         if ($anlage->getIsOstWestAnlage()) {
             $irr = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
@@ -767,7 +767,7 @@ class PRCalulationService
         $result['tCellAvgMeasured'] = (float) $weather['panelTempAvg'];
         $result['tCellAvgNrel'] = (float) $weather['temp_cell_corr'];
         $result['tCellAvgMultiIrr'] = (float) $weather['temp_cell_multi_irr'];
-dump($result);
+
         return $result;
     }
 

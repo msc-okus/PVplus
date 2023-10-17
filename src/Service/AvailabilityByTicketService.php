@@ -366,7 +366,7 @@ class AvailabilityByTicketService
 
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];
-                $strahlung = max($einstrahlung['irr'], 0);
+                $strahlung = (float)max($einstrahlung['irr'], 0);
                 $irrFlag = $einstrahlung['irr_flag'];
 
                 $conditionIrrCase1 = $strahlung <= $threshold2PA;
@@ -401,8 +401,9 @@ class AvailabilityByTicketService
                     if ($strahlung !== null) {
                         $case0 = $case1 = $case2 = $case3 = $case4  = $case5 = $case6 = false;
                         $commIssu = $skipTi = $skipTiTheo = $outageAsTiFm = false;
+                        if($strahlung === 0 && $threshold1PA === 0) dump('yea');
 
-                        if ($strahlung > $threshold1PA) {
+                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA === 0.0)) {
                             // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);

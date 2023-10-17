@@ -2145,9 +2145,9 @@ class Anlage implements \Stringable
         return $this;
     }
     #[Deprecated]
-    public function getThreshold1PA(): ?string
+    public function getThreshold1PA(): ?float
     {
-        return $this->threshold1PA2;
+        return (float)$this->threshold1PA2;
     }
     #[Deprecated]
     public function setThreshold1PA(?string $threshold1PA): self
@@ -2156,9 +2156,9 @@ class Anlage implements \Stringable
         return $this;
     }
     #[Deprecated]
-    public function getThreshold2PA(): ?string
+    public function getThreshold2PA(): ?float
     {
-        return $this->threshold2PA2;
+        return (float)$this->threshold2PA2;
     }
     #[Deprecated]
     public function setThreshold2PA(?string $threshold2PA): self
@@ -2167,9 +2167,9 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    public function getThreshold1PA0(): ?string
+    public function getThreshold1PA0(): ?float
     {
-        return $this->threshold1PA0 ?? 0;
+        return (float)$this->threshold1PA0 ?? 0;
     }
 
     public function setThreshold1PA0(?string $threshold1PA0): self
@@ -2178,9 +2178,9 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    public function getThreshold1PA1(): ?string
+    public function getThreshold1PA1(): ?float
     {
-        return $this->threshold1PA1 ?? 0;
+        return (float)$this->threshold1PA1 ?? 0;
     }
 
     public function setThreshold1PA1(?string $threshold1PA1): self
@@ -2189,9 +2189,9 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    public function getThreshold1PA2(): ?string
+    public function getThreshold1PA2(): ?float
     {
-        return $this->threshold1PA2 ?? 0;
+        return (float)$this->threshold1PA2 ?? 0;
     }
 
     public function setThreshold1PA2(?string $threshold1PA2): self
@@ -2200,9 +2200,9 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    public function getThreshold1PA3(): ?string
+    public function getThreshold1PA3(): ?float
     {
-        return $this->threshold1PA3 ?? 0;
+        return (float)$this->threshold1PA3 ?? 0;
     }
 
     public function setThreshold1PA3(?string $threshold1PA3): self
@@ -2211,9 +2211,9 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    public function getThreshold2PA0(): ?string
+    public function getThreshold2PA0(): ?float
     {
-        return $this->threshold2PA0 ?? 50;
+        return (float)$this->threshold2PA0 ?? 50;
     }
 
     public function setThreshold2PA0(?string $threshold2PA0): self
@@ -2222,9 +2222,9 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    public function getThreshold2PA1(): ?string
+    public function getThreshold2PA1(): ?float
     {
-        return $this->threshold2PA1 ?? 50;
+        return (float)$this->threshold2PA1 ?? 50;
     }
 
     public function setThreshold2PA1(?string $threshold2PA1): self
@@ -2233,9 +2233,9 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    public function getThreshold2PA2(): ?string
+    public function getThreshold2PA2(): ?float
     {
-        return $this->threshold2PA2 ?? 50;
+        return (float)$this->threshold2PA2 ?? 50;
     }
 
     public function setThreshold2PA2(?string $threshold2PA2): self
@@ -2244,9 +2244,9 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    public function getThreshold2PA3(): ?string
+    public function getThreshold2PA3(): ?float
     {
-        return $this->threshold2PA3 ?? 50;
+        return (float)$this->threshold2PA3 ?? 50;
     }
 
     public function setThreshold2PA3(?string $threshold2PA3): self
