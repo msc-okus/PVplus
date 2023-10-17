@@ -23,6 +23,8 @@ class DummySollService
             $currentTime = time();
             $start = $currentTime - ($currentTime % 900) - 3600;
             $end = $currentTime;
+            $start = strtotime(date('Y-m-d 00:00:00', $currentTime));
+            $end = strtotime(date('Y-m-d 23:45:00', $currentTime));
         } else {
             $start = strtotime(date('Y-m-d 00:00:00', $from));
             $end = strtotime(date('Y-m-d 23:45:00', $from));
