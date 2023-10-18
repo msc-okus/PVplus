@@ -370,11 +370,12 @@ class AvailabilityByTicketService
 
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];
-                $strahlung = (float)max($einstrahlung['irr'], 0);
+                $strahlung = $einstrahlung['irr'];
                 $irrFlag = $einstrahlung['irr_flag'];
 
-                $conditionIrrCase1 = $strahlung <= $threshold2PA;
+                $conditionIrrCase1 = $strahlung <= $threshold2PA && $strahlung !== null;
                 $conditionIrrCase2 = $strahlung > $threshold2PA;
+
                 if (($department === 0 && $anlage->isUsePAFlag0()) || ($department === 1 && $anlage->isUsePAFlag1()) ||
                     ($department === 2 && $anlage->isUsePAFlag2()) || ($department === 3 && $anlage->isUsePAFlag3()))
                 {
@@ -401,12 +402,12 @@ class AvailabilityByTicketService
                     $powerAc = isset($istData[$stamp][$inverter]['power_ac']) ? (float) $istData[$stamp][$inverter]['power_ac'] : null;
                     $cosPhi  = isset($istData[$stamp][$inverter]['cos_phi'])  ? (float) $istData[$stamp][$inverter]['cos_phi'] :  null;
 
-                    // Wenn die Strahlung keine Datenlücke hat dann:
-                    if ($strahlung !== null) {
+                    // Wenn die Strahlung keine Datenlücke hat dann: ?? Brauchen wir das
+                    if (true) { // $strahlung !== null
                         $case0 = $case1 = $case2 = $case3 = $case4  = $case5 = $case6 = false;
                         $commIssu = $skipTi = $skipTiTheo = $outageAsTiFm = false;
 
-                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA === 0.0)) {
+                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA === 0.0) || ($strahlung === null && $threshold1PA === 0.0)) {
                             // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);
@@ -442,7 +443,7 @@ class AvailabilityByTicketService
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                             ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
                             }
-                 ###           if ($inverter == 60 && $department == 0) dump("Power: $powerAc | ConnIrr: $conditionIrrCase2 | CommIssu: ".(int) $commIssu." | SkipTi: ".(int) $skipTi." | Case5: ".(int) $case5." | Case6: ".(int) $case6);
+                 ###        if ($inverter == 60 && $department == 0) dump("Power: $powerAc | ConnIrr: $conditionIrrCase2 | CommIssu: ".(int) $commIssu." | SkipTi: ".(int) $skipTi." | Case5: ".(int) $case5." | Case6: ".(int) $case6);
                             if ($hitCase2) {
                                 $case2 = true;
                                 ++$availability[$inverter]['case2'];
