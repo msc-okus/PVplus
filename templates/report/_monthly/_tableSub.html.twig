@@ -75,8 +75,8 @@
         <td>{{ day["powerAct"]|number_format(2,',','.') }}</td>
         <td class="border-right-2">{{ day["powerExp"]|number_format(2,',','.') }}</td>
 
-        <td>{{ day["irr0"]|number_format(3,',','.') }}</td>
-        <td>{{ day["irrNoPpc0"]|number_format(3,',','.') }}</td>
+        <td>{{ day["irr0"]|number_format(4,',','.') }}</td>
+        <td>{{ day["irrNoPpc0"]|number_format(4,',','.') }}</td>
         <td>{{ day["powerTheoDep0"]|number_format(2,',','.') }}</td>
         <td>{{ day["powerEvuDep0"]|number_format(2,',','.') }}</td>
         {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep0EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep0Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
@@ -86,8 +86,8 @@
 
 
         {% if anlage.settings.disableDep1 != true %}
-            <td>{{ day["irr1"]|number_format(3,',','.') }}</td>
-            <td>{{ day["irrNoPpc1"]|number_format(3,',','.') }}</td>
+            <td>{{ day["irr1"]|number_format(4,',','.') }}</td>
+            <td>{{ day["irrNoPpc1"]|number_format(4,',','.') }}</td>
             <td>{{ day["powerTheoDep1"]|number_format(2,',','.') }}</td>
             <td>{{ day["powerEvuDep1"]|number_format(2,',','.') }}</td>
             {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep1EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep1Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
@@ -97,8 +97,8 @@
         {% endif %}
 
         {% if anlage.settings.disableDep2 != true %}
-            <td>{{ day["irr2"]|number_format(3,',','.') }}</td>
-            <td>{{ day["irrNoPpc2"]|number_format(3,',','.') }}</td>
+            <td>{{ day["irr2"]|number_format(4,',','.') }}</td>
+            <td>{{ day["irrNoPpc2"]|number_format(4,',','.') }}</td>
             <td>{{ day["powerTheoDep2"]|number_format(2,',','.') }}</td>
             <td>{{ day["powerEvuDep2"]|number_format(2,',','.') }}</td>
             {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep2EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep2Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
@@ -108,8 +108,8 @@
         {% endif %}
 
         {% if anlage.settings.disableDep3 != true %}
-            <td>{{ day["irr3"]|number_format(3,',','.') }}</td>
-            <td>{{ day["irrNoPpc3"]|number_format(3,',','.') }}</td>
+            <td>{{ day["irr3"]|number_format(4,',','.') }}</td>
+            <td>{{ day["irrNoPpc3"]|number_format(4,',','.') }}</td>
             <td>{{ day["powerTheoDep3"]|number_format(2,',','.') }}</td>
             <td>{{ day["powerEvuDep3"]|number_format(2,',','.') }}</td>
             {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep3EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep3Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}

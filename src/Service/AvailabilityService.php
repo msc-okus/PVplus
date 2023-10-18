@@ -16,8 +16,8 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
-use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\InvalidArgumentException;
+use JetBrains\PhpStorm\Deprecated;
 
 #[Deprecated]
 class AvailabilityService
