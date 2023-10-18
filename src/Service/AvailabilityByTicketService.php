@@ -405,7 +405,6 @@ class AvailabilityByTicketService
                     if ($strahlung !== null) {
                         $case0 = $case1 = $case2 = $case3 = $case4  = $case5 = $case6 = false;
                         $commIssu = $skipTi = $skipTiTheo = $outageAsTiFm = false;
-                        if($strahlung === 0 && $threshold1PA === 0) dump('yea');
 
                         if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA === 0.0)) {
                             // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
@@ -418,7 +417,6 @@ class AvailabilityByTicketService
 
                             // Case 0 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
                             if ($powerAc === null && $case5 === false) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
-                                if ($department == '1') dump($stamp);
                                 $case0 = true;
                                 ++$availability[$inverter]['case0'];
                                 ++$availabilityPlantByStamp['case0'];
@@ -567,6 +565,9 @@ class AvailabilityByTicketService
         }
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     private function getIstData(Anlage $anlage, $from, $to): array
     {
         return $this->cache->get('getIstData_'.md5($anlage->getAnlId().$from.$to), function(CacheItemInterface $cacheItem) use ($anlage, $from, $to) {
