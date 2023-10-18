@@ -116,7 +116,7 @@ class TicketFormType extends AbstractType
                 'required' => false,
                 'widget' => 'single_text',
                 'attr' => [
-                    'data-action' => 'blur->ticket-edit#beginCheck',
+                    'data-action' => 'blur->ticket-edit#beginCheck click->ticket-edit#setHiddenValue',
                     'data-ticket-edit-target' => 'formBegin',
                 ],
             ])
@@ -126,7 +126,7 @@ class TicketFormType extends AbstractType
                 'required' => true,
                 'widget' => 'single_text',
                 'attr' => [
-                    'data-action' => 'blur->ticket-edit#endCheck',
+                    'data-action' => 'blur->ticket-edit#endCheck click->ticket-edit#setHiddenValue',
                     'data-ticket-edit-target' => 'formEnd'
                 ],
             ])
