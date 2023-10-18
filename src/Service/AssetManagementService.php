@@ -2536,7 +2536,7 @@ class AssetManagementService
             case 3:
             case 4:
                 $sql = "SELECT DATE_FORMAT( a.stamp,'%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, b.group_ac as invgroup
-                        FROM (db_dummysoll a left JOIN ".$anlage->getDbNameIst()." b ON a.stamp = b.stamp) 
+                        FROM (db_dummysoll a left JOIN ".$anlage->getDbNameDcIst()." b ON a.stamp = b.stamp) 
                         WHERE a.stamp BETWEEN '".$report['reportYear'].'-'.$report['reportMonth']."-1 00:00' and '".$report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth." 23:59' and b.group_ac > 0
                         GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
                 $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
@@ -2556,6 +2556,7 @@ class AssetManagementService
                         GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
                 break;
         }
+
         $result = $this->conn->prepare($sql);
         $result->execute();
         $resultc = $this->conn->prepare($sqlc);
@@ -3817,7 +3818,7 @@ class AssetManagementService
         $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($monthDate))), date_create(date("Y-m-d ",strtotime($report['to']))));
         $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['reportYear']."-01-01"))), date_create(date("Y-m-d ",strtotime($report['to']))));
 
-        $efficiencyArray= $this->calcPRInvArrayDayly($anlage, "01", "2023");
+        $efficiencyArray= $this->calcPRInvArrayDayly($anlage, $month, $year);
         $orderedEfficiencyArray = [];
         $index = 0;
         $index2 = 0;
