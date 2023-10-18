@@ -189,11 +189,10 @@ class ImportService
                     $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits);
 
                     //built array for pvist
-                    $sizeResult = is_countable($result[0] ? count($result[0])-1 : 0) - 1;
-                    for ($j = 0; $j < count($result[0])-1; $j++) {
+                    $sizeResult = count($result[0]) - 1;
+                    for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
-
                     unset($result);
                 }
 
@@ -207,8 +206,8 @@ class ImportService
                     $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroupsCleaned, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
 
                     //built array for pvist
-                    $sizeResult = is_countable($result[0] ? count($result[0]) : 0) - 1;
-                    for ($j = 0; $j <= count($result[0])-1; $j++) {
+                    $sizeResult = count($result[0]) - 1;
+                    for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
 
@@ -217,7 +216,6 @@ class ImportService
                     for ($j = 0; $j <= count($result[1]); $j++) {
                         $data_pv_dcist[] = $result[1][$j];
                     }
-
                     unset($result);
                 }
 
@@ -231,16 +229,16 @@ class ImportService
                     }
 
                     $result = self::getPpc($anlagePpcsCleaned, $ppcs, $date, $stamp, $plantId, $anlagenTabelle, $vcomId);
-                    $sizeResult = is_countable($result[0] ? count($result[0]) : 0) - 1;
-                    for ($j = 0; $j <= $sizeResult; $j++) {
 
+                    $sizeResult = count($result[0]) - 1;
+                    for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_ppc[] = $result[0][$j];
                     }
-
                     unset($result);
                 }
             }
         }
+
 
         //write Data into the tables
         $DBDataConnection = $this->pdoService->getPdoPlant();
@@ -268,10 +266,6 @@ class ImportService
                 self::insertData($tableName, $data_pv_ist, $DBDataConnection);
                 break;
             default:
-                echo '<pre>';
-                print_r($dataSensors);
-                echo '</pre>';
-
                 if($useSensorsDataTable) {
                     $tableName = "db__pv_sensors_data_$anlagenTabelle";
                     self::insertData($tableName, $dataSensors, $DBDataConnection);

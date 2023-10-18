@@ -93,10 +93,6 @@ class IrradiationChartService
         }
         $conn = null;
 
-        echo '<pre>';
-        print_r($dataArray);
-        echo '</pre>';
-        exit;
         return $dataArray;
     }
 
@@ -112,12 +108,15 @@ class IrradiationChartService
      */
     public function getIrradiationFromSensorsData(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
-
         $conn = $this->pdoService->getPdoPlant();
         $isEastWest = $anlage->getIsOstWestAnlage();
         $dataArray = [];
         if ($hour) {
-            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' and stamp like '%:00:00';";
+            if($isEastWest) {
+                $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'irr-west' OR type_sensor like 'irr-east') and stamp like '%:00:00';";
+            }else{
+                $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND type_sensor like 'irr' and stamp like '%:00:00';";
+            }
         }else{
             if($isEastWest) {
                 $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'irr-west' OR type_sensor like 'irr-east');";
@@ -125,7 +124,6 @@ class IrradiationChartService
                 $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND type_sensor like 'irr';";
             }
         }
-
 
         $result = $conn->query($sql_irr_plant);
 
