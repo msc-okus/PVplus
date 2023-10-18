@@ -1,9 +1,8 @@
 <?php
 
 namespace App\Controller;
-use App\Service\ExportService;
-use App\Service\PdoService;
 
+use App\Service\ExportService;
 use App\Entity\Anlage;
 use App\Form\Model\WeatherToolsModel;
 use App\Form\Tools\CalcToolsFormType;
@@ -23,7 +22,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -100,12 +98,10 @@ class SpecialOperationsController extends AbstractController
      * @throws Exception
      * @throws InvalidArgumentException
      */
-
     #[IsGranted('ROLE_BETA')]
     #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
-    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, Security $security): Response
+    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
-
         $output = $table = null;
         $startDay = $request->request->get('start-day');
         $endDay = $request->request->get('end-day');
@@ -402,6 +398,8 @@ class SpecialOperationsController extends AbstractController
     }
 
     /**
+     * Reports the logins from Users
+     *
      * @throws Exception
      */
     #[Route(path: '/userloginreport', name: 'user_login_report')]

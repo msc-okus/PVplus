@@ -119,6 +119,7 @@ class SensorService
                 case '71':
                     $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempoStartDate->format('Y-m-d H:i'), $tempoEndDate->format('Y-m-d H:i'), false, $anlage);
                     $replaceArray = $this->replaceValuesTicketRepo->getSum($anlage, $tempoStartDate, $tempoEndDate);
+                    dump($replaceArray);
                     $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticket);
                     break;
 
@@ -127,10 +128,10 @@ class SensorService
                     $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempoStartDate->format('Y-m-d H:i'), $tempoEndDate->format('Y-m-d H:i'), false, $anlage);
 
                     // korrigiere Horizontal Irradiation
-                    $sensorData['irr0']    = $sensorData['upperIrr'];
-                    $sensorData['irr1']    = $ticket->getTicket()->isScope(10) ? $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'] : $sensorData['upperIrr'];
-                    $sensorData['irr2']    = $ticket->getTicket()->isScope(20) ? $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'] : $sensorData['upperIrr'];
-                    $sensorData['irr3']    = $ticket->getTicket()->isScope(30) ? $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'] : $sensorData['upperIrr'];
+                    $sensorData['irrModul0'] = $sensorData['upperIrr'];
+                    $sensorData['irrModul1'] = $ticket->getTicket()->isScope(10) ? $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'] : $sensorData['upperIrr'];
+                    $sensorData['irrModul2'] = $ticket->getTicket()->isScope(20) ? $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'] : $sensorData['upperIrr'];
+                    $sensorData['irrModul3'] = $ticket->getTicket()->isScope(30) ? $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'] : $sensorData['upperIrr'];
 
                     $sensorData['horizontalIrr'] = $sensorData['horizontalIrr'] - $tempWeatherArray['horizontalIrr'];
                     $sensorData['upperIrr'] = $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'];
@@ -160,9 +161,9 @@ class SensorService
         if ($newWeather['irrHorizotal'] && $newWeather['irrHorizotal'] > 0) {
             $sensorData['horizontalIrr']    = $sensorData['horizontalIrr'] - $oldWeather['horizontalIrr'] + $newWeather['irrHorizotal'];
             $sensorData['irrHor0']          = $oldWeather['horizontalIrr'];
-            $sensorData['irrHor1']          = $ticketDate->getTicket()->getScope() == '10' ? $sensorData['horizontalIrr'] : $oldWeather['horizontalIrr'];
-            $sensorData['irrHor2']          = $ticketDate->getTicket()->getScope() == '20' ? $sensorData['horizontalIrr'] : $oldWeather['horizontalIrr'];
-            $sensorData['irrHor3']          = $ticketDate->getTicket()->getScope() == '30' ? $sensorData['horizontalIrr'] : $oldWeather['horizontalIrr'];
+            $sensorData['irrHor1']          = $ticketDate->getTicket()->isScope(10) ? $sensorData['horizontalIrr'] : $sensorData['irrHor1'];
+            $sensorData['irrHor2']          = $ticketDate->getTicket()->isScope(20) ? $sensorData['horizontalIrr'] : $sensorData['irrHor2'];
+            $sensorData['irrHor3']          = $ticketDate->getTicket()->isScope(30) ? $sensorData['horizontalIrr'] : $sensorData['irrHor3'];
         }
 
         // korrigiere Irradiation auf Modulebene
@@ -170,26 +171,26 @@ class SensorService
             // eine Ausrichtung
             if ($newWeather['irrModul'] && $newWeather['irrModul'] > 0) {
                 $sensorData['upperIrr']     = $sensorData['upperIrr'] - $oldWeather['upperIrr'] + $newWeather['irrModul'];
-                $sensorData['irrModul0']    = $oldWeather['upperIrr'];
-                $sensorData['irrModul1']    = $ticketDate->getTicket()->getScope() == '10' ? $sensorData['upperIrr'] : $oldWeather['upperIrr'];
-                $sensorData['irrModul2']    = $ticketDate->getTicket()->getScope() == '20' ? $sensorData['upperIrr'] : $oldWeather['upperIrr'];
-                $sensorData['irrModul3']    = $ticketDate->getTicket()->getScope() == '30' ? $sensorData['upperIrr'] : $oldWeather['upperIrr'];
+                $sensorData['irr0']    = $sensorData['upperIrr'];
+                $sensorData['irr1']    = $ticketDate->getTicket()->isScope(10) ? $sensorData['irr1'] - $oldWeather['upperIrr'] + $newWeather['irrModul'] : $sensorData['irr1'];
+                $sensorData['irr2']    = $ticketDate->getTicket()->isScope(20) ? $sensorData['irr2'] - $oldWeather['upperIrr'] + $newWeather['irrModul'] : $sensorData['irr2'];
+                $sensorData['irr3']    = $ticketDate->getTicket()->isScope(30) ? $sensorData['irr3'] - $oldWeather['upperIrr'] + $newWeather['irrModul'] : $sensorData['irr3'];
             }
         } else {
             // zwei Ausrichtungen (Ost / West)
             if ($newWeather['irrEast'] && $newWeather['irrEast'] > 0) {
                 $sensorData['upperIrr'] = $sensorData['upperIrr'] - $oldWeather['upperIrr'] + $newWeather['irrEast'];
-                $sensorData['irrEast0'] = $oldWeather['upperIrr'];
-                $sensorData['irrEast1'] = $ticketDate->getTicket()->getScope() == '10' ? $sensorData['upperIrr'] : $oldWeather['upperIrr'];
-                $sensorData['irrEast2'] = $ticketDate->getTicket()->getScope() == '20' ? $sensorData['upperIrr'] : $oldWeather['upperIrr'];
-                $sensorData['irrEast3'] = $ticketDate->getTicket()->getScope() == '30' ? $sensorData['upperIrr'] : $oldWeather['upperIrr'];
+                $sensorData['irrEast0'] = $sensorData['upperIrr'];
+                $sensorData['irrEast1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['upperIrr'] : $sensorData['irrEast1'];
+                $sensorData['irrEast2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['upperIrr'] : $sensorData['irrEast2'];
+                $sensorData['irrEast3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['upperIrr'] : $sensorData['irrEast3'];
             }
             if ($newWeather['irrWest'] && $newWeather['irrWest'] > 0) {
                 $sensorData['lowerIrr'] = $sensorData['lowerIrr'] - $oldWeather['lowerIrr'] + $newWeather['irrWest'];
                 $sensorData['irrWest0'] = $oldWeather['lowerIrr'];
-                $sensorData['irrWest1'] = $ticketDate->getTicket()->getScope() == '10' ? $sensorData['lowerIrr'] : $oldWeather['lowerIrr'];
-                $sensorData['irrWest2'] = $ticketDate->getTicket()->getScope() == '20' ? $sensorData['lowerIrr'] : $oldWeather['lowerIrr'];
-                $sensorData['irrWest3'] = $ticketDate->getTicket()->getScope() == '30' ? $sensorData['lowerIrr'] : $oldWeather['lowerIrr'];
+                $sensorData['irrWest1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['lowerIrr'] : $sensorData['irrWest1'];
+                $sensorData['irrWest2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['lowerIrr'] : $sensorData['irrWest2'];
+                $sensorData['irrWest3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['lowerIrr'] : $sensorData['irrWest3'];
             }
         }
 
