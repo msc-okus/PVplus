@@ -3818,7 +3818,7 @@ class AssetManagementService
         $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($monthDate))), date_create(date("Y-m-d ",strtotime($report['to']))));
         $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['reportYear']."-01-01"))), date_create(date("Y-m-d ",strtotime($report['to']))));
 
-        $efficiencyArray= $this->calcPRInvArrayDayly($anlage, "01", "2023");
+        $efficiencyArray= $this->calcPRInvArrayDayly($anlage, $month, $year);
         $orderedEfficiencyArray = [];
         $index = 0;
         $index2 = 0;
