@@ -61,20 +61,19 @@ class TicketController extends BaseController
             /** @var Ticket $ticket */
             $ticket = $form->getData();
 
-            $ticket->getDates()->first()->setBegin($ticket->getBegin());
-            $ticket->getDates()->last()->setEnd($ticket->getEnd());
+            //$ticket->getDates()->first()->setBegin($ticket->getBegin());
+            //$ticket->getDates()->last()->setEnd($ticket->getEnd());
             $ticket->setEditor($this->getUser()->getUserIdentifier());
             $dates = $ticket->getDates();
-
             foreach ($dates as $date) {
                 $date->copyTicket($ticket);
-                if ($date->getAlertType() == 20) {
+               /*if ($date->getAlertType() == 20) {
                     $date->setKpiPaDep1(10);
                     $date->setKpiPaDep2(10);
                     $date->setKpiPaDep3(10);
                 }
-                if ($ticket->getAlertType() == 20) $ticket->getDates()[0]->setDataGapEvaluation(10);
-
+               */
+                //if ($ticket->getAlertType() == 20) $ticket->getDates()[0]->setDataGapEvaluation(10);
             }
             $em->persist($ticket);
 
