@@ -167,8 +167,8 @@ class ImportService
                     $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits);
 
                     //built array for pvist
-                    #$sizeResult = is_countable($result[0] ? count($result[0]) : 0) - 1;
-                    for ($j = 0; $j <= count($result[0])-1; $j++) {
+                    $sizeResult = count($result[0]) - 1;
+                    for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
 
@@ -185,14 +185,14 @@ class ImportService
                     $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroupsCleaned, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
 
                     //built array for pvist
-                    #$sizeResult = is_countable($result[0] ? count($result[0]) : 0) - 1;
-                    for ($j = 0; $j <= count($result[0])-1; $j++) {
+                    $sizeResult = count($result[0]) - 1;
+                    for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
 
                     //built array for pvist_dc
-                    #$sizeResult = is_countable($result[1] ? count($result[1]) : 0) - 1;
-                    for ($j = 0; $j <= count($result[1])-1; $j++) {
+                    $sizeResult = count($result[0]) - 1;
+                    for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_pv_dcist[] = $result[1][$j];
                     }
 
@@ -209,7 +209,7 @@ class ImportService
                     }
 
                     $result = self::getPpc($anlagePpcsCleaned, $ppcs, $date, $stamp, $plantId, $anlagenTabelle, $vcomId);
-                    $sizeResult = is_countable($result[0] ? count($result[0]) : 0) - 1;
+                    $sizeResult = count($result[0]) - 1;
                     for ($j = 0; $j <= $sizeResult; $j++) {
 
                         $data_ppc[] = $result[0][$j];
