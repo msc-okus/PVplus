@@ -916,117 +916,129 @@ export default class extends Controller {
         }
     }
 
-    beginCheck(){
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        const date = new Date(valueBegin);
-        date.setSeconds(0);
-        const timestamp1 = date.getTime();
+    setHiddenValue(){
 
-        if (timestamp1 % 300000 == 0){
-            var hour = date.getHours();
-            var minutes = date.getMinutes();
-            switch (minutes){
-                case 0:
-                case 5:
-                    minutes = 15;
-                    break;
-                case 10:
-                case 15:
-                case 20:
-                    minutes = 30;
-                    break;
-                case 25:
-                case 30:
-                case 35:
-                    minutes = 45;
-                    break;
-                case 40:
-                case 45:
-                case 50:
-                    hour = hour + 1;
-                    minutes = 0;
-                    break;
-                case 55:
-                    hour = hour + 1;
-                    minutes = 15;
-                    break;
+        this.formBeginTarget.dataset.originalValue = $(this.formBeginTarget).prop('value');
+        this.formEndTarget.dataset.originalValue = $(this.formEndTarget).prop('value');
+    }
+
+    beginCheck(event){
+        if ($(this.formBeginTarget).prop('value') != this.formBeginTarget.dataset.originalValue) {
+            const valueBegin = $(this.formBeginTarget).prop('value');
+            const date = new Date(valueBegin);
+            date.setSeconds(0);
+            const timestamp1 = date.getTime();
+            if (timestamp1 % 300000 == 0) {
+                var hour = date.getHours();
+                var minutes = date.getMinutes();
+                switch (minutes) {
+                    case 0:
+                    case 5:
+                        minutes = 15;
+                        break;
+                    case 10:
+                    case 15:
+                    case 20:
+                        minutes = 30;
+                        break;
+                    case 25:
+                    case 30:
+                    case 35:
+                        minutes = 45;
+                        break;
+                    case 40:
+                    case 45:
+                    case 50:
+                        hour = hour + 1;
+                        minutes = 0;
+                        break;
+                    case 55:
+                        hour = hour + 1;
+                        minutes = 15;
+                        break;
+                }
+                if (date.getMonth() < 9) {
+                    var Month = '0'.concat((date.getMonth() + 1).toString());
+                } else {
+                    var Month = (date.getMonth() + 1).toString();
+                }
+                if (date.getDate() < 10) {
+                    var Day = '0'.concat(date.getDate().toString());
+                } else {
+                    var Day = date.getDate().toString();
+                }
+                if (hour < 10) {
+                    hour = '0'.concat(hour.toString());
+                }
+                if (minutes < 10) {
+                    minutes = '0'.concat(minutes.toString());
+                }
+                let newStringdate = date.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
+                $(this.formBeginTarget).val(newStringdate);
+                $(this.formBeginDateTarget).val(newStringdate);
             }
-            if (date.getMonth() < 9) {
-                var Month = '0'.concat((date.getMonth() + 1).toString());
-            } else {
-                var Month = (date.getMonth() + 1).toString();
-            }
-            if (date.getDate() < 10) {
-                var Day = '0'.concat(date.getDate().toString());
-            } else {
-                var Day = date.getDate().toString();
-            }
-            if (hour < 10) {
-                hour = '0'.concat(hour.toString());
-            }  if (minutes < 10) {
-                minutes = '0'.concat(minutes.toString());
-            }
-            let newStringdate = date.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
-            $(this.formBeginTarget).val(newStringdate);
-            $(this.formBeginDateTarget).val(newStringdate);
         }
+
 
        this.saveCheck();
     }
-    endCheck(){
-        const valueBegin = $(this.formEndTarget).prop('value');
-        const date = new Date(valueBegin);
-        date.setSeconds(0);
-        const timestamp1 = date.getTime();
-
-        if (timestamp1 % 300000 == 0){
-            var hour = date.getHours();
-            var minutes = date.getMinutes();
-            switch (minutes){
-                case 0:
-                case 5:
-                    minutes = 15;
-                    break;
-                case 10:
-                case 15:
-                case 20:
-                    minutes = 30;
-                    break;
-                case 25:
-                case 30:
-                case 35:
-                    minutes = 45;
-                    break;
-                case 40:
-                case 45:
-                case 50:
-                    hour = hour + 1;
-                    minutes = 0;
-                    break;
-                case 55:
-                    hour = hour + 1;
-                    minutes = 15;
-                    break;
+    endCheck()
+        {
+            if ($(this.formEndTarget).prop('value') != this.formEndTarget.dataset.originalValue) {
+                const valueBegin = $(this.formEndTarget).prop('value');
+                const date = new Date(valueBegin);
+                date.setSeconds(0);
+                const timestamp1 = date.getTime();
+                if (timestamp1 % 300000 == 0) {
+                    var hour = date.getHours();
+                    var minutes = date.getMinutes();
+                    switch (minutes) {
+                        case 0:
+                        case 5:
+                            minutes = 15;
+                            break;
+                        case 10:
+                        case 15:
+                        case 20:
+                            minutes = 30;
+                            break;
+                        case 25:
+                        case 30:
+                        case 35:
+                            minutes = 45;
+                            break;
+                        case 40:
+                        case 45:
+                        case 50:
+                            hour = hour + 1;
+                            minutes = 0;
+                            break;
+                        case 55:
+                            hour = hour + 1;
+                            minutes = 15;
+                            break;
+                    }
+                    if (date.getMonth() < 9) {
+                        var Month = '0'.concat((date.getMonth() + 1).toString());
+                    } else {
+                        var Month = (date.getMonth() + 1).toString();
+                    }
+                    if (date.getDate() < 10) {
+                        var Day = '0'.concat(date.getDate().toString());
+                    } else {
+                        var Day = date.getDate().toString();
+                    }
+                    if (hour < 10) {
+                        hour = '0'.concat(hour.toString());
+                    }
+                    if (minutes < 10) {
+                        minutes = '0'.concat(minutes.toString());
+                    }
+                    let newStringdate = date.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
+                    $(this.formEndTarget).val(newStringdate);
+                    $(this.formEndDateTarget).val(newStringdate);
+                }
             }
-            if (date.getMonth() < 9) {
-                var Month = '0'.concat((date.getMonth() + 1).toString());
-            } else {
-                var Month = (date.getMonth() + 1).toString();
-            }
-            if (date.getDate() < 10) {
-                var Day = '0'.concat(date.getDate().toString());
-            } else {
-                var Day = date.getDate().toString();
-            }
-            if (hour < 10) {
-                hour = '0'.concat(hour.toString());
-            }  if (minutes < 10) {
-                minutes = '0'.concat(minutes.toString());
-            }
-            let newStringdate = date.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
-            $(this.formEndTarget).val(newStringdate);
-            $(this.formEndDateTarget).val(newStringdate);
-        }
 
         this.saveCheck();
     }
