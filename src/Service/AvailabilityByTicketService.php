@@ -21,6 +21,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 
+use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -224,7 +225,7 @@ class AvailabilityByTicketService
      * @return array
      * @throws InvalidArgumentException
      */
-    public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig, array $inverterPowerDc, int $department = 0): array
+    public function checkAvailabilityInverter(Anlage $anlage, $timestampDay, TimesConfig $timesConfig, array $inverterPowerDc, int $department = 0): array
     {
         $case3Helper = $availability = $availabilityByStamp = [];
         switch ($department){
@@ -245,8 +246,11 @@ class AvailabilityByTicketService
                 $threshold2PA = $anlage->getThreshold2PA0();
         }
 
-        $from = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampModulo);
-        $to = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampModulo);
+        $from   = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampDay);
+        $to     = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampDay);
+        $from   = date('Y-m-d 00:15', $timestampDay);
+        $to     = date('Y-m-d 00:00', $timestampDay + (3600 * 24));
+
         $maxFailTime = $timesConfig->getMaxFailTime();
         $powerThersholdkWh = $anlage->getPowerThreshold() / 4; // Umrechnung von kW auf kWh bei 15 minuten werten
 
@@ -414,6 +418,7 @@ class AvailabilityByTicketService
 
                             // Case 0 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
                             if ($powerAc === null && $case5 === false) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
+                                if ($department == '1') dump($stamp);
                                 $case0 = true;
                                 ++$availability[$inverter]['case0'];
                                 ++$availabilityPlantByStamp['case0'];
@@ -564,25 +569,30 @@ class AvailabilityByTicketService
 
     private function getIstData(Anlage $anlage, $from, $to): array
     {
-        $conn = $this->pdoService->getPdoPlant();
-        $istData = [];
-        $dbNameIst = $anlage->getDbNameIst();
-        $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM $dbNameIst WHERE stamp BETWEEN '$from' AND '$to' ORDER BY stamp, unit";
+        return $this->cache->get('getIstData_'.md5($anlage->getAnlId().$from.$to), function(CacheItemInterface $cacheItem) use ($anlage, $from, $to) {
 
-        $result = $conn->query($sql);
-        if ($result->rowCount() > 0) {
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = $row['stamp'];
-                $inverter = $row['inverter'];
-                $istData[$stamp][$inverter]['stamp'] = $row['stamp'];
-                $istData[$stamp][$inverter]['cos_phi'] = $row['cos_phi'];
-                $istData[$stamp][$inverter]['power_ac'] = $row['power_ac'];
+            $cacheItem->expiresAfter(120); // Lifetime of cache Item
+
+            $conn = $this->pdoService->getPdoPlant();
+            $istData = [];
+            $dbNameIst = $anlage->getDbNameIst();
+            $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM $dbNameIst WHERE stamp >= '$from' AND stamp <= '$to' ORDER BY stamp, unit";
+
+            $result = $conn->query($sql);
+            if ($result->rowCount() > 0) {
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $stamp = $row['stamp'];
+                    $inverter = $row['inverter'];
+                    $istData[$stamp][$inverter]['stamp'] = $row['stamp'];
+                    $istData[$stamp][$inverter]['cos_phi'] = $row['cos_phi'];
+                    $istData[$stamp][$inverter]['power_ac'] = $row['power_ac'];
+                }
             }
-        }
-        unset($result);
-        $conn = null;
+            unset($result);
+            $conn = null;
 
-        return $istData;
+            return $istData;
+        });
     }
 
 
