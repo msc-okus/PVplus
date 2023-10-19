@@ -130,26 +130,24 @@ class IrradiationChartService
         if ($result) {
             if ($result->rowCount() > 0) {
                 $counter = 0;
-                $irrCounter = 1;
                 $gmPyEast = $gmPyWest = $irrValueArray = [];
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                     if($counter == 0){
                         $stampTemp = $row['stamp'];
                     }
-                    $dataArray['nameX'][1] = 'G_M0';
-                    $irrValueArray["val1"] = $row['gmo'];
+
                     if($stampTemp != $row['stamp']){
                         $dataArray[] = [
                             'stamp' =>          $stampTemp,
+                            'values' =>         $irrValueArray,
                             'values' =>         $irrValueArray
                         ];
                         unset($gmPyWest);
                         unset($gmPyEast);
                         unset($irrValueArray);
                         $gmPyEast = $gmPyWest = $irrValueArray = [];
-                        $irrCounter = 1;
-                    }
 
+                    }
 
                     $stamp = self::timeAjustment(strtotime((string) $ro['stamp']), $anlage->getWeatherStation()->gettimeZoneWeatherStation());
                     if($isEastWest){
@@ -187,35 +185,11 @@ class IrradiationChartService
                     $counter++;
                 }
 
-                $irrCounter = 1;
-                for ($i = 0; $i < count($dataArray); $i++) {
-                    $dataArray2['chart'][$i]['date'] = $dataArray[$i]['stamp'];
-
-
-                    if(is_array($dataArray[$i]['values']) && count($dataArray[$i]['values']) > 0){
-                        $k = 1;
-                        $valueSumm = 0;
-                        for ($j = 0; $j < count($dataArray[$i]['values']); $j++) {
-                            $dataArrayValues['val'.$k] =  $dataArray[$i]['values']['val'.$k];
-                            $valueSumm = $valueSumm+$dataArray[$i]['values']['val'.$k];
-                            $k++;
-                        }
-                        if($valueSumm > 0){
-                            $dataArray2['chart'][$i] = $dataArray2['chart'][$i] + $dataArrayValues;
-                        }
-
-                        unset($dataArrayValues);
-                    }
-
-                    $irrCounter++;
-
-                }
-
 
             }
         }
         echo '<pre>';
-        print_r($dataArray2);
+        print_r($dataArray);
         echo '</pre>';
         exit;
         $conn = null;
