@@ -115,7 +115,6 @@ class ImportService
                     $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
 
                     $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
-
                     $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
                     $irrLower = $checkSensors[0]['irrLower'];
@@ -168,8 +167,8 @@ class ImportService
                     $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits);
 
                     //built array for pvist
-                    $sizeResult = is_countable($result[0] ? count($result[0]) : 0) - 1;
-                    for ($j = 0; $j <= $sizeResult; $j++) {
+                    #$sizeResult = is_countable($result[0] ? count($result[0]) : 0) - 1;
+                    for ($j = 0; $j <= count($result[0])-1; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
 
@@ -186,22 +185,19 @@ class ImportService
                     $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroupsCleaned, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
 
                     //built array for pvist
-                    $sizeResult = is_countable($result[0] ? count($result[0]) : 0) - 1;
-                    for ($j = 0; $j <= $sizeResult; $j++) {
+                    #$sizeResult = is_countable($result[0] ? count($result[0]) : 0) - 1;
+                    for ($j = 0; $j <= count($result[0])-1; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
 
                     //built array for pvist_dc
-                    $sizeResult = is_countable($result[1] ? count($result[1]) : 0) - 1;
-                    for ($j = 0; $j <= $sizeResult; $j++) {
+                    #$sizeResult = is_countable($result[1] ? count($result[1]) : 0) - 1;
+                    for ($j = 0; $j <= count($result[1])-1; $j++) {
                         $data_pv_dcist[] = $result[1][$j];
                     }
 
                     unset($result);
                 }
-
-
-
 
                 //Anlage hatPPc
                 if ($anlage->getHasPPC()) {

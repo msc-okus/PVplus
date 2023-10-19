@@ -55,7 +55,7 @@ private readonly PdoService $pdoService,
      *
      */
     // MS 06/2022
-    public function getSollIstHeatmap(Anlage $anlage, $from, $to, ?int $sets = 0, bool $hour = false): array
+    public function getSollIstHeatmap(Anlage $anlage, $from, $to, $sets = 0, bool $hour = false): array
     {
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
@@ -63,10 +63,11 @@ private readonly PdoService $pdoService,
 
         $sunArray = $this->weatherService->getSunrise($anlage, $from);
         $sunrise = strtotime((string) $sunArray['sunrise']);
+        $sunArray = $this->weatherService->getSunrise($anlage, $to);
         $sunset = strtotime((string) $sunArray['sunset']);
 
-        $from = date('Y-m-d H:00', $sunrise);
-        $to = date('Y-m-d H:00', $sunset + 3600);
+        $from = date('Y-m-d H:i', $sunrise);
+        $to = date('Y-m-d H:i', $sunset + 3600);
 
         // fix the sql Query with an select statement in the join this is much faster
         if ($anlage->getUseNewDcSchema()) {

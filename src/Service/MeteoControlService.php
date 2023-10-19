@@ -102,8 +102,8 @@ class MeteoControlService
             $totalOffset = $plantoffset->getOffset(new \DateTime("now")) - $offsetServerUTC->getOffset(new \DateTime("now")) - $offsetServer->getOffset(new \DateTime("now"));
 
             date_default_timezone_set($timeZonePlant);
-            $from = urlencode(date('c', ($from-$totalOffset) - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
-            $to = urlencode(date('c', $to-$totalOffset));
+            $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            $to = urlencode(date('c', $to));
 
             curl_setopt($curl, CURLOPT_USERPWD, $mcUser);
             curl_setopt($curl, CURLOPT_PASSWORD, $mcPassword);

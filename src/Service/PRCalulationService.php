@@ -45,7 +45,7 @@ class PRCalulationService
 
 
     /**
-     * @throws NonUniqueResultException|InvalidArgumentException
+     * @throws NonUniqueResultException|InvalidArgumentException|\JsonException
      */
     #[Deprecated]
     public function calcPRAll(Anlage|int $anlage, string $day): string
@@ -507,6 +507,14 @@ class PRCalulationService
      *  $result['powerActDep3']<br>
      *  $result['powerExp']<br>
      *  $result['powerTheo']<br>
+     *  $result['powerTheoDep0']<br>
+     *  $result['powerTheoDep1']<br>
+     *  $result['powerTheoDep2']<br>
+     *  $result['powerTheoDep3']<br>
+     *  $result['powerTheoDep0NoPpc']<br>
+     *  $result['powerTheoDep1NoPpc']<br>
+     *  $result['powerTheoDep2NoPpc']<br>
+     *  $result['powerTheoDep3NoPpc']<br>
      *  $result['powerTheoTempCorr']<br>
      *  $result['prDefaultEGridExt']<br>
      *  $result['prDefaultEvu']<br>
@@ -638,13 +646,13 @@ class PRCalulationService
 
         // PR Calculation
         // Departement 0 (OpenBook)
-        $result['powerTheoDep0'] = match($anlage->getPrFormular0()) {
+        $result['powerTheoDep0'] = match($anlage->getPRFormular0()) {
             'Lelystad'          => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'IEC61724-1:2021'   => $weather['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weather['theoPowerPA0'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irr0    // all others calc by Pnom and Irr.
         };
-        $result['powerTheoDep0NoPpc'] = match($anlage->getPrFormular0()) {
+        $result['powerTheoDep0NoPpc'] = match($anlage->getPRFormular0()) {
             'Lelystad'          => $power['powerTheoNoPpc'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'IEC61724-1:2021'   => $weatherNoPpc['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weatherNoPpc['theoPowerPA0'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array

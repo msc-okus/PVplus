@@ -46,6 +46,7 @@
                                     <th><small>First Unit</small></th>
                                     <th><small>Last Unit</small></th>
                                     <th><small>DC Power for this AC Group</small></th>
+                                    <th></th>
                                     <th><small>Weatherstation</small></th>
                                     <th><small>Is East / West</small></th>
                                     <th><small>Pyra. (East, deafult) 1</small></th>
@@ -67,6 +68,7 @@
                                         <td>{{ form_widget(acgroup.unitFirst) }}</td>
                                         <td>{{ form_widget(acgroup.unitLast) }}</td>
                                         <td>{{ form_widget(acgroup.dcPowerInverter) }}</td>
+                                        <td>{{ anlage.pnomInverterArray[loop.index] }}</td>
                                         <td>{{ form_widget(acgroup.weatherStation) }}</td>
                                         <td>{{ form_widget(acgroup.isEastWestGroup) }}</td>
                                         <td>{{ form_widget(acgroup.pyro1) }}</td>

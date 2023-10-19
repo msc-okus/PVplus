@@ -4,8 +4,10 @@ namespace App\Command;
 
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-use App\Service\AvailabilityService;
+use App\Service\AvailabilityByTicketService;
 use App\Service\PRCalulationService;
+use Doctrine\ORM\NonUniqueResultException;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -25,7 +27,7 @@ class UpdatePlantsWithDailyInputCommand extends Command
     public function __construct(
         private readonly AnlagenRepository $anlagenRepository,
         private readonly PRCalulationService $prCalulation,
-        private readonly AvailabilityService $availability)
+        private readonly AvailabilityByTicketService $availability)
     {
         parent::__construct();
     }
@@ -38,6 +40,11 @@ class UpdatePlantsWithDailyInputCommand extends Command
         ;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
+     * @throws \JsonException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $ergebniss = '';
@@ -62,8 +69,8 @@ class UpdatePlantsWithDailyInputCommand extends Command
 
         $io->progressStart(count($anlagen));
         foreach ($anlagen as $anlage) {
-            $ergebniss .= $this->prCalulation->calcPRAll($anlage, $from);
-            $ergebniss .= $this->availability->checkAvailability($anlage, strtotime($from));
+            $this->prCalulation->calcPRAll($anlage, $from);
+            $this->availability->checkAvailability($anlage, strtotime($from));
             $io->progressAdvance();
         }
         $io->progressFinish();

@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\ExpectedService;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -39,6 +40,9 @@ class UpdateExpectedDbsCommand extends Command
         ;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -50,16 +54,13 @@ class UpdateExpectedDbsCommand extends Command
         if ($optionFrom) {
             $from = $optionFrom;
         } else {
-            $from = date('Y-m-d H:i:00', time() - (2 * 3600));
+            $from = date('Y-m-d H:i:00', time() - (4 * 3600));
         }
         if ($optionTo) {
             $to = $optionTo;
         } else {
             $to = date('Y-m-d H:i:00', time());
         }
-
-        // $from       = '2020-08-04 04:00';
-        // $to         = '2020-08-06 22:00';
 
         $io->comment("Update AC and DC expected: from $from to $to");
 

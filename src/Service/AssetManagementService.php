@@ -336,10 +336,12 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
             'anlage'        => $anlage,
+            'invNr' => count($content['plantAvailabilityMonth']),
             'InverterPRRankTables' => $content['InverterPRRankTables'],
             'InverterPRRankGraphics' => $content['InverterPRRankGraphics'],
             'prSumaryTable' => $content['prSumaryTable'],
-            'sumary_pie_graph' => $content['sumary_pie_graph']
+            'sumary_pie_graph' => $content['sumary_pie_graph'],
+            'pr_rank_graph_20_inv' => $content['pr_rank_graph_20_inv'],
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
@@ -368,6 +370,7 @@ class AssetManagementService
             'monthName' => $output['month'],
             'year' => $reportYear,
             'logoImage' => $tempFileLogo,
+            'invNr' => count($content['plantAvailabilityMonth']),
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'monthArray' => $content['monthArray'],
@@ -713,6 +716,148 @@ class AssetManagementService
         $chart->setOption($option);
 
         $sumary_pie_graph = $chart->render('sumary_pie_graph'.$key, ['style' => 'height: 250px; width:500px;']);
+        $pr_rank_graph_20_inv = "";
+        if (count($anlage->getInverterFromAnlage()) > 20){
+            // we do this to join the inverter arrays into one
+            $fullArray['name'] = [];
+            $fullArray['powerYield'] = [];
+            $fullArray['PR'] = [];
+            foreach ($graphDataPR as $array){
+                $fullArray['name'] = array_merge($fullArray['name'], $array['name']);
+                $fullArray['powerYield'] = array_merge($fullArray['powerYield'], $array['powerYield']);
+                $fullArray['PR'] = array_merge($fullArray['PR'], $array['PR']);
+            }
+
+            // we build 2 arrays with the 10 best and the 10 worse
+            $worseTen['name'] = array_slice($fullArray['name'], 0, 10);
+            $bestTen['name'] = array_slice($fullArray['name'],count($fullArray['name']) - 10, 10 );
+            $worseTen['powerYield'] = array_slice($fullArray['powerYield'], 0, 10);
+            $bestTen['powerYield'] = array_slice($fullArray['powerYield'],count($fullArray['powerYield']) - 10, 10 );
+            //we calculate the average pr for the value in the middle
+
+            $worseTen['PR'] = array_slice($fullArray['PR'], 0, 10);
+            $bestTen['PR'] = array_slice($fullArray['PR'],count($fullArray['PR']) - 10, 10 );
+            $sumPR = 0;
+            foreach ($worseTen['PR'] as $pr){
+                $sumPR = $sumPR + $pr;
+            }
+            foreach ($bestTen['PR'] as $pr){
+                $sumPR = $sumPR + $pr;
+            }
+            $avgPr = $sumPR / 20;
+            $tenArray['name'] = array_merge($worseTen['name'], ["..."]);
+            $tenArray['powerYield'] = array_merge($worseTen['powerYield'], [0]);
+            $tenArray['PR'] = array_merge($worseTen['PR'] , [$avgPr]);
+
+            $tenArray['name'] = array_merge($tenArray['name'], $bestTen['name']);
+            $tenArray['powerYield'] = array_merge($tenArray['powerYield'], $bestTen['powerYield']);
+            $tenArray['PR'] = array_merge($tenArray['PR'] , $bestTen['PR']);
+
+            $chart = new ECharts();
+            $chart->tooltip->show = false;
+            $chart->tooltip->trigger = 'item';
+            $chart->xAxis = [
+                'type' => 'category',
+                'axisLabel' => [
+                    'show' => true,
+                    'margin' => '10',
+                    'rotate' => 45
+                ],
+                'splitArea' => [
+                    'show' => true,
+                ],
+                'data' => $tenArray['name'],
+            ];
+            $chart->yAxis = [
+                [
+                    'type' => 'value',
+                    'name' => 'kWh/kWp',
+                    'min' => 0,
+                    'position' => 'left'
+                ],
+                [
+                    'type' => 'value',
+                    'name' => '[%]',
+                    'min' => 0,
+                    'max' => 105,
+                    'position' => 'right',
+
+                ]
+            ];
+            $chart->series =
+                [
+                    [
+                        'name' => 'Specific Yield',
+                        'type' => 'bar',
+                        'data' => $tenArray['powerYield'],
+                        'visualMap' => 'false',
+                    ],
+                    [
+                        'name' => 'Inverter PR',
+                        'type' => 'line',
+                        'data' => $tenArray['PR'],
+                        'visualMap' => 'false',
+                        'lineStyle' => [
+                            'color' => 'green'
+                        ],
+                        'yAxisIndex' => 1,
+                        'markLine' => [
+                            'data' => [
+                                [
+                                    'name' => 'Contractual PR',
+                                    'yAxis' => $anlage->getContractualPR(),
+                                    'lineStyle' => [
+                                        'type' => 'solid',
+                                        'width' => 3,
+                                        'color' => 'red'
+                                    ],
+                                    'label' => [
+                                        'formatter' => '{b}:{c}'
+                                    ]
+                                ],
+                               /* [
+                                    'name' => 'average PR:',
+
+                                    'yAxis' => $avgPr,
+                                    'lineStyle' => [
+                                        'type' => 'solid',
+                                        'width' => 3,
+                                        'color' => 'yellow'
+                                    ],
+                                    'label' => [
+                                        'formatter' => '{b}:{c}'
+                                    ]
+
+                                ]
+                                */
+                            ],
+                            'symbol' => 'none',
+
+                        ]
+                    ],
+                ];
+            $option = [
+                'animation' => false,
+                'grid' => [
+                    'height' => '70%',
+                    'top' => 50,
+                    'width' => '70%',
+                    'right' => 100,
+                    'left' => 100,
+                    'bottom' => 100,
+                ],
+                'legend' => [
+                    'show' => true,
+                    'center' => 'top',
+                    'top' => 10,
+                ],
+                'tooltip' => [
+                    'show' => true,
+                ],
+            ];
+            $chart->setOption($option);
+            $pr_rank_graph_20_inv = $chart->render('pr_graph_20_inv'.$key, ['style' => 'height: 550px; width:900px;']);
+        }
 
         foreach($graphDataPR as $key => $data) {
             $chart = new ECharts();
@@ -749,7 +894,7 @@ class AssetManagementService
             $chart->series =
                 [
                     [
-                        'name' => 'Power Yield',
+                        'name' => 'Specific Yield',
                         'type' => 'bar',
                         'data' => $data['powerYield'],
                         'visualMap' => 'false',
@@ -766,7 +911,6 @@ class AssetManagementService
                         'markLine' => [
                             'data' => [
                                 [
-                                    'name' => 'yield',
                                     'name' => 'Contractual PR',
                                     'yAxis' => $data['yield'],
                                     'lineStyle' => [
@@ -778,6 +922,7 @@ class AssetManagementService
                                         'formatter' => '{b}:{c}'
                                     ]
                                 ],
+                                /*
                                 [
                                     'name' => 'average PR:',
 
@@ -791,6 +936,7 @@ class AssetManagementService
                                         'formatter' => '{b}:{c}'
                                     ]
                                 ]
+                                */
                             ],
                             'symbol' => 'none',
 
@@ -2067,7 +2213,8 @@ class AssetManagementService
         $endate = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInThisMonth." 23:59:00";
         $SOFErrors  = 0;
         $EFORErrors = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 20, $anlage)[0][1] + (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-01-01', $endate, $anlage, "10")[0][1];
-        $OMCErrors  = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 30, $anlage)[0][1] + (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 50, $anlage)[0][1];
+        $OMCErrors  = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 30, $anlage)[0][1];
+        $PPControl =  (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 50, $anlage)[0][1];
         $dataGaps   = (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-01-01', $endate, $anlage, "20")[0][1];
         $totalErrors = $SOFErrors + $EFORErrors + $OMCErrors + $dataGaps;
         // here we calculate the ammount of quarters to calculate the relative percentages
@@ -2083,6 +2230,7 @@ class AssetManagementService
         $sumLossesYearSOR = 0;
         $sumLossesYearEFOR = 0;
         $sumLossesYearOMC = 0;
+        $sumLossesYearPPC = 0;
         $sumLossesYearGap = 0;
         for($i = $report['reportMonth'] - 1; $i >= 0 ; $i--){
             $invertedMonthArray[] = $monthArray[$i];
@@ -2097,6 +2245,7 @@ class AssetManagementService
                 $table_percentage_monthly['SORLosses'][] = number_format(-($kwhLosses[$i]['SORLosses'] * 100 / $tempExp), 2);
                 $table_percentage_monthly['EFORLosses'][] = number_format(-($kwhLosses[$i]['EFORLosses'] * 100 / $tempExp), 2);
                 $table_percentage_monthly['OMCLosses'][] = number_format(-($kwhLosses[$i]['OMCLosses'] * 100 / $tempExp), 2);
+                $table_percentage_monthly['PPCLosses'][] = number_format(-($kwhLosses[$i]['PPCLosses'] * 100 / $tempExp), 2);
                 $table_percentage_monthly['DataGap'][] = number_format(-($kwhLosses[$i]['DataGapLosses'] * 100 / $tempExp), 2);
             }
             else {
@@ -2106,6 +2255,7 @@ class AssetManagementService
                 $table_percentage_monthly['SORLosses'][] = 0;
                 $table_percentage_monthly['EFORLosses'][] = 0;
                 $table_percentage_monthly['OMCLosses'][] = 0;
+                $table_percentage_monthly['PPCLosses'][] = 0;
                 $table_percentage_monthly['DataGap'][] = 0;
             }
         }
@@ -2113,6 +2263,7 @@ class AssetManagementService
             $sumLossesYearSOR = $sumLossesYearSOR + $data['SORLosses'];
             $sumLossesYearEFOR = $sumLossesYearEFOR + $data['EFORLosses'];
             $sumLossesYearOMC = $sumLossesYearOMC + $data['OMCLosses'];
+            $sumLossesYearPPC = $sumLossesYearPPC + $data['PPCLosses'];
             $sumLossesYearGap = $sumLossesYearGap + $data['DataGapLosses'];
         }
 
@@ -2121,6 +2272,7 @@ class AssetManagementService
             $actualSOFPorcent = 100 - (($sumquarters - $SOFErrors) / $sumquarters) * 100;
             $actualEFORPorcent = 100 - (($sumquarters - $EFORErrors) / $sumquarters) * 100;
             $actualOMCPorcent = 100 - (($sumquarters - $OMCErrors) / $sumquarters) * 100;
+            $actualPPCPorcent = 100 - (($sumquarters - $PPControl) / $sumquarters) * 100;
             $actualGapPorcent = 100 - (($sumquarters - $dataGaps) / $sumquarters) * 100;
         }
         else{
@@ -2128,6 +2280,7 @@ class AssetManagementService
             $actualSOFPorcent = 0;
             $actualEFORPorcent = 0;
             $actualOMCPorcent = 0;
+            $actualPPCPorcent = 0;
             $actualGapPorcent = 0;
         }
 
@@ -2136,6 +2289,7 @@ class AssetManagementService
             'SORLosses'     => $sumLossesYearSOR ,
             'EFORLosses'    => $sumLossesYearEFOR,
             'OMCLosses'     => $sumLossesYearOMC,
+            'PPCLosses'     => $sumLossesYearPPC,
             'GapLosses'     => $sumLossesYearGap
         ];
         $availabilityYearToDateTable = [
@@ -2143,22 +2297,25 @@ class AssetManagementService
             'expectedSOF' => 0, // this will be a variable in the future
             'expectedEFOR' => 0,// and this
             'expectedOMC' => 0, // and this
+            'expectedPPC' => 0,
             'expectedGaps' => 0,
             'actualAvailability' => $actualAvailabilityPorcent,
             'actualSOF' => $actualSOFPorcent,
             'actualEFOR' => $actualEFORPorcent,
             'actualOMC' => $actualOMCPorcent,
+            'actualPPC' =>$actualPPCPorcent,
             'actualGaps' => $actualGapPorcent,
         ];
-
         $ticketCountTable = [
             'SOFTickets'   => 0,
             'EFORTickets'  => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 20, $anlage)[0][1] + (int) $this->ticketDateRepo->countGapsByIntervalPlantEv($report['reportYear'].'-01-01', $endate, "10", $anlage)[0][1],
-            'OMCTickets'   => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 30, $anlage)[0][1] + (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 50, $anlage)[0][1],
+            'OMCTickets'   => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 30, $anlage)[0][1],
+            'PPCTickets'   => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 50, $anlage)[0][1],
             'GapTickets'   => (int) $this->ticketDateRepo->countGapsByIntervalPlantEv($report['reportYear'].'-01-01', $endate, "20", $anlage)[0][1],
             'SOFQuarters'  => $SOFErrors,
             'EFORQuarters' => $EFORErrors,
             'OMCQuarters'  => $OMCErrors,
+            'PPCQuarters'  => $PPControl,
             'GapQuarters'  => $dataGaps,
         ];
 
@@ -2166,12 +2323,10 @@ class AssetManagementService
 
         $failures_Year_To_Date = [];
 
-
-
-        //$SOFErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 10, $anlage)[0][1];
         $SOFErrorsMonth = 0;
         $EFORErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 20, $anlage)[0][1] + (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, $anlage, "10")[0][1];
-        $OMCErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1] + (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 50, $anlage)[0][1];
+        $OMCErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1];
+        $PPControlMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 50, $anlage)[0][1];
         $dataGapsMonth = (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, $anlage, "20")[0][1];
         $totalErrorsMonth = $SOFErrorsMonth + $EFORErrorsMonth + $OMCErrorsMonth + $dataGapsMonth;
         $EFORErrorsMonth = $EFORErrorsMonth + (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, $anlage, "10")[0][1];
@@ -2189,6 +2344,7 @@ class AssetManagementService
         $sumLossesMonthSOR = $kwhLosses[$report['reportMonth'] - 1]['SORLosses'];
         $sumLossesMonthEFOR = $kwhLosses[$report['reportMonth'] - 1]['EFORLosses'];
         $sumLossesMonthOMC = $kwhLosses[$report['reportMonth'] - 1]['OMCLosses'];
+        $sumLossesMonthPPC = $kwhLosses[$report['reportMonth'] - 1]['PPCLosses'];
         $sumLossesMonthGap = $kwhLosses[$report['reportMonth'] - 1]['DataGapLosses'];
         $quartersInMonth = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
         if ($quartersInMonth > 0) {
@@ -2196,6 +2352,7 @@ class AssetManagementService
             $actualSOFPorcentMonth = 100 - (($quartersInMonth - $SOFErrorsMonth) / $quartersInMonth) * 100;
             $actualEFORPorcentMonth = 100 - (($quartersInMonth - $EFORErrorsMonth) / $quartersInMonth) * 100;
             $actualOMCPorcentMonth = 100 - (($quartersInMonth - $OMCErrorsMonth) / $quartersInMonth) * 100;
+            $actualPPCPorcentMonth = 100 - (($quartersInMonth - $PPControlMonth) / $quartersInMonth) * 100;
             $actualGapPorcentMonth = 100 - (($quartersInMonth - $dataGapsMonth) / $quartersInMonth) * 100;
         }
         else{
@@ -2203,6 +2360,7 @@ class AssetManagementService
             $actualSOFPorcentMonth = 0;
             $actualEFORPorcentMonth = 0;
             $actualOMCPorcentMonth = 0;
+            $actualPPCPorcentMonth = 0;
             $actualGapPorcentMonth = 0;
         }
 
@@ -2211,6 +2369,7 @@ class AssetManagementService
             'SORLosses'     => $sumLossesMonthSOR,
             'EFORLosses'    => $sumLossesMonthEFOR,
             'OMCLosses'     => $sumLossesMonthOMC,
+            'PPCLosses'     => $sumLossesMonthPPC,
             'GapLosses'     => $sumLossesMonthGap
         ];
 
@@ -2219,38 +2378,29 @@ class AssetManagementService
             'expectedSOF' => 0, // this will be a variable in the future
             'expectedEFOR' => 0, // and this
             'expectedOMC' => 0, // and this
+            'expectedPPC' => 0,
             'expectedGaps' => 0,
             'actualAvailability' => $actualAvailabilityPorcentMonth,
             'actualSOF' => $actualSOFPorcentMonth,
             'actualEFOR' => $actualEFORPorcentMonth,
             'actualOMC' => $actualOMCPorcentMonth,
+            'actualPPC' => $actualPPCPorcentMonth,
             'actualGaps' => $actualGapPorcentMonth,
         ];
         $ticketCountTableMonth = [
             'SOFTickets'    => 0,
             'EFORTickets'   => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 20, $anlage)[0][1] + $this->ticketDateRepo->countGapsByIntervalPlantEv($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, "10", $anlage)[0][1],
-            'OMCTickets'    => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1] + (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 50, $anlage)[0][1],
+            'OMCTickets'    => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1],
+            'PPCTickets'    => (int) $this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 50, $anlage)[0][1],
             'GapTickets'    => (int) $this->ticketDateRepo->countGapsByIntervalPlantEv($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate,  "20", $anlage)[0][1],
             'SOFQuarters'   => $SOFErrorsMonth,
             'EFORQuarters'  => $EFORErrorsMonth,
             'OMCQuarters'   => $OMCErrorsMonth,
+            'PPCQuarters'   => $PPControlMonth,
             'DataGaps'      => $dataGapsMonth,
         ];
-        if ($totalErrorsMonth != 0) {
-            $failRelativeSOFPorcentMonth = 100 - (($totalErrorsMonth - $SOFErrorsMonth) / $totalErrorsMonth) * 100;
-            $failRelativeEFORPorcentMonth = 100 - (($totalErrorsMonth - $EFORErrorsMonth) / $totalErrorsMonth) * 100;
-            $failRelativeOMCPorcentMonth = 100 - (($totalErrorsMonth - $OMCErrorsMonth) / $totalErrorsMonth) * 100;
-            $failRelativeGapsPorcentMonth = 100 - (($totalErrorsMonth - $dataGapsMonth) / $totalErrorsMonth) * 100;
-        } else {
-            $failRelativeSOFPorcentMonth = 0;
-            $failRelativeEFORPorcentMonth = 0;
-            $failRelativeOMCPorcentMonth = 0;
-            $failRelativeGapsPorcentMonth = 0;
-        }
 
         $plant_availability = [];
-
-
         //Tables for the kwh losses with bar graphs
 
         if ($anlage->hasPVSYST()){
@@ -2260,13 +2410,12 @@ class AssetManagementService
             }
         }
 
-        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2] * ((100 - $anlage->getTotalKpi())/100);
+        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-1] * ((100 - $anlage->getTotalKpi())/100);
         $G4NyearExpected = 1;
         for($index = 0; $index < $month -1; $index++){
             $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExp'][$index] * ((100-$anlage->getTotalKpi())/100));
         }
-
-        $ActualPower = $powerEvu[$month-2];
+        $ActualPower = $powerEvu[$month-1];
         $ActualPowerYear = 1;
         for($index = 0; $index < $month -1; $index++){
             $ActualPowerYear = $ActualPowerYear + $powerEvu[$index];
@@ -2275,11 +2424,12 @@ class AssetManagementService
             $percentageTable = [
                 'G4NExpected' => 100,
                 'PVSYSExpected' => (int)($tbody_a_production['forecast'][$month - 2] * 100 / $G4NmonthExpected),
-                'forecast' => (int)($forecast[$month - 2] * 100 / $G4NmonthExpected),
+                'forecast' => (int)($forecast[$month - 1] * 100 / $G4NmonthExpected),
                 'ActualPower' => (int)($ActualPower * 100 / $G4NmonthExpected),
                 'SORLosses' => number_format(-($kwhLossesMonthTable['SORLosses'] * 100 / $G4NmonthExpected), 2),
                 'EFORLosses' => number_format(-($kwhLossesMonthTable['EFORLosses'] * 100 / $G4NmonthExpected), 2),
                 'OMCLosses' => number_format(-($kwhLossesMonthTable['OMCLosses'] * 100 / $G4NmonthExpected), 2),
+                'PPCLosses' => number_format(-($kwhLossesMonthTable['PPCLosses'] * 100 / $G4NmonthExpected), 2),
                 'GapLosses' => number_format(-($kwhLossesMonthTable['GapLosses'] * 100 / $G4NmonthExpected), 2)
             ];
         }else{
@@ -2291,6 +2441,7 @@ class AssetManagementService
                 'SORLosses' => 0,
                 'EFORLosses' => 0,
                 'OMCLosses' => 0,
+                'PPCLosses' => 0,
                 'GapLosses' => 0
             ];
         }
@@ -2306,6 +2457,7 @@ class AssetManagementService
             'SORLosses' => $kwhLossesMonthTable['SORLosses'],
             'EFORLosses' => $kwhLossesMonthTable['EFORLosses'],
             'OMCLosses' => $kwhLossesMonthTable['OMCLosses'],
+            'PPCLosses' => $kwhLossesMonthTable['PPCLosses'],
             'GapLosses' =>  $kwhLossesMonthTable['GapLosses'],
         ];
 
@@ -2317,6 +2469,7 @@ class AssetManagementService
             'SORLosses' => number_format(-($kwhLossesYearTable['SORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
             'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
             'OMCLosses' => number_format(-($kwhLossesYearTable['OMCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+            'PPCLosses' => number_format(-($kwhLossesYearTable['PPCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
             'GapLosses' => number_format(-($kwhLossesYearTable['GapLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
         ];
 
@@ -2328,6 +2481,7 @@ class AssetManagementService
             'SORLosses' => $kwhLossesYearTable['SORLosses'],
             'EFORLosses' => $kwhLossesYearTable['EFORLosses'],
             'OMCLosses' => $kwhLossesYearTable['OMCLosses'],
+            'PPCLosses' => $kwhLossesYearTable['PPCLosses'],
             'GapLosses' => $kwhLossesYearTable['GapLosses']
         ];
 
@@ -2382,7 +2536,7 @@ class AssetManagementService
             case 3:
             case 4:
                 $sql = "SELECT DATE_FORMAT( a.stamp,'%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, b.group_ac as invgroup
-                        FROM (db_dummysoll a left JOIN ".$anlage->getDbNameIst()." b ON a.stamp = b.stamp) 
+                        FROM (db_dummysoll a left JOIN ".$anlage->getDbNameDcIst()." b ON a.stamp = b.stamp) 
                         WHERE a.stamp BETWEEN '".$report['reportYear'].'-'.$report['reportMonth']."-1 00:00' and '".$report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth." 23:59' and b.group_ac > 0
                         GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
                 $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
@@ -2402,6 +2556,7 @@ class AssetManagementService
                         GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
                 break;
         }
+
         $result = $this->conn->prepare($sql);
         $result->execute();
         $resultc = $this->conn->prepare($sqlc);
@@ -2617,7 +2772,7 @@ class AssetManagementService
                                 'exp_current_dc' => $value[$i]['exp_current_dc'],
                                 'act_power_dc' => $dcIst[$j]['act_power_dc'],
                                 'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                                'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100,
+                                'diff_current_dc' => (($dcIst[$j]['exp_current_dc'] - $value[$i]['act_current_dc']) / $value[$i]['act_current_dc']) * 100,
                                 'diff_power_dc' => 0,
                             ];
                         }
@@ -3663,7 +3818,7 @@ class AssetManagementService
         $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($monthDate))), date_create(date("Y-m-d ",strtotime($report['to']))));
         $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['reportYear']."-01-01"))), date_create(date("Y-m-d ",strtotime($report['to']))));
 
-        $efficiencyArray= $this->calcPRInvArrayDayly($anlage, "01", "2023");
+        $efficiencyArray= $this->calcPRInvArrayDayly($anlage, $month, $year);
         $orderedEfficiencyArray = [];
         $index = 0;
         $index2 = 0;
@@ -3905,7 +4060,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' =>['Forecast', 'Actual', 'SOR Losses', ' EFOR Losses', 'OMC Losses', 'Regulatory', 'Data Gap Losses', 'Other Losses', 'Expected'],
+            'data' =>['Forecast', 'Actual', 'SOR Losses', ' EFOR Losses', 'OMC Losses', 'Regulatory', 'Data Gaps', 'Other Losses', 'Expected'],
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -4047,7 +4202,8 @@ class AssetManagementService
             'prSumaryTable' => $prSumaryTable,
             'sumary_pie_graph' => $sumary_pie_graph,
             'waterfallHelpTable' => $waterfallDiagramHelpTable,
-            'waterfallDiagram' => $waterfallDiagram
+            'waterfallDiagram' => $waterfallDiagram,
+            'pr_rank_graph_20_inv' => $pr_rank_graph_20_inv
         ];
 
         return $output;

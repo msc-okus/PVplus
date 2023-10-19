@@ -20,8 +20,6 @@ use App\Repository\MonthlyDataRepository;
 use App\Repository\PVSystDatenRepository;
 use DateTime;
 use PDO;
-use App\Service\PdoService;
-
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -49,11 +47,14 @@ class FunctionsService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $pacDateStart
      * @param $pacDateEnd
      *
+     * @return array
+     * @throws \JsonException
      * @deprecated
      */
     public function getSumPowerAcAct(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd): array

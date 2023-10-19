@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Helper\G4NTrait;
+use App\Repository\AcGroupsRepository;
+use App\Repository\GroupsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -10,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * anlage_groups_ac.
  */
 #[ORM\Table(name: 'anlage_groups_ac')]
-#[ORM\Entity(repositoryClass: \App\Repository\AcGroupsRepository::class)]
+#[ORM\Entity(repositoryClass: AcGroupsRepository::class)]
 class AnlageAcGroups
 {
     use G4NTrait;
@@ -45,7 +47,7 @@ class AnlageAcGroups
     private bool $isEastWestGroup;
 
     #[ORM\ManyToOne(targetEntity: WeatherStation::class, inversedBy: 'anlageAcGroups')]
-    private ?\App\Entity\WeatherStation $weatherStation = null;
+    private ?WeatherStation $weatherStation = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private ?string $gewichtungAnlagenPR = null;
@@ -67,6 +69,12 @@ class AnlageAcGroups
 
     #[ORM\Column(type: 'string', length: 40, nullable: true)]
     private ?string $importId = null;
+
+    public function __construct(
+        private readonly GroupsRepository $dcGroupsRepo
+    )
+    {
+    }
 
     public function getId(): ?string
     {
@@ -267,5 +275,4 @@ class AnlageAcGroups
     {
         $this->importId = $importId;
     }
-
 }
