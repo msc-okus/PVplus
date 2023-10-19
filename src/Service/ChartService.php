@@ -724,18 +724,18 @@ private PdoService $pdoService,
                     }
 
                     if($stampTemp != $row['stamp']){
-                        $dataArray[] = [
-                            'stamp' =>               $stampTemp,
-                            'tempAmbient' =>         $tempAmbientArray,
-                            'tempCellMeasuerd' =>   $tempModuleArray,
+                        $dataArray['chart'][] = [
+                            'date' =>               $stampTemp,
+                            'tempAmbient' =>         $this->mittelwert($tempAmbientArray),
+                            'tempCellMeasuerd' =>   $this->mittelwert($tempModuleArray),
                             'tempCellCorr' =>       null,
-                            'windSpeed' =>         $windSpeedArray
+                            'windSpeed' =>         $this->mittelwert($windSpeedArray)
                         ];
                         unset($tempAmbientArray);
                         unset($tempModuleArray);
                         unset($windSpeedArray);
                         $tempAmbientArray = $tempModuleArray = $windSpeedArray = [];
-                        $irrCounter = 1;
+
                     }
 
                     if($row['usetocalc_sensor'] && $row['type_sensor'] == 'temp-ambient'){
@@ -755,10 +755,7 @@ private PdoService $pdoService,
                 }
             }
         }
-        echo '<pre>';
-        print_r($dataArray);
-        echo '</pre>';
-        exit;
+
         $conn = null;
 
         return $dataArray;

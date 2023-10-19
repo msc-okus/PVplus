@@ -125,61 +125,71 @@ class IrradiationChartService
             }
         }
 
+
         $result = $conn->query($sql_irr_plant);
 
         if ($result) {
             if ($result->rowCount() > 0) {
                 $counter = 0;
-                $gmPyEast = $gmPyWest = $irrValueArray = [];
+                $counter2 = 0;
+                $gmPyEast = $gmPyWest =  [];
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                     if($counter == 0){
                         $stampTemp = $row['stamp'];
                     }
-
                     if($stampTemp != $row['stamp']){
-                        $dataArray[] = [
-                            'stamp' =>          $stampTemp,
-                            'values' =>         $irrValueArray,
-                            'values' =>         $irrValueArray
-                        ];
-                        unset($gmPyWest);
-                        unset($gmPyEast);
-                        unset($irrValueArray);
-                        $gmPyEast = $gmPyWest = $irrValueArray = [];
-
-                    }
-
-                    $stamp = self::timeAjustment(strtotime((string) $ro['stamp']), $anlage->getWeatherStation()->gettimeZoneWeatherStation());
-                    if($isEastWest){
-                        if (!$anlage->getWeatherStation()->getChangeSensor() == 'Yes') {
-                            if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-east'){
-                                array_push($gmPyWest, $row['value']);
-                            }
-                            if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-west'){
-                                array_push($gmPyEast, $row['value']);
-                            }
+                        if($isEastWest) {
+                            $dataArray['chart'][] = [
+                                'date' =>          $stampTemp,
+                                'val1' =>       $this->mittelwert($gmPyEast), //irrUpper
+                                'val2' =>       $this->mittelwert($gmPyWest), //irrLower
+                            ];
                         }else{
-                            if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-west'){
-                                array_push($gmPyWest, $row['value']);
-                            }
-                            if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-east'){
-                                array_push($gmPyEast, $row['value']);
+                            $gmPyEast[] = 0;
+                            $dataArray['chart'][] = [
+                                'date' =>          $stampTemp,
+                                'val1' =>       $this->mittelwert($gmPyEast), //irrUpper
+                                'val2' =>       $this->mittelwert($gmPyWest), //irrLower
+                            ];
+
+                        }
+
+                        if (!($this->mittelwert($gmPyEast) + $this->mittelwert($gmPyWest) == 0 && self::isDateToday($stampTemp) && self::getCetTime() - strtotime($stampTemp) < 7200)) {
+                            switch ($mode) {
+                                case 'all':
+                                    $dataArray['chart'][$counter2]['val1'] = $this->mittelwert($gmPyEast) < 0 ? 0 : $this->mittelwert($gmPyEast); // upper pannel
+                                    $dataArray['chart'][$counter2]['val2'] = $this->mittelwert($gmPyWest) < 0 ? 0 : $this->mittelwert($gmPyWest); // lower pannel
+                                    break;
+                                case 'upper':
+                                    $dataArray['chart'][$counter2]['val1'] = $this->mittelwert($gmPyEast) < 0 ? 0 : $this->mittelwert($gmPyEast); // upper pannel
+                                    unset($dataArray['chart'][$counter2]['val2']);
+                                    break;
+                                case 'lower':
+                                    $dataArray['chart'][$counter2]['val1'] = $this->mittelwert($gmPyWest) < 0 ? 0 : $this->mittelwert($gmPyWest); // upper pannel
+                                    unset($dataArray['chart'][$counter2]['val1']);
+                                    break;
                             }
                         }
 
+                        unset($gmPyWest);
+                        unset($gmPyEast);
+                        $gmPyEast = $gmPyWest = [];
+                        $counter2 ++;
+                    }
+
+                    if($isEastWest){
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-east'){
+                            array_push($gmPyWest, $row['value']);
+                        }
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-west'){
+                            array_push($gmPyEast, $row['value']);
+                        }
                     }else{
                         if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr'){
                             array_push($gmPyEast, $row['value']);
                         }
-                        $gmPyWest = [];
                     }
 
-                    if($row['usetocalc_sensor'] && ($row['type_sensor'] == 'irr' || $row['type_sensor'] == 'irr-east' || $row['type_sensor'] == 'irr-west')){
-
-                        $irrValueArray["val".$irrCounter] = $row['value'];
-
-                        $irrCounter++;
-                    }
                     $stampTemp = $row['stamp'];
 
                     $counter++;
@@ -188,10 +198,7 @@ class IrradiationChartService
 
             }
         }
-        echo '<pre>';
-        print_r($dataArray);
-        echo '</pre>';
-        exit;
+
         $conn = null;
 
         return $dataArray;
@@ -316,7 +323,6 @@ class IrradiationChartService
                 $irrCounter = 2;
                 $gmPyHori = $gmPyEast = $gmPyWest = $irrValueArray = [];
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                    #echo 'XX '.$row['shortname_sensor'].'<br>';
                     if($counter == 0){
                         $stampTemp = $row['stamp'];
                     }
