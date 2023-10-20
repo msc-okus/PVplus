@@ -385,10 +385,10 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-            if ( $plant_status['ppc'] != null && $plant_status['ppc'] )  $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "");
-            if ( $plant_status['Gap'] != null && count($plant_status['Gap']) > 0 ) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "");
-            if ( $plant_status['Power0'] != null && count($plant_status['Power0']) > 0 && ($anlage->isPpcBlockTicket() && !$plant_status['ppc']))  $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "");
-            if ( $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "");
+            if ( $plant_status['ppc'] != null && $plant_status['ppc'] )  $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", false);
+            if ( $plant_status['Gap'] != null && count($plant_status['Gap']) > 0 ) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "",  ($plant_status['ppc']));
+            if ( $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "",  ($plant_status['ppc']));
+            if ( $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "",  ($plant_status['ppc']));
         }
 
         $this->em->flush();
@@ -494,7 +494,7 @@ class AlertSystemV2Service
      * @param $message
      * @return void
      */
-    private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message): void
+    private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message, $PPC): void
     {
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
             if($ticketArray != []) {
@@ -583,10 +583,18 @@ class AlertSystemV2Service
                 $ticketDate->setEnd($end);
                 $ticket->setEnd($end);
                 //default values por the kpi evaluation
-                if ($errorType == ticket::EFOR) {
-                    $ticketDate->setKpiPaDep1(10);
-                    $ticketDate->setKpiPaDep2(10);
-                    $ticketDate->setKpiPaDep3(10);
+                if ($errorType == 20) {
+                    if (!$PPC) {
+                        $ticketDate->setKpiPaDep1(10);
+                        $ticketDate->setKpiPaDep2(10);
+                        $ticketDate->setKpiPaDep3(10);
+                    }
+                    else{
+                        $ticketDate->setDataGapEvaluation(10);
+                        $ticketDate->setKpiPaDep1(20);
+                        $ticketDate->setKpiPaDep2(10);
+                        $ticketDate->setKpiPaDep3(10);
+                    }
                 }
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
