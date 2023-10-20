@@ -931,6 +931,7 @@ export default class extends Controller {
             if (timestamp1 % 300000 == 0) {
                 var hour = date.getHours();
                 var minutes = date.getMinutes();
+                /*
                 switch (minutes) {
                     case 0:
                     case 5:
@@ -957,6 +958,34 @@ export default class extends Controller {
                         minutes = 15;
                         break;
                 }
+                */
+                switch (minutes) {
+
+                    case 5:
+                    case 10:
+                    case 15:
+                        minutes = 15;
+                        break;
+                    case 20:
+                    case 25:
+                    case 30:
+                        minutes = 30;
+                        break;
+                    case 35:
+                    case 40:
+                    case 45:
+                        minutes = 45;
+                        break;
+                    case 50:
+                    case 55:
+                        hour = hour + 1;
+                        minutes = 0;
+                        break;
+                    case 0:
+                        minutes = 0;
+                        break;
+                }
+
                 if (date.getMonth() < 9) {
                     var Month = '0'.concat((date.getMonth() + 1).toString());
                 } else {
@@ -992,30 +1021,31 @@ export default class extends Controller {
                 if (timestamp1 % 300000 == 0) {
                     var hour = date.getHours();
                     var minutes = date.getMinutes();
+
                     switch (minutes) {
-                        case 0:
+
                         case 5:
-                            minutes = 15;
-                            break;
                         case 10:
                         case 15:
-                        case 20:
-                            minutes = 30;
+                            minutes = 15;
                             break;
+                        case 20:
                         case 25:
                         case 30:
-                        case 35:
-                            minutes = 45;
+                            minutes = 30;
                             break;
+                        case 35:
                         case 40:
                         case 45:
+                            minutes = 45;
+                            break;
                         case 50:
+                        case 55:
                             hour = hour + 1;
                             minutes = 0;
                             break;
-                        case 55:
-                            hour = hour + 1;
-                            minutes = 15;
+                        case 0:
+                            minutes = 0;
                             break;
                     }
                     if (date.getMonth() < 9) {

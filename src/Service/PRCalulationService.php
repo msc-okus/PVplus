@@ -587,6 +587,7 @@ class PRCalulationService
         if (!$anlage->getSettings()->isDisableDep3()) {
             if ($endDate === null) $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 3);
             $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
+            dump($pa3);
         }
 
         // Wetter Daten ermitteln MIT Berücksichtigung des PPC Signals

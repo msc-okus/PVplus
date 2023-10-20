@@ -2822,6 +2822,7 @@ class AssetManagementService
         for($index = 1; $index <= $month ; $index++){
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $index , (int)$report['reportYear']);
             $result = $this->PRCalulation->calcPR($anlage, new \DateTime($report['reportYear']."-".$index."-"."01"), new \DateTime($report['reportYear']."-".$index."-".$daysInMonth));
+
             $monthlyTableForPRAndPA[$index]['Dep0PA'] = round($result['pa0'], 2);
             $monthlyTableForPRAndPA[$index]['Dep1PA'] = round($result['pa1'], 2);
             $monthlyTableForPRAndPA[$index]['Dep2PA'] = round($result['pa2'], 2);
@@ -3844,6 +3845,7 @@ class AssetManagementService
             }
         }
         $efficiencyRanking[] = [];
+        //dd($orderedEfficiencyArray, $month, $year);
         foreach($orderedEfficiencyArray as $key => $data) {
             $chart = new ECharts(); // We must use AMCharts
             $chart->tooltip->show = false;
@@ -4365,7 +4367,28 @@ class AssetManagementService
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
         $begin = $year."-".$month."-01 00:00";
         $end = $year."-".$month."-".$daysInMonth." 23:59";
-        $sql = 'SELECT stamp, (sum(wr_pac)/sum(wr_pdc) * 100) as efficiency, unit AS inverter  FROM '.$anlage->getDbNameIst()." WHERE stamp BETWEEN '$begin' AND '$end' GROUP BY UNIT, date_format(stamp, '%y%m%d')";
+        switch ($anlage->getConfigType()){
+            case 1:
+            case 2:
+                $sql = 'SELECT stamp, (sum(wr_pac)/sum(wr_pdc) * 100) as efficiency, unit AS inverter  
+                        FROM '.$anlage->getDbNameIst()." 
+                        WHERE stamp BETWEEN '$begin' AND '$end' GROUP BY UNIT, date_format(stamp, '%y%m%d')";
+                break;
+            case 3:
+            case 4:
+                $sql = "SELECT a.stamp as stamp , ((b.wr_pac)/(a.wr_pdc) * 100) as efficiency, b.group_ac AS inverter 
+                            FROM 
+                                 (SELECT date_format(stamp, '%Y-%m-%d') as stamp ,group_ac, sum(wr_pdc) as wr_pdc, group_ac as group_ac_dc 
+                                 FROM ".$anlage->getDbNameDcIst()." 
+                                 WHERE stamp BETWEEN '$begin' AND '$end' GROUP BY  group_ac, date_format(stamp, '%y%m%d')) a 
+                            inner join
+                                  (SELECT sum(wr_pac) as wr_pac, date_format(stamp, '%Y-%m-%d') as stamp, group_ac
+                                   FROM ".$anlage->getDbNameIst()." 
+                                   WHERE stamp BETWEEN '$begin' AND '$end' GROUP BY  group_ac, date_format(stamp, '%y%m%d') )b 
+                            on (a.stamp = b.stamp AND a.group_ac_dc = b.group_ac)
+                            ";
+                break;
+        }
         $res = $this->conn->query($sql);
         $inverter = 1;
         $index = 1;
