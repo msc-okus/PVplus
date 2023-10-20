@@ -2822,6 +2822,7 @@ class AssetManagementService
         for($index = 1; $index <= $month ; $index++){
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $index , (int)$report['reportYear']);
             $result = $this->PRCalulation->calcPR($anlage, new \DateTime($report['reportYear']."-".$index."-"."01"), new \DateTime($report['reportYear']."-".$index."-".$daysInMonth));
+
             $monthlyTableForPRAndPA[$index]['Dep0PA'] = round($result['pa0'], 2);
             $monthlyTableForPRAndPA[$index]['Dep1PA'] = round($result['pa1'], 2);
             $monthlyTableForPRAndPA[$index]['Dep2PA'] = round($result['pa2'], 2);
