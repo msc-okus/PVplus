@@ -3844,7 +3844,7 @@ class AssetManagementService
             }
         }
         $efficiencyRanking[] = [];
-        dd($orderedEfficiencyArray, $month, $year);
+        //dd($orderedEfficiencyArray, $month, $year);
         foreach($orderedEfficiencyArray as $key => $data) {
             $chart = new ECharts(); // We must use AMCharts
             $chart->tooltip->show = false;
@@ -4375,12 +4375,19 @@ class AssetManagementService
                 break;
             case 3:
             case 4:
-                $sql = "SELECT a.stamp, (sum(b.wr_pac)/sum(a.wr_pdc) * 100) as efficiency, b.unit AS inverter 
-                            FROM ".$anlage->getDbNameDcIst()." a inner join ".$anlage->getDbNameIst()." b on (a.stamp = b.stamp AND a.wr_num = b.inv) 
-                            WHERE a.stamp BETWEEN '$begin' AND '$end' GROUP BY b.unit, date_format(a.stamp, '%y%m%d')";
+                $sql = "SELECT a.stamp as stamp , ((b.wr_pac)/(a.wr_pdc) * 100) as efficiency, b.group_ac AS inverter 
+                            FROM 
+                                 (SELECT date_format(stamp, '%Y-%m-%d') as stamp ,group_ac, sum(wr_pdc) as wr_pdc, group_ac as group_ac_dc 
+                                 FROM ".$anlage->getDbNameDcIst()." 
+                                 WHERE stamp BETWEEN '$begin' AND '$end' GROUP BY  group_ac, date_format(stamp, '%y%m%d')) a 
+                            inner join
+                                  (SELECT sum(wr_pac) as wr_pac, date_format(stamp, '%Y-%m-%d') as stamp, group_ac
+                                   FROM ".$anlage->getDbNameIst()." 
+                                   WHERE stamp BETWEEN '$begin' AND '$end' GROUP BY  group_ac, date_format(stamp, '%y%m%d') )b 
+                            on (a.stamp = b.stamp AND a.group_ac_dc = b.group_ac)
+                            ";
                 break;
         }
-        dd($sql);
         $res = $this->conn->query($sql);
         $inverter = 1;
         $index = 1;
