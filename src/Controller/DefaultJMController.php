@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use _PHPStan_adbc35a1c\Nette\Utils\DateTime;
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
@@ -13,6 +14,7 @@ use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
 use App\Service\WeatherServiceNew;
+use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,6 +43,21 @@ class DefaultJMController extends AbstractController
 
     }
 
+
+    #[Route(path: '/test/time', name: 'default_time')]
+    public function testTime(AnlagenRepository $anlagenRepository)
+    {
+        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+
+        foreach ($anlagen as $anlage){
+            $timeZone = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
+            dump($timeZone->getName());
+            date_default_timezone_set($timeZone->getName());
+            dump(new DateTime('now'));
+        }
+
+        dd("hello World");
+    }
 
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
@@ -343,15 +360,6 @@ class DefaultJMController extends AbstractController
         $em->flush();
         dd($fileSystemFtp);
 
-    }
-    #[Route(path: '/test/bs', name: 'default_bs_test')]
-    public function testTime(AnlagenRepository $ar, WeatherServiceNew $ws){
-         $saran = $ar->find(104);//findOneBy(['id' => 104]);
-        //date_default_timezone_set($ws->getNearestTimezone($saran->getAnlGeoLat(), $saran->getAnlGeoLon(),strtoupper($saran->getCountry())));
-
-        $sunrisedata = date_sun_info(strtotime("2023-01-01"), (float) $saran->getAnlGeoLat(), (float) $saran->getAnlGeoLon());
-        //date_default_timezone_set('Europe/Vienna);
-        dd(Date("Y-m-d H:i:s", $sunrisedata['sunrise']), date_default_timezone_get());
     }
 
 }

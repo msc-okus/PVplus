@@ -939,7 +939,7 @@ class PRCalulationService
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
 
-        $power = $this->powerServicer->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate), $inverterID);
+        $power = $this->powerServicer->getSumAcPowerV2($anlage, date_create($localStartDate), date_create($localEndDate), $inverterID);
         $result['powerTheo'] = match($anlage->getPrFormular3()) {
             'Lelystad'  => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'Veendam'   => $weather['theoPowerPA3'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
@@ -947,9 +947,10 @@ class PRCalulationService
         };
         $irr = $this->functions->checkAndIncludeMonthlyCorrectionIrr($anlage, $irr, $localStartDate, $localEndDate);
 
+        dump($anlage,$irr, $power['powerAct'], $result['powerTheo'], $pa3, $inverterID);
         if (!$anlage->getSettings()->isDisableDep3()) $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerAct'], $result['powerTheo'], $pa3, $inverterID);
         else $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerAct'], $result['powerTheo'], $pa3, $inverterID);
-
+        dd($result);
         $result['powerAct'] = $power['powerAct'];
         $result['irradiation'] = $irr;
         return $result;

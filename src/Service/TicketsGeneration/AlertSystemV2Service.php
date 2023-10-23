@@ -373,7 +373,9 @@ class AlertSystemV2Service
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $time = self::timeAjustment($time, -2);
+        dump($time);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
+
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
 

@@ -728,7 +728,7 @@ class AssetManagementService
                 $fullArray['PR'] = array_merge($fullArray['PR'], $array['PR']);
             }
 
-            // we build 2 arrays with the 10 best and the 10 worse
+            // we build 2 arrays with the 10 best and the 10 worst
             $worseTen['name'] = array_slice($fullArray['name'], 0, 10);
             $bestTen['name'] = array_slice($fullArray['name'],count($fullArray['name']) - 10, 10 );
             $worseTen['powerYield'] = array_slice($fullArray['powerYield'], 0, 10);

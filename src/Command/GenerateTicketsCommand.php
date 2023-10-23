@@ -47,37 +47,40 @@ class GenerateTicketsCommand extends Command
         $plantid = $input->getArgument('plantid');
         $optionFrom = $input->getOption('from');
         $optionTo = $input->getOption('to');
-        $time = time();
-        $time = $time - ($time % 900);
-        if ($optionFrom) {
-            $from = $optionFrom;
-        } else {
-            $from = date('Y-m-d H:i:00', $time);
-        }
-        if ($optionTo) {
-            $to = $optionTo;
-        } else {
-            $to = date('Y-m-d H:i:00', $time);
-        }
-
-        if ($from <= $to) {
-            $fromStamp = strtotime((string) $from);
-            $toStamp = strtotime((string) $to);
 
             if (is_numeric($plantid)) {
-                $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
+                $io->comment("Generate Tickets | Plant ID: $plantid");
                 $anlagen = $this->anlagenRepository->findIdLike([$plantid]);
             } else {
-                $io->comment("Generate Tickets: $from - $to | All Plants");
+                $io->comment("Generate Tickets | All Plants");
                 $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
             }
 
-            $counter = (($toStamp - $fromStamp) / 3600) * (is_countable($anlagen) ? count($anlagen) : 0);
-            $io->progressStart($counter);
-            $counter = ($counter * 4) - 1;
+
 
             foreach ($anlagen as $anlage) {
+
                 if ($anlage->getAnlId() === 105) date_default_timezone_set('Asia/Almaty');
+                $time = time();
+                $time = $time - ($time % 900);
+                if ($optionFrom) {
+                    $from = $optionFrom;
+                } else {
+                    $from = date('Y-m-d H:i:00', $time);
+                }
+                if ($optionTo) {
+                    $to = $optionTo;
+                } else {
+                    $to = date('Y-m-d H:i:00', $time);
+                }
+                dump($from, $to);
+
+                $fromStamp = strtotime((string) $from);
+                $toStamp = strtotime((string) $to);
+
+                $counter = (($toStamp - $fromStamp) / 3600) * (is_countable($anlagen) ? count($anlagen) : 0);
+                $io->progressStart($counter);
+                $counter = ($counter * 4) - 1;
                 while (((int) date('i') >= 26 && (int) date('i') < 35) || (int) date('i') >= 56 || (int) date('i') < 5) {
                     $io->comment('Wait...');
                     sleep(30);
@@ -97,11 +100,10 @@ class GenerateTicketsCommand extends Command
                     --$counter;
                 }
                 $io->comment($anlage->getAnlName());
+                if ($anlage->getAnlId() === 105) date_default_timezone_set('Europe/Berlin');
             }
             $io->progressFinish();
             $io->success('Generating tickets finished');
-        }
-        if ($anlage->getAnlId() === 105) date_default_timezone_set('Europe/Berlin');
         return Command::SUCCESS;
     }
 }
