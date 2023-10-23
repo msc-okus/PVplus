@@ -121,9 +121,9 @@ class TicketDate
         $this->priority = $ticket->getPriority();
         $this->answer = $ticket->getAnswer();
         $this->alertType = $ticket->getAlertType();
-        $this->kpiPaDep1 = $ticket->getKpiPaDep1();
-        $this->kpiPaDep2 = $ticket->getKpiPaDep2();
-        $this->kpiPaDep3 = $ticket->getKpiPaDep3();
+        //$this->kpiPaDep1 = $ticket->getKpiPaDep1();
+        //$this->kpiPaDep2 = $ticket->getKpiPaDep2();
+        //$this->kpiPaDep3 = $ticket->getKpiPaDep3();
         $endstamp = $this->getEnd()->getTimestamp();
         $beginstamp = $this->getBegin()->getTimestamp();
         $this->intervals = ($endstamp - $beginstamp) / 900;
