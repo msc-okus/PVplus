@@ -13,6 +13,7 @@ use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
+use App\Service\AvailabilityByTicketService;
 use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
@@ -54,7 +55,8 @@ class ReportsMonthlyV2Service
         private readonly TicketDateRepository $ticketDateRepo,
         private readonly Environment $twig,
         private readonly PdfService $pdf,
-        private readonly TranslatorInterface $translator)
+        private readonly TranslatorInterface $translator,
+        private readonly AvailabilityByTicketService $availabilityByTicket)
     {
     }
 
@@ -271,6 +273,9 @@ class ReportsMonthlyV2Service
         return $dayValues;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function buildTable2(Anlage $anlage, DateTime $startDate, DateTime $endDate): array
     {
         #$startDay   = (int) $startDate->format('j');

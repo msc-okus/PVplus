@@ -3,7 +3,7 @@
 {% else %}
     {% set colspan = 0 %}
 {% endif %}
-<table class="basetable monthtable">
+<table id="special_export" class="basetable monthtable"> {# ID der table ist wichtig für Datatables Script - Export to Excel #}
     {% for day in report.days %}
     {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
     {% if loop.first %}

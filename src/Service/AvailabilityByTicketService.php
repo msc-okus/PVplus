@@ -266,7 +266,6 @@ class AvailabilityByTicketService
                 // suche commIssu Tickets und schreibe diese in Array $commIssuArray[inverter][stamp] = true|false
                 // nur für Department 1 bis 3
                 $commIssus = $this->ticketDateRepo->findCommIssu($anlage, $from, $to, $department);
-
                 /** @var TicketDate $commIssu */
                 foreach ($commIssus as $commIssu) {
                     $c5From = $commIssu->getBegin()->getTimestamp();
