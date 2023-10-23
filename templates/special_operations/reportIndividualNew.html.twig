@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{  parent() }}special operations
+{% endblock %}
+
+{% block styles %}
+    {{  parent() }}
+    {{ encore_entry_link_tags('special_export') }}
+    <link href="{{ absolute_url(asset('css/monthly_report_inline.css')) }}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('special_export') }}
+{% endblock %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>{{ headline }}</h1>
+        </div>
+    </div>
+
+    {% include'special_operations/_inc/_createFormDateSelector.html.twig' %}
+    <hr>
+    {% if report != null %}
+        <div class="grid-x">
+            <div id="special_export_buttons"></div>
+            <div class="cell">
+                {% include "report/_monthly/_tableSub.html.twig" %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

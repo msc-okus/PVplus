@@ -286,7 +286,6 @@ class AvailabilityByTicketService
             // suche Performance Tickets die die PA beeinflussen (alertType = 72)
             $perfTicketsSkips  = $this->ticketDateRepo->findPerformanceTicketWithPA($anlage, $from, $to, $department, 0); // behaviour = Skip for PA and Replace outage with TiFM for PA
             /** @var TicketDate $perfTicketsSkip */
-
             foreach ($perfTicketsSkips as $perfTicketsSkip){
                 $skipFrom = $perfTicketsSkip->getBegin()->getTimestamp();
                 $skipTo = $perfTicketsSkip->getEnd()->getTimestamp();
@@ -372,6 +371,7 @@ class AvailabilityByTicketService
                 $stamp = $einstrahlung['stamp'];
                 $strahlung = $einstrahlung['irr'];
                 $irrFlag = $einstrahlung['irr_flag'];
+                $usePPFlag = false;
 
                 $conditionIrrCase1 = $strahlung <= $threshold2PA && $strahlung !== null;
                 $conditionIrrCase2 = $strahlung > $threshold2PA;
@@ -379,6 +379,7 @@ class AvailabilityByTicketService
                 if (($department === 0 && $anlage->isUsePAFlag0()) || ($department === 1 && $anlage->isUsePAFlag1()) ||
                     ($department === 2 && $anlage->isUsePAFlag2()) || ($department === 3 && $anlage->isUsePAFlag3()))
                 {
+                    $usePPFlag = true;
                     $conditionIrrCase1 = !$irrFlag;
                     $conditionIrrCase2 = $irrFlag;
                 }
@@ -407,7 +408,7 @@ class AvailabilityByTicketService
                         $case0 = $case1 = $case2 = $case3 = $case4  = $case5 = $case6 = false;
                         $commIssu = $skipTi = $skipTiTheo = $outageAsTiFm = false;
 
-                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA === 0.0) || ($strahlung === null && $threshold1PA === 0.0)) {
+                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA === 0.0) || ($strahlung === null && $threshold1PA === 0.0)) {//
                             // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);
@@ -480,7 +481,7 @@ class AvailabilityByTicketService
                             // Case 5 ti,FM
                             if (($conditionIrrCase2 === true && $case5 === true)
                                 || ($conditionIrrCase2 === true && $case5 === true && $case3 === true)
-                                || ($conditionIrrCase2 === true && $case3 === true && $outageAsTiFm == true)) {
+                                || ($conditionIrrCase2 === true && $case3 === true && $outageAsTiFm === true)) {
                                 ++$availability[$inverter]['case5'];
                                 ++$availabilityPlantByStamp['case5'];
                             }

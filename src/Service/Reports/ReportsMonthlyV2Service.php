@@ -29,6 +29,7 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use DateTime;
 use App\Service\PdoService;
+use function GuzzleHttp\Psr7\str;
 
 /**
  *
@@ -236,7 +237,7 @@ class ReportsMonthlyV2Service
     {
         $dayValues = [];
         if ($startDay === null) $startDay = 1;
-        $daysInMonth = (int)date('t', strtotime("$year-$month-01"));
+        $daysInMonth = (int) date('t', strtotime("$year-$month-01"));
         if ($endDay  !== null && $endDay < $daysInMonth) {
             $daysInMonth = $endDay;
         }
@@ -268,6 +269,81 @@ class ReportsMonthlyV2Service
         }
 
         return $dayValues;
+    }
+
+    public function buildTable2(Anlage $anlage, DateTime $startDate, DateTime $endDate): array
+    {
+        #$startDay   = (int) $startDate->format('j');
+        $startMonth = (int) $startDate->format('n');
+        $startYear  = (int) $startDate->format('y');
+        #$endDay     = (int) $endDate->format('j');
+        $endMonth   = (int) $endDate->format('n');
+        $endYear    = (int) $endDate->format('y');
+
+        if ($endYear - $startYear === 0) {
+            $numOfMonth = $endMonth - $startMonth + 1;
+        } else {
+            $numOfMonth = ($endYear - $startYear - 1) * 12 ;
+            if ($startMonth > $endMonth) {
+                $numOfMonth += 12 - $startMonth + $endMonth + 1;
+            } else {
+                $numOfMonth += 12 - $endMonth + $startMonth + 1;
+            }
+
+        }
+
+        $currentYear = $startYear;
+        $currentMonth = $startMonth;
+        // begin create Array for monthly values Table
+        for ($monthCount = 1; $monthCount <= $numOfMonth; ++$monthCount) {
+            // Table
+            switch ($monthCount){
+                case 1 :
+                    $startDay = (int) $startDate->format('j');
+                    $endDay = (int) date('t', strtotime("$currentYear-$startMonth-01"));
+                    $monthValues[$monthCount]['datum'] = date("Y-m-d -->",strtotime("$currentYear-$currentMonth-$startDay"));
+                    $monthValues[$monthCount]['datum_alt'] = date("Y-m-d -->",strtotime("$currentYear - $currentMonth - $startDay"));
+                    break;
+                case $numOfMonth:
+                    $startDay = 1;
+                    $endDay = (int) $endDate->format('j');
+                    $monthValues[$monthCount]['datum'] = date("--> Y-m-d",strtotime("$currentYear-$currentMonth-$endDay"));
+                    $monthValues[$monthCount]['datum_alt'] = date("--> Y-m-d",strtotime("$currentYear-$currentMonth-$endDay"));
+                    break;
+                default:
+                    $startDay = 1;
+                    $endDay = (int) date('t', strtotime("$currentYear-$startMonth-01"));
+                    $monthValues[$monthCount]['datum'] = date("M Y",strtotime("$currentYear-$currentMonth-1"));
+                    $monthValues[$monthCount]['datum_alt'] = date("M Y",strtotime("$currentYear-$currentMonth-1"));
+            }
+            $localStartDate = new \DateTime("$currentYear-$currentMonth-$startDay 12:00");
+            $localEndDate = new \DateTime("$currentYear-$currentMonth-$endDay 12:00");
+            $prArray = $this->PRCalulation->calcPR($anlage, $localStartDate, $localEndDate);
+
+
+            foreach($prArray as $key => $value) {
+                $monthValues[$monthCount][$key] = $value;
+            }
+            $currentMonth++;
+            if ($currentMonth === 13){
+                $currentYear++;
+                $currentMonth = 1;
+            }
+        }
+        unset($prArray);
+
+        // calculate PR and related data for the hole time
+        $prSumArray = $this->PRCalulation->calcPR($anlage, $startDate, $endDate);
+
+        // Summe / Total Row
+
+        $monthValues[$numOfMonth+1]['datum'] = 'Total';
+        $monthValues[$numOfMonth+1]['datum_alt'] = 'Total';
+        foreach($prSumArray as $key => $value) {
+            $monthValues[$numOfMonth+1][$key] = $value;
+        }
+
+        return $monthValues;
     }
 
     private function buildPerformanceTicketsOverview(Anlage $anlage, ?int $startDay = null, ?int $endDay = null, int $month = 0, int $year = 0): array
