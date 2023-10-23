@@ -15,7 +15,6 @@ use App\Service\PdoService;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Contracts\Cache\CacheInterface;
 
 class IrradiationService
 {
@@ -26,8 +25,7 @@ private readonly PdoService $pdoService,
         private readonly TicketRepository $ticketRepo,
         private readonly TicketDateRepository $ticketDateRepo,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
-        private readonly WeatherFunctionsService $weatherFunctionsService,
-        private readonly CacheInterface $cache
+        private readonly WeatherFunctionsService $weatherFunctionsService
     )
     {
 

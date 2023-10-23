@@ -636,15 +636,19 @@ class AnlagenAdminController extends BaseController
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
     $databaseSensorData = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNameSensorsData()." (
-              `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
-              `date` varchar(50) DEFAULT NULL,
-              `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-              `id_sensor` int(3) DEFAULT NULL,
-              `value` float DEFAULT NULL,
-              PRIMARY KEY (`db_id`) USING BTREE,
-              UNIQUE KEY `unique_stamp_sensor` (`stamp`,`id_sensor`) USING BTREE,
-              KEY `stamp` (`stamp`) USING BTREE
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
+                              `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
+                              `date` varchar(50) DEFAULT NULL,
+                              `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+                              `id_sensor` int(3) DEFAULT NULL,
+                              `type_sensor` varchar(20) DEFAULT NULL,
+                              `shortname_sensor` varchar(20) DEFAULT NULL,
+                              `usetocalc_sensor` tinyint(1) DEFAULT NULL,
+                              `value` float DEFAULT NULL,
+                              `gmo` float DEFAULT NULL,
+                              PRIMARY KEY (`db_id`) USING BTREE,
+                              UNIQUE KEY `unique_stamp_sensor` (`stamp`,`id_sensor`) USING BTREE,
+                              KEY `stamp` (`stamp`) USING BTREE
+                            ) ENGINE=InnoDB AUTO_INCREMENT=43021 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=DYNAMIC;";
 
         $databaseSections = "CREATE TABLE IF NOT EXISTS `pvp_data`.`db__pv_section_".$anlage->getAnlIntnr()."BX107` (
                               `id` BIGINT(11) NOT NULL AUTO_INCREMENT,
