@@ -630,6 +630,10 @@ class PRCalulationService
             $irr2 = ($weather['irrEast2'] * $anlage->getPowerEast() + $weather['irrWest2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
             $irr3 = ($weather['irrEast3'] * $anlage->getPowerEast() + $weather['irrWest3'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
             $irrNoPpc = ($weatherNoPpc['irrEast0'] * $anlage->getPowerEast() + $weatherNoPpc['irrWest0'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
+            $irrNoPpc0 = ($weatherNoPpc['irrEast0'] * $anlage->getPowerEast() + $weatherNoPpc['irrWest0'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
+            $irrNoPpc1 = ($weatherNoPpc['irrEast1'] * $anlage->getPowerEast() + $weatherNoPpc['irrWest1'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
+            $irrNoPpc2 = ($weatherNoPpc['irrEast2'] * $anlage->getPowerEast() + $weatherNoPpc['irrWest2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
+            $irrNoPpc3 = ($weatherNoPpc['irrEast3'] * $anlage->getPowerEast() + $weatherNoPpc['irrWest3'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
         } else {
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
             $irr0 = $weather['irr0'] / 4 / 1000;

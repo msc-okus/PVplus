@@ -53,12 +53,17 @@ private readonly PdoService $pdoService,
             if ($resultEinstrahlung->rowCount() > 0) {
                 while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
                     $stamp = $row['stamp'];
-                    $row['g_upper'] = (float) $row['g_upper'] > 0 ? (float) $row['g_upper'] : 0;
-                    $row['g_lower'] = (float) $row['g_lower'] > 0 ? (float) $row['g_lower'] : 0;
+                    $irrUpper = $row['g_upper'] === null || $row['g_upper'] === "" ? null : (float)max($row['g_upper'], 0);
+                    $irrLower = $row['g_lower'] === null || $row['g_lower'] === "" ? null : (float)max($row['g_lower'], 0);
+                    $strahlung = null;
                     if ($anlage->getIsOstWestAnlage()) {
-                        $strahlung = ($row['g_upper'] * $anlage->getPowerEast() + $row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        if ($irrUpper !== null && $irrLower !== null) {
+                            $strahlung = ($irrUpper * $anlage->getPowerEast() + $irrLower * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        }
                     } else {
-                        $strahlung = $row['g_upper'];
+                        if ($irrUpper !== null) {
+                            $strahlung = $irrUpper;
+                        }
                     }
                     $irrData[$stamp]['stamp'] = $stamp;
                     $irrData[$stamp]['irr'] = $strahlung;

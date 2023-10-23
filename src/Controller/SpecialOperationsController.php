@@ -99,8 +99,8 @@ class SpecialOperationsController extends AbstractController
      * @throws InvalidArgumentException
      */
     #[IsGranted('ROLE_BETA')]
-    #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
-    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
+    #[Route(path: '/special/operations/monthly', name: 'monthly_daily_report')]
+    public function monthlyReportWithDays(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
         $output = $table = null;
         $startDay = $request->request->get('start-day');
@@ -122,6 +122,44 @@ class SpecialOperationsController extends AbstractController
 
         return $this->render('special_operations/reportMonthlyNew.html.twig', [
             'headline' => $headline,
+            'anlagen' => $anlagen,
+            'anlage' => $anlage,
+            'report' => $output,
+            'status' => $anlageId,
+            'datatable' => $table,
+        ]);
+
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    #[IsGranted('ROLE_G4N')]
+    #[Route(path: '/special/operations/report', name: 'month_report')]
+    public function reportIndividual(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
+    {
+        $output = $table = null;
+
+        $anlageId = $request->request->get('anlage-id');
+        $startDate = date_create($request->request->get('start-day'));
+        $endDate = date_create($request->request->get('end-day'));
+
+        $submitted = $request->request->get('new-report') == 'yes' && isset($endDate) && isset($startDate);
+
+        // Start individual part
+        /** @var Anlage $anlage */
+        $headline = 'Report – individual date, but only monthly values.';
+        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+
+        if ($submitted && isset($anlageId)) {
+            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+            $output['days'] = $reportsMonthly->buildTable2($anlage, $startDate, $endDate);
+        }
+
+        return $this->render('special_operations/reportIndividualNew.html.twig', [
+            'headline' => $headline,
+            'startday' => $startDate->format('Y-m-d'),
+            'endday' => $endDate->format('Y-m-d'),
             'anlagen' => $anlagen,
             'anlage' => $anlage,
             'report' => $output,
@@ -269,7 +307,7 @@ class SpecialOperationsController extends AbstractController
     }
 
 
-    #[IsGranted('ROLE_G4N')]
+    #[IsGranted('ROLE_DEV')]
     #[Route(path: '/special/operations/deletetickets', name: 'delete_tickets')]
     public function deleteTickets(Request $request, AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em): Response
     {

@@ -405,7 +405,7 @@ class Ticket
     public function isScope($departement): bool
     {
         // if alert Type is 70 or 71 (Exclude Sensors and Replace sensors (have no scope)) it will returns always true
-        if ($this->getAlertType() == 70 || $this->getAlertType() == 71) {
+        if ($this->alertType == '70' || $this->alertType == '71') {
             return true;
         }
         // if other alert type it returns true depending on 'scope'
