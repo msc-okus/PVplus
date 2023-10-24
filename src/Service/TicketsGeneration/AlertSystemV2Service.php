@@ -387,10 +387,12 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-            if ( $plant_status['ppc'] != null && $plant_status['ppc'] )  $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", false);
+            if ( $plant_status['ppc'] != null && $plant_status['ppc'] )  $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc']);
             if ( $plant_status['Gap'] != null && count($plant_status['Gap']) > 0 ) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "",  ($plant_status['ppc']));
             if ( $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "",  ($plant_status['ppc']));
             if ( $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "",  ($plant_status['ppc']));
+            if ( $plant_status['Irradiation'] ) $this->generateTickets('', ticket::IRRADIATION, $anlage, '*', $time, "Data Gap in the irradiation Data Base", $plant_status['ppc']);
+
         }
 
         $this->em->flush();
@@ -420,8 +422,15 @@ class AlertSystemV2Service
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
 
-        if ($irradiation === null || $irradiation < $irrLimit) $this->irr = true; // about irradiation === null, it is better to miss a ticket than to have a false one
+        if ($irradiation !== null && $irradiation < $irrLimit) $this->irr = true; // about irradiation === null, it is better to miss a ticket than to have a false one
         else $this->irr = false;
+
+        if($irradiation === null){
+            $return['Irradiation'] = true;
+        }
+        else{
+            $return['Irradiation'] = false;
+        }
 
         if ($anlage->getHasPPC()) {
             $sqlPpc = 'SELECT * 
@@ -585,7 +594,7 @@ class AlertSystemV2Service
                 $ticketDate->setEnd($end);
                 $ticket->setEnd($end);
                 //default values por the kpi evaluation
-                if ($errorType == 20) {
+                if ($errorType == 20 || $errorType == 100) {
                     if (!$PPC) {
                         $ticketDate->setKpiPaDep1(10);
                         $ticketDate->setKpiPaDep2(10);

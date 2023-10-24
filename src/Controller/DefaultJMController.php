@@ -7,6 +7,7 @@ use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
+use App\Repository\TicketRepository;
 use App\Service\TicketsGeneration\InternalAlertSystemService;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use App\Service\AssetManagementService;
@@ -44,6 +45,31 @@ class DefaultJMController extends AbstractController
     }
 
 
+
+    #[Route(path: '/generate/tickets', name: 'generate_tickets')]
+    public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $ts)
+    {
+        $fromDate = "2023-01-01 00:00";
+        $toDate = "2023-06-01 00:00";
+        $fromStamp = strtotime($fromDate);
+        $toStamp = strtotime($toDate);
+        $anlage = $anlagenRepository->findIdLike("187")[0];
+        $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
+        foreach ($tickets as $ticket){
+            $dates = $ticket->getDates();
+            foreach ($dates as $date){
+                $em->remove($date);
+            }
+            $em->remove($ticket);
+        }
+
+        $em->flush();
+        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+            $ts->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
+        }
+        dd("hello world");
+    }
+
     #[Route(path: '/test/time', name: 'default_time')]
     public function testTime(AnlagenRepository $anlagenRepository)
     {
@@ -58,6 +84,7 @@ class DefaultJMController extends AbstractController
 
         dd("hello World");
     }
+
 
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)

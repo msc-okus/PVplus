@@ -73,7 +73,6 @@ class GenerateTicketsCommand extends Command
                 } else {
                     $to = date('Y-m-d H:i:00', $time);
                 }
-                dump($from, $to);
 
                 $fromStamp = strtotime((string) $from);
                 $toStamp = strtotime((string) $to);

@@ -130,7 +130,8 @@ class TicketRepository extends ServiceEntityRepository
             $qb->andWhere("ticket.alertType = $category");
         }
         else {
-            $qb->andWhere("ticket.alertType < 90");
+            $qb->andWhere("ticket.alertType < 90 or ticket.alertType >= 100");
+      
         }
         if ($prooftam == 1){
             $qb->andWhere("ticket.needsProof = 1");
