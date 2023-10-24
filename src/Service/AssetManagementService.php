@@ -4389,10 +4389,7 @@ class AssetManagementService
                             ";
                 break;
         }
-<<<<<<< HEAD
 
-=======
->>>>>>> 53b403670b4438b37c52b5a2b61ad72ad3ccad40
         $res = $this->conn->query($sql);
         $inverter = 1;
         $index = 1;
@@ -4413,6 +4410,7 @@ class AssetManagementService
                 $index = $index + 1;
             }
         }
+
         $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0; //we make the last average outside of the loop
 
         return $output;
