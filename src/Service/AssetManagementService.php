@@ -622,7 +622,7 @@ class AssetManagementService
 
 
         $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
-
+        dump($inverterPRArray);
         $invArray = $anlage->getInverterFromAnlage();
         $orderedArray = [];
         $pr_rank_graph = [];
@@ -659,6 +659,7 @@ class AssetManagementService
                 }
             }
         }
+
         $invPercentage = $InverterOverAvgCount / count($invArray) * 100;
         $prSumaryTable[1]['InvCount'] = $InverterOverAvgCount;
         $prSumaryTable[1]['percentage'] = $invPercentage;
@@ -3845,7 +3846,6 @@ class AssetManagementService
             }
         }
         $efficiencyRanking[] = [];
-        //dd($orderedEfficiencyArray, $month, $year);
         foreach($orderedEfficiencyArray as $key => $data) {
             $chart = new ECharts(); // We must use AMCharts
             $chart->tooltip->show = false;
@@ -4257,8 +4257,6 @@ class AssetManagementService
                     else{
                         $sumDataGap = $sumDataGap + $exp;
                     }
-
-                    //$sumLossesMonthSOR = $sumLossesMonthSOR + $exp;
                 } else if ($date->getAlertType() == 20) {
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
@@ -4298,11 +4296,8 @@ class AssetManagementService
                     $sumLossesMonthPPC = $sumLossesMonthPPC + $exp;
                     $sumLossesMonthOMC = $sumLossesMonthEFOR + $exp;
                 }
-
             }
         }
-
-
         $kwhLossesMonthTable = [
             'SORLosses'      => $sumLossesMonthSOR,
             'EFORLosses'     => $sumLossesMonthEFOR,
@@ -4352,7 +4347,6 @@ class AssetManagementService
         }
         $PRArray['powerAVG'] = $powerSum / $invNr;
         $PRArray['PRAvg'] = $prSum / $invNr;
-
         return $PRArray;
     }
 
@@ -4430,5 +4424,4 @@ class AssetManagementService
 
         return $sumIrrMonth;
     }
-
 }
