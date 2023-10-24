@@ -728,7 +728,7 @@ class AssetManagementService
                 $fullArray['PR'] = array_merge($fullArray['PR'], $array['PR']);
             }
 
-            // we build 2 arrays with the 10 best and the 10 worse
+            // we build 2 arrays with the 10 best and the 10 worst
             $worseTen['name'] = array_slice($fullArray['name'], 0, 10);
             $bestTen['name'] = array_slice($fullArray['name'],count($fullArray['name']) - 10, 10 );
             $worseTen['powerYield'] = array_slice($fullArray['powerYield'], 0, 10);
@@ -2822,6 +2822,7 @@ class AssetManagementService
         for($index = 1; $index <= $month ; $index++){
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $index , (int)$report['reportYear']);
             $result = $this->PRCalulation->calcPR($anlage, new \DateTime($report['reportYear']."-".$index."-"."01"), new \DateTime($report['reportYear']."-".$index."-".$daysInMonth));
+
             $monthlyTableForPRAndPA[$index]['Dep0PA'] = round($result['pa0'], 2);
             $monthlyTableForPRAndPA[$index]['Dep1PA'] = round($result['pa1'], 2);
             $monthlyTableForPRAndPA[$index]['Dep2PA'] = round($result['pa2'], 2);
@@ -3844,7 +3845,7 @@ class AssetManagementService
             }
         }
         $efficiencyRanking[] = [];
-        dd($orderedEfficiencyArray, $month, $year);
+        //dd($orderedEfficiencyArray, $month, $year);
         foreach($orderedEfficiencyArray as $key => $data) {
             $chart = new ECharts(); // We must use AMCharts
             $chart->tooltip->show = false;
@@ -4375,12 +4376,23 @@ class AssetManagementService
                 break;
             case 3:
             case 4:
-                $sql = "SELECT a.stamp, (sum(b.wr_pac)/sum(a.wr_pdc) * 100) as efficiency, b.unit AS inverter 
-                            FROM ".$anlage->getDbNameDcIst()." a inner join ".$anlage->getDbNameIst()." b on (a.stamp = b.stamp AND a.wr_num = b.inv) 
-                            WHERE a.stamp BETWEEN '$begin' AND '$end' GROUP BY b.unit, date_format(a.stamp, '%y%m%d')";
+                $sql = "SELECT a.stamp as stamp , ((b.wr_pac)/(a.wr_pdc) * 100) as efficiency, b.group_ac AS inverter 
+                            FROM 
+                                 (SELECT date_format(stamp, '%Y-%m-%d') as stamp ,group_ac, sum(wr_pdc) as wr_pdc, group_ac as group_ac_dc 
+                                 FROM ".$anlage->getDbNameDcIst()." 
+                                 WHERE stamp BETWEEN '$begin' AND '$end' GROUP BY  group_ac, date_format(stamp, '%y%m%d')) a 
+                            inner join
+                                  (SELECT sum(wr_pac) as wr_pac, date_format(stamp, '%Y-%m-%d') as stamp, group_ac
+                                   FROM ".$anlage->getDbNameIst()." 
+                                   WHERE stamp BETWEEN '$begin' AND '$end' GROUP BY  group_ac, date_format(stamp, '%y%m%d') )b 
+                            on (a.stamp = b.stamp AND a.group_ac_dc = b.group_ac)
+                            ";
                 break;
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 53b403670b4438b37c52b5a2b61ad72ad3ccad40
         $res = $this->conn->query($sql);
         $inverter = 1;
         $index = 1;
