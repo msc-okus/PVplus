@@ -415,7 +415,7 @@ class AnlagenAdminController extends BaseController
             'anlagenId' => $id,
         ]);
         $pNom =
-        $form->handleRequest($request);
+            $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $successMessage = 'Plant data saved!';
             $em->persist($anlage);

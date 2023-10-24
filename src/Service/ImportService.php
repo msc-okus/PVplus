@@ -119,13 +119,10 @@ class ImportService
                     //if plant use sensors datatable
                     if($useSensorsDataTable){
                         $result = self::getSensorsData($anlageSensors->toArray(), $length, $sensors, $stamp, $date, $gMo);
-
                         //built array for sensordata
-
                         for ($j = 0; $j <= count($result[0])-1; $j++) {
                             $dataSensors[] = $result[0][$j];
                         }
-
                         unset($result);
                     }else {
                         $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
@@ -176,9 +173,12 @@ class ImportService
                     $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
                     $windAnlage = json_encode($windAnlageArray, JSON_THROW_ON_ERROR);
                 }else{
-                    $irrAnlage = NULL;
-                    $tempAnlage = NULL;
-                    $windAnlage = NULL;
+                    $irrAnlageArray = [];
+                    $tempAnlageArray = [];
+                    $windAnlageArray = [];
+                    $irrAnlage = json_encode($irrAnlageArray, JSON_THROW_ON_ERROR);
+                    $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
+                    $windAnlage = json_encode($windAnlageArray, JSON_THROW_ON_ERROR);
                 }
 
                 //Import different Types
@@ -193,6 +193,7 @@ class ImportService
                     for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
+
                     unset($result);
                 }
 
@@ -212,10 +213,11 @@ class ImportService
                     }
 
                     //built array for pvist_dc
-                    $sizeResult = is_countable($result[1] ? count($result[1]) : 0) - 1;
-                    for ($j = 0; $j <= count($result[1]); $j++) {
+                    $sizeResult = count($result[0]) - 1;
+                    for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_pv_dcist[] = $result[1][$j];
                     }
+
                     unset($result);
                 }
 
@@ -229,18 +231,17 @@ class ImportService
                     }
 
                     $result = self::getPpc($anlagePpcsCleaned, $ppcs, $date, $stamp, $plantId, $anlagenTabelle, $vcomId);
-
                     $sizeResult = count($result[0]) - 1;
                     for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_ppc[] = $result[0][$j];
                     }
+
                     unset($result);
                 }
             }
         }
 
-
-        //write Data into the tables
+        //write Data in the tables
         $DBDataConnection = $this->pdoService->getPdoPlant();
         switch ($importType) {
             case 'api-import-weather':
@@ -274,22 +275,20 @@ class ImportService
                     self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                 }
 
-
                 if ($anlage->getHasPPC()) {
-                    $tableName = "db__pv_ppc_$anlagenTabelle".'_copy';
-                    #self::insertData($tableName, $data_ppc, $DBDataConnection);
+                    $tableName = "db__pv_ppc_$anlagenTabelle";
+                    self::insertData($tableName, $data_ppc, $DBDataConnection);
                 }
 
                 if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                     $tableName = "db__pv_dcist_$anlagenTabelle";
-                    #self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
+                    self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
                 }
 
-                $tableName = "db__pv_ist_$anlagenTabelle".'_copy';
-                #self::insertData($tableName, $data_pv_ist, $DBDataConnection);
+                $tableName = "db__pv_ist_$anlagenTabelle";
+                self::insertData($tableName, $data_pv_ist, $DBDataConnection);
                 break;
         }
-        #unset($DBDataConnection);
 
     }
 

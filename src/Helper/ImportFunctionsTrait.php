@@ -414,16 +414,16 @@ trait ImportFunctionsTrait
 
             }
 
-                $data_sensors[] = [
-                    'date'                  => $date,
-                    'stamp'                 => $stamp,
-                    'id_sensor'             => $sensorId,
-                    'type_sensor'           => $sensorType,
-                    'shortname_sensor'      => $sensorShortname,
-                    'usetocalc_sensor'      => $sensorUseToCalc,
-                    'value'                 => ($value != '') ? $value : 0,
-                    'gmo'                   => $gMo
-                ];
+            $data_sensors[] = [
+                'date'                  => $date,
+                'stamp'                 => $stamp,
+                'id_sensor'             => $sensorId,
+                'type_sensor'           => $sensorType,
+                'shortname_sensor'      => $sensorShortname,
+                'usetocalc_sensor'      => $sensorUseToCalc,
+                'value'                 => ($value != '') ? $value : 0,
+                'gmo'                   => $gMo
+            ];
 
 
         }
@@ -530,16 +530,17 @@ trait ImportFunctionsTrait
                 'wr_temp' => ($temp != '') ? $temp : NULL,
                 'wr_cos_phi_korrektur' => ($cosPhi != '') ? $cosPhi : NULL,
                 'e_z_evu' => ($eZEvu != '') ? $eZEvu : NULL,
-                'temp_corr' => ($tempCorr != '') ? $tempCorr : NULL,
-                'theo_power' => ($theoPower != '') ? $theoPower : NULL,
+                'temp_corr' => $tempCorr,
+                'theo_power' => $theoPower,
                 'temp_cell' => NULL,
                 'temp_cell_multi_irr' => NULL,
-                'wr_mpp_current' => ($dcCurrentMpp != '') ? $dcCurrentMpp : NULL,
-                'wr_mpp_voltage' => ($dcCurrentMpp != '') ? $dcCurrentMpp : NULL,
-                'irr_anlage' => ($irrAnlage != '') ? $irrAnlage : NULL,
-                'temp_anlage' => ($tempAnlage != '') ? $tempAnlage : NULL,
-                'temp_inverter' => ($tempAnlage != '') ? $tempAnlage : NULL,
-                'wind_anlage' => ($windAnlage != '') ? $windAnlage : NULL,
+                'wr_mpp_current' => $dcCurrentMpp,
+                'wr_mpp_voltage' => $dcVoltageMpp,
+                'irr_anlage' => $irrAnlage,
+                'temp_anlage' => $tempAnlage,
+                'temp_inverter' => $tempAnlage,
+                'wind_anlage' => $windAnlage,
+
             ];
         }
 
@@ -689,16 +690,16 @@ trait ImportFunctionsTrait
                 'wr_temp' => ($temp != '') ? $temp : NULL,
                 'wr_cos_phi_korrektur' => ($cosPhi != '') ? $cosPhi : NULL,
                 'e_z_evu' => ($eZEvu != '') ? $eZEvu : NULL,
-                'temp_corr' => ($tempCorr != '') ? $tempCorr : NULL,
-                'theo_power' => ($theoPower != '') ? $theoPower : NULL,
+                'temp_corr' => $tempCorr,
+                'theo_power' => $theoPower,
                 'temp_cell' => NULL,
                 'temp_cell_multi_irr' => NULL,
-                'wr_mpp_current' => ($dcCurrentMpp != '') ? $dcCurrentMpp : NULL,
-                'wr_mpp_voltage' => ($dcCurrentMpp != '') ? $dcCurrentMpp : NULL,
-                'irr_anlage' => ($irrAnlage != '') ? $irrAnlage : NULL,
-                'temp_anlage' => ($tempAnlage != '') ? $tempAnlage : NULL,
-                'temp_inverter' => ($tempAnlage != '') ? $tempAnlage : NULL,
-                'wind_anlage' => ($windAnlage != '') ? $windAnlage : NULL,
+                'wr_mpp_current' => $dcCurrentMpp,
+                'wr_mpp_voltage' => $dcVoltageMpp,
+                'irr_anlage' => $irrAnlage,
+                'temp_anlage' => $tempAnlage,
+                'temp_inverter' => $tempAnlage,
+                'wind_anlage' => $windAnlage,
             ];
         }
 

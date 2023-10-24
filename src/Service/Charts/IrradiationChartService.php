@@ -287,7 +287,6 @@ class IrradiationChartService
             }
         }
         $conn = null;
-
         return $dataArray;
     }
 
@@ -326,9 +325,10 @@ class IrradiationChartService
                     if($counter == 0){
                         $stampTemp = $row['stamp'];
                     }
-                    $dataArray['nameX'][1] = 'G_M0';
+
                     $irrValueArray["val1"] = $row['gmo'];
                     if($stampTemp != $row['stamp']){
+
                         $dataArray[] = [
                             'irrHorizontal' =>  $this->mittelwert($gmPyHori),
                             'irrLower' =>       $this->mittelwert($gmPyWest),
@@ -344,6 +344,8 @@ class IrradiationChartService
                         $irrCounter = 2;
                     }
 
+                    $dataArray['nameX'][1] = 'G_M0';
+                    
                     if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
                             array_push($gmPyHori, $row['value']);
                     }
@@ -355,15 +357,20 @@ class IrradiationChartService
                         if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-east'){
                             array_push($gmPyEast, $row['value']);
                         }
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
+                            array_push($gmPyHori, $row['value']);
+                        }
                     }else{
                         if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr'){
                             array_push($gmPyEast, $row['value']);
                         }
                         $gmPyWest = [];
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
+                            array_push($gmPyHori, $row['value']);
+                        }
                     }
 
-                    if($row['usetocalc_sensor'] && ($row['type_sensor'] == 'irr' || $row['type_sensor'] == 'irr-east' || $row['type_sensor'] == 'irr-west')){
-
+                    if($row['usetocalc_sensor'] && ($row['type_sensor'] == 'irr' || $row['type_sensor'] == 'irr-hori' || $row['type_sensor'] == 'irr-east' || $row['type_sensor'] == 'irr-west')){
                         if (!isset($dataArray['nameX'][$irrCounter])) {
                             $dataArray['nameX'][$irrCounter] = $row['shortname_sensor'];
                         }
@@ -383,8 +390,7 @@ class IrradiationChartService
                 for ($i = 0; $i < count($dataArray); $i++) {
                     $dataArray2['chart'][$i]['date'] = $dataArray[$i]['stamp'];
                     if ($anlage->getIsOstWestAnlage()) {
-
-                        $dataArray2['chart'][$i]['g4n'] = (((float) $dataArray[$i]['irUpper'] * $anlage->getPowerEast() + (float) $dataArray[$i]['irrLower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()));
+                        $dataArray2['chart'][$i]['g4n'] = (((float) $dataArray[$i]['irrUpper'] * $anlage->getPowerEast() + (float) $dataArray[$i]['irrLower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()));
                         if ($dataArray2['chart'][$i]['g4n'] < 0) {
                             $dataArray2['chart'][$i]['g4n'] = 0;
                         }
@@ -395,7 +401,6 @@ class IrradiationChartService
                             $dataArray2['chart'][$i]['g4n'] = (float) $dataArray[$i]['irrUpper']; // nicht getauscht, nutze oberen Sensor
                         }
                     }
-
 
                     if(is_array($dataArray[$i]['values']) && count($dataArray[$i]['values']) > 0){
                         #array_push($dataArray2['chart'][$i], $dataArray[$i]['values']);
