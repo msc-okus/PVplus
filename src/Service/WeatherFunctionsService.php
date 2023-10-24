@@ -133,31 +133,33 @@ class WeatherFunctionsService
             // depending on $department generate correct SQL code to calculate
             if ($anlage->getIsOstWestAnlage()) {
                 if ($inverterID === null) {
+                    // gewichtung nach Anlagen Gewichtung
                     $sqlTheoPowerPart = "
-                    SUM(g_upper * $pNomEast + g_lower * $pNomWest)  as theo_power_raw,
-                    SUM(g_upper * $pNomEast * $degradation + g_lower * $pNomWest * $degradation)  as theo_power_raw_deg,
-                    SUM(g_upper * $tempCorrFunctionNREL * $pNomEast + g_lower * $tempCorrFunctionNREL * $pNomWest) as theo_power_temp_corr_nrel,
-                    SUM(g_upper * $tempCorrFunctionIEC * $pNomEast + g_lower * $tempCorrFunctionIEC * $pNomWest * $degradation) as theo_power_temp_corr_deg_iec,
-                    SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) + 
-                    SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
-                    SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA2() . ", pa2, 1)) + 
-                    SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
-                    SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA1() . ", pa1, 1)) + 
-                    SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA1() . ", pa1, 1)) as theo_power_pa1,
-                    SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA0() . ", pa0, 1)) + 
-                    SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA0() . ", pa0, 1)) as theo_power_pa0,
-                ";
+                        SUM(g_upper * $pNomEast + g_lower * $pNomWest)  as theo_power_raw,
+                        SUM(g_upper * $pNomEast * $degradation + g_lower * $pNomWest * $degradation)  as theo_power_raw_deg,
+                        SUM(g_upper * $tempCorrFunctionNREL * $pNomEast + g_lower * $tempCorrFunctionNREL * $pNomWest) as theo_power_temp_corr_nrel,
+                        SUM(g_upper * $tempCorrFunctionIEC * $pNomEast + g_lower * $tempCorrFunctionIEC * $pNomWest * $degradation) as theo_power_temp_corr_deg_iec,
+                        SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) + 
+                        SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
+                        SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA2() . ", pa2, 1)) + 
+                        SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
+                        SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA1() . ", pa1, 1)) + 
+                        SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA1() . ", pa1, 1)) as theo_power_pa1,
+                        SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA0() . ", pa0, 1)) + 
+                        SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA0() . ", pa0, 1)) as theo_power_pa0,
+                    ";
                 } else {
+                    // Gewichtung 50/50 wenn Inverter abgefragt
                     $sqlTheoPowerPart = "
-                    SUM(((g_upper + g_lower) / 2) * $pNom)  as theo_power_raw,
-                    SUM(((g_upper + g_lower) / 2) * $pNom * $degradation)  as theo_power_raw_deg,
-                    SUM(((g_upper + g_lower) / 2) * $tempCorrFunctionNREL * $pNom) as theo_power_temp_corr_nrel,
-                    SUM(((g_upper + g_lower) / 2) * $tempCorrFunctionIEC * $pNom * $degradation) as theo_power_temp_corr_deg_iec,
-                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
-                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
-                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA1() . ", pa1, 1)) as theo_power_pa1,
-                    SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA0() . ", pa0, 1)) as theo_power_pa0,
-                ";
+                        SUM(((g_upper + g_lower) / 2) * $pNom)  as theo_power_raw,
+                        SUM(((g_upper + g_lower) / 2) * $pNom * $degradation)  as theo_power_raw_deg,
+                        SUM(((g_upper + g_lower) / 2) * $tempCorrFunctionNREL * $pNom) as theo_power_temp_corr_nrel,
+                        SUM(((g_upper + g_lower) / 2) * $tempCorrFunctionIEC * $pNom * $degradation) as theo_power_temp_corr_deg_iec,
+                        SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
+                        SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
+                        SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA1() . ", pa1, 1)) as theo_power_pa1,
+                        SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA0() . ", pa0, 1)) as theo_power_pa0,
+                    ";
                 }
 
             } else {

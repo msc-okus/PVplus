@@ -3,14 +3,14 @@
 {% else %}
     {% set colspan = 0 %}
 {% endif %}
-<table class="basetable monthtable">
+<table id="special_export" class="basetable monthtable"> {# ID der table ist wichtig für Datatables Script - Export to Excel #}
     {% for day in report.days %}
     {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
     {% if loop.first %}
     <thead>
     <tr class="left">
         <th class="border-right-2"></th>
-        <th class="border-right-2" colspan="{{ colspan + 1 }}">Power  {% if anlage.useppc %}(PPC Corr.){% endif %}</th>
+        <th class="border-right-2" colspan="{{ 2 }}">Power  {% if anlage.useppc %}(PPC Corr.){% endif %}</th>
         <th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – default (OpenBook)</th>
         {% if anlage.settings.disableDep1 != true %}<th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – O&M</th>{% endif %}
         {% if anlage.settings.disableDep2 != true %}<th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – EPC</th>{% endif %}

@@ -211,7 +211,6 @@ class ImportService
                     $result = self::getPpc($anlagePpcsCleaned, $ppcs, $date, $stamp, $plantId, $anlagenTabelle, $vcomId);
                     $sizeResult = count($result[0]) - 1;
                     for ($j = 0; $j <= $sizeResult; $j++) {
-
                         $data_ppc[] = $result[0][$j];
                     }
 

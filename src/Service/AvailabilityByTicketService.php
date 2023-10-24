@@ -266,7 +266,6 @@ class AvailabilityByTicketService
                 // suche commIssu Tickets und schreibe diese in Array $commIssuArray[inverter][stamp] = true|false
                 // nur für Department 1 bis 3
                 $commIssus = $this->ticketDateRepo->findCommIssu($anlage, $from, $to, $department);
-
                 /** @var TicketDate $commIssu */
                 foreach ($commIssus as $commIssu) {
                     $c5From = $commIssu->getBegin()->getTimestamp();
@@ -286,7 +285,6 @@ class AvailabilityByTicketService
             // suche Performance Tickets die die PA beeinflussen (alertType = 72)
             $perfTicketsSkips  = $this->ticketDateRepo->findPerformanceTicketWithPA($anlage, $from, $to, $department, 0); // behaviour = Skip for PA and Replace outage with TiFM for PA
             /** @var TicketDate $perfTicketsSkip */
-
             foreach ($perfTicketsSkips as $perfTicketsSkip){
                 $skipFrom = $perfTicketsSkip->getBegin()->getTimestamp();
                 $skipTo = $perfTicketsSkip->getEnd()->getTimestamp();
@@ -370,14 +368,17 @@ class AvailabilityByTicketService
 
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];
-                $strahlung = (float)max($einstrahlung['irr'], 0);
+                $strahlung = $einstrahlung['irr'];
                 $irrFlag = $einstrahlung['irr_flag'];
+                $usePPFlag = false;
 
-                $conditionIrrCase1 = $strahlung <= $threshold2PA;
+                $conditionIrrCase1 = $strahlung <= $threshold2PA && $strahlung !== null;
                 $conditionIrrCase2 = $strahlung > $threshold2PA;
+
                 if (($department === 0 && $anlage->isUsePAFlag0()) || ($department === 1 && $anlage->isUsePAFlag1()) ||
                     ($department === 2 && $anlage->isUsePAFlag2()) || ($department === 3 && $anlage->isUsePAFlag3()))
                 {
+                    $usePPFlag = true;
                     $conditionIrrCase1 = !$irrFlag;
                     $conditionIrrCase2 = $irrFlag;
                 }
@@ -401,13 +402,12 @@ class AvailabilityByTicketService
                     $powerAc = isset($istData[$stamp][$inverter]['power_ac']) ? (float) $istData[$stamp][$inverter]['power_ac'] : null;
                     $cosPhi  = isset($istData[$stamp][$inverter]['cos_phi'])  ? (float) $istData[$stamp][$inverter]['cos_phi'] :  null;
 
-                    // Wenn die Strahlung keine Datenlücke hat dann:
-                    if ($strahlung !== null) {
+                    // Wenn die Strahlung keine Datenlücke hat dann: ?? Brauchen wir das
+                    if (true) { // $strahlung !== null
                         $case0 = $case1 = $case2 = $case3 = $case4  = $case5 = $case6 = false;
                         $commIssu = $skipTi = $skipTiTheo = $outageAsTiFm = false;
-                        if($strahlung === 0 && $threshold1PA === 0) dump('yea');
 
-                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA === 0.0)) {
+                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA === 0.0) || ($strahlung === null && $threshold1PA === 0.0)) {//
                             // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);
@@ -418,7 +418,6 @@ class AvailabilityByTicketService
 
                             // Case 0 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
                             if ($powerAc === null && $case5 === false) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
-                                if ($department == '1') dump($stamp);
                                 $case0 = true;
                                 ++$availability[$inverter]['case0'];
                                 ++$availabilityPlantByStamp['case0'];
@@ -444,7 +443,7 @@ class AvailabilityByTicketService
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                             ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
                             }
-                 ###           if ($inverter == 60 && $department == 0) dump("Power: $powerAc | ConnIrr: $conditionIrrCase2 | CommIssu: ".(int) $commIssu." | SkipTi: ".(int) $skipTi." | Case5: ".(int) $case5." | Case6: ".(int) $case6);
+                 ###        if ($inverter == 60 && $department == 0) dump("Power: $powerAc | ConnIrr: $conditionIrrCase2 | CommIssu: ".(int) $commIssu." | SkipTi: ".(int) $skipTi." | Case5: ".(int) $case5." | Case6: ".(int) $case6);
                             if ($hitCase2) {
                                 $case2 = true;
                                 ++$availability[$inverter]['case2'];
@@ -481,7 +480,7 @@ class AvailabilityByTicketService
                             // Case 5 ti,FM
                             if (($conditionIrrCase2 === true && $case5 === true)
                                 || ($conditionIrrCase2 === true && $case5 === true && $case3 === true)
-                                || ($conditionIrrCase2 === true && $case3 === true && $outageAsTiFm == true)) {
+                                || ($conditionIrrCase2 === true && $case3 === true && $outageAsTiFm === true)) {
                                 ++$availability[$inverter]['case5'];
                                 ++$availabilityPlantByStamp['case5'];
                             }
@@ -567,6 +566,9 @@ class AvailabilityByTicketService
         }
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     private function getIstData(Anlage $anlage, $from, $to): array
     {
         return $this->cache->get('getIstData_'.md5($anlage->getAnlId().$from.$to), function(CacheItemInterface $cacheItem) use ($anlage, $from, $to) {
