@@ -4380,7 +4380,7 @@ class AssetManagementService
                             WHERE a.stamp BETWEEN '$begin' AND '$end' GROUP BY b.unit, date_format(a.stamp, '%y%m%d')";
                 break;
         }
-        dd($sql);
+
         $res = $this->conn->query($sql);
         $inverter = 1;
         $index = 1;
