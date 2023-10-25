@@ -18,7 +18,6 @@ use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Annotation\SerializedName;
-use Symfony\Contracts\Cache\CacheInterface;
 
 #[ApiResource(
     shortName: 'anlages',

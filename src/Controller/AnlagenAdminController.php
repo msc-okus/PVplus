@@ -682,7 +682,4 @@ class AnlagenAdminController extends BaseController
         return true;
 
     }
-
-
-
 }

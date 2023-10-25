@@ -381,7 +381,7 @@ trait ImportFunctionsTrait
 
     }
 
-    //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu
+    //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu um sie dann in pv_sensors_data_... zu speichern
     /**
      * @param array $sensors
      * @param  $stamp
@@ -390,9 +390,7 @@ trait ImportFunctionsTrait
      */
     function getSensorsData(array $anlageSensors, int $length, array $sensors, $stamp, $date, $gMo): array
     {
-
         $gmPyHori = $gmPyHoriAnlage = $gmPyWest = $gmPyWestAnlage = $gmPyEast = $gmPyEastAnlage = [];
-
         for ($i = 0; $i < $length; $i++) {
             if ($anlageSensors[$i]->getUseToCalc() == 1) {
                 $start = 0;
@@ -424,14 +422,9 @@ trait ImportFunctionsTrait
                 'value'                 => ($value != '') ? $value : 0,
                 'gmo'                   => $gMo
             ];
-
-
         }
-
         $result[] = $data_sensors;
-
         return $result;
-
     }
 
 

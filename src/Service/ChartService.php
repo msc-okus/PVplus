@@ -707,9 +707,9 @@ private PdoService $pdoService,
         $isEastWest = $anlage->getIsOstWestAnlage();
         $dataArray = [];
         if ($hour) {
-            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'temp-ambient' OR type_sensor like 'temp-modul' OR type_sensor like 'wind-speed') and stamp like '%:00:00';";
+            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'temp-ambient' OR type_sensor like 'temp-modul' OR type_sensor like 'wind-speed') and stamp like '%:00:00' order by stamp;";
         }else{
-            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'temp-ambient' OR type_sensor like 'temp-modul' OR type_sensor like 'wind-speed');";
+            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'temp-ambient' OR type_sensor like 'temp-modul' OR type_sensor like 'wind-speed') order by stamp;";
         }
 
         $result = $conn->query($sql_irr_plant);

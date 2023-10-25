@@ -116,15 +116,17 @@ class ImportService
                 if (is_array($sensors) && array_key_exists($date, $sensors)) {
                     $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
 
-                    //if plant use sensors datatable
+                    //if plant use sensors datatable get data from the table
                     if($useSensorsDataTable){
                         $result = self::getSensorsData($anlageSensors->toArray(), $length, $sensors, $stamp, $date, $gMo);
+
                         //built array for sensordata
                         for ($j = 0; $j <= count($result[0])-1; $j++) {
                             $dataSensors[] = $result[0][$j];
                         }
                         unset($result);
                     }else {
+                        // the old way
                         $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
 
                         $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
@@ -146,6 +148,7 @@ class ImportService
                     }
                 }
 
+                //if plant use not sensors datatable stoe data into the weather table
                 if(!$useSensorsDataTable){
                     $data_pv_weather[] = [
                         'anl_intnr' => $weatherDbIdent,
@@ -173,6 +176,7 @@ class ImportService
                     $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
                     $windAnlage = json_encode($windAnlageArray, JSON_THROW_ON_ERROR);
                 }else{
+                    //create emmpty anlage arrays to make shure import in pv_ist works
                     $irrAnlageArray = [];
                     $tempAnlageArray = [];
                     $windAnlageArray = [];
@@ -221,7 +225,7 @@ class ImportService
                     unset($result);
                 }
 
-                //Anlage hatPPc
+                //Anlage hat PPc
                 if ($anlage->getHasPPC()) {
                     $ppcs = $bulkMeaserments['ppcs'];
 
@@ -289,7 +293,6 @@ class ImportService
                 self::insertData($tableName, $data_pv_ist, $DBDataConnection);
                 break;
         }
-
     }
 
 }
