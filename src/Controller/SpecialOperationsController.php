@@ -115,7 +115,7 @@ class SpecialOperationsController extends AbstractController
         $headline = 'Monats Bericht (Testumgebung)';
         $anlagen = $anlagenRepository->findAllActiveAndAllowed();
 
-        if ($submitted && isset($anlageId)) {
+        if ($submitted && $anlageId !== null) {
             $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
             $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
         }
@@ -133,10 +133,11 @@ class SpecialOperationsController extends AbstractController
 
     /**
      * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
      */
     #[IsGranted('ROLE_G4N')]
     #[Route(path: '/special/operations/report', name: 'month_report')]
-    public function reportIndividual(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
+    public function reportIndividual(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, AvailabilityByTicketService $availabilityByTicket): Response
     {
         $output = $table = null;
 
@@ -144,27 +145,39 @@ class SpecialOperationsController extends AbstractController
         $startDate = date_create($request->request->get('start-day'));
         $endDate = date_create($request->request->get('end-day'));
 
-        $submitted = $request->request->get('new-report') == 'yes' && isset($endDate) && isset($startDate);
+        $submittedNew = $request->request->get('new-report') == 'yes' && $anlageId !== "";
+        $submittedPA = $request->request->get('recalc-PA') == 'yes' && $anlageId !== "";
 
         // Start individual part
         /** @var Anlage $anlage */
         $headline = 'Report – individual date, but only monthly values.';
         $anlagen = $anlagenRepository->findAllActiveAndAllowed();
 
-        if ($submitted && isset($anlageId)) {
+        if ($submittedPA) {
+            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+            // recalculate Availability
+            for ($stamp = $startDate->getTimestamp(); $stamp <= $endDate->getTimestamp(); $stamp += (24 * 3600)) {
+                $day = date_create(date("Y-m-d 12:00", $stamp));
+                $availabilityByTicket->checkAvailability($anlage, $day, 0);
+                if (!$anlage->getSettings()->isDisableDep1()) $availabilityByTicket->checkAvailability($anlage, $day, 1);
+                if (!$anlage->getSettings()->isDisableDep2()) $availabilityByTicket->checkAvailability($anlage, $day, 2);
+                if (!$anlage->getSettings()->isDisableDep3()) $availabilityByTicket->checkAvailability($anlage, $day, 3);
+            }
+        }
+        if ($submittedNew) {
             $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
             $output['days'] = $reportsMonthly->buildTable2($anlage, $startDate, $endDate);
         }
 
         return $this->render('special_operations/reportIndividualNew.html.twig', [
             'headline' => $headline,
+            'message'  => '',
             'startday' => $startDate->format('Y-m-d'),
             'endday' => $endDate->format('Y-m-d'),
             'anlagen' => $anlagen,
             'anlage' => $anlage,
             'report' => $output,
             'status' => $anlageId,
-            'datatable' => $table,
         ]);
 
     }

@@ -29,7 +29,6 @@ class AcGroupsListEmbeddedFormType extends AbstractType
             ->add('unitLast', TextType::class, [
                 'help' => '[unitLast]',
                 'empty_data' => '',
-                'disabled'  => 1,
             ])
             ->add('dcPowerInverter', TextType::class, [
                 'required' => false,
