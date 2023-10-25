@@ -601,10 +601,14 @@ class AlertSystemV2Service
                         $ticketDate->setKpiPaDep3(10);
                     }
                     else{
-                        $ticketDate->setDataGapEvaluation(10);
-                        $ticketDate->setKpiPaDep1(20);
-                        $ticketDate->setKpiPaDep2(10);
-                        $ticketDate->setKpiPaDep3(10);
+                        if ($errorType == 20){
+                            $ticketDate->setDataGapEvaluation(10);
+                            $ticketDate->setKpiPaDep1(20);
+                            $ticketDate->setKpiPaDep2(10);
+                            $ticketDate->setKpiPaDep3(10);
+                        }else if($errorType == 100){
+                            $ticketDate->setDataGapEvaluation(20);
+                        }
                     }
                 }
                 $this->em->persist($ticket);
