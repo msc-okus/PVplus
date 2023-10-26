@@ -56,8 +56,6 @@ class GenerateTicketsCommand extends Command
                 $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
             }
 
-
-
             foreach ($anlagen as $anlage) {
 
                 if ($anlage->getAnlId() === 105) date_default_timezone_set('Asia/Almaty');

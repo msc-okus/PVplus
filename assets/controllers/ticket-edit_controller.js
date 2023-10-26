@@ -382,7 +382,6 @@ export default class extends Controller {
             }
             else{
                 $(this.fieldReplaceIrrTargets).removeClass('is-hidden');
-                //$(this.fieldHourTarget).addClass('is-hidden');
                 $(this.fieldEnergyValueTargets).addClass('is-hidden');
                 $(this.fieldIrrValueTargets).addClass('is-hidden');
             }
@@ -451,10 +450,8 @@ export default class extends Controller {
                 $(this.headerAktDep1Targets).removeClass('is-hidden');
                 $(this.headerAktDep2Targets).removeClass('is-hidden');
                 $(this.headerAktDep3Targets).removeClass('is-hidden');
-
                 $(this.headerFormKpiTargets).addClass('is-hidden');
                 $(this.headerPRMethodTargets).addClass('is-hidden');
-
 
                 $(this.fieldSensorTargets).addClass('is-hidden');
                 $(this.fieldReplacePowerTargets).addClass('is-hidden');
@@ -475,7 +472,6 @@ export default class extends Controller {
                 if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
                 break;
             case '20':
-
                 $(this.headerExcludeTargets).addClass('is-hidden');
                 $(this.headerReplaceTargets).addClass('is-hidden');
                 $(this.headerReplacePowerTargets).addClass('is-hidden');
@@ -691,7 +687,6 @@ export default class extends Controller {
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
                 break;
             case '100':
-
                 $(this.headerExcludeTargets).addClass('is-hidden');
                 $(this.headerReplaceTargets).addClass('is-hidden');
                 $(this.headerReplacePowerTargets).addClass('is-hidden');
