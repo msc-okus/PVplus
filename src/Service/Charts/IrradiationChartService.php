@@ -322,6 +322,7 @@ class IrradiationChartService
                 $gmPyHori = $gmPyEast = $gmPyWest = $irrValueArray = [];
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                     $dataArray['nameX'][1] = 'G_M0';
+                    //create the data for each timepoint
                     if($stampTemp != $row['stamp']){
                         $dataArray[] = [
                             'gmo' =>            $gmO[0],
@@ -374,43 +375,51 @@ class IrradiationChartService
 
                         $irrCounter++;
                     }
+                    
                     $gmO[0] = $row['gmo'];
                     $stampTemp = $row['stamp'];
                     $counter++;
                 }
 
-                $dataArray2['maxSeries'] = $dataArray['maxSeries'];
+                //create the output Array
+                $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'];
+                if ($anlage->getIsOstWestAnlage()) {
+                    $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'] + 2;
+                }
                 $irrCounter = 1;
                 for ($i = 0; $i < count($dataArray); $i++) {
-                    $dataArray2['chart'][$i]['date'] = $dataArray[$i]['stamp'];
+                    $dataArrayFinal['chart'][$i]['date'] = $dataArray[$i]['stamp'];
                     if ($anlage->getIsOstWestAnlage()) {
-                        $dataArray2['chart'][$i]['g4n'] = (((float) $dataArray[$i]['irrUpper'] * $anlage->getPowerEast() + (float) $dataArray[$i]['irrLower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()));
-                        if ($dataArray2['chart'][$i]['g4n'] < 0) {
-                            $dataArray2['chart'][$i]['g4n'] = 0;
+                        $dataArrayFinal['chart'][$i]['g4n'] = (((float) $dataArray[$i]['irrUpper'] * $anlage->getPowerEast() + (float) $dataArray[$i]['irrLower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()));
+                        if ($dataArrayFinal['chart'][$i]['g4n'] < 0) {
+                            $dataArrayFinal['chart'][$i]['g4n'] = 0;
                         }
+                        $dataArrayFinal['chart'][$i]['GM_Py_East'] = (float) $dataArray[$i]['irrUpper'];
+                        $dataArrayFinal['chart'][$i]['GM_Py_West'] = (float) $dataArray[$i]['irrLower'];
                     } else {
                         if ($anlage->getWeatherStation()->getChangeSensor() == 'Yes') {
-                            $dataArray2['chart'][$i]['g4n'] = (float) $dataArray[$i]['irrLower']; // getauscht, nutze unterene Sensor
+                            $dataArrayFinal['chart'][$i]['g4n'] = (float) $dataArray[$i]['irrLower']; // getauscht, nutze unterene Sensor
                         } else {
-                            $dataArray2['chart'][$i]['g4n'] = (float) $dataArray[$i]['irrUpper']; // nicht getauscht, nutze oberen Sensor
+                            $dataArrayFinal['chart'][$i]['g4n'] = (float) $dataArray[$i]['irrUpper']; // nicht getauscht, nutze oberen Sensor
                         }
                     }
 
-                    $dataArray2['chart'][$i]["val1"] = $dataArray[$i]['gmo'];
-                    #echo $dataArray[$i]['stamp'].' // '.$dataArray[$i]['gmo'].' //'.$dataArray[$i]['irrUpper'].'<br>';
+                    $dataArrayFinal['chart'][$i]["val1"] = $dataArray[$i]['gmo'];
                     if(is_array($dataArray[$i]['values']) && count($dataArray[$i]['values']) > 0){
-                        #array_push($dataArray2['chart'][$i], $dataArray[$i]['values']);
                         $k = 2;
                         $valueSumm = 0;
-
+                        //adding the single values frpm an row to an array
                         for ($j = 0; $j < count($dataArray[$i]['values']); $j++) {
-                            #array_push($dataArray2['chart'][$i], $dataArray[$i]['values']['val'.$k]);
                             $dataArrayValues['val'.$k] =  $dataArray[$i]['values']['val'.$k];
                             $valueSumm = $valueSumm+$dataArray[$i]['values']['val'.$k];
                             $k++;
                         }
+                        if ($anlage->getIsOstWestAnlage()) {
+                            $dataArrayValues['val' . $k] = $dataArray[$i]['irrUpper'];
+                            $dataArrayValues['val' . $k + 1] = $dataArray[$i]['irrLower'];
+                        }
 
-                        $dataArray2['chart'][$i] = $dataArray2['chart'][$i] + $dataArrayValues;
+                        $dataArrayFinal['chart'][$i] = $dataArrayFinal['chart'][$i] + $dataArrayValues;
 
 
                         unset($dataArrayValues);
@@ -419,14 +428,17 @@ class IrradiationChartService
                     $irrCounter++;
 
                 }
-                $dataArray2['nameX'] = $dataArray['nameX'];
-
+                $dataArrayFinal['nameX'] = $dataArray['nameX'];
+                if ($anlage->getIsOstWestAnlage()) {
+                    array_push($dataArrayFinal['nameX'], 'GM_Py_East');
+                    array_push($dataArrayFinal['nameX'], 'GM_Py_West');
+                }
 
             }
         }
         $conn = null;
 
-        return $dataArray2;
+        return $dataArrayFinal;
     }
 
 }
