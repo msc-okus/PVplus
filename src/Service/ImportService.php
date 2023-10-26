@@ -38,7 +38,6 @@ class ImportService
      */
     public function prepareForImport(Anlage|int $anlage, $start, $end, string $importType = ""): void
     {
-
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
