@@ -97,7 +97,114 @@ class IrradiationChartService
     }
 
     /**
-     * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wir.
+     * Erzeugt Daten für das Strahlungs Diagramm.
+     *
+     * @param $from
+     * @param $to
+     * @param string|null $mode
+     * @param bool|null $hour
+     * @return array
+     * @throws \Exception
+     */
+    public function getIrradiationFromSensorsData(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
+    {
+        $conn = $this->pdoService->getPdoPlant();
+        $isEastWest = $anlage->getIsOstWestAnlage();
+        $dataArray = [];
+        if ($hour) {
+            if($isEastWest) {
+                $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'irr-west' OR type_sensor like 'irr-east') and stamp like '%:00:00' order by stamp;";
+            }else{
+                $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND type_sensor like 'irr' and stamp like '%:00:00' order by stamp;";
+            }
+        }else{
+            if($isEastWest) {
+                $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'irr-west' OR type_sensor like 'irr-east') order by stamp;";
+            }else{
+                $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND type_sensor like 'irr' order by stamp;";
+            }
+        }
+
+        $result = $conn->query($sql_irr_plant);
+
+        if ($result) {
+            if ($result->rowCount() > 0) {
+                $counter = 0;
+                $counter2 = 0;
+                $gmPyEast = $gmPyWest =  [];
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    if($counter == 0){
+                        $stampTemp = $row['stamp'];
+                    }
+                    if($stampTemp != $row['stamp']){
+                        if($isEastWest) {
+                            $dataArray['chart'][] = [
+                                'date' =>          $stampTemp,
+                                'val1' =>       $this->mittelwert($gmPyEast), //irrUpper
+                                'val2' =>       $this->mittelwert($gmPyWest), //irrLower
+                            ];
+                        }else{
+                            $gmPyEast[] = 0;
+                            $dataArray['chart'][] = [
+                                'date' =>          $stampTemp,
+                                'val1' =>       $this->mittelwert($gmPyEast), //irrUpper
+                                'val2' =>       $this->mittelwert($gmPyWest), //irrLower
+                            ];
+
+                        }
+
+                        if (!($this->mittelwert($gmPyEast) + $this->mittelwert($gmPyWest) == 0 && self::isDateToday($stampTemp) && self::getCetTime() - strtotime($stampTemp) < 7200)) {
+                            switch ($mode) {
+                                case 'all':
+                                    $dataArray['chart'][$counter2]['val1'] = $this->mittelwert($gmPyEast) < 0 ? 0 : $this->mittelwert($gmPyEast); // upper pannel
+                                    $dataArray['chart'][$counter2]['val2'] = $this->mittelwert($gmPyWest) < 0 ? 0 : $this->mittelwert($gmPyWest); // lower pannel
+                                    break;
+                                case 'upper':
+                                    $dataArray['chart'][$counter2]['val1'] = $this->mittelwert($gmPyEast) < 0 ? 0 : $this->mittelwert($gmPyEast); // upper pannel
+                                    unset($dataArray['chart'][$counter2]['val2']);
+                                    break;
+                                case 'lower':
+                                    $dataArray['chart'][$counter2]['val1'] = $this->mittelwert($gmPyWest) < 0 ? 0 : $this->mittelwert($gmPyWest); // upper pannel
+                                    unset($dataArray['chart'][$counter2]['val1']);
+                                    break;
+                            }
+                        }
+
+                        unset($gmPyWest);
+                        unset($gmPyEast);
+                        $gmPyEast = $gmPyWest = [];
+                        $counter2 ++;
+                    }
+
+                    if($isEastWest){
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-east'){
+                            array_push($gmPyWest, $row['value']);
+                        }
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-west'){
+                            array_push($gmPyEast, $row['value']);
+                        }
+                    }else{
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr'){
+                            array_push($gmPyEast, $row['value']);
+                        }
+                    }
+
+                    $stampTemp = $row['stamp'];
+
+                    $counter++;
+                }
+
+
+            }
+        }
+
+        $conn = null;
+
+        return $dataArray;
+    }
+
+    /**
+     * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wird.
      *
      * @param $from
      * @param $to
@@ -152,13 +259,16 @@ class IrradiationChartService
                     }
 
                     if ($row['irr_anlage'] != '') {
+
                         $irrAnlageArray = json_decode((string) $row['irr_anlage'], null, 512, JSON_THROW_ON_ERROR);
                         $irrCounter = 1;
                         foreach ($irrAnlageArray as $irrAnlageItem => $irrAnlageValue) {
+
                             if (!($irrAnlageValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                                 if (!isset($irrAnlageValue) or is_array($irrAnlageValue)) {
                                     $irrAnlageValue = 0;
                                 }
+
                                 $dataArray['chart'][$counter]["val$irrCounter"] = round(max($irrAnlageValue, 0), 2);
                                 if (!isset($dataArray['nameX'][$irrCounter])) {
                                     $dataArray['nameX'][$irrCounter] = $irrAnlageItem;
@@ -169,13 +279,166 @@ class IrradiationChartService
                             }
                             ++$irrCounter;
                         }
+
                     }
                     ++$counter;
                 }
             }
         }
         $conn = null;
-
         return $dataArray;
     }
+
+    /**
+     * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wird aus SensorsData Tabelle.
+     *
+     * @param $from
+     * @param $to
+     * @return array
+     * @throws \Exception
+     */
+    public function getIrradiationPlantFromSensorsData(Anlage $anlage, $from, $to, bool $hour): array
+    {
+
+        $conn = $this->pdoService->getPdoPlant();
+        $dataArray = [];
+        $dataArray['maxSeries'] = 0;
+        $isEastWest = $anlage->getIsOstWestAnlage();
+
+        // Strom für diesen Zeitraum und diesen Inverter
+
+        if ($hour) {
+            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' and stamp like '%:00:00' order by stamp;";
+        }else{
+            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' order by stamp;";
+        }
+
+        $result = $conn->query($sql_irr_plant);
+
+        if ($result) {
+            if ($result->rowCount() > 0) {
+                $counter = 0;
+                $irrCounter = 1;
+                $gmPyHori = $gmPyEast = $gmPyWest = $irrValueArray = [];
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $dataArray['nameX'][1] = 'G_M0';
+                    //create the data for each timepoint
+                    if($stampTemp != $row['stamp']){
+                        $dataArray[] = [
+                            'gmo' =>            $gmO[0],
+                            'irrHorizontal' =>  $this->mittelwert($gmPyHori),
+                            'irrLower' =>       $this->mittelwert($gmPyWest),
+                            'irrUpper' =>       $this->mittelwert($gmPyEast),
+                            'stamp' =>          $stampTemp,
+                            'values' =>         $irrValueArray
+                        ];
+                        unset($gmPyHori);
+                        unset($gmPyWest);
+                        unset($gmPyEast);
+                        unset($irrValueArray);
+                        $gmPyHori = $gmPyEast = $gmPyWest = $irrValueArray = [];
+                        $irrCounter = 2;
+                    }
+
+                    if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
+                            array_push($gmPyHori, $row['value']);
+                    }
+
+                    if($isEastWest){
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-west'){
+                            array_push($gmPyWest, $row['value']);
+                        }
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-east'){
+                            array_push($gmPyEast, $row['value']);
+                        }
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
+                            array_push($gmPyHori, $row['value']);
+                        }
+                    }else{
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr'){
+                            array_push($gmPyEast, $row['value']);
+                        }
+                        $gmPyWest = [];
+                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
+                            array_push($gmPyHori, $row['value']);
+                        }
+                    }
+
+                    if($row['usetocalc_sensor'] && ($row['type_sensor'] == 'irr' || $row['type_sensor'] == 'irr-hori' || $row['type_sensor'] == 'irr-east' || $row['type_sensor'] == 'irr-west')){
+                        if (!isset($dataArray['nameX'][$irrCounter])) {
+                            $dataArray['nameX'][$irrCounter] = $row['shortname_sensor'];
+                        }
+                        $irrValueArray["val".$irrCounter] = $row['value'];
+                        if ($irrCounter > $dataArray['maxSeries']) {
+                            $dataArray['maxSeries'] = $irrCounter;
+                        }
+
+                        $irrCounter++;
+                    }
+                    
+                    $gmO[0] = $row['gmo'];
+                    $stampTemp = $row['stamp'];
+                    $counter++;
+                }
+
+                //create the output Array
+                $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'];
+                if ($anlage->getIsOstWestAnlage()) {
+                    $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'] + 2;
+                }
+                $irrCounter = 1;
+                for ($i = 0; $i < count($dataArray); $i++) {
+                    $dataArrayFinal['chart'][$i]['date'] = $dataArray[$i]['stamp'];
+                    if ($anlage->getIsOstWestAnlage()) {
+                        $dataArrayFinal['chart'][$i]['g4n'] = (((float) $dataArray[$i]['irrUpper'] * $anlage->getPowerEast() + (float) $dataArray[$i]['irrLower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()));
+                        if ($dataArrayFinal['chart'][$i]['g4n'] < 0) {
+                            $dataArrayFinal['chart'][$i]['g4n'] = 0;
+                        }
+                        $dataArrayFinal['chart'][$i]['GM_Py_East'] = (float) $dataArray[$i]['irrUpper'];
+                        $dataArrayFinal['chart'][$i]['GM_Py_West'] = (float) $dataArray[$i]['irrLower'];
+                    } else {
+                        if ($anlage->getWeatherStation()->getChangeSensor() == 'Yes') {
+                            $dataArrayFinal['chart'][$i]['g4n'] = (float) $dataArray[$i]['irrLower']; // getauscht, nutze unterene Sensor
+                        } else {
+                            $dataArrayFinal['chart'][$i]['g4n'] = (float) $dataArray[$i]['irrUpper']; // nicht getauscht, nutze oberen Sensor
+                        }
+                    }
+
+                    $dataArrayFinal['chart'][$i]["val1"] = $dataArray[$i]['gmo'];
+                    if(is_array($dataArray[$i]['values']) && count($dataArray[$i]['values']) > 0){
+                        $k = 2;
+                        $valueSumm = 0;
+                        //adding the single values frpm an row to an array
+                        for ($j = 0; $j < count($dataArray[$i]['values']); $j++) {
+                            $dataArrayValues['val'.$k] =  $dataArray[$i]['values']['val'.$k];
+                            $valueSumm = $valueSumm+$dataArray[$i]['values']['val'.$k];
+                            $k++;
+                        }
+                        if ($anlage->getIsOstWestAnlage()) {
+                            $dataArrayValues['val' . $k] = $dataArray[$i]['irrUpper'];
+                            $dataArrayValues['val' . $k + 1] = $dataArray[$i]['irrLower'];
+                        }
+
+                        $dataArrayFinal['chart'][$i] = $dataArrayFinal['chart'][$i] + $dataArrayValues;
+
+
+                        unset($dataArrayValues);
+                    }
+
+                    $irrCounter++;
+
+                }
+                $dataArrayFinal['nameX'] = $dataArray['nameX'];
+                if ($anlage->getIsOstWestAnlage()) {
+                    array_push($dataArrayFinal['nameX'], 'GM_Py_East');
+                    array_push($dataArrayFinal['nameX'], 'GM_Py_West');
+                }
+
+            }
+        }
+        $conn = null;
+
+        return $dataArrayFinal;
+    }
+
 }

@@ -139,8 +139,8 @@ class ImportToolsController extends BaseController
             // Proof if date = today, if yes set $to to current DateTime
             if (date('Y', $to_new) == date('Y') && date('m', $to_new) == date('m') && $currentDay == date('d')) {
                 $hour = date('H');
-
-                $to_new = strtotime(date("Y-m-d $hour:00"), $to_new);
+                $minute = date('i');
+                $to_new = strtotime(date("Y-m-d $hour:$minute"), $to_new);
             }
 
             $minute = (int)date('i');
