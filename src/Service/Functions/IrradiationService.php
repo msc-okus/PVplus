@@ -43,7 +43,7 @@ private readonly PdoService $pdoService,
             $conn = $this->pdoService->getPdoPlant();
             $irrData = [];
             $sqlIrrFlag = "";
-            if ($anlage->getAnlId() == 181){ // Zwartowo
+            if ($conn->query("SHOW COLUMNS from " . $anlage->getDbNameWeather() . " LIKE 'irr_flag';")->rowCount() === 1){ // Zwartowo und Test Zwartowo
                 $sqlIrrFlag = ", b.irr_flag ";
             }
 

@@ -109,10 +109,10 @@
                 <li><a href="{{ path('app_reporting_list') }}"><i class="fa fa-chart-area"></i><span> Reporting</span></a></li>
 
                 {% if is_granted('ROLE_G4N') or is_granted('ROLE_BETA')%}
-                    <li><a href="#"><i class="fa fa-chart-area"></i><span> Live Reporting</span></a>
+                    <li><a href="#"><i class="fa fa-chart-area"></i><span> Live Reporting (Beta)</span></a>
                         <ul class="vertical menu nested">
-                            <li><a href="{{ path('month_report') }}"><i class="fa fa-chart-area"></i>Report, individual time</a></li>
-                            <li><a href="{{ path('monthly_daily_report') }}"><i class="fa fa-chart-area"></i>Report, one month with days</a></li>
+                            <li><a href="{{ path('month_report') }}"><i class="fa fa-chart-area"></i>individual start and end date</a></li>
+                            <li><a href="{{ path('monthly_daily_report') }}"><i class="fa fa-chart-area"></i>one month with days</a></li>
                         </ul>
                     </li>
                     <li><a href="{{ path('app_ticket_list') }}"><i class="fa fa-clipboard-list"></i><span> Tickets (Beta)</span></a></li>

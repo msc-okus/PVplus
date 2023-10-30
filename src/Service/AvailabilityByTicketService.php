@@ -218,7 +218,7 @@ class AvailabilityByTicketService
      * CONTROL = wenn Gmod > 0<br>.
      *
      * @param Anlage $anlage
-     * @param $timestampModulo
+     * @param $timestampDay
      * @param TimesConfig $timesConfig
      * @param array $inverterPowerDc
      * @param int $department
@@ -246,8 +246,8 @@ class AvailabilityByTicketService
                 $threshold2PA = $anlage->getThreshold2PA0();
         }
 
-        $from   = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampDay);
-        $to     = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampDay);
+        //$from   = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampDay);
+        //$to     = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampDay);
         $from   = date('Y-m-d 00:15', $timestampDay);
         $to     = date('Y-m-d 00:00', $timestampDay + (3600 * 24));
 
@@ -370,7 +370,6 @@ class AvailabilityByTicketService
                 $stamp = $einstrahlung['stamp'];
                 $strahlung = $einstrahlung['irr'];
                 $irrFlag = $einstrahlung['irr_flag'];
-                $usePPFlag = false;
 
                 $conditionIrrCase1 = $strahlung <= $threshold2PA && $strahlung !== null;
                 $conditionIrrCase2 = $strahlung > $threshold2PA;
@@ -378,7 +377,6 @@ class AvailabilityByTicketService
                 if (($department === 0 && $anlage->isUsePAFlag0()) || ($department === 1 && $anlage->isUsePAFlag1()) ||
                     ($department === 2 && $anlage->isUsePAFlag2()) || ($department === 3 && $anlage->isUsePAFlag3()))
                 {
-                    $usePPFlag = true;
                     $conditionIrrCase1 = !$irrFlag;
                     $conditionIrrCase2 = $irrFlag;
                 }
