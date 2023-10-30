@@ -690,7 +690,7 @@ class Anlage implements \Stringable
         $this->pathToImportScript = $pathToImportScript;
     }
 
-    public function __construct(private readonly CacheInterface $cache)
+    public function __construct()
     {
         $this->acGroups = new ArrayCollection();
         $this->availability = new ArrayCollection();
