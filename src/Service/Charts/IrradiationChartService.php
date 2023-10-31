@@ -423,7 +423,6 @@ class IrradiationChartService
                     $dataArrayFinal['chart'][$i]["val1"] = $dataArray[$i]['gmo'];
                     if(is_array($dataArray[$i]['values']) && count($dataArray[$i]['values']) > 0){
                         $k = 2;
-
                         $valueSumm = 0;
                         //adding the single values frpm an row to an array
                         for ($j = 0; $j < count($dataArray[$i]['values']); $j++) {
@@ -434,13 +433,12 @@ class IrradiationChartService
                             $k++;
                         }
                         if ($anlage->getIsOstWestAnlage()) {
-                            $dataArrayValues['val' . $k] = $dataArray[$i]['irrUpper'];
-                            $dataArrayValues['val' . $k + 1] = $dataArray[$i]['irrLower'];
+                                echo "$l <br>";
+                                $dataArrayValues['val' . $l + 3] = $dataArray[$i]['irrUpper'];
+                                $dataArrayValues['val' . $l + 3] = $dataArray[$i]['irrLower'];
+
                         }
-
                         $dataArrayFinal['chart'][$i] = $dataArrayFinal['chart'][$i] + $dataArrayValues;
-
-
                         unset($dataArrayValues);
                     }
 
@@ -449,14 +447,13 @@ class IrradiationChartService
                 }
 
                 $dataArrayFinal['nameX'] = $dataArray['nameX'];
-                if ($anlage->getIsOstWestAnlage()) {
-                    $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'] + 2;
-                }
+
 
                 if($updateMaxSeries > 0){
                     $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'] + $updateMaxSeries;
                 }
                 if ($anlage->getIsOstWestAnlage()) {
+                    $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'] + 2 + $updateMaxSeries;
                     array_push($dataArrayFinal['nameX'], 'GM_Py_East');
                     array_push($dataArrayFinal['nameX'], 'GM_Py_West');
                 }
