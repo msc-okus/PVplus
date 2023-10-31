@@ -173,13 +173,13 @@ trait ImportFunctionsTrait
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor());
+                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                     }
                     if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor());
+                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                     }
                     $now = strtotime((string) $date);
-                    if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
+                     if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                         if($anlageSensors[$i]->getUseToCalc() == 1){
                             array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
                         }
@@ -192,13 +192,13 @@ trait ImportFunctionsTrait
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor());
+                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                     }
                     if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor());
+                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                     }
                     $now = strtotime((string) $date);
-                    if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
+                     if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                         if($anlageSensors[$i]->getUseToCalc() == 1){
                             array_push($gmPyWest, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
                         }
@@ -211,13 +211,13 @@ trait ImportFunctionsTrait
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor());
+                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                     }
                     if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor());
+                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                     }
                     $now = strtotime((string) $date);
-                    if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
+                     if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                         if($anlageSensors[$i]->getUseToCalc() == 1){
                             array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
                         }
@@ -240,17 +240,16 @@ trait ImportFunctionsTrait
 
             for ($i = 0; $i < $length; $i++) {
                 if ($anlageSensors[$i]->getvirtualSensor() == 'irr-hori') {
-
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor());
+                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                     }
                     if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor());
+                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                     }
                     $now = strtotime((string) $date);
-                    if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
+                     if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                         if($anlageSensors[$i]->getUseToCalc() == 1){
                             array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
                         }
@@ -263,13 +262,15 @@ trait ImportFunctionsTrait
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor());
+                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                     }
                     if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor());
+                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                     }
                     $now = strtotime((string) $date);
-                    if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
+
+                    if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
+
                         if ($anlageSensors[$i]->getUseToCalc() == 1) {
                             array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
                         }
@@ -287,7 +288,6 @@ trait ImportFunctionsTrait
                 'irrUpperAnlage' => $gmPyEastAnlage,
             ];
         }
-
         //mNodulTemp, ambientTemp, windSpeed
         $tempModule = $tempAmbientArray = $tempAnlage = $windSpeedEWD = $windSpeedEWS = $windAnlage = [];
         for ($i = 0; $i < $length; $i++) {
@@ -295,13 +295,13 @@ trait ImportFunctionsTrait
                 $start = 0;
                 $end = 0;
                 if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor());
+                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                 }
                 if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor());
+                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                 }
                 $now = strtotime((string) $date);
-                if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
+                 if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                     if($anlageSensors[$i]->getUseToCalc() == 1){
                         array_push($tempModule, $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()]);
                     }
@@ -313,13 +313,13 @@ trait ImportFunctionsTrait
                 $start = 0;
                 $end = 0;
                 if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor());
+                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                 }
                 if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor());
+                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                 }
                 $now = strtotime((string) $date);
-                if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
+                 if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                     if($anlageSensors[$i]->getUseToCalc() == 1){
                         array_push($tempAmbientArray, $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()]);
                     }
@@ -331,14 +331,14 @@ trait ImportFunctionsTrait
                 $start = 0;
                 $end = 0;
                 if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor());
+                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                 }
                 if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor());
+                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                 }
                 $now = strtotime((string) $date);
-                $x = (string)$anlageSensors[$i]->getStartDateSensor();
-                $y = (string)$anlageSensors[$i]->getEndDateSensor();
+                $x = (string)$anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s');
+                $y = (string)$anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s');
                 #echo "Sensor Start $date = $now /BE $x = $start \n\n";
                 #echo "Sensor End $date = $now /BE $y = $end \n";
                 if (($now >= $start && ($end == 0 || $now < $end)) || ($start == 0 && $end == 0)) {
@@ -353,13 +353,13 @@ trait ImportFunctionsTrait
                 $start = 0;
                 $end = 0;
                 if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor());
+                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                 }
                 if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor());
+                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                 }
                 $now = strtotime((string) $date);
-                if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
+                 if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                     if($anlageSensors[$i]->getUseToCalc() == 1){
                         array_push($windSpeedEWS, $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()]);
                     }
@@ -396,13 +396,13 @@ trait ImportFunctionsTrait
                 $start = 0;
                 $end = 0;
                 if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor());
+                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                 }
                 if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor());
+                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                 }
                 $now = strtotime((string) $date);
-                if (($now >= $start && ($end == 0 || $end <= $now)) || ($start == 0 && $end == 0)) {
+                if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                     $sensorId = $anlageSensors[$i]->getId();
                     $sensorType = $anlageSensors[$i]->getvirtualSensor();
                     $sensorShortname = $anlageSensors[$i]->getNameShort();
