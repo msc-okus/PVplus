@@ -921,8 +921,7 @@ class PRCalulationService
      * @throws NonUniqueResultException
      */
     public function calcPRByInverterAM(Anlage $anlage, int $inverterID, DateTime $startDate, DateTime $endDate = null): array{
-        $result = [];
-        dump($inverterID);
+        $result = [];;
         $inverterPowerDc = $anlage->getPnomInverterArray();
         // PR für einen Tag (wenn $endDate = null) oder für beliebigen Zeitraum (auch für Rumpfmonate in epc Berichten) berechnen
         $localStartDate = $startDate->format('Y-m-d 00:00');
@@ -951,7 +950,6 @@ class PRCalulationService
         };
         $irr = $this->functions->checkAndIncludeMonthlyCorrectionIrr($anlage, $irr, $localStartDate, $localEndDate);
 
-        dump($anlage, $irr, $power['powerAct'], $result['powerTheo'], $pa3, $inverterID);
         if (!$anlage->getSettings()->isDisableDep3()) $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerAct'], $result['powerTheo'], $pa3, $inverterID);
         else $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerAct'], $result['powerTheo'], $pa3, $inverterID);
 
