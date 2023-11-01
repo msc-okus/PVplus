@@ -392,17 +392,25 @@ class IrradiationChartService
 
                 }
 
+                unset($dataArray['shortName']);
+
                 //create the output Array
                 $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'];
-
-                $irrCounter = 0;
-                $inDataArray = count($dataArray);
                 $updateMaxSeries = 0;
-                for ($i = 0; $i < count($dataArray); $i++) {
+                $inDataArray = count($dataArray)-3;
+
+                if(is_array($dataArray[$inDataArray]['sensorShortName'])){
+                    $updateMaxSeriesReal = count($dataArray[$inDataArray]['sensorShortName']);
+                }else{
+                    $updateMaxSeriesReal = 0;
+                }
+                $dateLastEntry = $dataArray[$inDataArray]['stamp'];
+
+                for ($i = 0; $i < $inDataArray; $i++) {
                     #echo 'xxx '.$dataArray[$i]['sensorShortName'][1].'<br>';
                     if(is_array($dataArray[$i]['sensorShortName']) && count($dataArray[$i]['sensorShortName']) > 0 && $updateMaxSeries == 0){
-                        $updateMaxSeries = count($dataArray[$i]['sensorShortName']);
-                        #$i =  $i + $updateMaxSeries;
+                        $updateMaxSeries = $updateMaxSeriesReal;
+
                     }
                     $dataArrayFinal['chart'][$i]['date'] = $dataArray[$i]['stamp'];
                     if ($anlage->getIsOstWestAnlage()) {
@@ -410,8 +418,6 @@ class IrradiationChartService
                         if ($dataArrayFinal['chart'][$i]['g4n'] < 0) {
                             $dataArrayFinal['chart'][$i]['g4n'] = 0;
                         }
-                        $dataArrayFinal['chart'][$i]['GM_Py_East'] = (float) $dataArray[$i]['irrUpper'];
-                        $dataArrayFinal['chart'][$i]['GM_Py_West'] = (float) $dataArray[$i]['irrLower'];
                     } else {
                         if ($anlage->getWeatherStation()->getChangeSensor() == 'Yes') {
                             $dataArrayFinal['chart'][$i]['g4n'] = (float) $dataArray[$i]['irrLower']; // getauscht, nutze unterene Sensor
@@ -433,17 +439,14 @@ class IrradiationChartService
                             $k++;
                         }
                         if ($anlage->getIsOstWestAnlage()) {
-                                echo "$l <br>";
-                                $dataArrayValues['val' . $l + 3] = $dataArray[$i]['irrUpper'];
-                                $dataArrayValues['val' . $l + 3] = $dataArray[$i]['irrLower'];
+                                #echo "$l <br>";
+                                $dataArrayValues['val' . $dataArray['maxSeries'] + $updateMaxSeriesReal + 1] = $dataArray[$i]['irrUpper'];
+                                $dataArrayValues['val' . $dataArray['maxSeries'] + $updateMaxSeriesReal + 2] = $dataArray[$i]['irrLower'];
 
                         }
                         $dataArrayFinal['chart'][$i] = $dataArrayFinal['chart'][$i] + $dataArrayValues;
                         unset($dataArrayValues);
                     }
-
-                    $irrCounter++;
-
                 }
 
                 $dataArrayFinal['nameX'] = $dataArray['nameX'];
@@ -459,17 +462,37 @@ class IrradiationChartService
                 }
 
                 $x = [];
-                $dataArrayFinal['chart'][count($dataArrayFinal['chart'])] = [
-                    'gmo' =>            null,
-                    'irrHorizontal' =>  null,
-                    'irrLower' =>       null,
-                    'irrUpper' =>       null,
-                    'stamp' =>          $to,
-                    'values' =>         $x
-                ];
+                $from = substr($dateLastEntry, 0, -3);
+
+                $start = date('Y-m-d i:m',strtotime($from));
+                $end = date('Y-m-d 23:59',strtotime($to));
+
+
+                $fromObj = date_create($from);
+                $endObj  = date_create($to);
+                #echo 'X'.$fromObj->getTimestamp().'<br';
+                #echo 'Y '.$fromObj->getTimestamp().' / '. $endObj->getTimestamp();
+                #exit;
+
+                for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += 900) {
+
+                    #echo "$dayStamp <br>";
+                    $date = date('Y-m-d H:i', $dayStamp);
+                    $dataArrayFinal['chart'][count($dataArrayFinal['chart'])] = [
+                        'date' =>          $date,
+                        'g4n' =>            null,
+                        'irrHorizontal' =>  null,
+                        'irrLower' =>       null,
+                        'irrUpper' =>       null
+                    ];
+                }
+
+
+
 
             }
         }
+
         $conn = null;
 
         echo '<pre>';
