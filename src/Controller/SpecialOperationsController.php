@@ -135,7 +135,7 @@ class SpecialOperationsController extends AbstractController
      * @throws NonUniqueResultException
      * @throws InvalidArgumentException
      */
-    #[IsGranted('ROLE_G4N')]
+    #[IsGranted('ROLE_BETA')]
     #[Route(path: '/special/operations/report', name: 'month_report')]
     public function reportIndividual(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, AvailabilityByTicketService $availabilityByTicket): Response
     {

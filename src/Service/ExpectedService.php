@@ -61,7 +61,6 @@ class ExpectedService
                 }
                 $sql = substr($sql, 0, -1); // nimm das letzte Komma weg
                 $conn->exec('DELETE FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to';");
-
                 $conn->exec($sql);
                 $recUpdated = count($arrayExpected);
                 $output .= "From $from until $to – $recUpdated records updated.<br>";
