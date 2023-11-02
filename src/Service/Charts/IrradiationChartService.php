@@ -464,16 +464,10 @@ class IrradiationChartService
                 $x = [];
                 $from = substr($dateLastEntry, 0, -3);
 
-                $start = date('Y-m-d i:m',strtotime($from));
-                $end = date('Y-m-d 23:59',strtotime($to));
-
-
                 $fromObj = date_create($from);
                 $endObj  = date_create($to);
-                #echo 'X'.$fromObj->getTimestamp().'<br';
-                #echo 'Y '.$fromObj->getTimestamp().' / '. $endObj->getTimestamp();
-                #exit;
 
+                //fil up rest of day
                 for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += 900) {
 
                     #echo "$dayStamp <br>";

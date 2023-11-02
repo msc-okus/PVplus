@@ -548,8 +548,10 @@ trait ImportFunctionsTrait
             $dcCurrentMppArray = [];
             for ($n = 1; $n <= $stringBoxUnits; $n++) {
                 $key = "I$n";
+
                 $dcCurrentMppArray[$key] = $stringBoxesTime[$scbNo][$key];
                 $currentDcSCB += ($stringBoxesTime[$scbNo][$key]);
+                #echo "$date / $scbNo / $key".' / '.$stringBoxesTime[$scbNo][$key]." / $currentDcSCB".'<br>';
             }
 
             $voltageDc = round($stringBoxesTime[$scbNo]['U_DC'], 4);
