@@ -80,11 +80,11 @@ private readonly PdoService $pdoService,
                     switch ($anlage->getConfigType()) {
                         case 1:
                         case 2:
-                            $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] > 0 ? $rowSoll['expected'] / $invertersInGroup : 0;
+                            $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] > 0 ? $rowSoll['expected'] : 0;
                             $dataArray['chart'][$counter]['expected'] = $hour ? $dataArray['chart'][$counter]['expected'] / 4 : $dataArray['chart'][$counter]['expected'];
                             break;
                         default:
-                            $dataArray['chart'][$counter]['expected'] = $hour ? $rowSoll['expected'] / $invertersInGroup / 4 : $rowSoll['expected'] / $invertersInGroup;
+                            $dataArray['chart'][$counter]['expected'] = $hour ? $rowSoll['expected'] / 4 : $rowSoll['expected'];
                     }
                     $dataArray['chart'][$counter]['expected'] = round($dataArray['chart'][$counter]['expected'], 2);
                 }
