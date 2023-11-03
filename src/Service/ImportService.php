@@ -217,7 +217,7 @@ class ImportService
                     }
 
                     //built array for pvist_dc
-                    $sizeResult = count($result[0]) - 1;
+                    $sizeResult = count($result[1]) - 1;
                     for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_pv_dcist[] = $result[1][$j];
                     }
