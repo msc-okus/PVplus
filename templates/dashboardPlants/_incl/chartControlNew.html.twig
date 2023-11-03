@@ -294,9 +294,9 @@
                 {% if aktAnlage.settings.chartAnalyse11 %}
                     <option value="forecast3" {% if form.selectedChart == 'forecast3' %}selected{% endif %}>Forecast3&nbsp;[kWh]</option>
                 {% endif %}
-                {% if is_granted('ROLE_G4N') %} {# or is_granted('ROLE_ANALYSE') %} #}
-                    {% if aktAnlage.settings.chartAnalyse4 %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Headmap #}
-                    {% if aktAnlage.settings.chartAnalyse5 %}{{ showTempHeatmap(form, aktAnlage) }}{% endif %}         {# Headmap #}
+                {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
+                    {% if aktAnlage.settings.chartAnalyse4 %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Heatmap #}
+                    {% if aktAnlage.settings.chartAnalyse5 %}{{ showTempHeatmap(form, aktAnlage) }}{% endif %}         {# Heatmap #}
                     {% if aktAnlage.hasDc %}   {# DC Current Headmap ausblenden wenn keine DC Daten vorhanden sind #}
                         {% if aktAnlage.settings.chartAnalyse6 %}{{ showSollIstHeatmap(form, aktAnlage) }}{% endif %}
                     {% endif %}

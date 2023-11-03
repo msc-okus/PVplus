@@ -18,7 +18,6 @@ use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Annotation\SerializedName;
-use Symfony\Contracts\Cache\CacheInterface;
 
 #[ApiResource(
     shortName: 'anlages',
@@ -62,6 +61,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 class Anlage implements \Stringable
 {
     private string $dbAnlagenData = 'pvp_data';
+    private string $dbAnlagenBase = 'pvp_base';
 
     #[Groups(['main','api:read'])]
     #[SerializedName('id')]
@@ -690,7 +690,7 @@ class Anlage implements \Stringable
         $this->pathToImportScript = $pathToImportScript;
     }
 
-    public function __construct(private readonly CacheInterface $cache)
+    public function __construct()
     {
         $this->acGroups = new ArrayCollection();
         $this->availability = new ArrayCollection();
@@ -1247,6 +1247,16 @@ class Anlage implements \Stringable
     public function getDbNamePPC(): string
     {
         return $this->dbAnlagenData.'.db__pv_ppc_'.$this->getAnlIntnr();
+    }
+
+    public function getDbNameSensorsData(): string
+    {
+        return $this->dbAnlagenData.'.db__pv_sensors_data_'.$this->getAnlIntnr();
+    }
+
+    public function getDbNameAnalgeSensors(): string
+    {
+        return $this->dbAnlagenBase.'.anlage_sensors_'.$this->getAnlIntnr();
     }
 
     public function getDbNameSection(): string
