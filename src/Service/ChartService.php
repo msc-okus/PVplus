@@ -415,7 +415,11 @@ private PdoService $pdoService,
                     }
                     break;
                 case 'irradiation':
-                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+                    if($anlage->getSettings()->isUseSensorsData()){
+                        $dataArray = $this->irradiationChart->getIrradiationFromSensorsData($anlage, $from, $to, 'all', $hour);
+                    }else{
+                        $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+                    }
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [[W/m²]]';
@@ -435,7 +439,11 @@ private PdoService $pdoService,
                     }
                     break;
                 case 'irradiation_plant':
-                    $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to, $hour);
+                    if($anlage->getSettings()->isUseSensorsData()){
+                        $dataArray = $this->irradiationChart->getIrradiationPlantFromSensorsData($anlage, $from, $to, $hour);
+                    }else{
+                        $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to, $hour);
+                    }
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -448,7 +456,11 @@ private PdoService $pdoService,
                     }
                     break;
                 case 'temp':
-                    $dataArray = $this->getAirAndPanelTemp($anlage, $from, $to, $hour);
+                    if($anlage->getSettings()->isUseSensorsData()) {
+                        $dataArray = $this->getAirAndPanelTempFromSensorsData($anlage, $from, $to, $hour);
+                    }else{
+                        $dataArray = $this->getAirAndPanelTemp($anlage, $from, $to, $hour);
+                    }
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Air and Panel Temperature [[°C]]';
@@ -673,6 +685,77 @@ private PdoService $pdoService,
 
             ++$counter;
         }
+        $conn = null;
+
+        return $dataArray;
+    }
+
+    /**
+     * Erzeugt Daten für Temperatur Diagramm from new Sensor data table.
+     *
+     * @param Anlage $anlage
+     * @param $from
+     * @param $to
+     *  //
+     * @param bool $hour
+     * @return array
+     * @throws \Exception
+     */
+    public function getAirAndPanelTempFromSensorsData(Anlage $anlage, $from, $to, bool $hour): array
+    {
+        $conn = $this->pdoService->getPdoPlant();
+        $isEastWest = $anlage->getIsOstWestAnlage();
+        $dataArray = [];
+        if ($hour) {
+            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'temp-ambient' OR type_sensor like 'temp-modul' OR type_sensor like 'wind-speed') and stamp like '%:00:00' order by stamp;";
+        }else{
+            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'temp-ambient' OR type_sensor like 'temp-modul' OR type_sensor like 'wind-speed') order by stamp;";
+        }
+
+        $result = $conn->query($sql_irr_plant);
+
+        if ($result) {
+            if ($result->rowCount() > 0) {
+                $counter = 0;
+                $tempAmbientArray = $tempModuleArray = $windSpeedArray = [];
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    if($counter == 0){
+                        $stampTemp = $row['stamp'];
+                    }
+
+                    if($stampTemp != $row['stamp']){
+                        $dataArray['chart'][] = [
+                            'date' =>               $stampTemp,
+                            'tempAmbient' =>         $this->mittelwert($tempAmbientArray),
+                            'tempCellMeasuerd' =>   $this->mittelwert($tempModuleArray),
+                            'tempCellCorr' =>       null,
+                            'windSpeed' =>         $this->mittelwert($windSpeedArray)
+                        ];
+                        unset($tempAmbientArray);
+                        unset($tempModuleArray);
+                        unset($windSpeedArray);
+                        $tempAmbientArray = $tempModuleArray = $windSpeedArray = [];
+
+                    }
+
+                    if($row['usetocalc_sensor'] && $row['type_sensor'] == 'temp-ambient'){
+                        array_push($tempAmbientArray, $row['value']);
+                    }
+                    if($row['usetocalc_sensor'] && $row['type_sensor'] == 'temp-modul'){
+                        array_push($tempModuleArray, $row['value']);
+                    }
+
+                    if($row['usetocalc_sensor'] && $row['type_sensor'] == 'wind-speed'){
+                        array_push($windSpeedArray, $row['value']);
+                    }
+
+                    $stampTemp = $row['stamp'];
+
+                    $counter++;
+                }
+            }
+        }
+
         $conn = null;
 
         return $dataArray;

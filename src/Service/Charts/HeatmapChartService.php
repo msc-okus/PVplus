@@ -115,7 +115,6 @@ class HeatmapChartService
                 JOIN (SELECT stamp as ts, g_lower as g_lower , g_upper as g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp BETWEEN '$from' and '$to') 
                 AS T2 
                 on (T1.ts = T2.ts);";
-      #  dd($from,$to, $sql);
         $resultActual = $conn->query($sql);
         $dataArray['inverterArray'] = $nameArray;
 

@@ -29,16 +29,16 @@ class AlertSystemV2Service
     private bool $irr = false;
 
     public function __construct(
-        private PdoService $pdoService,
-        private AnlagenRepository       $anlagenRepository,
-        private WeatherServiceNew       $weather,
-        private WeatherFunctionsService $weatherFunctions,
-        private AnlagenRepository       $AnlRepo,
-        private EntityManagerInterface  $em,
-        private MessageService          $mailservice,
-        private FunctionsService        $functions,
-        private StatusRepository        $statusRepo,
-        private TicketRepository        $ticketRepo)
+        private readonly PdoService              $pdoService,
+        private readonly AnlagenRepository       $anlagenRepository,
+        private readonly WeatherServiceNew       $weather,
+        private readonly WeatherFunctionsService $weatherFunctions,
+        private readonly AnlagenRepository       $AnlRepo,
+        private readonly EntityManagerInterface  $em,
+        private readonly MessageService          $mailservice,
+        private readonly FunctionsService        $functions,
+        private readonly StatusRepository        $statusRepo,
+        private readonly TicketRepository        $ticketRepo)
     {
 
     }
@@ -49,6 +49,7 @@ class AlertSystemV2Service
      * @param Anlage $anlage
      * @param string $from
      * @param string|null $to
+     * @throws InvalidArgumentException
      */
     public function generateTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
@@ -65,12 +66,14 @@ class AlertSystemV2Service
             $this->checkSystem($anlage, date('Y-m-d H:i:00', $fromStamp));
         }
     }
+
     /**
      * this method should be called to generate the tickets
      * no other method from this class should be called manually
      * @param Anlage $anlage
      * @param string $from
      * @param string|null $to
+     * @throws InvalidArgumentException
      */
     public function generateTicketsExpectedInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
@@ -93,6 +96,7 @@ class AlertSystemV2Service
      * @param Anlage $anlage
      * @param string $from
      * @param string $to
+     * @throws InvalidArgumentException
      */
     public function joinTicketsInterval(Anlage $anlage, string $from, string $to): void
     {
@@ -110,8 +114,9 @@ class AlertSystemV2Service
      * @param Anlage $anlage
      * @param string $from
      * @param string $to
+     * @throws InvalidArgumentException
      */
-    public function generateTicketMulti(Anlage $anlage, string $from, string $to)
+    public function generateTicketMulti(Anlage $anlage, string $from, string $to): void
     {
         $fromStamp = strtotime($from);
         $toStamp = strtotime($to);
@@ -126,6 +131,7 @@ class AlertSystemV2Service
      * @param Anlage $anlage
      * @param string|null $time
      * @return void
+     * @throws InvalidArgumentException
      */
     private function joinTicketsForTheDay(Anlage $anlage, ?string $time = null): void
     {
@@ -265,13 +271,15 @@ class AlertSystemV2Service
 
         }
     }
+
     /**
      * Generate tickets for the given time, check if there is an older ticket for same inverter with same error.
      * Write new ticket to database or extend existing ticket with new end time.
      * @param Anlage $anlage
      * @param string|null $time
+     * @throws InvalidArgumentException
      */
-    public function checkExpected(Anlage $anlage, ?string $time = null)
+    public function checkExpected(Anlage $anlage, ?string $time = null): void
     {
         $percentajeDiff = $anlage->getPercentageDiff();
         $invCount = count($anlage->getInverterFromAnlage());
@@ -377,10 +385,10 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-            if ( $plant_status['ppc'] != null && $plant_status['ppc'] )  $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "");
-            if ( $plant_status['Gap'] != null && count($plant_status['Gap']) > 0 && ($anlage->isPpcBlockTicket() && !$plant_status['ppc'])) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "");
-            if ( $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "");
-            if ( $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "");
+            if ( $plant_status['ppc'] != null && $plant_status['ppc'] )  $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", false);
+            if ( $plant_status['Gap'] != null && count($plant_status['Gap']) > 0 ) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "",  ($plant_status['ppc']));
+            if ( $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "",  ($plant_status['ppc']));
+            if ( $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "",  ($plant_status['ppc']));
         }
 
         $this->em->flush();
@@ -393,13 +401,10 @@ class AlertSystemV2Service
      * @param Anlage $anlage
      * @param $time
      * @return array
+     * @throws InvalidArgumentException
      */
     private function RetrievePlant(Anlage $anlage, $time): array
     {
-
-        $offsetServer = new DateTimeZone("Europe/Luxembourg");
-        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
-        //$totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
         $totalOffset = 0;
         $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
         $irrLimit = $anlage->getMinIrrThreshold() != "0" ? (float)$anlage->getMinIrrThreshold() : 20; // we get the irradiation limit from the plant config
@@ -489,12 +494,13 @@ class AlertSystemV2Service
      * @param $message
      * @return void
      */
-    private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
+    private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message, $PPC): void
     {
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
             if($ticketArray != []) {
                 foreach ($ticketArray as $ticketOld) {
-                    $result = G4NTrait::subArrayFromArray($inverter, $ticketOld->getInverterArray());
+                    $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
+                    $result = self::subArrayFromArray($inverter, $ticketOld->getInverterArray());
                     $inverter = $result['array1'];
                     $intersection = implode(', ', $result['intersection']);
                     $Ticket2Inverters = implode(', ', $result['array2']);
@@ -502,38 +508,38 @@ class AlertSystemV2Service
                         $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
                         $end->getTimestamp();
                         $ticketDate = $ticketOld->getDates()->last();
-
                         if ($Ticket2Inverters !== "") {
-                            $ticketClose = new Ticket();
-                            $ticketClose->setInverter($intersection);
-                            $ticketClose->copyTicket($ticketOld);
-                            $ticketClose->setEnd($end);
-                            $ticketClose->setOpenTicket(true);
+                            $ticketNew = new Ticket();
+                            $ticketNew->setInverter($intersection);
+                            $ticketNew->copyTicket($ticketOld);
+                            $ticketNew->setEnd($end);
+                            $ticketNew->setOpenTicket(true);
+                            $ticketNew->getDates()->last()->setEnd($end);
                             $ticketDate->setEnd($end);
-                            //$this->em->persist($ticketDate);
-                            $ticketClose->setCreatedBy("AlertSystem");
-                            $ticketClose->setUpdatedBy("AlertSystem");
-                            $this->em->persist($ticketClose);
+                            $ticketNew->setCreatedBy("AlertSystem");
+                            $ticketNew->setUpdatedBy("AlertSystem");
+                            $this->em->persist($ticketNew);
                         } else {
                             $ticketOld->setEnd($end);
                             $ticketOld->setOpenTicket(true);
                             $ticketOld->setInverter($intersection);
                             $ticketDate->setEnd($end);
-                            //$this->em->persist($ticketDate);
                             $this->em->persist($ticketOld);
                         }
                     }
                     if ($Ticket2Inverters !== ""){
                         $ticketOld->setOpenTicket(false);
                         $ticketOld->setInverter($Ticket2Inverters);
+                        $ticketOld->getDates()->last()->setEnd($endclose);
                         $this->em->persist($ticketOld);
                     }
                 }
             }
             if ($inverter != "*" ) {
                 $restInverter = implode(', ', $inverter);
+            } else {
+                $restInverter = $inverter;
             }
-            else $restInverter = $inverter;
             if ($restInverter != "" && $this->irr === false) {
                 $ticket = new Ticket();
                 $ticketDate = new TicketDate();
@@ -577,10 +583,18 @@ class AlertSystemV2Service
                 $ticketDate->setEnd($end);
                 $ticket->setEnd($end);
                 //default values por the kpi evaluation
-                if ($errorType == ticket::EFOR) {
-                    $ticketDate->setKpiPaDep1(10);
-                    $ticketDate->setKpiPaDep2(10);
-                    $ticketDate->setKpiPaDep3(10);
+                if ($errorType == 20) {
+                    if (!$PPC) {
+                        $ticketDate->setKpiPaDep1(10);
+                        $ticketDate->setKpiPaDep2(10);
+                        $ticketDate->setKpiPaDep3(10);
+                    }
+                    else{
+                        $ticketDate->setDataGapEvaluation(10);
+                        $ticketDate->setKpiPaDep1(20);
+                        $ticketDate->setKpiPaDep2(10);
+                        $ticketDate->setKpiPaDep3(10);
+                    }
                 }
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
@@ -597,7 +611,7 @@ class AlertSystemV2Service
      * @param $message
      * @return void
      */
-    private function generateTicketsExpected($errorType, $anlage, $inverter, $begin, $end, $message)
+    private function generateTicketsExpected($errorType, $anlage, $inverter, $begin, $end, $message): void
     {
         $ticketOld = $this->getTicketYesterday($anlage, $begin, 60,  $inverter);// we retrieve here the previous ticket (if any)
         //this could be the ticket from  the previous quarter or the last ticket from  the previous day
@@ -657,7 +671,7 @@ class AlertSystemV2Service
         $this->em->flush();
     }
 
-    private function getAllTicketsByCat($anlage, $time, $errorCategory):mixed
+    private function getAllTicketsByCat($anlage, $time, $errorCategory): mixed
     {
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']);
@@ -741,6 +755,7 @@ class AlertSystemV2Service
      * @param Anlage $anlage
      * @param string|null $time
      * @return string
+     * @throws InvalidArgumentException
      */
     private function checkSystemMulti(Anlage $anlage, ?string $time = null): string
     {

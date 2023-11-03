@@ -204,6 +204,11 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => '[Import Data with Symphony]'
             ])
 
+            ->add('useSensorsData', SwitchType::class, [
+                'label'     => 'Import Sensors Data into new Table',
+                'help'      => '[Import Sensors Data into new Table]'
+            ])
+
             ->add('importType', ChoiceType::class, [
                 'choices'       => self::importTypes(),
                 'placeholder'   => 'please Select',

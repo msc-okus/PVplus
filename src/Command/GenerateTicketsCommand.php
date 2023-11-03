@@ -77,7 +77,7 @@ class GenerateTicketsCommand extends Command
             $counter = ($counter * 4) - 1;
 
             foreach ($anlagen as $anlage) {
-
+                if ($anlage->getAnlId() === 105) date_default_timezone_set('Asia/Almaty');
                 while (((int) date('i') >= 26 && (int) date('i') < 35) || (int) date('i') >= 56 || (int) date('i') < 5) {
                     $io->comment('Wait...');
                     sleep(30);
@@ -101,7 +101,7 @@ class GenerateTicketsCommand extends Command
             $io->progressFinish();
             $io->success('Generating tickets finished');
         }
-
+        if ($anlage->getAnlId() === 105) date_default_timezone_set('Europe/Berlin');
         return Command::SUCCESS;
     }
 }

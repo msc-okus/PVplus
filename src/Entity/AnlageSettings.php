@@ -168,6 +168,9 @@ class AnlageSettings
     #[ORM\Column(nullable: true, options: ['default' => null])]
     private ?int $invertersUnits = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $useSensorsData = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -706,6 +709,18 @@ class AnlageSettings
     public function setStringboxesUnits(?int $stringboxesUnits): self
     {
         $this->stringboxesUnits = $stringboxesUnits;
+
+        return $this;
+    }
+
+    public function isUseSensorsData(): ?bool
+    {
+        return $this->useSensorsData;
+    }
+
+    public function setUseSensorsData(?bool $useSensorsData): self
+    {
+        $this->useSensorsData = $useSensorsData;
 
         return $this;
     }
