@@ -1,7 +1,10 @@
 {% import _self as macros %}
 
 {% macro availabilityTable(availability, aktAnlage) %}
-    {% set pa = 0 %}
+    {% set pa0   = 0 %}
+    {% set pa1   = 0 %}
+    {% set pa2   = 0 %}
+    {% set pa3   = 0 %}
     {% set case0 = 0 %}
     {% set case1 = 0 %}
     {% set case2 = 0 %}
@@ -141,7 +144,10 @@
                         {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.invA3|number_format(4, ',', '.') }}</span>{% endif %}
                     </td>
                 </tr>
-                {% set pa = pa + stati.invA2 %}
+                {% set pa0 = pa0 + stati.invA0 %}
+                {% set pa1 = pa1 + stati.invA1 %}
+                {% set pa2 = pa2 + stati.invA2 %}
+                {% set pa3 = pa3 + stati.invA3 %}
                 {% set case0 = case0 + stati.case02 %}
                 {% set case1 = case1 + stati.case12 %}
                 {% set case2 = case2 + stati.case22 %}
@@ -164,7 +170,11 @@
                 <td>{{ case6 }} / {{ case6 / 4 }}</td>
                 <td>{{ control }} / {{ control / 4 }}</td>
                 <td></td>
-                <td>{{ pa|number_format(4, ',', '.') }}</td>
+                <td><b>PA 0: </b>{{ pa0|number_format(4, ',', '.') }}<br>
+                    {% if not(aktAnlage.settings.disableDep1) %}<b>PA 1: </b>{{ pa1|number_format(4, ',', '.') }}<br>{% endif %}
+                    {% if not(aktAnlage.settings.disableDep2) %}<b>PA 2: </b>{{ pa2|number_format(4, ',', '.') }}<br>{% endif %}
+                    {% if not(aktAnlage.settings.disableDep3) %}<b>PA 3: </b>{{ pa3|number_format(4, ',', '.') }}{% endif %}
+                </td>
             </tr>
             </tbody>
         </table>

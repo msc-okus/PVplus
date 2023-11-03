@@ -40,6 +40,7 @@ class TicketFormType extends AbstractType
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
         $isBeta = $this->security->isGranted('ROLE_BETA');
+        $isG4N = $this->security->isGranted('ROLE_G4N');
 
         /** @var Ticket $ticket */
 
@@ -54,7 +55,7 @@ class TicketFormType extends AbstractType
         if ($anlage) $full = $anlage->getKpiTicket();
         else $full = true;
 
-        $errorCategorie = self::errorCategorie($full);
+        $errorCategorie = self::listAllErrorCategorie($isG4N);
 
 
         $builder
@@ -99,7 +100,7 @@ class TicketFormType extends AbstractType
             $builder->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
-                'choices' => self::errorCategorie(),
+                'choices' => $errorCategorie,
                 'disabled' => true,
                 'placeholder' => 'Please select ...',
                 'invalid_message' => 'Please select a Error Category.',
@@ -169,8 +170,18 @@ class TicketFormType extends AbstractType
             ])
             ->add('ProofAM', SwitchType::class, [
                 'label' => 'proof by AM'
-            ])
-            ->add('ignoreTicket', SwitchType::class, [
+            ]);
+            if($isAdmin || $isDeveloper || $isBeta){
+                $builder ->add('needsProofg4n', SwitchType::class, [
+                    'label' => 'proof by G4N'
+                ]);
+            }
+            else {
+                $builder ->add('needsProofg4n', SwitchType::class, [
+                    'label' => 'proof by G4N'
+                ]);
+            }
+            $builder->add('ignoreTicket', SwitchType::class, [
                 'label' => 'Ignore',
             ])
             // ### Free Text for descriptions

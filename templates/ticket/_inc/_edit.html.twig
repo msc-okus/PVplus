@@ -36,7 +36,6 @@
                                 {% set counter = counter + 1 %}
                             {% endif %}
                         {% endfor %}
-
                         <div class="grid-x grid-padding-x">
                             <div class="cell small-6 medium-2">
                                 {{ form_row(ticketForm.TicketName) }}
@@ -173,6 +172,9 @@
                             </div>
                             <div class="cell small-6 medium-1">
                                 {{ form_row(ticketForm.needsProofEPC) }}
+                            </div>
+                            <div class="cell small-6 medium-1">
+                                {{ form_row(ticketForm.needsProofg4n) }}
                             </div>
                             <div class="cell small-6 medium-1">
                                 {{ form_row(ticketForm.ProofAM) }}

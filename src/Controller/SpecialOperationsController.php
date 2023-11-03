@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+use App\Service\ExportService;
 use App\Service\PdoService;
 
 use App\Entity\Anlage;
@@ -15,14 +16,12 @@ use App\Repository\TicketRepository;
 use App\Repository\UserLoginRepository;
 use App\Repository\WeatherStationRepository;
 use App\Service\AvailabilityByTicketService;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\ExportService;
 use App\Service\LogMessagesService;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\Reports\ReportsMonthlyV2Service;
+use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
-use Omines\DataTablesBundle\DataTableFactory;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Http\Attribute\IsGranted;

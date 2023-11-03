@@ -14,9 +14,12 @@ use App\Repository\Case6Repository;
 use App\Repository\TimesConfigRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use PDO;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\InvalidArgumentException;
 
-
+#[Deprecated]
 class AvailabilityService
 {
     use G4NTrait;
@@ -36,9 +39,12 @@ class AvailabilityService
     /**
      * @param Anlage|int $anlage
      * @param $date
+     * @param bool $second
      * @return string
-     * @throws \Exception
+     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
      */
+    #[Deprecated]
     public function checkAvailability(Anlage|int $anlage, $date, bool $second = false): string
     {
         if (is_int($anlage)) {
@@ -165,10 +171,14 @@ class AvailabilityService
      * CASE 6 = Manuel, durch Operator koriegierte Datenlücke (Datenlücke ist Ausfall des Inverters) <br>
      * CONTROL = wenn Gmod > 0<br>.
      *
+     * @param Anlage $anlage
      * @param $timestampModulo
+     * @param TimesConfig $timesConfig
      * @return array
+     * @throws InvalidArgumentException
      */
-    public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig): array
+    #[Deprecated]
+    private function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig): array
     {
         $conn = $this->pdoService->getPdoPlant();
         $case3Helper = [];
@@ -334,6 +344,8 @@ class AvailabilityService
      * ti = case1 + case2<br>
      * ti,theo = control<br>
      * tFM = case5<br>.
+     *
+     * @throws InvalidArgumentException|NonUniqueResultException
      */
     public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null, int $department = 0): float
     {
@@ -373,7 +385,7 @@ class AvailabilityService
         }
     }
 
-
+    #[Deprecated]
     private function getIstData(Anlage $anlage, $from, $to): array
     {
         $conn = $this->pdoService->getPdoPlant();
@@ -398,6 +410,7 @@ class AvailabilityService
         return $istData;
     }
 
+    #[Deprecated]
     private function getIrrData(Anlage $anlage, $from, $to): array
     {
         $conn = $this->pdoService->getPdoPlant();
@@ -427,17 +440,15 @@ class AvailabilityService
         return $irrData;
     }
 
+    #[Deprecated]
     private function calcInvAPart1(array $row): float
     {
-        #return (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+        if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
+            $paInvPart1 = 100;
+        } else {
+            $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control'] - $row['case5']) * 100;
+        }
 
-
-            if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
-                $paInvPart1 = 100;
-            } else {
-                $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control'] - $row['case5']) * 100;
-            }
-
-            return $paInvPart1;
+        return $paInvPart1;
     }
 }
