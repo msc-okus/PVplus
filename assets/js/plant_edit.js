@@ -91,6 +91,11 @@ $('.js-copy-sunshading').click(function() {
     var cpfield7 ='#anlage_form_anlageSunShading_'+indexrow+'_distance_b';
     var cpfield8 ='#anlage_form_anlageSunShading_'+indexrow+'_ground_slope';
     var cpfield9 ='#anlage_form_anlageSunShading_'+indexrow+'_modulesDB';
+    var cpfield10 ='#anlage_form_anlageSunShading_'+indexrow+'_has_row_shading';
+    var cpfield11 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_alignment';
+    var cpfield12 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_long_page';
+    var cpfield13 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_short_page';
+    var cpfield14 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_row_tables';
     // build the new wrapper
     let index = $wrapper_sunshading.data('index');
     let newForm = prototype.replace(/__name__/g, index);
@@ -108,6 +113,11 @@ $('.js-copy-sunshading').click(function() {
     var nwfield7 ='#anlage_form_anlageSunShading_'+indexrow+'_distance_b';
     var nwfield8 ='#anlage_form_anlageSunShading_'+indexrow+'_ground_slope';
     var nwfield9 ='#anlage_form_anlageSunShading_'+indexrow+'_modulesDB';
+    var nwfield10 ='#anlage_form_anlageSunShading_'+indexrow+'_has_row_shading';
+    var nwfield11 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_alignment';
+    var nwfield12 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_long_page';
+    var nwfield13 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_short_page';
+    var nwfield14 ='#anlage_form_anlageSunShading_'+indexrow+'_mod_row_tables';
     // begin copy
     $(nwfield0).val($(cpfield0).val());
     $(nwfield1).val($(cpfield1).val());
@@ -119,7 +129,13 @@ $('.js-copy-sunshading').click(function() {
     $(nwfield7).val($(cpfield7).val());
     $(nwfield8).val($(cpfield8).val());
     $(nwfield9).val($(cpfield9).val());
+    $(nwfield10).val($(cpfield10).val());
+    $(nwfield11).val($(cpfield11).val());
+    $(nwfield12).val($(cpfield12).val());
+    $(nwfield13).val($(cpfield13).val());
+    $(nwfield14).val($(cpfield14).val());
     // ende copy and reinitzial accordion
+    $('#accordion-title').text('NEW Sun Shading Model from a COPY:');
     Foundation.reInit('accordion');
 } );
 

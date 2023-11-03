@@ -6,7 +6,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\AnlageSunShadingRepository;
 use App\Repository\AnlageModulesDBRepository;
 
-class ForcastDEKService {
+class DayAheadForecastDEKService {
     /**
      * The constructor
      * @param string $input_gl
@@ -32,15 +32,20 @@ class ForcastDEKService {
         // Muss noch geändert werden in eine verknüpfung zur tabelle modules to Anlage die zur MudulesDB geht
         $modrep = $this->anlagenmodulesdbrepository->findBy(['id' => '1']);
         $valueofdayandhour = [];
-        $SGES = 0;
         $faktorRVSued=$faktorRVOst=$faktorRVWest = 1;
+        $RGES = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGES_UPPER =  $RGES_LOWER = 0;
+// Durchläuft das Array $datfile['hourly'] a Stündlich von Api der Open Meteo es gibt noch ['minute'] a 15 Minute
+        foreach ($datfile['hourly'] as $key => $value) {
 
-// 365 Days with 0 - 23 Hour
-        for ($d = 1; $d <= 365; $d++) {
-            $RGES = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGES_UPPER =  $RGES_LOWER = $DGES = 0;
-            for ($h = 0; $h <= 23; $h++) {
+            $d = $value['doy'];
+            $h = $value['hour'];
+            $TMP = $value['tmp'];
+            $FF = $value['wds'];
+            $GHI = $value['dni'] + $value['ghi'];
+            $DHI = $value['dhi'];
+           # $GHI = $value['ghi'];
 
-                $AZW = ["180", "90", "270"]; // Modul Azimutwinkel Süd / Ost / West
+                $AZW = ["180", "90", "270"]; // Berechung aller Modul Azimut winkel Süd / Ost / West
                 foreach ($AZW as $winkel) {
                     $gendoy = str_pad($d, 2, "0", STR_PAD_LEFT); // Zerro Number display 01 instead of 1 - 9
                     // Hole den Einfallwinkel Strahlung auf Modulebene, Sonnenazimut SA, der Zenitwinkel der Sonne in RAD, die Sonnenhöhe in RAD
@@ -50,23 +55,18 @@ class ForcastDEKService {
                     $SZ = $AOIarray['SZ'];
                     $SH = $AOIarray['SH'];
                     $SHGD = rad2deg($SH); // Sonnenhöhe in Grad
-
+                    // Berechnung vom prozentualen Anteil der Strahlung
+                    $GDIR = $GHI - $DHI; // $GHI - $DHI Daten aus Meteo GHI - DHI
+                    ($GDIR > 1) ? $GDIRPRZ = round(($GDIR / $GHI) * 100,0) : $GDIRPRZ = 0; // in Prozent
                     $IAM = 1 - 0.05 * (1 / cos($AOI) - 1); //  Reflexionsverlust der Einstrahlung
 
-                    $GDIR = @$datfile[$d][$h]['gdir']; // Daten aus Metonorm GHI - DHI
-                    $DHI = @$datfile[$d][$h]['dh'];
-                    $GHI = @$datfile[$d][$h]['gh'];
-                    $TMP = @$datfile[$d][$h]['ta'];
-                    $FF = @$datfile[$d][$h]['ff'];
-                    // Berechnung des Prozentualen Anteil der Strahlung
-                    ($GDIR > 1) ? $GDIRPRZ = round(($GDIR / $GHI) * 100,0) : $GDIRPRZ = 0; // in Prozent
                     $SAGD = round(rad2deg($SA),0); // SA in Grad
-                    $DIFFSAMA = $winkel - $SAGD;           // Differenz SA -SA
+                    $DIFFSAMA = $winkel - $SAGD;           // Differenz von SA - SA
 
                     $CSZ = sin($SZ);
                     $DNI = $GDIR / $CSZ ; // Berechnung der Senkrechtstrahlung
 
-                    $DIRpoa = $DNI * cos($AOI) * $IAM; // Direktstrahlung in Modulebene
+                    $DIRpoa = $DNI * cos($AOI) * $IAM;     // Direktstrahlung in Modulebene
                     $DIFpoa = $DHI * ( (1 + cos(deg2rad($input_mn))) / 2) + $GHI *  (0.012 * $SZ - 0.04) * ((1 - cos(deg2rad($input_mn))) / 2); // Diffusstrahlung in Modulebene
                     $REFpoa = $GHI * $input_ab * ((1 - cos(deg2rad($input_mn))) / 2); // Reflektierende Strahlung
                     $BF = 80; // Bifazialitätsfaktor (Bereich 70-85)
@@ -80,7 +80,7 @@ class ForcastDEKService {
                                    if ($RGES >= 500) { // Wenn Strahlung größer 500 W/m2
                                        $faktorRVSued = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren // Return Array faktor RSH
                                        $DIRpoa = $DIRpoa * $faktorRVSued['FKR'];  // Neuer DIRpoa mit multiplikation des Verschattungs Faktor
-                                       $RSHArray = $faktorRVSued['RSH']; // Array der Reihenabschattung
+                                       $RSHArray = $faktorRVSued['RSH']; // Array der Reihen abschattung
                                        $this->shadingmodelservice->modrow_shading_loss($RSHArray,$DIFFSAMA,$GDIRPRZ,$sshrep,$modrep);
                                        $RGES = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour zzg. Verschattungs Faktor
                                    }
@@ -94,7 +94,7 @@ class ForcastDEKService {
                                     if ($RGES_UPPER >= 500) { // Wenn Strahlung größer 500 W/m2
                                         $faktorRVOst = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren // Return Array faktor RSH
                                         $DIRpoa = $DIRpoa * $faktorRVOst['FKR']; // Neuer DIRpoa mit multiplikation des Verschattungs Faktor
-                                        $RSHArray = $faktorRVOst['RSH']; // Array der Reihenabschattung
+                                        $RSHArray = $faktorRVOst['RSH']; // Array der Reihen abschattung
                                         $this->shadingmodelservice->modrow_shading_loss($RSHArray,$DIFFSAMA,$GDIRPRZ,$sshrep,$modrep);
                                         $RGES_UPPER = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour OST zzg. Verschattungs Faktor
                                     }
@@ -108,7 +108,7 @@ class ForcastDEKService {
                                     if ($RGES_LOWER >= 500) { // Wenn Strahlung größer 500 W/m2
                                         $faktorRVWest = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren // Return Array faktor RSH
                                         $DIRpoa = $DIRpoa * $faktorRVWest['FKR']; // Neuer DIRpoa mit multiplikation des Verschattungs Faktor
-                                        $RSHArray = $faktorRVWest['RSH']; // Array der Reihenabschattung
+                                        $RSHArray = $faktorRVWest['RSH']; // Array der Reihen abschattung
                                         $this->shadingmodelservice->modrow_shading_loss($RSHArray,$DIFFSAMA,$GDIRPRZ,$sshrep,$modrep);
                                         $RGES_LOWER = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour West zzg. Verschattungs Faktor
                                     }
@@ -120,17 +120,15 @@ class ForcastDEKService {
 
                     }
 
-                   if ($RGES > 0 ) {
-                    // Prüfe ob die Sonnenhöhe größer -1 Grad ist, dann keine Strahlung!
+                   if ($RGES > 0) {
+                          // Prüfe, ob die Sonnenhöhe größer -1 Grad ist, dann keine Strahlung!
                     if ($SHGD > 1) {
-                       $valueofdayandhour[$gendoy][$h] = ['DOY' => $gendoy, 'HR' => $h, 'TMP' => $TMP, 'FF' => $FF, 'RVF' =>['SUED' => $faktorRVSued,'OST' => $faktorRVOst,'WEST' => $faktorRVWest], "SUED" => ['RGES' => $RGES, 'RGESBIF' => $RGESBIF], "OSTWEST" => ['RGES_UPPER' => $RGES_UPPER, 'RGES_LOWER' => $RGES_LOWER, 'RGESBIF_UPPER' => $RGESBIF_UPPER, 'RGESBIF_LOWER' => $RGESBIF_LOWER]];
+                           $valueofdayandhour[$gendoy][$h] = ['DOY' => $gendoy, 'HR' => $h, 'TMP' => $TMP, 'FF' => $FF, 'RVF' =>['SUED' => $faktorRVSued,'OST' => $faktorRVOst,'WEST' => $faktorRVWest], "SUED" => ['RGES' => $RGES, 'RGESBIF' => $RGESBIF], "OSTWEST" => ['RGES_UPPER' => $RGES_UPPER, 'RGES_LOWER' => $RGES_LOWER, 'RGESBIF_UPPER' => $RGESBIF_UPPER, 'RGESBIF_LOWER' => $RGESBIF_LOWER]];
                     }
 
                   }
 
                }
-
-            }
 
         }
 
