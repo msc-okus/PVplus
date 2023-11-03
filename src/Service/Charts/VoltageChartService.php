@@ -65,6 +65,7 @@ private readonly PdoService $pdoService,
         $dataArray['maxSeries'] = $acGroups[$group]['GMAX'];
 
         if ($result->rowCount() > 0) {
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             $dataArray['sumSeries'] = $invertersInGroup;
             $counter = 0;
             foreach ($expectedResult as $rowSoll) {
@@ -79,11 +80,11 @@ private readonly PdoService $pdoService,
                     switch ($anlage->getConfigType()) {
                         case 1:
                         case 2:
-                            $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] > 0 ? $rowSoll['expected'] : 0;
+                            $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] > 0 ? $rowSoll['expected'] / $invertersInGroup : 0;
                             $dataArray['chart'][$counter]['expected'] = $hour ? $dataArray['chart'][$counter]['expected'] / 4 : $dataArray['chart'][$counter]['expected'];
                             break;
                         default:
-                            $dataArray['chart'][$counter]['expected'] = $hour ? $rowSoll['expected'] / 4 : $rowSoll['expected'];
+                            $dataArray['chart'][$counter]['expected'] = $hour ? $rowSoll['expected'] / $invertersInGroup / 4 : $rowSoll['expected'] / $invertersInGroup;
                     }
                     $dataArray['chart'][$counter]['expected'] = round($dataArray['chart'][$counter]['expected'], 2);
                 }
@@ -106,6 +107,8 @@ private readonly PdoService $pdoService,
                         break;
                 }
 
+                #echo "$sql <br>";
+
                 $resultAct = $conn->query($sql);
 
                 while ($rowAct = $resultAct->fetch(PDO::FETCH_ASSOC)) {
@@ -113,6 +116,19 @@ private readonly PdoService $pdoService,
                     $currentAct = round($currentAct, 2);
                     if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                         $dataArray['chart'][$counter][$nameArray[$rowAct['dc_num']]] = $currentAct;
+                    }
+                }
+
+                // Irradiation
+                if (isset($dataArrayIrradiation['chart'][$counter]['val1'])) {
+                    if ($anlage->getIsOstWestAnlage()) {
+                        $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] * $anlage->getPowerEast() + $dataArrayIrradiation['chart'][$counter]['val2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                    } else {
+                        if ($anlage->getShowOnlyUpperIrr() || !$anlage->getWeatherStation()->getHasLower()) {
+                            $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
+                        } else {
+                            $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
+                        }
                     }
                 }
                 ++$counter;

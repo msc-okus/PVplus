@@ -565,7 +565,7 @@ trait ImportFunctionsTrait
                 'stamp' => $stamp,
                 'wr_group' => $pvpGroupDc,
                 'wr_num' => $pvpInverter,
-                'wr_idc' => $currentDc,
+                'wr_idc' => $currentDcSCB,
                 'wr_udc' => $voltageDc,
                 'wr_pdc' => $powerDc,
                 'wr_temp' => 0,
@@ -575,6 +575,7 @@ trait ImportFunctionsTrait
             ];
 
         }
+
         $result[] = $data_pv_dcist;
         return $result;
     }
