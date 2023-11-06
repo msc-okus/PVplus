@@ -337,10 +337,7 @@ trait ImportFunctionsTrait
                     $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                 }
                 $now = strtotime((string) $date);
-                $x = (string)$anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s');
-                $y = (string)$anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s');
-                #echo "Sensor Start $date = $now /BE $x = $start \n\n";
-                #echo "Sensor End $date = $now /BE $y = $end \n";
+
                 if (($now >= $start && ($end == 0 || $now < $end)) || ($start == 0 && $end == 0)) {
                     if($anlageSensors[$i]->getUseToCalc() == 1){
                         array_push($windSpeedEWD, $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()]);
