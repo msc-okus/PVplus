@@ -193,13 +193,34 @@ class IrradiationChartService
 
                     $counter++;
                 }
-
-
             }
         }
 
         $conn = null;
+        if(!is_array($dataArrayFinal)){
+            $x = [];
+            $from = $date = date('Y-m-d 00:00', time());;
 
+            $fromObj = date_create($from);
+            $endObj  = date_create($to);
+
+            //fil up rest of day
+            $i = 0;
+            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += 900) {
+
+                #echo "$dayStamp <br>";
+                $date = date('Y-m-d H:i', $dayStamp);
+                $dataArrayFinal['chart'][$i] = [
+                    'date'          =>  $date,
+                    'g4n'           =>  null,
+                    'irrHorizontal' =>  null,
+                    'irrLower'      =>  null,
+                    'irrUpper'      =>  null,
+                    'chart'         =>  $x
+                ];
+                $i++;
+            }
+        }
         return $dataArray;
     }
 
@@ -325,13 +346,13 @@ class IrradiationChartService
                     //create the data for each timepoint
                     if($stampTemp != $row['stamp']){
                         $dataArray[$counter] = [
-                            'gmo' =>            $gmO[0],
-                            'irrHorizontal' =>  $this->mittelwert($gmPyHori),
-                            'irrLower' =>       $this->mittelwert($gmPyWest),
-                            'irrUpper' =>       $this->mittelwert($gmPyEast),
-                            'stamp' =>          $stampTemp,
-                            'values' =>         $irrValueArray,
-                            'sensorShortName' => $sshortNameTemp
+                            'gmo'               =>  $gmO[0],
+                            'irrHorizontal'     =>  $this->mittelwert($gmPyHori),
+                            'irrLower'          =>  $this->mittelwert($gmPyWest),
+                            'irrUpper'          =>  $this->mittelwert($gmPyEast),
+                            'stamp'             =>  $stampTemp,
+                            'values'            =>  $irrValueArray,
+                            'sensorShortName'   =>  $sshortNameTemp //this is for sensors they are activated by date-from in plant-sensors-table
                         ];
                         unset($gmPyHori);
                         unset($gmPyWest);
@@ -407,7 +428,6 @@ class IrradiationChartService
                 $dateLastEntry = $dataArray[$inDataArray]['stamp'];
 
                 for ($i = 0; $i < $inDataArray; $i++) {
-                    #echo 'xxx '.$dataArray[$i]['sensorShortName'][1].'<br>';
                     if(is_array($dataArray[$i]['sensorShortName']) && count($dataArray[$i]['sensorShortName']) > 0 && $updateMaxSeries == 0){
                         $updateMaxSeries = $updateMaxSeriesReal;
 
@@ -461,7 +481,7 @@ class IrradiationChartService
                     array_push($dataArrayFinal['nameX'], 'GM_Py_West');
                 }
 
-                $x = [];
+                $dataArrayValues['val'] = [];
                 $from = substr($dateLastEntry, 0, -3);
 
                 $fromObj = date_create($from);
@@ -473,27 +493,41 @@ class IrradiationChartService
                     #echo "$dayStamp <br>";
                     $date = date('Y-m-d H:i', $dayStamp);
                     $dataArrayFinal['chart'][count($dataArrayFinal['chart'])] = [
-                        'date' =>          $date,
-                        'g4n' =>            null,
+                        'date'          =>  $date,
+                        'g4n'           =>  null,
                         'irrHorizontal' =>  null,
-                        'irrLower' =>       null,
-                        'irrUpper' =>       null
+                        'irrLower'      =>  null,
+                        'irrUpper'      =>  null
                     ];
                 }
-
-
-
-
             }
         }
 
         $conn = null;
+        if(!is_array($dataArrayFinal)){
+            $x = [];
+            $from = $date = date('Y-m-d 00:00', time());;
 
-        echo '<pre>';
-        #print_r($dataArrayFinal);
-        echo '</pre>';
-        #exit;
+            $fromObj = date_create($from);
+            $endObj  = date_create($to);
+
+            //fil up rest of day
+            $i = 0;
+            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += 900) {
+
+                #echo "$dayStamp <br>";
+                $date = date('Y-m-d H:i', $dayStamp);
+                $dataArrayFinal['chart'][$i] = [
+                    'date'              =>  $date,
+                    'g4n'               =>  null,
+                    'irrHorizontal'     =>  null,
+                    'irrLower'          =>  null,
+                    'irrUpper'          =>  null,
+                    'chart'             =>  $x
+                ];
+                $i++;
+            }
+        }
         return $dataArrayFinal;
     }
-
 }
