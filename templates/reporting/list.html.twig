@@ -29,11 +29,12 @@
         </form>
             {% include 'reporting/_inc/_listReports.html.twig' %}
             <hr>
-
+        {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA') ) %}
             <form>
                 <div id="create-form" data-report-target="createForm">
                     {% include'reporting/_inc/_createForm.html.twig' %}
                 </div>
             </form>
+        {% endif %}
     </div>
 {% endblock %}

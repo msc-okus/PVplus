@@ -93,6 +93,7 @@ class TicketRepository extends ServiceEntityRepository
             ->addSelect('a')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
+
                 $qb->andWhere('a.anlId IN (:plantList)')
                     ->setParameter('plantList', $granted);
         }

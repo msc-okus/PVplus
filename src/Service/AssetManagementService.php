@@ -24,6 +24,7 @@ use Hisune\EchartsPHP\ECharts;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
 use League\Flysystem\Filesystem;
@@ -56,7 +57,8 @@ class AssetManagementService
         private ForcastDayRepository $forecastDayRepo,
         private Filesystem $fileSystemFtp,
         private Filesystem $filesystem,
-        private AnlageFileRepository $RepositoryUpload
+        private AnlageFileRepository $RepositoryUpload,
+        private readonly Security $security,
     )
     {
         $this->conn = $this->pdoService->getPdoPlant();
@@ -132,7 +134,6 @@ class AssetManagementService
             'logoImage' => $tempFileLogo,
             'month' => $reportMonth,
             'monthName' => $output['month'],
-            'year' => $reportYear,
             'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
@@ -555,6 +556,9 @@ class AssetManagementService
             ->setComments($comment);
         if ($userId) {
             $report->setCreatedBy($userId);
+        }
+        if (!$this->security->isGranted('ROLE_G4N')){
+            $report->setReportStatus(3);
         }
 
         $this->em->persist($report);
@@ -1108,7 +1112,7 @@ class AssetManagementService
             if ($anlage->getShowEvuDiag()) {
                 (float) $powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
             } else {
-                (float) $powerExpEvu[] = $data1_grid_meter['powerAct'];
+                (float) $powerExpEvu[] = $data1_grid_meter['powerExp'];
             }
             (float) $powerExp[] = $data1_grid_meter['powerExp'];
             (float) $powerExternal[] = $data1_grid_meter['powerEGridExt'];
@@ -1127,6 +1131,7 @@ class AssetManagementService
             'powerExt' => $powerExternal,
             'forecast' => $forecast,
         ];
+
 
         $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
@@ -1611,7 +1616,7 @@ class AssetManagementService
             $diffActForecastSum[$i] = $diffActForecastSum[$i - 1]+($tbody_a_production['powerAct'][$i] - $forecast[$i]);
 
 
-            if ($i +1  > $report['reportMonth']) {
+            if ($i + 1  > $report['reportMonth']) {
                 $difference_Egrid_to_PVSYST[$i] = 0;
                 $difference_Egrid_to_Expected_G4n[$i] = 0;
                 $difference_Inverter_to_Egrid[$i] = 0;
@@ -1623,7 +1628,6 @@ class AssetManagementService
                 $difference_actual_forecast[$i] = $diffActForecastSum[$i];
             }
         }
-
         $losses_t1 = [
             'difference_Egrid_to_PVSYST' => $difference_Egrid_to_PVSYST,
             'difference_Egrid_to_Expected_G4n' => $difference_Egrid_to_Expected_G4n,
@@ -4487,11 +4491,13 @@ class AssetManagementService
                 break;
         }
 
+
         $res = $this->conn->query($sql);
         $inverter = 1;
         $index = 1;
         $efficiencySum = 0;
         $efficiencyCount = 0;
+    
         foreach($res->fetchAll(PDO::FETCH_ASSOC) as $result){
             if ($result['inverter'] != $inverter){
                 $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0;
