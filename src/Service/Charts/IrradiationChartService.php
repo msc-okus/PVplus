@@ -197,7 +197,7 @@ class IrradiationChartService
         }
 
         $conn = null;
-        if(!is_array($dataArrayFinal)){
+        if(is_array($dataArray) || count($dataArray) == 0){
             $x = [];
             $from = $date = date('Y-m-d 00:00', time());;
 
@@ -210,7 +210,7 @@ class IrradiationChartService
 
                 #echo "$dayStamp <br>";
                 $date = date('Y-m-d H:i', $dayStamp);
-                $dataArrayFinal['chart'][$i] = [
+                $dataArray['chart'][$i] = [
                     'date'          =>  $date,
                     'g4n'           =>  null,
                     'irrHorizontal' =>  null,
@@ -322,6 +322,7 @@ class IrradiationChartService
     {
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
+        $dataArrayFinal = [];
         $dataArray['maxSeries'] = 0;
         $isEastWest = $anlage->getIsOstWestAnlage();
 
@@ -504,7 +505,7 @@ class IrradiationChartService
         }
 
         $conn = null;
-        if(!is_array($dataArrayFinal)){
+        if(is_array($dataArrayFinal) && count($dataArrayFinal) == 0){
             $x = [];
             $from = $date = date('Y-m-d 00:00', time());;
 
