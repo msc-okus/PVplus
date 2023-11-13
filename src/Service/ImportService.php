@@ -117,7 +117,7 @@ class ImportService
 
                     //if plant use sensors datatable get data from the table
                     if($useSensorsDataTable){
-                        $result = self::getSensorsData($anlageSensors->toArray(), $length, $sensors, $stamp, $date, $gMo);
+                        $result = self::getSensorsDataFromImport($anlageSensors->toArray(), $length, $sensors, $stamp, $date, $gMo);
 
                         //built array for sensordata
                         for ($j = 0; $j <= count($result[0])-1; $j++) {

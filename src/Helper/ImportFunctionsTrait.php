@@ -385,9 +385,8 @@ trait ImportFunctionsTrait
      * @param  $date
      * @return array
      */
-    function getSensorsData(array $anlageSensors, int $length, array $sensors, $stamp, $date, $gMo): array
+    function getSensorsDataFromImport(array $anlageSensors, int $length, array $sensors, $stamp, $date, $gMo): array
     {
-        $gmPyHori = $gmPyHoriAnlage = $gmPyWest = $gmPyWestAnlage = $gmPyEast = $gmPyEastAnlage = [];
         for ($i = 0; $i < $length; $i++) {
             if ($anlageSensors[$i]->getUseToCalc() == 1) {
                 $start = 0;
@@ -401,9 +400,6 @@ trait ImportFunctionsTrait
                 $now = strtotime((string) $date);
                 if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                     $sensorId = $anlageSensors[$i]->getId();
-                    $sensorType = $anlageSensors[$i]->getvirtualSensor();
-                    $sensorShortname = $anlageSensors[$i]->getNameShort();
-                    $sensorUseToCalc = $anlageSensors[$i]->getUseToCalc();
                     $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                 }
 
@@ -413,9 +409,6 @@ trait ImportFunctionsTrait
                 'date'                  => $date,
                 'stamp'                 => $stamp,
                 'id_sensor'             => $sensorId,
-                'type_sensor'           => $sensorType,
-                'shortname_sensor'      => $sensorShortname,
-                'usetocalc_sensor'      => $sensorUseToCalc,
                 'value'                 => ($value != '') ? $value : 0,
                 'gmo'                   => $gMo
             ];
