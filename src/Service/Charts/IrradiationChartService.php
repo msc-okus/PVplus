@@ -28,12 +28,12 @@ class IrradiationChartService
     /**
      * Erzeugt Daten für das Strahlungs Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param string|null $mode
      * @param bool|null $hour
      * @return array
-     * @throws \Exception
      */
     public function getIrradiation(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
@@ -99,12 +99,12 @@ class IrradiationChartService
     /**
      * Erzeugt Daten für das Strahlungs Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param string|null $mode
      * @param bool|null $hour
      * @return array
-     * @throws \Exception
      */
     public function getIrradiationFromSensorsData(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
@@ -227,10 +227,12 @@ class IrradiationChartService
     /**
      * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wird.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param bool $hour
      * @return array
-     * @throws \Exception
+     * @throws \JsonException
      */
     public function getIrradiationPlant(Anlage $anlage, $from, $to, bool $hour): array
     {
@@ -238,7 +240,7 @@ class IrradiationChartService
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
-        // Strom für diesen Zeitraum und diesen Inverter
+
         if ($hour) {
             $sql_irr_plant = 'SELECT a.stamp as stamp, (b.irr_anlage) AS irr_anlage FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameIst().") b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' group by date_format(a.stamp, '$form');";
         } else {
@@ -313,14 +315,16 @@ class IrradiationChartService
     /**
      * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wird aus SensorsData Tabelle.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param bool $hour
      * @return array
-     * @throws \Exception
      */
     public function getIrradiationPlantFromSensorsData(Anlage $anlage, $from, $to, bool $hour): array
     {
         $conn = $this->pdoService->getPdoPlant();
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         $dataArrayFinal = [];
         $dataArray['maxSeries'] = 0;
@@ -329,11 +333,11 @@ class IrradiationChartService
         // Strom für diesen Zeitraum und diesen Inverter
 
         if ($hour) {
-            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' and stamp like '%:00:00' order by stamp;";
+            $sql_irr_plant = "SELECT stamp, id_sensor, type_sensor, shortname_sensor, usetocalc_sensor, avg(`value`) as `value`, avg(gmo) as gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' and id_sensor is not null group by id_sensor, date_format(stamp, '$form') order by date_format(stamp, '$form');";
         }else{
             $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' order by stamp;";
         }
-
+        dump($sql_irr_plant);
         $result = $conn->query($sql_irr_plant);
 
         if ($result) {
@@ -341,16 +345,17 @@ class IrradiationChartService
                 $counter = 0;
                 $irrCounter = 1;
                 $namexCounter = 0;
+                $stampTemp = null;
                 $gmPyHori = $gmPyEast = $gmPyWest = $irrValueArray = [];
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                     $dataArray['nameX'][1] = 'G_M0';
                     //create the data for each timepoint
-                    if($stampTemp != $row['stamp']){
+                    if ($stampTemp != $row['stamp']){
                         $dataArray[$counter] = [
                             'gmo'               =>  $gmO[0],
                             'irrHorizontal'     =>  $this->mittelwert($gmPyHori),
-                            'irrLower'          =>  $this->mittelwert($gmPyWest),
                             'irrUpper'          =>  $this->mittelwert($gmPyEast),
+                            'irrLower'          =>  $this->mittelwert($gmPyWest),
                             'stamp'             =>  $stampTemp,
                             'values'            =>  $irrValueArray,
                             'sensorShortName'   =>  $sshortNameTemp //this is for sensors they are activated by date-from in plant-sensors-table
@@ -364,31 +369,28 @@ class IrradiationChartService
                         $counter++;
                     }
 
-                    if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
+                    if ($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
                             array_push($gmPyHori, $row['value']);
                     }
 
-                    if($isEastWest){
-                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-west'){
+                    if ($isEastWest){
+                        if ($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-west'){
                             array_push($gmPyWest, $row['value']);
                         }
-                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-east'){
+                        if ($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-east'){
                             array_push($gmPyEast, $row['value']);
                         }
-                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
-                            array_push($gmPyHori, $row['value']);
-                        }
-                    }else{
+                    } else {
                         if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr'){
                             array_push($gmPyEast, $row['value']);
                         }
                         $gmPyWest = [];
-                        if($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
-                            array_push($gmPyHori, $row['value']);
-                        }
+                    }
+                    if ($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
+                        array_push($gmPyHori, $row['value']);
                     }
 
-                    if($row['usetocalc_sensor'] && ($row['type_sensor'] == 'irr' || $row['type_sensor'] == 'irr-hori' || $row['type_sensor'] == 'irr-east' || $row['type_sensor'] == 'irr-west')){
+                    if ($row['usetocalc_sensor'] && ($row['type_sensor'] == 'irr' || $row['type_sensor'] == 'irr-hori' || $row['type_sensor'] == 'irr-east' || $row['type_sensor'] == 'irr-west')){
 
                         if (!isset($dataArray['nameX'][$irrCounter])) {
                             $dataArray['nameX'][$irrCounter] = $row['shortname_sensor'];
@@ -489,10 +491,10 @@ class IrradiationChartService
                 $endObj  = date_create($to);
 
                 //fil up rest of day
-                for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += 900) {
+                for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $hour ? 3600 : 900) {
 
                     #echo "$dayStamp <br>";
-                    $date = date('Y-m-d H:i', $dayStamp);
+                    $date = date('Y-m-d H:i:00', $dayStamp);
                     $dataArrayFinal['chart'][count($dataArrayFinal['chart'])] = [
                         'date'          =>  $date,
                         'g4n'           =>  null,
@@ -514,10 +516,10 @@ class IrradiationChartService
 
             //fil up rest of day
             $i = 0;
-            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += 900) {
+            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $hour ? 3600 : 900) {
 
                 #echo "$dayStamp <br>";
-                $date = date('Y-m-d H:i', $dayStamp);
+                $date = date('Y-m-d H:i:00', $dayStamp);
                 $dataArrayFinal['chart'][$i] = [
                     'date'              =>  $date,
                     'g4n'               =>  null,

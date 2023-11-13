@@ -438,6 +438,7 @@ trait ImportFunctionsTrait
     }
 
     //importiert die Daten für Anlegen mit Stringboxes
+
     /**
      * @param \DateTime $stringBoxesTime
      * @param array $acGroups
@@ -452,6 +453,7 @@ trait ImportFunctionsTrait
      * @param object $groups
      * @param int $stringBoxUnits
      * @return array
+     * @throws \JsonException
      */
     function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
     {
@@ -547,12 +549,12 @@ trait ImportFunctionsTrait
                 $key = "I$n";
 
                 $dcCurrentMppArray[$key] = $stringBoxesTime[$scbNo][$key];
-                $currentDcSCB += ($stringBoxesTime[$scbNo][$key]);
+                $currentDcSCB += $stringBoxesTime[$scbNo][$key];
                 #echo "$date / $scbNo / $key".' / '.$stringBoxesTime[$scbNo][$key]." / $currentDcSCB".'<br>';
             }
 
-            $voltageDc = round($stringBoxesTime[$scbNo]['U_DC'], 4);
-            $powerDc = round($currentDcSCB * $voltageDc / 1000 / 4, 4); // Umrechnung von W auf kW/h
+            $voltageDc = $stringBoxesTime[$scbNo]['U_DC'];
+            $powerDc = $currentDcSCB * $voltageDc / 1000 / 4; // Umrechnung von W auf kW/h
 
             $dcCurrentMpp = json_encode($dcCurrentMppArray, JSON_THROW_ON_ERROR);
             $dcVoltageMpp = "{}";
