@@ -373,7 +373,6 @@ class AlertSystemV2Service
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $time = self::timeAjustment($time, -2);
-        dump($time);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
 
             //here we retrieve the values from the plant and set soma flags to generate tickets
@@ -391,7 +390,7 @@ class AlertSystemV2Service
             if ( $plant_status['Gap'] != null && count($plant_status['Gap']) > 0 ) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "",  ($plant_status['ppc']));
             if ( $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "",  ($plant_status['ppc']));
             if ( $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "",  ($plant_status['ppc']));
-            if ( $plant_status['Irradiation'] ) $this->generateTickets('', ticket::IRRADIATION, $anlage, '*', $time, "Data Gap in the irradiation Data Base", $plant_status['ppc']);
+            if ( $plant_status['Irradiation'] ) $this->generateTickets('', ticket::IRRADIATION, $anlage, ['*'], $time, "Data Gap in the irradiation Data Base", $plant_status['ppc']);
 
         }
 
@@ -505,12 +504,13 @@ class AlertSystemV2Service
      * @param $message
      * @return void
      */
-    private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message, $PPC): void
+    private function generateTickets($errorType, $errorCategorie,Anlage $anlage, $inverter, $time, $message, $PPC): void
     {
+
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
             if($ticketArray != []) {
                 foreach ($ticketArray as $ticketOld) {
-                    $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
+                     $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
                     $result = self::subArrayFromArray($inverter, $ticketOld->getInverterArray());
                     $inverter = $result['array1'];
                     $intersection = implode(', ', $result['intersection']);

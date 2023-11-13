@@ -1,0 +1,11 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Top 10 best and worst SCBs</h3>
+    <div class="grid-x">
+        <div class="cell">
+            {{ pr_rank_graph_20_inv|raw }}
+        </div>
+    </div>
+{%  endblock page %}

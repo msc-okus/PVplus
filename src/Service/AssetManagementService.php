@@ -348,6 +348,7 @@ class AssetManagementService
             'prSumaryTable' => $content['prSumaryTable'],
             'sumary_pie_graph' => $content['sumary_pie_graph'],
             'pr_rank_graph_20_inv' => $content['pr_rank_graph_20_inv'],
+            'pr_rank_graph_20_inv' => $content['pr_rank_graph_20_inv2']
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
@@ -817,7 +818,7 @@ class AssetManagementService
                 ];
                 $chart->setOption($option);
                 $pr_rank_graph_20_inv = $chart->render('pr_graph_20_inv' . $key, ['style' => 'height: 550px; width:900px;']);
-            } else {
+            }
                 // we build 2 arrays with the 10 best and the 10 worst
                 $worseTen['name'] = array_slice($fullArray['name'], 0, 10);
                 $bestTen['name'] = array_slice($fullArray['name'], count($fullArray['name']) - 10, 10);
@@ -931,9 +932,9 @@ class AssetManagementService
                     ],
                 ];
                 $chart->setOption($option);
-                $pr_rank_graph_20_inv = $chart->render('pr_graph_20_inv' . $key, ['style' => 'height: 550px; width:900px;']);
+                $pr_rank_graph_20_inv2 = $chart->render('pr_graph_20_inv' . $key, ['style' => 'height: 550px; width:900px;']);
             }
-        }
+
 
         foreach($graphDataPR as $key => $data) {
             $chart = new ECharts();
@@ -4281,7 +4282,8 @@ class AssetManagementService
             'sumary_pie_graph' => $sumary_pie_graph,
             'waterfallHelpTable' => $waterfallDiagramHelpTable,
             'waterfallDiagram' => $waterfallDiagram,
-            'pr_rank_graph_20_inv' => $pr_rank_graph_20_inv
+            'pr_rank_graph_20_inv' => $pr_rank_graph_20_inv,
+            'pr_rank_graph_20_inv2' => $pr_rank_graph_20_inv2,
         ];
 
         return $output;

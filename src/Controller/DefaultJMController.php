@@ -50,17 +50,17 @@ class DefaultJMController extends AbstractController
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $ts)
     {
         $fromDate = "2023-01-01 00:00";
-        $toDate = "2023-06-01 00:00";
+        $toDate = "2023-11-09 00:00";
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
-        $anlage = $anlagenRepository->findIdLike("187")[0];
+        $anlage = $anlagenRepository->findIdLike("217")[0];
         $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
         foreach ($tickets as $ticket){
             $dates = $ticket->getDates();
             foreach ($dates as $date){
                 $em->remove($date);
             }
-            $em->remove($ticket);
+            $em->remove($ticket); 
         }
 
         $em->flush();
