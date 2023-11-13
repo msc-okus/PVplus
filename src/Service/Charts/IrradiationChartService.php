@@ -116,8 +116,10 @@ class IrradiationChartService
         $dataArray = [];
         if ($hour) {
             $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND stamp like '%:00:00' order by stamp;";
+            $timeStepp = 3600;
         }else{
             $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' order by stamp;";
+            $timeStepp = 900;
         }
 
         $result = $conn->query($sql_irr_plant);
@@ -199,9 +201,7 @@ class IrradiationChartService
         $endObj  = date_create($to);
 
         //fil up rest of day
-        for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += 900) {
-
-            #echo "$dayStamp <br>";
+        for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
             $date = date('Y-m-d H:i', $dayStamp);
             $dataArray['chart'][count($dataArray['chart'])] = [
                 'date'          =>  $date,
@@ -218,7 +218,7 @@ class IrradiationChartService
 
             //fil up rest of day
             $i = 0;
-            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += 900) {
+            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
                 $date = date('Y-m-d H:i', $dayStamp);
                 $dataArray['chart'][$i] = [
                     'date'              =>  $date,
@@ -314,6 +314,7 @@ class IrradiationChartService
             }
         }
         $conn = null;
+
         return $dataArray;
     }
 
@@ -335,13 +336,17 @@ class IrradiationChartService
         $anlageSensors = $anlage->getSensors()->toArray();
         $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
         $sensorsArray = self::getSensorsData($anlageSensors, $length);
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+
 
         // Strom für diesen Zeitraum und diesen Inverter
 
         if ($hour) {
             $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' and stamp like '%:00:00' order by stamp;";
+            $timeStepp = 3600;
         }else{
             $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' order by stamp;";
+            $timeStepp = 900;
         }
 
         $result = $conn->query($sql_irr_plant);
@@ -493,16 +498,12 @@ class IrradiationChartService
                 $fromObj = date_create($from);
                 $endObj  = date_create($to);
                 //fil up rest of day
-                for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += 900) {
+                for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
 
                     #echo "$dayStamp <br>";
                     $date = date('Y-m-d H:i', $dayStamp);
                     $dataArrayFinal['chart'][count($dataArrayFinal['chart'])] = [
-                        'date'          =>  $date,
-                        'g4n'           =>  null,
-                        'irrHorizontal' =>  null,
-                        'irrLower'      =>  null,
-                        'irrUpper'      =>  null
+                        'date'          =>  $date
                     ];
                 }
             }
@@ -518,7 +519,7 @@ class IrradiationChartService
 
             //fil up rest of day
             $i = 0;
-            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += 900) {
+            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
                 $date = date('Y-m-d H:i', $dayStamp);
                 $dataArrayFinal['chart'][$i] = [
                     'date'              =>  $date,

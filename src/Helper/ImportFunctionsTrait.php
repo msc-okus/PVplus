@@ -404,14 +404,16 @@ trait ImportFunctionsTrait
                 }
 
             }
+            if($sensorId != null){
+                $data_sensors[] = [
+                    'date'                  => $date,
+                    'stamp'                 => $stamp,
+                    'id_sensor'             => $sensorId,
+                    'value'                 => ($value != '') ? $value : 0,
+                    'gmo'                   => $gMo
+                ];
+            }
 
-            $data_sensors[] = [
-                'date'                  => $date,
-                'stamp'                 => $stamp,
-                'id_sensor'             => $sensorId,
-                'value'                 => ($value != '') ? $value : 0,
-                'gmo'                   => $gMo
-            ];
         }
         $result[] = $data_sensors;
         return $result;
