@@ -105,6 +105,9 @@ class AnlageModulesDB
     #[ORM\Column(type: 'integer', length: 1, nullable: false)]
     private ?bool $isBifacial = null;
 
+    #[ORM\Column(type: 'string', length: 3, nullable: true)]
+    private ?string $baypassDiodeAnz  = null;
+
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $modulPicture = null;
 
@@ -388,6 +391,16 @@ class AnlageModulesDB
         return $this;
     }
 
+    public function getBaypassDiodeAnz(): ?string
+    {
+        return $this->baypassDiodeAnz;
+    }
+
+    public function setBaypassDiodeAnz(string $baypassDiodeAnz): self
+    {
+        $this->baypassDiodeAnz = $baypassDiodeAnz;
+        return $this;
+    }
 
     public function getModulPicture(): ?string
     {
@@ -676,10 +689,12 @@ class AnlageModulesDB
         $this->backSideFactor = str_replace(',', '.', $backSideFactor);
     }
 
+
     public function getBackSideFactorMultiplier(): float
     {
         return 1 + $this->backSideFactor / 100;
     }
+
 /*
     public function getAnlage(): ?Anlage
     {

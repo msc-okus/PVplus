@@ -3,7 +3,7 @@
 {% macro addSunshadingModel(sunshading) %}
     <li class="accordion-item js-sunshading-item" data-accordion-item data-allow-all-closed="true">
         <!-- Accordion tab title -->
-        <a href="#" class="accordion-title">NEW Sun Shading Model:</a>
+        <a href="#" id="accordion-title" class="accordion-title">NEW Sun Shading Model:</a>
 
         <div class="accordion-content" data-tab-content>
 
@@ -24,7 +24,17 @@
                     <div class="cell medium-6">{{ form_row(sunshading.ground_slope) }}</div>
                     <div class="cell medium-6">{{ form_row(sunshading.modulesDB) }}</div>
                 </div>
-
+            <fieldset class="fieldset">
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-6">{{ form_row(sunshading.has_row_shading) }}</div>
+                    <div class="cell medium-6">{{ form_row(sunshading.mod_alignment) }}</div>
+                </div>
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_long_page) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_short_page) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_row_tables) }}</div>
+                </div>
+            </fieldset>
 
         </div>
     </li>
@@ -375,8 +385,18 @@
                                                         <div class="cell medium-6">{{ form_row(sunshading.ground_slope) }}</div>
                                                         <div class="cell medium-6">{{ form_row(sunshading.modulesDB) }}</div>
                                                     </div>
+                                                    <fieldset class="fieldset">
+                                                        <div class="grid-x grid-padding-x">
+                                                            <div class="cell medium-6">{{ form_row(sunshading.has_row_shading) }}</div>
+                                                            <div class="cell medium-6">{{ form_row(sunshading.mod_alignment) }}</div>
+                                                        </div>
+                                                        <div class="grid-x grid-padding-x">
+                                                            <div class="cell medium-4">{{ form_row(sunshading.mod_long_page) }}</div>
+                                                            <div class="cell medium-4">{{ form_row(sunshading.mod_short_page) }}</div>
+                                                            <div class="cell medium-4">{{ form_row(sunshading.mod_row_tables) }}</div>
+                                                        </div>
+                                                    </fieldset>
                                                     <div class="grid-x grid-padding-x">
-
                                                         <div class="cell medium-6">
                                                         <button type="button" class="button secondary small js-copy-sunshading">
                                                             <span class="fa fa-plus-circle"></span>&nbsp;Copy Sun Shading Model</button>

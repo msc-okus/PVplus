@@ -2,12 +2,8 @@
 
 namespace App\Service\Forecast;
 
-use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemAdapter;
-
-
 
 class DatFileReaderService  {
     private readonly string $delimiter;

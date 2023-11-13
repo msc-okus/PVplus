@@ -38,7 +38,7 @@
                                         <td><div class=" cell medium-2 "><label><b>Temp. Coef. Current:</b> {{ modules.tempCoefCurrent }} A</label></div></td>
                                         <td><div class=" cell medium-2 "><label><b>Temp. Coef. Voltage:</b> {{ modules.tempCoefVoltage }} V</label></div></td>
                                         <td><div class=" cell medium-2 "><label><b>Temp. Coef. Power:</b> {{ modules.tempCoefPower }} W</label></div></td>
-                                        <td>&nbsp;</td>
+                                        <td><div class=" cell medium-2 "><label><b>Baypass diodes:</b>{% if (modules.baypassDiodeAnz == 0) or (modules.baypassDiodeAnz is empty) %} No diodes {% else %} {{ modules.baypassDiodeAnz }}  {% endif %}</label></div></td>
                                     </tr>
                                     <tr>
                                         <td><div class=" cell medium-2 "><label><b>Max Current MPP:</b> {{ modules.maxImpp }} A</label></div></td>

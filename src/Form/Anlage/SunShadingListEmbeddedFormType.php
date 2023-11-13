@@ -4,8 +4,12 @@ namespace App\Form\Anlage;
 
 use App\Entity\AnlageModulesDB;
 use App\Entity\AnlageSunShading;
+use App\Form\Type\SwitchType;
+use App\Repository\AnlageModulesDBRepository;
+use App\Repository\ModulesRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -68,7 +72,7 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'empty_data' => '0',
                 'help' => '[The modul tilt [ß] in °]',
                 'label_html' => true,
-                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
+                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 35px'],
                 'required' => true,
             ])
             ->add('mod_table_height', TextType::class, [
@@ -82,7 +86,7 @@ class SunShadingListEmbeddedFormType extends AbstractType
             ->add('mod_table_distance', TextType::class, [
                 'label' => 'Row division [RT] in mm',
                 'empty_data' => '0',
-                'help' => '[Row division distance behind edge to next behind edge in mm]',
+                'help' => '[Row division distance behind edge to next behind edge in mm, if this is not known then must have [LW], [RT][H][d] where siro ]',
                 'label_html' => true,
                 'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
@@ -111,13 +115,53 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 30px'],
                 'required' => true,
             ])
+               ->add('has_row_shading', SwitchType::class, [
+                   'label' => 'Use this row shading data',
+                   'help' => '[Yes / No]',
+                   'required' => false,
+               ])
+               ->add('mod_alignment', ChoiceType::class, [
+                   'label' => 'The Modul Alignment',
+                   'choices' => array(
+                       'Portrait'   => '0',
+                       'Landscape' => '1',
+                   ),
+                   'multiple' => false,
+                   'expanded' => false,
+                   'help' => '[The modul alignment portrait/landscape]',
+                   'attr' => ['pattern' => '[0-9]{10}', 'maxlength' => 10, 'style' => 'width: 125px'],
+               ])
+               ->add('mod_long_page', TextType::class, [
+                   'label' => 'Modul long page in mm',
+                   'empty_data' => '0',
+                   'help' => '[The modul long page in mm]',
+                   'label_html' => true,
+                   'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
+                   'required' => true,
+               ])
+               ->add('mod_short_page', TextType::class, [
+                   'label' => 'Modul short page in mm',
+                   'empty_data' => '0',
+                   'help' => '[The modul short page in mm]',
+                   'label_html' => true,
+                   'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
+                   'required' => true,
+               ])
+               ->add('mod_row_tables', TextType::class, [
+                   'label' => 'How many row of tables',
+                   'empty_data' => '0',
+                   'help' => '[How many row of tables 1-8]',
+                   'label_html' => true,
+                   'attr' => ['pattern' => '[0-9]{1}', 'maxlength' => 1, 'style' => 'width: 30px'],
+                   'required' => true,
+               ])
         ;
     }
 
-    public function getModules(): array
+    public function getModules($id): array
     {
         $conn = $this->em->getConnection();
-        $query = "SELECT `type`, `id` FROM `anlage_modules` order by `type`";
+        $query = "SELECT `id` FROM `anlage_modules` where `anlage_id` = '$id' order by `id`";
         $stmt = $conn->executeQuery($query);
 
         return $stmt->fetchAllKeyValue();
