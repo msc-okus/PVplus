@@ -124,53 +124,32 @@ class ImportService
                             $dataSensors[] = $result[0][$j];
                         }
                         unset($result);
-                    }else {
-                        // the old way
-                        $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
-
-                        $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
-                        $irrHorizontal = $checkSensors[0]['irrHorizontal'];
-                        $irrLower = $checkSensors[0]['irrLower'];
-                        $irrUpper = $checkSensors[0]['irrUpper'];
-
-                        $tempPanel = $checkSensors[1]['tempPanel'];
-
-                        $tempAmbient = $checkSensors[1]['tempAmbient'];
-
-                        $tempAnlageArray = $checkSensors[1]['anlageTemp'];
-
-                        $wSEwd = $checkSensors[1]['windDirection'];
-
-                        $windSpeed = $checkSensors[1]['windSpeed'];
-
-                        $windAnlageArray = $checkSensors[1]['anlageWind'];
                     }
                 }
 
+
+                // the old way
+                $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
+
+                $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
+                $irrHorizontal = $checkSensors[0]['irrHorizontal'];
+                $irrLower = $checkSensors[0]['irrLower'];
+                $irrUpper = $checkSensors[0]['irrUpper'];
+
+                $tempPanel = $checkSensors[1]['tempPanel'];
+
+                $tempAmbient = $checkSensors[1]['tempAmbient'];
+
+                $tempAnlageArray = $checkSensors[1]['anlageTemp'];
+
+                $wSEwd = $checkSensors[1]['windDirection'];
+
+                $windSpeed = $checkSensors[1]['windSpeed'];
+
+                $windAnlageArray = $checkSensors[1]['anlageWind'];
+
                 //if plant use not sensors datatable stoe data into the weather table
                 if(!$useSensorsDataTable){
-                    $data_pv_weather[] = [
-                        'anl_intnr' => $weatherDbIdent,
-                        'anl_id' => 0,
-                        'stamp' => $stamp,
-                        'at_avg' => ($tempAmbient != '') ? $tempAmbient : NULL,
-                        'temp_ambient' => ($tempAmbient != '') ? $tempAmbient : NULL,
-                        'pt_avg' => ($tempPanel != '') ? $tempPanel : NULL,
-                        'temp_pannel' => ($tempPanel != '') ? $tempPanel : NULL,
-                        'gi_avg' => ($irrLower != '') ? $irrLower : NULL,
-                        'g_lower' => ($irrLower != '') ? $irrLower : NULL,
-                        'gmod_avg' => ($irrUpper != '') ? $irrUpper : NULL,
-                        'g_upper' => ($irrUpper != '') ? $irrUpper : NULL,
-                        'g_horizontal' => ($irrHorizontal != '') ? $irrHorizontal : NULL,
-                        'rso' => '0',
-                        'gi' => '0',
-                        'wind_speed' => ($windSpeed != '') ? $windSpeed : NULL,
-                        'temp_cell_multi_irr' => NULL,
-                        'temp_cell_corr' => NULL,
-                        'ft_factor' => NULL,
-                        'irr_flag' => NULL
-                    ];
-
                     $irrAnlage = json_encode($irrAnlageArray, JSON_THROW_ON_ERROR);
                     $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
                     $windAnlage = json_encode($windAnlageArray, JSON_THROW_ON_ERROR);
@@ -183,6 +162,28 @@ class ImportService
                     $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
                     $windAnlage = json_encode($windAnlageArray, JSON_THROW_ON_ERROR);
                 }
+
+                $data_pv_weather[] = [
+                    'anl_intnr' => $weatherDbIdent,
+                    'anl_id' => 0,
+                    'stamp' => $stamp,
+                    'at_avg' => ($tempAmbient != '') ? $tempAmbient : NULL,
+                    'temp_ambient' => ($tempAmbient != '') ? $tempAmbient : NULL,
+                    'pt_avg' => ($tempPanel != '') ? $tempPanel : NULL,
+                    'temp_pannel' => ($tempPanel != '') ? $tempPanel : NULL,
+                    'gi_avg' => ($irrLower != '') ? $irrLower : NULL,
+                    'g_lower' => ($irrLower != '') ? $irrLower : NULL,
+                    'gmod_avg' => ($irrUpper != '') ? $irrUpper : NULL,
+                    'g_upper' => ($irrUpper != '') ? $irrUpper : NULL,
+                    'g_horizontal' => ($irrHorizontal != '') ? $irrHorizontal : NULL,
+                    'rso' => '0',
+                    'gi' => '0',
+                    'wind_speed' => ($windSpeed != '') ? $windSpeed : NULL,
+                    'temp_cell_multi_irr' => NULL,
+                    'temp_cell_corr' => NULL,
+                    'ft_factor' => NULL,
+                    'irr_flag' => NULL
+                ];
 
                 //Import different Types
                 if ($anlage->getSettings()->getImportType() == 'standart') {
@@ -216,7 +217,7 @@ class ImportService
                     }
 
                     //built array for pvist_dc
-                    $sizeResult = count($result[0]) - 1;
+                    $sizeResult = count($result[1]) - 1;
                     for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_pv_dcist[] = $result[1][$j];
                     }
@@ -251,10 +252,9 @@ class ImportService
                 if($useSensorsDataTable) {
                     $tableName = "db__pv_sensors_data_$anlagenTabelle";
                     self::insertData($tableName, $dataSensors, $DBDataConnection);
-                }else{
-                    $tableName = "db__pv_ws_$weatherDbIdent";
-                    self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                 }
+                $tableName = "db__pv_ws_$weatherDbIdent";
+                self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                 break;
             case 'api-import-ppc':
                 $tableName = "db__pv_ppc_$anlagenTabelle";
@@ -273,10 +273,10 @@ class ImportService
                 if($useSensorsDataTable) {
                     $tableName = "db__pv_sensors_data_$anlagenTabelle";
                     self::insertData($tableName, $dataSensors, $DBDataConnection);
-                }else{
-                    $tableName = "db__pv_ws_$weatherDbIdent";
-                    self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                 }
+
+                $tableName = "db__pv_ws_$weatherDbIdent";
+                self::insertData($tableName, $data_pv_weather, $DBDataConnection);
 
                 if ($anlage->getHasPPC()) {
                     $tableName = "db__pv_ppc_$anlagenTabelle";
