@@ -350,9 +350,9 @@ class IrradiationChartService
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                     $dataArray['nameX'][1] = 'G_M0';
                     //create the data for each timepoint
-                    if ($stampTemp != $row['stamp']){
+                    if ($stampTemp != $row['stamp']){ // Todo: generiert einnen leeren Datensatz am anfang der Liste, das soll nicht sein
                         $dataArray[$counter] = [
-                            'gmo'               =>  $gmO[0],
+                            'gmo'               =>  $gmO[0], // ToDo: Was ist das, warum ist das noch nicht definiert
                             'irrHorizontal'     =>  $this->mittelwert($gmPyHori),
                             'irrUpper'          =>  $this->mittelwert($gmPyEast),
                             'irrLower'          =>  $this->mittelwert($gmPyWest),
@@ -370,7 +370,7 @@ class IrradiationChartService
                     }
 
                     if ($row['usetocalc_sensor'] && $row['type_sensor'] == 'irr-hori'){
-                            array_push($gmPyHori, $row['value']);
+                            array_push($gmPyHori, $row['value']); // Todo warum array_push ??? Wir fügen doch nur ein neues element an das array an. $gmPyHori[] = $row['value'] sollte auch gehen und ist klarer (schneller?)
                     }
 
                     if ($isEastWest){
@@ -449,6 +449,7 @@ class IrradiationChartService
                         }
                     }
 
+                    // Todo: wir soltten 'val1' und so weiter mit den Sensor namen ersetzen, ist beim export besser zuzuordnen
                     $dataArrayFinal['chart'][$i]["val1"] = $dataArray[$i]['gmo'];
                     if(is_array($dataArray[$i]['values']) && count($dataArray[$i]['values']) > 0){
                         $k = 2;
