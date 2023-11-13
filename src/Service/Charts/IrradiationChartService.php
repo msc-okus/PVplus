@@ -533,3 +533,4 @@ class IrradiationChartService
         return $dataArrayFinal;
     }
 }
+
