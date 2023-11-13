@@ -28,6 +28,7 @@ class Ticket
     const WEATHER_STATION_ERROR = 40;
     const EXTERNAL_CONTROL = 50; // Regelung vom Direktvermarketr oder Netztbetreiber
     const POWER_DIFF = 60;
+    const IRRADIATION = 100;
 
     use TimestampableEntity;
     use BlameableEntity;
@@ -396,14 +397,20 @@ class Ticket
     }
 
     /**
+     * returns true for alert Type 70 and 71 (exclude Sensor | replace Sensor)
      * returns true if we have scope for the given 'value'<br>
      * 10 = Dep1; 20 = Dep2; 30 = Dep3
-     * @param $value
+     * @param $departement
      * @return bool
      */
-    public function isScope($value): bool
+    public function isScope($departement): bool
     {
-        return in_array($value, $this->getScope());
+        // if alert Type is 70 or 71 (Exclude Sensors and Replace sensors (have no scope)) it will returns always true
+        if ($this->alertType == '70' || $this->alertType == '71') {
+            return true;
+        }
+        // if other alert type it returns true depending on 'scope'
+        return in_array($departement, $this->getScope());
     }
     public function setScope(?array $scope): self
     {

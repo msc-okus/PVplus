@@ -7,7 +7,10 @@
         {% for table in InverterPRRankTables %}
             {% include 'report/_asset_mangement_partials/_inverter_rank_table.html.twig'%}
         {% endfor %}
-{#  {% include 'report/_asset_mangement_partials/_inverter_rank_sumary.html.twig'%} #}
+
+        {% if invNr > 20 %}
+            {% include 'report/_asset_mangement_partials/_top_10_inverters_rank.html.twig'%}
+        {% endif %}
         {% for graph in InverterPRRankGraphics %}
             {% include 'report/_asset_mangement_partials/_inverter_rank_graph.html.twig'%}
         {% endfor %}

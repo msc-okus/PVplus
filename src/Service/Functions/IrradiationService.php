@@ -15,7 +15,6 @@ use App\Service\PdoService;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Contracts\Cache\CacheInterface;
 
 class IrradiationService
 {
@@ -26,8 +25,7 @@ private readonly PdoService $pdoService,
         private readonly TicketRepository $ticketRepo,
         private readonly TicketDateRepository $ticketDateRepo,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
-        private readonly WeatherFunctionsService $weatherFunctionsService,
-        private readonly CacheInterface $cache
+        private readonly WeatherFunctionsService $weatherFunctionsService
     )
     {
 
@@ -38,14 +36,13 @@ private readonly PdoService $pdoService,
      */
     public function getIrrData(Anlage $anlage, String $from, String $to): array
     {
-        return $this->cache->get('getIrrData_'.md5($anlage->getAnlId().$from.$to), function(CacheItemInterface $cacheItem) use ($from, $to, $anlage)
-        {
-            $cacheItem->expiresAfter(60); // Lifetime of cache Item
+
+            //$cacheItem->expiresAfter(60); // Lifetime of cache Item
 
             $conn = $this->pdoService->getPdoPlant();
             $irrData = [];
             $sqlIrrFlag = "";
-            if ($anlage->getAnlId() == 181){ // Zwartowo
+            if ($conn->query("SHOW COLUMNS from " . $anlage->getDbNameWeather() . " LIKE 'irr_flag';")->rowCount() === 1){ // Zwartowo und Test Zwartowo
                 $sqlIrrFlag = ", b.irr_flag ";
             }
 
@@ -55,12 +52,17 @@ private readonly PdoService $pdoService,
             if ($resultEinstrahlung->rowCount() > 0) {
                 while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
                     $stamp = $row['stamp'];
-                    $row['g_upper'] = (float) $row['g_upper'] > 0 ? (float) $row['g_upper'] : 0;
-                    $row['g_lower'] = (float) $row['g_lower'] > 0 ? (float) $row['g_lower'] : 0;
+                    $irrUpper = $row['g_upper'] === null || $row['g_upper'] === "" ? null : (float)max($row['g_upper'], 0);
+                    $irrLower = $row['g_lower'] === null || $row['g_lower'] === "" ? null : (float)max($row['g_lower'], 0);
+                    $strahlung = null;
                     if ($anlage->getIsOstWestAnlage()) {
-                        $strahlung = ($row['g_upper'] * $anlage->getPowerEast() + $row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        if ($irrUpper !== null && $irrLower !== null) {
+                            $strahlung = ($irrUpper * $anlage->getPowerEast() + $irrLower * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        }
                     } else {
-                        $strahlung = $row['g_upper'];
+                        if ($irrUpper !== null) {
+                            $strahlung = $irrUpper;
+                        }
                     }
                     $irrData[$stamp]['stamp'] = $stamp;
                     $irrData[$stamp]['irr'] = $strahlung;
@@ -75,7 +77,6 @@ private readonly PdoService $pdoService,
             $conn = null;
 
             return self::correctIrrByTicket($anlage, $from, $to, $irrData);
-        });
     }
 
     private function correctIrrByTicket(Anlage $anlage, string $from, string $to, array $irrData): array

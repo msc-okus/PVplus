@@ -229,6 +229,7 @@ trait PVPNameArraysTrait
             $errorCategory[$this->translator->trans('ticket.error.category.92')] = 92; //internal ticket
             $errorCategory[$this->translator->trans('ticket.error.category.93')] = 93; //internal ticket
         }
+        $errorCategory[$this->translator->trans('ticket.error.category.100')] = 100;
         return $errorCategory;
     }
     public function errorType(): array

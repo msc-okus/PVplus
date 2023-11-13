@@ -54,6 +54,7 @@ private readonly PdoService $pdoService,
         $sqlExp = 'SELECT a.stamp as stamp, sum(b.dc_exp_current) as expected
                    FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM ' . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp)
                    WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+        
         $result = $conn->query($sqlExp);
         $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
 

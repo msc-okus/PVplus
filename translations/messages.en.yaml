@@ -31,6 +31,7 @@ ticket:
       91: Internal Error Irradiation
       92: Internal Error Expected
       93: Internal Error PPC
+      100: Irradiation
 
   status:
     name: Status

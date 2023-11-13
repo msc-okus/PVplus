@@ -71,7 +71,6 @@ class AnlageAcGroups
     private ?string $importId = null;
 
     public function __construct(
-        private readonly GroupsRepository $dcGroupsRepo
     )
     {
     }

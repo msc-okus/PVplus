@@ -382,7 +382,6 @@ export default class extends Controller {
             }
             else{
                 $(this.fieldReplaceIrrTargets).removeClass('is-hidden');
-                //$(this.fieldHourTarget).addClass('is-hidden');
                 $(this.fieldEnergyValueTargets).addClass('is-hidden');
                 $(this.fieldIrrValueTargets).addClass('is-hidden');
             }
@@ -451,10 +450,8 @@ export default class extends Controller {
                 $(this.headerAktDep1Targets).removeClass('is-hidden');
                 $(this.headerAktDep2Targets).removeClass('is-hidden');
                 $(this.headerAktDep3Targets).removeClass('is-hidden');
-
                 $(this.headerFormKpiTargets).addClass('is-hidden');
                 $(this.headerPRMethodTargets).addClass('is-hidden');
-
 
                 $(this.fieldSensorTargets).addClass('is-hidden');
                 $(this.fieldReplacePowerTargets).addClass('is-hidden');
@@ -475,7 +472,6 @@ export default class extends Controller {
                 if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
                 break;
             case '20':
-
                 $(this.headerExcludeTargets).addClass('is-hidden');
                 $(this.headerReplaceTargets).addClass('is-hidden');
                 $(this.headerReplacePowerTargets).addClass('is-hidden');
@@ -689,6 +685,42 @@ export default class extends Controller {
                 $(this.reasonInputTarget).val(reason);
 
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
+                break;
+            case '100':
+                $(this.headerExcludeTargets).addClass('is-hidden');
+                $(this.headerReplaceTargets).addClass('is-hidden');
+                $(this.headerReplacePowerTargets).addClass('is-hidden');
+                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+                $(this.headerHourTargets).addClass('is-hidden');
+                $(this.headerEnergyValueTargets).addClass('is-hidden');
+                $(this.headerIrrValueTargets).addClass('is-hidden');
+                $(this.headerCorrectionTargets).addClass('is-hidden');
+                $(this.headerEvaluationTargets).removeClass('is-hidden');
+                $(this.headerReasonTargets).addClass('is-hidden');
+                $(this.headerAktDep1Targets).removeClass('is-hidden');
+                $(this.headerAktDep2Targets).removeClass('is-hidden');
+                $(this.headerAktDep3Targets).removeClass('is-hidden');
+                $(this.headerFormKpiTargets).addClass('is-hidden');
+                $(this.headerPRMethodTargets).addClass('is-hidden');
+
+                $(this.fieldSensorTargets).addClass('is-hidden');
+                $(this.fieldReplacePowerTargets).addClass('is-hidden');
+                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+                $(this.fieldHourTargets).addClass('is-hidden');
+                $(this.fieldEnergyValueTargets).addClass('is-hidden');
+                $(this.fieldIrrValueTargets).addClass('is-hidden');
+                $(this.fieldCorrectionTargets).addClass('is-hidden');
+                $(this.fieldEvaluationTargets).removeClass('is-hidden');
+                $(this.fieldReasonTargets).addClass('is-hidden');
+                $(this.fieldAktDep1Targets).removeClass('is-hidden');
+                $(this.fieldAktDep2Targets).removeClass('is-hidden');
+                $(this.fieldAktDep3Targets).removeClass('is-hidden');
+                $(this.inverterDivTargets).removeClass('is-hidden');
+
+                $(this.formHourTargets).prop('checked', false);
+                $(this.formkpiStatusTargets).addClass('is-hidden');
+                $(this.fieldPRMethodTargets).addClass('is-hidden');
+                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
                 break;
             case '':
                 $(this.headerExcludeTargets).addClass('is-hidden');
@@ -916,117 +948,159 @@ export default class extends Controller {
         }
     }
 
-    beginCheck(){
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        const date = new Date(valueBegin);
-        date.setSeconds(0);
-        const timestamp1 = date.getTime();
+    setHiddenValue(){
 
-        if (timestamp1% 300000 == 0){
-            var hour = date.getHours();
-            var minutes = date.getMinutes();
-            switch (minutes){
-                case 0:
-                case 5:
-                    minutes = 15;
-                    break;
-                case 10:
-                case 15:
-                case 20:
-                    minutes = 30;
-                    break;
-                case 25:
-                case 30:
-                case 35:
-                    minutes = 45;
-                    break;
-                case 40:
-                case 45:
-                case 50:
-                    hour = hour + 1;
-                    minutes = 0;
-                    break;
-                case 55:
-                    hour = hour + 1;
-                    minutes = 15;
-                    break;
+        this.formBeginTarget.dataset.originalValue = $(this.formBeginTarget).prop('value');
+        this.formEndTarget.dataset.originalValue = $(this.formEndTarget).prop('value');
+    }
+
+    beginCheck(event){
+        if ($(this.formBeginTarget).prop('value') != this.formBeginTarget.dataset.originalValue) {
+            const valueBegin = $(this.formBeginTarget).prop('value');
+            const date = new Date(valueBegin);
+            date.setSeconds(0);
+            const timestamp1 = date.getTime();
+            if (timestamp1 % 300000 == 0) {
+                var hour = date.getHours();
+                var minutes = date.getMinutes();
+                /*
+                switch (minutes) {
+                    case 0:
+                    case 5:
+                        minutes = 15;
+                        break;
+                    case 10:
+                    case 15:
+                    case 20:
+                        minutes = 30;
+                        break;
+                    case 25:
+                    case 30:
+                    case 35:
+                        minutes = 45;
+                        break;
+                    case 40:
+                    case 45:
+                    case 50:
+                        hour = hour + 1;
+                        minutes = 0;
+                        break;
+                    case 55:
+                        hour = hour + 1;
+                        minutes = 15;
+                        break;
+                }
+                */
+                switch (minutes) {
+
+                    case 5:
+                    case 10:
+                    case 15:
+                        minutes = 15;
+                        break;
+                    case 20:
+                    case 25:
+                    case 30:
+                        minutes = 30;
+                        break;
+                    case 35:
+                    case 40:
+                    case 45:
+                        minutes = 45;
+                        break;
+                    case 50:
+                    case 55:
+                        hour = hour + 1;
+                        minutes = 0;
+                        break;
+                    case 0:
+                        minutes = 0;
+                        break;
+                }
+
+                if (date.getMonth() < 9) {
+                    var Month = '0'.concat((date.getMonth() + 1).toString());
+                } else {
+                    var Month = (date.getMonth() + 1).toString();
+                }
+                if (date.getDate() < 10) {
+                    var Day = '0'.concat(date.getDate().toString());
+                } else {
+                    var Day = date.getDate().toString();
+                }
+                if (hour < 10) {
+                    hour = '0'.concat(hour.toString());
+                }
+                if (minutes < 10) {
+                    minutes = '0'.concat(minutes.toString());
+                }
+                let newStringdate = date.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
+                $(this.formBeginTarget).val(newStringdate);
+                $(this.formBeginDateTarget).val(newStringdate);
             }
-            if (date.getMonth() < 10) {
-                var Month = '0'.concat((date.getMonth() + 1).toString());
-            } else {
-                var Month = (date.getMonth() + 1).toString();
-            }
-            if (date.getDate() < 10) {
-                var Day = '0'.concat(date.getDate().toString());
-            } else {
-                var Day = date.getDate().toString();
-            }
-            if (hour < 10) {
-                hour = '0'.concat(hour.toString());
-            }  if (minutes < 10) {
-                minutes = '0'.concat(minutes.toString());
-            }
-            let newStringdate = date.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
-            $(this.formBeginTarget).val(newStringdate);
-            $(this.formBeginDateTarget).val(newStringdate);
         }
+
 
        this.saveCheck();
     }
-    endCheck(){
-        const valueBegin = $(this.formEndTarget).prop('value');
-        const date = new Date(valueBegin);
-        date.setSeconds(0);
-        const timestamp1 = date.getTime();
+    endCheck()
+        {
+            if ($(this.formEndTarget).prop('value') != this.formEndTarget.dataset.originalValue) {
+                const valueBegin = $(this.formEndTarget).prop('value');
+                const date = new Date(valueBegin);
+                date.setSeconds(0);
+                const timestamp1 = date.getTime();
+                if (timestamp1 % 300000 == 0) {
+                    var hour = date.getHours();
+                    var minutes = date.getMinutes();
 
-        if (timestamp1% 300000 == 0){
-            var hour = date.getHours();
-            var minutes = date.getMinutes();
-            switch (minutes){
-                case 0:
-                case 5:
-                    minutes = 15;
-                    break;
-                case 10:
-                case 15:
-                case 20:
-                    minutes = 30;
-                    break;
-                case 25:
-                case 30:
-                case 35:
-                    minutes = 45;
-                    break;
-                case 40:
-                case 45:
-                case 50:
-                    hour = hour + 1;
-                    minutes = 0;
-                    break;
-                case 55:
-                    hour = hour + 1;
-                    minutes = 15;
-                    break;
+                    switch (minutes) {
+
+                        case 5:
+                        case 10:
+                        case 15:
+                            minutes = 15;
+                            break;
+                        case 20:
+                        case 25:
+                        case 30:
+                            minutes = 30;
+                            break;
+                        case 35:
+                        case 40:
+                        case 45:
+                            minutes = 45;
+                            break;
+                        case 50:
+                        case 55:
+                            hour = hour + 1;
+                            minutes = 0;
+                            break;
+                        case 0:
+                            minutes = 0;
+                            break;
+                    }
+                    if (date.getMonth() < 9) {
+                        var Month = '0'.concat((date.getMonth() + 1).toString());
+                    } else {
+                        var Month = (date.getMonth() + 1).toString();
+                    }
+                    if (date.getDate() < 10) {
+                        var Day = '0'.concat(date.getDate().toString());
+                    } else {
+                        var Day = date.getDate().toString();
+                    }
+                    if (hour < 10) {
+                        hour = '0'.concat(hour.toString());
+                    }
+                    if (minutes < 10) {
+                        minutes = '0'.concat(minutes.toString());
+                    }
+                    let newStringdate = date.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
+                    $(this.formEndTarget).val(newStringdate);
+                    $(this.formEndDateTarget).val(newStringdate);
+                }
             }
-            if (date.getMonth() < 10) {
-                var Month = '0'.concat((date.getMonth() + 1).toString());
-            } else {
-                var Month = (date.getMonth() + 1).toString();
-            }
-            if (date.getDate() < 10) {
-                var Day = '0'.concat(date.getDate().toString());
-            } else {
-                var Day = date.getDate().toString();
-            }
-            if (hour < 10) {
-                hour = '0'.concat(hour.toString());
-            }  if (minutes < 10) {
-                minutes = '0'.concat(minutes.toString());
-            }
-            let newStringdate = date.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
-            $(this.formEndTarget).val(newStringdate);
-            $(this.formEndDateTarget).val(newStringdate);
-        }
 
         this.saveCheck();
     }

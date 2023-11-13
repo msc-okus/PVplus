@@ -90,7 +90,6 @@ class TicketDateRepository extends ServiceEntityRepository
             ->andWhere('t.begin <= :end')
             ->andWhere('t.Anlage = :anlage')
             ->andWhere('t.alertType = :error')
-            ->andWhere('t.alertType = :error')
             ->andWhere('ticket.ignoreTicket = false')
             ->setParameter('begin', $begin)
             ->setParameter('end', $end)
@@ -315,9 +314,11 @@ class TicketDateRepository extends ServiceEntityRepository
 
         return $q->getQuery()->getResult();
     }
+
     /**
      * Search for Performance Tickets
      *
+     * @param Anlage $anlage
      * @param string|DateTime $startDate
      * @param string|DateTime $endDate
      * @return array
