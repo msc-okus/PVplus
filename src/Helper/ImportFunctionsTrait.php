@@ -385,40 +385,33 @@ trait ImportFunctionsTrait
      * @param  $date
      * @return array
      */
-    function getSensorsData(array $anlageSensors, int $length, array $sensors, $stamp, $date, $gMo): array
+    function getSensorsDataFromImport(array $anlageSensors, int $length, array $sensors, $stamp, $date, $gMo): array
     {
-        $gmPyHori = $gmPyHoriAnlage = $gmPyWest = $gmPyWestAnlage = $gmPyEast = $gmPyEastAnlage = [];
         for ($i = 0; $i < $length; $i++) {
-            if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                $start = 0;
-                $end = 0;
-                if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
-                }
-                if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
-                }
-                $now = strtotime((string) $date);
-                if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                    $sensorId = $anlageSensors[$i]->getId();
-                    $sensorType = $anlageSensors[$i]->getvirtualSensor();
-                    $sensorShortname = $anlageSensors[$i]->getNameShort();
-                    $sensorUseToCalc = $anlageSensors[$i]->getUseToCalc();
-                    $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
-                }
-
+            $start = 0;
+            $end = 0;
+            if ($anlageSensors[$i]->getStartDateSensor() != null) {
+                $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
+            }
+            if ($anlageSensors[$i]->getEndDateSensor() != null) {
+                $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
+            }
+            $now = strtotime((string) $date);
+            if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
+                $sensorId = $anlageSensors[$i]->getId();
+                $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
             }
 
-            $data_sensors[] = [
-                'date'                  => $date,
-                'stamp'                 => $stamp,
-                'id_sensor'             => $sensorId,
-                'type_sensor'           => $sensorType,
-                'shortname_sensor'      => $sensorShortname,
-                'usetocalc_sensor'      => $sensorUseToCalc,
-                'value'                 => ($value != '') ? $value : 0,
-                'gmo'                   => $gMo
-            ];
+            if($sensorId != null){
+                $data_sensors[] = [
+                    'date'                  => $date,
+                    'stamp'                 => $stamp,
+                    'id_sensor'             => $sensorId,
+                    'value'                 => ($value != '') ? $value : 0,
+                    'gmo'                   => $gMo
+                ];
+            }
+
         }
         $result[] = $data_sensors;
         return $result;

@@ -430,4 +430,30 @@ trait G4NTrait
         }
         return $return;
     }
+
+    //Packt die Sensoren der Anlage in ein Array
+    /**
+     * @param array $sensors
+     * @return array
+     */
+    function getSensorsData(array $anlageSensors, int $length): array
+    {
+        for ($i = 0; $i < $length; $i++) {
+            $sensorId = $anlageSensors[$i]->getId();
+            $sensorType = $anlageSensors[$i]->getvirtualSensor();
+            $sensorShortname = $anlageSensors[$i]->getNameShort();
+            $sensorUseToCalc = $anlageSensors[$i]->getUseToCalc();
+            $vcomId = $anlageSensors[$i]->getVcomId();
+
+            $sensors[$sensorId] = [
+                'id_sensor'             => $sensorId,
+                'type_sensor'           => $sensorType,
+                'shortname_sensor'      => $sensorShortname,
+                'usetocalc_sensor'      => $sensorUseToCalc,
+                'vcom_id'               => $vcomId
+            ];
+        }
+
+        return $sensors;
+    }
 }

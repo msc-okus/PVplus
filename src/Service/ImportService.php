@@ -107,7 +107,7 @@ class ImportService
                 $tempAnlageArray = $windAnlageArray = $irrAnlageArrayGMO = $irrAnlageArray = [];
 
                 if (array_key_exists($date, $basics)) {
-                    $irrAnlageArrayGMO['G_M0'] = $basics[$date]['G_M0'] > 0 ? round($basics[$date]['G_M0'], 4) : 0;   //
+                    $irrAnlageArrayGMO['G_M0'] = $basics[$date]['G_M0'] > 0 ? $basics[$date]['G_M0'] : 0;   //
                     $gMo = $irrAnlageArrayGMO['G_M0'];
                     $eZEvu = $basics[$date]['E_Z_EVU'];
                 }
@@ -117,7 +117,7 @@ class ImportService
 
                     //if plant use sensors datatable get data from the table
                     if($useSensorsDataTable){
-                        $result = self::getSensorsData($anlageSensors->toArray(), $length, $sensors, $stamp, $date, $gMo);
+                        $result = self::getSensorsDataFromImport($anlageSensors->toArray(), $length, $sensors, $stamp, $date, $gMo);
 
                         //built array for sensordata
                         for ($j = 0; $j <= count($result[0])-1; $j++) {
