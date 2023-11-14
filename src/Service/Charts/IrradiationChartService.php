@@ -114,6 +114,7 @@ class IrradiationChartService
         $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
         $sensorsArray = self::getSensorsData($anlageSensors, $length);
         $dataArray = [];
+        $dataArray['chart'] = [];
         if ($hour) {
             $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND stamp like '%:00:00' order by stamp;";
             $timeStepp = 3600;
@@ -201,32 +202,35 @@ class IrradiationChartService
         $endObj  = date_create($to);
 
         //fil up rest of day
-        for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
-            $date = date('Y-m-d H:i', $dayStamp);
-            $dataArray['chart'][count($dataArray['chart'])] = [
-                'date'          =>  $date,
-                'nal1'           =>  null,
-                'nal2'           =>  null
-            ];
+        if(is_array($dataArray) && count($dataArray) > 0) {
+            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
+
+                #echo "$dayStamp <br>";
+                $date = date('Y-m-d H:i', $dayStamp);
+                $dataArray['chart'][count($dataArray['chart'])] = [
+                    'date' => $date
+                ];
+            }
         }
 
         if(is_array($dataArray) && count($dataArray) == 0){
             $x = [];
+            $from = $date = date('Y-m-d 00:00', time());;
 
             $fromObj = date_create($from);
             $endObj  = date_create($to);
-
+            $dataArray['maxSeries'] = 1;
             //fil up rest of day
             $i = 0;
             for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
                 $date = date('Y-m-d H:i', $dayStamp);
                 $dataArray['chart'][$i] = [
                     'date'              =>  $date,
-                    'nal1'           =>  null,
-                    'nal2'           =>  null
+                    'val1'=>0
                 ];
                 $i++;
             }
+            $dataArrayFinal['nameX'][0] = 'a';
         }
         return $dataArray;
     }
@@ -510,24 +514,26 @@ class IrradiationChartService
         }
 
         $conn = null;
+
         if(is_array($dataArrayFinal) && count($dataArrayFinal) == 0){
+
             $x = [];
             $from = $date = date('Y-m-d 00:00', time());;
 
             $fromObj = date_create($from);
             $endObj  = date_create($to);
-
+            $dataArrayFinal['maxSeries'] = 1;
             //fil up rest of day
             $i = 0;
             for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
                 $date = date('Y-m-d H:i', $dayStamp);
                 $dataArrayFinal['chart'][$i] = [
                     'date'              =>  $date,
-                    'g4n'               =>  null,
-                    'chart'             =>  $x
+                    'val1'=>0
                 ];
                 $i++;
             }
+            $dataArrayFinal['nameX'][0] = 'a';
         }
 
         return $dataArrayFinal;
