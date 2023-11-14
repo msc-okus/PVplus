@@ -388,22 +388,20 @@ trait ImportFunctionsTrait
     function getSensorsDataFromImport(array $anlageSensors, int $length, array $sensors, $stamp, $date, $gMo): array
     {
         for ($i = 0; $i < $length; $i++) {
-            if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                $start = 0;
-                $end = 0;
-                if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                    $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
-                }
-                if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                    $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
-                }
-                $now = strtotime((string) $date);
-                if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                    $sensorId = $anlageSensors[$i]->getId();
-                    $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
-                }
-
+            $start = 0;
+            $end = 0;
+            if ($anlageSensors[$i]->getStartDateSensor() != null) {
+                $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
             }
+            if ($anlageSensors[$i]->getEndDateSensor() != null) {
+                $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
+            }
+            $now = strtotime((string) $date);
+            if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
+                $sensorId = $anlageSensors[$i]->getId();
+                $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+            }
+
             if($sensorId != null){
                 $data_sensors[] = [
                     'date'                  => $date,
