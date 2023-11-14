@@ -2,13 +2,16 @@
 
 {% block header %}
     {{ parent() }}
-    <style>
+    {# <style>
         .monthtable td, .monthtable th {
-            padding: 2px;
+            padding: 2px 2px 2px 0;
             line-height: 1.2;
         }
+        .monthtable td:first-child, .monthtable th:first-child{
+            padding: 2px;
+        }
 
-    </style>
+    </style> #}
 {% endblock %}
 
 {% block content %}
