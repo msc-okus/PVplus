@@ -191,11 +191,9 @@ class IrradiationChartService
                         }
                     }
 
-                    if($sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr'|| $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr-east' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr-west') {
-                        $stampTemp = $row['stamp'];
+                    $stampTemp = $row['stamp'];
 
-                        $counter++;
-                    }
+                    $counter++;
                 }
             }
         }
