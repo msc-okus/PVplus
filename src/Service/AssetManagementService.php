@@ -24,6 +24,7 @@ use Hisune\EchartsPHP\ECharts;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
 use League\Flysystem\Filesystem;
@@ -56,7 +57,8 @@ class AssetManagementService
         private ForcastDayRepository $forecastDayRepo,
         private Filesystem $fileSystemFtp,
         private Filesystem $filesystem,
-        private AnlageFileRepository $RepositoryUpload
+        private AnlageFileRepository $RepositoryUpload,
+        private readonly Security $security,
     )
     {
         $this->conn = $this->pdoService->getPdoPlant();
@@ -115,7 +117,12 @@ class AssetManagementService
                 $fileArray['PlantPic'] = $this->fileSystemFtp->read($anlage->getPicture());
             }
         }
-        $images = self::makeTempFiles($fileArray, $this->filesystem);
+        if ($fileArray != null) {
+            $images = self::makeTempFiles($fileArray, $this->filesystem);
+        }else{
+            $images['Logo'] = null;
+            $images['PlantPic'] = null;
+        }
 
         if ($images['Logo'] != null)$tempFileLogo = $images['Logo'];
         if ($images['PlantPic'] != null)$tempFilePlantImage = $images['PlantPic'];
@@ -127,7 +134,6 @@ class AssetManagementService
             'logoImage' => $tempFileLogo,
             'month' => $reportMonth,
             'monthName' => $output['month'],
-            'year' => $reportYear,
             'year' => $reportYear,
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
@@ -342,6 +348,7 @@ class AssetManagementService
             'prSumaryTable' => $content['prSumaryTable'],
             'sumary_pie_graph' => $content['sumary_pie_graph'],
             'pr_rank_graph_20_inv' => $content['pr_rank_graph_20_inv'],
+            'pr_rank_graph_20_inv' => $content['pr_rank_graph_20_inv2']
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
@@ -551,6 +558,9 @@ class AssetManagementService
         if ($userId) {
             $report->setCreatedBy($userId);
         }
+        if (!$this->security->isGranted('ROLE_G4N')){
+            $report->setReportStatus(3);
+        }
 
         $this->em->persist($report);
         $this->em->flush();
@@ -621,7 +631,9 @@ class AssetManagementService
         $plantSize = $anlage->getPnom();
 
 
-        $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
+
+            $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
+
 
         $invArray = $anlage->getInverterFromAnlage();
         $orderedArray = [];
@@ -659,6 +671,7 @@ class AssetManagementService
                 }
             }
         }
+
         $invPercentage = $InverterOverAvgCount / count($invArray) * 100;
         $prSumaryTable[1]['InvCount'] = $InverterOverAvgCount;
         $prSumaryTable[1]['percentage'] = $invPercentage;
@@ -717,147 +730,211 @@ class AssetManagementService
 
         $sumary_pie_graph = $chart->render('sumary_pie_graph'.$key, ['style' => 'height: 250px; width:500px;']);
         $pr_rank_graph_20_inv = "";
-        if (count($anlage->getInverterFromAnlage()) > 20){
+        if (count($anlage->getInverterFromAnlage()) > 20) {
             // we do this to join the inverter arrays into one
             $fullArray['name'] = [];
             $fullArray['powerYield'] = [];
             $fullArray['PR'] = [];
-            foreach ($graphDataPR as $array){
+            foreach ($graphDataPR as $array) {
                 $fullArray['name'] = array_merge($fullArray['name'], $array['name']);
                 $fullArray['powerYield'] = array_merge($fullArray['powerYield'], $array['powerYield']);
                 $fullArray['PR'] = array_merge($fullArray['PR'], $array['PR']);
             }
 
-            // we build 2 arrays with the 10 best and the 10 worse
-            $worseTen['name'] = array_slice($fullArray['name'], 0, 10);
-            $bestTen['name'] = array_slice($fullArray['name'],count($fullArray['name']) - 10, 10 );
-            $worseTen['powerYield'] = array_slice($fullArray['powerYield'], 0, 10);
-            $bestTen['powerYield'] = array_slice($fullArray['powerYield'],count($fullArray['powerYield']) - 10, 10 );
-            //we calculate the average pr for the value in the middle
+            if ($anlage->getConfigType() == 3) {
+                $inverterPRArray = $this->getSCBPR($anlage, $report['reportMonth'], $report['reportYear']);
 
-            $worseTen['PR'] = array_slice($fullArray['PR'], 0, 10);
-            $bestTen['PR'] = array_slice($fullArray['PR'],count($fullArray['PR']) - 10, 10 );
-            $sumPR = 0;
-            foreach ($worseTen['PR'] as $pr){
-                $sumPR = $sumPR + $pr;
-            }
-            foreach ($bestTen['PR'] as $pr){
-                $sumPR = $sumPR + $pr;
-            }
-            $avgPr = $sumPR / 20;
-            $tenArray['name'] = array_merge($worseTen['name'], ["..."]);
-            $tenArray['powerYield'] = array_merge($worseTen['powerYield'], [0]);
-            $tenArray['PR'] = array_merge($worseTen['PR'] , [$avgPr]);
+                // we build 2 arrays with the 10 best and the 10 worst
+                $worseTen['name'] = array_slice($inverterPRArray['name'], 0, 10);
+                $bestTen['name'] = array_slice($inverterPRArray['name'], count($inverterPRArray['name']) - 10, 10);
+                $worseTen['power'] = array_slice($inverterPRArray['power'], 0, 10);
+                $bestTen['power'] = array_slice($inverterPRArray['power'], count($inverterPRArray['power']) - 10, 10);
+                //we calculate the average pr for the value in the middle 
 
-            $tenArray['name'] = array_merge($tenArray['name'], $bestTen['name']);
-            $tenArray['powerYield'] = array_merge($tenArray['powerYield'], $bestTen['powerYield']);
-            $tenArray['PR'] = array_merge($tenArray['PR'] , $bestTen['PR']);
+                $tenArray['name'] = array_merge($worseTen['name'], ["..."]);
+                $tenArray['power'] = array_merge($worseTen['power'], [0]);
 
-            $chart = new ECharts();
-            $chart->tooltip->show = false;
-            $chart->tooltip->trigger = 'item';
-            $chart->xAxis = [
-                'type' => 'category',
-                'axisLabel' => [
-                    'show' => true,
-                    'margin' => '10',
-                    'rotate' => 45
-                ],
-                'splitArea' => [
-                    'show' => true,
-                ],
-                'data' => $tenArray['name'],
-            ];
-            $chart->yAxis = [
-                [
-                    'type' => 'value',
-                    'name' => 'kWh/kWp',
-                    'min' => 0,
-                    'position' => 'left'
-                ],
-                [
-                    'type' => 'value',
-                    'name' => '[%]',
-                    'min' => 0,
-                    'max' => 105,
-                    'position' => 'right',
+                $tenArray['name'] = array_merge($tenArray['name'], $bestTen['name']);
+                $tenArray['power'] = array_merge($tenArray['power'], $bestTen['power']);
 
-                ]
-            ];
-            $chart->series =
-                [
+                $chart = new ECharts();
+                $chart->tooltip->show = false;
+                $chart->tooltip->trigger = 'item';
+                $chart->xAxis = [
+                    'type' => 'category',
+                    'axisLabel' => [
+                        'show' => true,
+                        'margin' => '10',
+                        'rotate' => 45
+                    ],
+                    'splitArea' => [
+                        'show' => true,
+                    ],
+                    'data' => $tenArray['name'],
+                ];
+                $chart->yAxis = [
                     [
-                        'name' => 'Specific Yield',
-                        'type' => 'bar',
-                        'data' => $tenArray['powerYield'],
-                        'visualMap' => 'false',
+                        'type' => 'value',
+                        'name' => 'kWh',
+                        'min' => 0,
+                        'position' => 'left'
                     ],
                     [
-                        'name' => 'Inverter PR',
-                        'type' => 'line',
-                        'data' => $tenArray['PR'],
-                        'visualMap' => 'false',
-                        'lineStyle' => [
-                            'color' => 'green'
+                        'type' => 'value',
+                        'name' => '[%]',
+                        'min' => 0,
+                        'max' => 105,
+                        'position' => 'right',
+
+                    ]
+                ];
+                $chart->series =
+                    [
+                        [
+                            'name' => 'Dc Power',
+                            'type' => 'bar',
+                            'data' => $tenArray['power'],
+                            'visualMap' => 'false',
                         ],
-                        'yAxisIndex' => 1,
-                        'markLine' => [
-                            'data' => [
-                                [
-                                    'name' => 'Contractual PR',
-                                    'yAxis' => $anlage->getContractualPR(),
-                                    'lineStyle' => [
-                                        'type' => 'solid',
-                                        'width' => 3,
-                                        'color' => 'red'
-                                    ],
-                                    'label' => [
-                                        'formatter' => '{b}:{c}'
-                                    ]
-                                ],
-                               /* [
-                                    'name' => 'average PR:',
-
-                                    'yAxis' => $avgPr,
-                                    'lineStyle' => [
-                                        'type' => 'solid',
-                                        'width' => 3,
-                                        'color' => 'yellow'
-                                    ],
-                                    'label' => [
-                                        'formatter' => '{b}:{c}'
-                                    ]
-
-                                ]
-                                */
-                            ],
-                            'symbol' => 'none',
-
-                        ]
+                    ];
+                $option = [
+                    'animation' => false,
+                    'grid' => [
+                        'height' => '70%',
+                        'top' => 50,
+                        'width' => '70%',
+                        'right' => 100,
+                        'left' => 100,
+                        'bottom' => 100,
+                    ],
+                    'legend' => [
+                        'show' => true,
+                        'center' => 'top',
+                        'top' => 10,
+                    ],
+                    'tooltip' => [
+                        'show' => true,
                     ],
                 ];
-            $option = [
-                'animation' => false,
-                'grid' => [
-                    'height' => '70%',
-                    'top' => 50,
-                    'width' => '70%',
-                    'right' => 100,
-                    'left' => 100,
-                    'bottom' => 100,
-                ],
-                'legend' => [
-                    'show' => true,
-                    'center' => 'top',
-                    'top' => 10,
-                ],
-                'tooltip' => [
-                    'show' => true,
-                ],
-            ];
-            $chart->setOption($option);
-            $pr_rank_graph_20_inv = $chart->render('pr_graph_20_inv'.$key, ['style' => 'height: 550px; width:900px;']);
-        }
+                $chart->setOption($option);
+                $pr_rank_graph_20_inv = $chart->render('pr_graph_20_inv' . $key, ['style' => 'height: 550px; width:900px;']);
+            }
+                // we build 2 arrays with the 10 best and the 10 worst
+                $worseTen['name'] = array_slice($fullArray['name'], 0, 10);
+                $bestTen['name'] = array_slice($fullArray['name'], count($fullArray['name']) - 10, 10);
+                $worseTen['powerYield'] = array_slice($fullArray['powerYield'], 0, 10);
+                $bestTen['powerYield'] = array_slice($fullArray['powerYield'], count($fullArray['powerYield']) - 10, 10);
+                //we calculate the average pr for the value in the middle
+
+                $worseTen['PR'] = array_slice($fullArray['PR'], 0, 10);
+                $bestTen['PR'] = array_slice($fullArray['PR'], count($fullArray['PR']) - 10, 10);
+                $sumPR = 0;
+                foreach ($worseTen['PR'] as $pr) {
+                    $sumPR = $sumPR + $pr;
+                }
+                foreach ($bestTen['PR'] as $pr) {
+                    $sumPR = $sumPR + $pr;
+                }
+                $avgPr = $sumPR / 20;
+                $tenArray['name'] = array_merge($worseTen['name'], ["..."]);
+                $tenArray['powerYield'] = array_merge($worseTen['powerYield'], [0]);
+                $tenArray['PR'] = array_merge($worseTen['PR'], [$avgPr]);
+
+                $tenArray['name'] = array_merge($tenArray['name'], $bestTen['name']);
+                $tenArray['powerYield'] = array_merge($tenArray['powerYield'], $bestTen['powerYield']);
+                $tenArray['PR'] = array_merge($tenArray['PR'], $bestTen['PR']);
+
+                $chart = new ECharts();
+                $chart->tooltip->show = false;
+                $chart->tooltip->trigger = 'item';
+                $chart->xAxis = [
+                    'type' => 'category',
+                    'axisLabel' => [
+                        'show' => true,
+                        'margin' => '10',
+                        'rotate' => 45
+                    ],
+                    'splitArea' => [
+                        'show' => true,
+                    ],
+                    'data' => $tenArray['name'],
+                ];
+                $chart->yAxis = [
+                    [
+                        'type' => 'value',
+                        'name' => 'kWh/kWp',
+                        'min' => 0,
+                        'position' => 'left'
+                    ],
+                    [
+                        'type' => 'value',
+                        'name' => '[%]',
+                        'min' => 0,
+                        'max' => 105,
+                        'position' => 'right',
+
+                    ]
+                ];
+                $chart->series =
+                    [
+                        [
+                            'name' => 'Specific Yield',
+                            'type' => 'bar',
+                            'data' => $tenArray['powerYield'],
+                            'visualMap' => 'false',
+                        ],
+                        [
+                            'name' => 'Inverter PR',
+                            'type' => 'line',
+                            'data' => $tenArray['PR'],
+                            'visualMap' => 'false',
+                            'lineStyle' => [
+                                'color' => 'green'
+                            ],
+                            'yAxisIndex' => 1,
+                            'markLine' => [
+                                'data' => [
+                                    [
+                                        'name' => 'Contractual PR',
+                                        'yAxis' => $anlage->getContractualPR(),
+                                        'lineStyle' => [
+                                            'type' => 'solid',
+                                            'width' => 3,
+                                            'color' => 'red'
+                                        ],
+                                        'label' => [
+                                            'formatter' => '{b}:{c}'
+                                        ]
+                                    ],
+                                ],
+                                'symbol' => 'none',
+
+                            ]
+                        ],
+                    ];
+                $option = [
+                    'animation' => false,
+                    'grid' => [
+                        'height' => '70%',
+                        'top' => 50,
+                        'width' => '70%',
+                        'right' => 100,
+                        'left' => 100,
+                        'bottom' => 100,
+                    ],
+                    'legend' => [
+                        'show' => true,
+                        'center' => 'top',
+                        'top' => 10,
+                    ],
+                    'tooltip' => [
+                        'show' => true,
+                    ],
+                ];
+                $chart->setOption($option);
+                $pr_rank_graph_20_inv2 = $chart->render('pr_graph_20_inv' . $key, ['style' => 'height: 550px; width:900px;']);
+            }
+
 
         foreach($graphDataPR as $key => $data) {
             $chart = new ECharts();
@@ -1036,7 +1113,7 @@ class AssetManagementService
             if ($anlage->getShowEvuDiag()) {
                 (float) $powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
             } else {
-                (float) $powerExpEvu[] = $data1_grid_meter['powerAct'];
+                (float) $powerExpEvu[] = $data1_grid_meter['powerExp'];
             }
             (float) $powerExp[] = $data1_grid_meter['powerExp'];
             (float) $powerExternal[] = $data1_grid_meter['powerEGridExt'];
@@ -1055,6 +1132,7 @@ class AssetManagementService
             'powerExt' => $powerExternal,
             'forecast' => $forecast,
         ];
+
 
         $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
@@ -1539,7 +1617,7 @@ class AssetManagementService
             $diffActForecastSum[$i] = $diffActForecastSum[$i - 1]+($tbody_a_production['powerAct'][$i] - $forecast[$i]);
 
 
-            if ($i +1  > $report['reportMonth']) {
+            if ($i + 1  > $report['reportMonth']) {
                 $difference_Egrid_to_PVSYST[$i] = 0;
                 $difference_Egrid_to_Expected_G4n[$i] = 0;
                 $difference_Inverter_to_Egrid[$i] = 0;
@@ -1551,7 +1629,6 @@ class AssetManagementService
                 $difference_actual_forecast[$i] = $diffActForecastSum[$i];
             }
         }
-
         $losses_t1 = [
             'difference_Egrid_to_PVSYST' => $difference_Egrid_to_PVSYST,
             'difference_Egrid_to_Expected_G4n' => $difference_Egrid_to_Expected_G4n,
@@ -2817,6 +2894,7 @@ class AssetManagementService
         if ($dcExpDcIst) {
             $outTableCurrentsPower[] = $dcExpDcIst;
         }
+
         $monthlyTableForPRAndPA = [];
         $graphArrayPR = [];
         for($index = 1; $index <= $month ; $index++){
@@ -3845,7 +3923,6 @@ class AssetManagementService
             }
         }
         $efficiencyRanking[] = [];
-        //dd($orderedEfficiencyArray, $month, $year);
         foreach($orderedEfficiencyArray as $key => $data) {
             $chart = new ECharts(); // We must use AMCharts
             $chart->tooltip->show = false;
@@ -4205,7 +4282,8 @@ class AssetManagementService
             'sumary_pie_graph' => $sumary_pie_graph,
             'waterfallHelpTable' => $waterfallDiagramHelpTable,
             'waterfallDiagram' => $waterfallDiagram,
-            'pr_rank_graph_20_inv' => $pr_rank_graph_20_inv
+            'pr_rank_graph_20_inv' => $pr_rank_graph_20_inv,
+            'pr_rank_graph_20_inv2' => $pr_rank_graph_20_inv2,
         ];
 
         return $output;
@@ -4257,8 +4335,6 @@ class AssetManagementService
                     else{
                         $sumDataGap = $sumDataGap + $exp;
                     }
-
-                    //$sumLossesMonthSOR = $sumLossesMonthSOR + $exp;
                 } else if ($date->getAlertType() == 20) {
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
@@ -4298,11 +4374,8 @@ class AssetManagementService
                     $sumLossesMonthPPC = $sumLossesMonthPPC + $exp;
                     $sumLossesMonthOMC = $sumLossesMonthEFOR + $exp;
                 }
-
             }
         }
-
-
         $kwhLossesMonthTable = [
             'SORLosses'      => $sumLossesMonthSOR,
             'EFORLosses'     => $sumLossesMonthEFOR,
@@ -4352,10 +4425,40 @@ class AssetManagementService
         }
         $PRArray['powerAVG'] = $powerSum / $invNr;
         $PRArray['PRAvg'] = $prSum / $invNr;
-
         return $PRArray;
     }
 
+    /**
+     * @param Anlage $anlage
+     * @param $month
+     * @param $year
+     *
+     * @return array
+     *
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
+     */
+    private function getSCBPR(Anlage $anlage, $month, $year): array {
+        $return = [];
+        $groups = $anlage->getGroupsDc();
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
+        $begin = $year."-".$month."-01 00:00";
+        $end = $year."-".$month."-".$daysInMonth." 23:59";
+        $sql = "SELECT wr_group as SCB, sum(wr_idc) as power
+                FROM ".$anlage->getDbNameDcIst()."
+                WHERE stamp BETWEEN '$begin' AND '$end' 
+                GROUP BY SCB
+                ORDER BY power ASC";
+        $res = $this->conn->query($sql);
+
+        foreach($res->fetchAll(PDO::FETCH_ASSOC) as $value){
+
+            $return['name'][] = $groups[(int)$value['SCB']]['GroupName'];
+            $return['power'][] = $value['power'];
+        }
+
+        return $return;
+    }
     /**
      * @param Anlage $anlage
      * @param $month
@@ -4389,11 +4492,14 @@ class AssetManagementService
                             ";
                 break;
         }
+
+
         $res = $this->conn->query($sql);
         $inverter = 1;
         $index = 1;
         $efficiencySum = 0;
         $efficiencyCount = 0;
+    
         foreach($res->fetchAll(PDO::FETCH_ASSOC) as $result){
             if ($result['inverter'] != $inverter){
                 $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0;
@@ -4409,6 +4515,7 @@ class AssetManagementService
                 $index = $index + 1;
             }
         }
+
         $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0; //we make the last average outside of the loop
 
         return $output;
@@ -4430,5 +4537,4 @@ class AssetManagementService
 
         return $sumIrrMonth;
     }
-
 }

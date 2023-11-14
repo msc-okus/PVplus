@@ -379,7 +379,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $array[] = preg_replace('/\s+/', '', $value);
             }
         }
-
         return $array;
     }
 

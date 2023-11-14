@@ -167,7 +167,6 @@ class AnlageSensors
 
     public function setstartDateSensor(?\DateTimeInterface $startDateSensor = null): self
     {
-
         $this->startDateSensor = $startDateSensor;
 
         return $this;

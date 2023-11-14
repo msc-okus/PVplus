@@ -116,7 +116,11 @@ table th {
 .monthtable td, .monthtable th{
   text-align: right;
   font-size: 8px;
-  padding: 3px 3px;
+  padding: 2px 2px 2px 0;
+  line-height: 1.2;
+}
+.monthtable td:first-child, .monthtable th:first-child{
+  padding: 2px;
 }
 .monthtable th{
   text-align: center;

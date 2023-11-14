@@ -18,7 +18,10 @@ use Symfony\Bundle\SecurityBundle\Security;
  */
 class ReportsRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry, private readonly Security $security)
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly Security $security,
+        private AnlagenRepository $anlageRepo)
     {
         parent::__construct($registry, AnlagenReports::class);
     }
@@ -41,7 +44,7 @@ class ReportsRepository extends ServiceEntityRepository
         ;
     }
 
-    public function getWithSearchQueryBuilder(?string $term, ?string $searchstatus, ?string $searchtype, ?string $searchmonth, ?string $searchyear): QueryBuilder
+    public function getWithSearchQueryBuilder(?string $term = '', ?string $searchstatus = '', ?string $searchtype = '', ?string $searchmonth = '', ?string $searchyear = ''): QueryBuilder
     {
         $qb = $this->createQueryBuilder('report')
             ->innerJoin('report.anlage', 'a')
@@ -54,15 +57,12 @@ class ReportsRepository extends ServiceEntityRepository
         if (!$this->security->isGranted('ROLE_G4N')) {
             /** @var User $user */
             $user = $this->security->getUser();
-            $granted = $user->getGrantedArray();
+            $granted =  $this->anlageRepo->findAllActiveAndAllowed();
 
-            $qb->andWhere('a.anlId IN (:granted)')
-                ->setParameter('granted', $granted)
-            ;
+            $qb->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
             // schließe Archiv und falsche Reports aus
             // muss noch via Backend auswählbar gemacht werden
-            $qb->andWhere('report.reportStatus != 9');
-            $qb->andWhere('report.reportStatus != 11');
         }
 
         if ($searchstatus != '') {
@@ -80,7 +80,6 @@ class ReportsRepository extends ServiceEntityRepository
         if ($term != '') {
             $qb->andWhere(" a.anlName LIKE '$term' ");
         }
-
         return $qb;
     }
     /**

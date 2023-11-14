@@ -307,7 +307,7 @@ class ExpectedService
         $pnomsgl = $anlage->getPnom() / 2;
         $pnomall = $anlage->getPnom() ;
         $kwp = $anlage->getKwPeak();
-        $modulisbif = false; // Sollte aus der Modul DB kommen
+        $modulisbif = false; // Sollte aus der Modul DB kommen muss noch gemacht werden
         $TcellTypDay = $theoday = $irrYear = $irrDay = 0;
 
         if ((is_countable($decarray) ? count($decarray) : 0) > 0) {
@@ -320,18 +320,19 @@ class ExpectedService
                             isset($valy['DOY']) ? $doy = $valy['DOY'] : $doy = '0';
                         if ($anlage->getIsOstWestAnlage()) {
 
-                        if ($modulisbif) {
-                            isset($valy['OSTWEST']['RGESBIF_UPPER']) ? $irrUpper = round($valy['OSTWEST']['RGESBIF_UPPER'], 2) : $irrUpper = '0.0';
-                            isset($valy['OSTWEST']['RGESBIF_LOWER']) ? $irrLower = round($valy['OSTWEST']['RGESBIF_LOWER'], 2) : $irrLower = '0.0';
-                        } else {
-                            isset($valy['OSTWEST']['RGES_UPPER']) ? $irrUpper = round($valy['OSTWEST']['RGES_UPPER'], 2) : $irrUpper = '0.0';
-                            isset($valy['OSTWEST']['RGES_LOWER']) ? $irrLower = round($valy['OSTWEST']['RGES_LOWER'], 2) : $irrLower = '0.0';
-                        }
+                            if ($modulisbif) {
+                                isset($valy['OSTWEST']['RGESBIF_UPPER']) ? $irrUpper = round($valy['OSTWEST']['RGESBIF_UPPER'], 2) : $irrUpper = '0.0';
+                                isset($valy['OSTWEST']['RGESBIF_LOWER']) ? $irrLower = round($valy['OSTWEST']['RGESBIF_LOWER'], 2) : $irrLower = '0.0';
+                            } else {
+                                isset($valy['OSTWEST']['RGES_UPPER']) ? $irrUpper = round($valy['OSTWEST']['RGES_UPPER'], 2) : $irrUpper = '0.0';
+                                isset($valy['OSTWEST']['RGES_LOWER']) ? $irrLower = round($valy['OSTWEST']['RGES_LOWER'], 2) : $irrLower = '0.0';
+                            }
 
                         $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irrUpper), 2);
                         $TcellTyp = round($irrUpper / 1000 * $Tcell,2);
                         $TcellTypDay += $TcellTyp;
                         $irrYear += $irrUpper ; // W/m
+
                     } else {
 
                         if ($modulisbif) {
@@ -348,10 +349,11 @@ class ExpectedService
                 }
 
             }
+
             $irrYearkWh = $irrYear / 1000;
             $tcell_avg = round($TcellTypDay / $irrYearkWh,2);
             $irrUpper = $irrLower = $irr = 0;
-            // Erstelle die Tages Erträge
+            // Erstelle die Tageserträge
             foreach ($decarray as $keyout => $valout) {
 
                 foreach ($valout as $key => $val) {
@@ -439,13 +441,15 @@ class ExpectedService
                             }
                             // Verluste auf der DC Seite brechnen
                             // Kabel Verluste + Sicherheitsverlust
-                            $loss = $group->getCabelLoss() + $group->getSecureLoss();
 
+                            // Hier nicht berücksichtigen
+                            /*
+                            $loss = $group->getCabelLoss() + $group->getSecureLoss();
                             // Verhindert 'diff by zero'
                             if ($loss != 0) {
                                 $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);
                             }
-
+                            */
                             // Umrechnung DC nach AC
                             $expNoLimit = $expPowerDc  - ($expPowerDc / 100 * $group->getFactorAC()) ;
 
@@ -461,6 +465,7 @@ class ExpectedService
                         }
 
                         if ($anlage->getIsOstWestAnlage()) {
+
                             $hj = round(($irrUpper / 1000 * $pnomsgl + $irrLower  / 1000 * $pnomsgl) / $pnomall, 2);
                             $theohr = ($pnomall * $hj) ;
                             $Fttheohr = $theohr * $Ft; // Theoretical * FT Faktor
@@ -473,7 +478,9 @@ class ExpectedService
                             $theohr = 0;
                             $hj = 0;
                             $irrUpper = 0;
-                        } else {
+
+                         } else {
+
                             $hj = round(($irr / 1000 * $pnomsgl + $irr  / 1000 * $pnomsgl) / $pnomall, 2);
                             $theohr = ($pnomall * $hj) ;
                             $theoday +=  $theohr;
@@ -486,6 +493,7 @@ class ExpectedService
                             $theohr = 0;
                             $hj = 0;
                             $irr = 0;
+
                         }
 
                     }

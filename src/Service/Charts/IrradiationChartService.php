@@ -28,12 +28,12 @@ class IrradiationChartService
     /**
      * Erzeugt Daten für das Strahlungs Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param string|null $mode
      * @param bool|null $hour
      * @return array
-     * @throws \Exception
      */
     public function getIrradiation(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
@@ -99,12 +99,12 @@ class IrradiationChartService
     /**
      * Erzeugt Daten für das Strahlungs Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param string|null $mode
      * @param bool|null $hour
      * @return array
-     * @throws \Exception
      */
     public function getIrradiationFromSensorsData(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
@@ -245,10 +245,12 @@ class IrradiationChartService
     /**
      * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wird.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param bool $hour
      * @return array
-     * @throws \Exception
+     * @throws \JsonException
      */
     public function getIrradiationPlant(Anlage $anlage, $from, $to, bool $hour): array
     {
@@ -256,7 +258,7 @@ class IrradiationChartService
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
-        // Strom für diesen Zeitraum und diesen Inverter
+
         if ($hour) {
             $sql_irr_plant = 'SELECT a.stamp as stamp, (b.irr_anlage) AS irr_anlage FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameIst().") b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' group by date_format(a.stamp, '$form');";
         } else {
@@ -325,21 +327,22 @@ class IrradiationChartService
             }
         }
         $conn = null;
-
         return $dataArray;
     }
 
     /**
      * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wird aus SensorsData Tabelle.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param bool $hour
      * @return array
-     * @throws \Exception
      */
     public function getIrradiationPlantFromSensorsData(Anlage $anlage, $from, $to, bool $hour): array
     {
         $conn = $this->pdoService->getPdoPlant();
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         $dataArrayFinal = [];
         $dataArray['maxSeries'] = 0;
@@ -368,17 +371,19 @@ class IrradiationChartService
             if ($result->rowCount() > 0) {
                 $counter = 0;
                 $irrCounter = 1;
+                $namexCounter = 0;
+                $stampTemp = null;
                 $gmO = null;
                 $gmPyHori = $gmPyEast = $gmPyWest = $irrValueArray = [];
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                     $dataArray['nameX'][1] = 'G_M0';
                     //create the data for each timepoint
-                    if($stampTemp != $row['stamp']){
+                    if ($stampTemp != $row['stamp']){ // Todo: generiert einnen leeren Datensatz am anfang der Liste, das soll nicht sein
                         $dataArray[$counter] = [
                             'gmo'               =>  $gmO[0],
                             'irrHorizontal'     =>  $this->mittelwert($gmPyHori),
-                            'irrLower'          =>  $this->mittelwert($gmPyWest),
                             'irrUpper'          =>  $this->mittelwert($gmPyEast),
+                            'irrLower'          =>  $this->mittelwert($gmPyWest),
                             'stamp'             =>  $stampTemp,
                             'values'            =>  $irrValueArray,
                             'sensorShortName'   =>  $shortNameTemp //this is for sensors they are activated by date-from in plant-sensors-table
@@ -415,7 +420,7 @@ class IrradiationChartService
                     if($sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr-hori' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr-east' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr-west'){
 
                         if (!isset($dataArray['nameX'][$irrCounter])) {
-                            $dataArray['nameX'][$irrCounter] = $sensorsArray[$row['id_sensor']]['shortname_sensor'];
+                            $dataArray['nameX'][$irrCounter] = $row['shortname_sensor'];
                         }
                         if (!in_array($sensorsArray[$row['id_sensor']]['shortname_sensor'], $dataArray['nameX'])) {
                             $innArray = count( $dataArray['nameX']);

@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use _PHPStan_adbc35a1c\Nette\Utils\DateTime;
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
+use App\Repository\TicketRepository;
 use App\Service\TicketsGeneration\InternalAlertSystemService;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use App\Service\AssetManagementService;
@@ -13,6 +15,7 @@ use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
 use App\Service\WeatherServiceNew;
+use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,6 +42,47 @@ class DefaultJMController extends AbstractController
     )
     {
 
+    }
+
+
+
+    #[Route(path: '/generate/tickets', name: 'generate_tickets')]
+    public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $ts)
+    {
+        $fromDate = "2023-01-01 00:00";
+        $toDate = "2023-11-09 00:00";
+        $fromStamp = strtotime($fromDate);
+        $toStamp = strtotime($toDate);
+        $anlage = $anlagenRepository->findIdLike("217")[0];
+        $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
+        foreach ($tickets as $ticket){
+            $dates = $ticket->getDates();
+            foreach ($dates as $date){
+                $em->remove($date);
+            }
+            $em->remove($ticket); 
+        }
+
+        $em->flush();
+        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+            $ts->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
+        }
+        dd("hello world");
+    }
+
+    #[Route(path: '/test/time', name: 'default_time')]
+    public function testTime(AnlagenRepository $anlagenRepository)
+    {
+        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+
+        foreach ($anlagen as $anlage){
+            $timeZone = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
+            dump($timeZone->getName());
+            date_default_timezone_set($timeZone->getName());
+            dump(new DateTime('now'));
+        }
+
+        dd("hello World");
     }
 
 
@@ -343,15 +387,6 @@ class DefaultJMController extends AbstractController
         $em->flush();
         dd($fileSystemFtp);
 
-    }
-    #[Route(path: '/test/bs', name: 'default_bs_test')]
-    public function testTime(AnlagenRepository $ar, WeatherServiceNew $ws){
-         $saran = $ar->find(104);//findOneBy(['id' => 104]);
-        //date_default_timezone_set($ws->getNearestTimezone($saran->getAnlGeoLat(), $saran->getAnlGeoLon(),strtoupper($saran->getCountry())));
-
-        $sunrisedata = date_sun_info(strtotime("2023-01-01"), (float) $saran->getAnlGeoLat(), (float) $saran->getAnlGeoLon());
-        //date_default_timezone_set('Europe/Vienna);
-        dd(Date("Y-m-d H:i:s", $sunrisedata['sunrise']), date_default_timezone_get());
     }
 
 }

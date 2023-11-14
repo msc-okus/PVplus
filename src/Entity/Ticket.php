@@ -28,6 +28,7 @@ class Ticket
     const WEATHER_STATION_ERROR = 40;
     const EXTERNAL_CONTROL = 50; // Regelung vom Direktvermarketr oder Netztbetreiber
     const POWER_DIFF = 60;
+    const IRRADIATION = 100;
 
     use TimestampableEntity;
     use BlameableEntity;
