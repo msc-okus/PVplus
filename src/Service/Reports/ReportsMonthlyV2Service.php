@@ -266,10 +266,10 @@ class ReportsMonthlyV2Service
         // Summe / Total Row
         $i = $daysInMonth + 1;
         $dayValues[$i]['datum'] = 'Total';
+        $dayValues[$i]['datum_alt'] = 'Total';
         foreach($prSumArray as $key => $value) {
             $dayValues[$i][$key] = $value;
         }
-
         return $dayValues;
     }
 

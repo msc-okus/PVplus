@@ -420,7 +420,7 @@ trait G4NTrait
                 unlink($file->getRealPath());
             }
         }  else {
-            mkdir('uploads/temp', 755);
+            mkdir('uploads/temp', 777);
         }
         $return = [];
         foreach ($files as $key => $file){
