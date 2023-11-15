@@ -47,25 +47,30 @@ class DefaultJMController extends AbstractController
 
 
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
-    public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $ts)
+    public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
     {
-        $fromDate = "2023-01-01 00:00";
-        $toDate = "2023-11-09 00:00";
+        $fromDate = "2023-11-08 00:00";
+        $toDate = "2023-11-16 00:00";
+        $anlagen = $anlagenRepository->findAlertSystemActiveByEigner(true,'10004');
+        //$anlage = $anlagenRepository->findIdLike("217")[0];
+
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
-        $anlage = $anlagenRepository->findIdLike("217")[0];
-        $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
-        foreach ($tickets as $ticket){
-            $dates = $ticket->getDates();
-            foreach ($dates as $date){
-                $em->remove($date);
+        foreach ($anlagen as $anlage) {
+            $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
+            foreach ($tickets as $ticket){
+                $dates = $ticket->getDates();
+                foreach ($dates as $date){
+                    $em->remove($date);
+                }
+                $em->remove($ticket);
             }
-            $em->remove($ticket); 
-        }
+            $em->flush();
+            for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
 
-        $em->flush();
-        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-            $ts->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
+
+                    $alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
+            }
         }
         dd("hello world");
     }

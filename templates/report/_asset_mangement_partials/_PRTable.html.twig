@@ -26,7 +26,7 @@
                                 {% if anlage.settings.disableDep3 != true %}<th class="table-center" colspan="5" style="text-align: center">PR & PA - AM<sup>*6</sup></th>{% endif %}
                             </tr>
                             <tr>
-                                <th class="table-center">Datum</th>
+                                <th class="table-center">Date</th>
                                 <th class="table-center">Irr</th>
                                 <th class="table-center">Grid</th>
                                 <th class="table-center">Inverter</th>
@@ -66,7 +66,7 @@
                             <tbody>
                         {% endif %}
                         <tr {{ trstyle }}>
-                            <td class="tr_next_columns">{{ day["datum"] }}</td>
+                            <td class="tr_next_columns">{{ day["datum_alt"]  }}</td>
 
                             <td class="tr_next_columns">{{ day["irradiation"]|number_format(4,',','.') }}</td>
                             <td class="tr_next_columns">{% if anlage.useGridMeterDayData %}{{ day["powerEGridExt"]|number_format(2,',','.') }}{% else %}{{ day["powerEvu"]|number_format(2,',','.') }}{% endif %}</td>

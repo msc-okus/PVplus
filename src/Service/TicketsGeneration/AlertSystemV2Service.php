@@ -386,12 +386,14 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-            if ( $plant_status['ppc'] != null && $plant_status['ppc'] )  $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc']);
-            if ( $plant_status['Gap'] != null && count($plant_status['Gap']) > 0 ) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "",  ($plant_status['ppc']));
-            if ( $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "",  ($plant_status['ppc']));
-            if ( $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "",  ($plant_status['ppc']));
-            if ( $plant_status['Irradiation'] ) $this->generateTickets('', ticket::IRRADIATION, $anlage, ['*'], $time, "Data Gap in the irradiation Data Base", $plant_status['ppc']);
-
+            if ( $plant_status['Irradiation'] == false ) {
+                if ($plant_status['ppc'] != null && $plant_status['ppc']) $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc'], false);
+                if ($plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "", ($plant_status['ppc']), false);
+                if ($plant_status['Power0'] != null && count($plant_status['Power0']) > 0) $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "", ($plant_status['ppc']), false);
+                if ($plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "", ($plant_status['ppc']), false);
+            }else {
+                $this->generateTickets('', ticket::DATA_GAP, $anlage, ['*'], $time, "Data Gap set automatically to com. issue because of a gap in the irradiation", $plant_status['ppc'], true);
+            }
         }
 
         $this->em->flush();
@@ -451,6 +453,7 @@ class AlertSystemV2Service
             $sqlAct = 'SELECT b.unit as unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac <= $powerThreshold ";
+
             $resp = $conn->query($sqlAct);
             $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
 
@@ -504,9 +507,8 @@ class AlertSystemV2Service
      * @param $message
      * @return void
      */
-    private function generateTickets($errorType, $errorCategorie,Anlage $anlage, $inverter, $time, $message, $PPC): void
+    private function generateTickets($errorType, $errorCategorie,Anlage $anlage, $inverter, $time, $message, $PPC, ?bool $fullGap = false): void
     {
-
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
             if($ticketArray != []) {
                 foreach ($ticketArray as $ticketOld) {
@@ -594,19 +596,24 @@ class AlertSystemV2Service
                 $ticketDate->setEnd($end);
                 $ticket->setEnd($end);
                 //default values por the kpi evaluation
-                if ($errorType == 20 || $errorType == 100) {
+                if ($errorType == 10 || $errorType = 20) {
                     if (!$PPC) {
-                        $ticketDate->setKpiPaDep1(10);
-                        $ticketDate->setKpiPaDep2(10);
-                        $ticketDate->setKpiPaDep3(10);
+                        if (!$fullGap){
+                            $ticketDate->setDataGapEvaluation(10);
+                            $ticketDate->setKpiPaDep1(10);
+                            $ticketDate->setKpiPaDep2(10);
+                            $ticketDate->setKpiPaDep3(10);
+                        }else{
+                            $ticketDate->setDataGapEvaluation(20);
+                        }
                     }
                     else{
-                        if ($errorType == 20){
+                        if (!$fullGap){
                             $ticketDate->setDataGapEvaluation(10);
                             $ticketDate->setKpiPaDep1(20);
                             $ticketDate->setKpiPaDep2(10);
                             $ticketDate->setKpiPaDep3(10);
-                        }else if($errorType == 100){
+                        }else{
                             $ticketDate->setDataGapEvaluation(20);
                         }
                     }

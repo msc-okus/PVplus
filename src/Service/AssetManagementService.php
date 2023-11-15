@@ -347,8 +347,9 @@ class AssetManagementService
             'InverterPRRankGraphics' => $content['InverterPRRankGraphics'],
             'prSumaryTable' => $content['prSumaryTable'],
             'sumary_pie_graph' => $content['sumary_pie_graph'],
-            'pr_rank_graph_20_inv' => $content['pr_rank_graph_20_inv'],
-            'pr_rank_graph_20_inv' => $content['pr_rank_graph_20_inv2']
+            'pr_rank_graph_20_scb' => $content['pr_rank_graph_20_scb'],
+            'pr_rank_graph_20_inv' => $content['pr_rank_graph_20_inv']
+
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
@@ -729,7 +730,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $sumary_pie_graph = $chart->render('sumary_pie_graph'.$key, ['style' => 'height: 250px; width:500px;']);
-        $pr_rank_graph_20_inv = "";
+
         if (count($anlage->getInverterFromAnlage()) > 20) {
             // we do this to join the inverter arrays into one
             $fullArray['name'] = [];
@@ -740,7 +741,7 @@ class AssetManagementService
                 $fullArray['powerYield'] = array_merge($fullArray['powerYield'], $array['powerYield']);
                 $fullArray['PR'] = array_merge($fullArray['PR'], $array['PR']);
             }
-
+            $pr_rank_graph_20_scb = "";
             if ($anlage->getConfigType() == 3) {
                 $inverterPRArray = $this->getSCBPR($anlage, $report['reportMonth'], $report['reportYear']);
 
@@ -817,7 +818,8 @@ class AssetManagementService
                     ],
                 ];
                 $chart->setOption($option);
-                $pr_rank_graph_20_inv = $chart->render('pr_graph_20_inv' . $key, ['style' => 'height: 550px; width:900px;']);
+                $pr_rank_graph_20_scb = $chart->render('pr_graph_20_scb' . $key, ['style' => 'height: 550px; width:900px;']);
+
             }
                 // we build 2 arrays with the 10 best and the 10 worst
                 $worseTen['name'] = array_slice($fullArray['name'], 0, 10);
@@ -935,7 +937,6 @@ class AssetManagementService
                 $pr_rank_graph_20_inv2 = $chart->render('pr_graph_20_inv' . $key, ['style' => 'height: 550px; width:900px;']);
             }
 
-
         foreach($graphDataPR as $key => $data) {
             $chart = new ECharts();
             $chart->tooltip->show = false;
@@ -1047,6 +1048,7 @@ class AssetManagementService
         for ($i = 0; $i < 12; ++$i) {
             $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
         }
+
         $plantId = $anlage->getAnlId();
         $monthName = date('F', mktime(0, 0, 0, $report['reportMonth'], 10));
         $currentMonth = date('m');
@@ -1411,12 +1413,12 @@ class AssetManagementService
 
         // End Cumulative Forecast with PVSYST
 
-        $PowerSum[0] = 0;
+        $PowerSum[0] = $powerEvu[0];
         for ($i = 0; $i < 12; ++$i) {
             if ($i + 1 <= $report['reportMonth']) {
 
                 if ($powerExp[$i] > 0) {
-                    $PowerSum[$i] = $powerExp[$i] + $PowerSum[$i - 1];
+                    $PowerSum[$i] = $powerEvu[$i] + $PowerSum[$i - 1];
                 } else {
                     $PowerSum[$i] = $forecast[$i] + $PowerSum[$i - 1];
                 }
@@ -1841,10 +1843,10 @@ class AssetManagementService
         if (( $powerEvuQ2 > 0)) {
 
             if ($month >= 6) {
-                $expectedPvSystQ2 = $forecast[3] + $forecast[3][4] + $forecast[3][5];
+                $expectedPvSystQ2 = $forecast[3] + $forecast[4] + $forecast[5];
             } else {
                 for ($i = 3; $i <= intval($report['reportMonth']); ++$i) {
-                    $expectedPvSystQ2 += $forecast[3][$i];
+                    $expectedPvSystQ2 += $forecast[$i];
                 }
             }
 
@@ -1954,7 +1956,7 @@ class AssetManagementService
             }
 
             $expectedPvSystYtoDFirst = 0;
-            for ($i = 9; $i <= intval($report['reportMonth']); ++$i) {
+            for ($i = 0; $i < intval($report['reportMonth']); ++$i) {
                 $expectedPvSystYtoDFirst += $forecast[$i];
             }
 
@@ -2494,7 +2496,7 @@ class AssetManagementService
         }
         $ActualPower = $powerEvu[$month-1];
         $ActualPowerYear = 1;
-        for($index = 0; $index < $month -1; $index++){
+        for($index = 0; $index <= $month -1; $index++){
             $ActualPowerYear = $ActualPowerYear + $powerEvu[$index];
         }
         if ($G4NmonthExpected > 0) {
@@ -4282,8 +4284,9 @@ class AssetManagementService
             'sumary_pie_graph' => $sumary_pie_graph,
             'waterfallHelpTable' => $waterfallDiagramHelpTable,
             'waterfallDiagram' => $waterfallDiagram,
+            'pr_rank_graph_20_scb' => $pr_rank_graph_20_scb,
             'pr_rank_graph_20_inv' => $pr_rank_graph_20_inv,
-            'pr_rank_graph_20_inv2' => $pr_rank_graph_20_inv2,
+
         ];
 
         return $output;
@@ -4293,9 +4296,10 @@ class AssetManagementService
      * @param $begin
      * @param $end
      * @param $anlage
+     * @return array
      */
     #[ArrayShape(['SORLosses' => "int|mixed", 'EFORLosses' => "int|mixed", 'OMCLosses' => "int|mixed", 'ExpectedLosses' => "int|mixed", 'PPCLosses' => "int|mixed"])]
-    public function calculateLosses($begin, $end, $anlage) :Array
+    public function calculateLosses($begin, $end, $anlage) :array
     {
         $sumLossesMonthSOR = 0;
         $sumLossesMonthEFOR = 0;
@@ -4391,7 +4395,6 @@ class AssetManagementService
      * @param Anlage $anlage
      * @param $month
      * @param $year
-     *
      * @return array
      *
      * @throws InvalidArgumentException
@@ -4435,8 +4438,6 @@ class AssetManagementService
      *
      * @return array
      *
-     * @throws InvalidArgumentException
-     * @throws NonUniqueResultException
      */
     private function getSCBPR(Anlage $anlage, $month, $year): array {
         $return = [];
@@ -4515,7 +4516,6 @@ class AssetManagementService
                 $index = $index + 1;
             }
         }
-
         $output['avg'][$inverter] = $efficiencyCount > 0 ? round($efficiencySum / $efficiencyCount, 2) : 0; //we make the last average outside of the loop
 
         return $output;
@@ -4526,7 +4526,7 @@ class AssetManagementService
      * @param $month
      * @return float|int|mixed
      */
-    private function getForecastIrr(Anlage $anlage, $month)
+    private function getForecastIrr(Anlage $anlage, $month) 
     {
         $forecast = $this->forecastDayRepo->findForcastDayByMonth($anlage, $month);
         $sumIrrMonth = 0;

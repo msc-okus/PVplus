@@ -9,9 +9,11 @@
         {% endfor %}
 
         {% if invNr > 20 %}
-            {%  if (anlage.configType == 3) %}
+            {%  if (anlage.configType == 3 and false ) %}
                 {% include 'report/_asset_mangement_partials/_top_10_inverters_scb.html.twig'%}
             {% endif %}
+            {% include 'report/_asset_mangement_partials/_top_10_inverters.html.twig'%}
+
         {% endif %}
         {% for graph in InverterPRRankGraphics %}
             {% include 'report/_asset_mangement_partials/_inverter_rank_graph.html.twig'%}

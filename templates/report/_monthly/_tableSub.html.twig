@@ -69,7 +69,11 @@
     <tbody>
     {% endif %}
     <tr {{ trstyle }}>
-        <td class="border-right-2">{{ day["datum"] }}</td>
+        {% if (loop.last) %}
+            <td class="border-right-2">{{ day["datum"] }}</td>
+        {% else %}
+            <td class="border-right-2">{{ day["datum"]|date("m-d") }}</td>
+        {% endif %}
 
 {# {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["powerEGridExt"]|number_format(2,',','.') }}{% else %}{{ day["powerEvu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %} #}
         <td>{{ day["powerAct"]|number_format(2,',','.') }}</td>

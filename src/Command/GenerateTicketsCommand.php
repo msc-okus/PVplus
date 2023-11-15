@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use App\Repository\TicketRepository;
 use App\Service\TicketsGeneration\AlertSystemService;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,11 +23,13 @@ class GenerateTicketsCommand extends Command
 {
     use G4NTrait;
 
+
     public function __construct(
         private readonly AnlagenRepository $anlagenRepository,
         private readonly AlertSystemService $alertService,
         private readonly AlertSystemv2Service $alertServiceV2,
-        private readonly EntityManagerInterface $em
+        private readonly EntityManagerInterface $em,
+        private readonly TicketRepository $ticketRepo,
     )
     {
         parent::__construct();
@@ -54,11 +57,19 @@ class GenerateTicketsCommand extends Command
             } else {
                 $io->comment("Generate Tickets | All Plants");
                 $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
+                //$anlagen = $this->anlagenRepository->findAlertSystemActiveByEigner(true,'10004'); // generate al gs plants
             }
 
             foreach ($anlagen as $anlage) {
-
-                if ($anlage->getAnlId() === 105) date_default_timezone_set('Asia/Almaty');
+                $tickets = $this->ticketRepo->findForSafeDelete($anlage, $optionFrom, $optionTo);
+                foreach ($tickets as $ticket){
+                    $dates = $ticket->getDates();
+                    foreach ($dates as $date){
+                        $this->em->remove($date);
+                    }
+                    $this->em->remove($ticket);
+                }
+                $this->em->flush();
                 $time = time();
                 $time = $time - ($time % 900);
                 if ($optionFrom) {
@@ -84,20 +95,13 @@ class GenerateTicketsCommand extends Command
                 }
 
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                    if ($anlage->isNewAlgorythm()) {
-                        $this->alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
-                    }
-                    else {
-                        $this->alertService->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
-                    }
-
-                    if ($counter % 4 == 0) {
+                    $this->alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
+                                 if ($counter % 4 == 0) {
                         $io->progressAdvance();
                     }
                     --$counter;
                 }
                 $io->comment($anlage->getAnlName());
-                if ($anlage->getAnlId() === 105) date_default_timezone_set('Europe/Berlin');
             }
             $io->progressFinish();
             $io->success('Generating tickets finished');
