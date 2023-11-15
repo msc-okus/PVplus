@@ -406,8 +406,10 @@ trait G4NTrait
 
     /**
      *
-     * @param array $file
+     * @param array $files
+     * @param $filesystem
      * @return array
+     * @throws Exception
      */
     public function makeTempFiles(array $files,  $filesystem):array
     {
@@ -420,7 +422,7 @@ trait G4NTrait
                 unlink($file->getRealPath());
             }
         }  else {
-            mkdir('uploads/temp', 755);
+            mkdir('uploads/temp');
         }
         $return = [];
         foreach ($files as $key => $file){
