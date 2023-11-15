@@ -89,7 +89,7 @@ class GenerateTicketsCommand extends Command
                 $counter = (($toStamp - $fromStamp) / 3600) * (is_countable($anlagen) ? count($anlagen) : 0);
                 $io->progressStart($counter);
                 $counter = ($counter * 4) - 1;
-                while (((int) date('i') >= 26 && (int) date('i') < 35) || (int) date('i') >= 56 || (int) date('i') < 5) {
+                while (((int) date('i') >= 28 && (int) date('i') < 33) || (int) date('i') >= 58 || (int) date('i') <= 3) {
                     $io->comment('Wait...');
                     sleep(30);
                 }

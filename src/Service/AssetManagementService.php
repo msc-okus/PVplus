@@ -934,7 +934,7 @@ class AssetManagementService
                     ],
                 ];
                 $chart->setOption($option);
-                $pr_rank_graph_20_inv2 = $chart->render('pr_graph_20_inv' . $key, ['style' => 'height: 550px; width:900px;']);
+                $pr_rank_graph_20_inv = $chart->render('pr_graph_20_inv' . $key, ['style' => 'height: 550px; width:900px;']);
             }
 
         foreach($graphDataPR as $key => $data) {
@@ -1135,7 +1135,7 @@ class AssetManagementService
             'forecast' => $forecast,
         ];
 
-
+        dump($tbody_a_production);
         $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
             $dataCfArray[$i]['month'] = $monthExtendedArray[$i]['month'];
@@ -1297,29 +1297,32 @@ class AssetManagementService
         $degradation = $anlage->getLossesForecast();
         // Cumulative Forecast
         $powerSum[0] = $powerEvu[0];
-        for ($i = 0; $i < 12; ++$i) {
+        $tbody_forecast_PVSYSTP50[] = $powerSum[0];
+        $tbody_forecast_PVSYSTP90[] = $powerSum[0];
+        for ($i = 1; $i < 12; ++$i) {
             if ($i + 1 > $report['reportMonth']) {
-                $powerSum[$i] = $forecast[$i] + $powerSum[$i - 1];
+                $monthValue = $forecast[$i];
             } else {
-                $powerSum[$i] = $powerEvu[$i] + $powerSum[$i - 1];
+                $monthValue = $powerEvu[$i];
             }
-
+            $powerSum[$i] =  $powerSum[$i - 1] + $monthValue;
             $tbody_forecast_PVSYSTP50[] = $powerSum[$i];
-            if ($i > (int)$month - 1) {
-                $tbody_forecast_PVSYSTP90[] = $powerSum[$i] - ($powerSum[$i] * $degradation / 100);
+            if ($i + 1 > $report['reportMonth']) {
+                $tbody_forecast_PVSYSTP90[] = $powerSum[$i - 1] + ($monthValue * ($degradation / 100));
             }else{
                 $tbody_forecast_PVSYSTP90[] = $powerSum[$i];
             }
         }
         // Forecast / PVSYST - P90
         $PVSYSExpSum[0] = $forecast[0];
-        for ($i = 0; $i < 12; ++$i) {
+        $tbody_forecast_plan_PVSYSTP50[] = $PVSYSExpSum[0];
+        $tbody_forecast_plan_PVSYSTP90[] = $PVSYSExpSum[0] * ($degradation / 100);
+        for ($i = 1; $i < 12; ++$i) {
 
             $PVSYSExpSum[$i] = $forecast[$i] + $PVSYSExpSum[$i - 1];
 
             $tbody_forecast_plan_PVSYSTP50[] = $PVSYSExpSum[$i];
-
-            $tbody_forecast_plan_PVSYSTP90[] = $PVSYSExpSum[$i] - ($PVSYSExpSum[$i] * $degradation / 100);
+            $tbody_forecast_plan_PVSYSTP90[] = $PVSYSExpSum[$i - 1] + ($forecast[$i] * $degradation / 100);
         }
 
         $forecast_PVSYST_table = [
@@ -1328,7 +1331,6 @@ class AssetManagementService
             'forcast_plan_PVSYSTP50' => $tbody_forecast_plan_PVSYSTP50,
             'forcast_plan_PVSYSTP90' => $tbody_forecast_plan_PVSYSTP90,
         ];
-
         // begin chart
         $chart = new ECharts();
         $chart->xAxis = [
@@ -1416,28 +1418,28 @@ class AssetManagementService
         $PowerSum[0] = $powerEvu[0];
         for ($i = 0; $i < 12; ++$i) {
             if ($i + 1 <= $report['reportMonth']) {
-
-                if ($powerExp[$i] > 0) {
-                    $PowerSum[$i] = $powerEvu[$i] + $PowerSum[$i - 1];
-                } else {
-                    $PowerSum[$i] = $forecast[$i] + $PowerSum[$i - 1];
+                if ($powerEvu[$i] > 0) {
+                    $monthValue = $powerEvu[$i];
                 }
+                else $monthValue = $forecast[$i];
             } else {
-                $PowerSum[$i] = $forecast[$i] + $PowerSum[$i - 1];
+                $monthValue = $forecast[$i];
             }
+            $PowerSum[$i] = $PowerSum[$i - 1] + $monthValue;
             $tbody_forcast_G4NP50[] = $PowerSum[$i];
-            if ($i > (int)$month - 1) $tbody_forcast_G4NP90[] = $PowerSum[$i] - ($PowerSum[$i] * $degradation / 100);
+            if ($i + 1 <= $report['reportMonth']) $tbody_forcast_G4NP90[] = $PowerSum[$i] + ($monthValue * $degradation / 100);
             else $tbody_forcast_G4NP90[] = $PowerSum[$i];
         }
 
         // Forecast / G4N
         $forecastSum[0] =  $forecast[0] ;
         $tbody_forcast_plan_G4NP50[0] = $forecastSum[0];
-        $tbody_forcast_plan_G4NP90[0] = $forecastSum[0] - ($forecastSum[0] * $degradation / 100);
+        $tbody_forcast_plan_G4NP90[0] = $forecastSum[0] * ($degradation / 100);
+
         for ($i = 1; $i < 12; ++$i) {
             $forecastSum[$i] = $forecast[$i] + $forecastSum[$i-1];
             $tbody_forcast_plan_G4NP50[] = $forecastSum[$i];
-            $tbody_forcast_plan_G4NP90[] = $forecastSum[$i] - ($forecastSum[$i] * $degradation / 100);
+            $tbody_forcast_plan_G4NP90[] = $forecastSum[$i - 1] + ($forecast[$i] * $degradation / 100);
         }
 
         $forecast_G4N_table = [
@@ -2082,7 +2084,7 @@ class AssetManagementService
                 '0',
             ];
         }
-
+        dump($operations_monthly_right_g4n_tr6);
         // Parameter fuer total Runtime
         // El total runtime son los datos de toda la planta desde que abrio
         if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
@@ -2490,13 +2492,13 @@ class AssetManagementService
         }
 
         $G4NmonthExpected = $tbody_a_production['powerExp'][$month-1] * ((100 - $anlage->getTotalKpi())/100);
-        $G4NyearExpected = 1;
+        $G4NyearExpected = 0;
         for($index = 0; $index < $month -1; $index++){
-            $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExp'][$index] * ((100-$anlage->getTotalKpi())/100));
+            $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExpEvu'][$index] * ((100 - $anlage->getTotalKpi())/100));
         }
         $ActualPower = $powerEvu[$month-1];
-        $ActualPowerYear = 1;
-        for($index = 0; $index <= $month -1; $index++){
+        $ActualPowerYear = 0;
+        for($index = 0; $index < $month ; $index++){
             $ActualPowerYear = $ActualPowerYear + $powerEvu[$index];
         }
         if ($G4NmonthExpected > 0) {
@@ -2563,7 +2565,7 @@ class AssetManagementService
             'PPCLosses' => $kwhLossesYearTable['PPCLosses'],
             'GapLosses' => $kwhLossesYearTable['GapLosses']
         ];
-
+        //dd($yearLossesHelpTable);
 
         $this->logMessages->updateEntry($logId, 'working', 70);
 

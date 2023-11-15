@@ -596,28 +596,20 @@ class AlertSystemV2Service
                 $ticketDate->setEnd($end);
                 $ticket->setEnd($end);
                 //default values por the kpi evaluation
-                if ($errorType == 10 || $errorType = 20) {
+                if ( $errorType = 20) {
                     if (!$PPC) {
-                        if (!$fullGap){
                             $ticketDate->setDataGapEvaluation(10);
                             $ticketDate->setKpiPaDep1(10);
                             $ticketDate->setKpiPaDep2(10);
                             $ticketDate->setKpiPaDep3(10);
-                        }else{
-                            $ticketDate->setDataGapEvaluation(20);
-                        }
-                    }
-                    else{
-                        if (!$fullGap){
+                    } else{
                             $ticketDate->setDataGapEvaluation(10);
                             $ticketDate->setKpiPaDep1(20);
                             $ticketDate->setKpiPaDep2(10);
                             $ticketDate->setKpiPaDep3(10);
-                        }else{
-                            $ticketDate->setDataGapEvaluation(20);
-                        }
                     }
                 }
+                if ($errorType && $fullGap) $ticketDate->setDataGapEvaluation(20);
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
             }
