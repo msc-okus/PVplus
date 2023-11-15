@@ -4,7 +4,6 @@ namespace App\Command;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service;
-use App\Service\Forecast;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,14 +11,14 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
-use App\Service\Forecast\ForcastDEKService;
+use App\Service\Forecast\DayAheadForecastDEKService;
 use Doctrine\ORM\EntityManagerInterface;
 
 #[AsCommand(
-    name: 'pvp:forcastwritedb',
-    description: 'Write the forcast DB',
+    name: 'pvp:dayaheadwritedb',
+    description: 'Write the day ahead forcast in DB',
 )]
-class ForcastWriteDBCommand extends Command {
+class DayAheadWriteDBCommand extends Command {
     use G4NTrait;
 
     public function __construct(
@@ -27,10 +26,9 @@ class ForcastWriteDBCommand extends Command {
         private readonly AnlagenRepository $anlagenRepository,
         private readonly KernelInterface $kernel,
         private readonly Service\ExpectedService $expectedService,
-        private readonly Forecast\DatFileReaderService $datFileReaderService,
-        private readonly ForcastDEKService $forcastDEKService,
+        private readonly DayAheadForecastDEKService $dayAheadForecastDEKService
     ) {
-        $this->forcastdekservice = $forcastDEKService;
+        $this->dayaheadforecastdekservice = $dayAheadForecastDEKService;
         parent::__construct();
     }
 
@@ -61,35 +59,28 @@ class ForcastWriteDBCommand extends Command {
         $input_ma = (integer)$anlage->getModAzimut();     // Modul Azimut Grad Wert wenn Ausrichtung nach Süden: 0° nach Südwest: +45° nach Nord: +/-180° nach Osten: -90°
         $input_ab = (float)$anlage->getAlbeto();          // Albedo 0.15 Gras 0.3 Dac
         $has_suns_model = (float)$anlage->getHasSunshadingModel(); // check if has sunshading Model
-        // Start und End Datum für die API Abfrage Zeitraum 20 Jahre
-        $startapidate = date("Y",strtotime("-21 year", time())).'1231';
-        $endapidate = date("Y",strtotime("-1 year", time())).'0101';
-        // Funktion zur Umkreissuche anhand der Lat & Log fehlt noch
-        // hole den *.dat File Name aus der Datenbank
-        $datfile_name = $anlage->getDatFilename();
 
+
+
+/*
         if ($usedayforecast == 1) {
-
-            if ($datfile_name) {
-                $datfile = "$datfile_name";
-                $this->datFileReaderService->read($datfile);
-            } else {
-                $io->error("abort : load the metodat file first");
-                exit();
-            }
 
         } else {
             $io->error("abort : enable this features in the settings");
             exit();
         }
+*/
 
-        // Wenn datfile current
-        if ((is_countable($this->datFileReaderService->current()) ? count($this->datFileReaderService->current()) : 0) > 1) {
+            $meteo_data = new Service\Forecast\APIOpenMeteoService($input_gl,$input_gb);
+            $meteo_array = $meteo_data->make_sortable_data();
+            // Wenn meteo data
+
+        if ((is_countable($meteo_array) ? count($meteo_array) : 0) > 1) {
             $io->info("data read ! please wait");
-            $reg_data = new Service\Forecast\APINasaGovService($input_gl, $input_gb, $startapidate, $endapidate);
-            $decarray = $this->forcastdekservice->get_DEK_Data( $input_gl,$input_mer,$input_gb, $input_mn, $input_ma, $input_ab, $this->datFileReaderService->current(),$has_suns_model,$anlageId,'all');
-            $reg_array = $reg_data->make_sortable_data('faktor');
+            $decarray = $this->dayaheadforecastdekservice->get_DEK_Data( $input_gl,$input_mer,$input_gb, $input_mn, $input_ma, $input_ab, $meteo_array, $has_suns_model,$anlageId,'all');
             $dec_array = $this->expectedService->calcExpectedforForecast($anlage, $decarray);
+print_R( $dec_array);
+            exit;
 
 // only for debuging //
 #$h = fopen('decarray.txt', 'w');

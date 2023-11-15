@@ -249,7 +249,7 @@ class AvailabilityByTicketService
         //$from   = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampDay);
         //$to     = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampDay);
         $from   = date('Y-m-d 00:15', $timestampDay);
-        $to     = date('Y-m-d 00:00', $timestampDay + (3600 * 24));
+        $to     = date('Y-m-d 00:00', $timestampDay + (3600 * 25)); // +25 (stunden) um sicher auf einen Time stamp des nächsten Tages zu kommen, auch wenn Umstellung auf Winterzeit
 
         $maxFailTime = $timesConfig->getMaxFailTime();
         $powerThersholdkWh = $anlage->getPowerThreshold() / 4; // Umrechnung von kW auf kWh bei 15 minuten werten
@@ -257,8 +257,7 @@ class AvailabilityByTicketService
         // get plant data and irradiation data
         $istData = $this->getIstData($anlage, $from, $to);
         $einstrahlungen = $this->irradiationService->getIrrData($anlage, $from, $to);
-
-        // Aus IST Produktionsdaten und IST Strahlungsdaten die Tages-Verfügbarkeit je Inverter berechnen
+        // Aus IST Produktionsdaten und IST Strahlungsdaten die Tages-Verfügbarkeit je Inverter berechnen4
         if (count($einstrahlungen) > 0) {
             $anzInverter = $anlage->getAnzInverter();
             $case5Array = $case6Array = $commIssuArray = $skipTiAndTitheoArray = $skipTiOnlyArray = [];
@@ -577,7 +576,6 @@ class AvailabilityByTicketService
             $istData = [];
             $dbNameIst = $anlage->getDbNameIst();
             $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM $dbNameIst WHERE stamp >= '$from' AND stamp <= '$to' ORDER BY stamp, unit";
-
             $result = $conn->query($sql);
             if ($result->rowCount() > 0) {
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {

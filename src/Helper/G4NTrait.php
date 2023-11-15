@@ -406,8 +406,10 @@ trait G4NTrait
 
     /**
      *
-     * @param array $file
+     * @param array $files
+     * @param $filesystem
      * @return array
+     * @throws Exception
      */
     public function makeTempFiles(array $files,  $filesystem):array
     {
@@ -420,7 +422,7 @@ trait G4NTrait
                 unlink($file->getRealPath());
             }
         }  else {
-            mkdir('uploads/temp', 777);
+            mkdir('uploads/temp');
         }
         $return = [];
         foreach ($files as $key => $file){
@@ -429,5 +431,31 @@ trait G4NTrait
             $return[$key] = '/uploads/'. $tempFile;
         }
         return $return;
+    }
+
+    //Packt die Sensoren der Anlage in ein Array
+    /**
+     * @param array $sensors
+     * @return array
+     */
+    function getSensorsData(array $anlageSensors, int $length): array
+    {
+        for ($i = 0; $i < $length; $i++) {
+            $sensorId = $anlageSensors[$i]->getId();
+            $sensorType = $anlageSensors[$i]->getvirtualSensor();
+            $sensorShortname = $anlageSensors[$i]->getNameShort();
+            $sensorUseToCalc = $anlageSensors[$i]->getUseToCalc();
+            $vcomId = $anlageSensors[$i]->getVcomId();
+
+            $sensors[$sensorId] = [
+                'id_sensor'             => $sensorId,
+                'type_sensor'           => $sensorType,
+                'shortname_sensor'      => $sensorShortname,
+                'usetocalc_sensor'      => $sensorUseToCalc,
+                'vcom_id'               => $vcomId
+            ];
+        }
+
+        return $sensors;
     }
 }

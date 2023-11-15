@@ -350,6 +350,7 @@ class AssetManagementService
             'pr_rank_graph_20_scb' => $content['pr_rank_graph_20_scb'],
             'pr_rank_graph_20_inv' => $content['pr_rank_graph_20_inv']
 
+
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $reportParts['InverterRank'] = $pdf->createPage($html, $fileroute, "InverterRank", false);// we will store this later in the entity
@@ -818,6 +819,7 @@ class AssetManagementService
                 ];
                 $chart->setOption($option);
                 $pr_rank_graph_20_scb = $chart->render('pr_graph_20_scb' . $key, ['style' => 'height: 550px; width:900px;']);
+
             }
                 // we build 2 arrays with the 10 best and the 10 worst
                 $worseTen['name'] = array_slice($fullArray['name'], 0, 10);
@@ -932,7 +934,7 @@ class AssetManagementService
                     ],
                 ];
                 $chart->setOption($option);
-                $pr_rank_graph_20_inv = $chart->render('pr_graph_20_inv' . $key, ['style' => 'height: 550px; width:900px;']);
+                $pr_rank_graph_20_inv2 = $chart->render('pr_graph_20_inv' . $key, ['style' => 'height: 550px; width:900px;']);
             }
 
         foreach($graphDataPR as $key => $data) {
@@ -4284,6 +4286,7 @@ class AssetManagementService
             'waterfallDiagram' => $waterfallDiagram,
             'pr_rank_graph_20_scb' => $pr_rank_graph_20_scb,
             'pr_rank_graph_20_inv' => $pr_rank_graph_20_inv,
+
         ];
 
         return $output;

@@ -68,6 +68,7 @@ class DefaultJMController extends AbstractController
             $em->flush();
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
 
+
                     $alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
             }
         }

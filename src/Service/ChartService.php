@@ -704,12 +704,21 @@ private PdoService $pdoService,
     public function getAirAndPanelTempFromSensorsData(Anlage $anlage, $from, $to, bool $hour): array
     {
         $conn = $this->pdoService->getPdoPlant();
-        $isEastWest = $anlage->getIsOstWestAnlage();
+        $anlageSensors = $anlage->getSensors()->toArray();
+        $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
+        $sensorsArray = self::getSensorsData($anlageSensors, $length);
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
+        $dataArray['chart'] = [];
         if ($hour) {
-            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'temp-ambient' OR type_sensor like 'temp-modul' OR type_sensor like 'wind-speed') and stamp like '%:00:00' order by stamp;";
+            //zu from eine Stunde + da sonst Diagrammm nicht erscheint
+            $fromPlusOneHour = strtotime($from)+3600;
+            $from = date('Y-m-d H:i', $fromPlusOneHour);
+            $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value, avg(gmo) as gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
+            $timeStepp = 3600;
         }else{
-            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'temp-ambient' OR type_sensor like 'temp-modul' OR type_sensor like 'wind-speed') order by stamp;";
+            $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value, avg(gmo) as gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
+            $timeStepp = 900;
         }
 
         $result = $conn->query($sql_irr_plant);
@@ -738,26 +747,62 @@ private PdoService $pdoService,
 
                     }
 
-                    if($row['usetocalc_sensor'] && $row['type_sensor'] == 'temp-ambient'){
+                    if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-ambient'){
                         array_push($tempAmbientArray, $row['value']);
                     }
-                    if($row['usetocalc_sensor'] && $row['type_sensor'] == 'temp-modul'){
+                    if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-modul'){
                         array_push($tempModuleArray, $row['value']);
                     }
 
-                    if($row['usetocalc_sensor'] && $row['type_sensor'] == 'wind-speed'){
+                    if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'wind-speed'){
                         array_push($windSpeedArray, $row['value']);
                     }
 
-                    $stampTemp = $row['stamp'];
-
-                    $counter++;
+                    #if($sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-ambient' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-modul' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'wind-speed') {
+                        $stampTemp = $row['stamp'];
+                        $counter++;
+                    #}
                 }
             }
         }
 
         $conn = null;
+        $from = substr($stampTemp, 0, -3);
 
+        $fromObj = date_create($from);
+        $endObj  = date_create($to);
+
+        //fil up rest of day
+        if(is_array($dataArray) && count($dataArray) > 0) {
+            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
+
+                #echo "$dayStamp <br>";
+                $date = date('Y-m-d H:i', $dayStamp);
+                $dataArray['chart'][count($dataArray['chart'])] = [
+                    'date' => $date
+                ];
+            }
+        }
+
+        if(is_array($dataArray) && count($dataArray) == 0){
+            $x = [];
+            $from = $date = date('Y-m-d 00:00', time());;
+
+            $fromObj = date_create($from);
+            $endObj  = date_create($to);
+
+            //fil up rest of day
+            $i = 0;
+            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
+                $date = date('Y-m-d H:i', $dayStamp);
+                $dataArray['chart'][$i] = [
+                    'date'              =>  $date,
+                    'val1'=>0
+                ];
+                $i++;
+            }
+
+        }
         return $dataArray;
     }
 
