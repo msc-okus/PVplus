@@ -1308,21 +1308,22 @@ class AssetManagementService
             $powerSum[$i] =  $powerSum[$i - 1] + $monthValue;
             $tbody_forecast_PVSYSTP50[] = $powerSum[$i];
             if ($i + 1 > $report['reportMonth']) {
-                $tbody_forecast_PVSYSTP90[] = $powerSum[$i - 1] + ($monthValue * ($degradation / 100));
+                $tbody_forecast_PVSYSTP90[] = $powerSum[$i - 1] + ($monthValue * ((100 - $degradation) / 100));
             }else{
                 $tbody_forecast_PVSYSTP90[] = $powerSum[$i];
             }
         }
+
         // Forecast / PVSYST - P90
         $PVSYSExpSum[0] = $forecast[0];
         $tbody_forecast_plan_PVSYSTP50[] = $PVSYSExpSum[0];
-        $tbody_forecast_plan_PVSYSTP90[] = $PVSYSExpSum[0] * ($degradation / 100);
+        $tbody_forecast_plan_PVSYSTP90[] = $PVSYSExpSum[0] * ((100 - $degradation) / 100);
         for ($i = 1; $i < 12; ++$i) {
 
             $PVSYSExpSum[$i] = $forecast[$i] + $PVSYSExpSum[$i - 1];
 
             $tbody_forecast_plan_PVSYSTP50[] = $PVSYSExpSum[$i];
-            $tbody_forecast_plan_PVSYSTP90[] = $PVSYSExpSum[$i - 1] + ($forecast[$i] * $degradation / 100);
+            $tbody_forecast_plan_PVSYSTP90[] = $PVSYSExpSum[$i - 1] + ($forecast[$i] * (100 - $degradation) / 100);
         }
 
         $forecast_PVSYST_table = [
@@ -1427,19 +1428,19 @@ class AssetManagementService
             }
             $PowerSum[$i] = $PowerSum[$i - 1] + $monthValue;
             $tbody_forcast_G4NP50[] = $PowerSum[$i];
-            if ($i + 1 <= $report['reportMonth']) $tbody_forcast_G4NP90[] = $PowerSum[$i] + ($monthValue * $degradation / 100);
+            if ($i + 1 <= $report['reportMonth']) $tbody_forcast_G4NP90[] = $PowerSum[$i] + ($monthValue * (100 - $degradation) / 100);
             else $tbody_forcast_G4NP90[] = $PowerSum[$i];
         }
 
         // Forecast / G4N
         $forecastSum[0] =  $forecast[0] ;
         $tbody_forcast_plan_G4NP50[0] = $forecastSum[0];
-        $tbody_forcast_plan_G4NP90[0] = $forecastSum[0] * ($degradation / 100);
+        $tbody_forcast_plan_G4NP90[0] = $forecastSum[0] * ((100 - $degradation) / 100);
 
         for ($i = 1; $i < 12; ++$i) {
             $forecastSum[$i] = $forecast[$i] + $forecastSum[$i-1];
             $tbody_forcast_plan_G4NP50[] = $forecastSum[$i];
-            $tbody_forcast_plan_G4NP90[] = $forecastSum[$i - 1] + ($forecast[$i] * $degradation / 100);
+            $tbody_forcast_plan_G4NP90[] = $forecastSum[$i - 1] + ($forecast[$i] * (100 - $degradation) / 100);
         }
 
         $forecast_G4N_table = [
