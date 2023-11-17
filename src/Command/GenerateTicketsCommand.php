@@ -8,6 +8,7 @@ use App\Repository\TicketRepository;
 use App\Service\TicketsGeneration\AlertSystemService;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -44,6 +45,9 @@ class GenerateTicketsCommand extends Command
         ;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
