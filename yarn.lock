@@ -1324,9 +1324,9 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "20.9.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.9.0.tgz#bfcdc230583aeb891cf51e73cfdaacdd8deae298"
-  integrity sha512-nekiGu2NDb1BcVofVcEKMIwzlx4NjHlcjhoxxKBNLtz15Y1z7MYf549DFvkHSId02Ax6kGwWntIBPC3l/JZcmw==
+  version "20.9.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.9.1.tgz#9d578c610ce1e984adda087f685ace940954fe19"
+  integrity sha512-HhmzZh5LSJNS5O8jQKpJ/3ZcrrlG6L70hpGqMIAoM9YVD0YBRNWYsfwcXq8VnSjlNpCpgLzMXdiPo+dxcvSmiA==
   dependencies:
     undici-types "~5.26.4"
 
@@ -2424,9 +2424,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001541:
-  version "1.0.30001562"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001562.tgz#9d16c5fd7e9c592c4cd5e304bc0f75b0008b2759"
-  integrity sha512-kfte3Hym//51EdX4239i+Rmp20EsLIYGdPkERegTgU19hQWCRhsRFGKHTliUlsry53tv17K7n077Kqa0WJU4ng==
+  version "1.0.30001563"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001563.tgz#aa68a64188903e98f36eb9c56e48fba0c1fe2a32"
+  integrity sha512-na2WUmOxnwIZtwnFI2CZ/3er0wdNzU7hN+cPYz/z2ajHThnkWjNBOpEPP4n+4r2WPM847JaMotaJE3bnfzjyKw==
 
 center-align@^0.1.1:
   version "0.1.3"
@@ -2689,9 +2689,9 @@ commoner@~0.10.3:
     recast "^0.11.17"
 
 component-emitter@^1.2.1:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/component-emitter/-/component-emitter-1.3.0.tgz#16e4070fba8ae29b679f2215853ee181ab2eabc0"
-  integrity sha512-Rd3se6QB+sO1TwqZjscQrurpEPIfO0/yYnSin6Q/rD3mOutHvUrCAhJub3r90uNb+SESBuE0QYoB90YdfatsRg==
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/component-emitter/-/component-emitter-1.3.1.tgz#ef1d5796f7d93f135ee6fb684340b26403c97d17"
+  integrity sha512-T0+barUSQRTUQASh8bx02dl+DhF54GtIDY13Y3m9oWTklKbb3Wv974meRpeZ3lp1JpLVECWWNHC4vaG2XHXouQ==
 
 compressible@~2.0.16:
   version "2.0.18"
@@ -3000,11 +3000,11 @@ datatables.net-buttons@>=2.3.6:
     jquery ">=1.7"
 
 datatables.net-dt@^1.13.4:
-  version "1.13.7"
-  resolved "https://registry.yarnpkg.com/datatables.net-dt/-/datatables.net-dt-1.13.7.tgz#ee3a98bcfe80f309f3284cae9677076695319102"
-  integrity sha512-7ZnM9zTzuKrolSN7eLGDfjX2sid7KJOq1IWTfK9qOqP/MOHFYZbmoIddpN4TpINgTL+nmJJeydxWTEo1RAvYnA==
+  version "1.13.8"
+  resolved "https://registry.yarnpkg.com/datatables.net-dt/-/datatables.net-dt-1.13.8.tgz#6e875d97407cc605f0dadb3452cf477361000176"
+  integrity sha512-/ZPzr1hQ+domerlg/MbcQHqeeqxK9fsZmpRs1YeKxsdfr+UyHQTUiiOO7RqekppSLc7MPqxGnzKkCX9vAgqm0w==
   dependencies:
-    datatables.net "1.13.7"
+    datatables.net "1.13.8"
     jquery ">=1.7"
 
 datatables.net-responsive-zf@^2.4.1:
@@ -3042,17 +3042,17 @@ datatables.net-select@>=1.6.2:
     jquery ">=1.7"
 
 datatables.net-zf@>=1.13.4, datatables.net-zf@^1.13.4:
-  version "1.13.7"
-  resolved "https://registry.yarnpkg.com/datatables.net-zf/-/datatables.net-zf-1.13.7.tgz#7d93ee2964c19c8246c699100b454ef9b6e13ba7"
-  integrity sha512-E5JgBVj0Ol9NoDZKdZd7+9MRWal08GGHNyEIm+rGo/iPyQva27DR8m5eu/x14aSvNDmZ2r6H2guFUS0YQirFOg==
+  version "1.13.8"
+  resolved "https://registry.yarnpkg.com/datatables.net-zf/-/datatables.net-zf-1.13.8.tgz#3b1ba7b8274eb734b6a4c0bf59356035ce8a87ed"
+  integrity sha512-s/7xtcTptUM1g6ohIrfFE2nFtezqsCcqQa8rkXHz/KN6Rz4oSFhOfyLrWkBsi6PwB+8MkBV9uGp4s0oH8PxU7g==
   dependencies:
-    datatables.net "1.13.7"
+    datatables.net "1.13.8"
     jquery ">=1.7"
 
-datatables.net@1.13.7, datatables.net@>=1.13.4:
-  version "1.13.7"
-  resolved "https://registry.yarnpkg.com/datatables.net/-/datatables.net-1.13.7.tgz#8b130845a59ab16fedd760ecf4b96d96418aca1b"
-  integrity sha512-lbmcCSrMU8VTaGwgCxWs/jbP8NVJlzXaUkK3SiiZY7tTjRp7XJw4InlOU+XUVZ4i4B2GBxue02/P5iVto1CGDg==
+datatables.net@1.13.8, datatables.net@>=1.13.4:
+  version "1.13.8"
+  resolved "https://registry.yarnpkg.com/datatables.net/-/datatables.net-1.13.8.tgz#05a2fb5a036b0b65b66d1bb1eae0ba018aaea8a3"
+  integrity sha512-2pDamr+GUwPTby2OgriVB9dR9ftFKD2AQyiuCXzZIiG4d9KkKFQ7gqPfNmG7uj9Tc5kDf+rGj86do4LAb/V71g==
   dependencies:
     jquery ">=1.7"
 
@@ -3367,9 +3367,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.4.535:
-  version "1.4.583"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.583.tgz#7b0ac4f36388da4b5485788adb92cd7dd0abffc4"
-  integrity sha512-93y1gcONABZ7uqYe/JWDVQP/Pj/sQSunF0HVAPdlg/pfBnOyBMLlQUxWvkqcljJg1+W6cjvPuYD+r1Th9Tn8mA==
+  version "1.4.587"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.587.tgz#d8b864f21338b60798d447a3d83b90753f701d07"
+  integrity sha512-RyJX0q/zOkAoefZhB9XHghGeATVP0Q3mwA253XD/zj2OeXc+JZB9pCaEv6R578JUYaWM9PRhye0kXvd/V1cQ3Q==
 
 emoji-regex@^8.0.0:
   version "8.0.0"

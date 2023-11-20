@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends BaseController
 {
     #[Route(path: '/admin/user/new', name: 'app_admin_user_new')]
-    #[IsGranted('ROLE_G4N')]
+    #[IsGranted('ROLE_OWNER_ADMIN')]
     public function new(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $userPasswordHasher, SecurityController $security): Response
     {
         $form = $this->createForm(UserFormType::class);
