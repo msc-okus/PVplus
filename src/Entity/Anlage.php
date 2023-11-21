@@ -3420,9 +3420,12 @@ class Anlage implements \Stringable
         return $this;
     }
 
+    /**
+     * we use this to determine whether a plant uses pvsys or not
+     */
     public function hasPVSYST(): bool
     {
-        return intval($this->kwPeakPvSyst) > 0;
+        return (intval($this->kwPeakPvSyst) > 0 ||  $this->showPvSyst);
     }
 
     public function getPicture(): ?string

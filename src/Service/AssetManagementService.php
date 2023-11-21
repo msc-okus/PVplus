@@ -1104,7 +1104,7 @@ class AssetManagementService
                 $data1_grid_meter['powerEGridExt'] = 0;
 
             }
-            if ($data1_grid_meter['powerEvu'] > 0){
+            if ($anlage->hasGrid()){
                 (float) $powerEvu[] = $data1_grid_meter['powerEvu'];
             }
             else{
@@ -1120,10 +1120,12 @@ class AssetManagementService
             (float) $powerExp[] = $data1_grid_meter['powerExp'];
             (float) $powerExternal[] = $data1_grid_meter['powerEGridExt'];
             $expectedPvSyst[] = $Ertrag_design;
+
             if ($anlage->hasPVSYST()){
                 $forecast = $expectedPvSyst;
             }
         }
+
         // fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,
@@ -1134,8 +1136,6 @@ class AssetManagementService
             'powerExt' => $powerExternal,
             'forecast' => $forecast,
         ];
-
-        dump($tbody_a_production);
         $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
             $dataCfArray[$i]['month'] = $monthExtendedArray[$i]['month'];
@@ -1826,6 +1826,7 @@ class AssetManagementService
             ];
         }else{
             $operations_monthly_right_pvsyst_tr1 = [
+                $monthName.' '.$report['reportYear'],
                 $powerEvuQ1,
                 0.0,
                 0.0,
