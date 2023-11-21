@@ -148,6 +148,7 @@ class ReportingController extends AbstractController
         $searchyear = date('Y');
         $searchstatus = $searchtype = $searchmonth = $anlage = '';
         $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
+
         $pagination = $paginator->paginate(
             $queryBuilder,
             $request->query->getInt('page', 1),

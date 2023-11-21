@@ -93,6 +93,7 @@ class TicketRepository extends ServiceEntityRepository
             ->addSelect('a')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
+
                 $qb->andWhere('a.anlId IN (:plantList)')
                     ->setParameter('plantList', $granted);
         }
@@ -130,7 +131,8 @@ class TicketRepository extends ServiceEntityRepository
             $qb->andWhere("ticket.alertType = $category");
         }
         else {
-            $qb->andWhere("ticket.alertType < 90");
+            $qb->andWhere("ticket.alertType < 90 or ticket.alertType >= 100");
+      
         }
         if ($prooftam == 1){
             $qb->andWhere("ticket.needsProof = 1");

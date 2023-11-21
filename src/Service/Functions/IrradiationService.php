@@ -36,9 +36,8 @@ private readonly PdoService $pdoService,
      */
     public function getIrrData(Anlage $anlage, String $from, String $to): array
     {
-        return $this->cache->get('getIrrData_'.md5($anlage->getAnlId().$from.$to), function(CacheItemInterface $cacheItem) use ($from, $to, $anlage)
-        {
-            $cacheItem->expiresAfter(60); // Lifetime of cache Item
+
+            //$cacheItem->expiresAfter(60); // Lifetime of cache Item
 
             $conn = $this->pdoService->getPdoPlant();
             $irrData = [];
@@ -78,7 +77,6 @@ private readonly PdoService $pdoService,
             $conn = null;
 
             return self::correctIrrByTicket($anlage, $from, $to, $irrData);
-        });
     }
 
     private function correctIrrByTicket(Anlage $anlage, string $from, string $to, array $irrData): array
