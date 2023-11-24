@@ -376,28 +376,20 @@ class SpecialOperationsController extends AbstractController
             $uploadedFile = $form['File']->getData();
             if ($uploadedFile) {
                 if ($xlsx = simpleXLSX::parse($uploadedFile->getPathname())) {
-                    dd($xlsx->rows());
-                    $i = 0;
-                    $ts = 0;
                     $conn = $pdoService->getPdoPlant();
-                    foreach ( $xlsx->rows($ts) as $row ) {
-                        if ($i == 0) {
+                    foreach ($xlsx->rows(0) as $key => $row) {
+                        if ($key === 0) {
                             $data_fields = $row;
                             $indexStamp = array_search('stamp', $data_fields);
                             $indexEzevu = array_search('e_z_evu', $data_fields);
+                            if ($indexEzevu === false) $indexEzevu  = array_search('eGridValue', $data_fields);
                         } else {
-                            $eZEvu = ($row[$indexEzevu] != '') ? $row[$indexEzevu] : NULL;
-                            $stamp = date_create_from_format('d-m-Y H:m', $row[$indexStamp])->format('Y-m-d H:i');
-                            $stmt= $conn->prepare(
-                                "UPDATE $dataBaseNTable SET $data_fields[$indexEzevu]=? WHERE $data_fields[$indexStamp]=?"
-                            );
-
-                            #$stmt->execute([$eZEvu, $stamp]);
+                            $eZEvu = $row[$indexEzevu] != '' ? $row[$indexEzevu] : NULL;
+                            $stamp = $row[$indexStamp];
+                            $stmt= $conn->prepare("UPDATE $dataBaseNTable SET e_z_evu = ? WHERE stamp = ?");
+                            $stmt->execute([$eZEvu, $stamp]);
                         }
-
-                        $i++;
                     }
-                    unlink($uploadsPath . '/xlsx/'.$newFile);
 
                 } else {
                     $output .= "No valid XLSX File.<br>";
