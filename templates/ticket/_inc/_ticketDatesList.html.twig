@@ -15,8 +15,6 @@
 {% if (not features or features.aktDep3 == false or anlage.settings.disableDep3 or not settings.nameDep3 or anlage.settings.enablePADep3 == false) %}
     {% set showDep3 = false %}
 {% endif %}
-{{ dump(showDep1, showDep2, showDep3) }}
-
 <table>
     <thead>
     <tr>

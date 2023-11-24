@@ -61,10 +61,15 @@ class ReportsMonthlyV2Service
     }
 
     /**
+     * @param Anlage $anlage
+     * @param int $reportMonth
+     * @param int $reportYear
      * @return string
      *
      * @throws InvalidArgumentException
-     * @throws Exception
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function createReportV2(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): string
     {

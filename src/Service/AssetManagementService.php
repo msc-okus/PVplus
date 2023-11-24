@@ -67,6 +67,7 @@ class AssetManagementService
     /**
      * @throws ExceptionInterface
      * @throws InvalidArgumentException
+     * @throws NoResultException
      */
     public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null, ?int $logId = null): AnlagenReports
     {
@@ -119,7 +120,7 @@ class AssetManagementService
         }
         if ($fileArray != null) {
             $images = self::makeTempFiles($fileArray, $this->filesystem);
-        }else{
+        } else {
             $images['Logo'] = null;
             $images['PlantPic'] = null;
         }

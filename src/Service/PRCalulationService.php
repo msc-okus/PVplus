@@ -576,15 +576,15 @@ class PRCalulationService
         $pa1 = $pa2 = $pa3 = 0;
         if ($endDate === null) $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 0);
         $pa0 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 0);
-        if (!$anlage->getSettings()->isDisableDep1()) {
+        if (!$anlage->getSettings()->isDisableDep1() && $anlage->getSettings()->getEnablePADep1()) {
             if ($endDate === null) $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 1);
             $pa1 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 1);
         }
-        if (!$anlage->getSettings()->isDisableDep2()) {
+        if (!$anlage->getSettings()->isDisableDep2() && $anlage->getSettings()->getEnablePADep2()) {
             if ($endDate === null) $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 2);
             $pa2 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
         }
-        if (!$anlage->getSettings()->isDisableDep3()) {
+        if (!$anlage->getSettings()->isDisableDep3() && $anlage->getSettings()->getEnablePADep3()) {
             if ($endDate === null) $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 3);
             $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
         }

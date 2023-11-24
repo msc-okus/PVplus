@@ -11,6 +11,7 @@ use App\Message\Command\GenerateAMReport;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Service\AssetManagementService;
+use App\Service\Functions\ImageGetterService;
 use App\Service\LogMessagesService;
 use App\Service\PdfService;
 use App\Service\ReportEpcPRNewService;
@@ -85,7 +86,6 @@ class ReportingController extends AbstractController
 
         switch ($reportType) {
             case 'monthly':
-                // old Version $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
                 $output = $reportsMonthly->createReportV2($aktAnlagen[0], $reportMonth, $reportYear);
                 break;
             case 'epc':
@@ -227,7 +227,7 @@ class ReportingController extends AbstractController
      * @throws FilterException|FilesystemException
      */
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
-    public function showReportAsPdf(Request $request, $id, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, PdfService $pdf, Filesystem $fileSystemFtp): Response
+    public function showReportAsPdf(Request $request, $id, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, PdfService $pdf, Filesystem $fileSystemFtp, ImageGetterService $imageGetter): Response
     {
         /** @var AnlagenReports|null $report */
         $session            = $request->getSession();
@@ -275,7 +275,8 @@ class ReportingController extends AbstractController
                             'legend'        => $serializer->normalize($anlage->getLegendEpcReports()->toArray(), null, ['groups' => 'legend']),
                             'forecast_real' => $reportArray['prForecast'],
                             'formel'        => $reportArray['formel'],
-                            'anlage'        => $anlage
+                            'anlage'        => $anlage,
+                            'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner())
                         ]);
                         $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                         break;
@@ -528,11 +529,16 @@ class ReportingController extends AbstractController
 
     /**
      * @param $id
+     * @param ReportsRepository $reportsRepository
+     * @param Request $request
+     * @param NormalizerInterface $serializer
+     * @param ReportsEpcYieldV2 $epcNewService
      * @return Response
      * @throws ExceptionInterface
+     * @throws FilesystemException
      */
     #[Route(path: '/reporting/html/{id}', name: 'app_reporting_html')]
-    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService) : Response
+    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, ImageGetterService $imageGetter) : Response
     {
         $result = "<h2>Something is wrong !!! (perhaps no Report ?)</h2>";
         $report = $reportsRepository->find($id);
@@ -676,7 +682,8 @@ class ReportingController extends AbstractController
                                 'legend'        => $serializer->normalize($anlage->getLegendEpcReports()->toArray(), null, ['groups' => 'legend']),
                                 'forecast_real' => $reportArray['prForecast'],
                                 'formel'        => $reportArray['formel'],
-                                'anlage'        => $anlage
+                                'anlage'        => $anlage,
+                                'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner())
                             ]);
                             break;
 
