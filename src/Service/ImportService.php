@@ -44,6 +44,9 @@ class ImportService
         $plantId = $anlage->getAnlId();
         $vcomId = $anlage->getCustomPlantId();
 
+        $araayVcomIds = explode(',', $vcomId);
+
+
         $conn = $this->doctrine->getConnection();
 
         $weather = $anlage->getWeatherStation();
@@ -51,7 +54,6 @@ class ImportService
 
         $modules = $anlage->getModules();
         $groups = $anlage->getGroups();
-        $systemKey = $anlage->getCustomPlantId();
 
         if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
             $acGroups = $anlage->getAcGroups()->toArray();
@@ -84,17 +86,49 @@ class ImportService
 
         //get the Data from vcom
         $curl = curl_init();
-        $bulkMeaserments = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
+
+        $bulkMeaserments = [];
+        $basics = [];
+        $inverters = [];
+        $sensors = [];
+
+        for ($i = 0; $i < count($araayVcomIds); ++$i) {
+            $bulkMeaserments[$i] = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $araayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
+        }
         curl_close($curl);
 
         $data_pv_ist = [];
         $data_pv_dcist = [];
-        if ($bulkMeaserments) {
 
 
-            $basics = $bulkMeaserments['basics'];
-            $inverters = $bulkMeaserments['inverters'];
-            $sensors = $bulkMeaserments['sensors'];
+        if (count($bulkMeaserments) > 0) {
+            for ($i = 0; $i < count($bulkMeaserments); ++$i) {
+                for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
+                    #$stamp = date('Y-m-d H:i', $timestamp);
+                    $date = date('c', $timestamp);
+                    #echo $bulkMeaserments[$i]['sensors'][$date]['G_M0'].'<br>';
+                    if($i == 0){
+                        $basics[$date]["G_M0_$i"] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
+                        $basics[$date]["E_Z_EVU_$i"] = $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
+                        $sensors[$date] = $bulkMeaserments[$i]['sensors'][$date];
+                        $inverters[$date] = $bulkMeaserments[$i]['inverters'][$date];
+                    }else{
+                        $basics[$date]["G_M0_$i"] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
+                        $basics[$date]["E_Z_EVU_$i"] = $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
+                        $sensors[$date] = $sensors[$date] + $bulkMeaserments[$i]['sensors'][$date];
+                        $inverters[$date] = $inverters[$date] + $bulkMeaserments[$i]['inverters'][$date];
+                    }
+
+                    $basics[$date]["E_Z_EVU"] += $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
+                }
+            }
+
+            echo '<pre>';
+            print_r($basics);
+            echo '</pre>';
+
+            exit;
+
 
             $anlageSensors = $anlage->getSensors();
 
@@ -148,7 +182,7 @@ class ImportService
 
                 $windAnlageArray = $checkSensors[1]['anlageWind'];
 
-                //if plant use not sensors datatable stoe data into the weather table
+                //if plant use not sensors datatable store data into the weather table
                 if(!$useSensorsDataTable){
                     $irrAnlage = json_encode($irrAnlageArray, JSON_THROW_ON_ERROR);
                     $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
