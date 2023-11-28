@@ -56,8 +56,6 @@ class DefaultJMController extends AbstractController
         $anlagen[] = $anlagenRepository->findIdLike("219")[0];
         $anlagen[] = $anlagenRepository->findIdLike("231")[0];
         $anlagen[] = $anlagenRepository->findIdLike("182")[0];
-        $anlagen[] = $anlagenRepository->findIdLike("112")[0];
-        $anlagen[] = $anlagenRepository->findIdLike("184")[0];
 
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
