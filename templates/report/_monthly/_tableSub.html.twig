@@ -62,7 +62,7 @@
             <th>Power Theo.</th>
             <th>Power eGrid</th>
             {% if anlage.showEvuDiag %}<th>PR Grid</th>{% endif %}
-            <th>PR Inverter</th>
+            <th>PR Inv.</th>
             {% if anlage.settings.enablePADep2 %}<th>PA</th>{% endif %}
         {% endif %}
 
@@ -81,7 +81,7 @@
     <tbody>
     {% endif %}
     <tr {{ trstyle }}>
-        <td>{{ day["datum"] }}</td>
+        <td>{{ day["datum_alt"] }}</td>
 
         <td class="border-left-2">{{ day["powerAct"]|number_format(2,',','.') }}</td>
         <td>{{ day["powerExp"]|number_format(2,',','.') }}</td>

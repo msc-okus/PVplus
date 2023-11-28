@@ -276,7 +276,8 @@ class ReportingController extends AbstractController
                             'forecast_real' => $reportArray['prForecast'],
                             'formel'        => $reportArray['formel'],
                             'anlage'        => $anlage,
-                            'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner())
+                            'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner()),
+                            'report'        => $report,
                         ]);
                         $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                         break;
@@ -289,6 +290,8 @@ class ReportingController extends AbstractController
                             'legend'            => $anlage->getLegendEpcReports(),
                             'chart1'            => $epcNewService->chartYieldPercenDiff($anlage, $reportArray['monthTable']),//$reportArray['chartYieldPercenDiff'],
                             'chart2'            => $epcNewService->chartYieldCumulative($anlage, $reportArray['monthTable']),
+                            'logo'              => $imageGetter->getOwnerLogo($anlage->getEigner()),
+                            'report'            => $report,
                         ]);
                         $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                 }
@@ -304,6 +307,8 @@ class ReportingController extends AbstractController
                     'legend'        => $anlage->getLegendEpcReports(),
                     // 'chart1'            => $chartYieldPercenDiff,
                     // 'chart2'            => $chartYieldCumulativ,
+                    'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner()),
+                    'report'        => $report,
                 ]);
                 $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                 break;
@@ -533,6 +538,7 @@ class ReportingController extends AbstractController
      * @param Request $request
      * @param NormalizerInterface $serializer
      * @param ReportsEpcYieldV2 $epcNewService
+     * @param ImageGetterService $imageGetter
      * @return Response
      * @throws ExceptionInterface
      * @throws FilesystemException
