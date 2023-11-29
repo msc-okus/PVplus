@@ -12,6 +12,7 @@ export default class extends Controller {
 
     connect() {
         useDispatch(this);
+        this.disableAllToolTips()
     }
 
     async search(event) {
@@ -24,7 +25,8 @@ export default class extends Controller {
             method: $searchListform.prop('method'),
             data: serializedData,
         });
-        $(document).foundation();
+        //$(document).foundation();
+        this.disableAllToolTips()
     }
     async update(event) {
         event.preventDefault();
@@ -35,7 +37,8 @@ export default class extends Controller {
             method: $searchListform.prop('method'),
             data: serializedData,
         });
-        $(document).foundation();
+        //$(document).foundation();
+        this.disableAllToolTips()
     }
 
     async page(event) {
@@ -45,7 +48,8 @@ export default class extends Controller {
             url: this.urlSearchValue,
             data: $queryParams,
         });
-        $(document).foundation();
+        //$(document).foundation();
+        this.disableAllToolTips()
     }
     async sortId(event) {
         event.preventDefault();
@@ -58,7 +62,8 @@ export default class extends Controller {
             url: event.currentTarget.href,
 
         });
-        $(document).foundation();
+        //$(document).foundation();
+        this.disableAllToolTips()
     }
 
     async sortBegin(event) {
@@ -71,7 +76,8 @@ export default class extends Controller {
             url: event.currentTarget.href,
 
                     });
-        $(document).foundation();
+        //$(document).foundation();
+        this.disableAllToolTips()
     }
     async sortEnd(event) {
         event.preventDefault();
@@ -95,6 +101,14 @@ export default class extends Controller {
             url: event.currentTarget.href,
 
         });
-        $(document).foundation();
+        //$(document).foundation();
+        this.disableAllToolTips()
+    }
+
+    disableAllToolTips(){
+        $("[id*='tooltip']").each(function() {
+            $(this).css('display', 'none');
+            //console.log(this);
+        });
     }
 }

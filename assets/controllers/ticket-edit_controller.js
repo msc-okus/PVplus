@@ -413,12 +413,9 @@ export default class extends Controller {
 
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (inverterString == '')
-                {
+                if (inverterString == '') {
                     inverterString = inverterString + $(this).prop('name');
-                }
-                else
-                {
+                } else {
                     inverterString = inverterString + ', ' + $(this).prop('name');
                 }
                 body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');

@@ -576,15 +576,15 @@ class PRCalulationService
         $pa1 = $pa2 = $pa3 = 0;
         if ($endDate === null) $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 0);
         $pa0 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 0);
-        if (!$anlage->getSettings()->isDisableDep1()) {
+        if (!$anlage->getSettings()->isDisableDep1() && $anlage->getSettings()->getEnablePADep1()) {
             if ($endDate === null) $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 1);
             $pa1 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 1);
         }
-        if (!$anlage->getSettings()->isDisableDep2()) {
+        if (!$anlage->getSettings()->isDisableDep2() && $anlage->getSettings()->getEnablePADep2()) {
             if ($endDate === null) $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 2);
             $pa2 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
         }
-        if (!$anlage->getSettings()->isDisableDep3()) {
+        if (!$anlage->getSettings()->isDisableDep3() && $anlage->getSettings()->getEnablePADep3()) {
             if ($endDate === null) $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 3);
             $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
         }
@@ -688,7 +688,7 @@ class PRCalulationService
         if ($result['powerTheoDep1'] !== null) {
             $result['prDep1Act'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr1, $result['powerActDep1'], $result['powerTheoDep1'], $pa1); //(($power['powerAct'] / $tempTheoPower) * 100;
             $result['prDep1Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr1, $result['powerEvuDep1'], $result['powerTheoDep1'], $pa1); //($power['powerEvu'] / $tempTheoPower) * 100;
-            $result['prDep1Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irrNoPpc0, $result['powerExp'], $result['powerTheoDep1NoPpc'], $pa1); //(($result['powerExp'] / $tempTheoPower) * 100;
+            $result['prDep1Exp'] = $result['prDep0Exp']; //$this->calcPrBySelectedAlgorithm($anlage, 1, $irrNoPpc0, $result['powerExp'], $result['powerTheoDep1NoPpc'], $pa1); //(($result['powerExp'] / $tempTheoPower) * 100;
             $result['prDep1EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr1, $result['powerEGridExt'], $result['powerTheoDep1'], $pa1); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
         } else {
             $result['prDep1Act'] = $result['prDep1Evu'] = $result['prDep1Exp'] = $result['prDep1EGridExt'] = 0;
@@ -710,7 +710,7 @@ class PRCalulationService
         if ($result['powerTheoDep2'] !== null) {
             $result['prDep2Act'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerActDep2'], $result['powerTheoDep2'], $pa2); //(($power['powerAct'] / $tempTheoPower) * 100;
             $result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerEvuDep2'], $result['powerTheoDep2'], $pa2); //($power['powerEvu'] / $tempTheoPower) * 100;
-            $result['prDep2Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irrNoPpc0, $result['powerExp'], $result['powerTheoDep2NoPpc'], $pa2); //(($result['powerExp'] / $tempTheoPower) * 100;
+            $result['prDep2Exp'] = $result['prDep0Exp']; //$this->calcPrBySelectedAlgorithm($anlage, 2, $irrNoPpc0, $result['powerExp'], $result['powerTheoDep2NoPpc'], $pa2); //(($result['powerExp'] / $tempTheoPower) * 100;
             $result['prDep2EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerEGridExt'], $result['powerTheoDep2'], $pa2); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
         } else {
             $result['prDep2Act'] = $result['prDep2Evu'] = $result['prDep2Exp'] = $result['prDep2EGridExt'] = 0;
@@ -732,7 +732,7 @@ class PRCalulationService
         if ($result['powerTheoDep3'] !== null) {
             $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr3, $result['powerActDep3'], $result['powerTheoDep3'], $pa3); //(($power['powerAct'] / $tempTheoPower) * 100;
             $result['prDep3Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr3, $result['powerEvuDep3'], $result['powerTheoDep3'], $pa3); //($power['powerEvu'] / $tempTheoPower) * 100;
-            $result['prDep3Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irrNoPpc0, $result['powerExp'], $result['powerTheoDep3NoPpc'], $pa3); //(($result['powerExp'] / $tempTheoPower) * 100;
+            $result['prDep3Exp'] = $result['prDep0Exp']; //$this->calcPrBySelectedAlgorithm($anlage, 3, $irrNoPpc0, $result['powerExp'], $result['powerTheoDep3NoPpc'], $pa3); //(($result['powerExp'] / $tempTheoPower) * 100;
             $result['prDep3EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr3, $result['powerEGridExt'], $result['powerTheoDep3'], $pa3); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
         } else {
             $result['prDep3Act'] = $result['prDep3Evu'] = $result['prDep3Exp'] = $result['prDep3EGridExt'] = 0;
@@ -765,7 +765,7 @@ class PRCalulationService
         $result['prDefaultEGridExt'] = $result['prDep0EGridExt']; // OpenBook / default PR
         $result['prEvu'] = $result['prDep2Evu']; // EPC PR
         $result['prAct'] = $result['prDep2Act']; // EPC PR
-        $result['prExp'] = $result['prDep2Exp']; // EPC PR
+        $result['prExp'] = $result['prDep0Exp']; // EPC PR
         $result['prEGridExt'] = $result['prDep2EGridExt']; // EPC PR
         $result['anzCase5'] = $anzCase5PerDay;
         $result['tCellAvgMeasured'] = (float) $weather['panelTempAvg'];

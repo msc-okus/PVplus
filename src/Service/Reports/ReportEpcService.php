@@ -164,7 +164,7 @@ private readonly PdoService $pdoService,
                     switch ($n) {
                         case 1:
                         case $anzahlMonate:
-                            $eGridReal      = $prArray['powerEvu'];
+                            $eGridReal      = $prArray['powerEvuDep2'];
                             $irrMonth       = $prArray['irradiation'];
                             $prAvailability = $prArray['pa2'];
                             if ($anlage->getUseGridMeterDayData()) {
@@ -174,7 +174,7 @@ private readonly PdoService $pdoService,
                             }
                             break;
                         default:
-                            $eGridReal      = $prArray['powerEvu']; // $pr->getPowerEvuMonth();
+                            $eGridReal      = $prArray['powerEvuDep2']; // $pr->getPowerEvuMonth();
                             $irrMonth       = $prArray['irradiation']; // $pr->getIrrMonth();
                             $prAvailability = $prArray['pa2']; // $this->availabilityService->calcAvailability($anlage, date_create("$year-$month-01 00:00"), date_create("$year-$month-$days 23:59"));
                             if ($anlage->getUseGridMeterDayData()) {
@@ -193,7 +193,7 @@ private readonly PdoService $pdoService,
                             $formelEnergy   = $prArrayFormel['powerEGridExt'];
                             $formelPR       = $prArrayFormel['prDep2EGridExt'];
                         } else {
-                            $formelEnergy   = $prArrayFormel['powerEvu'];
+                            $formelEnergy   = $prArrayFormel['powerEvuDep2'];
                             $formelPR       = $prArrayFormel['prDep2Evu'];
                         }
                         $formelIrr          = $prArrayFormel['irradiation'];
@@ -257,7 +257,7 @@ private readonly PdoService $pdoService,
                         'spezErtragDesign'  => $this->format($spezErtragDesign),
                         'prGuar'            => $this->format($prGuarantie),
                         'eGridReal'         => $this->format($eGridReal),
-                        'eGridRealDesign'  => $this->format($eGridReal - $ertragPvSyst),
+                        'eGridRealDesign'   => $this->format($eGridReal - $ertragPvSyst),
                         'spezErtrag'        => $this->format($eGridReal / $anlage->getPnom(), 2),
                         'prReal'            => $this->format($prReal),
                         'prReal_prDesign'   => $this->format($prReal - $prDesignPvSyst),
