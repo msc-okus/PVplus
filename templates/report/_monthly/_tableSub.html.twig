@@ -4,7 +4,7 @@
     {% set colspanDep2 = 7 %}
     {% set colspanDep3 = 7 %}
 {% else %}
-    {% set colspanDep0 = 7 %}
+    {% set colspanDep0 = 6 %}
     {% set colspanDep1 = 6 %}
     {% set colspanDep2 = 6 %}
     {% set colspanDep3 = 6 %}
@@ -22,15 +22,17 @@
     {% for day in report.days %}
     {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
     {% if loop.first %}
-    <thead>
+
+    {% if excel is defined %}<tfoot>{% else  %}<thead>{% endif %}
     <tr class="left">
         <th></th>
-        <th class="border-left-2" colspan="{{ 3 }}">Power  {% if anlage.useppc %}(PPC Corr.){% endif %}</th>
-        <th class="border-left-2" colspan="{{ colspanDep0 }}">PR & PA – default (OpenBook)</th>
-        {% if anlage.settings.disableDep1 != true %}<th class="border-left-2" colspan="{{ colspanDep1 }}">PR & PA – O&M</th>{% endif %}
-        {% if anlage.settings.disableDep2 != true %}<th class="border-left-2" colspan="{{ colspanDep2 }}">PR & PA – EPC</th>{% endif %}
-        {% if anlage.settings.disableDep3 != true %}<th class="border-left-2" colspan="{{ colspanDep3 }}">PR & PA – AM</th>{% endif %}
+        <th class="border-left-2" colspan="{{ 3 }}">Misc.{% if anlage.useppc %}(PPC Corr.){% endif %}</th>
+        <th class="border-left-2" colspan="{{ colspanDep0 }}">default (OpenBook)</th>
+        {% if anlage.settings.disableDep1 != true %}<th class="border-left-2" colspan="{{ colspanDep1 }}">O&M</th>{% endif %}
+        {% if anlage.settings.disableDep2 != true %}<th class="border-left-2" colspan="{{ colspanDep2 }}">EPC</th>{% endif %}
+        {% if anlage.settings.disableDep3 != true %}<th class="border-left-2" colspan="{{ colspanDep3 }}">AM</th>{% endif %}
     </tr>
+    {% if excel is defined %}</tfoot><thead>{% endif %}
     <tr>
         <th>Datum</th>
 
