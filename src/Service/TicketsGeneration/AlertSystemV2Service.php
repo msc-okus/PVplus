@@ -598,7 +598,6 @@ class AlertSystemV2Service
                 $ticketDate->setEnd($end);
                 $ticket->setEnd($end);
                 //default values por the kpi evaluation
-                dump($errorCategorie);
                 if ( $errorCategorie == 20) {
                     if (!$PPC) {
                             $ticketDate->setDataGapEvaluation(10);
@@ -613,6 +612,7 @@ class AlertSystemV2Service
                     }
                 }
                 if ($errorCategorie == 10 && $fullGap) $ticketDate->setDataGapEvaluation(20);
+
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
             }

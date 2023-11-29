@@ -67,7 +67,6 @@ class GenerateTicketsCommand extends Command
             foreach ($anlagen as $anlage) {
                 try {
 
-                    //here we clear all existing tickets for the interval (that have not been edited) to not have duplicated tickets
                     $tickets = $this->ticketRepo->findForSafeDelete($anlage, $optionFrom, $optionTo);
                     foreach ($tickets as $ticket) {
                         $dates = $ticket->getDates();
@@ -109,7 +108,8 @@ class GenerateTicketsCommand extends Command
                         --$counter;
                     }
                     $io->comment($anlage->getAnlName());
-                    }catch(\Exception $e){
+                    }catch(Exception $e){
+
 
                     }
                 }

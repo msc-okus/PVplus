@@ -57,9 +57,10 @@ class DefaultJMController extends AbstractController
         $anlagen[] = $anlagenRepository->findIdLike("231")[0];
         $anlagen[] = $anlagenRepository->findIdLike("182")[0];
 
+
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
-        foreach ($anlagen as $anlage) {
+
             $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
             try {
                 foreach ($tickets as $ticket) {
