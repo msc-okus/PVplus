@@ -93,6 +93,7 @@ class AlertSystemV2Service
      * this method should be called from the command to join the tickets
      * not in use now
      * no other method from this class should be called manually
+     * DEPRECATED
      * @param Anlage $anlage
      * @param string $from
      * @param string $to
@@ -128,6 +129,7 @@ class AlertSystemV2Service
 
     /**
      * function to join tickets based on inverters-timegaps
+     * DEPRECATED
      * @param Anlage $anlage
      * @param string|null $time
      * @return void
@@ -157,7 +159,6 @@ class AlertSystemV2Service
                 $stampBeginIrr +=900;
             }
         }
-
 
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) { // we iterate over all the quarters of the day
             //we retrieve all the tickets that begin in this quarter
@@ -207,7 +208,6 @@ class AlertSystemV2Service
                         }
                     }
                     if (($mainTicket0->getBegin()->getTimestamp()) == $stampBeginIrr){
-
 
                         $ticketOld = $this->getTicketYesterday($anlage, $time, 10, $mainTicket0->getInverter());
                         if ($ticketOld){
@@ -377,7 +377,6 @@ class AlertSystemV2Service
 
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
-
             $ticketOld = $this->getAllTickets($anlage, $time);
             //revise; maybe we can skip this
             if ((isset($ticketOld))) {
@@ -599,7 +598,7 @@ class AlertSystemV2Service
                 $ticketDate->setEnd($end);
                 $ticket->setEnd($end);
                 //default values por the kpi evaluation
-                if ( $errorType = 20) {
+                if ( $errorCategorie == 20) {
                     if (!$PPC) {
                             $ticketDate->setDataGapEvaluation(10);
                             $ticketDate->setKpiPaDep1(10);
@@ -612,7 +611,8 @@ class AlertSystemV2Service
                             $ticketDate->setKpiPaDep3(10);
                     }
                 }
-                if ($errorType && $fullGap) $ticketDate->setDataGapEvaluation(20);
+                if ($errorCategorie == 10 && $fullGap) $ticketDate->setDataGapEvaluation(20);
+
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
             }

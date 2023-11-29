@@ -51,25 +51,33 @@ class DefaultJMController extends AbstractController
     {
         $fromDate = "2023-11-01 00:00";
         $toDate = "2023-11-16 00:00";
-        $anlage = $anlagenRepository->findIdLike("56")[0];
+        $anlagen[] = $anlagenRepository->findIdLike("56")[0];
+        $anlagen[] = $anlagenRepository->findIdLike("233")[0];//faulty included in purpose
+        $anlagen[] = $anlagenRepository->findIdLike("219")[0];
+        $anlagen[] = $anlagenRepository->findIdLike("231")[0];
+        $anlagen[] = $anlagenRepository->findIdLike("182")[0];
+
 
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
 
             $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
-            foreach ($tickets as $ticket){
-                $dates = $ticket->getDates();
-                foreach ($dates as $date){
-                    $em->remove($date);
+            try {
+                foreach ($tickets as $ticket) {
+                    $dates = $ticket->getDates();
+                    foreach ($dates as $date) {
+                        $em->remove($date);
+                    }
+                    $em->remove($ticket);
                 }
-                $em->remove($ticket);
-            }
-            $em->flush();
-            for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+                $em->flush();
+                for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
 
 
                     $alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
-            }
+                }
+            }catch(\SQLiteException $e){}
+        }
 
         dd("hello world");
     }
