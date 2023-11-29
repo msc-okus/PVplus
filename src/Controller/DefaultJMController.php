@@ -75,7 +75,7 @@ class DefaultJMController extends AbstractController
 
                     $alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
                 }
-            }catch(\SQLiteException $e){}
+            }catch(\Exception $e){}
         }
 
         dd("hello world");
