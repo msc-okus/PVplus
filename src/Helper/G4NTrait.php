@@ -7,6 +7,7 @@ require_once __DIR__.'/../../public/config.php';
 use App\Entity\Anlage;
 use DateTimeZone;
 use Exception;
+use FilesystemIterator;
 use JetBrains\PhpStorm\Deprecated;
 use League\Flysystem\Filesystem;
 use PDO;
@@ -415,7 +416,7 @@ trait G4NTrait
     {
         //with this we clear our temp files folder
         if (file_exists('uploads/temp')) {
-            $it = new RecursiveDirectoryIterator("uploads/temp", RecursiveDirectoryIterator::SKIP_DOTS);
+            $it = new RecursiveDirectoryIterator("uploads/temp", FilesystemIterator::SKIP_DOTS);
             $content = new RecursiveIteratorIterator($it,
                 RecursiveIteratorIterator::CHILD_FIRST);
             foreach ($content as $file) {
@@ -434,8 +435,10 @@ trait G4NTrait
     }
 
     //Packt die Sensoren der Anlage in ein Array
+
     /**
-     * @param array $sensors
+     * @param array $anlageSensors
+     * @param int $length
      * @return array
      */
     function getSensorsData(array $anlageSensors, int $length): array

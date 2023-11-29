@@ -1,67 +1,81 @@
 {% if anlage.showEvuDiag %}
-    {% set colspan = 1 %}
+    {% set colspanDep0 = 7 %}
+    {% set colspanDep1 = 7 %}
+    {% set colspanDep2 = 7 %}
+    {% set colspanDep3 = 7 %}
 {% else %}
-    {% set colspan = 0 %}
+    {% set colspanDep0 = 6 %}
+    {% set colspanDep1 = 6 %}
+    {% set colspanDep2 = 6 %}
+    {% set colspanDep3 = 6 %}
+{% endif %}
+{% if anlage.settings.enablePADep1 == false %}
+    {% set colspanDep1 = colspanDep1 - 1 %}
+{% endif %}
+{% if anlage.settings.enablePADep2 == false %}
+    {% set colspanDep2 = colspanDep2 - 1 %}
+{% endif %}
+{% if anlage.settings.enablePADep3 == false %}
+    {% set colspanDep3 = colspanDep3 - 1 %}
 {% endif %}
 <table id="special_export" class="basetable monthtable"> {# ID der table ist wichtig für Datatables Script - Export to Excel #}
     {% for day in report.days %}
     {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
     {% if loop.first %}
-    <thead>
+
+    {% if excel is defined %}<tfoot>{% else  %}<thead>{% endif %}
     <tr class="left">
-        <th class="border-right-2"></th>
-        <th class="border-right-2" colspan="{{ 2 }}">Power  {% if anlage.useppc %}(PPC Corr.){% endif %}</th>
-        <th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – default (OpenBook)</th>
-        {% if anlage.settings.disableDep1 != true %}<th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – O&M</th>{% endif %}
-        {% if anlage.settings.disableDep2 != true %}<th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – EPC</th>{% endif %}
-        {% if anlage.settings.disableDep3 != true %}<th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – AM</th>{% endif %}
+        <th></th>
+        <th class="border-left-2" colspan="{{ 3 }}">Misc.{% if anlage.useppc %}(PPC Corr.){% endif %}</th>
+        <th class="border-left-2" colspan="{{ colspanDep0 }}">default (OpenBook)</th>
+        {% if anlage.settings.disableDep1 != true %}<th class="border-left-2" colspan="{{ colspanDep1 }}">O&M</th>{% endif %}
+        {% if anlage.settings.disableDep2 != true %}<th class="border-left-2" colspan="{{ colspanDep2 }}">EPC</th>{% endif %}
+        {% if anlage.settings.disableDep3 != true %}<th class="border-left-2" colspan="{{ colspanDep3 }}">AM</th>{% endif %}
     </tr>
+    {% if excel is defined %}</tfoot><thead>{% endif %}
     <tr>
-        <th class="border-right-2">Datum</th>
+        <th>Datum</th>
 
-        <th>Inverter</th>
-        <th class="border-right-2">G4N Expected</th>
+        <th class="border-left-2">Inverter</th>
+        <th>G4N Expected</th>
+        <th>PR Exp.</th>
 
-        <th>Irr</th>
+        <th class="border-left-2">Irr</th>
         <th>Irr (no PPC)</th>
         <th>Power Theo.</th>
         <th>Power eGrid</th>
         {% if anlage.showEvuDiag %}<th>PR Grid</th>{% endif %}
         <th>PR Inv.</th>
-        <th>PR Exp.</th>
-        <th class="border-right-2">PA</th>
+        <th>PA</th>
 
         {% if anlage.settings.disableDep1 != true %}
-            <th>Irr</th>
+            <th class="border-left-2">Irr</th>
             <th>Irr(no PPC)</th>
             <th>Power Theo.</th>
             <th>Power eGrid</th>
             {% if anlage.showEvuDiag %}<th>PR Grid</th>{% endif %}
             <th>PR Inv.</th>
-            <th>PR Exp.</th>
-            <th class="border-right-2">PA</th>
+            {% if anlage.settings.enablePADep1 %}<th>PA</th>{% endif %}
         {% endif %}
 
         {% if anlage.settings.disableDep2 != true %}
-            <th>Irr</th>
-            <th>Irr (no PPC)</th>
-            <th>Power Theo.</th>
-            <th>Power eGrid</th>
-            {% if anlage.showEvuDiag %}<th>PR Grid</th>{% endif %}
-            <th>PR Inverter</th>
-            <th>PR Exp.</th>
-            <th class="border-right-2">PA</th>
-        {% endif %}
-
-        {% if anlage.settings.disableDep3 != true %}
-            <th>Irr</th>
+            <th class="border-left-2">Irr</th>
             <th>Irr (no PPC)</th>
             <th>Power Theo.</th>
             <th>Power eGrid</th>
             {% if anlage.showEvuDiag %}<th>PR Grid</th>{% endif %}
             <th>PR Inv.</th>
-            <th>PR Exp.</th>
-            <th class="border-right-2">PA</th>
+            {% if anlage.settings.enablePADep2 %}<th>PA</th>{% endif %}
+        {% endif %}
+
+        {% if anlage.settings.disableDep3 != true %}
+            <th class="border-left-2">Irr</th>
+            <th>Irr (no PPC)</th>
+            <th>Power Theo.</th>
+            <th>Power eGrid</th>
+            {% if anlage.showEvuDiag %}<th>PR Grid</th>{% endif %}
+            <th>PR Inv.</th>
+            {% if anlage.settings.enablePADep3 %}<th>PA</th>{% endif %}
         {% endif %}
 
     </tr>
@@ -69,53 +83,49 @@
     <tbody>
     {% endif %}
     <tr {{ trstyle }}>
-        <td class="border-right-2">{{ day["datum"] }}</td>
+        <td>{{ day["datum_alt"] }}</td>
 
-{# {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["powerEGridExt"]|number_format(2,',','.') }}{% else %}{{ day["powerEvu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %} #}
-        <td>{{ day["powerAct"]|number_format(2,',','.') }}</td>
-        <td class="border-right-2">{{ day["powerExp"]|number_format(2,',','.') }}</td>
+        <td class="border-left-2">{{ day["powerAct"]|number_format(2,',','.') }}</td>
+        <td>{{ day["powerExp"]|number_format(2,',','.') }}</td>
+        <td>{{ day["prExp"]|number_format(2,',','.') }}</td>
 
-        <td>{{ day["irr0"]|number_format(4,',','.') }}</td>
+        <td class="border-left-2">{{ day["irr0"]|number_format(4,',','.') }}</td>
         <td>{{ day["irrNoPpc0"]|number_format(4,',','.') }}</td>
         <td>{{ day["powerTheoDep0"]|number_format(2,',','.') }}</td>
         <td>{{ day["powerEvuDep0"]|number_format(2,',','.') }}</td>
         {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep0EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep0Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
         <td>{{ day["prDep0Act"]|number_format(2,',','.') }}</td>
-        <td>{{ day["prDep0Exp"]|number_format(2,',','.') }}</td>
         <td class="border-right-2">{{ day["pa0"]|number_format(3,',','.') }}</td>
 
 
         {% if anlage.settings.disableDep1 != true %}
-            <td>{{ day["irr1"]|number_format(4,',','.') }}</td>
+            <td class="border-left-2">{{ day["irr1"]|number_format(4,',','.') }}</td>
             <td>{{ day["irrNoPpc1"]|number_format(4,',','.') }}</td>
             <td>{{ day["powerTheoDep1"]|number_format(2,',','.') }}</td>
             <td>{{ day["powerEvuDep1"]|number_format(2,',','.') }}</td>
             {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep1EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep1Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
             <td>{{ day["prDep1Act"]|number_format(2,',','.') }}</td>
-            <td>{{ day["prDep1Exp"]|number_format(2,',','.') }}</td>
-            <td class="border-right-2">{{ day["pa1"]|number_format(3,',','.') }}</td>
+            {% if anlage.settings.enablePADep1 %}<td>{{ day["pa1"]|number_format(3,',','.') }}</td>{% endif %}
         {% endif %}
 
         {% if anlage.settings.disableDep2 != true %}
-            <td>{{ day["irr2"]|number_format(4,',','.') }}</td>
+            <td class="border-left-2">{{ day["irr2"]|number_format(4,',','.') }}</td>
             <td>{{ day["irrNoPpc2"]|number_format(4,',','.') }}</td>
             <td>{{ day["powerTheoDep2"]|number_format(2,',','.') }}</td>
             <td>{{ day["powerEvuDep2"]|number_format(2,',','.') }}</td>
             {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep2EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep2Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
             <td>{{ day["prDep2Act"]|number_format(2,',','.') }}</td>
-            <td>{{ day["prDep2Exp"]|number_format(2,',','.') }}</td>
-            <td class="border-right-2">{{ day["pa2"]|number_format(3,',','.') }}</td>
+            {% if anlage.settings.enablePADep2 %}<td>{{ day["pa2"]|number_format(3,',','.') }}</td>{% endif %}
         {% endif %}
 
         {% if anlage.settings.disableDep3 != true %}
-            <td>{{ day["irr3"]|number_format(4,',','.') }}</td>
+            <td class="border-left-2">{{ day["irr3"]|number_format(4,',','.') }}</td>
             <td>{{ day["irrNoPpc3"]|number_format(4,',','.') }}</td>
             <td>{{ day["powerTheoDep3"]|number_format(2,',','.') }}</td>
             <td>{{ day["powerEvuDep3"]|number_format(2,',','.') }}</td>
             {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep3EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep3Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
             <td>{{ day["prDep3Act"]|number_format(2,',','.') }}</td>
-            <td>{{ day["prDep3Exp"]|number_format(2,',','.') }}</td>
-            <td class="border-right-2">{{ day["pa3"]|number_format(3,',','.') }}</td>
+            {% if anlage.settings.enablePADep3 %}<td>{{ day["pa3"]|number_format(3,',','.') }}</td>{% endif %}
         {% endif %}
     </tr>
     {% endfor %}

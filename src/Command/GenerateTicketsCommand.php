@@ -108,7 +108,8 @@ class GenerateTicketsCommand extends Command
                         --$counter;
                     }
                     $io->comment($anlage->getAnlName());
-                    }catch(\SQLiteException $e){
+                    }catch(Exception $e){
+
 
                     }
                 }

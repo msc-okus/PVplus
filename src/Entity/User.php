@@ -133,10 +133,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Eigner::class, mappedBy: 'user')]
     private Collection $eigners;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ApiToken::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ApiToken::class, cascade: ['remove'])]
     private Collection $apiTokens;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogin::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogin::class, cascade: ['remove'])]
 
     private Collection $userLogins;
 

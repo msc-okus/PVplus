@@ -40,6 +40,8 @@ class UserLogin
     private ?\DateTimeImmutable $loggedAt = null;
 
     public function __construct(#[ORM\ManyToOne(inversedBy: 'userLogins')]
+
+
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user)
     {

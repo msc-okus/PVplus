@@ -67,6 +67,7 @@ class AssetManagementService
     /**
      * @throws ExceptionInterface
      * @throws InvalidArgumentException
+     * @throws NoResultException
      */
     public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null, ?int $logId = null): AnlagenReports
     {
@@ -119,7 +120,7 @@ class AssetManagementService
         }
         if ($fileArray != null) {
             $images = self::makeTempFiles($fileArray, $this->filesystem);
-        }else{
+        } else {
             $images['Logo'] = null;
             $images['PlantPic'] = null;
         }
@@ -130,6 +131,7 @@ class AssetManagementService
         $html = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
             'anlage' => $anlage,
+            'report' => $report,
             'headerImage' => $tempFilePlantImage,
             'logoImage' => $tempFileLogo,
             'month' => $reportMonth,
@@ -151,6 +153,7 @@ class AssetManagementService
         //Production vs Forecast vs Expected
         $html = $this->twig->render('report/asset_report_part_1.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'logoImage' => $tempFileLogo,
@@ -169,6 +172,7 @@ class AssetManagementService
         // Technical PR and Availability
         $html = $this->twig->render('report/asset_report_technicalPRPA.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'logoImage' => $tempFileLogo,
@@ -188,6 +192,7 @@ class AssetManagementService
         //Monthly Production
         $html = $this->twig->render('report/production_with_Forecast.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -207,6 +212,7 @@ class AssetManagementService
         if($anlage->hasPVSYST()) {
             $html = $this->twig->render('report/asset_report_part_2.html.twig', [
                 'anlage' => $anlage,
+                'report' => $report,
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
                 'year' => $reportYear,
@@ -226,6 +232,7 @@ class AssetManagementService
         //Cummulative Forecast
         $html = $this->twig->render('report/asset_report_part_3.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -244,6 +251,7 @@ class AssetManagementService
         //Cummulative Losses
         $html = $this->twig->render('report/asset_report_part_4.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -264,6 +272,7 @@ class AssetManagementService
         //Waterfall diagram
         $html = $this->twig->render('report/waterfallProd.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -282,6 +291,7 @@ class AssetManagementService
         //Monthly Production
         $html = $this->twig->render('report/asset_report_part_5.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -374,6 +384,7 @@ class AssetManagementService
         //Expected vs actual
         $html = $this->twig->render('report/asset_report_part_6.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -393,6 +404,7 @@ class AssetManagementService
         $html = $this->twig->render('report/asset_report_part_7.html.twig', [
 
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -411,6 +423,7 @@ class AssetManagementService
         //Inverter power difference g4n
         $html = $this->twig->render('report/asset_report_part_8.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -429,6 +442,7 @@ class AssetManagementService
         //Availability year
         $html = $this->twig->render('report/asset_report_part_9.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -448,6 +462,7 @@ class AssetManagementService
         //Availability tickets
         $html = $this->twig->render('report/asset_report_part_10.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -472,6 +487,7 @@ class AssetManagementService
         //Availability by tickets _monthly
         $html =$this->twig->render('report/asset_report_part_11.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -494,6 +510,7 @@ class AssetManagementService
         //Availability heatmap
         $html = $this->twig->render('report/asset_report_part_12.html.twig', [
             'anlage' => $anlage,
+            'report' => $report,
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -513,6 +530,7 @@ class AssetManagementService
             //Economics
             $html = $this->twig->render('report/asset_report_part_13.html.twig', [
                 'anlage' => $anlage,
+                'report' => $report,
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
                 'year' => $reportYear,
@@ -1104,7 +1122,7 @@ class AssetManagementService
                 $data1_grid_meter['powerEGridExt'] = 0;
 
             }
-            if ($data1_grid_meter['powerEvu'] > 0){
+            if ($anlage->hasGrid()){
                 (float) $powerEvu[] = $data1_grid_meter['powerEvu'];
             }
             else{
@@ -1120,10 +1138,12 @@ class AssetManagementService
             (float) $powerExp[] = $data1_grid_meter['powerExp'];
             (float) $powerExternal[] = $data1_grid_meter['powerEGridExt'];
             $expectedPvSyst[] = $Ertrag_design;
+
             if ($anlage->hasPVSYST()){
                 $forecast = $expectedPvSyst;
             }
         }
+
         // fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,
@@ -1134,8 +1154,6 @@ class AssetManagementService
             'powerExt' => $powerExternal,
             'forecast' => $forecast,
         ];
-
-        dump($tbody_a_production);
         $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
             $dataCfArray[$i]['month'] = $monthExtendedArray[$i]['month'];
@@ -1826,6 +1844,7 @@ class AssetManagementService
             ];
         }else{
             $operations_monthly_right_pvsyst_tr1 = [
+                $monthName.' '.$report['reportYear'],
                 $powerEvuQ1,
                 0.0,
                 0.0,

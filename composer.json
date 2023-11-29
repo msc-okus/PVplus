@@ -12,6 +12,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-mysqli": "*",
+        "ext-openssl": "*",
         "ext-pdo": "*",
         "api-platform/core": "^3.0",
         "babdev/pagerfanta-bundle": "^4.2.1",
@@ -45,7 +46,7 @@
         "psr/http-factory": "^1.0",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.3",
-        "shuchkin/simplexlsx": "^1.0.19",
+        "shuchkin/simplexlsx": "^1.0",
         "stof/doctrine-extensions-bundle": "^1.7",
         "symfony/asset": "6.3.*",
         "symfony/console": "6.3.*",
@@ -83,9 +84,7 @@
         "twig/inky-extra": "^3.0",
         "twig/intl-extra": "^3.0",
         "twig/string-extra": "^3.4",
-        "twig/twig": "^3.0",
-      "ext-openssl": "*",
-      "ext-sqlite": "*"
+        "twig/twig": "^3.0"
     },
     "require-dev": {
         "rector/rector": "^0.18.1",

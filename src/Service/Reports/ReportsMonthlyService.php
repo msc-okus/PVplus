@@ -5,7 +5,6 @@ namespace App\Service\Reports;
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
-use App\Reports\ReportMonthly\ReportMonthly;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
 use App\Repository\PRRepository;
@@ -82,9 +81,13 @@ class ReportsMonthlyService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param int $reportMonth
+     * @param int $reportYear
      * @return array
      *
      * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function buildMonthlyReport(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): array
     {
@@ -341,9 +344,12 @@ class ReportsMonthlyService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param int $month
+     * @param int $year
      * @return array
      *
-     * @throws Exception|InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function buildMonthlyReportNew(Anlage $anlage, int $month = 0, int $year = 0): array
     {
@@ -380,82 +386,5 @@ class ReportsMonthlyService
             'anlagenid' => $anlage->getAnlId(),
             'days' => $dayValues,
         ];
-    }
-
-
-    #[NoReturn]
-    public function exportReportToPDF(Anlage $anlage, AnlagenReports $report): never
-    {
-        // übergabe der Werte an KoolReport
-        $reportout = new ReportMonthly($report->getContentArray());
-        $output = $reportout->run()->render('ReportMonthly', true);
-        $pdfFilename = $anlage->getAnlName().' '.sprintf("%04d%02d", $report->getYear(), $report->getMonth()).' Monthly Report.pdf';
-        $settings = [
-            // 'useLocalTempFolder' => true,
-            'pageWaiting' => 'networkidle2', // load, domcontentloaded, networkidle0, networkidle2
-        ];
-        $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
-        $reportout->run();
-        $pdfOptions = [
-            'format' => 'A4',
-            'landscape' => false,
-            'noRepeatTableFooter' => false,
-            'printBackground' => true,
-            'displayHeaderFooter' => true,
-        ];
-        $reportout->cloudExport('ReportMonthly')
-            ->chromeHeadlessio($secretToken)
-            ->settings($settings)
-            ->pdf($pdfOptions)
-            ->toBrowser($pdfFilename);
-        exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
-    }
-
-    #[NoReturn]
-    #[Deprecated]
-    public function exportReportToExcel(Anlage $anlage, AnlagenReports $report): never
-    {
-        $excelFilename = $anlage->getAnlName().' '.$report->getYear().$report->getMonth().' Monthly Report.xlsx';
-
-        $reportout = new ReportMonthly($report->getContentArray());
-        $reportout->run()->render('ReportMonthly', true);
-        $reportout->run()->render(true);
-        $reportout->run();
-        $reportout->exportToXLSX('ReportMonthly')->toBrowser($excelFilename);
-        exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
-    }
-
-    #[NoReturn]
-    #[Deprecated]
-    public function exportDiagramsToImage(Anlage $anlage, AnlagenReports $report, $chartTypeToExport = 0)
-    {
-        $reportout = new ReportMonthly($report->getContentArray());
-        $reportout->run()->render(true);
-        $reportout->run();
-
-        switch ($chartTypeToExport) {
-            case 1:
-                $exporttemplate = 'ReportMonthlyEpChartPng';
-                $pngFilename = $anlage->getAnlName().' '.$report->getYear().$report->getMonth().' Monthly Report EP.png';
-                break;
-            default:
-                $exporttemplate = 'ReportMonthlyPrChartPng';
-                $pngFilename = $anlage->getAnlName().' '.$report->getYear().$report->getMonth().' Monthly Report PR.png';
-                break;
-        }
-
-        $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
-        $settings = [
-            'pageWaiting' => 'networkidle2', // load, domcontentloaded, networkidle0, networkidle2,
-        ];
-        $reportout->cloudExport($exporttemplate)
-            ->chromeHeadlessio($secretToken)
-            ->settings($settings)
-            ->png([
-                'format' => 'A4',
-                'fullPage' => true,
-            ])
-            ->toBrowser($pngFilename);
-        exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
     }
 }

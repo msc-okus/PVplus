@@ -39,6 +39,15 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $disableDep3 = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $enablePADep1 = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $enablePADep2 = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $enablePADep3 = true;
+
     // Settings for Expected
     #[ORM\Column(nullable: true)]
     private ?bool $epxCalculationByCurrent = true; // if true = caclulate Expected by current*voltage / if false = caclulate by power settings
@@ -216,6 +225,45 @@ class AnlageSettings
     public function setDisableDep3(bool $disableDep3): void
     {
         $this->disableDep3 = $disableDep3;
+    }
+
+    public function getEnablePADep0(): ?bool
+    {
+        return true;
+    }
+
+
+    public function getEnablePADep1(): ?bool
+    {
+        if ($this->enablePADep1 === null) return true;
+        return $this->enablePADep1;
+    }
+
+    public function setEnablePADep1(?bool $enablePADep1): void
+    {
+        $this->enablePADep1 = $enablePADep1;
+    }
+
+    public function getEnablePADep2(): ?bool
+    {
+        if ($this->enablePADep2 === null) return true;
+        return $this->enablePADep2;
+    }
+
+    public function setEnablePADep2(?bool $enablePADep2): void
+    {
+        $this->enablePADep2 = $enablePADep2;
+    }
+
+    public function getEnablePADep3(): ?bool
+    {
+        if ($this->enablePADep3 === null) return true;
+        return $this->enablePADep3;
+    }
+
+    public function setEnablePADep3(?bool $enablePADep3): void
+    {
+        $this->enablePADep3 = $enablePADep3;
     }
 
 
