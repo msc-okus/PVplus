@@ -53,7 +53,7 @@
                                 {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
                                 {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
                                 {% if loop.first %}
-                                    <td class="tr_first_column" {% if (loop.index == 5) %}style="background-color:{{ color }};" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    <td class="tr_first_column" {% if (loop.index == 5) %}style="background-color:{{ color }};" {% endif %}>{{ data }}</td>
                                 {% else %}
                                     {% if (anlage.hasGrid == true) %}
                                         <td class="tr_next_columns" {% if (loop.index == 5) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>

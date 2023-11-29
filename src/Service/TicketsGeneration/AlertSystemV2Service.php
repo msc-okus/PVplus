@@ -386,10 +386,13 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
+            $anlType = $anlage->getAnlType();
             if ( $plant_status['Irradiation'] == false ) {
                 if ($plant_status['ppc'] != null && $plant_status['ppc']) $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc'], false);
                 if ($plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "", ($plant_status['ppc']), false);
-                if ($plant_status['Power0'] != null && count($plant_status['Power0']) > 0) $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "", ($plant_status['ppc']), false);
+                if ($anlType != "masterslave"){
+                    if ($plant_status['Power0'] != null && count($plant_status['Power0']) > 0) $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "", ($plant_status['ppc']), false);
+                }
                 if ($plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "", ($plant_status['ppc']), false);
             }else {
                 $this->generateTickets('', ticket::DATA_GAP, $anlage, ['*'], $time, "Data Gap set automatically to com. issue because of a gap in the irradiation", $plant_status['ppc'], true);
@@ -596,28 +599,20 @@ class AlertSystemV2Service
                 $ticketDate->setEnd($end);
                 $ticket->setEnd($end);
                 //default values por the kpi evaluation
-                if ($errorType == 10 || $errorType = 20) {
+                if ( $errorType = 20) {
                     if (!$PPC) {
-                        if (!$fullGap){
                             $ticketDate->setDataGapEvaluation(10);
                             $ticketDate->setKpiPaDep1(10);
                             $ticketDate->setKpiPaDep2(10);
                             $ticketDate->setKpiPaDep3(10);
-                        }else{
-                            $ticketDate->setDataGapEvaluation(20);
-                        }
-                    }
-                    else{
-                        if (!$fullGap){
+                    } else{
                             $ticketDate->setDataGapEvaluation(10);
                             $ticketDate->setKpiPaDep1(20);
                             $ticketDate->setKpiPaDep2(10);
                             $ticketDate->setKpiPaDep3(10);
-                        }else{
-                            $ticketDate->setDataGapEvaluation(20);
-                        }
                     }
                 }
+                if ($errorType && $fullGap) $ticketDate->setDataGapEvaluation(20);
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
             }
