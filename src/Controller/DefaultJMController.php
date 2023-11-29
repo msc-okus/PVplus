@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use _PHPStan_adbc35a1c\Nette\Utils\DateTime;
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
@@ -15,10 +14,10 @@ use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
 use App\Service\WeatherServiceNew;
+use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use PDO;
 use Hisune\EchartsPHP\ECharts;
@@ -60,7 +59,7 @@ class DefaultJMController extends AbstractController
 
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
-
+        foreach ($anlagen as $anlage){
             $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
             try {
                 foreach ($tickets as $ticket) {
@@ -76,7 +75,7 @@ class DefaultJMController extends AbstractController
 
                     $alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
                 }
-            }catch(\SQLiteException $e){}
+            } catch(\Exception $e){}
         }
 
         dd("hello world");
@@ -231,7 +230,7 @@ class DefaultJMController extends AbstractController
 
     }
 
-    #[Route(path: '/test/pdfw', name: 'default_pdf')]
+    #[Route(path: '/test/pdfw', name: 'default_waterfall_pdf')]
     public function testpdfwaterfall(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): \Symfony\Component\HttpFoundation\Response{
         $anlage = $ar->findIdLike("57")[0];
 

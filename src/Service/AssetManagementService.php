@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
-use App\Form\Owner\OwnerFormType;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
@@ -2104,7 +2103,6 @@ class AssetManagementService
                 '0',
             ];
         }
-        dump($operations_monthly_right_g4n_tr6);
         // Parameter fuer total Runtime
         // El total runtime son los datos de toda la planta desde que abrio
         if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
