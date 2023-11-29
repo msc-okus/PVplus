@@ -65,48 +65,54 @@ class GenerateTicketsCommand extends Command
             }
 
             foreach ($anlagen as $anlage) {
-                $tickets = $this->ticketRepo->findForSafeDelete($anlage, $optionFrom, $optionTo);
-                foreach ($tickets as $ticket){
-                    $dates = $ticket->getDates();
-                    foreach ($dates as $date){
-                        $this->em->remove($date);
+                try {
+
+                    $tickets = $this->ticketRepo->findForSafeDelete($anlage, $optionFrom, $optionTo);
+                    foreach ($tickets as $ticket) {
+                        $dates = $ticket->getDates();
+                        foreach ($dates as $date) {
+                            $this->em->remove($date);
+                        }
+                        $this->em->remove($ticket);
                     }
-                    $this->em->remove($ticket);
-                }
-                $this->em->flush();
-                $time = time();
-                $time = $time - ($time % 900);
-                if ($optionFrom) {
-                    $from = $optionFrom;
-                } else {
-                    $from = date('Y-m-d H:i:00', $time);
-                }
-                if ($optionTo) {
-                    $to = $optionTo;
-                } else {
-                    $to = date('Y-m-d H:i:00', $time);
-                }
-
-                $fromStamp = strtotime((string) $from);
-                $toStamp = strtotime((string) $to);
-
-                $counter = (($toStamp - $fromStamp) / 3600) * (is_countable($anlagen) ? count($anlagen) : 0);
-                $io->progressStart($counter);
-                $counter = ($counter * 4) - 1;
-                while (((int) date('i') >= 28 && (int) date('i') < 33) || (int) date('i') >= 58 || (int) date('i') <= 3) {
-                    $io->comment('Wait...');
-                    sleep(30);
-                }
-
-                for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                    $this->alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
-                                 if ($counter % 4 == 0) {
-                        $io->progressAdvance();
+                    $this->em->flush();
+                    $time = time();
+                    $time = $time - ($time % 900);
+                    if ($optionFrom) {
+                        $from = $optionFrom;
+                    } else {
+                        $from = date('Y-m-d H:i:00', $time);
                     }
-                    --$counter;
+                    if ($optionTo) {
+                        $to = $optionTo;
+                    } else {
+                        $to = date('Y-m-d H:i:00', $time);
+                    }
+
+                    $fromStamp = strtotime((string)$from);
+                    $toStamp = strtotime((string)$to);
+
+                    $counter = (($toStamp - $fromStamp) / 3600) * (is_countable($anlagen) ? count($anlagen) : 0);
+                    $io->progressStart($counter);
+                    $counter = ($counter * 4) - 1;
+                    while (((int)date('i') >= 28 && (int)date('i') < 33) || (int)date('i') >= 58 || (int)date('i') <= 3) {
+                        $io->comment('Wait...');
+                        sleep(30);
+                    }
+
+                    for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+                        $this->alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
+                        if ($counter % 4 == 0) {
+                            $io->progressAdvance();
+                        }
+                        --$counter;
+                    }
+                    $io->comment($anlage->getAnlName());
+                    }catch(\SQLiteException $e){
+
+                    }
                 }
-                $io->comment($anlage->getAnlName());
-            }
+
             $io->progressFinish();
             $io->success('Generating tickets finished');
         return Command::SUCCESS;
