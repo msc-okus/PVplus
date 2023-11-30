@@ -240,7 +240,7 @@ class UserController extends BaseController
 
     // USER Löschen
     #[Route(path: 'admin/user/delete/{id}', name: 'app_admin_user_delete', methods: 'GET')]
-    #[IsGranted('ROLE_G4N')]
+    #[IsGranted('ROLE_OWNER_ADMIN')]
     public function delete($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security,): RedirectResponse
     {
         // To do Abfrage Yes No
