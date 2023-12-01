@@ -3,6 +3,9 @@
 namespace App\Security;
 
 use App\Entity\User;
+use App\Entity\UserLogin;
+use App\Repository\UserLoginRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +29,12 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
 
 
-    public function __construct(private readonly UrlGeneratorInterface $urlGenerator, private readonly CsrfTokenManagerInterface $csrfTokenManager, private readonly UserPasswordHasherInterface $passwordHasher, private readonly EntityManagerInterface $em)
+    public function __construct(
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly CsrfTokenManagerInterface $csrfTokenManager,
+        private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly EntityManagerInterface $em,
+        private readonly UserLoginRepository $userLogingRepository)
     {
     }
 
@@ -66,6 +74,9 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?RedirectResponse
     {
+        // Loging wich User was loged in
+        $this->userLogingRepository->save(new UserLogin($token->getUser()),true);
+
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
