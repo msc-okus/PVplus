@@ -68,7 +68,7 @@ class Anlage implements \Stringable
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private int $anlId;
+    private string $anlId;  // DBAL return Type of bigint = string
 
     #[Groups(['main'])]
     #[ORM\Column(name: 'eigner_id', type: 'bigint', nullable: false)]
