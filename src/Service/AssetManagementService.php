@@ -1249,7 +1249,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => array_slice($monthArray, 0, $report['reportMonth']),
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -1309,7 +1309,7 @@ class AssetManagementService
 
         $chart->setOption($option);
 
-        $operations_right_withForecast = $chart->render('operations_right_withForecast', ['style' => 'height: 450px; width:700px;']);
+        $operations_right_withForecast = $chart->render('operations_right_withForecast', ['style' => 'height: 450px; width: 100%;']);
 
 
         $degradation = $anlage->getLossesForecast();

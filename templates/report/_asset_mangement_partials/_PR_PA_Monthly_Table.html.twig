@@ -7,11 +7,11 @@
             <table class="asset_report_table_operations_data" >
                 <thead>
                     <tr>
-                        <th class="table-center"></th>
-                        <th class="table-center" colspan="2" style="text-align: center">PR & PA - default (OpenBook)<sup>*3</sup> </th>
-                        {% if anlage.settings.disableDep1 != true %}<th class="table-center" colspan="2" style="text-align: center">PR & PA - O&M<sup>*4</sup></th>{% endif %}
-                        {% if anlage.settings.disableDep2 != true %}<th class="table-center" colspan="2" style="text-align: center">PR & PA - EPC<sup>*5</sup></th>{% endif %}
-                        {% if anlage.settings.disableDep3 != true %}<th class="table-center" colspan="2" style="text-align: center">PR & PA - AM<sup>*6</sup></th>{% endif %}
+                        <th class="table-center" style="width: 10%"></th>
+                        <th class="table-center" colspan="2" style="text-align: center; width: 30%">PR & PA - default<sup>*3</sup> </th>
+                        {% if anlage.settings.disableDep1 != true %}<th class="table-center" colspan="2" style="text-align: center; width: 30%">PR & PA - O&M<sup>*4</sup></th>{% endif %}
+                        {% if anlage.settings.disableDep2 != true %}<th class="table-center" colspan="2" style="text-align: center; width: 30%">PR & PA - EPC<sup>*5</sup></th>{% endif %}
+                        {% if anlage.settings.disableDep3 != true %}<th class="table-center" colspan="2" style="text-align: center; width: 30%">PR & PA - AM<sup>*6</sup></th>{% endif %}
                     </tr>
                     <tr>
                         <th class="table-center"> Date</th>
