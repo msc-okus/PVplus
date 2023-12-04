@@ -68,7 +68,7 @@ class Anlage implements \Stringable
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private int $anlId;
+    private string $anlId;  // DBAL return Type of bigint = string
 
     #[Groups(['main'])]
     #[ORM\Column(name: 'eigner_id', type: 'bigint', nullable: false)]
@@ -3420,9 +3420,12 @@ class Anlage implements \Stringable
         return $this;
     }
 
+    /**
+     * we use this to determine whether a plant uses pvsys or not
+     */
     public function hasPVSYST(): bool
     {
-        return intval($this->kwPeakPvSyst) > 0;
+        return (intval($this->kwPeakPvSyst) > 0 ||  $this->showPvSyst);
     }
 
     public function getPicture(): ?string

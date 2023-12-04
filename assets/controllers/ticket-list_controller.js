@@ -25,7 +25,7 @@ export default class extends Controller {
             method: $searchListform.prop('method'),
             data: serializedData,
         });
-        //$(document).foundation();
+        $(document).foundation();
         this.disableAllToolTips()
     }
     async update(event) {
@@ -37,7 +37,7 @@ export default class extends Controller {
             method: $searchListform.prop('method'),
             data: serializedData,
         });
-        //$(document).foundation();
+        $(document).foundation();
         this.disableAllToolTips()
     }
 
@@ -48,42 +48,42 @@ export default class extends Controller {
             url: this.urlSearchValue,
             data: $queryParams,
         });
-        //$(document).foundation();
+        $(document).foundation();
         this.disableAllToolTips()
     }
     async sortId(event) {
         event.preventDefault();
         $(this.sortTarget).val('ticket.id');
 
-        if ($(this.directionTarget).val() == '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() == 'ASC'){$(this.directionTarget).val('DESC');}
+        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
+        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
         else {$(this.directionTarget).val('ASC');}
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
 
         });
-        //$(document).foundation();
+        $(document).foundation();
         this.disableAllToolTips()
     }
 
     async sortBegin(event) {
         $(this.sortTarget).val('ticket.begin');
-        if ($(this.directionTarget).val() == '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() == 'ASC'){$(this.directionTarget).val('DESC');}
+        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
+        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
         else {$(this.directionTarget).val('ASC');}
         event.preventDefault();
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
 
                     });
-        //$(document).foundation();
+        $(document).foundation();
         this.disableAllToolTips()
     }
     async sortEnd(event) {
         event.preventDefault();
         $(this.sortTarget).val('ticket.end');
-        if ($(this.directionTarget).val() == '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() == 'ASC'){$(this.directionTarget).val('DESC');}
+        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
+        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
         else {$(this.directionTarget).val('ASC');}
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
@@ -94,14 +94,14 @@ export default class extends Controller {
     async sortUpdate(event) {
         event.preventDefault();
         $(this.sortTarget).val('ticket.updatedAt');
-        if ($(this.directionTarget).val() == '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() == 'ASC'){$(this.directionTarget).val('DESC');}
+        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
+        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
         else {$(this.directionTarget).val('ASC');}
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
 
         });
-        //$(document).foundation();
+        $(document).foundation();
         this.disableAllToolTips()
     }
 

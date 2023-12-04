@@ -14,6 +14,7 @@ use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Service\AvailabilityByTicketService;
+use App\Service\Functions\ImageGetterService;
 use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
@@ -21,6 +22,7 @@ use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Hisune\EchartsPHP\ECharts;
+use League\Flysystem\FilesystemException;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -56,7 +58,9 @@ class ReportsMonthlyV2Service
         private readonly Environment $twig,
         private readonly PdfService $pdf,
         private readonly TranslatorInterface $translator,
-        private readonly AvailabilityByTicketService $availabilityByTicket)
+        private readonly AvailabilityByTicketService $availabilityByTicket,
+        private readonly ImageGetterService $imageGetter
+    )
     {
     }
 
@@ -385,12 +389,15 @@ class ReportsMonthlyV2Service
      * @throws SyntaxError
      * @throws RuntimeError
      * @throws LoaderError
+     * @throws FilesystemException
      */
     private function createPDF(Anlage $anlage, array $report): array
     {
+
         $html = $this->twig->render('report/_monthly/monthlyReport2023.html.twig', [
             'anlage'        => $anlage,
             'report'        => $report,
+            'logo'          => $this->imageGetter->getOwnerLogo($anlage->getEigner()),
         ]);
 
         $html = str_replace('src="//', 'src="https://', $html); // replace local pathes to global

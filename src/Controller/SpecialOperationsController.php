@@ -89,93 +89,9 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidArgumentException
-     */
-    #[IsGranted('ROLE_BETA')]
-    #[Route(path: '/special/operations/monthly', name: 'monthly_daily_report')]
-    public function monthlyReportWithDays(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
-    {
-        $output = $table = null;
-        $startDay = $request->request->get('start-day');
-        $endDay = $request->request->get('end-day');
-        $month = $request->request->get('month');
-        $year = $request->request->get('year');
-        $anlageId = $request->request->get('anlage-id');
-        $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
 
-        // Start individual part
-        /** @var Anlage $anlage */
-        $headline = 'Monats Bericht (Testumgebung)';
-        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
 
-        if ($submitted && $anlageId !== null) {
-            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
-        }
 
-        return $this->render('special_operations/reportMonthlyNew.html.twig', [
-            'headline' => $headline,
-            'anlagen' => $anlagen,
-            'anlage' => $anlage,
-            'report' => $output,
-            'status' => $anlageId,
-            'datatable' => $table,
-        ]);
-
-    }
-
-    /**
-     * @throws NonUniqueResultException
-     * @throws InvalidArgumentException
-     */
-    #[IsGranted('ROLE_BETA')]
-    #[Route(path: '/special/operations/report', name: 'month_report')]
-    public function reportIndividual(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, AvailabilityByTicketService $availabilityByTicket): Response
-    {
-        $output = $table = null;
-
-        $anlageId = $request->request->get('anlage-id');
-        $startDate = date_create($request->request->get('start-day'));
-        $endDate = date_create($request->request->get('end-day'));
-
-        $submittedNew = $request->request->get('new-report') == 'yes' && $anlageId !== "";
-        $submittedPA = $request->request->get('recalc-PA') == 'yes' && $anlageId !== "";
-
-        // Start individual part
-        /** @var Anlage $anlage */
-        $headline = 'Report – individual date, but only monthly values.';
-        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
-
-        if ($submittedPA) {
-            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-            // recalculate Availability
-            for ($stamp = $startDate->getTimestamp(); $stamp <= $endDate->getTimestamp(); $stamp += (24 * 3600)) {
-                $day = date_create(date("Y-m-d 12:00", $stamp));
-                $availabilityByTicket->checkAvailability($anlage, $day, 0);
-                if (!$anlage->getSettings()->isDisableDep1()) $availabilityByTicket->checkAvailability($anlage, $day, 1);
-                if (!$anlage->getSettings()->isDisableDep2()) $availabilityByTicket->checkAvailability($anlage, $day, 2);
-                if (!$anlage->getSettings()->isDisableDep3()) $availabilityByTicket->checkAvailability($anlage, $day, 3);
-            }
-        }
-        if ($submittedNew) {
-            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-            $output['days'] = $reportsMonthly->buildTable2($anlage, $startDate, $endDate);
-        }
-
-        return $this->render('special_operations/reportIndividualNew.html.twig', [
-            'headline' => $headline,
-            'message'  => '',
-            'startday' => $startDate->format('Y-m-d'),
-            'endday' => $endDate->format('Y-m-d'),
-            'anlagen' => $anlagen,
-            'anlage' => $anlage,
-            'report' => $output,
-            'status' => $anlageId,
-        ]);
-
-    }
 
     #[IsGranted('ROLE_G4N')]
     #[Route(path: '/special/operations/loadweatherdata', name: 'load_weatherdata')]
@@ -376,28 +292,20 @@ class SpecialOperationsController extends AbstractController
             $uploadedFile = $form['File']->getData();
             if ($uploadedFile) {
                 if ($xlsx = simpleXLSX::parse($uploadedFile->getPathname())) {
-                    dd($xlsx->rows());
-                    $i = 0;
-                    $ts = 0;
                     $conn = $pdoService->getPdoPlant();
-                    foreach ( $xlsx->rows($ts) as $row ) {
-                        if ($i == 0) {
+                    foreach ($xlsx->rows(0) as $key => $row) {
+                        if ($key === 0) {
                             $data_fields = $row;
                             $indexStamp = array_search('stamp', $data_fields);
                             $indexEzevu = array_search('e_z_evu', $data_fields);
+                            if ($indexEzevu === false) $indexEzevu  = array_search('eGridValue', $data_fields);
                         } else {
-                            $eZEvu = ($row[$indexEzevu] != '') ? $row[$indexEzevu] : NULL;
-                            $stamp = date_create_from_format('d-m-Y H:m', $row[$indexStamp])->format('Y-m-d H:i');
-                            $stmt= $conn->prepare(
-                                "UPDATE $dataBaseNTable SET $data_fields[$indexEzevu]=? WHERE $data_fields[$indexStamp]=?"
-                            );
-
-                            #$stmt->execute([$eZEvu, $stamp]);
+                            $eZEvu = $row[$indexEzevu] != '' ? $row[$indexEzevu] : NULL;
+                            $stamp = $row[$indexStamp];
+                            $stmt= $conn->prepare("UPDATE $dataBaseNTable SET e_z_evu = ? WHERE stamp = ?");
+                            $stmt->execute([$eZEvu, $stamp]);
                         }
-
-                        $i++;
                     }
-                    unlink($uploadsPath . '/xlsx/'.$newFile);
 
                 } else {
                     $output .= "No valid XLSX File.<br>";

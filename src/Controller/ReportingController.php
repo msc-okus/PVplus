@@ -21,6 +21,7 @@ use App\Service\Reports\ReportsMonthlyService;
 use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NoResultException;
 use Knp\Component\Pager\PaginatorInterface;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
@@ -53,6 +54,7 @@ class ReportingController extends AbstractController
     /**
      * @throws \Doctrine\Instantiator\Exception\ExceptionInterface
      * @throws InvalidArgumentException
+     * @throws NoResultException
      */
     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
     public function createReport(
@@ -276,7 +278,8 @@ class ReportingController extends AbstractController
                             'forecast_real' => $reportArray['prForecast'],
                             'formel'        => $reportArray['formel'],
                             'anlage'        => $anlage,
-                            'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner())
+                            'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner()),
+                            'report'        => $report,
                         ]);
                         $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                         break;
@@ -289,6 +292,8 @@ class ReportingController extends AbstractController
                             'legend'            => $anlage->getLegendEpcReports(),
                             'chart1'            => $epcNewService->chartYieldPercenDiff($anlage, $reportArray['monthTable']),//$reportArray['chartYieldPercenDiff'],
                             'chart2'            => $epcNewService->chartYieldCumulative($anlage, $reportArray['monthTable']),
+                            'logo'              => $imageGetter->getOwnerLogo($anlage->getEigner()),
+                            'report'            => $report,
                         ]);
                         $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                 }
@@ -304,6 +309,8 @@ class ReportingController extends AbstractController
                     'legend'        => $anlage->getLegendEpcReports(),
                     // 'chart1'            => $chartYieldPercenDiff,
                     // 'chart2'            => $chartYieldCumulativ,
+                    'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner()),
+                    'report'        => $report,
                 ]);
                 $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                 break;
@@ -322,9 +329,7 @@ class ReportingController extends AbstractController
 
             case 'am-report':
                 $report = $reportsRepository->find($id);
-
                 if ($report) {
-
                     $output = $report->getContentArray();
                     $form = $this->createForm(AssetManagementeReportFormType::class,null,['param' => $report]);
                     $form->handleRequest($request);
@@ -533,6 +538,7 @@ class ReportingController extends AbstractController
      * @param Request $request
      * @param NormalizerInterface $serializer
      * @param ReportsEpcYieldV2 $epcNewService
+     * @param ImageGetterService $imageGetter
      * @return Response
      * @throws ExceptionInterface
      * @throws FilesystemException
@@ -561,7 +567,6 @@ class ReportingController extends AbstractController
                     $data = $form->getData();
                     $output["data"] = $data;
                     if ($form->isSubmitted() && $form->isValid()) {
-
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => is_countable($output["plantAvailabilityMonth"]) ? count($output["plantAvailabilityMonth"]) : 0,
                             'comments' => $report->getComments(),
@@ -660,17 +665,19 @@ class ReportingController extends AbstractController
                         case 'prGuarantee' :
                             $headline =
                                 [
-                                    'projektNr'     => $anlage->getProjektNr(),
-                                    'anlage'        => $anlage->getAnlName(),
-                                    'eigner'        => $anlage->getEigner()->getFirma(),
-                                    'date'          => date('Y-m-d H-i'),
-                                    'kwpeak'        => $anlage->getPnom(),
-                                    'reportCreationDate' => $report->getCreatedAt()->format('Y-m-d H:i:s'),
-                                    'epcNote'       => $anlage->getEpcReportNote(),
-                                    'main_headline' => $report->getHeadline(),
-                                    'reportStatus'  => $report->getReportStatus(),
-                                    'month'         => $report->getMonth(),
-                                    'year'          => $report->getYear()
+                                    'projektNr'             => $anlage->getProjektNr(),
+                                    'anlage'                => $anlage->getAnlName(),
+                                    'eigner'                => $anlage->getEigner()->getFirma(),
+                                    'date'                  => date('Y-m-d H-i'),
+                                    'kwpeak'                => $anlage->getPnom(),
+                                    'reportCreationDate'    => $report->getCreatedAt()->format('Y-m-d H:i:s'),
+                                    'epcNote'               => $anlage->getEpcReportNote(),
+                                    'main_headline'         => $report->getHeadline(),
+                                    'reportStatus'          => $report->getReportStatus(),
+                                    'month'                 => $report->getMonth(),
+                                    'year'                  => $report->getYear(),
+                                    'logo'                  => $imageGetter->getOwnerLogo($anlage->getEigner()),
+                                    'report'                => $report,
                                 ]
                             ;
                             $result = $this->renderView('report/_epc_pr_2019/epcMonthlyPRGuarantee.html.twig', [ //report/_epc_new/epcMonthlyPRGuarantee.html.twig
@@ -683,7 +690,8 @@ class ReportingController extends AbstractController
                                 'forecast_real' => $reportArray['prForecast'],
                                 'formel'        => $reportArray['formel'],
                                 'anlage'        => $anlage,
-                                'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner())
+                                'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner()),
+                                'report'        => $report,
                             ]);
                             break;
 
@@ -695,6 +703,8 @@ class ReportingController extends AbstractController
                                 'legend'            => $anlage->getLegendEpcReports(),
                                 'chart1'            => $epcNewService->chartYieldPercenDiff($anlage, $reportArray['monthTable']),//$reportArray['chartYieldPercenDiff'],
                                 'chart2'            => $epcNewService->chartYieldCumulative($anlage, $reportArray['monthTable']),
+                                'logo'              => $imageGetter->getOwnerLogo($anlage->getEigner()),
+                                'report'            => $report,
                             ]);
                             break;
                     }
@@ -707,6 +717,8 @@ class ReportingController extends AbstractController
                         'forcast'       => $reportArray['forcastTable'],
                         'pldTable'      => $reportArray['pldTable'],
                         'legend'        => $anlage->getLegendEpcReports(),
+                        'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner()),
+                        'report'        => $report,
                     ]);
                     break;
             }

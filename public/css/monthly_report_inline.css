@@ -91,8 +91,8 @@ table th.left {
 }
 .monthtable td, .monthtable th{
   text-align: right;
-  font-size: 12px;
-  padding: 2px;
+  font-size: 7px;
+  padding: 2px 1px;
 }
 .monthtable th{
   text-align: center;
