@@ -108,13 +108,15 @@ class ImportService
                     $date = date('c', $timestamp);
                     #echo $bulkMeaserments[$i]['sensors'][$date]['G_M0'].'<br>';
                     if($i == 0){
-                        $basics[$date]["G_M0_$i"] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
-                        $basics[$date]["E_Z_EVU_$i"] = $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
+                        #$basics[$date]["G_M0_$i"] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
+                        #$basics[$date]["E_Z_EVU_$i"] = $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
+                        $basics[$date]["G_M0"] = $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
                         $sensors[$date] = $bulkMeaserments[$i]['sensors'][$date];
                         $inverters[$date] = $bulkMeaserments[$i]['inverters'][$date];
                     }else{
-                        $basics[$date]["G_M0_$i"] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
-                        $basics[$date]["E_Z_EVU_$i"] = $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
+                        #$basics[$date]["G_M0_$i"] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
+                        #$basics[$date]["E_Z_EVU_$i"] = $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
+                        $basics[$date]["G_M0"] = $basics[$date]["G_M0"].','.$bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
                         $sensors[$date] = $sensors[$date] + $bulkMeaserments[$i]['sensors'][$date];
                         $inverters[$date] = $inverters[$date] + $bulkMeaserments[$i]['inverters'][$date];
                     }
@@ -123,11 +125,9 @@ class ImportService
                 }
             }
 
-            echo '<pre>';
-            print_r($basics);
-            echo '</pre>';
+            #$basics[$date]["G_M0"] = substr($basics[$date]["G_M0"], 1);
 
-            exit;
+
 
 
             $anlageSensors = $anlage->getSensors();
@@ -279,6 +279,11 @@ class ImportService
             }
         }
 
+        echo 'xxxx<pre>';
+        print_r($dataSensors);
+        echo '</pre>';
+
+        exit;
         //write Data in the tables
         $DBDataConnection = $this->pdoService->getPdoPlant();
         switch ($importType) {
