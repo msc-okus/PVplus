@@ -2582,7 +2582,6 @@ class AssetManagementService
             'PPCLosses' => $kwhLossesYearTable['PPCLosses'],
             'GapLosses' => $kwhLossesYearTable['GapLosses']
         ];
-        //dd($yearLossesHelpTable);
 
         $this->logMessages->updateEntry($logId, 'working', 70);
 

@@ -476,7 +476,8 @@ class AvailabilityByTicketService
                             // Case 5 ti,FM
                             if (($conditionIrrCase2 === true && $case5 === true)
                                 || ($conditionIrrCase2 === true && $case5 === true && $case3 === true)
-                                || ($conditionIrrCase2 === true && $case3 === true && $outageAsTiFm === true)) {
+                                || ($conditionIrrCase2 === true && $case3 === true && $outageAsTiFm === true)
+                                || ($conditionIrrCase2 === true && $case0 === true && $case5 === false && $commIssu === false && $outageAsTiFm === true)) {
                                 ++$availability[$inverter]['case5'];
                                 ++$availabilityPlantByStamp['case5'];
                             }
