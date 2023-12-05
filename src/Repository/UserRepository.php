@@ -43,7 +43,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
                 ->setParameter('eigner', $user->getOwner());
         }
         if ($term) {
-            $qb->andWhere('user.name LIKE :term OR user.email LIKE :term OR eigner.id LIKE :pureterm OR eigner.firma LIKE :term')
+            $qb->andWhere('user.name LIKE :term OR user.email LIKE :term OR eigner.id LIKE :pureterm OR eigner.firma LIKE :term OR user.id LIKE :term')
                 ->setParameter('term', '%'.$term.'%')
                 ->setParameter('pureterm', $term)
             ;

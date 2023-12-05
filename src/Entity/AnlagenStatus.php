@@ -18,13 +18,13 @@ class AnlagenStatus implements \Stringable
     #[ORM\Column(name: 'id', type: 'bigint', nullable: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private string $id; // DBAL return Type of bigint = string
 
     #[ORM\Column(name: "unique_key", type: "string", length: 40, unique: true, nullable: false)]
     private string $uniqueKey;
 
     #[ORM\Column(name: 'anlage_id', type: 'bigint', nullable: false)]
-    private int $anlageId;
+    private string $anlageId; // DBAL return Type of bigint = string
 
     #[ORM\Column(name: 'stamp', type: 'datetime', nullable: false)]
     private \DateTimeInterface $stamp;
@@ -33,7 +33,7 @@ class AnlagenStatus implements \Stringable
     private string|int|null $anlagenStatus = '0';
 
     #[ORM\Column(name: 'eigner_id', type: 'bigint', nullable: false)]
-    private int $eignerId;
+    private string $eignerId;  // DBAL return Type of bigint = string
 
     #[ORM\Column(name: 'last_data_io', type: 'datetime', nullable: false)]
     private \DateTimeInterface $lastDataIo;

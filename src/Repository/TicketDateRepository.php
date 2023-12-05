@@ -192,8 +192,10 @@ class TicketDateRepository extends ServiceEntityRepository
      * Search for all DataGap Tickets wich are outage and not evaluated data gaps (case 6)
      * means search for all Ticketdates wich are dataGaps (alertType = 10) and NOT defined as comm. issue (
      *
+     * @param Anlage $anlage
      * @param $begin
      * @param $end
+     * @param int $department
      * @return mixed
      */
     public function findDataGapOutage(Anlage $anlage, $begin, $end, int $department): mixed
