@@ -729,7 +729,7 @@ class AssetManagementService
             'color' => ['#00FF00', '#FF0000'],
             'title' => [
                 'text' => '',
-                'left' => 'center',
+                'left' => 'left',
                 'top' => 'top',
                 'textStyle' => ['fontSize' => 10],
             ],
@@ -816,6 +816,9 @@ class AssetManagementService
                         ],
                     ];
                 $option = [
+                    'title' => [
+                        'left' => 'left'
+                    ],
                     'animation' => false,
                     'grid' => [
                         'height' => '70%',
@@ -1212,7 +1215,6 @@ class AssetManagementService
                 'fontFamily' => 'monospace',
                 'text' => 'Year '.$report['reportYear'],
                 'left' => 'center',
-                'top' => 10
             ],
             'tooltip' => [
                 'show' => true,
@@ -1247,7 +1249,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => array_slice($monthArray, 0, $report['reportMonth']),
+            'data' => $monthArray,
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -1276,7 +1278,7 @@ class AssetManagementService
             'visualMap' => 'false',
         ];
         $chart->series = $series;
-
+        $option = [];
         $option = [
             'textStyle' => [
                 'fontFamily' => 'monospace',
@@ -1288,7 +1290,6 @@ class AssetManagementService
                 'fontFamily' => 'monospace',
                 'text' => 'Year '.$report['reportYear'],
                 'left' => 'center',
-                'top' => 10
             ],
             'tooltip' => [
                 'show' => true,
@@ -1308,7 +1309,7 @@ class AssetManagementService
 
         $chart->setOption($option);
 
-        $operations_right_withForecast = $chart->render('operations_right_withForecast', ['style' => 'height: 450px; width:700px;']);
+        $operations_right_withForecast = $chart->render('operations_right_withForecast', ['style' => 'height: 450px; width: 100%;']);
 
 
         $degradation = $anlage->getLossesForecast();
@@ -1445,7 +1446,7 @@ class AssetManagementService
             }
             $PowerSum[$i] = $PowerSum[$i - 1] + $monthValue;
             $tbody_forcast_G4NP50[] = $PowerSum[$i];
-            if ($i + 1 <= $report['reportMonth']) $tbody_forcast_G4NP90[] = $PowerSum[$i] + ($monthValue * (100 - $degradation) / 100);
+            if ($i + 1 <= $report['reportMonth']) $tbody_forcast_G4NP90[] = $PowerSum[$i - 1] + ($monthValue * (100 - $degradation) / 100);
             else $tbody_forcast_G4NP90[] = $PowerSum[$i];
         }
 
@@ -1459,7 +1460,6 @@ class AssetManagementService
             $tbody_forcast_plan_G4NP50[] = $forecastSum[$i];
             $tbody_forcast_plan_G4NP90[] = $forecastSum[$i - 1] + ($forecast[$i] * (100 - $degradation) / 100);
         }
-
         $forecast_G4N_table = [
             'forcast_G4NP50' => $tbody_forcast_G4NP50,
             'forcast_G4NP90' => $tbody_forcast_G4NP90,
@@ -1776,7 +1776,6 @@ class AssetManagementService
             'title' => [
                 'text' => $monthName.' '.$report['reportYear'],
                 'left' => 'center',
-                'top' => 10,
             ],
             'tooltip' => [
                 'show' => true,
@@ -2522,7 +2521,7 @@ class AssetManagementService
         if ($G4NmonthExpected > 0) {
             $percentageTable = [
                 'G4NExpected' => 100,
-                'PVSYSExpected' => (int)($tbody_a_production['forecast'][$month - 2] * 100 / $G4NmonthExpected),
+                'PVSYSExpected' => (int)($tbody_a_production['forecast'][$month - 1] * 100 / $G4NmonthExpected),
                 'forecast' => (int)($forecast[$month - 1] * 100 / $G4NmonthExpected),
                 'ActualPower' => (int)($ActualPower * 100 / $G4NmonthExpected),
                 'SORLosses' => number_format(-($kwhLossesMonthTable['SORLosses'] * 100 / $G4NmonthExpected), 2),
@@ -2551,7 +2550,7 @@ class AssetManagementService
         $monthlyLossesHelpTable = [
             'ExpectedG4N' => $G4NmonthExpected,
             'ExpectedPVSYS' => $forecast[$report['reportMonth'] - 1],
-            'Forecast' => $forecast[$month-2],
+            'Forecast' => $forecast[$month-1],
             'Actual' => $ActualPower,
             'SORLosses' => $kwhLossesMonthTable['SORLosses'],
             'EFORLosses' => $kwhLossesMonthTable['EFORLosses'],
@@ -2563,7 +2562,7 @@ class AssetManagementService
         $percentageTableYear = [
             'G4NExpected' =>  100 ,
             'PVSYSExpected' => (int)($PVSYSTyearExpected * 100 / $G4NyearExpected),
-            'forecast' =>  (int)($forecastSum[$month-2] * 100 / $G4NyearExpected),
+            'forecast' =>  (int)($forecastSum[$month - 1] * 100 / $G4NyearExpected),
             'ActualPower' => (int)($ActualPowerYear * 100 / $G4NyearExpected),
             'SORLosses' => number_format(-($kwhLossesYearTable['SORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
             'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
@@ -2575,7 +2574,7 @@ class AssetManagementService
         $yearLossesHelpTable = [
             'ExpectedG4N' => $G4NyearExpected,
             'ExpectedPVSYS' => $PVSYSTyearExpected,
-            'Forecast' => $forecastSum[$month-2],
+            'Forecast' => $forecastSum[$month - 1],
             'Actual' => $ActualPowerYear,
             'SORLosses' => $kwhLossesYearTable['SORLosses'],
             'EFORLosses' => $kwhLossesYearTable['EFORLosses'],
@@ -3036,7 +3035,6 @@ class AssetManagementService
                 'fontFamily' => 'monospace',
                 'text' => 'Plant PR',
                 'left' => 'center',
-                'top' => 10
             ],
             'tooltip' => [
                 'show' => true,
@@ -3134,7 +3132,6 @@ class AssetManagementService
                 'fontFamily' => 'monospace',
                 'text' => 'Plant PA',
                 'left' => 'center',
-                'top' => 10
             ],
             'tooltip' => [
                 'show' => true,
@@ -4000,7 +3997,6 @@ class AssetManagementService
                     'fontFamily' => 'monospace',
                     'text' => 'Inverter efficiency ranking',
                     'left' => 'center',
-                    'top' => 10
                 ],
                 'tooltip' => [
                     'show' => true,
