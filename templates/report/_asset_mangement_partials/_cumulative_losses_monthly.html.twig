@@ -6,17 +6,17 @@
     <table >
         <tr>
             <td  style="text-align: left">
-                <table class="asset_report_table_operations_data " >
+                <table style="width: 100%" class="asset_report_table_operations_data " >
                     <thead>
                     <tr>
-                        <th style="text-align: right;width:230px" rowspan="2">Monthly Losses - {{ year }}</th>
+                        <th style="text-align: right;width:12% " rowspan="2" class="tr_first_column">Monthly Losses - {{ year }}</th>
                         {% for data in monthArray %}
-                            <th style="text-align: center;width: 6.5%"><div style="width: 100%">{{ data }}</div></th>
+                            <th style="text-align: center;width: 6.5%" class="tr_next_columns"><div>{{ data }}</div></th>
                         {% endfor %}
                     </tr>
                     <tr>
                         {% for data in monthArray %}
-                            <th style="text-align: center"><div style="width: 100%">[kWh]</div></th>
+                            <th style="text-align: center" class="tr_next_columns"><div >[kWh]</div></th>
                         {% endfor %}
                     </tr>
                     </thead>
