@@ -17,7 +17,15 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class LiveReportingController extends AbstractController
 {
     /**
-     * @throws InvalidArgumentException|NonUniqueResultException
+     * Erzeugt einen Monatsreport mit den einzelenen Tagen und einer Monatstotalen
+     * Kann auch für einen Auswal einiger Tage eines Moants genutzt werden
+     *
+     * @param Request $request
+     * @param AnlagenRepository $anlagenRepository
+     * @param ReportsMonthlyV2Service $reportsMonthly
+     * @return Response
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
      */
     #[IsGranted('ROLE_BETA')]
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
@@ -53,6 +61,8 @@ class LiveReportingController extends AbstractController
     }
 
     /**
+     * Erzeugt Reports für einen längeren Zeitraum, aber maximal 1 Wert pro Monat
+     *
      * @throws NonUniqueResultException
      * @throws InvalidArgumentException
      */

@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Anlage;
 use App\Entity\AnlagePVSystDaten;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -18,6 +20,23 @@ class PVSystDatenRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AnlagePVSystDaten::class);
+    }
+
+    public function allGreateZero(Anlage $anlage, $from, $to)
+    {
+        $from = date('Y-m-d 00:00', strtotime((string) $from));
+        $to = date('Y-m-d 23:59', strtotime((string) $to));
+
+        $result = $this->createQueryBuilder('a')
+            ->andWhere('a.anlage = :anlage')
+            ->andWhere(' a.stamp >= :from AND a.stamp <= :to') //a.electricityGrid > 0 AND
+            ->setParameter('anlage', $anlage)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->orderBy('a.stamp', 'ASC')
+            ->getQuery()
+            ;
+        return $result->getResult();
     }
 
     public function sumByStamp(Anlage $anlage, $stamp)
@@ -35,9 +54,13 @@ class PVSystDatenRepository extends ServiceEntityRepository
         return $result[0];
     }
 
-    public function sumByDateRange(Anlage $anlage, $from, $to)
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function sumByDateRange(Anlage $anlage, $from, $to): float|bool|int|string|null
     {
-        $result = $this->createQueryBuilder('a')
+        return $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
             ->andWhere('a.stamp BETWEEN :from AND :to')
             ->andWhere('a.electricityGrid > 0')
@@ -47,7 +70,5 @@ class PVSystDatenRepository extends ServiceEntityRepository
             ->select('SUM(a.electricityGrid)/1000 AS eGrid')
             ->getQuery()
             ->getSingleScalarResult();
-
-        return $result;
     }
 }
