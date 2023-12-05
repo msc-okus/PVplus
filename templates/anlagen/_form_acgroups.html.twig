@@ -68,7 +68,7 @@
                                         <td>{{ form_widget(acgroup.unitFirst) }}</td>
                                         <td>{{ form_widget(acgroup.unitLast) }}</td>
                                         <td>{{ form_widget(acgroup.dcPowerInverter) }}</td>
-                                        <td>{{ anlage.pnomInverterArray[loop.index] }}</td>
+                                        <td>{% if anlage.pnomInverterArray is defined and anlage.pnomInverterArray[loop.index] is defined %}{{ anlage.pnomInverterArray[loop.index] }}{% endif %}</td>
                                         <td>{{ form_widget(acgroup.weatherStation) }}</td>
                                         <td>{{ form_widget(acgroup.isEastWestGroup) }}</td>
                                         <td>{{ form_widget(acgroup.pyro1) }}</td>
