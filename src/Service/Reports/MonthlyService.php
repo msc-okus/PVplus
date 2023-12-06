@@ -5,7 +5,6 @@ namespace App\Service\Reports;
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
-use App\Reports\ReportMonthly\ReportMonthly;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
 use App\Repository\PRRepository;
@@ -16,6 +15,8 @@ use App\Service\PRCalulationService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\NoReturn;
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use App\Service\PdoService;
 
@@ -38,6 +39,9 @@ class MonthlyService
     {
     }
 
+    /**
+     * @throws \Exception
+     */
     public function createMonthlyReport(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): string
     {
         $output = '';
@@ -68,6 +72,10 @@ class MonthlyService
         return $output;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     * @throws ExceptionInterface
+     */
     public function buildMonthlyReport(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): array
     {
         // create Array for Day Values Table

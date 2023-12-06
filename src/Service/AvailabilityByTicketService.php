@@ -440,7 +440,6 @@ class AvailabilityByTicketService
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                             ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
                             }
-                 ###        if ($inverter == 60 && $department == 0) dump("Power: $powerAc | ConnIrr: $conditionIrrCase2 | CommIssu: ".(int) $commIssu." | SkipTi: ".(int) $skipTi." | Case5: ".(int) $case5." | Case6: ".(int) $case6);
                             if ($hitCase2) {
                                 $case2 = true;
                                 ++$availability[$inverter]['case2'];
@@ -477,7 +476,8 @@ class AvailabilityByTicketService
                             // Case 5 ti,FM
                             if (($conditionIrrCase2 === true && $case5 === true)
                                 || ($conditionIrrCase2 === true && $case5 === true && $case3 === true)
-                                || ($conditionIrrCase2 === true && $case3 === true && $outageAsTiFm === true)) {
+                                || ($conditionIrrCase2 === true && $case3 === true && $outageAsTiFm === true)
+                                || ($conditionIrrCase2 === true && $case0 === true && $case5 === false && $commIssu === false && $outageAsTiFm === true)) {
                                 ++$availability[$inverter]['case5'];
                                 ++$availabilityPlantByStamp['case5'];
                             }

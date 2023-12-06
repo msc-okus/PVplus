@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use _PHPStan_adbc35a1c\Nette\Utils\DateTime;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
 use App\Form\Ticket\TicketFormType;
@@ -19,6 +18,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use DateTime;
 
 class TicketController extends BaseController
 {
@@ -60,20 +60,10 @@ class TicketController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var Ticket $ticket */
             $ticket = $form->getData();
-
-            //$ticket->getDates()->first()->setBegin($ticket->getBegin());
-            //$ticket->getDates()->last()->setEnd($ticket->getEnd());
-            $ticket->setEditor($this->getUser()->getUserIdentifier());
+            $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
             $dates = $ticket->getDates();
             foreach ($dates as $date) {
                 $date->copyTicket($ticket);
-               /*if ($date->getAlertType() == 20) {
-                    $date->setKpiPaDep1(10);
-                    $date->setKpiPaDep2(10);
-                    $date->setKpiPaDep3(10);
-                }
-               */
-                //if ($ticket->getAlertType() == 20) $ticket->getDates()[0]->setDataGapEvaluation(10);
             }
             $em->persist($ticket);
 
@@ -168,7 +158,8 @@ class TicketController extends BaseController
                 $ticket->setWhenHidded("");
             }
             $ticketDates = $ticket->getDates();
-            $ticket->setEditor($this->getUser()->getUserIdentifier());
+            #$ticket->setEditor($this->getUser()->getUserIdentifier());
+            $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
 
             if ($ticket->getStatus() === 30 && $ticket->getEnd() === null) {
                 $ticket->setEnd(new \DateTime('now'));

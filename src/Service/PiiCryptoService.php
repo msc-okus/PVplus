@@ -12,15 +12,6 @@ class PiiCryptoService
     public const PII_KEY = 'aW33$rftTZG&hfggREz456$44';//This key should be passed as an ENV var and be kept in secret vault
     public const CIPHERING = "AES-128-CBC";
 
-    /**
-     * @var false|int
-     */
-    private $iv_length;
-
-    /**
-     * @var false|string
-     */
-    private $encryption_key;
 
     /**
      * @param string $data

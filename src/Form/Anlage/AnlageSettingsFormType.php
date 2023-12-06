@@ -22,7 +22,7 @@ class AnlageSettingsFormType extends AbstractType
             ######## Handling Departments ########
             ->add('disableDep0', SwitchType::class, [
                 'label'     => 'could not be disabled',
-                'help'      => '[disableDep0]',
+                'help'      => '',
                 'attr'      => ['disabled' => 'disabled'],
                 'data'      => false,
                 'mapped'    => false,
@@ -38,6 +38,26 @@ class AnlageSettingsFormType extends AbstractType
             ->add('disableDep3', SwitchType::class, [
                 'label'     => 'disable',
                 'help'      => '[disableDep3]',
+            ])
+
+            ->add('enablePADep0', SwitchType::class, [
+                'label'     => 'enabled PA Calculation',
+                'help'      => 'always enabled',
+                'attr'      => ['disabled' => 'disabled'],
+                'data'      => true,
+                'mapped'    => false,
+            ])
+            ->add('enablePADep1', SwitchType::class, [
+                'label'     => 'enable PA Calculation',
+                'help'      => '[enablePADep1]',
+            ])
+            ->add('enablePADep2', SwitchType::class, [
+                'label'     => 'enable PA Calculation',
+                'help'      => '[enablePADep2]',
+            ])
+            ->add('enablePADep3', SwitchType::class, [
+                'label'     => 'enable PA Calculation',
+                'help'      => '[enablePADep3]',
             ])
 
             ######## AC Charts ########

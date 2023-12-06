@@ -5,35 +5,32 @@ namespace App\Command;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\TicketsGeneration\AlertSystemWeatherService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'pvp:weatherCheck',
+    description: 'Generate Weather Tickets',
+)]
 class CheckWeatherStationCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:weatherCheck';
-
-    private AlertSystemWeatherService $alertService;
-
-
-    private AnlagenRepository $anlagenRepository;
-
-    public function __construct(AlertSystemWeatherService $alertService, AnlagenRepository $anlRepo)
+    public function __construct(
+        private readonly AlertSystemWeatherService $alertService,
+        private readonly AnlagenRepository $anlRepo)
     {
         parent::__construct();
-        $this->alertService = $alertService;
-        $this->anlagenRepository = $anlRepo;
     }
 
     protected function configure(): void
     {
         $this
-            ->setDescription('Generate Tickets')
+            ->setDescription('Generate Weather Tickets')
             ->addArgument('plantid')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to start')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to end')
@@ -65,10 +62,10 @@ class CheckWeatherStationCommand extends Command
 
             if (is_numeric($plantid)) {
                 $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
-                $anlagen = $this->anlagenRepository->findIdLike([$plantid]);
+                $anlagen = $this->anlRepo->findIdLike([$plantid]);
             } else {
                 $io->comment("Generate Tickets: $from - $to | All active");
-                $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
+                $anlagen = $this->anlRepo->findAlertSystemActive(true);
             }
 
             $counter = (($toStamp - $fromStamp) / 3600) * count($anlagen);

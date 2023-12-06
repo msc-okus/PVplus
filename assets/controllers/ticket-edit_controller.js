@@ -51,6 +51,7 @@ export default class extends Controller {
     }
 
     beginPlusTime(){
+        let hour;
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');
         let date = new Date(valueBegin);
@@ -60,40 +61,40 @@ export default class extends Controller {
 
                 if (date.getHours() < date2.getHours() - 1){
 
-                    var hour = date.getHours() + 1;
+                    hour = date.getHours() + 1;
                     var minutes = '15';
                 }
                 else{
-                    var hour = date.getHours() ;
+                    hour = date.getHours();
                     var minutes = '15';
                 }
             }
             else {
                 if (date.getMinutes() + 15 == 60) {
-                    var hour = date.getHours() + 1;
+                    hour = date.getHours() + 1;
                     var minutes = '00';
                 } else {
-                    var hour = date.getHours();
+                    hour = date.getHours();
                     var minutes = date.getMinutes() + 15;
                 }
             }
-                if (date.getMonth() < 9) {
-                    var beginMonth = '0'.concat((date.getMonth() + 1).toString());
-                } else {
-                    var beginMonth = (date.getMonth() + 1).toString();
-                }
-                if (date.getDate() < 10) {
-                    var beginDay = '0'.concat(date.getDate().toString());
-                } else {
-                    var beginDay = date.getDate().toString();
-                }
-                if (hour < 10) {
-                    var hour = '0'.concat(hour.toString());
-                }
-                let newStringdate = date.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes.toString());
-                $(this.formBeginTarget).val(newStringdate);
-                $(this.formBeginDateTarget).val(newStringdate);
-                if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
+            if (date.getMonth() < 9) {
+                var beginMonth = '0'.concat((date.getMonth() + 1).toString());
+            } else {
+                var beginMonth = (date.getMonth() + 1).toString();
+            }
+            if (date.getDate() < 10) {
+                var beginDay = '0'.concat(date.getDate().toString());
+            } else {
+                var beginDay = date.getDate().toString();
+            }
+            if (hour < 10) {
+                hour = '0'.concat(hour.toString());
+            }
+            let newStringdate = date.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes.toString());
+            $(this.formBeginTarget).val(newStringdate);
+            $(this.formBeginDateTarget).val(newStringdate);
+            if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
 
         }
     }
@@ -413,12 +414,9 @@ export default class extends Controller {
 
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (inverterString == '')
-                {
+                if (inverterString == '') {
                     inverterString = inverterString + $(this).prop('name');
-                }
-                else
-                {
+                } else {
                     inverterString = inverterString + ', ' + $(this).prop('name');
                 }
                 body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');

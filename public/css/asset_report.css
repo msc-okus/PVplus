@@ -119,7 +119,7 @@ table .tr_first_column_nonbold {
 }
 
 .asset_report_table_operations_data td {
-  padding: 2px 2px 0px 2px;
+  padding: 2px 2px 0 2px;
   font-size: 10px;
 }
 .asset_report_table_operations_data td .td_values_1 {

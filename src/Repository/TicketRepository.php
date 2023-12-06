@@ -164,10 +164,10 @@ class TicketRepository extends ServiceEntityRepository
         }
         else{
             if ($begin != "" ){
-                $qb->andWhere("ticket.begin > '$begin'");
+                $qb->andWhere("ticket.end > '$begin'");
             }
             if ($end != ""){
-                $qb->andWhere("ticket.begin < '$end'");
+                $qb->andWhere("ticket.end < '$end'");
             }
         }
 
