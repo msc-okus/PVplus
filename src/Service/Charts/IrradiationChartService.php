@@ -356,9 +356,11 @@ class IrradiationChartService
             $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value, avg(gmo) as gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
             $timeStepp = 3600;
         }else{
-            $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value, avg(gmo) as gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
+            $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value, gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
             $timeStepp = 900;
         }
+        #echo $sql_irr_plant;
+        #exit;
 
         $result = $conn->query($sql_irr_plant);
 
@@ -369,11 +371,11 @@ class IrradiationChartService
                 $gmO = null;
                 $gmPyHori = $gmPyEast = $gmPyWest = $irrValueArray = [];
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                    $dataArray['nameX'][1] = 'G_M0';
+                    #$dataArray['nameX'][1] = 'G_M0';
                     //create the data for each timepoint
                     if($stampTemp != $row['stamp']){
                         $dataArray[$counter] = [
-                            'gmo'               =>  $gmO[0],
+                            'gmo'               =>  $gmO,
                             'irrHorizontal'     =>  $this->mittelwert($gmPyHori),
                             'irrLower'          =>  $this->mittelwert($gmPyWest),
                             'irrUpper'          =>  $this->mittelwert($gmPyEast),
@@ -430,7 +432,7 @@ class IrradiationChartService
                         }
 
                         $irrCounter++;
-                        $gmO[0] = $row['gmo'];
+                        $gmO = $row['gmo'];
 
                         $shortNameTemp = $dataArray['shortName'];
                         $stampTemp = $row['stamp'];
@@ -442,6 +444,7 @@ class IrradiationChartService
 
                 //create the output Array
                 $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'];
+
                 $updateMaxSeries = 0;
                 $inDataArray = count($dataArray)-3;
 
@@ -452,10 +455,9 @@ class IrradiationChartService
                 }
                 $dateLastEntry = $dataArray[$inDataArray]['stamp'];
 
-                for ($i = 0; $i < $inDataArray; $i++) {
+                for ($i = 1; $i < $inDataArray; $i++) {
                     if(is_array($dataArray[$i]['sensorShortName']) && count($dataArray[$i]['sensorShortName']) > 0 && $updateMaxSeries == 0){
                         $updateMaxSeries = $updateMaxSeriesReal;
-
                     }
                     $dataArrayFinal['chart'][$i]['date'] = $dataArray[$i]['stamp'];
                     if ($anlage->getIsOstWestAnlage()) {
@@ -471,9 +473,24 @@ class IrradiationChartService
                         }
                     }
 
-                    $dataArrayFinal['chart'][$i]["val1"] = round($dataArray[$i]['gmo'], 3);
+
+                    $gm0Array = explode(',', $dataArray[$i]['gmo']);
+                    $countGm0Vallues = count($gm0Array);
+                    $addToMaxSeries = 0;
+
+                    for ($z = 1; $z <= $countGm0Vallues; $z++) {
+
+                        $dataArrayFinal['nameX'][$z] = "G_M0_$z";
+                        $dataArrayFinal['chart'][$i]["val$z"] = round($gm0Array[$z-1],3);
+                        $addToMaxSeries++;
+                    }
+
+                    for ($z = 0; $z <= count($dataArray['nameX'])-1; $z++) {
+                        $dataArrayFinal['nameX'][$countGm0Vallues+$z+1] = $dataArray['nameX'][$countGm0Vallues+$z];
+                    }
+
                     if(is_array($dataArray[$i]['values']) && count($dataArray[$i]['values']) > 0){
-                        $k = 2;
+                        $k = $countGm0Vallues+1;
                         $valueSumm = 0;
                         //adding the single values frpm an row to an array
                         for ($j = 0; $j < count($dataArray[$i]['values']); $j++) {
@@ -484,7 +501,6 @@ class IrradiationChartService
                             $k++;
                         }
                         if ($anlage->getIsOstWestAnlage()) {
-                            #echo "$l <br>";
                             $dataArrayValues['val' . $dataArray['maxSeries'] + $updateMaxSeriesReal + 1] = $dataArray[$i]['irrUpper'];
                             $dataArrayValues['val' . $dataArray['maxSeries'] + $updateMaxSeriesReal + 2] = $dataArray[$i]['irrLower'];
 
@@ -494,7 +510,7 @@ class IrradiationChartService
                     }
                 }
 
-                $dataArrayFinal['nameX'] = $dataArray['nameX'];
+                #$dataArrayFinal['nameX'] = $dataArray['nameX'];
 
                 if($updateMaxSeries > 0){
                     $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'] + $updateMaxSeries;
@@ -519,7 +535,7 @@ class IrradiationChartService
                 }
             }
         }
-
+        $dataArrayFinal['maxSeries'] = $dataArrayFinal['maxSeries'] + $addToMaxSeries-1;
         $conn = null;
 
         if(is_array($dataArrayFinal) && count($dataArrayFinal) == 0){
@@ -543,6 +559,10 @@ class IrradiationChartService
             $dataArrayFinal['nameX'][0] = 'a';
         }
 
+        echo '<pre>';
+        print_r($dataArrayFinal);
+        echo '</pre>';
+        exit;
         return $dataArrayFinal;
     }
 }

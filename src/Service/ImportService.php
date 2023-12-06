@@ -44,7 +44,7 @@ class ImportService
         $plantId = $anlage->getAnlId();
         $vcomId = $anlage->getCustomPlantId();
 
-        $araayVcomIds = explode(',', $vcomId);
+        $arrayVcomIds = explode(',', $vcomId);
 
 
         $conn = $this->doctrine->getConnection();
@@ -92,8 +92,8 @@ class ImportService
         $inverters = [];
         $sensors = [];
 
-        for ($i = 0; $i < count($araayVcomIds); ++$i) {
-            $bulkMeaserments[$i] = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $araayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
+        for ($i = 0; $i < count($arrayVcomIds); ++$i) {
+            $bulkMeaserments[$i] = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $arrayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
         }
         curl_close($curl);
 
@@ -110,13 +110,23 @@ class ImportService
                     if($i == 0){
                         #$basics[$date]["G_M0_$i"] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
                         #$basics[$date]["E_Z_EVU_$i"] = $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
-                        $basics[$date]["G_M0"] = $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
+                        if($bulkMeaserments[$i]['basics'][$date]['G_M0'] == null){
+                            $basics[$date]["G_M0"] = 0;
+                        }else{
+                            $basics[$date]["G_M0"] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
+                        }
+
                         $sensors[$date] = $bulkMeaserments[$i]['sensors'][$date];
                         $inverters[$date] = $bulkMeaserments[$i]['inverters'][$date];
                     }else{
                         #$basics[$date]["G_M0_$i"] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
                         #$basics[$date]["E_Z_EVU_$i"] = $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
-                        $basics[$date]["G_M0"] = $basics[$date]["G_M0"].','.$bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
+                        if($bulkMeaserments[$i]['basics'][$date]['G_M0'] == null){
+                            $basics[$date]["G_M0"] = $basics[$date]["G_M0"].',0';
+                        }else{
+                            $basics[$date]["G_M0"] = $basics[$date]["G_M0"].','.$bulkMeaserments[$i]['basics'][$date]['G_M0'];
+                        }
+
                         $sensors[$date] = $sensors[$date] + $bulkMeaserments[$i]['sensors'][$date];
                         $inverters[$date] = $inverters[$date] + $bulkMeaserments[$i]['inverters'][$date];
                     }
@@ -126,8 +136,6 @@ class ImportService
             }
 
             #$basics[$date]["G_M0"] = substr($basics[$date]["G_M0"], 1);
-
-
 
 
             $anlageSensors = $anlage->getSensors();
@@ -148,9 +156,9 @@ class ImportService
 
                 if (is_array($sensors) && array_key_exists($date, $sensors)) {
                     $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
-
                     //if plant use sensors datatable get data from the table
                     if($useSensorsDataTable){
+
                         $result = self::getSensorsDataFromImport($anlageSensors->toArray(), $length, $sensors, $stamp, $date, $gMo);
 
                         //built array for sensordata
@@ -279,11 +287,7 @@ class ImportService
             }
         }
 
-        echo 'xxxx<pre>';
-        print_r($dataSensors);
-        echo '</pre>';
 
-        exit;
         //write Data in the tables
         $DBDataConnection = $this->pdoService->getPdoPlant();
         switch ($importType) {
