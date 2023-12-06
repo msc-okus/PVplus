@@ -32,6 +32,9 @@ private readonly PdoService $pdoService,
      * Get Sum(power_prod) from 'Meters' Database.
      * By default we retriev the un filterd power
      *
+     * @param Anlage $anlage
+     * @param DateTime $from
+     * @param DateTime $to
      * @param false $ppc if true select only values if plant is not controlled ( p_set_gridop_rel = 100 AND p_set_rpc_rel = 100 )
      * @return float
      */
@@ -67,6 +70,9 @@ private readonly PdoService $pdoService,
     /**
      * Shortcut to get sum(power_prod from 'meters' DB if plant is not controlled
      *
+     * @param Anlage $anlage
+     * @param DateTime $from
+     * @param DateTime $to
      * @return float
      */
     public function getGridSumPpc(Anlage $anlage, DateTime $from, DateTime $to): float
@@ -103,7 +109,7 @@ private readonly PdoService $pdoService,
         }
 
         // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
-        // $powerEGridExt = $this->functions->getSumeGridMeter($anlage, $from, $to);
+        $powerEGridExt = $this->functions->getSumeGridMeter($anlage, $from, $to);
 
         // EVU / Grid Leistung ermitteln –
         // dieser Wert soll der offiziele Grid Zähler Wert sein, wir in naher Zukunft durch die Daten aus 'meters' ersetzt werden müssen

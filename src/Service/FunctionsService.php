@@ -19,6 +19,9 @@ use App\Repository\InvertersRepository;
 use App\Repository\MonthlyDataRepository;
 use App\Repository\PVSystDatenRepository;
 use DateTime;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Symfony\Component\HttpFoundation\Exception\JsonException;
 use PDO;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -54,7 +57,8 @@ class FunctionsService
      * @param $pacDateEnd
      *
      * @return array
-     * @throws \JsonException
+     * @throws JsonException
+     *
      * @deprecated
      */
     public function getSumPowerAcAct(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd): array
@@ -229,10 +233,14 @@ class FunctionsService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $pacDate
      * @param $pacDateEnd
+     * @return array
+     *
+     * @deprecated
      */
     public function getSumPowerAcExp(Anlage $anlage, $from, $to, $pacDate, $pacDateEnd): array
     {
@@ -306,11 +314,15 @@ class FunctionsService
 
     /**
      * Calculate forcast for given plant and given month. Base are the data from entity 'AnlagenForecastDay'.
+     *
+     * @param Anlage $anlage
+     * @param int $month
+     * @param int|null $betriebsJahre
+     * @return float
      */
     public function getForcastByMonth(Anlage $anlage, int $month, ?int $betriebsJahre = null): float
     {
-
-        $sum = (float) 0;
+        $sum = 0.0;
         if ($betriebsJahre === null || $betriebsJahre < 0) {
             $betriebsJahre = (int) date('Y') - (int) $anlage->getAnlBetrieb()->format('Y');
         }
@@ -324,9 +336,11 @@ class FunctionsService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $startdate
      * @param $enddate
      * @param $day
+     * @return array
      */
     public function getFacForcast(Anlage $anlage, $startdate, $enddate, $day): array
     {
@@ -367,9 +381,13 @@ class FunctionsService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $pacDate
+     * @return array
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     public function getPvSyst(Anlage $anlage, $from, $to, $pacDate): array
     {
@@ -386,14 +404,15 @@ class FunctionsService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $pacDateStart
      * @param $pacDateEnd
      * @param string $select ('all', 'date, 'month', 'year', 'pac')
      * @return array
-     * @deprecated
      *
+     * @deprecated
      */
     public function getSumPowerEGridExt(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd, string $select = 'all'): array
     {
@@ -422,6 +441,8 @@ class FunctionsService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
      * @param $pacDateStart
@@ -554,6 +575,8 @@ class FunctionsService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
      * @return array
@@ -638,6 +661,7 @@ class FunctionsService
     /**
      * @param $array
      * @param int $umrechnung = Faktor zum Umrechenen auf Wh (4) oder kWh (4000) etc
+     * @return array
      */
     public function buildSumFromArray($array, int $umrechnung = 1): array
     {
@@ -661,6 +685,8 @@ class FunctionsService
 
     /**
      * @param $array
+     * @param int $umrechnung
+     * @return array
      */
     public function buildAvgFromArray($array, int $umrechnung = 1): array
     {
@@ -691,9 +717,15 @@ class FunctionsService
     }
 
     /**
+     * @param float $irrUpper
+     * @param float $irrLower
      * @param $date
+     * @param Anlage $anlage
+     * @param AnlageGroups $group
+     * @param WeatherStation $weatherStation
      * @param AnlageGroupMonths|null $groupMonth
      * @return float
+     *
      * @deprecated
      * no Function to replace at the moment
      * todo : check how we can replace
@@ -752,9 +784,13 @@ class FunctionsService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param bool $day
      * @return float
+     *
+     * @deprecated
      */
     public function getSumeGridMeter(Anlage $anlage, $from, $to, bool $day = false): float
     {
