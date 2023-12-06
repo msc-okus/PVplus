@@ -2557,18 +2557,31 @@ class AssetManagementService
             'PPCLosses' => $kwhLossesMonthTable['PPCLosses'],
             'GapLosses' =>  $kwhLossesMonthTable['GapLosses'],
         ];
-
-        $percentageTableYear = [
-            'G4NExpected' =>  100 ,
-            'PVSYSExpected' => (int)($PVSYSTyearExpected * 100 / $G4NyearExpected),
-            'forecast' =>  (int)($forecastSum[$month - 1] * 100 / $G4NyearExpected),
-            'ActualPower' => (int)($ActualPowerYear * 100 / $G4NyearExpected),
-            'SORLosses' => number_format(-($kwhLossesYearTable['SORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
-            'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
-            'OMCLosses' => number_format(-($kwhLossesYearTable['OMCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
-            'PPCLosses' => number_format(-($kwhLossesYearTable['PPCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
-            'GapLosses' => number_format(-($kwhLossesYearTable['GapLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
-        ];
+        if ($G4NyearExpected > 0) {
+            $percentageTableYear = [
+                'G4NExpected' => 100,
+                'PVSYSExpected' => (int)($PVSYSTyearExpected * 100 / $G4NyearExpected),
+                'forecast' => (int)($forecastSum[$month - 1] * 100 / $G4NyearExpected),
+                'ActualPower' => (int)($ActualPowerYear * 100 / $G4NyearExpected),
+                'SORLosses' => number_format(-($kwhLossesYearTable['SORLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
+                'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
+                'OMCLosses' => number_format(-($kwhLossesYearTable['OMCLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
+                'PPCLosses' => number_format(-($kwhLossesYearTable['PPCLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
+                'GapLosses' => number_format(-($kwhLossesYearTable['GapLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
+            ];
+        }else{
+            $percentageTableYear = [
+                'G4NExpected' => 0,
+                'PVSYSExpected' => 0,
+                'forecast' => 0,
+                'ActualPower' => 0,
+                'SORLosses' => 0,
+                'EFORLosses' => 0,
+                'OMCLosses' => 0,
+                'PPCLosses' => 0,
+                'GapLosses' => 0,
+            ];
+        }
 
         $yearLossesHelpTable = [
             'ExpectedG4N' => $G4NyearExpected,
@@ -3949,7 +3962,8 @@ class AssetManagementService
                 'axisLabel' => [
                     'show' => true,
                     'margin' => '10',
-                    'rotate' => 45
+                    'rotate' => 45,
+                    'fontsize' => '12'
                 ],
                 'splitArea' => [
                     'show' => true,
