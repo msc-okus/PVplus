@@ -1310,8 +1310,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $operations_right_withForecast = $chart->render('operations_right_withForecast', ['style' => 'height: 450px; width: 100%;']);
-
-
+                
         $degradation = $anlage->getLossesForecast();
         // Cumulative Forecast
         $powerSum[0] = $powerEvu[0];
