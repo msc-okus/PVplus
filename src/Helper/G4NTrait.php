@@ -75,7 +75,7 @@ trait G4NTrait
         return date($format, $timestamp);
     }
 
-    public static function isDateToday($date)
+    public static function isDateToday($date): bool
     {
         return date('Y-m-d', strtotime((string) $date)) == date('Y-m-d', self::getCetTime());
     }

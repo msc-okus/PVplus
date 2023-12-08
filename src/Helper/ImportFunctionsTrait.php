@@ -39,10 +39,9 @@ trait ImportFunctionsTrait
     }
 
     /**
-     * @param string|null $tableName
-     * @param array|null $data
-     * @param string|null $host
-     * @param string|null $passwordPlant
+     * @param null $tableName
+     * @param null $data
+     * @param object|null $DBDataConnection
      */
     function insertData($tableName = NULL, $data = NULL, object $DBDataConnection = NULL): void
     {
@@ -122,8 +121,9 @@ trait ImportFunctionsTrait
      *
      * @param $anlagenID
      * @param $stamp
+     * @param float $value
      */
-    function insertDataIntoGridMeterDay($anlagenID, $stamp, float $value)
+    function insertDataIntoGridMeterDay($anlagenID, $stamp, float $value): void
     {
         $DBDataConnection = $this->pdoService->getPdoBase();
 
@@ -138,6 +138,7 @@ trait ImportFunctionsTrait
 
     /**
      * @param string|null $value
+     * @param bool $convertToKWH
      * @return string|null
      */
     public function checkIfValueIsNotNull(?string $value, bool $convertToKWH = false): ?string
@@ -154,7 +155,11 @@ trait ImportFunctionsTrait
     }
 
     //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu
+
     /**
+     * @param array $anlageSensors
+     * @param int $length
+     * @param bool $istOstWest
      * @param array $sensors
      * @param  $date
      * @return array
@@ -379,10 +384,14 @@ trait ImportFunctionsTrait
     }
 
     //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu um sie dann in pv_sensors_data_... zu speichern
+
     /**
+     * @param array $anlageSensors
+     * @param int $length
      * @param array $sensors
      * @param  $stamp
      * @param  $date
+     * @param $gMo
      * @return array
      */
     function getSensorsDataFromImport(array $anlageSensors, int $length, array $sensors, $stamp, $date, $gMo): array
@@ -423,7 +432,7 @@ trait ImportFunctionsTrait
      * @param object $conn
      * @return array
      */
-    public function getPlantsImportReady($conn)
+    public function getPlantsImportReady($conn): array
     {
         $query = "SELECT `anlage_id` FROM `anlage_settings` where `symfony_import` = 1  ";
         $stmt = $stmt = $conn->query($query);
@@ -573,6 +582,7 @@ trait ImportFunctionsTrait
     }
 
     //importiert die Daten für Anlegen ohne Stringboxes
+
     /**
      * @param array $inverters
      * @param string $date
@@ -583,8 +593,9 @@ trait ImportFunctionsTrait
      * @param bool|string $tempAnlage
      * @param bool|string $windAnlage
      * @param object $groups
-     * @param int $stringBoxUnits
+     * @param $invertersUnits
      * @return array
+     * @throws \JsonException
      */
     function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
     {
@@ -696,8 +707,9 @@ trait ImportFunctionsTrait
     }
 
     //importiert die Daten für Anlegen ohne Stringboxes
+
     /**
-     * @param int $idPpc
+     * @param $anlagePpcs
      * @param array $ppcs
      * @param string $date
      * @param string $stamp
@@ -705,7 +717,7 @@ trait ImportFunctionsTrait
      * @param string $anlagenTabelle
      * @return array
      */
-    function getPpc($anlagePpcs, $ppcs, $date, $stamp, $plantId, $anlagenTabelle)
+    function getPpc($anlagePpcs, $ppcs, $date, $stamp, $plantId, $anlagenTabelle): array
     {
         foreach ($anlagePpcs as $anlagePpc) {
             $p_ac_inv = $pf_set = $p_set_gridop_rel = $p_set_rel = null;
