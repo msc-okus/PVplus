@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
+use App\Entity\AnlagePVSystDaten;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenStatusRepository;
@@ -24,8 +25,10 @@ use App\Service\Charts\SollIstIrrAnalyseChartService;
 use App\Service\Charts\TempHeatmapChartService;
 use App\Service\Charts\VoltageChartService;
 use DateTime;
+use Exception;
 use PDO;
 use App\Service\PdoService;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -36,29 +39,28 @@ class ChartService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private Security $security,
-        private AnlagenStatusRepository $statusRepository,
-        private AnlageAvailabilityRepository $availabilityRepository,
-        private PRRepository $prRepository,
-        private PVSystDatenRepository $pvSystRepository,
-        private InvertersRepository $invertersRepo,
-        private FunctionsService $functions,
-        private ForecastChartService $forecastChart,
-        private ACPowerChartsService $acCharts,
-        private DCPowerChartService $dcChart,
-        private DCCurrentChartService $currentChart,
-        private VoltageChartService $voltageChart,
-        private IrradiationChartService $irradiationChart,
-        private GridMeterDayRepository $gridMeterDayRepository,
-        private HeatmapChartService $heatmapChartService,
-        private TempHeatmapChartService $tempheatmapChartService,
-        private SollIstAnalyseChartService $sollistAnalyseChartService,
-        private SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
-        private SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
-        private SollIstHeatmapChartService $sollistheatmapChartService)
+        private readonly PdoService $pdoService,
+        private readonly Security $security,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly AnlageAvailabilityRepository $availabilityRepository,
+        private readonly PRRepository $prRepository,
+        private readonly PVSystDatenRepository $pvSystRepository,
+        private readonly InvertersRepository $invertersRepo,
+        private readonly FunctionsService $functions,
+        private readonly ForecastChartService $forecastChart,
+        private readonly ACPowerChartsService $acCharts,
+        private readonly DCPowerChartService $dcChart,
+        private readonly DCCurrentChartService $currentChart,
+        private readonly VoltageChartService $voltageChart,
+        private readonly IrradiationChartService $irradiationChart,
+        private readonly GridMeterDayRepository $gridMeterDayRepository,
+        private readonly HeatmapChartService $heatmapChartService,
+        private readonly TempHeatmapChartService $tempheatmapChartService,
+        private readonly SollIstAnalyseChartService $sollistAnalyseChartService,
+        private readonly SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
+        private readonly SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
+        private readonly SollIstHeatmapChartService $sollistheatmapChartService)
     {
-
     }
 
     /**
@@ -66,11 +68,12 @@ private PdoService $pdoService,
      * @param Anlage|null $anlage
      * @param bool|null $hour
      * @return array
-     * @throws \Exception
+     * @throws Exception|InvalidArgumentException
      */
     public function getGraphsAndControl($form, ?Anlage $anlage, ?bool $hour): array
     {
 
+        /*
         $request = Request::createFromGlobals();
         $request->getPathInfo();
         $request = new Request(
@@ -83,6 +86,7 @@ private PdoService $pdoService,
         );
 
         $RURI = $request->getRequestUri();
+        */
 
         $resultArray = [];
         $resultArray['data'] = '';
@@ -122,8 +126,10 @@ private PdoService $pdoService,
             $form['selectedGroup'] = -1;
         }
 
+        /*
         $from = self::timeShift($anlage, $form['from'], true);
         $to = self::timeShift($anlage, $form['to'], true);
+        */
 
         $from =  $form['from'];
         $to =  $form['to'];
@@ -648,7 +654,7 @@ private PdoService $pdoService,
      *  //
      * @param bool $hour
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function getAirAndPanelTemp(Anlage $anlage, $from, $to, bool $hour): array
     {
@@ -699,7 +705,7 @@ private PdoService $pdoService,
      *  //
      * @param bool $hour
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function getAirAndPanelTempFromSensorsData(Anlage $anlage, $from, $to, bool $hour): array
     {
@@ -814,7 +820,7 @@ private PdoService $pdoService,
      * @param $to
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      *
      * pr_and_av
      */
@@ -846,25 +852,38 @@ private PdoService $pdoService,
     /**
      * PV SystWerte als Diagramm ausgeben.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      *
-     * @deprecated
+     * @return array
      */
     public function getpvSyst(Anlage $anlage, $from, $to): array
     {
         $dataArray = [];
-        $prs = $this->prRepository->findPrAnlageDate($anlage, $from, $to);
-        $counter = 0;
-        /** @var AnlagenPR $pr */
-        foreach ($prs as $pr) {
-            $stamp = $pr->getstamp()->format('Y-m-d');
-            $dataArray[$counter]['date'] = $stamp;
-            $dataArray[$counter]['pr'] = $pr;
-            $pvSyst = $this->pvSystRepository->sumByStamp($anlage, $stamp);
-            $dataArray[$counter]['electricityGrid'] = round($pvSyst[0]['eGrid'] / 1000, 2); // durch 100 um auf kWh zu kommen
-            $dataArray[$counter]['electricityInverter'] = round($pvSyst[0]['eInverter'] / 1000, 2); // durch 100 um auf kWh zu kommen
-            ++$counter;
+        $pvsysts= $this->pvSystRepository->allGreateZero($anlage, $from, $to);
+
+        $conn = $this->pdoService->getPdoPlant();
+        /** @var AnlagePVSystDaten $pvsyst */
+        foreach ($pvsysts as $key => $pvsyst) {
+            $stampAdjust = self::timeAjustment($pvsyst->getStamp(), 0.25);
+            $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+            $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and unit = 1 GROUP by date_format(stamp, '%y%m%d%')";
+            $resEvu = $conn->query($sqlEvu);
+            $eZEvu = 0;
+            if ($resEvu->rowCount() == 1) {
+                $rowEvu = $resEvu->fetch(PDO::FETCH_ASSOC);
+                if ($rowEvu['eZEvu'] == "") {
+                    $eZEvu = null;
+                } else {
+                    $eZEvu = max($rowEvu['eZEvu'], 0);
+                }
+            }
+            $dataArray[$key]['date'] = $pvsyst->getStamp();
+            $dataArray[$key]['evu'] = $eZEvu;
+            $dataArray[$key]['electricityGrid'] = round($pvsyst->getElectricityGrid()); // durch 100 um auf kWh zu kommen
+            $dataArray[$key]['electricityInverter'] = round($pvsyst->getElectricityInverterOut()); // durch 100 um auf kWh zu kommen
+
         }
 
         return $dataArray;

@@ -10,11 +10,10 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 #[ORM\Entity(repositoryClass: PVSystDatenRepository::class)]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniquePvSyst', columns: ['anlage_id', 'stamp'])]
-#[ORM\Index(name: 'stamp', columns: ['stamp'])]
+#[ORM\Index(columns: ['stamp'], name: 'stamp')]
 class AnlagePVSystDaten
 {
     use TimestampableEntity;
-
     use BlameableEntity;
 
     #[ORM\Id]
@@ -108,9 +107,9 @@ class AnlagePVSystDaten
         return $this;
     }
 
-    public function getElectricityGrid(): ?string
+    public function getElectricityGrid(): ?float
     {
-        return $this->electricityGrid;
+        return (float)$this->electricityGrid;
     }
 
     public function setElectricityGrid(string $electricityGrid): self
@@ -120,9 +119,9 @@ class AnlagePVSystDaten
         return $this;
     }
 
-    public function getElectricityInverterOut(): ?string
+    public function getElectricityInverterOut(): ?float
     {
-        return $this->electricityInverterOut;
+        return (float)$this->electricityInverterOut;
     }
 
     public function setElectricityInverterOut(string $electricityInverterOut): self

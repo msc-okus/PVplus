@@ -100,7 +100,7 @@ class AnlageModules
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'modules')]
     private Anlage $anlage;
 
-    #[ORM\OneToMany(mappedBy: 'moduleType', targetEntity: AnlageGroupModules::class)]
+    #[ORM\OneToMany(mappedBy: 'moduleType', targetEntity: AnlageGroupModules::class, cascade: ['remove'])]
     private Collection $anlageGroupModules;
 
     #[ORM\Column(type: 'string', length: 20)]

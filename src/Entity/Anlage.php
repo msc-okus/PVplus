@@ -521,7 +521,7 @@ class Anlage implements \Stringable
     #[ORM\Column(type: 'boolean', nullable: true)]
     private bool $hasPannelTemp = false;
 
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: Ticket::class)]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: Ticket::class, cascade: ['remove'])]
     private Collection $tickets;
 
     #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: EconomicVarNames::class, cascade: ['persist', 'remove'], orphanRemoval: true)]

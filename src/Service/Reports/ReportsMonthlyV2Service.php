@@ -287,10 +287,8 @@ class ReportsMonthlyV2Service
      */
     public function buildTable2(Anlage $anlage, DateTime $startDate, DateTime $endDate): array
     {
-        #$startDay   = (int) $startDate->format('j');
         $startMonth = (int) $startDate->format('n');
         $startYear  = (int) $startDate->format('y');
-        #$endDay     = (int) $endDate->format('j');
         $endMonth   = (int) $endDate->format('n');
         $endYear    = (int) $endDate->format('y');
 
@@ -316,7 +314,7 @@ class ReportsMonthlyV2Service
                     $startDay = (int) $startDate->format('j');
                     $endDay = (int) date('t', strtotime("$currentYear-$startMonth-01"));
                     $monthValues[$monthCount]['datum'] = date("Y-m-d -->",strtotime("$currentYear-$currentMonth-$startDay"));
-                    $monthValues[$monthCount]['datum_alt'] = date("Y-m-d -->",strtotime("$currentYear - $currentMonth - $startDay"));
+                    $monthValues[$monthCount]['datum_alt'] = date("Y-m-d -->",strtotime("$currentYear-$currentMonth-$startDay"));
                     break;
                 case $numOfMonth:
                     $startDay = 1;

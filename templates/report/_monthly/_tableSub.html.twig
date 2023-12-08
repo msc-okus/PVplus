@@ -38,13 +38,17 @@
 {% if anlage.settings.disableDep3 != true %}
     {% set fontsize = fontsize - 1 %}
 {% endif %}
-{% if excel is not defined %}
 <style>
     .monthtable th, .monthtable td {
+
+    {% if excel is not defined %}
         font-size: {{ fontsize }}px;
+    {% else %}
+        font-size: 12px;
+    {% endif %}
     }
 </style>
-{% endif %}
+
 <table id="special_export" class="basetable monthtable"> {# ID der table ist wichtig für Datatables Script - Export to Excel #}
     {% for day in report.days %}
         {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
