@@ -40,6 +40,9 @@ class TicketDate
     private ?bool $replaceEnergy = null;
 
     #[ORM\Column(nullable: true)]
+    private ?bool $replaceEnergyG4N = null;
+
+    #[ORM\Column(nullable: true)]
     private ?bool $replaceIrr = null;
 
     #[ORM\Column(nullable: true)]
@@ -169,6 +172,18 @@ class TicketDate
     public function setReplaceEnergy(?bool $replaceEnergy): self
     {
         $this->replaceEnergy = $replaceEnergy;
+
+        return $this;
+    }
+
+    public function isReplaceEnergyG4N(): ?bool
+    {
+        return $this->replaceEnergyG4N;
+    }
+
+    public function setReplaceEnergyG4N(?bool $replaceEnergyG4N): self
+    {
+        $this->replaceEnergyG4N = $replaceEnergyG4N;
 
         return $this;
     }

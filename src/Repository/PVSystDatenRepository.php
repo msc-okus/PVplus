@@ -47,27 +47,46 @@ class PVSystDatenRepository extends ServiceEntityRepository
             ->andWhere('a.electricityGrid > 0')
             ->setParameter('anlage', $anlage->getAnlId())
             ->setParameter('stamp', $stamp.'%')
-            ->select('SUM(a.electricityGrid)/1000 AS eGrid, SUM(a.electricityInverterOut)/1000 AS eInverter')
+            ->select('SUM(a.electricityGrid) AS eGrid, SUM(a.electricityInverterOut) AS eInverter')
             ->getQuery()
             ->getScalarResult();
 
         return $result[0];
     }
 
+
     /**
      * @throws NonUniqueResultException
      * @throws NoResultException
      */
-    public function sumByDateRange(Anlage $anlage, $from, $to): float|bool|int|string|null
+    public function sumGridByDateRange(Anlage $anlage, $from, $to): float|bool|int|string|null
     {
         return $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
-            ->andWhere('a.stamp BETWEEN :from AND :to')
+            ->andWhere('a.stamp >= :from AND a.stamp < :to')
             ->andWhere('a.electricityGrid > 0')
             ->setParameter('anlage', $anlage->getAnlId())
             ->setParameter('from', $from)
             ->setParameter('to', $to)
-            ->select('SUM(a.electricityGrid)/1000 AS eGrid')
+            ->select('SUM(a.electricityGrid) AS eGrid')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function sumIrrByDateRange(Anlage $anlage, $from, $to): float|bool|int|string|null
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.anlage = :anlage')
+            ->andWhere('a.stamp >= :from AND a.stamp < :to')
+            ->andWhere('a.irrGlobalInc > 0')
+            ->setParameter('anlage', $anlage->getAnlId())
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->select('SUM(a.irrGlobalInc) AS irr')
             ->getQuery()
             ->getSingleScalarResult();
     }

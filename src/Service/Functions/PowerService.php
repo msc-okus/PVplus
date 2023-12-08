@@ -7,8 +7,11 @@ use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
 use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
+use App\Repository\PVSystDatenRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\FunctionsService;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use PDO;
 use App\Service\PdoService;
 use DateTime;
@@ -21,7 +24,8 @@ private readonly PdoService $pdoService,
         private readonly FunctionsService $functions,
         private readonly MonthlyDataRepository $monthlyDataRepo,
         private readonly GridMeterDayRepository $gridMeterDayRepo,
-        private readonly TicketDateRepository $ticketDateRepo
+        private readonly TicketDateRepository $ticketDateRepo,
+        private readonly PVSystDatenRepository $pvSystDatenRepo
     )
     {
     }
@@ -109,7 +113,7 @@ private readonly PdoService $pdoService,
         }
 
         // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
-        $powerEGridExt = $this->functions->getSumeGridMeter($anlage, $from, $to);
+        // $powerEGridExt = $this->functions->getSumeGridMeter($anlage, $from, $to);
 
         // EVU / Grid Leistung ermitteln –
         // dieser Wert soll der offiziele Grid Zähler Wert sein, wir in naher Zukunft durch die Daten aus 'meters' ersetzt werden müssen
@@ -117,11 +121,10 @@ private readonly PdoService $pdoService,
             if ($anlage == '97') { // Power Data liegt in 'Meters' (db__pv_meters_xxx) Datei
                 // Bavelse Berg = Anlage ID 97
                 $sql = "SELECT sum(prod_power) as power_grid 
-            FROM " . $anlage->getDbNameMeters() . " s
-            $ppcSQLpart1Meters 
-            WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' 
-                AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' 
-                $ppcSQLpart2";
+                    FROM " . $anlage->getDbNameMeters() . " s
+                    $ppcSQLpart1Meters 
+                    WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' 
+                        AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' $ppcSQLpart2";
 
                 $res = $conn->query($sql);
                 if ($res->rowCount() === 1) {
@@ -265,13 +268,15 @@ private readonly PdoService $pdoService,
 
 
     /**
-     * schold be removed and replaced by correction by Tickets
+     * should be removed and replaced by correction by Tickets
      * @param Anlage $anlage
      * @param float|null $evu
      * @param $from
      * @param $to
      * @return float|null
      * @throws \Exception
+     *
+     * @deprecated
      */
     #[Deprecated]
     public function checkAndIncludeMonthlyCorrectionEVU(Anlage $anlage, ?float $evu, $from, $to): ?float
@@ -332,12 +337,20 @@ private readonly PdoService $pdoService,
         return $evu;
     }
 
+    /**
+     * @param Anlage $anlage
+     * @param float|null $power
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @param string $source
+     * @return array
+     */
     public function correctGridByTicket(Anlage $anlage, ?float $power, DateTime $startDate, DateTime $endDate, string $source = 'evu'): array
     {
         $conn = $this->pdoService->getPdoPlant();
         $power0 = $power1 = $power2 = $power3 = $power;
         // Suche alle Tickets (Ticketdates) die in den Zeitraum fallen
-        // Es werden Nur Tickets mit Energy exclude Bezug gesucht (Performance Tickets mit ID = 72 + ??
+        // Es werden Nur Tickets mit Energy exclude Bezug, Replace Energy gesucht (Performance Tickets mit ID = 72 + 73 + ?)
         $ticketArray = $this->ticketDateRepo->performanceTicketsExcludeEnergy($anlage, $startDate, $endDate);
 
         // Dursuche alle Tickets in Schleife
@@ -347,29 +360,20 @@ private readonly PdoService $pdoService,
         foreach ($ticketArray as $ticketDate) { #loop über query result
             // Start und End Zeitpunkt ermitteln, es sollen keine Daten gesucht werden die auserhalb des Übergebenen Zeitaums liegen.
             // Ticket kann ja schon vor dem Zeitraum gestartet oder danach erst beendet werden
-            if ($startDate > $ticketDate->getBegin()){
-                $tempoStartDate = $startDate;
-            } else {
-                $tempoStartDate = $ticketDate->getBegin();
-            }
-            if ($endDate < $ticketDate->getEnd()){
-                $tempoEndDate = $endDate;
-            } else {
-                $tempoEndDate = $ticketDate->getEnd();
-            }
+            $tempoStartDate = $startDate > $ticketDate->getBegin()  ? $startDate    : $ticketDate->getBegin();
+            $tempoEndDate   = $endDate < $ticketDate->getEnd()      ? $endDate      : $ticketDate->getEnd();
 
             // Suche und summiere Werte in AC Ist Tabelle
             switch ($source) {
-                case 'act':
+                case 'act': // nutze die Inverter ausgangsdaten
                     $sql = 'SELECT sum(wr_pac) as power FROM '.$anlage->getDbNameAcIst()." 
                             WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' AND wr_pac > 0";
                     break;
-                default:
+                default: // Nutze den in e_z_evu gespeicherten Wert
                     if ($anlage->isIgnoreNegativEvu()) {
                         $sql = 'SELECT sum(e_z_evu) as power FROM ' . $anlage->getDbNameAcIst() . " 
                         WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
-                    }
-                    else {
+                    } else {
                         $sql = 'SELECT sum(e_z_evu) as power FROM ' . $anlage->getDbNameAcIst() . " 
                         WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
                     }
@@ -379,10 +383,33 @@ private readonly PdoService $pdoService,
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
-                // ermittelten Wert vom gesamt evu abziehen
-                if ($ticketDate->getTicket()->isScope(10)) $power1 -= $row['power']; // Department 1
-                if ($ticketDate->getTicket()->isScope(20)) $power2 -= $row['power']; // Department 2
-                if ($ticketDate->getTicket()->isScope(30)) $power3 -= $row['power']; // Department 3
+                $replaceEnery = null;
+                switch ($ticketDate->getTicket()->getAlertType()) {
+                    case '72': // exclude from PR/Energy
+                        // ermittelten Wert vom gesamt evu abziehen
+                        if ($ticketDate->getTicket()->isScope(10)) $power1 -= $row['power']; // Department 1
+                        if ($ticketDate->getTicket()->isScope(20)) $power2 -= $row['power']; // Department 2
+                        if ($ticketDate->getTicket()->isScope(30)) $power3 -= $row['power']; // Department 3
+                    break;
+                    case '73': // replace Energy (by PV Syst or by G$N Exp or by given value)
+                        // replace Energy ermitteln, abhänig von den eingegebenen Werten (Settings) des Tickets
+                        if ($ticketDate->isReplaceEnergy()){ // Ersetzen durch PVSyst
+                            $replaceEnery = $this->getPvSystEnergy($anlage, $tempoStartDate, $tempoEndDate);
+                        } elseif ($ticketDate->isReplaceEnergyG4N()) { // erstezen durch G4N Expected
+                            $replaceEnery = $this->getG4NExpEnergy($anlage, $tempoStartDate, $tempoEndDate);
+                        } else { // erstezen durch den eingebenen Wert
+                            $replaceEnery = $ticketDate->getValueEnergy();
+                        }
+                        // Nur wenn $replaceEnergy einen numerischen Wert hat wird auch die Verechnung gestart
+                        if ($replaceEnery !== null and is_numeric($replaceEnery)) {
+                            // ermittelten Wert von der gesamt Enerie abziehen und durch $replaceEnergy ersetzen
+                            if ($ticketDate->getTicket()->isScope(10)) $power1 = $power1 - $row['power'] + $replaceEnery; // Department 1
+                            if ($ticketDate->getTicket()->isScope(20)) $power2 = $power2 - $row['power'] + $replaceEnery; // Department 2
+                            if ($ticketDate->getTicket()->isScope(30)) $power3 = $power3 - $row['power'] + $replaceEnery; // Department 3
+                            dump("Reduce Energy by: " . $row['power'] . " and replace with: " . $ticketDate->getValueEnergy());
+                        }
+                        break;
+                }
             }
         }
 
@@ -393,6 +420,31 @@ private readonly PdoService $pdoService,
 
         return $powerArray;
     }
+
+    private function getPvSystEnergy(Anlage $anlage, DateTime $from, DateTime $to): ?float
+    {
+        try {
+            $power = $this->pvSystDatenRepo->sumGridByDateRange($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
+        } catch (NoResultException|NonUniqueResultException $e) {
+            $power = null;
+        }
+        return $power;
+    }
+    private function getG4NExpEnergy(Anlage $anlage, DateTime $from, DateTime $to): ?float
+    {
+        $conn = $this->pdoService->getPdoPlant();
+        $sql = 'SELECT sum(ac_exp_power) as power FROM ' . $anlage->getDBNameSoll() . " 
+                        WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp < '" . $to->format('Y-m-d H:i') . "'";
+        $res = $conn->query($sql);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+
+            return $row['power'];
+        }
+
+        return null;
+    }
+
 
     /**
      * Wird für den Bericht Bavelse Berg genutzt

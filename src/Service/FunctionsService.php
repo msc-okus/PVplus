@@ -396,9 +396,9 @@ class FunctionsService
         $powerPvSystArray['powerPvSystYear'] = 0;
         $powerPvSystArray['powerPvSystPac'] = 0;
 
-        $powerPvSystArray['powerPvSyst'] += $this->pvSystRepo->sumByDateRange($anlage, $from, $to);
-        $powerPvSystArray['powerPvSystYear'] += $this->pvSystRepo->sumByDateRange($anlage, $startYear, $to);
-        $powerPvSystArray['powerPvSystPac'] += $this->pvSystRepo->sumByDateRange($anlage, $pacDate, $to);
+        $powerPvSystArray['powerPvSyst'] += $this->pvSystRepo->sumGridByDateRange($anlage, $from, $to);
+        $powerPvSystArray['powerPvSystYear'] += $this->pvSystRepo->sumGridByDateRange($anlage, $startYear, $to);
+        $powerPvSystArray['powerPvSystPac'] += $this->pvSystRepo->sumGridByDateRange($anlage, $pacDate, $to);
 
         return $powerPvSystArray;
     }

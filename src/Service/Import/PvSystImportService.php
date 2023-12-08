@@ -41,35 +41,42 @@ class PvSystImportService
 
             // leerzeile überspringen
             $row = fgetcsv($fileStream, null, ';');
+            $oldStamp = null;
 
             while ($row = fgetcsv($fileStream, null, ';')){
                 $timeZone = null; //new \DateTimeZone('UTC');
                 $stamp = date_create_from_format('d/m/y H:i', $row[$keyStamp], $timeZone);
                 if ($stamp->format('I') == '1') {
-                    $stamp->add(New \DateInterval('PT3600S'));
+                    $stamp->add(new \DateInterval('PT3600S'));
                 }
-                $eGrid  = (float)$row[$keyEGrid]   > 0 ? $this->correctUnitPower($units[$keyEGrid], $row[$keyEGrid]) : 0;
-                $irrHor = (float)$row[$keyGlobHor] > 0 ? $this->correctUnitIrr($units[$keyGlobHor], $row[$keyGlobHor]) : 0;
-                $irrInc = (float)$row[$keyGlobInc] > 0 ? $this->correctUnitIrr($units[$keyGlobInc], $row[$keyGlobInc]) : 0;
-                $irrEff = (float)$row[$keyGlobEff] > 0 ? $this->correctUnitIrr($units[$keyGlobEff], $row[$keyGlobEff]) : 0;
+                if ($oldStamp !== $stamp->format("Y-m-d H:i")) { // Zum Übersprinegn der doppelten Daten bei der umstellung auf DLS
+                    $eGrid = (float)$row[$keyEGrid] > 0 ? $this->correctUnitPower($units[$keyEGrid], $row[$keyEGrid]) : 0;
+                    $irrHor = (float)$row[$keyGlobHor] > 0 ? $this->correctUnitIrr($units[$keyGlobHor], $row[$keyGlobHor]) : 0;
+                    $irrInc = (float)$row[$keyGlobInc] > 0 ? $this->correctUnitIrr($units[$keyGlobInc], $row[$keyGlobInc]) : 0;
+                    $irrEff = (float)$row[$keyGlobEff] > 0 ? $this->correctUnitIrr($units[$keyGlobEff], $row[$keyGlobEff]) : 0;
 
-                $pvSyst = $this->PVSystDatenRepo->findOneBy(['anlage' => $anlage, 'stamp' => $stamp->format('Y-m-d H:i')]);
-                if ($pvSyst === null) {
-                    $pvSyst = new AnlagePVSystDaten();
+                    $pvSyst = $this->PVSystDatenRepo->findOneBy(['anlage' => $anlage, 'stamp' => $stamp->format('Y-m-d H:i')]);
+                    if ($pvSyst === null) {
+                        $pvSyst = new AnlagePVSystDaten();
+                        $pvSyst
+                            ->setAnlage($anlage)
+                            ->setStamp($stamp->format('Y-m-d H:i'))
+                        ;
+                        $this->em->persist($pvSyst);
+                    }
                     $pvSyst
-                        ->setAnlage($anlage)
-                        ->setStamp($stamp->format('Y-m-d H:i'))
+                        ->setIrrGlobalHor($irrHor)
+                        ->setIrrGlobalInc($irrInc)
+                        ->setTempAmbiant($irrEff)
+                        ->setElectricityGrid($eGrid)
+                        ->setElectricityInverterOut('')
                     ;
+
+                    $output .= $anlage->getAnlId() ." | ".$stamp->format('Y-m-d H:i')." | ".$eGrid."<br>";
+                } else {
+                    #dd($oldStamp, $stamp);
                 }
-                $pvSyst
-                    ->setIrrGlobalHor($irrHor)
-                    ->setIrrGlobalInc($irrInc)
-                    ->setTempAmbiant($irrEff)
-                    ->setElectricityGrid($eGrid)
-                    ->setElectricityInverterOut('')
-                ;
-                $this->em->persist($pvSyst);
-                $output .= $anlage->getAnlId() ." | ".$stamp->format('Y-m-d H:i')." | ".$eGrid."<br>";
+                $oldStamp = $stamp->format("Y-m-d H:i");
             }
             $this->em->flush();
 
