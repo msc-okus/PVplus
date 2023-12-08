@@ -26,10 +26,10 @@ trait ImportFunctionsTrait
 
             for ($k = 0; $k <= count($modules) - 1; $k++) {
                 if ($modules[$k]->getId() == $result[0]['module_type_id']) {
-                    $power = $modules[$k]->getPower();
+                    (int)$power = $modules[$k]->getPower();
                 }
             }
-            $sumPNorm += $result[0]['num_strings_per_unit'] * $result[0]['num_modules_per_string'] * $power;
+            $sumPNorm += (int)$result[0]['num_strings_per_unit'] * (int)$result[0]['num_modules_per_string'] * $power;
 
 
             $dcPNormPerInvereter[$index] = $sumPNorm;
