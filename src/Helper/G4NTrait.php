@@ -59,7 +59,8 @@ trait G4NTrait
      * return Zeitstempel im SQL Format
      *
      * @param $timestamp
-     * @param $reverse
+     * @param float $val
+     * @param bool $reverse
      * @return string
      */
     public static function timeAjustment($timestamp, float $val = 0, $reverse = false): string

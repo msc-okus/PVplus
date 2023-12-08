@@ -17,6 +17,8 @@ use App\Service\Functions\SensorService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Symfony\Component\HttpFoundation\Exception\JsonException;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\InvalidArgumentException;
 
@@ -43,9 +45,15 @@ class PRCalulationService
     {
     }
 
-
     /**
-     * @throws NonUniqueResultException|InvalidArgumentException|\JsonException
+     * @param Anlage|int $anlage
+     * @param string $day
+     * @return string
+     * @throws InvalidArgumentException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     *
+     * @deprecated
      */
     #[Deprecated]
     public function calcPRAll(Anlage|int $anlage, string $day): string
