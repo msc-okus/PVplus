@@ -7,11 +7,12 @@
             <table class="asset_report_table_operations_data" >
                 <thead>
                     <tr>
-                        <th class="table-center" style="width: 10%"></th>
-                        <th class="table-center" colspan="2" style="text-align: center; width: 30%">PR & PA - default<sup>*3</sup> </th>
-                        {% if anlage.settings.disableDep1 != true %}<th class="table-center" colspan="2" style="text-align: center; width: 30%">PR & PA - O&M<sup>*4</sup></th>{% endif %}
-                        {% if anlage.settings.disableDep2 != true %}<th class="table-center" colspan="2" style="text-align: center; width: 30%">PR & PA - EPC<sup>*5</sup></th>{% endif %}
-                        {% if anlage.settings.disableDep3 != true %}<th class="table-center" colspan="2" style="text-align: center; width: 30%">PR & PA - AM<sup>*6</sup></th>{% endif %}
+                        <th class="table-center" style="width: 12%;"></th>
+                        <th class="table-center" colspan="2" style="text-align: center; width: 22%">PR & PA - default (OpenBook)<sup>*3</sup> </th>
+                        {% if anlage.settings.disableDep1 != true %}<th class="table-center" colspan="2" style="text-align: center; width: 22%">PR & PA - O&M<sup>*4</sup></th>{% endif %}
+                        {% if anlage.settings.disableDep2 != true %}<th class="table-center" colspan="2" style="text-align: center; width: 22%">PR & PA - EPC<sup>*5</sup></th>{% endif %}
+                        {% if anlage.settings.disableDep3 != true %}<th class="table-center" colspan="2" style="text-align: center; width: 22%">PR & PA - AM<sup>*6</sup></th>{% endif %}
+
                     </tr>
                     <tr>
                         <th class="table-center"> Date</th>
@@ -35,19 +36,19 @@
                     {% for row in monthlyTableForPRAndPA %}
                         <tr>
                             <td class="tr_next_columns">{{ monthArray[loop.index0]  }}</td>
-                            <td class="tr_next_columns">{{ row.Dep0PR }}</td>
-                            <td class="tr_next_columns">{{ row.Dep0PA }}</td>
+                            <td class="tr_next_columns">{{ row.Dep0PR |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ row.Dep0PA |number_format(2, ',', '.') }}</td>
                             {% if anlage.settings.disableDep1 != true %}
-                                <td class="tr_next_columns">{{ row.Dep1PR }}</td>
-                                <td class="tr_next_columns">{{ row.Dep1PA }}</td>
+                                <td class="tr_next_columns">{{ row.Dep1PR |number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns">{{ row.Dep1PA |number_format(2, ',', '.') }}</td>
                             {% endif %}
                             {% if anlage.settings.disableDep2 != true %}
-                                <td class="tr_next_columns">{{ row.Dep2PR }}</td>
-                                <td class="tr_next_columns">{{ row.Dep2PA }}</td>
+                                <td class="tr_next_columns">{{ row.Dep2PR |number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns">{{ row.Dep2PA |number_format(2, ',', '.') }}</td>
                             {% endif %}
                             {% if anlage.settings.disableDep3 != true %}
-                                <td class="tr_next_columns">{{ row.Dep3PR }}</td>
-                                <td class="tr_next_columns">{{ row.Dep3PA }}</td>
+                                <td class="tr_next_columns">{{ row.Dep3PR |number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns">{{ row.Dep3PA |number_format(2, ',', '.') }}</td>
                             {% endif %}
                         </tr>
                     {% endfor %}
