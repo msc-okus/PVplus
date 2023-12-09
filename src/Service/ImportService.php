@@ -224,6 +224,12 @@ class ImportService
                         $data_pv_dcist[] = $result[1][$j];
                     }
 
+                    //built array for pvist_dc
+                    $sizeResult = count($result[2]) - 1;
+                    for ($j = 0; $j <= $sizeResult; $j++) {
+                        $data_db_string_pv[] = $result[2][$j];
+                    }
+
                     unset($result);
                 }
 
@@ -247,6 +253,8 @@ class ImportService
             }
             //write Data in the tables
             $DBDataConnection = $this->pdoService->getPdoPlant();
+            $DBStbConnection = $this->pdoService->getPdoStringBoxes();
+
             switch ($importType) {
                 case 'api-import-weather':
                     if($useSensorsDataTable && $length > 0) {
@@ -264,6 +272,9 @@ class ImportService
                     if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                         $tableName = "db__pv_dcist_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
+
+                        $tableName = "db__string_pv_$anlagenTabelle";
+                        self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
                     }
 
                     $tableName = "db__pv_ist_$anlagenTabelle";
@@ -286,6 +297,9 @@ class ImportService
                     if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                         $tableName = "db__pv_dcist_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
+
+                        $tableName = "db__string_pv_$anlagenTabelle";
+                        self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
                     }
 
                     $tableName = "db__pv_ist_$anlagenTabelle";
