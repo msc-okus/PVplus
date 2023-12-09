@@ -54,6 +54,7 @@ class ImportService
 
         $modules = $anlage->getModules();
         $groups = $anlage->getGroups();
+        $systemKey = $anlage->getCustomPlantId();
 
         if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
             $acGroups = $anlage->getAcGroups()->toArray();
@@ -83,7 +84,7 @@ class ImportService
         $mcPassword = $owner->getSettings()->getMcPassword();
         $mcToken = $owner->getSettings()->getMcToken();
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
-
+        $bulkMeaserments = [];
         //get the Data from vcom
         $curl = curl_init();
 
@@ -135,8 +136,9 @@ class ImportService
                 }
             }
 
-            #$basics[$date]["G_M0"] = substr($basics[$date]["G_M0"], 1);
-
+            $basics = $bulkMeaserments['basics'];
+            $inverters = $bulkMeaserments['inverters'];
+            $sensors = $bulkMeaserments['sensors'];
 
             $anlageSensors = $anlage->getSensors();
 
@@ -148,17 +150,17 @@ class ImportService
                 $eZEvu = $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
                 $tempAnlageArray = $windAnlageArray = $irrAnlageArrayGMO = $irrAnlageArray = [];
 
-                if (array_key_exists($date, $basics)) {
+                if (is_array($basics) && array_key_exists($date, $basics)) {
                     $irrAnlageArrayGMO['G_M0'] = $basics[$date]['G_M0'] > 0 ? $basics[$date]['G_M0'] : 0;   //
                     $gMo = $irrAnlageArrayGMO['G_M0'];
                     $eZEvu = $basics[$date]['E_Z_EVU'];
                 }
 
-                if (is_array($sensors) && array_key_exists($date, $sensors)) {
-                    $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
+                (int)$length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
+
+                if (is_array($sensors) && array_key_exists($date, $sensors) && $length > 0) {
                     //if plant use sensors datatable get data from the table
                     if($useSensorsDataTable){
-
                         $result = self::getSensorsDataFromImport($anlageSensors->toArray(), $length, $sensors, $stamp, $date, $gMo);
 
                         //built array for sensordata
@@ -169,28 +171,29 @@ class ImportService
                     }
                 }
 
-
+                $checkSensors = [];
                 // the old way
-                $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
+                if($length > 0){
+                    $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
 
-                $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
-                $irrHorizontal = $checkSensors[0]['irrHorizontal'];
-                $irrLower = $checkSensors[0]['irrLower'];
-                $irrUpper = $checkSensors[0]['irrUpper'];
+                    $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
+                    $irrHorizontal = $checkSensors[0]['irrHorizontal'];
+                    $irrLower = $checkSensors[0]['irrLower'];
+                    $irrUpper = $checkSensors[0]['irrUpper'];
 
-                $tempPanel = $checkSensors[1]['tempPanel'];
+                    $tempPanel = $checkSensors[1]['tempPanel'];
 
-                $tempAmbient = $checkSensors[1]['tempAmbient'];
+                    $tempAmbient = $checkSensors[1]['tempAmbient'];
 
-                $tempAnlageArray = $checkSensors[1]['anlageTemp'];
+                    $tempAnlageArray = $checkSensors[1]['anlageTemp'];
 
-                $wSEwd = $checkSensors[1]['windDirection'];
+                    $wSEwd = $checkSensors[1]['windDirection'];
 
-                $windSpeed = $checkSensors[1]['windSpeed'];
+                    $windSpeed = $checkSensors[1]['windSpeed'];
 
-                $windAnlageArray = $checkSensors[1]['anlageWind'];
-
-                //if plant use not sensors datatable store data into the weather table
+                    $windAnlageArray = $checkSensors[1]['anlageWind'];
+                }
+                //if plant use not sensors datatable stoe data into the weather table
                 if(!$useSensorsDataTable){
                     $irrAnlage = json_encode($irrAnlageArray, JSON_THROW_ON_ERROR);
                     $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
@@ -264,6 +267,12 @@ class ImportService
                         $data_pv_dcist[] = $result[1][$j];
                     }
 
+                    //built array for pvist_dc
+                    $sizeResult = count($result[2]) - 1;
+                    for ($j = 0; $j <= $sizeResult; $j++) {
+                        $data_db_string_pv[] = $result[2][$j];
+                    }
+
                     unset($result);
                 }
 
@@ -285,56 +294,64 @@ class ImportService
                     unset($result);
                 }
             }
-        }
+            //write Data in the tables
+            $DBDataConnection = $this->pdoService->getPdoPlant();
+            $DBStbConnection = $this->pdoService->getPdoStringBoxes();
 
-
-        //write Data in the tables
-        $DBDataConnection = $this->pdoService->getPdoPlant();
-        switch ($importType) {
-            case 'api-import-weather':
-                if($useSensorsDataTable) {
-                    $tableName = "db__pv_sensors_data_$anlagenTabelle";
-                    self::insertData($tableName, $dataSensors, $DBDataConnection);
-                }
-                $tableName = "db__pv_ws_$weatherDbIdent";
-                self::insertData($tableName, $data_pv_weather, $DBDataConnection);
-                break;
-            case 'api-import-ppc':
-                $tableName = "db__pv_ppc_$anlagenTabelle";
-                self::insertData($tableName, $data_ppc, $DBDataConnection);
-                break;
-            case 'api-import-pvist':
-                if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
-                    $tableName = "db__pv_dcist_$anlagenTabelle";
-                    self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
-                }
-
-                $tableName = "db__pv_ist_$anlagenTabelle";
-                self::insertData($tableName, $data_pv_ist, $DBDataConnection);
-                break;
-            default:
-                if($useSensorsDataTable) {
-                    $tableName = "db__pv_sensors_data_$anlagenTabelle";
-                    self::insertData($tableName, $dataSensors, $DBDataConnection);
-                }
-
-                $tableName = "db__pv_ws_$weatherDbIdent";
-                self::insertData($tableName, $data_pv_weather, $DBDataConnection);
-
-                if ($anlage->getHasPPC()) {
+            switch ($importType) {
+                case 'api-import-weather':
+                    if($useSensorsDataTable && $length > 0) {
+                        $tableName = "db__pv_sensors_data_$anlagenTabelle";
+                        self::insertData($tableName, $dataSensors, $DBDataConnection);
+                    }
+                    $tableName = "db__pv_ws_$weatherDbIdent";
+                    self::insertData($tableName, $data_pv_weather, $DBDataConnection);
+                    break;
+                case 'api-import-ppc':
                     $tableName = "db__pv_ppc_$anlagenTabelle";
                     self::insertData($tableName, $data_ppc, $DBDataConnection);
-                }
+                    break;
+                case 'api-import-pvist':
+                    if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
+                        $tableName = "db__pv_dcist_$anlagenTabelle";
+                        self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
 
-                if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
-                    $tableName = "db__pv_dcist_$anlagenTabelle";
-                    self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
-                }
+                        $tableName = "db__string_pv_$anlagenTabelle";
+                        self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
+                    }
 
-                $tableName = "db__pv_ist_$anlagenTabelle";
-                self::insertData($tableName, $data_pv_ist, $DBDataConnection);
-                break;
+                    $tableName = "db__pv_ist_$anlagenTabelle";
+                    self::insertData($tableName, $data_pv_ist, $DBDataConnection);
+                    break;
+                default:
+                    if($useSensorsDataTable && $length > 0) {
+                        $tableName = "db__pv_sensors_data_$anlagenTabelle";
+                        self::insertData($tableName, $dataSensors, $DBDataConnection);
+                    }
+
+                    $tableName = "db__pv_ws_$weatherDbIdent";
+                    self::insertData($tableName, $data_pv_weather, $DBDataConnection);
+
+                    if ($anlage->getHasPPC()) {
+                        $tableName = "db__pv_ppc_$anlagenTabelle";
+                        self::insertData($tableName, $data_ppc, $DBDataConnection);
+                    }
+
+                    if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
+                        $tableName = "db__pv_dcist_$anlagenTabelle";
+                        self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
+
+                        $tableName = "db__string_pv_$anlagenTabelle";
+                        self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
+                    }
+
+                    $tableName = "db__pv_ist_$anlagenTabelle";
+                    self::insertData($tableName, $data_pv_ist, $DBDataConnection);
+                    break;
+            }
         }
+
+
     }
 
 }
