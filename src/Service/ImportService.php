@@ -284,8 +284,6 @@ class ImportService
                     if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0) {
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
-                    }else{
-                        echo "db__pv_sensors_data_$anlagenTabelle";
                     }
 
                     $tableName = "db__pv_ws_$weatherDbIdent";
