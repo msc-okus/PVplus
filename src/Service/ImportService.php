@@ -257,7 +257,7 @@ class ImportService
 
             switch ($importType) {
                 case 'api-import-weather':
-                    if($useSensorsDataTable && $length > 0) {
+                    if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0) {
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
                     }
@@ -281,9 +281,11 @@ class ImportService
                     self::insertData($tableName, $data_pv_ist, $DBDataConnection);
                     break;
                 default:
-                    if($useSensorsDataTable && $length > 0) {
+                    if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0) {
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
+                    }else{
+                        echo "db__pv_sensors_data_$anlagenTabelle";
                     }
 
                     $tableName = "db__pv_ws_$weatherDbIdent";
