@@ -300,19 +300,23 @@ class ImportService
 
             switch ($importType) {
                 case 'api-import-weather':
-                    if($useSensorsDataTable && $length > 0) {
+                    if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0) {
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
                     }
-                    $tableName = "db__pv_ws_$weatherDbIdent";
-                    self::insertData($tableName, $data_pv_weather, $DBDataConnection);
+                    if(is_array($data_pv_weather) && count($data_pv_weather) > 0){
+                        $tableName = "db__pv_ws_$weatherDbIdent";
+                        self::insertData($tableName, $data_pv_weather, $DBDataConnection);
+                    }
                     break;
                 case 'api-import-ppc':
-                    $tableName = "db__pv_ppc_$anlagenTabelle";
-                    self::insertData($tableName, $data_ppc, $DBDataConnection);
+                    if (is_array($data_ppc) && count($data_ppc) > 0) {
+                        $tableName = "db__pv_ppc_$anlagenTabelle";
+                        self::insertData($tableName, $data_ppc, $DBDataConnection);
+                    }
                     break;
                 case 'api-import-pvist':
-                    if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
+                    if ($anlage->getSettings()->getImportType() == 'withStringboxes' && is_array($data_pv_dcist) && count($data_pv_dcist) > 0) {
                         $tableName = "db__pv_dcist_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
 
@@ -320,24 +324,28 @@ class ImportService
                         self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
                     }
 
-                    $tableName = "db__pv_ist_$anlagenTabelle";
-                    self::insertData($tableName, $data_pv_ist, $DBDataConnection);
+                    if(is_array($data_pv_ist) && count($data_pv_ist) > 0) {
+                        $tableName = "db__pv_ist_$anlagenTabelle";
+                        self::insertData($tableName, $data_pv_ist, $DBDataConnection);
+                    }
                     break;
                 default:
-                    if($useSensorsDataTable && $length > 0) {
+                    if($useSensorsDataTable == 1 && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0) {
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
                     }
 
-                    $tableName = "db__pv_ws_$weatherDbIdent";
-                    self::insertData($tableName, $data_pv_weather, $DBDataConnection);
+                    if(is_array($data_pv_weather) && count($data_pv_weather) > 0){
+                        $tableName = "db__pv_ws_$weatherDbIdent";
+                        self::insertData($tableName, $data_pv_weather, $DBDataConnection);
+                    }
 
-                    if ($anlage->getHasPPC()) {
+                    if ($anlage->getHasPPC() && is_array($data_ppc) && count($data_ppc) > 0) {
                         $tableName = "db__pv_ppc_$anlagenTabelle";
                         self::insertData($tableName, $data_ppc, $DBDataConnection);
                     }
 
-                    if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
+                    if ($anlage->getSettings()->getImportType() == 'withStringboxes' && is_array($data_pv_dcist) && count($data_pv_dcist) > 0) {
                         $tableName = "db__pv_dcist_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
 
@@ -345,8 +353,10 @@ class ImportService
                         self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
                     }
 
-                    $tableName = "db__pv_ist_$anlagenTabelle";
-                    self::insertData($tableName, $data_pv_ist, $DBDataConnection);
+                    if(is_array($data_pv_ist) && count($data_pv_ist) > 0) {
+                        $tableName = "db__pv_ist_$anlagenTabelle";
+                        self::insertData($tableName, $data_pv_ist, $DBDataConnection);
+                    }
                     break;
             }
         }
