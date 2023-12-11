@@ -517,6 +517,11 @@ class AnlageFormType extends AbstractType
                 'help' => '[On / Off]',
                 'required' => false,
             ])
+            ->add('useDayaheadForecast', SwitchType::class, [
+                'label' => 'Use Dayahead forecast for this plant',
+                'help' => '[On / Off]',
+                'required' => false,
+            ])
             ->add('degradationForecast', TextType::class, [
                 'label' => 'Degradation, only forecast [%]',
                 'help' => '[Degradation forecast in %]',
@@ -831,6 +836,7 @@ class AnlageFormType extends AbstractType
                 'label' => 'Anlage für Eigner:',
                 'help' => '[anlView]',
                 'choices' => ['aktiv' => 'Yes', 'deaktiviert' => 'No'],
+                'attr' => ['style' => 'width: 6em;'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 'No',
             ])
@@ -839,6 +845,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[anlHidePlant]',
                 'label_html' => true,
                 'choices' => ['Yes' => 'Yes', 'No' => 'No'],
+                'attr' => ['style' => 'width: 6em;'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 'Yes',
             ])
@@ -848,6 +855,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[anlMute]',
                 'label_html' => true,
                 'choices' => ['Yes' => 'Yes', 'No' => 'No'],
+                'attr' => ['style' => 'width: 6em;'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 'No',
             ])
@@ -857,12 +865,13 @@ class AnlageFormType extends AbstractType
                 'help' => '[anlMuteUntil]',
                 'label_html' => true,
                 'disabled' => true,
+                'attr' => ['style' => 'width: 8em;'],
                 'widget' => 'single_text',
             ])
 
             ->add('useCosPhi', SwitchType::class, [
                 'label' => 'Aktiviere cosPhi',
-                'help' => '[useCosPhi]',
+                'help' => '[Yes / No]',
             ])
 
             ->add('calcPR', SwitchType::class, [

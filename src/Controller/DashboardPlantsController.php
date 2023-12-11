@@ -113,6 +113,8 @@ class DashboardPlantsController extends BaseController
             $form['from'] = (new \DateTime())->format('Y-m-d');
             $form['optionDate'] = 1;
             $form['optionIrrVal'] = 400;
+            $form['optionDayAheadView'] = 0;    #0=Dashborrd;1=60Min;2=15Min;
+            $form['optionDayAheadViewDay'] = 0; #0=6Tage;1=3Tage;2=2Tage;
             $form['hour'] = false;
             $form['selRange'] = $request->request->get('selRange');
         }
@@ -125,6 +127,8 @@ class DashboardPlantsController extends BaseController
             $form['startDateNew']       = $request->request->get('startDateNew');
             $form['selRange']           = $request->request->get('selRange');
             $form['optionIrrVal']       = $request->request->get('optionIrrVal');
+            $form['optionDayAheadView']  = $request->request->get('optionDayAheadView');
+            $form['optionDayAheadViewDay']  = $request->request->get('optionDayAheadViewDay');
             $form['hour']               = $request->request->get('hour');
             if ($form['selectedChart'] == 'sollistirranalyse'   && !$form['optionIrrVal']) $form['optionIrrVal'] = 400;
             if ($form['selectedChart'] == 'pr_and_av'           && $form['optionDate'] < 7) $form['optionDate'] = 7;

@@ -1,5 +1,10 @@
 <?php
-
+/*
+ * MS 10/23
+ * DEK Service zur Erstellung der Gesamtstrahlung in der Modulebene anhand
+ * Wetterdaten aus Daten von PVsyst
+ *
+ */
 namespace App\Service\Forecast;
 
 use App\Repository\AnlagenRepository;

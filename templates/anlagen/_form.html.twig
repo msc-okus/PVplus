@@ -143,7 +143,6 @@
                     <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
                     <li class="tabs-title"><a data-tabs-target="import" href="#import">Import</a></li>
                     <li class="tabs-title"><a data-tabs-target="forecast" href="#forecast">Forecast</a></li>
-                    <li class="tabs-title"><a data-tabs-target="dayahead_forecast" href="#dayahead_forecast">Day-ahead Forecast</a></li>
                     <li class="tabs-title"><a data-tabs-target="timeing" href="#timeing">Time Configuration</a></li>
                     <li class="tabs-title"><a data-tabs-target="AssetManagement" href="#AssetManagement">AM Report Configuration</a></li>
                 {% endif %}
@@ -327,15 +326,15 @@
 
                         <div class="cell medium-6">
                             <fieldset class="fieldset">
-                                <legend>Forecast Settings</legend>
+                                <legend>Forecast Calculation Settings</legend>
                                 <div class="grid-x grid-margin-x">
-                                    <div class="cell medium-4">{{ form_row(anlageForm.useDayForecast) }}</div>
+                                    <div class="cell medium-12">{{ form_row(anlageForm.useDayForecast) }}</div>
                                     <div class="cell medium-4">{{ form_row(anlageForm.degradationForecast) }}</div>
                                     <div class="cell medium-4">{{ form_row(anlageForm.lossesForecast) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.bezMeridan) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.modNeigung) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.modAzimut) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.albeto) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.bezMeridan) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.modNeigung) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.modAzimut) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.albeto) }}</div>
                                     <div class="cell medium-6">{{ form_row(anlageForm.datFilename) }} </div>
                                     <div class="cell medium-6"><label>your uploaded file</label><h5 id="dat_file">{{ anlage.getDatFilename }}</h5>
                                         {% if (anlage.getDatFilename is not empty)  %}
@@ -350,6 +349,14 @@
                                     </div>
                                 </div>
                             </fieldset>
+
+                             <fieldset class="fieldset">
+                                  <legend>Dayahead Forecast Settings</legend>
+                                   <div class="grid-x grid-margin-x">
+                                   <div class="cell medium-4">{{ form_row(anlageForm.useDayaheadForecast) }}    </div>
+                                 </div>
+                             </fieldset>
+
                        </div>
 
                         <div class="cell medium-6">
@@ -745,19 +752,6 @@
                         </div>
                     </div>
                 </div>
-
-
-                {# Day-Ahead Forecast #}
-                <div class="tabs-panel" id="dayahead_forecast">
-                    <div class="grid-x grid-padding-x">
-                        <div class="cell medium-6">
-                            <fieldset class="fieldset">
-                                <legend>Day-ahead Forecast Settings</legend>
-                            </fieldset>
-                        </div>
-                    </div>
-                </div>
-
                 {# Timings #}
                 <div class="tabs-panel" id="timeing">
                     <div class="grid-x grid-margin-x">
