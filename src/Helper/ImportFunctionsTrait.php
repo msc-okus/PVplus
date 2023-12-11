@@ -450,7 +450,6 @@ trait ImportFunctionsTrait
      */
     function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
     {
-
         for ($i = 1; $i <= count($acGroups); $i++) {
 
             $pvpGroupAc = $acGroups[$i-1]['group_ac'];
@@ -479,7 +478,6 @@ trait ImportFunctionsTrait
                 } else {
                     $powerDc = '';
                 }
-
             } else {
                 $powerAc = $currentAc = $voltageAc = $powerDc = $voltageDc = $currentDc = $temp = null;
                 $cosPhi = $blindLeistung = $frequenze = $currentAcP1 = $currentAcP2 = $currentAcP3 = $voltageAcP1 = $voltageAcP2 = $voltageAcP3 = null;
@@ -545,9 +543,9 @@ trait ImportFunctionsTrait
                 $currentDcSCB += $stringBoxesTime[$scbNo][$key];
                 #echo "$date / $scbNo / $key".' / '.$stringBoxesTime[$scbNo][$key]." / $currentDcSCB".'<br>';
             }
-
             $voltageDc = $stringBoxesTime[$scbNo]['U_DC'];
             $powerDc = $currentDcSCB * $voltageDc / 1000 / 4; // Umrechnung von W auf kW/h
+
 
             $dcCurrentMpp = json_encode($dcCurrentMppArray, JSON_THROW_ON_ERROR);
             $dcVoltageMpp = "{}";
@@ -566,9 +564,27 @@ trait ImportFunctionsTrait
                 'group_ac' => $pvpGroupAc,
             ];
 
+            for ($n = 1; $n <= $stringBoxUnits; $n++) {
+                $key = "I$n";
+
+                #echo "$date / $scbNo / $key".' / '.$stringBoxesTime[$scbNo][$key]." / $currentDcSCB".'<br>';
+                $data_db_string_pv[] = [
+                    'anl_id' => $plantId,
+                    'stamp' => $stamp,
+                    'wr_group' => $pvpGroupDc,
+                    'group_ac' => $pvpGroupAc,
+                    'wr_num' => $pvpInverter,
+                    'channel' => $n,
+                    'I_value' => $stringBoxesTime[$scbNo][$key],
+                    'U_value' => NULL,
+                ];
+            }
+
         }
 
         $result[] = $data_pv_dcist;
+        $result[] = $data_db_string_pv;
+
         return $result;
     }
 
