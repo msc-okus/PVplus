@@ -608,10 +608,6 @@ class IrradiationChartService
             $dataArrayFinal['nameX'][0] = 'a';
         }
 
-        echo '<pre>';
-       #print_r($dataArrayFinal);
-        echo '</pre>';
-        #exit;
         return $dataArrayFinal;
     }
 }
