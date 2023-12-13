@@ -544,8 +544,8 @@ trait ImportFunctionsTrait
                 #echo "$date / $scbNo / $key".' / '.$stringBoxesTime[$scbNo][$key]." / $currentDcSCB".'<br>';
             }
             $voltageDc = $stringBoxesTime[$scbNo]['U_DC'];
-            $powerDc = $currentDcSCB * $voltageDc / 1000 / 4; // Umrechnung von W auf kW/h
-
+            #$powerDc = $currentDcSCB * $voltageDc / 1000 / 4; // Umrechnung von W auf kW/h
+            $powerDc = $stringBoxesTime[$scbNo]['P_DC'] / 1000 / 4; // Umrechnung von W auf kW/h
 
             $dcCurrentMpp = json_encode($dcCurrentMppArray, JSON_THROW_ON_ERROR);
             $dcVoltageMpp = "{}";
@@ -566,8 +566,6 @@ trait ImportFunctionsTrait
 
             for ($n = 1; $n <= $stringBoxUnits; $n++) {
                 $key = "I$n";
-
-                #echo "$date / $scbNo / $key".' / '.$stringBoxesTime[$scbNo][$key]." / $currentDcSCB".'<br>';
                 $data_db_string_pv[] = [
                     'anl_id' => $plantId,
                     'stamp' => $stamp,
@@ -584,7 +582,7 @@ trait ImportFunctionsTrait
 
         $result[] = $data_pv_dcist;
         $result[] = $data_db_string_pv;
-
+exit;
         return $result;
     }
 

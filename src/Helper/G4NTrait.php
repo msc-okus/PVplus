@@ -445,18 +445,23 @@ trait G4NTrait
     function getSensorsData(array $anlageSensors, int $length): array
     {
         for ($i = 0; $i < $length; $i++) {
-            $sensorId = $anlageSensors[$i]->getId();
-            $sensorType = $anlageSensors[$i]->getvirtualSensor();
-            $sensorShortname = $anlageSensors[$i]->getNameShort();
-            $sensorUseToCalc = $anlageSensors[$i]->getUseToCalc();
-            $vcomId = $anlageSensors[$i]->getVcomId();
+            $sensorId           = $anlageSensors[$i]->getId();
+            $sensorType         = $anlageSensors[$i]->getvirtualSensor();
+            $sensorShortname    = $anlageSensors[$i]->getNameShort();
+            $sensorUseToCalc    = $anlageSensors[$i]->getUseToCalc();
+            $vcomId             = $anlageSensors[$i]->getVcomId();
+            $startDateSensor    = $anlageSensors[$i]->getStartDateSensor();
+            $endDateSensor      = $anlageSensors[$i]->getEndDateSensor();
 
             $sensors[$sensorId] = [
                 'id_sensor'             => $sensorId,
                 'type_sensor'           => $sensorType,
                 'shortname_sensor'      => $sensorShortname,
                 'usetocalc_sensor'      => $sensorUseToCalc,
-                'vcom_id'               => $vcomId
+                'vcom_id'               => $vcomId,
+                'use_to_calc'           => $sensorUseToCalc,
+                'startDateSensor'       => $startDateSensor,
+                'endDateSensor'         => $endDateSensor
             ];
         }
 

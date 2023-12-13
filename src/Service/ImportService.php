@@ -136,9 +136,9 @@ class ImportService
                 }
             }
 
-            $basics = $bulkMeaserments['basics'];
-            $inverters = $bulkMeaserments['inverters'];
-            $sensors = $bulkMeaserments['sensors'];
+            #$basics = $bulkMeaserments['basics'];
+            #$inverters = $bulkMeaserments['inverters'];
+            #$sensors = $bulkMeaserments['sensors'];
 
             $anlageSensors = $anlage->getSensors();
 
@@ -298,6 +298,7 @@ class ImportService
             $DBDataConnection = $this->pdoService->getPdoPlant();
             $DBStbConnection = $this->pdoService->getPdoStringBoxes();
 
+
             switch ($importType) {
                 case 'api-import-weather':
                     if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0) {
@@ -323,6 +324,7 @@ class ImportService
                         $tableName = "db__string_pv_$anlagenTabelle";
                         self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
                     }
+
 
                     if(is_array($data_pv_ist) && count($data_pv_ist) > 0) {
                         $tableName = "db__pv_ist_$anlagenTabelle";
