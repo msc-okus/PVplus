@@ -375,6 +375,19 @@ class TicketController extends BaseController
         ]);
     }
 
+    #[Route(path: '/ticket/notify/{id}', name: 'app_ticket_notify', methods: ['GET', 'POST'])]
+    public function notify($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
+    {
+        $ticket = $ticketRepo->findOneById($id);
+        $notifications = $ticket->getNotificationInfos();
+
+        return $this->render('ticket/_inc/_notification.html.twig', [
+            'ticket'         => $ticket,
+            'notifications'  => $notifications,
+
+        ]);
+    }
+
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
     public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {

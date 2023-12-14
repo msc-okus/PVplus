@@ -13,10 +13,11 @@ export default class extends Controller {
                         'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
                         'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
-                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv'];
+                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'contactButton', 'modalContactBody'];
     static values = {
         formUrl: String,
         splitUrl: String,
+        notifyUrl: String,
     }
     modal = null;
     splitModal = null;
@@ -44,6 +45,17 @@ export default class extends Controller {
 
         $(this.modalBodyTarget).foundation();
     }
+    async openContactModal(event) {
+        event.preventDefault();
+        this.modalContactBodyTarget.innerHTML = 'Loading ...';
+        this.contactModal = new Reveal($(this.contactModalTarget));
+        this.contactModal.open();
+        console.log(this.notifyUrlValue);
+        this.modalContactBodyTarget.innerHTML = await $.ajax({
+            url: this.notifyUrlValue,
+        });
+    }
+
 
     reasonCheck(){
         let reason = $(this.reasonInputTarget).val();
@@ -795,6 +807,12 @@ export default class extends Controller {
         event.preventDefault();
         this.dispatch('success');
         this.modal.destroy();
+    }
+
+    closeContact(event) {
+        event.preventDefault();
+        this.dispatch('success');
+        this.modalContactTarget.destroy();
     }
 
     async saveTicket(event) {

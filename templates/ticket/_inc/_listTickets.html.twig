@@ -76,13 +76,13 @@
                         <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('ticket-edit', {
                                 formUrl: path('app_ticket_edit', { id: ticket.id}),
                                 splitUrl: path('app_ticket_split', { id: ticket.id}),
+                                notifyUrl: path('app_ticket_notify', {id: ticket.id})
                             }) }}
                         >
                             <button class="hollow button action-icon shadow"
                                     data-action="ticket-edit#openModal"
                                     data-append-to="div#modal-form{{ ticket.id }}"
                             ><span class="fa fa-edit"></span></button>
-
                             {{ include('ticket/_inc/_modalTicket.html.twig', {
                                 modalId: ticket.id,
                                 modalTitel: 'Edit Ticket',
