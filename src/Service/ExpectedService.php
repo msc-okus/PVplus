@@ -15,6 +15,8 @@ use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\OpenWeatherRepository;
 use App\Service\Functions\IrradiationService;
+use App\Repository\AnlageSunShadingRepository;
+use App\Service\Forecast\ForecastCalcService;
 use DivisionByZeroError;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
@@ -35,8 +37,12 @@ class ExpectedService
         private readonly WeatherFunctionsService $weatherFunctions,
         private readonly OpenWeatherService $openWeather,
         private readonly OpenWeatherRepository $openWeatherRepo,
+        private readonly AnlageSunShadingRepository $anlageSunShadingRepository,
+        private readonly ForecastCalcService $forecastCalcService,
         private readonly IrradiationService $irradiationService)
     {
+        $this->anlagesunshadingrepository = $anlageSunShadingRepository;
+        $this->anlageforecastCalcService = $forecastCalcService;
     }
 
     /**
@@ -83,7 +89,8 @@ class ExpectedService
         $aktuellesJahr = date('Y', strtotime((string) $from));
         $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre
         $month = date('m', strtotime((string) $from));
-
+        $has_suns_model = (float)$anlage->getHasSunshadingModel(); // check if has sunshading Model
+        $sshrep = $this->anlagesunshadingrepository->findBy(['anlage' => $anlage->getAnlId()]); // Call the Repository
         $conn = $this->pdoService->getPdoPlant();
         // Lade Wetter (Wetterstation der Anlage) Daten für die angegebene Zeit und Speicher diese in ein Array
         $weatherStations = $this->groupsRepo->findAllWeatherstations($anlage, $anlage->getWeatherStation());
@@ -101,22 +108,31 @@ class ExpectedService
             $resWeather = null;
         }
         $conn = null;
+        // wenn das Sunshadding Model eingegeben wurde.
+        if($has_suns_model){
+            $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
+            $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
+            $input_mer = (integer)$anlage->getBezMeridan();   // Bezugsmeridan Mitteleuropa
+            $input_mn = (integer)$anlage->getModNeigung();    // Modulneigung Grad in radiat deg2rad(45) <----
+            $ausrichtung = ($anlage->getIsOstWestAnlage()) ? '90' : '180';
+        }
 
         foreach ($anlage->getGroups() as $group) {
             // Monatswerte für diese Gruppe laden
             /** @var AnlageGroupMonths $groupMonth */
             $groupMonth = $this->groupMonthsRepo->findOneBy(['anlageGroup' => $group->getId(), 'month' => $month]);
             $anlageMonth = $this->anlageMonthRepo->findOneBy(['anlage' => $anlage, 'month' => $month]);
-
             // Wetterstation auswählen, von der die Daten kommen sollen
             /* @var WeatherStation $currentWeatherStation */
             $currentWeatherStation = $group->getWeatherStation() ?: $anlage->getWeatherStation();
 
             foreach ($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
                 $stamp = $weather['stamp'];
+                $doy = date("z", strtotime($stamp)) + 1; // The Day of Year for Sunshadding
+                $hour = date("H", strtotime($stamp)); // The Hour for Sunshadding
+                //
                 $openWeather = false; ### temporäre deaktivierung OpenWeather
                 ###$openWeather = $this->openWeatherRepo->findTimeMatchingOpenWeather($anlage, date_create($stamp));
-
 
                 for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); ++$unit) {
                     // use plant based shadow loss (normaly - 0)
@@ -130,7 +146,6 @@ class ExpectedService
                         // use general _monthly shadow loss (Entity: AnlageMonth)
                         $shadow_loss = $anlageMonth->getShadowLoss();
                     }
-
                     // Anpassung der Verschattung an die jeweiligen Strahlungsbedingungen
                     // d.h. je weniger Strahlung desso geringer ist die Auswirkung der Verschattung
                     // Werte für die Eingruppierung sind mit OS und TL abgesprochen
@@ -142,18 +157,30 @@ class ExpectedService
                     } else {
                         $tempIrr = $this->functions->mittelwert([(float) $weather['irr_upper'], (float) $weather['irr_lower']]);
                     }
-                    if ($tempIrr <= 100) {
-                        $shadow_loss = $shadow_loss * 0.0; // 0.05
-                    } elseif ($tempIrr <= 200) {
-                        $shadow_loss = $shadow_loss * 0.0; // 0.21
-                    } elseif ($tempIrr <= 400) {
-                        $shadow_loss = $shadow_loss * 0.35;
-                    } elseif ($tempIrr <= 600) {
-                        $shadow_loss = $shadow_loss * 0.57;
-                    } elseif ($tempIrr <= 800) {
-                        $shadow_loss = $shadow_loss * 0.71;
-                    } elseif ($tempIrr <= 1000) {
-                        $shadow_loss = $shadow_loss * 0.8;
+                    // wenn das Sunshadding Model eingegeben wurde.
+                    if ($has_suns_model) {
+                        // Beginn Shadow Loss
+                        if ($tempIrr >= 400) { // Wenn Strahlung größer 500 Wh/m2
+                            $AOIarray = $this->anlageforecastCalcService->getAOI($input_mn, $input_gb, $input_gl, $input_mer, $doy, $hour, $ausrichtung);
+                            $AOI = $AOIarray['AOI']; // Das AOI aus dem Calc Service
+                            $faktorRVSued = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
+                            $shadow_loss = $faktorRVSued['FKR'];  // Shadow loss multiplikation des Verschattungsfaktor.
+                        }
+                    } else {
+                        // Default Shadow Loss
+                        if ($tempIrr <= 100) {
+                            $shadow_loss = $shadow_loss * 0.0; // 0.05
+                        } elseif ($tempIrr <= 200) {
+                            $shadow_loss = $shadow_loss * 0.0; // 0.21
+                        } elseif ($tempIrr <= 400) {
+                            $shadow_loss = $shadow_loss * 0.35;
+                        } elseif ($tempIrr <= 600) {
+                            $shadow_loss = $shadow_loss * 0.57;
+                        } elseif ($tempIrr <= 800) {
+                            $shadow_loss = $shadow_loss * 0.71;
+                        } elseif ($tempIrr <= 1000) {
+                            $shadow_loss = $shadow_loss * 0.8;
+                        }
                     }
 
                     $pannelTemp = is_numeric($weather['panel_temp']) ? (float)$weather['panel_temp'] : null;   // Pannel Temperatur
@@ -690,8 +717,6 @@ class ExpectedService
                             $expEvuSum += $expEvu;
                         }
 
-
-
                         if ($tip == '15min') {
                             $ex4 = $expEvuSum;
                         } else {
@@ -701,7 +726,6 @@ class ExpectedService
                             $hrarry[$doy][$hr][$key]  = ['ts' => $ts, 'ex' => round($ex4,2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir, 'tcell' => $Tcell]; // array for houry return
                             $expEvuSum = 0;
                             $irr = 0;
-
 
                   }
 

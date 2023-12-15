@@ -46,38 +46,53 @@ class DayAheadForecastDEKService {
         foreach ($datfile as $key => $value) {
             $dataDay = strtotime($key);
             foreach ($value as $keyin => $valuein ) {
-                foreach ($valuein as $valueout ) {
+                foreach ($valuein as $sqlstamp => $valueout ) {
                     if ($dataDay < $next2Day) {
                         if ($keyin == 'minute') {
-                            $ts = $valueout['ts'];
-                            $d =$valueout['doy'];
-                            $h = $valueout['hour'];
-                            $m = $valueout['minute'];
-                            $TMP = $valueout['tmp'];
-                            $FF = $valueout['wds'];
-                            $GHI = $valueout['swi']; # shortwave_radiation = $value['ghi'] + $value['dhi'];
-                            $DHI = $valueout['dhi']; # diffuse_radiation
-                            # $DNI = $value['dni']; # direct_normal_radiation
-                            $DNI2 = $valueout['dni']; # direct_normal_radiation
-                            $GHI2 = $valueout['ghi']; # direct_radiation
+                            $stampday = date('Y-m-d-H-i-z', strtotime((string)$sqlstamp));
+                            [$year, $month, $day, $hour, $minute, $dayofyear] = explode("-", $stampday);
+
+                            $ts = $sqlstamp;
+                            $d = $dayofyear + 1;
+                            $h = $hour;
+                            $m = $minute;
+                            $GHI2=$DNI2=$DHI=$GHI=$FF=$TMP = 0;
+                            foreach ($valueout as $dam) {
+                                $TMP += $dam['tmp'] / 11;
+                                $FF += $dam['wds'] / 11;
+                                $GHI += $dam['swi'] / 11; # shortwave_radiation = $value['ghi'] + $value['dhi'];
+                                $DHI += $dam['dhi'] / 11; # diffuse_radiation
+                                # $DNI = $value['dni']; # direct_normal_radiation
+                                $DNI2 += $dam['dni'] / 11; # direct_normal_radiation
+                                $GHI2 += $dam['ghi'] / 11; # direct_radiation
+                            }
                             $instep = '15min';
                         }
+
                     } else {
+
                         if ($keyin == 'hourly') {
-                            $ts = $valueout['ts'];
-                            $d = $valueout['doy'];
-                            $h = $valueout['hour'];
-                            $m = $valueout['minute'];
-                            $TMP = $valueout['tmp'];
-                            $FF = $valueout['wds'];
-                            $GHI = $valueout['swi']; # shortwave_radiation = $value['ghi'] + $value['dhi'];
-                            $DHI = $valueout['dhi']; # diffuse_radiation
-                            # $DNI = $value['dni']; # direct_normal_radiation
-                            $DNI2 = $valueout['dni']; # direct_normal_radiation
-                            $GHI2 = $valueout['ghi']; # direct_radiation
+                            $stampday = date('Y-m-d-H-i-z', strtotime((string)$sqlstamp));
+                            [$year, $month, $day, $hour, $minute, $dayofyear] = explode("-", $stampday);
+                            $ts = $sqlstamp;
+                            $d = $dayofyear + 1;
+                            $h = $hour;
+                            $m = $minute;
+                            $GHI2=$DNI2=$DHI=$GHI=$FF=$TMP = 0;
+                            foreach ($valueout as $dah) {
+                                $TMP += $dah['tmp'] / 11;
+                                $FF += $dah['wds'] / 11;
+                                $GHI += $dah['swi'] / 11; # shortwave_radiation = $value['ghi'] + $value['dhi'];
+                                $DHI += $dah['dhi'] / 11; # diffuse_radiation
+                                # $DNI = $value['dni']; # direct_normal_radiation
+                                $DNI2 += $dah['dni'] / 11; # direct_normal_radiation
+                                $GHI2 += $dah['ghi'] / 11; # direct_radiation
+                            }
                             $instep = '60min';
                         }
                     }
+
+                 #   echo " $sqlstamp  $TMP $FF $GHI $DHI $DNI2 $GHI2 \n";
 
                     $AZW = ["180", "90", "270"]; // Berechung aller Modul Azimut winkel Süd / Ost / West
                     foreach ($AZW as $winkel) {
@@ -90,7 +105,7 @@ class DayAheadForecastDEKService {
                         $SH = $AOIarray['SH'];
                         $SHGD = rad2deg($SH); // Sonnenhöhe in Grad
                         // Berechnung vom prozentualen Anteil der Strahlung
-                        $GDIR = $GHI - $DNI2; // $GHI - $DHI Daten aus Meteo GHI - DHI
+                        $GDIR = $GHI - $DHI; // $GHI - $DHI Daten aus Meteo GHI - DHI
                         ($GDIR > 1) ? $GDIRPRZ = round(($GDIR / $GHI) * 100, 0) : $GDIRPRZ = 0; // in Prozent
                         $IAM = 1 - 0.05 * (1 / cos($AOI) - 1); //  Reflexionsverlust der Einstrahlung
 
@@ -100,17 +115,8 @@ class DayAheadForecastDEKService {
                         $CSZ = sin($SZ);
                         $SZGRD = round(rad2deg($SZ));
 
-                        #   $DNI = $GDIR / $CSZ ; // Berechnung der Senkrechtstrahlung
-                        #   $DNI = (($DNI + $DHI) - $GHI2) / $CSZ; // Berechnung der Senkrechtstrahlung
-                        #   $DHIPRZ = round(($DHI / $GHI2) * 100,2);
-
-                        // Berechnung der Senkrechtstrahlung im bei sonderfall bei größerer diffuser strahlung
-                        if ($DHI > $GHI2) {
-                            $DNI =  $GHI / $CSZ;
-                        } else {
-                            // Berechnung der Senkrechtstrahlung im Normal
-                            $DNI =  $GHI / $CSZ;
-                        }
+                        // Berechnung der Senkrechtstrahlung im der Normal EBENE
+                        $DNI =  $GDIR / $CSZ; #$GHI / $CSZ;
 
                         $DIRpoa = $DNI * cos($AOI) * $IAM;     // Direktstrahlung in Modulebene --
                         $DIFpoa = $DHI * ((1 + cos(deg2rad($input_mn))) / 2) + $GHI2 * (0.012 * $SZ - 0.04) * ((1 - cos(deg2rad($input_mn))) / 2); // Diffusstrahlung in Modulebene
@@ -170,7 +176,6 @@ class DayAheadForecastDEKService {
                     }
 
                     $valueofdayandhour[$gendoy][$h][$m] = ['DOY' => $gendoy, 'HR' => $h, 'MIN' => $m, 'TIP' => $instep, 'TS' => $ts, 'TMP' => $TMP, 'FF' => $FF, 'GDIR' => $GDIR, 'RVF' => ['SUED' => $faktorRVSued, 'OST' => $faktorRVOst, 'WEST' => $faktorRVWest], "SUED" => ['RGES' => $RGES, 'RGESBIF' => $RGESBIF], "OSTWEST" => ['RGES_UPPER' => $RGES_UPPER, 'RGES_LOWER' => $RGES_LOWER, 'RGESBIF_UPPER' => $RGESBIF_UPPER, 'RGESBIF_LOWER' => $RGESBIF_LOWER]];
-
 
                     $DNI = $RGES_LOWER = $RGES_UPPER = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGESBIF = $RGES = 0;
                 }

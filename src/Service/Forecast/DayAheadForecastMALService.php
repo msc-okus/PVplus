@@ -60,10 +60,8 @@ class DayAheadForecastMALService
               $targets[] = (empty($value['wr_pac'])) ? 0.0 : $value['wr_pac'];
           }
 
-
           $regression = new LeastSquares();
           $regression->train($samples, $targets);
-
 
           if ((is_countable($decarray) ? count($decarray) : 0) > 0) {
               foreach ($decarray as $keyout => $valout) {
@@ -96,7 +94,11 @@ class DayAheadForecastMALService
                               if ($tip == "60min") { $irrUpper = $irrUpper / 4; }
 
                               $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irrUpper), 2);
-                              $ex4 = $regression->predict([$irrUpper, $Tcell]);
+                              if ($irrUpper == 0.0 OR $irrUpper == 0 OR $irrUpper == NULL){
+                                  $ex4 = 0.0;
+                              } else {
+                                  $ex4 = $regression->predict([$irrUpper, $Tcell]);
+                              }
 
                           } else {
 
@@ -109,10 +111,12 @@ class DayAheadForecastMALService
                               if ($tip == "60min") { $irr = $irr / 4 ; }
 
                               $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
-                              $ex4 = $regression->predict([$irr, $Tcell]);
-
+                              if ($irr == 0.0 OR $irr == 0 OR $irr == NULL){
+                                  $ex4 = 0.0;
+                              } else {
+                                  $ex4 = $regression->predict([$irr, $Tcell]);
+                              }
                           }
-
 
                           $hrarry[$doy][$hr][$key]  = ['ts' => $ts, 'ex' => round($ex4,2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir, 'tcell' => $Tcell]; // array for houry return
                           $irr = 0;

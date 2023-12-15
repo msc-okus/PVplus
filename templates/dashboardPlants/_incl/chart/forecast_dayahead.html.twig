@@ -18,7 +18,7 @@
         {% endif %}
 
         let title = chart.titles.create();
-        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} and {{ Dayvalue }} more day's)";
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} and {{ Dayvalue }} more days)";
         title.fontSize = 18;
         title.marginBottom = 30;
 
@@ -522,7 +522,7 @@
         chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
         chart.exporting.formatOptions.getKey("print").disabled = true;
         chart.exporting.formatOptions.getKey("pdf").disabled = true;
-        chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} and {{ Dayvalue }} more day's)";
+        chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} and {{ Dayvalue }} more days)";
 
     }); // end am4core.ready()
 </script>

@@ -82,11 +82,6 @@ class DayAheadWriteDBCommand extends Command {
             $forcarstarray = $this->aheadForecastMALService->calcforecastout($anlageId,$decarray);
             //  $forcarstarray = $this->expectedService->calcExpectedforDayAheadForecast($anlage, $decarray); //
 
-// only for debuging //
-#$h = fopen('decarray.txt', 'w');
-#fwrite($h, var_export($decarray, true));
-#print_R( $forcarstarray);
-
             $endprz = 0;
             foreach ($forcarstarray as $interarray) {
                 foreach ($interarray as $valueinner) {

@@ -9,8 +9,10 @@ use App\Repository\ForcastRepository;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use DateTime;
+use DateTimeZone;
 use PDO;
 use App\Service\PdoService;
+
 
 class ForecastChartService
 {
@@ -311,6 +313,7 @@ private readonly PdoService $pdoService,
     }
     // Get the Dayahead Forecast data for Chart
     public function getForecastDayAhead(Anlage $anlage, $from, $view, $days ): array {
+        $now = new DateTime('now', new DateTimeZone('Europe/Berlin'));
 
         switch ($view) {
             case 0 :
@@ -321,12 +324,12 @@ private readonly PdoService $pdoService,
             case 1 :
                 $form = '%y%m%d%H';
                 $dateform = '%Y-%m-%d %H:%i';
-                $datenowhour = date("Y-m-d H:00");
+                $datenowhour = $now->format("Y-m-d H:00");
             break;
             case 2 :
                 $form = '%y%m%d%H%i';
                 $dateform = '%Y-%m-%d %H:%i';
-                $datenowhour = date("Y-m-d H:00");
+                $datenowhour = $now->format("Y-m-d H:00");
                 $days = '3';
             break;
             default :
