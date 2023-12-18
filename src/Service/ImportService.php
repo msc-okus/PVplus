@@ -84,7 +84,9 @@ class ImportService
         $mcPassword = $owner->getSettings()->getMcPassword();
         $mcToken = $owner->getSettings()->getMcToken();
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
+        $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
         $bulkMeaserments = [];
+
         //get the Data from vcom
         $curl = curl_init();
 
@@ -100,8 +102,6 @@ class ImportService
 
         $data_pv_ist = [];
         $data_pv_dcist = [];
-
-
         if (count($bulkMeaserments) > 0) {
             for ($i = 0; $i < count($bulkMeaserments); ++$i) {
                 for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
@@ -140,6 +140,7 @@ class ImportService
             #$inverters = $bulkMeaserments['inverters'];
             #$sensors = $bulkMeaserments['sensors'];
 
+            //die Sensoren aus der Anlagenkonfiguration
             $anlageSensors = $anlage->getSensors();
 
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
@@ -158,11 +159,10 @@ class ImportService
 
                 (int)$length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
 
-                if (is_array($sensors) && array_key_exists($date, $sensors) && $length > 0) {
+                if ((is_array($sensors) && array_key_exists($date, $sensors) && $length > 0) || $hasSensorsInBasics == 1) {
                     //if plant use sensors datatable get data from the table
                     if($useSensorsDataTable){
-                        $result = self::getSensorsDataFromImport($anlageSensors->toArray(), $length, $sensors, $stamp, $date, $gMo);
-
+                        $result = self::getSensorsDataFromVcom((array)$anlageSensors->toArray(), (int)$length, (array)$sensors, (array)$basics, $stamp, $date, (float)$gMo);
                         //built array for sensordata
                         for ($j = 0; $j <= count($result[0])-1; $j++) {
                             $dataSensors[] = $result[0][$j];
@@ -174,7 +174,8 @@ class ImportService
                 $checkSensors = [];
                 // the old way
                 if($length > 0){
-                    $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
+
+                    $checkSensors = self::checkSensors($anlageSensors->toArray(), (int)$length, (bool)$isEastWest, (array)$sensors, (array)$basics, $date);
 
                     $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
@@ -298,7 +299,6 @@ class ImportService
             $DBDataConnection = $this->pdoService->getPdoPlant();
             $DBStbConnection = $this->pdoService->getPdoStringBoxes();
 
-
             switch ($importType) {
                 case 'api-import-weather':
                     if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0) {
@@ -324,7 +324,6 @@ class ImportService
                         $tableName = "db__string_pv_$anlagenTabelle";
                         self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
                     }
-
 
                     if(is_array($data_pv_ist) && count($data_pv_ist) > 0) {
                         $tableName = "db__pv_ist_$anlagenTabelle";
