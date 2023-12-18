@@ -180,6 +180,9 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $useSensorsData = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $sensorsInBasics = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -769,6 +772,18 @@ class AnlageSettings
     public function setUseSensorsData(?bool $useSensorsData): self
     {
         $this->useSensorsData = $useSensorsData;
+
+        return $this;
+    }
+
+    public function isSensorsInBasics(): ?bool
+    {
+        return $this->sensorsInBasics;
+    }
+
+    public function setSensorsInBasics(?bool $sensorsInBasics): self
+    {
+        $this->sensorsInBasics = $sensorsInBasics;
 
         return $this;
     }

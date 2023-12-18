@@ -449,6 +449,7 @@ trait G4NTrait
             $sensorType = $anlageSensors[$i]->getvirtualSensor();
             $sensorShortname = $anlageSensors[$i]->getNameShort();
             $sensorUseToCalc = $anlageSensors[$i]->getUseToCalc();
+            $sensorIsFromBasics = $anlageSensors[$i]->getIsFromBasics();
             $vcomId = $anlageSensors[$i]->getVcomId();
 
             $sensors[$sensorId] = [
@@ -456,6 +457,7 @@ trait G4NTrait
                 'type_sensor'           => $sensorType,
                 'shortname_sensor'      => $sensorShortname,
                 'usetocalc_sensor'      => $sensorUseToCalc,
+                'isfrombasics_sensor'   => $sensorUseToCalc,
                 'vcom_id'               => $vcomId
             ];
         }

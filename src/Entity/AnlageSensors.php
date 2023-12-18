@@ -147,7 +147,7 @@ class AnlageSensors
     public function setIsFromBasics(?bool $isFromBasics): static
     {
         $this->isFromBasics = $isFromBasics;
-        return $this->isFromBasics;
+        return $this;
     }
 
     function getVcomId(): ?string

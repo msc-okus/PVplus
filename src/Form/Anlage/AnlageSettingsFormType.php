@@ -229,6 +229,11 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => '[Import Sensors Data into new Table]'
             ])
 
+            ->add('sensorsInBasics', SwitchType::class, [
+                'label'     => 'This plant hve sensors in Vcom/Basics',
+                'help'      => 'This plant hve sensors in Vcom/Basics'
+            ])
+
             ->add('importType', ChoiceType::class, [
                 'choices'       => self::importTypes(),
                 'placeholder'   => 'please Select',
