@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-
 class UserController extends BaseController
 {
     #[Route(path: '/admin/user/new', name: 'app_admin_user_new')]
