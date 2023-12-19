@@ -328,10 +328,10 @@ trait G4NTrait
         return $month;
     }
 
-    public function printArrayAsTable(array $content): string
+    public function printArrayAsTable(array $content, string $decimalSeparator = '.'): string
     {
         $precision = 4;
-        $_html = "<div class='table-scroll'><table style='font-size: 90%'>";
+        $_html = "<div class='table-scroll'><table id='special_export' style='font-size: 90%'>";
         $_counter = 0;
         $_html .= '<thead>';
         foreach ($content as $key => $contentRow) {
@@ -347,7 +347,7 @@ trait G4NTrait
             $_html .= "<tr><td>$key</td>";
             foreach ($contentRow as $cell) {
                 if (is_float($cell)) {
-                    $_html .= '<td>'.round($cell, $precision).'</td>';
+                    $_html .= '<td>'.number_format(round($cell, $precision),$precision, $decimalSeparator,'').'</td>';
                 } else {
                     $_html .= "<td>$cell</td>";
                 }

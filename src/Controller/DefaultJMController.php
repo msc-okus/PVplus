@@ -18,7 +18,7 @@ use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use PDO;
 use Hisune\EchartsPHP\ECharts;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -88,9 +88,7 @@ class DefaultJMController extends AbstractController
 
         foreach ($anlagen as $anlage){
             $timeZone = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
-            dump($timeZone->getName());
             date_default_timezone_set($timeZone->getName());
-            dump(new DateTime('now'));
         }
 
         dd("hello World");

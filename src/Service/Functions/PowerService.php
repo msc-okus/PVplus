@@ -406,7 +406,7 @@ private readonly PdoService $pdoService,
                             if ($ticketDate->getTicket()->isScope(10)) $power1 = $power1 - $row['power'] + $replaceEnery; // Department 1
                             if ($ticketDate->getTicket()->isScope(20)) $power2 = $power2 - $row['power'] + $replaceEnery; // Department 2
                             if ($ticketDate->getTicket()->isScope(30)) $power3 = $power3 - $row['power'] + $replaceEnery; // Department 3
-                            dump("Reduce Energy by: " . $row['power'] . " and replace with: " . $ticketDate->getValueEnergy());
+                            #dump("Reduce Energy by: " . $row['power'] . " and replace with: " . $ticketDate->getValueEnergy());
                         }
                         break;
                 }
