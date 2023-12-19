@@ -640,7 +640,6 @@ class AnlagenAdminController extends BaseController
                               `date` varchar(50) DEFAULT NULL,
                               `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
                               `id_sensor` int(3) DEFAULT NULL,
-                              `type_sensor` varchar(20) DEFAULT NULL,
                               `value` float DEFAULT NULL,
                               `gmo` float DEFAULT NULL,
                               PRIMARY KEY (`db_id`) USING BTREE,
