@@ -81,14 +81,16 @@ class ImportService
         $mcPassword = $owner->getSettings()->getMcPassword();
         $mcToken = $owner->getSettings()->getMcToken();
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
+        $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
         $bulkMeaserments = [];
+
         //get the Data from vcom
         if($plantId != 234) {
             $curl = curl_init();
-
             $bulkMeaserments = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $systemKey, $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
             curl_close($curl);
         }
+
         $data_pv_ist = [];
         $data_pv_dcist = [];
         if (count($bulkMeaserments) > 0) {
@@ -97,6 +99,7 @@ class ImportService
             $inverters = $bulkMeaserments['inverters'];
             $sensors = $bulkMeaserments['sensors'];
 
+            //die Sensoren aus der Anlagenkonfiguration
             $anlageSensors = $anlage->getSensors();
 
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
@@ -115,11 +118,10 @@ class ImportService
 
                 (int)$length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
 
-                if (is_array($sensors) && array_key_exists($date, $sensors) && $length > 0) {
+                if ((is_array($sensors) && array_key_exists($date, $sensors) && $length > 0) || $hasSensorsInBasics == 1) {
                     //if plant use sensors datatable get data from the table
                     if($useSensorsDataTable){
-                        $result = self::getSensorsDataFromImport($anlageSensors->toArray(), $length, $sensors, $stamp, $date, $gMo);
-
+                        $result = self::getSensorsDataFromVcom((array)$anlageSensors->toArray(), (int)$length, (array)$sensors, (array)$basics, $stamp, $date, (float)$gMo);
                         //built array for sensordata
                         for ($j = 0; $j <= count($result[0])-1; $j++) {
                             $dataSensors[] = $result[0][$j];
@@ -131,7 +133,8 @@ class ImportService
                 $checkSensors = [];
                 // the old way
                 if($length > 0){
-                    $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $date);
+
+                    $checkSensors = self::checkSensors($anlageSensors->toArray(), (int)$length, (bool)$isEastWest, (array)$sensors, (array)$basics, $date);
 
                     $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
