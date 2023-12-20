@@ -94,7 +94,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private string $id;  // DBAL return Type of bigint = string
 
     #[Groups(['user:read', 'user_list'])]
     #[ORM\Column(name: 'name', type: 'string', length: 20, nullable: false)]
@@ -133,10 +133,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Eigner::class, mappedBy: 'user')]
     private Collection $eigners;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ApiToken::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ApiToken::class, cascade: ['remove'])]
     private Collection $apiTokens;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogin::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogin::class, cascade: ['remove'])]
 
     private Collection $userLogins;
 

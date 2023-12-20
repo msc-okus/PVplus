@@ -40,6 +40,9 @@ class SensorsListEmbeddedFormType extends AbstractType
             ->add('useToCalc', SwitchType::class, [
                 'required' => false,
             ])
+            ->add('isFromBasics', SwitchType::class, [
+                'required' => false,
+            ])
             ->add('orientation', ChoiceType::class, [
                 'choices'       => self::sensorOriantation(),
                 'placeholder'   => 'please Select',

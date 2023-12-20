@@ -1,28 +1,21 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
 use App\Entity\ApiToken;
-use App\Entity\UserLogin;
 use App\Repository\ApiTokenRepository;
-use App\Repository\UserLoginRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends BaseController
 {
     #[Route(path: '/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils, UserLoginRepository $userLoginRepository,UserRepository $userRepository): Response
+    public function login(AuthenticationUtils $authenticationUtils): Response
     {
          if ($this->getUser()) {
-             $user= $userRepository->findOneBy(['email'=>$this->getUser()->getUserIdentifier()]);
-             $userLogin = new UserLogin($user) ;
-             $userLoginRepository->save($userLogin,true);
-
              return $this->redirectToRoute('app_dashboard');
          }
         // get the login error if there is one
@@ -37,8 +30,8 @@ class SecurityController extends BaseController
         return $this->render('login/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
-            'page' => $page,
-            'session' => $session,
+            #'page' => $page,
+            #'session' => $session,
         ]);
     }
 

@@ -39,7 +39,8 @@ class AnlageFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
-        $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->security->isGranted('ROLE_ADMIN');
+        $isG4NUser = $this->security->isGranted('ROLE_G4N');
 
         $anlage = $builder->getData();
         if (!$anlage instanceof Anlage) {
@@ -149,13 +150,14 @@ class AnlageFormType extends AbstractType
             ])
             ->add('customPlantId', TextType::class, [
                 'label' => 'Identifier to select Plant via API (e.g. VCOM)',
-                'help'  => '[customPlantId]',
+                'help' => '[customPlantId]',
                 'empty_data' => '',
                 'required' => false,
+                'disabled' => !$isG4NUser,
             ])
             ->add('notes', TextareaType::class, [
                 'label' => 'Notizen zur Anlage',
-                'help'  => '[notes]',
+                'help' => '[notes]',
                 'attr' => ['rows' => '6'],
                 'empty_data' => '',
                 'required' => false,
@@ -169,7 +171,6 @@ class AnlageFormType extends AbstractType
                 'required' => true,
                 'disabled' => !$isDeveloper,
             ])
-
             ->add('anlType', ChoiceType::class, [
                 'label' => 'Anlagen Typ',
                 'help' => '[anlType]',
@@ -177,10 +178,11 @@ class AnlageFormType extends AbstractType
                 'placeholder' => 'Please Choose',
                 'empty_data' => '',
                 'required' => true,
+                'disabled' => !$isG4NUser,
             ])
             ->add('anlBetrieb', null, [
                 'label' => 'In Betrieb seit:',
-                'help' => "[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt<br> In Betrieb seit ". $anlage->getBetriebsJahre()." Jahr(en).",
+                'help' => "[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt<br> In Betrieb seit " . $anlage->getBetriebsJahre() . " Jahr(en).",
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])
@@ -190,6 +192,7 @@ class AnlageFormType extends AbstractType
                 'choices' => self::timeArray(),
                 'placeholder' => 'Please Choose',
                 'empty_data' => '+0',
+                'disabled' => !$isG4NUser,
             ])
             ->add('anlInputDaily', ChoiceType::class, [
                 'label' => 'Nur einmal am Tag neue Daten',
@@ -210,18 +213,18 @@ class AnlageFormType extends AbstractType
             ])
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
-                'help' => '[configType]<br>'.$tooltipTextPlantType,
+                'help' => '[configType]<br>' . $tooltipTextPlantType,
                 'choices' => ['1' => 1, '2' => 2, '3' => 3, '4' => 4],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 1,
                 'disabled' => !($isDeveloper || $isAdmin),
             ])
             ->add('pathToImportScript', TextType::class, [
-                'label'     => 'Path to Import Script',
-                'help'      => '[pathToImportScript]',
-                'empty_data'    => '',
-            ])
-        ;
+                'label' => 'Path to Import Script',
+                'help' => '[pathToImportScript]',
+                'empty_data' => '',
+                'disabled' => !$isG4NUser,
+            ]);
 
         $builder
             // ##### WeatherStation #######
@@ -255,7 +258,6 @@ class AnlageFormType extends AbstractType
                 'required' => false,
                 'empty_data' => '',
             ])
-
             ->add('kwPeakPLDCalculation', TextType::class, [
                 'label' => 'Anlagenleistung für PLD Berechnung [kWp]',
                 'help' => '[kwPeakPLDCalculation]',
@@ -478,7 +480,6 @@ class AnlageFormType extends AbstractType
                 'required' => false,
                 'empty_data' => '0',
             ])
-
             ->add('hasDc', SwitchType::class, [
                 'label' => 'Anlage hat DC Daten',
                 'help' => '[hasDc]',
@@ -488,7 +489,6 @@ class AnlageFormType extends AbstractType
                 'choices' => $pldAlgorithmArray,
                 'help' => '[pldAlgorithm]',
             ])
-
             ->add('hasStrings', SwitchType::class, [
                 'label' => 'Anlage hat String Daten',
                 'help' => '[hasStrings]',
@@ -502,8 +502,8 @@ class AnlageFormType extends AbstractType
                 'help' => '[usePPC]<br>Power, TheoPower, Irradiation will be excluded if PPC signal is lower 100',
             ])
             ->add('ignoreNegativEvu', SwitchType::class, [
-                'label'     => 'Ignore negative EVU values',
-                'help'      => '[ignoreNegativEvu]',
+                'label' => 'Ignore negative EVU values',
+                'help' => '[ignoreNegativEvu]',
             ])
             ->add('hasPannelTemp', SwitchType::class, [
                 'label' => 'Anlage hat Pannel Temperatur',
@@ -528,7 +528,7 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3,'style' => 'width: 55px']
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3, 'style' => 'width: 55px']
             ])
             ->add('lossesForecast', TextType::class, [
                 'label' => 'Losses, only forecast [%]',
@@ -536,7 +536,7 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3,'style' => 'width: 55px']
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3, 'style' => 'width: 55px']
             ])
             ->add('bezMeridan', TextType::class, [
                 'label' => 'Reference meridian',
@@ -544,44 +544,43 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => true,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2,'style' => 'width: 55px']
+                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 55px']
             ])
             ->add('modNeigung', TextType::class, [
                 'label' => 'Module alignment',
                 'help' => '[Module alignment in degrees , example 30]',
                 'label_html' => true,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2,'style' => 'width: 55px']
+                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 55px']
             ])
             ->add('modAzimut', TextType::class, [
                 'label' => 'Modul azimut',
                 'help' => '[Modul azimut in degrees for S=180 O=90 W=270 ]',
                 'label_html' => true,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3,'style' => 'width: 55px']
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3, 'style' => 'width: 55px']
             ])
             ->add('albeto', TextType::class, [
                 'label' => 'Albedo',
                 'help' => '[The albedo are 0.15 for grass or 0.3 for roof]',
                 'label_html' => true,
                 'empty_data' => '0',
-                'attr' => ['maxlength' => 4,'style' => 'width: 55px']
+                'attr' => ['maxlength' => 4, 'style' => 'width: 55px']
             ])
             ->add('datFilename', FileType::class, [
                 'label' => 'Upload the metonorm *dat file',
                 'mapped' => false,
                 'help' => '[The generated meteonorm *dat file]',
-                'attr'=> ['class'=>'filestyle'],
+                'attr' => ['class' => 'filestyle'],
                 'constraints' => [
                     new File([
                         'maxSize' => '5120k',
-                        'mimeTypes' => [ ],
+                        'mimeTypes' => [],
                         'mimeTypesMessage' => 'Please upload a valid *dat file',
                     ])
                 ],
                 'required' => true,
             ])
-
             ->add('dataSourceAM', CKEditorType::class, [
                 'label' => 'Summary DataSources AM Report',
                 'empty_data' => 'Module Inclination: <br>Module Name: <br>Module Type: <br>Module Performance: <br>Number of Modules: <br>Inverter Name: <br>Inverter Type: <br>Number of Inverters:',
@@ -649,95 +648,95 @@ class AnlageFormType extends AbstractType
             ])
             ->add('usePAFlag0', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('usePAFlag1', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('usePAFlag2', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('usePAFlag3', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help'  => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('paFormular0', ChoiceType::class, [
-                'label'         => 'PA Formular',
-                'help'          => '[paFormular0]',
-                'label_html'    => true,
-                'choices'       => $paFormulars,
-                'empty_data'    => 'expected',
-                'expanded'      => false,
-                'multiple'      => false,
+                'label' => 'PA Formular',
+                'help' => '[paFormular0]',
+                'label_html' => true,
+                'choices' => $paFormulars,
+                'empty_data' => 'expected',
+                'expanded' => false,
+                'multiple' => false,
             ])
             ->add('paFormular1', ChoiceType::class, [
-                'label'         => 'PA Formular',
-                'help'          => '[paFormular1]',
-                'label_html'    => true,
-                'choices'       => $paFormulars,
-                'empty_data'    => 'expected',
-                'expanded'      => false,
-                'multiple'      => false,
+                'label' => 'PA Formular',
+                'help' => '[paFormular1]',
+                'label_html' => true,
+                'choices' => $paFormulars,
+                'empty_data' => 'expected',
+                'expanded' => false,
+                'multiple' => false,
             ])
             ->add('paFormular2', ChoiceType::class, [
-                'label'         => 'PA Formular',
-                'help'          => '[paFormular2]',
-                'label_html'    => true,
-                'choices'       => $paFormulars,
-                'empty_data'    => 'expected',
-                'expanded'      => false,
-                'multiple'      => false,
+                'label' => 'PA Formular',
+                'help' => '[paFormular2]',
+                'label_html' => true,
+                'choices' => $paFormulars,
+                'empty_data' => 'expected',
+                'expanded' => false,
+                'multiple' => false,
             ])
             ->add('paFormular3', ChoiceType::class, [
-                'label'         => 'PA Formular',
-                'help'          => '[paFormular3]',
-                'label_html'    => true,
-                'choices'       => $paFormulars,
-                'empty_data'    => 'expected',
-                'expanded'      => false,
-                'multiple'      => false,
+                'label' => 'PA Formular',
+                'help' => '[paFormular3]',
+                'label_html' => true,
+                'choices' => $paFormulars,
+                'empty_data' => 'expected',
+                'expanded' => false,
+                'multiple' => false,
             ])
             ->add('treatingDataGapsAsOutage', SwitchType::class, [
                 'label' => 'Treat Data Gaps as Outage',
-                'help'  => '[treatingDataGapsAsOutage]',
+                'help' => '[treatingDataGapsAsOutage]',
             ])
             ->add('prFormular0', ChoiceType::class, [
-                'label'         => 'PR Formular',
-                'help'          => '[paFormular0]',
-                'label_html'    => true,
-                'choices'       => $prArray,
-                'empty_data'    => 'expected',
-                'expanded'      => false,
-                'multiple'      => false,
+                'label' => 'PR Formular',
+                'help' => '[paFormular0]',
+                'label_html' => true,
+                'choices' => $prArray,
+                'empty_data' => 'expected',
+                'expanded' => false,
+                'multiple' => false,
             ])
             ->add('prFormular1', ChoiceType::class, [
-                'label'         => 'PR Formular',
-                'help'          => '[paFormular1]',
-                'label_html'    => true,
-                'choices'       => $prArray,
-                'empty_data'    => 'expected',
-                'expanded'      => false,
-                'multiple'      => false,
+                'label' => 'PR Formular',
+                'help' => '[paFormular1]',
+                'label_html' => true,
+                'choices' => $prArray,
+                'empty_data' => 'expected',
+                'expanded' => false,
+                'multiple' => false,
             ])
             ->add('prFormular2', ChoiceType::class, [
-                'label'         => 'PR Formular',
-                'help'          => '[prFormular2]',
-                'label_html'    => true,
-                'choices'       => $prArray,
-                'empty_data'    => 'expected',
-                'expanded'      => false,
-                'multiple'      => false,
+                'label' => 'PR Formular',
+                'help' => '[prFormular2]',
+                'label_html' => true,
+                'choices' => $prArray,
+                'empty_data' => 'expected',
+                'expanded' => false,
+                'multiple' => false,
             ])
             ->add('prFormular3', ChoiceType::class, [
-                'label'         => 'PR Formular',
-                'help'          => '[prFormular3]',
-                'label_html'    => true,
-                'choices'       => $prArray,
-                'empty_data'    => 'expected',
-                'expanded'      => false,
-                'multiple'      => false,
+                'label' => 'PR Formular',
+                'help' => '[prFormular3]',
+                'label_html' => true,
+                'choices' => $prArray,
+                'empty_data' => 'expected',
+                'expanded' => false,
+                'multiple' => false,
             ])
 
             // ###############################################
@@ -747,16 +746,23 @@ class AnlageFormType extends AbstractType
             ->add('ActivateTicketSystem', SwitchType::class, [
                 'label' => 'Activate ticket autogeneration',
                 'help' => '[ActivateTicketSystem]',
-                'attr' => ['data-plant-target' => 'activateTicket', 'data-action'=>'plant#activateTicket'],
+                'attr' => ['data-plant-target' => 'activateTicket', 'data-action' => 'plant#activateTicket'],
+                'disabled' => !$isG4NUser,
             ])
-            ->add('internalTicketSystem', SwitchType::class, [
-                'label' => 'Activate internal ticket autogeneration',
-                'help' => '<br>[internalTicketSystem]',
-            ])
+        ;
+        if ($isG4NUser) {
+            $builder
+                ->add('internalTicketSystem', SwitchType::class, [
+                    'label' => 'Activate internal ticket autogeneration',
+                    'help' => '<br>[internalTicketSystem]',
+                ]);
+        }
+        $builder
             ->add('newAlgorythm', SwitchType::class, [
                 'label' => 'Use the new Algorithm',
                 'help' => 'The new algorithm prioritizes joining tickets that begin at the same time, and the old one joins tickets if the begin and end match<br>[newAlgorythm]',
                 'attr' => ['data-plant-target' => 'ticket'],
+                'disabled' => !$isG4NUser,
             ])
             ->add('freqBase', TextType::class, [
                 'label' => 'Base frequency of the Plant [Hz]',
@@ -773,27 +779,32 @@ class AnlageFormType extends AbstractType
             ->add('expectedTicket', SwitchType::class, [
                 'label' => 'Activate Expected Tickets',
                 'help' => '[ExpectedTicket]',
-                'attr' => ['data-plant-target' => 'ticket']
+                'attr' => ['data-plant-target' => 'ticket'],
+                'disabled' => !$isG4NUser,
             ])
             ->add('percentageDiff',TextType::class, [
                 'label' => 'Ticket Expected limit [%]',
                 'help' => '[percentageDiff]',
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '',
+                'disabled' => !$isG4NUser,
             ])
             ->add('weatherTicket', SwitchType::class, [
                 'label' => 'Activate Weather Ticket',
                 'help' => '[WeatherTicket]',
-                'attr' => ['data-plant-target' => 'ticket']
+                'attr' => ['data-plant-target' => 'ticket'],
+                'disabled' => !$isG4NUser,
             ])
             ->add('kpiTicket', SwitchType::class, [
                 'label' => 'Activate Performace (KPI) Tickets',
                 'help' => '[kpiTicket]',
+                'disabled' => !$isG4NUser,
             ])
             ->add('gridTicket', SwitchType::class, [
                 'label' => 'Activate Grid Ticket',
                 'help' => '[Grid Ticket]',
-                'attr' => ['data-plant-target' => 'ticket']
+                'attr' => ['data-plant-target' => 'ticket'],
+                'disabled' => !$isG4NUser,
             ])
             ->add('PowerThreshold', TextType::class, [
                 'label' => 'Ticket Power minimum value [kW]',
@@ -806,6 +817,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[ppcBlockTicket]',
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => 'false',
+                'disabled' => !$isG4NUser,
             ])
             // ###############################################
             // ###               Reports                  ####

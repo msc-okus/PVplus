@@ -36,6 +36,9 @@ class AnlageSensors
     private ?bool $useToCalc = false;
 
     #[ORM\Column(length: 20, nullable: true)]
+    private ?bool $isFromBasics = false;
+
+    #[ORM\Column(length: 20, nullable: true)]
     private ?string $vcomId = null;
 
     #[ORM\Column(length: 20, nullable: true)]
@@ -136,6 +139,17 @@ class AnlageSensors
         return $this;
     }
 
+    public function getIsFromBasics(): ?bool
+    {
+        return $this->isFromBasics;
+    }
+
+    public function setIsFromBasics(?bool $isFromBasics): static
+    {
+        $this->isFromBasics = $isFromBasics;
+        return $this;
+    }
+
     function getVcomId(): ?string
     {
         return $this->vcomId;
@@ -167,7 +181,6 @@ class AnlageSensors
 
     public function setstartDateSensor(?\DateTimeInterface $startDateSensor = null): self
     {
-
         $this->startDateSensor = $startDateSensor;
 
         return $this;

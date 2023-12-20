@@ -131,6 +131,9 @@ class UploaderHelper
         $this->fileSystemFtp->delete($path);
     }
 
+    /**
+     * @throws FilesystemException
+     */
     public function uploadFile(File $file, string $directory, bool $isPublic): string
     {
         if ($file instanceof UploadedFile) {
@@ -156,6 +159,9 @@ class UploaderHelper
         return $newFilename;
     }
 
+    /**
+     * @throws FilesystemException
+     */
     public function uploadAllFile(File $file, string $directory, bool $isPublic): string
     {
         if ($file instanceof UploadedFile) {

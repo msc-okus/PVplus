@@ -139,17 +139,18 @@
                     <li class="tabs-title"><a data-tabs-target="ticket" href="#ticket">Ticket & Alert Setup</a></li>
                     {% if is_granted('ROLE_ADMIN') %}
                         <li class="tabs-title"><a data-tabs-target="modules" href="#modules">Modules</a></li>
+                        <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
+                        <li class="tabs-title"><a data-tabs-target="import" href="#import">Import</a></li>
+                        <li class="tabs-title"><a data-tabs-target="forecast" href="#forecast">Forecast</a></li>
+                        <li class="tabs-title"><a data-tabs-target="dayahead_forecast" href="#dayahead_forecast">Day-ahead Forecast</a></li>
+                        <li class="tabs-title"><a data-tabs-target="timeing" href="#timeing">Time Configuration</a></li>
+                        <li class="tabs-title"><a data-tabs-target="AssetManagement" href="#AssetManagement">AM Report Configuration</a></li>
                     {% endif %}
-                    <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
-                    <li class="tabs-title"><a data-tabs-target="import" href="#import">Import</a></li>
-                    <li class="tabs-title"><a data-tabs-target="forecast" href="#forecast">Forecast</a></li>
-                    <li class="tabs-title"><a data-tabs-target="timeing" href="#timeing">Time Configuration</a></li>
-                    <li class="tabs-title"><a data-tabs-target="AssetManagement" href="#AssetManagement">AM Report Configuration</a></li>
                 {% endif %}
             </ul>
 
+            {# General #}
             <div class="tabs-content" data-tabs-content="anlage-tabs">
-                {# General #}
                 <div class="tabs-panel is-active" id="plant-data">
 
                     <fieldset class="fieldset">
@@ -474,6 +475,7 @@
                                     <div class="cell medium-3">
                                         <fieldset class="fieldset">
                                             <legend>Technical</legend>
+                                            {{ form_row(anlageForm.settings.enablePADep0) }}
                                             {{ form_row(anlageForm.threshold1PA0) }}
                                             {{ form_row(anlageForm.threshold2PA0) }}
                                             {{ form_row(anlageForm.usePAFlag0) }}
@@ -483,6 +485,7 @@
                                     <div class="cell medium-3">
                                         <fieldset class="fieldset">
                                             <legend>Department 1 (O&M)</legend>
+                                            {{ form_row(anlageForm.settings.enablePADep1) }}
                                             {{ form_row(anlageForm.threshold1PA1) }}
                                             {{ form_row(anlageForm.threshold2PA1) }}
                                             {{ form_row(anlageForm.usePAFlag1) }}
@@ -492,6 +495,7 @@
                                     <div class="cell medium-3">
                                         <fieldset class="fieldset">
                                             <legend>Department 2 (EPC)</legend>
+                                            {{ form_row(anlageForm.settings.enablePADep2) }}
                                             {{ form_row(anlageForm.threshold1PA2) }}
                                             {{ form_row(anlageForm.threshold2PA2) }}
                                             {{ form_row(anlageForm.usePAFlag2) }}
@@ -501,6 +505,7 @@
                                     <div class="cell medium-3">
                                         <fieldset class="fieldset">
                                             <legend>Department 3 (AM)</legend>
+                                            {{ form_row(anlageForm.settings.enablePADep3) }}
                                             {{ form_row(anlageForm.threshold1PA3) }}
                                             {{ form_row(anlageForm.threshold2PA3) }}
                                             {{ form_row(anlageForm.usePAFlag3) }}
@@ -742,6 +747,7 @@
                                 <div class="grid-x grid-padding-x">
                                     <div class="cell"> {{ form_row(anlageForm.settings.symfonyImport) }}</div>
                                     <div class="cell"> {{ form_row(anlageForm.settings.useSensorsData) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.settings.sensorsInBasics) }}</div>
                                     <div class="cell"> {{ form_row(anlageForm.settings.importType) }}</div>
                                     <div class="cell"> {{ form_row(anlageForm.settings.stringboxesUnits) }}</div>
                                     <div class="cell"> {{ form_row(anlageForm.settings.invertersUnits) }}</div>
@@ -797,6 +803,8 @@
                         </div>
                     </div>
                 </div>
+
+                {# Asset Managemnet #}
                 <div class="tabs-panel" id="AssetManagement">
                     <div class="grid-x grid-padding-x">
                         <fieldset class="fieldset">
