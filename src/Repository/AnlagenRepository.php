@@ -306,6 +306,15 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findAllIDByUseDayahead(): array
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.useDayaheadForecast = 1')
+            ->orderBy('a.anlId', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
     public function findAllAnlageByUser($userid): array
     {
         $query = $this->createQueryBuilder('a');

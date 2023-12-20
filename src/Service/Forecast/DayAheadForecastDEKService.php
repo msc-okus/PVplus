@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * MS 11/23
  * DEK Service zur Erstellung der Gesamtstrahlung in der Modulebene anhand
  * Wetterdaten aus der API OpenMeteo.com
@@ -32,7 +32,7 @@ class DayAheadForecastDEKService {
       }
 
     public function get_DEK_Data($input_gl,$input_mer,$input_gb,$input_mn,$input_ma,$input_ab,$datfile,$has_suns_model,$anlageId,$doy) {
-        // Predefine
+        // Predefine Vars
         $sshrep = $this->anlagesunshadingrepository->findBy(['anlage' => $anlageId]);
         // Muss noch geändert werden in eine verknüpfung zur tabelle modules to Anlage die zur MudulesDB geht
         $modrep = $this->anlagenmodulesdbrepository->findBy(['id' => '1']);
@@ -105,20 +105,26 @@ class DayAheadForecastDEKService {
                         $SH = $AOIarray['SH'];
                         $SHGD = rad2deg($SH); // Sonnenhöhe in Grad
                         // Berechnung vom prozentualen Anteil der Strahlung
-                        $GDIR = $GHI - $DHI; // $GHI - $DHI Daten aus Meteo GHI - DHI
-                        ($GDIR > 1) ? $GDIRPRZ = round(($GDIR / $GHI) * 100, 0) : $GDIRPRZ = 0; // in Prozent
-                        $IAM = 1 - 0.05 * (1 / cos($AOI) - 1); //  Reflexionsverlust der Einstrahlung
 
-                        $SAGD = round(rad2deg($SA), 0); // SA in Grad
-                        $DIFFSAMA = $winkel - $SAGD;           // Differenz von SA - SA
+                        // Berechnung der Senkrechtstrahlung auf der Normal EBENE
+                        if ($DNI2 > $GHI) {
+                            $GDIR = $DNI2 - $DHI; // $GHI - $DHI / /Daten aus Meteo GHI - DHI
+                           } else {
+                            $GDIR = $GHI - $DHI  ; // $GHI - $DHI / /Daten aus Meteo GHI - DHI
+                        }
+                            ($GDIR > 1) ? $GDIRPRZ = round(($GDIR / $GHI) * 100, 0) : $GDIRPRZ = 0; // in Prozent
+                            $IAM = 1 - 0.05 * (1 / cos($AOI) - 1); //  Reflexionsverlust der Einstrahlung
+                            $SAGD = round(rad2deg($SA), 0); // SA in Grad
+                            $DIFFSAMA = $winkel - $SAGD;           // Differenz von SA - SA
+                            $CSZ = sin($SZ);
 
-                        $CSZ = sin($SZ);
-                        $SZGRD = round(rad2deg($SZ));
+                        if ($DNI2 > $GHI) {
+                            $DNI = $GDIR / $CSZ;
+                           } else {
+                            $DNI =  $GDIR / $CSZ;
+                        }
 
-                        // Berechnung der Senkrechtstrahlung im der Normal EBENE
-                        $DNI =  $GDIR / $CSZ; #$GHI / $CSZ;
-
-                        $DIRpoa = $DNI * cos($AOI) * $IAM;     // Direktstrahlung in Modulebene --
+                        $DIRpoa = $DNI * cos($AOI) * $IAM;     // Direktstrahlung auf der Modulebene --
                         $DIFpoa = $DHI * ((1 + cos(deg2rad($input_mn))) / 2) + $GHI2 * (0.012 * $SZ - 0.04) * ((1 - cos(deg2rad($input_mn))) / 2); // Diffusstrahlung in Modulebene
                         $REFpoa = $GHI2 * $input_ab * ((1 - cos(deg2rad($input_mn))) / 2); // Reflektierende Strahlung
                         $BF = 80; // Bifazialitätsfaktor (Bereich 70-85)
@@ -130,7 +136,7 @@ class DayAheadForecastDEKService {
                                 case 180:
                                     $RGES = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene Wh/m2 per Hour Süd
                                     if ($has_suns_model) {
-                                        if ($RGES >= 500) { // Wenn Strahlung größer 500 Wh/m2
+                                        if ($RGES >= 500) { // Wenn Strahlung größer 500 Wh/m2 dann Verschattungsfaktor
                                             $faktorRVSued = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren // Return Array faktor RSH
                                             $DIRpoa = $DIRpoa * $faktorRVSued['FKR'];  // Neuer DIRpoa mit multiplikation des Verschattungs Faktor
                                             $RSHArray = $faktorRVSued['RSH']; // Array der Reihen abschattung
@@ -144,7 +150,7 @@ class DayAheadForecastDEKService {
                                 case 90:
                                     $RGES_UPPER = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene Wh/m2 per Hour OST
                                     if ($has_suns_model) {
-                                        if ($RGES_UPPER >= 500) { // Wenn Strahlung größer 500 W/m2
+                                        if ($RGES_UPPER >= 500) { // Wenn Strahlung größer 500 W/m2 dann Verschattungsfaktor
                                             $faktorRVOst = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren // Return Array faktor RSH
                                             $DIRpoa = $DIRpoa * $faktorRVOst['FKR']; // Neuer DIRpoa mit multiplikation des Verschattungs Faktor
                                             $RSHArray = $faktorRVOst['RSH']; // Array der Reihen abschattung
@@ -158,7 +164,7 @@ class DayAheadForecastDEKService {
                                 case 270:
                                     $RGES_LOWER = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene Wh/m2 per Hour West
                                     if ($has_suns_model) {
-                                        if ($RGES_LOWER >= 500) { // Wenn Strahlung größer 500 W/m2
+                                        if ($RGES_LOWER >= 500) { // Wenn Strahlung größer 500 W/m2 dann Verschattungsfaktor
                                             $faktorRVWest = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren // Return Array faktor RSH
                                             $DIRpoa = $DIRpoa * $faktorRVWest['FKR']; // Neuer DIRpoa mit multiplikation des Verschattungs Faktor
                                             $RSHArray = $faktorRVWest['RSH']; // Array der Reihen abschattung
@@ -174,10 +180,8 @@ class DayAheadForecastDEKService {
                        }
 
                     }
-
                     $valueofdayandhour[$gendoy][$h][$m] = ['DOY' => $gendoy, 'HR' => $h, 'MIN' => $m, 'TIP' => $instep, 'TS' => $ts, 'TMP' => $TMP, 'FF' => $FF, 'GDIR' => $GDIR, 'RVF' => ['SUED' => $faktorRVSued, 'OST' => $faktorRVOst, 'WEST' => $faktorRVWest], "SUED" => ['RGES' => $RGES, 'RGESBIF' => $RGESBIF], "OSTWEST" => ['RGES_UPPER' => $RGES_UPPER, 'RGES_LOWER' => $RGES_LOWER, 'RGESBIF_UPPER' => $RGESBIF_UPPER, 'RGESBIF_LOWER' => $RGESBIF_LOWER]];
-
-                    $DNI = $RGES_LOWER = $RGES_UPPER = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGESBIF = $RGES = 0;
+                    $RGES_LOWER = $RGES_UPPER = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGESBIF = $RGES = 0;
                 }
 
             }

@@ -221,6 +221,7 @@ class ExpectedService
                             $limitExpCurrentHlp = $modul->getNumStringsPerUnit() * ($modul->getModuleType()->getMaxImpp() * 1.015); // 1,5% Sicherheitsaufschlag
                             // Voltage
                             $expVoltageDcHlp = $modul->getModuleType()->getExpVoltage($irr) * $modul->getNumModulesPerString();
+
                         }
 
                         // Temperatur Korrektur
@@ -228,6 +229,7 @@ class ExpectedService
                             $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
                             $expCurrentDcHlp = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
                             $expVoltageDcHlp = $expVoltageDcHlp * $modul->getModuleType()->getTempCorrVoltage($pannelTemp);
+
                         } else {
                             // ToDo: Funktion zur Berechnung der Temperatur Korrektur via OpenWeather (temp ambient, wind speed), NREL und Co implementieren
                             if (false) { // $anlage->hasAmbientTemp

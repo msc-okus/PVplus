@@ -92,7 +92,7 @@ class DayAheadForecastMALService
                               }
 
                               if ($tip == "60min") { $irrUpper = $irrUpper / 4; }
-
+                              $irr = $irrUpper;
                               $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irrUpper), 2);
                               if ($irrUpper == 0.0 OR $irrUpper == 0 OR $irrUpper == NULL){
                                   $ex4 = 0.0;
