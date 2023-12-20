@@ -12,6 +12,8 @@ use App\Helper\G4NTrait;
 use App\Helper\ImportFunctionsTrait;
 use App\Message\Command\ImportData;
 use App\Repository\AnlagenRepository;
+use App\Repository\PVSystDatenRepository;
+use App\Service\Import\PvSystImportService;
 use App\Service\ImportService;
 use App\Service\LogMessagesService;
 use App\Service\PdoService;
@@ -22,7 +24,7 @@ use Shuchkin\SimpleXLSX;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 
 class ImportToolsController extends BaseController
@@ -178,7 +180,8 @@ class ImportToolsController extends BaseController
     }
 
     /**
-     * Import der eGrid Daten aus Excel. Format Kopf Zeile muss 'stamp' und '' haben.
+     * Import der eGrid Daten aus Excel.
+     * Format Kopf Zeile muss 'stamp' und '' haben.
      * Format 'stamp' = 'Y-m-d H:i'
      *
      * @param Request $request
@@ -240,16 +243,13 @@ class ImportToolsController extends BaseController
 
     /**
      * Import der PvSyst Stunden Daten aus CSV (Excel).
-     * Format Kopf Zeile muss 'stamp' und '' haben.
-     * Format 'stamp' = 'Y-m-d H:i'
      *
      * @param Request $request
-     * @param AnlagenRepository $anlagenRepository
-     * @param EntityManagerInterface $em
+     * @param PvSystImportService $pvSystImport
      * @return Response
      */
     #[Route(path: '/import/pvsyst', name: 'import_pvsyst')]
-    public function importPvSyst(Request $request, AnlagenRepository $anlagenRepository, EntityManagerInterface $em): Response
+    public function importPvSyst(Request $request, PvSystImportService $pvSystImport): Response
     {
 
         $form = $this->createForm(ImportPvSystFormType::class);
@@ -258,52 +258,11 @@ class ImportToolsController extends BaseController
         $output = '';
 
         if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
-            $anlage = $anlagenRepository->findOneBy(['anlId' => $form['anlage']->getData()]);
+
+            $anlage = $form->getData()->anlage;
             $file = $form['file']->getData();
 
-            if ($file && $file->getMimeType() === 'text/plain') {
-                $fileStream = fopen($file->getPathname(), 'r');
-                for ($n = 1; $n <= 10; $n++) {
-                    fgetcsv($fileStream, null, ';');
-                }
-                $headline = fgetcsv($fileStream, null, ';');
-                $units = fgetcsv($fileStream, null, ';');
-                $keyStamp       = array_search('date', $headline);
-                $keyEGrid       = array_search('E_Grid', $headline);
-                $keyGlobInc     = array_search('GlobInc', $headline);
-                $keyEGrid = array_search('E_Grid', $headline);
-                dump($headline, $units);
-
-                // leerzeile überspringen
-                $row = fgetcsv($fileStream, null, ';');
-
-                while ($row = fgetcsv($fileStream, null, ';')){
-                    $timeZone = new \DateTimeZone('UTC');
-                    $stamp = date_create_from_format('d/m/y H:i', $row[$keyStamp], $timeZone)->format('Y-m-d H:i');
-                    $eGrid = (float)$row[$keyEGrid] > 0 ? $row[$keyEGrid] : 0;
-
-                    $pvSyst = new AnlagePVSystDaten();
-                    $pvSyst
-                        ->setAnlage($anlage)
-                        ->setStamp($stamp)
-                        ->setIrrGlobalHor('')
-                        ->setIrrGlobalInc('')
-                        ->setTempAmbiant('')
-                        ->setElectricityGrid($eGrid)
-                        ->setElectricityInverterOut('')
-                    ;
-                    $em->persist($pvSyst);
-                    $output .= $anlage->getAnlId() ." | ".$stamp." | ".$eGrid."<br>";
-                }
-                dump($output);
-                $em->flush();
-
-                fclose($fileStream);
-
-            } else {
-                $output .= "No valid XLSX File.<br>";
-                $output .= "(" . SimpleXLSX::parseError() . ")";
-            }
+            $output = $pvSystImport->import($anlage, $file);
 
         }
 
@@ -317,5 +276,6 @@ class ImportToolsController extends BaseController
             'output'   => $output,
         ]);
     }
+
 
 }

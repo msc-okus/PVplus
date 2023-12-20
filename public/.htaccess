@@ -1,5 +1,3 @@
-#FcgidWrapper "/home/httpd/cgi-bin/php82-fcgi-starter.fcgi" .php
-
 RewriteEngine On
 
 RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$

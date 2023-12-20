@@ -17,19 +17,18 @@ use App\Repository\WeatherStationRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\LogMessagesService;
 use App\Service\PdoService;
-use App\Service\Reports\ReportsMonthlyV2Service;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
 use League\Flysystem\FilesystemException;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Service\UploaderHelper;
 use App\Helper\G4NTrait;
 use Knp\Component\Pager\PaginatorInterface;
@@ -149,7 +148,6 @@ class SpecialOperationsController extends AbstractController
      * @throws InvalidArgumentException
      * @throws NonUniqueResultException
      */
-    #[IsGranted('ROLE_BETA')]
     #[Route(path: '/special/operations/calctools', name: 'calc_tools')]
     public function toolsCalc(Request $request, AnlagenRepository $anlagenRepo, AvailabilityByTicketService $availabilityByTicket, MessageBusInterface $messageBus, LogMessagesService $logMessages,): Response
     {

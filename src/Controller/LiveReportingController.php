@@ -11,15 +11,21 @@ use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Routing\Attribute\Route;
 
 class LiveReportingController extends AbstractController
 {
     /**
-     * @throws InvalidArgumentException|NonUniqueResultException
+     * Erzeugt einen Monatsreport mit den einzelenen Tagen und einer Monatstotalen
+     * Kann auch für einen Auswal einiger Tage eines Moants genutzt werden
+     *
+     * @param Request $request
+     * @param AnlagenRepository $anlagenRepository
+     * @param ReportsMonthlyV2Service $reportsMonthly
+     * @return Response
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
      */
-    #[IsGranted('ROLE_BETA')]
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
     public function monthlyReportWithDays(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
@@ -53,10 +59,11 @@ class LiveReportingController extends AbstractController
     }
 
     /**
+     * Erzeugt Reports für einen längeren Zeitraum, aber maximal 1 Wert pro Monat
+     *
      * @throws NonUniqueResultException
      * @throws InvalidArgumentException
      */
-    #[IsGranted('ROLE_BETA')]
     #[Route(path: '/livereport/individual', name: 'individual_report')]
     public function reportIndividual(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly, AvailabilityByTicketService $availabilityByTicket): Response
     {

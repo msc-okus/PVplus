@@ -332,7 +332,7 @@ class TicketDateRepository extends ServiceEntityRepository
             ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end AND :begin >= t.begin)')
             ->andWhere("t.Anlage = :anlage")
             ->andWhere("ticket.kpiStatus = 10")
-            ->andWhere("ticket.alertType = '72'")  // Exclude from PR/Energy = 72
+            ->andWhere("ticket.alertType = '72' or ticket.alertType = '73'")  // Exclude from PR/Energy = 72
             ->andWhere('ticket.ignoreTicket = false')
             ->setParameter('begin', $startDate instanceof DateTime ? $startDate->format("Y-m-d H:i") : $startDate)
             ->setParameter('end', $endDate instanceof DateTime ? $endDate->format("Y-m-d H:i") : $endDate)
