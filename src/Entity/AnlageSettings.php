@@ -136,6 +136,9 @@ class AnlageSettings
     private ?bool $chartAnalyse11 = false;
 
     #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse12 = false;
+
+    #[ORM\Column(nullable: true)]
     private ?bool $chartCurr1 = false;
 
     #[ORM\Column(nullable: true)]
@@ -604,6 +607,18 @@ class AnlageSettings
     public function setChartAnalyse11(?bool $chartAnalyse11): self
     {
         $this->chartAnalyse11 = $chartAnalyse11;
+
+        return $this;
+    }
+
+    public function isChartAnalyse12(): ?bool
+    {
+        return $this->chartAnalyse12;
+    }
+
+    public function setChartAnalyse12(?bool $chartAnalyse12): self
+    {
+        $this->chartAnalyse12 = $chartAnalyse12;
 
         return $this;
     }
