@@ -533,6 +533,26 @@ class ChartService
                         $resultArray['series1']['tooltipText'] = '';
                     }
                     break;
+                case 'forecast_dayahead':
+                    $dataArray = $this->forecastChart->getForecastDayAhead($anlage, $from, $form['optionDayAheadView'],$form['optionDayAheadViewDay']);
+                    if ($dataArray) {
+                        $resultArray['data'] = json_encode($dataArray['chart']);
+                        switch($form['optionDayAheadView']){
+                            case 0 :
+                                $resultArray['headline'] = 'Forecast-Day-Ahead ';
+                                break;
+                            case 1 :
+                                $resultArray['headline'] = 'Forecast-Day-Ahead per Hour';
+                                break;
+                            case 2 :
+                                $resultArray['headline'] = 'Forecast-Day-Ahead per 15 Minutes';
+                                break;
+                        }
+
+                       # $resultArray['series1']['name'] = '';
+                       # $resultArray['series1']['tooltipText'] = '';
+                    }
+                    break;
                 case 'acpnom':
                     $dataArray = $this->acCharts->getNomPowerGroupAC($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);

@@ -1373,6 +1373,8 @@ and form.selectedChart != 'sollistirranalyse'%}
     {% include 'dashboardPlants/_incl/chart/forecast.html.twig' %}
 {% elseif form.selectedChart == 'forecast_pr' %}
     {% include 'dashboardPlants/_incl/chart/forecast_pr.html.twig' %}
+{% elseif form.selectedChart == 'forecast_dayahead' %}
+    {% include 'dashboardPlants/_incl/chart/forecast_dayahead.html.twig' %}
 {% elseif form.selectedChart == 'acpnom' %}
     {% include 'dashboardPlants/_incl/chart/acPNom.html.twig' %}
 {% elseif form.selectedChart == 'dcpnomcurr' %}
