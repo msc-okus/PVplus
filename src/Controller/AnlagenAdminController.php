@@ -356,7 +356,25 @@ class AnlagenAdminController extends BaseController
         }
 
     }
+    /**
+     * @throws \Exception
+     */
+    #[Route(path: '/admin/anlagen/builddayaheadforcast/{id}', name: 'app_admin_anlagen_build_day_ahead_forecast', methods: ['GET','POST'])]
+    public function buildDayAheadForcast($id, KernelInterface $kernel): RedirectResponse|Response
+    {
+        $response = new Response();
+        $response->setStatusCode(Response::HTTP_OK);
 
+        $application = new Application($kernel);
+        $application->setAutoExit(false);
+
+        $input = new ArrayInput(['command' => 'pvp:dayaheadwritedb', '-a'  => $id]);
+
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+
+        return $response;
+    }
     /**
      * @throws \Exception
      */

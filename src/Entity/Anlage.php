@@ -534,6 +534,9 @@ class Anlage implements \Stringable
     private ?bool $useDayForecast = false;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $useDayaheadForecast = false;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $hasSunshadingModel  = false;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
@@ -1237,6 +1240,11 @@ class Anlage implements \Stringable
     public function getDbNameDcSoll(): string
     {
         return $this->dbAnlagenData.'.db__pv_dcsoll_'.$this->getAnlIntnr();
+    }
+
+    public function getDbNameForecastDayahead(): string
+    {
+        return $this->dbAnlagenData.'.db__pv_fc_'.$this->getAnlIntnr();
     }
 
     public function getDbNameMeters(): string
@@ -3352,6 +3360,17 @@ class Anlage implements \Stringable
         return $this;
     }
 
+    public function getUseDayaheadForecast(): ?bool
+    {
+        return $this->useDayaheadForecast;
+    }
+
+    public function setUseDayaheadForecast(bool $useDayaheadForecast): self
+    {
+        $this->useDayaheadForecast = $useDayaheadForecast;
+
+        return $this;
+    }
 
     public function getHasSunshadingModel(): ?bool
     {

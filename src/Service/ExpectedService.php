@@ -15,6 +15,8 @@ use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\OpenWeatherRepository;
 use App\Service\Functions\IrradiationService;
+use App\Repository\AnlageSunShadingRepository;
+use App\Service\Forecast\ForecastCalcService;
 use DivisionByZeroError;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
@@ -35,8 +37,12 @@ class ExpectedService
         private readonly WeatherFunctionsService $weatherFunctions,
         private readonly OpenWeatherService $openWeather,
         private readonly OpenWeatherRepository $openWeatherRepo,
+        private readonly AnlageSunShadingRepository $anlageSunShadingRepository,
+        private readonly ForecastCalcService $forecastCalcService,
         private readonly IrradiationService $irradiationService)
     {
+        $this->anlagesunshadingrepository = $anlageSunShadingRepository;
+        $this->anlageforecastCalcService = $forecastCalcService;
     }
 
     /**
@@ -83,7 +89,8 @@ class ExpectedService
         $aktuellesJahr = date('Y', strtotime((string) $from));
         $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre
         $month = date('m', strtotime((string) $from));
-
+        $has_suns_model = (float)$anlage->getHasSunshadingModel(); // check if has sunshading Model
+        $sshrep = $this->anlagesunshadingrepository->findBy(['anlage' => $anlage->getAnlId()]); // Call the Repository
         $conn = $this->pdoService->getPdoPlant();
         // Lade Wetter (Wetterstation der Anlage) Daten für die angegebene Zeit und Speicher diese in ein Array
         $weatherStations = $this->groupsRepo->findAllWeatherstations($anlage, $anlage->getWeatherStation());
@@ -101,22 +108,31 @@ class ExpectedService
             $resWeather = null;
         }
         $conn = null;
+        // wenn das Sunshadding Model eingegeben wurde.
+        if($has_suns_model){
+            $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
+            $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
+            $input_mer = (integer)$anlage->getBezMeridan();   // Bezugsmeridan Mitteleuropa
+            $input_mn = (integer)$anlage->getModNeigung();    // Modulneigung Grad in radiat deg2rad(45) <----
+            $ausrichtung = ($anlage->getIsOstWestAnlage()) ? '90' : '180';
+        }
 
         foreach ($anlage->getGroups() as $group) {
             // Monatswerte für diese Gruppe laden
             /** @var AnlageGroupMonths $groupMonth */
             $groupMonth = $this->groupMonthsRepo->findOneBy(['anlageGroup' => $group->getId(), 'month' => $month]);
             $anlageMonth = $this->anlageMonthRepo->findOneBy(['anlage' => $anlage, 'month' => $month]);
-
             // Wetterstation auswählen, von der die Daten kommen sollen
             /* @var WeatherStation $currentWeatherStation */
             $currentWeatherStation = $group->getWeatherStation() ?: $anlage->getWeatherStation();
 
             foreach ($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
                 $stamp = $weather['stamp'];
+                $doy = date("z", strtotime($stamp)) + 1; // The Day of Year for Sunshadding
+                $hour = date("H", strtotime($stamp)); // The Hour for Sunshadding
+                //
                 $openWeather = false; ### temporäre deaktivierung OpenWeather
                 ###$openWeather = $this->openWeatherRepo->findTimeMatchingOpenWeather($anlage, date_create($stamp));
-
 
                 for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); ++$unit) {
                     // use plant based shadow loss (normaly - 0)
@@ -130,7 +146,6 @@ class ExpectedService
                         // use general _monthly shadow loss (Entity: AnlageMonth)
                         $shadow_loss = $anlageMonth->getShadowLoss();
                     }
-
                     // Anpassung der Verschattung an die jeweiligen Strahlungsbedingungen
                     // d.h. je weniger Strahlung desso geringer ist die Auswirkung der Verschattung
                     // Werte für die Eingruppierung sind mit OS und TL abgesprochen
@@ -142,18 +157,30 @@ class ExpectedService
                     } else {
                         $tempIrr = $this->functions->mittelwert([(float) $weather['irr_upper'], (float) $weather['irr_lower']]);
                     }
-                    if ($tempIrr <= 100) {
-                        $shadow_loss = $shadow_loss * 0.0; // 0.05
-                    } elseif ($tempIrr <= 200) {
-                        $shadow_loss = $shadow_loss * 0.0; // 0.21
-                    } elseif ($tempIrr <= 400) {
-                        $shadow_loss = $shadow_loss * 0.35;
-                    } elseif ($tempIrr <= 600) {
-                        $shadow_loss = $shadow_loss * 0.57;
-                    } elseif ($tempIrr <= 800) {
-                        $shadow_loss = $shadow_loss * 0.71;
-                    } elseif ($tempIrr <= 1000) {
-                        $shadow_loss = $shadow_loss * 0.8;
+                    // wenn das Sunshadding Model eingegeben wurde.
+                    if ($has_suns_model) {
+                        // Beginn Shadow Loss
+                        if ($tempIrr >= 400) { // Wenn Strahlung größer 500 Wh/m2
+                            $AOIarray = $this->anlageforecastCalcService->getAOI($input_mn, $input_gb, $input_gl, $input_mer, $doy, $hour, $ausrichtung);
+                            $AOI = $AOIarray['AOI']; // Das AOI aus dem Calc Service
+                            $faktorRVSued = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
+                            $shadow_loss = $faktorRVSued['FKR'];  // Shadow loss multiplikation des Verschattungsfaktor.
+                        }
+                    } else {
+                        // Default Shadow Loss
+                        if ($tempIrr <= 100) {
+                            $shadow_loss = $shadow_loss * 0.0; // 0.05
+                        } elseif ($tempIrr <= 200) {
+                            $shadow_loss = $shadow_loss * 0.0; // 0.21
+                        } elseif ($tempIrr <= 400) {
+                            $shadow_loss = $shadow_loss * 0.35;
+                        } elseif ($tempIrr <= 600) {
+                            $shadow_loss = $shadow_loss * 0.57;
+                        } elseif ($tempIrr <= 800) {
+                            $shadow_loss = $shadow_loss * 0.71;
+                        } elseif ($tempIrr <= 1000) {
+                            $shadow_loss = $shadow_loss * 0.8;
+                        }
                     }
 
                     $pannelTemp = is_numeric($weather['panel_temp']) ? (float)$weather['panel_temp'] : null;   // Pannel Temperatur
@@ -194,6 +221,7 @@ class ExpectedService
                             $limitExpCurrentHlp = $modul->getNumStringsPerUnit() * ($modul->getModuleType()->getMaxImpp() * 1.015); // 1,5% Sicherheitsaufschlag
                             // Voltage
                             $expVoltageDcHlp = $modul->getModuleType()->getExpVoltage($irr) * $modul->getNumModulesPerString();
+
                         }
 
                         // Temperatur Korrektur
@@ -201,6 +229,7 @@ class ExpectedService
                             $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
                             $expCurrentDcHlp = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
                             $expVoltageDcHlp = $expVoltageDcHlp * $modul->getModuleType()->getTempCorrVoltage($pannelTemp);
+
                         } else {
                             // ToDo: Funktion zur Berechnung der Temperatur Korrektur via OpenWeather (temp ambient, wind speed), NREL und Co implementieren
                             if (false) { // $anlage->hasAmbientTemp
@@ -298,8 +327,7 @@ class ExpectedService
         return $resultArray;
     }
     // MS 07/2023
-    public function calcExpectedforForecast(Anlage $anlage, $decarray ): array {
-
+    public function calcExpectedforForecast(Anlage $anlage, $decarray, $intervall = 'doy' ): array {
         // $aktuellesJahr = date("Y",time());
         // $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre werden nicht berücksichtigt
         $resultArray = [];
@@ -311,13 +339,14 @@ class ExpectedService
         $TcellTypDay = $theoday = $irrYear = $irrDay = 0;
 
         if ((is_countable($decarray) ? count($decarray) : 0) > 0) {
-        // Eerstelle Jahres Werte
+        // Erstelle Jahres Werte
             foreach ($decarray as $key_out => $val_out) {
 
                 foreach ($val_out as $key_y => $valy) {
                             isset($valy['TMP']) ? $airTemp = $valy['TMP'] : $airTemp = '0.0';
                             isset($valy['FF']) ? $windSpeed = $valy['FF'] : $windSpeed = '0.0';
                             isset($valy['DOY']) ? $doy = $valy['DOY'] : $doy = '0';
+
                         if ($anlage->getIsOstWestAnlage()) {
 
                             if ($modulisbif) {
@@ -357,9 +386,15 @@ class ExpectedService
             foreach ($decarray as $keyout => $valout) {
 
                 foreach ($valout as $key => $val) {
+
                     isset($val['TMP']) ? $airTemp = $val['TMP'] : $airTemp = '0.0';
                     isset($val['FF']) ? $windSpeed = $val['FF'] : $windSpeed = '0.0';
+                    isset($val['GDIR']) ? $gdir = $val['GDIR'] : $gdir = '0.0';
                     isset($val['DOY']) ? $doy = $val['DOY'] : $doy = '0';
+                    isset($val['HR']) ? $hr = $val['HR'] : $hr = '0';
+                    isset($val['TS']) ? $ts = $val['TS'] : $ts = '0';
+
+                    $hrarry[$doy][$hr] = ['ts' => $ts, 'ex' => 0, 'irr' => 0,'tmp' => 0,'gdir' => 0];
 
                     if ($anlage->getIsOstWestAnlage()) {
 
@@ -371,7 +406,7 @@ class ExpectedService
                             isset($val['OSTWEST']['RGES_LOWER']) ? $irrLower = round($val['OSTWEST']['RGES_LOWER'], 2) : $irrLower = '0.0';
                         }
                         $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irrUpper), 2);
-                        $Ft = round(1 - ($tcell_avg - $Tcell) * -0.34/100,2);// FT Faktor
+                        $Ft = round(1 - ($tcell_avg - $Tcell) * -0.34 / 100, 2);// FT Faktor
 
                     } else {
 
@@ -381,11 +416,11 @@ class ExpectedService
                             isset($val['SUED']['RGES']) ? $irr = round($val['SUED']['RGES'], 2) : $irr = '0.0';
                         }
                         $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
-                        $Ft = round(1 - ($tcell_avg - $Tcell) * -0.34/100,2); // FT Faktor
+                        $Ft = round(1 - ($tcell_avg - $Tcell) * -0.34 / 100, 2); // FT Faktor
                     }
 
                     // Weiter für Irr day per hour
-                    if ($irr > 0  or $irrUpper > 0 or $irrLower > 0) {
+                    if ($irr > 0 or $irrUpper > 0 or $irrLower > 0) {
 
                         foreach ($anlage->getGroups() as $group) {
                             // Monatswerte für diese Gruppe laden
@@ -393,32 +428,13 @@ class ExpectedService
                             $modules = $group->getModules();
                             $expPowerDc = 0;
 
-                            // Verschattungsverlusste? werden hier noch nicht berücksichtigt.
-                            /*
-                            $shadow_loss = $group->getShadowLoss();
-                            if ($irr <= 100) {
-                                $shadow_loss = $shadow_loss * 0.0; // 0.05
-                            } elseif ($irr <= 200) {
-                                $shadow_loss = $shadow_loss * 0.0; // 0.21
-                            } elseif ($irr <= 400) {
-                                $shadow_loss = $shadow_loss * 0.35;
-                            } elseif ($irr <= 600) {
-                                $shadow_loss = $shadow_loss * 0.57;
-                            } elseif ($irr <= 800) {
-                                $shadow_loss = $shadow_loss * 0.71;
-                            } elseif ($irr <= 1000) {
-                                $shadow_loss = $shadow_loss * 0.8;
-                            }
-                            $irr = $irr ; // - ($irr / 100 * $shadow_loss) ;
-                            */
-
                             foreach ($modules as $modul) {
 
                                 if ($anlage->getIsOstWestAnlage()) {
                                     // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
                                     // Power
-                                    $expPowerDcHlp = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000 ; // Ost
-                                    $expPowerDcHlp += $modul->getModuleType()->getFactorPower($irrLower) * $modul->getNumStringsPerUnitWest() * $modul->getNumModulesPerString() / 1000 ; // West
+                                    $expPowerDcHlp = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000; // Ost
+                                    $expPowerDcHlp += $modul->getModuleType()->getFactorPower($irrLower) * $modul->getNumStringsPerUnitWest() * $modul->getNumModulesPerString() / 1000; // West
                                     // Current
                                     $expCurrentDcHlp = $modul->getModuleType()->getFactorCurrent($irrUpper) * $modul->getNumStringsPerUnitEast(); // Ost // nicht durch 4 teilen, sind keine Ah, sondern A
                                     $expCurrentDcHlp += $modul->getModuleType()->getFactorCurrent($irrLower) * $modul->getNumStringsPerUnitWest(); // West // nicht durch 4 teilen, sind keine Ah, sondern A
@@ -427,7 +443,7 @@ class ExpectedService
                                 } else {
                                     // Ist keine 'Ost/West' Anlage
                                     // Power
-                                    $expPowerDcHlp = $modul->getModuleType()->getFactorPower($irr) * $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() / 1000 ;
+                                    $expPowerDcHlp = $modul->getModuleType()->getFactorPower($irr) * $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() / 1000;
                                     // Current
                                     $expCurrentDcHlp = $modul->getModuleType()->getFactorCurrent($irr) * $modul->getNumStringsPerUnit(); // nicht durch 4 teilen, sind keine Ah, sondern A
                                     // Voltage
@@ -439,19 +455,9 @@ class ExpectedService
                                 }
                                 $expPowerDc += $expPowerDcHlp;
                             }
-                            // Verluste auf der DC Seite brechnen
-                            // Kabel Verluste + Sicherheitsverlust
 
-                            // Hier nicht berücksichtigen
-                            /*
-                            $loss = $group->getCabelLoss() + $group->getSecureLoss();
-                            // Verhindert 'diff by zero'
-                            if ($loss != 0) {
-                                $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);
-                            }
-                            */
                             // Umrechnung DC nach AC
-                            $expNoLimit = $expPowerDc  - ($expPowerDc / 100 * $group->getFactorAC()) ;
+                            $expNoLimit = $expPowerDc - ($expPowerDc / 100 * $group->getFactorAC());
 
                             // Prüfe ob Abriegelung gesetzt ist, wenn ja, begrenze den Wert auf das maximale.
                             if ($group->getLimitAc() > 0) {
@@ -460,38 +466,36 @@ class ExpectedService
                                 $expPowerAc = $expNoLimit;
                             }
                             // Berechne den Expected für das GRID (evu)
-                            $expEvu = $expPowerAc  - ($expPowerAc / 100 * $group->getGridLoss());
+                            $expEvu = $expPowerAc - ($expPowerAc / 100 * $group->getGridLoss());
                             $expEvuSum += $expEvu;
                         }
 
                         if ($anlage->getIsOstWestAnlage()) {
 
-                            $hj = round(($irrUpper / 1000 * $pnomsgl + $irrLower  / 1000 * $pnomsgl) / $pnomall, 2);
-                            $theohr = ($pnomall * $hj) ;
+                            $hj = round(($irrUpper / 1000 * $pnomsgl + $irrLower / 1000 * $pnomsgl) / $pnomall, 2);
+                            $theohr = ($pnomall * $hj);
                             $Fttheohr = $theohr * $Ft; // Theoretical * FT Faktor
                             $Fttheohrday += $Fttheohr;
-                            $theoday +=  $theohr;
-                            $ex4 = $expEvuSum * 4; //* 4;
+                            $theoday += $theohr;
+                            $ex4 = $expEvuSum * 4; // * 4;
                             $expEvuSumDay += $ex4; // Wh
                             $irrDay += ($irrUpper + $irrLower) / 2; // W/m
+                            $hrarry[$doy][$hr] = ['ts' => $ts, 'ex' => round($ex4,2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir]; // array for houry return
                             $expEvuSum = 0;
-                            $theohr = 0;
-                            $hj = 0;
                             $irrUpper = 0;
 
-                         } else {
+                          } else {
 
-                            $hj = round(($irr / 1000 * $pnomsgl + $irr  / 1000 * $pnomsgl) / $pnomall, 2);
-                            $theohr = ($pnomall * $hj) ;
-                            $theoday +=  $theohr;
+                            $hj = round(($irr / 1000 * $pnomsgl + $irr / 1000 * $pnomsgl) / $pnomall, 2);
+                            $theohr = ($pnomall * $hj);
+                            $theoday += $theohr;
                             $Fttheohr = $theohr * $Ft; // Theoretical * FT Faktor
                             $Fttheohrday += $Fttheohr;
                             $ex4 = $expEvuSum * 4; //* 4;
                             $expEvuSumDay += $ex4; // Wh
                             $irrDay += $irr; // W/m
+                            $hrarry[$doy][$hr] = ['ts' => $ts, 'ex' => round($ex4,2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir]; // array for houry return
                             $expEvuSum = 0;
-                            $theohr = 0;
-                            $hj = 0;
                             $irr = 0;
 
                         }
@@ -500,50 +504,52 @@ class ExpectedService
 
                 }
 
-                $ContractualGuarantiedPower = $anlage->getContractualGuarantiedPower();
-                $expEvuSumYear += $expEvuSumDay;
-                $theoYear += $theoday;
-                $FttheoYear += $Fttheohrday;
+                if ($intervall == 'doy') {
 
-                $hjday = round(($irrDay / 1000 * $pnomsgl + $irrDay / 1000 * $pnomsgl) / ($pnomall), 2);
+                    $ContractualGuarantiedPower = $anlage->getContractualGuarantiedPower();
+                    $expEvuSumYear += $expEvuSumDay;
+                    $theoYear += $theoday;
+                    $FttheoYear += $Fttheohrday;
 
-                $pr_clas_skaliert = round(($expEvuSumDay / $kwp) / ($irrDay / 1000) * 100,2);
-                $pr_clas_komuliert = round(($expEvuSumYear / $kwp) / ($irrYear / 1000) * 100,2);
-                $pr_theo_skaliert = round(($expEvuSumDay / $theoday)  * 100,2);
-                $pr_theo_komuliert = round(($expEvuSumYear / $theoYear)  * 100,2);
-                $pr_theo_ft_skaliert = round(($expEvuSumDay / $Fttheohrday ) * 100,2);
-                $pr_theo_ft_komuliert = round(($expEvuSumYear  / $FttheoYear) * 100,2);
+                    $hjday = round(($irrDay / 1000 * $pnomsgl + $irrDay / 1000 * $pnomsgl) / ($pnomall), 2);
 
-                // Ein Fallback, falls der skalierte PR über 100 % liegt
-                if (round($pr_clas_skaliert,0) > 100 ) {
-                    $prfz = round($pr_clas_skaliert,0) / 100;
-                    $expEvuSumDay =  $expEvuSumDay / $prfz ;
-                }
+                    $pr_clas_skaliert = round(($expEvuSumDay / $kwp) / ($irrDay / 1000) * 100, 2);
+                    $pr_clas_komuliert = round(($expEvuSumYear / $kwp) / ($irrYear / 1000) * 100, 2);
+                    $pr_theo_skaliert = round(($expEvuSumDay / $theoday) * 100, 2);
+                    $pr_theo_komuliert = round(($expEvuSumYear / $theoYear) * 100, 2);
+                    $pr_theo_ft_skaliert = round(($expEvuSumDay / $Fttheohrday) * 100, 2);
+                    $pr_theo_ft_komuliert = round(($expEvuSumYear / $FttheoYear) * 100, 2);
 
-                // Catch Division by zero and Set the var fktday with theoretical data
-                try {
-                    $fktday = $expEvuSumDay /  $expEvuSumYear;
-                } catch( DivisionByZeroError ){
-                    $fktday = $theoday /  $theoYear;
-                }
+                    // Ein Fallback, falls der skalierte PR über 100 % liegt
+                    if (round($pr_clas_skaliert, 0) > 100) {
+                        $prfz = round($pr_clas_skaliert, 0) / 100;
+                        $expEvuSumDay = $expEvuSumDay / $prfz;
+                    }
 
-                if ($doy < 365) {
+                    // Catch Division by zero and Set the var fktday with theoretical data
+                    try {
+                        $fktday = $expEvuSumDay / $expEvuSumYear;
+                    } catch (DivisionByZeroError) {
+                        $fktday = $theoday / $theoYear;
+                    }
+
+                    if ($doy < 365) {
                         // Speichern der Tageswerte Werte in ein Array
                         $resultArray[$doy] = [
                             'doy' => $doy,
                             'irrday' => $irrDay,
                             'tcell' => $Tcell,
                             'hj' => $hjday,
-                            'pr_clas_skal' =>  $pr_clas_skaliert,
+                            'pr_clas_skal' => $pr_clas_skaliert,
                             'pr_clas_komu' => $pr_clas_komuliert,
-                            'pr_theo_skal' =>  $pr_theo_skaliert,
+                            'pr_theo_skal' => $pr_theo_skaliert,
                             'pr_theo_komu' => $pr_theo_komuliert,
                             'pr_theo_ft_skal' => $pr_theo_ft_skaliert,
                             'pr_theo_ft_komu' => $pr_theo_ft_komuliert,
                             'pnom' => $pnomall,
-                            'exp_theo_day' => round($theoday,0),
+                            'exp_theo_day' => round($theoday, 0),
                             'exp_evu_day' => round($expEvuSumDay, 0),
-                            'fkt_day' => number_format($fktday,8,".","")
+                            'fkt_day' => number_format($fktday, 8, ".", "")
                         ];
                     } else {
                         // Speichern der Tageswerte Werte in Array
@@ -552,32 +558,183 @@ class ExpectedService
                             'irrday' => $irrDay,
                             'tcell' => $Tcell,
                             'hj' => $hjday,
-                            'pr_clas_skal' =>  $pr_clas_skaliert,
+                            'pr_clas_skal' => $pr_clas_skaliert,
                             'pr_clas_komu' => $pr_clas_komuliert,
-                            'pr_theo_skal' =>  $pr_theo_skaliert,
+                            'pr_theo_skal' => $pr_theo_skaliert,
                             'pr_theo_komu' => $pr_theo_komuliert,
                             'pr_theo_ft_skal' => $pr_theo_ft_skaliert,
                             'pr_theo_ft_komu' => $pr_theo_ft_komuliert,
                             'pnom' => $pnomall,
-                            'exp_theo_day' => round($theoday,0),
+                            'exp_theo_day' => round($theoday, 0),
                             'exp_evu_day' => round($expEvuSumDay, 0),
-                            'fkt_day' => number_format($fktday,8,".","")
+                            'fkt_day' => number_format($fktday, 8, ".", "")
                         ];
 
                         $resultArray['yearsum'] = [
-                            'irryear' => round($irrYear,3) ,
-                            'exp_theo_year' => round($theoYear,0),
+                            'irryear' => round($irrYear, 3),
+                            'exp_theo_year' => round($theoYear, 0),
                             'exp_evu_year' => round($expEvuSumYear, 0),
                             'tcell_avg' => $tcell_avg,
                             'CGP' => $ContractualGuarantiedPower
                         ];
                     }
 
-                $irrDay = 0;
-                $expEvuSum = 0;
-                $expEvuSumDay = 0;
-                $theoday = 0;
-                $Fttheohrday = 0;
+                    $irrDay = 0;
+                    $expEvuSum = 0;
+                    $expEvuSumDay = 0;
+                    $theoday = 0;
+                    $Fttheohrday = 0;
+
+                } else {
+
+                 $resultArray = $hrarry;
+
+
+                }
+
+            }
+
+            return $resultArray;
+
+        }
+
+        return false;
+
+    }
+
+    // MS 11/2023
+    public function calcExpectedforDayAheadForecast(Anlage $anlage, $decarray): array {
+        // $aktuellesJahr = date("Y",time());
+        // $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre werden nicht berücksichtigt
+        $resultArray = [];
+        $expEvuSum = 0;
+        $modulisbif = false; // Sollte aus der Modul DB kommen muss noch gemacht werden
+
+        if ((is_countable($decarray) ? count($decarray) : 0) > 0) {
+            // Erstelle Jahres Werte
+            // Erstelle die Tageserträge
+            foreach ($decarray as $keyout => $valout) {
+
+                foreach ($valout as $keyin => $valin) {
+
+                   foreach ($valin as $key => $val) {
+
+                    isset($val['TMP']) ? $airTemp = $val['TMP'] : $airTemp = '0.0';
+                    isset($val['FF']) ? $windSpeed = $val['FF'] : $windSpeed = '0.0';
+                    isset($val['GDIR']) ? $gdir = $val['GDIR'] : $gdir = '0.0';
+                    isset($val['DOY']) ? $doy = $val['DOY'] : $doy = '0';
+                    isset($val['HR']) ? $hr = $val['HR'] : $hr = '0';
+                    isset($val['MIN']) ? $m = $val['MIN'] : $m = '0';
+                    isset($val['TS']) ? $ts = $val['TS'] : $ts = '0';
+                    isset($val['TIP']) ? $tip = $val['TIP'] : $tip = '';
+
+                    $hrarry[$doy][$hr][$key] = ['ts' => $ts, 'ex' => 0, 'irr' => 0,'tmp' => 0,'gdir' => 0,'tcell' => 0];
+
+                    if ($anlage->getIsOstWestAnlage()) {
+
+                        if ($modulisbif) {
+                            isset($val['OSTWEST']['RGESBIF_UPPER']) ? $irrUpper = round($val['OSTWEST']['RGESBIF_UPPER'], 2) : $irrUpper = '0.0';
+                            isset($val['OSTWEST']['RGESBIF_LOWER']) ? $irrLower = round($val['OSTWEST']['RGESBIF_LOWER'], 2) : $irrLower = '0.0';
+                        } else {
+                            isset($val['OSTWEST']['RGES_UPPER']) ? $irrUpper = round($val['OSTWEST']['RGES_UPPER'], 2) : $irrUpper = '0.0';
+                            isset($val['OSTWEST']['RGES_LOWER']) ? $irrLower = round($val['OSTWEST']['RGES_LOWER'], 2) : $irrLower = '0.0';
+                        }
+
+                        if ($tip == "15min") { $irrUpper = $irrUpper / 4; }
+
+                        $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irrUpper), 2);
+
+                    } else {
+
+                        if ($modulisbif) {
+                            isset($val['SUED']['RGESBIF']) ? $irr = round($val['SUED']['RGESBIF'], 2) : $irr = '0.0';
+                        } else {
+                            isset($val['SUED']['RGES']) ? $irr = round($val['SUED']['RGES'], 2) : $irr = '0.0';
+                        }
+
+                        if ($tip == "15min") { $irr = $irr / 4; }
+
+                        $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
+
+                    }
+
+                    // Weiter für Irr day per hour
+
+                        foreach ($anlage->getGroups() as $group) {
+                            // Monatswerte für diese Gruppe laden
+                            /** @var AnlageGroupMonths $groupMonth */
+                            $modules = $group->getModules();
+                            $expPowerDc = 0;
+
+                            foreach ($modules as $modul) {
+
+                                if ($anlage->getIsOstWestAnlage()) {
+                                    // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
+                                    // Power
+                                    if ($tip == '15min') {
+                                        $expPowerDcHlp = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000 / 4; // Ost
+                                        $expPowerDcHlp += $modul->getModuleType()->getFactorPower($irrLower) * $modul->getNumStringsPerUnitWest() * $modul->getNumModulesPerString() / 1000 / 4; // West
+                                    } else {
+                                        $expPowerDcHlp = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000; // Ost
+                                        $expPowerDcHlp += $modul->getModuleType()->getFactorPower($irrLower) * $modul->getNumStringsPerUnitWest() * $modul->getNumModulesPerString() / 1000; // West
+
+                                    }// Current
+                                    $expCurrentDcHlp = $modul->getModuleType()->getFactorCurrent($irrUpper) * $modul->getNumStringsPerUnitEast(); // Ost // nicht durch 4 teilen, sind keine Ah, sondern A
+                                    $expCurrentDcHlp += $modul->getModuleType()->getFactorCurrent($irrLower) * $modul->getNumStringsPerUnitWest(); // West // nicht durch 4 teilen, sind keine Ah, sondern A
+                                    // Voltage
+                                    $expVoltageDcHlp = $modul->getModuleType()->getExpVoltage($irrUpper) * $modul->getNumModulesPerString();
+                                    // Set IRR
+                                    $irr = $irrUpper;
+                                } else {
+                                    // Ist keine 'Ost/West' Anlage
+                                    // Power
+                                    if ($tip == '15min') {
+                                        $expPowerDcHlp = $modul->getModuleType()->getFactorPower($irr) * $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() / 1000 / 4;
+                                    } else {
+                                        $expPowerDcHlp = $modul->getModuleType()->getFactorPower($irr) * $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() / 1000;
+                                    }
+                                    // Current
+                                    $expCurrentDcHlp = $modul->getModuleType()->getFactorCurrent($irr) * $modul->getNumStringsPerUnit(); // nicht durch 4 teilen, sind keine Ah, sondern A
+                                    // Voltage
+                                    $expVoltageDcHlp = $modul->getModuleType()->getExpVoltage($irr) * $modul->getNumModulesPerString();
+                                }
+
+                                if ($anlage->getSettings()->getEpxCalculationByCurrent()) {
+                                    $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
+                                }
+                                $expPowerDc += $expPowerDcHlp;
+                            }
+
+                            // Umrechnung DC nach AC
+                            $expNoLimit = $expPowerDc - ($expPowerDc / 100 * $group->getFactorAC());
+
+                            // Prüfe ob Abriegelung gesetzt ist, wenn ja, begrenze den Wert auf das maximale.
+                            if ($group->getLimitAc() > 0) {
+                                ($expNoLimit > $group->getLimitAc()) ? $expPowerAc = $group->getLimitAc() : $expPowerAc = $expNoLimit;
+                            } else {
+                                $expPowerAc = $expNoLimit;
+                            }
+                            // Berechne den Expected für das GRID (evu)
+                            $expEvu = $expPowerAc - ($expPowerAc / 100 * $group->getGridLoss());
+                            $expEvuSum += $expEvu;
+                        }
+
+                        if ($tip == '15min') {
+                            $ex4 = $expEvuSum;
+                        } else {
+                            $ex4 = $expEvuSum * 4; //* 4;
+                        }
+
+                            $hrarry[$doy][$hr][$key]  = ['ts' => $ts, 'ex' => round($ex4,2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir, 'tcell' => $Tcell]; // array for houry return
+                            $expEvuSum = 0;
+                            $irr = 0;
+
+                  }
+
+                }
+
+                $resultArray = $hrarry;
+
             }
 
             return $resultArray;
