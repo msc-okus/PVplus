@@ -68,17 +68,44 @@ class TicketRepository extends ServiceEntityRepository
         return $qb;
     }
 
-    public function countByProof(String $proofBy){
+    public function countByProof(){
 
         $result = $this->createQueryBuilder('t')
             ->addSelect('count(t.id)')
-            ->andWhere('t.proofBy = :proof')
-            ->setParameter('proof', $proofBy)
+            ->andWhere('t.needsProof = true')
             ->getQuery()
         ;
-        return $result->getResult();
+        return $result->getResult()[0][1];
     }
 
+    public function countByProofAM(){
+
+        $result = $this->createQueryBuilder('t')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.ProofAM = true')
+            ->getQuery()
+        ;
+        return $result->getResult()[0][1];
+    }
+    public function countByProofEPC(){
+
+        $result = $this->createQueryBuilder('t')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.needsProofEPC = true')
+            ->getQuery()
+        ;
+        return $result->getResult()[0][1];
+    }
+
+    public function countByProofG4N(){
+
+        $result = $this->createQueryBuilder('t')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.needsProofg4n = true')
+            ->getQuery()
+        ;
+        return $result->getResult()[0][1];
+    }
     /**
      * Build query with all options, including 'has user rights to see'.
      *

@@ -14,6 +14,7 @@ use App\Service\FunctionsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -275,6 +276,10 @@ class TicketController extends BaseController
     {
 
         //here we will count the number of different "proof by tickets"
+        $countProofByTam = $ticketRepo->countByProof();
+        $countProofByEPC = $ticketRepo->countByProofEPC();
+        $countByProofAM = $ticketRepo->countByProofAM();
+        $countByProofG4N = $ticketRepo->countByProofG4N();
 
         $filter = [];
         $session = $request->getSession();
@@ -375,6 +380,10 @@ class TicketController extends BaseController
             'direction'     => $direction,
             'begin'         => $begin,
             'end'           => $end,
+            'countProofByAM'  => $countByProofAM,
+            'countProofByEPC'  => $countProofByEPC,
+            'countProofByTAM'  => $countProofByTam,
+            'countProofByG4N'  => $countByProofG4N
         ]);
     }
 
@@ -384,7 +393,7 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->findOneById($id);
         $notifications = $ticket->getNotificationInfos();
         $eigner = $ticket->getAnlage()->getEigner();
-        $form = $this->createForm(NotificationFormType::class, null, ['eigner' => $eigner]);
+        $form = $this->createForm(\App\Form\Notification\NotificationFormType::class, null, ['eigner' => $eigner]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             dd("submited");
@@ -397,7 +406,20 @@ class TicketController extends BaseController
         ]);
     }
 
-
+    #[Route(path: '/ticket/proofCount', name: 'app_ticket_proof_count', methods: ['GET', 'POST'])]
+    public function getProofCount(TicketRepository $ticketRepo):Response
+    {
+        $countProofByTam = $ticketRepo->countByProof();
+        $countProofByEPC = $ticketRepo->countByProofEPC();
+        $countByProofAM = $ticketRepo->countByProofAM();
+        $countByProofG4N = $ticketRepo->countByProofG4N();
+        return new JsonResponse([
+            'countProofByAM'  => $countByProofAM,
+            'countProofByEPC'  => $countProofByEPC,
+            'countProofByTAM'  => $countProofByTam,
+            'countProofByG4N'  => $countByProofG4N
+        ]);
+    }
 
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
     public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
@@ -466,6 +488,12 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/deleteTicket/{id}', name: 'app_ticket_deleteticket')]
     public function deleteTicket($id, TicketRepository $ticketRepo,  PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $em, RequestStack $requestStack): Response
     {
+        //here we will count the number of different "proof by tickets"
+        $countProofByTam = $ticketRepo->countByProof();
+        $countProofByEPC = $ticketRepo->countByProofEPC();
+        $countByProofAM = $ticketRepo->countByProofAM();
+        $countByProofG4N = $ticketRepo->countByProofG4N();
+
         $filter = [];
         $session = $requestStack->getSession();
         $pageSession = $session->get('page');
@@ -565,6 +593,11 @@ class TicketController extends BaseController
             'direction'     => $direction,
             'begin'         => $begin,
             'end'           => $end,
+            'countProofByAM'  => $countByProofAM,
+            'countProofByEPC'  => $countProofByEPC,
+            'countProofByTAM'  => $countProofByTam,
+            'countProofByG4N'  => $countByProofG4N
+
         ]);
     }
 

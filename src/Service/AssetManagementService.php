@@ -1841,10 +1841,9 @@ class AssetManagementService
                 round((1 - $expectedPvSystQ1 / $powerEvuQ1) * 100, 2),
             ];
         }else{
-            $operations_monthly_right_pvsyst_tr1 = [
+            $operations_monthly_right_pvsyst_tr2 = [
                 $monthName.' '.$report['reportYear'],
                 $powerEvuQ1,
-                0.0,
                 0.0,
                 0.0,
             ];

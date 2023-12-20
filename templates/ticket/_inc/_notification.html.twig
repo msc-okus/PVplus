@@ -10,7 +10,7 @@
                         {{ form_widget(notificationForm.contacted) }}
                         {{ form_widget(notificationForm.contact) }}
                         {{ form_end(notificationForm) }}
-                        <button class="button small"><a style="color: white" href="{{ path('app_admin_owner_edit', {id : owner.id}) }}">Add contact</a></button>
+                        <button class="button small"><a style="color: white" href="/admin/owner/edit/{{ owner.id }}#contacts">Add contact</a></button>
                     </div>
                 </div>
             </fieldset>
