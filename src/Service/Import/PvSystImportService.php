@@ -37,7 +37,6 @@ class PvSystImportService
             $keyGlobEff     = array_search('GlobEff', $headline);
             $keyGlobInc     = array_search('GlobInc', $headline);
             $keyEGrid       = array_search('E_Grid', $headline);
-            dump($headline, $units);
 
             // leerzeile überspringen
             $row = fgetcsv($fileStream, null, ';');
