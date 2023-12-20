@@ -1,5 +1,29 @@
 <div class="grid-x"  >
     <div class="cell">
-        hey im here
+        {% if (notifications|length == 0) %}
+        <div>
+            <fieldset class="fieldset">
+                <legend>Maintenance notification</legend>
+                <div class="grid-x grid-padding-y grid-padding-x">
+                    <div class="cell small-6">
+                        {{ form_start(notificationForm) }}
+                        {{ form_widget(notificationForm.contacted) }}
+                        {{ form_widget(notificationForm.contact) }}
+                        {{ form_end(notificationForm) }}
+                        <button class="button small"><a style="color: white" href="{{ path('app_admin_owner_edit', {id : owner.id}) }}">Add contact</a></button>
+                    </div>
+                </div>
+            </fieldset>
+            <button class="close-button"
+                    type="button"
+                    data-action="ticket-edit#closeContact"
+            >
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% else %}
+
+            edit contact
+        {% endif %}
     </div>
 </div>

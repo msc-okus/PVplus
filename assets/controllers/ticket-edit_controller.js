@@ -21,6 +21,7 @@ export default class extends Controller {
     }
     modal = null;
     splitModal = null;
+    contactModal = null;
 
     connect() {
         useDispatch(this);
@@ -811,8 +812,7 @@ export default class extends Controller {
 
     closeContact(event) {
         event.preventDefault();
-        this.dispatch('success');
-        this.modalContactTarget.destroy();
+        this.contactModal.destroy();
     }
 
     async saveTicket(event) {
@@ -833,7 +833,10 @@ export default class extends Controller {
         }
 
     }
+    closeNotify(event) {
+        event.preventDefault();
 
+    }
     async reload(event){
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
         this.checkCategory();

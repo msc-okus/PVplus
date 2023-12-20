@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
+use App\Form\Owner\NotificationFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
@@ -273,6 +274,8 @@ class TicketController extends BaseController
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo): Response
     {
 
+        //here we will count the number of different "proof by tickets"
+
         $filter = [];
         $session = $request->getSession();
         $pageSession = $session->get('page');
@@ -376,17 +379,25 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/notify/{id}', name: 'app_ticket_notify', methods: ['GET', 'POST'])]
-    public function notify($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
+    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {
         $ticket = $ticketRepo->findOneById($id);
         $notifications = $ticket->getNotificationInfos();
-
+        $eigner = $ticket->getAnlage()->getEigner();
+        $form = $this->createForm(NotificationFormType::class, null, ['eigner' => $eigner]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            dd("submited");
+        }
         return $this->render('ticket/_inc/_notification.html.twig', [
-            'ticket'         => $ticket,
-            'notifications'  => $notifications,
-
+            'ticket'            => $ticket,
+            'notifications'     => $notifications,
+            'notificationForm'  => $form,
+            'owner'             => $eigner,
         ]);
     }
+
+
 
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
     public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
