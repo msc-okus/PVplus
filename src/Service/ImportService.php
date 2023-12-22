@@ -46,7 +46,6 @@ class ImportService
 
         $arrayVcomIds = explode(',', $vcomId);
 
-
         $conn = $this->doctrine->getConnection();
 
         $weather = $anlage->getWeatherStation();
@@ -165,9 +164,7 @@ class ImportService
                 $checkSensors = [];
                 // the old way
                 if($length > 0){
-
                     $checkSensors = self::checkSensors($anlageSensors->toArray(), (int)$length, (bool)$isEastWest, (array)$sensors, (array)$basics, $date);
-
                     $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
                     $irrLower = $checkSensors[0]['irrLower'];
