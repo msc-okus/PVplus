@@ -28,47 +28,6 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     /**
-     * Build query with all options, including 'has user rights to see'
-     * OLD VERSION.
-     *
-     * @deprecated
-     */
-    public function getWithSearchQueryBuilder(?string $status, ?string $editor, ?string $anlage, ?string $id, ?string $prio, ?string $inverter): QueryBuilder
-    {
-        /** @var User $user */
-        $user = $this->security->getUser();
-        $granted = explode(',', $user->getGrantedList());
-
-        $qb = $this->createQueryBuilder('ticket')
-            ->innerJoin('ticket.anlage', 'a')
-            ->addSelect('a')
-        ;
-        if (!$this->security->isGranted('ROLE_G4N')) {
-            $qb
-                ->andWhere('a.anlId IN (:plantList)')
-                ->setParameter('plantList', $granted)
-            ;
-        }
-        if ($status != '' && $status != '00') {
-            $qb->andWhere("ticket.status = $status");
-        }
-        if ($editor != '') {
-            $qb->andWhere("ticket.editor = '$editor'");
-        }
-        if ($anlage != '') {
-            $qb->andWhere("a.anlName LIKE '$anlage'");
-        }
-        if ($id != '') {
-            $qb->andWhere("ticket.id = '$id'");
-        }
-        if ($prio != '' && $prio != '00') {
-            $qb->andWhere("ticket.priority = '$prio'");
-        }
-
-        return $qb;
-    }
-
-    /**
      * Build query with all options, including 'has user rights to see'.
      *
      * @param Anlage|null $anlage
@@ -79,9 +38,20 @@ class TicketRepository extends ServiceEntityRepository
      * @param string|null $category
      * @param string|null $type
      * @param string|null $inverter
+     * @param int $prooftam
+     * @param int $proofepc
+     * @param int $proofam
+     * @param int $proofg4n
+     * @param string $sort
+     * @param string $direction
+     * @param bool $ignore
+     * @param string $TicketName
+     * @param int $kpistatus
+     * @param string $begin
+     * @param string $end
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, int $proofg4n = 0, string $sort = "", string $direction = "", bool $ignore = false, string $TicketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, int $proofg4n = 0, string $sort = "", string $direction = "", bool $ignore = false, string $ticketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -149,10 +119,14 @@ class TicketRepository extends ServiceEntityRepository
         if ($kpistatus != 0){
             $qb->andWhere("ticket.kpiStatus = $kpistatus");
         }
-        if ($TicketName !== "") $qb->andWhere("ticket.TicketName = '$TicketName'");
-        if ($ignore) $qb->andWhere("ticket.ignoreTicket = true");
-        else $qb->andWhere("ticket.ignoreTicket = false");
-
+        if ($ticketName !== "") {
+            $qb->andWhere("ticket.TicketName LIKE '%$ticketName%'");
+        }
+        if ($ignore) {
+            $qb->andWhere("ticket.ignoreTicket = true");
+        } else {
+            $qb->andWhere("ticket.ignoreTicket = false");
+        }
         if ($sort !== "") $qb->addOrderBy($sort, $direction);
             $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
         if ($begin != "" && $end == ""){

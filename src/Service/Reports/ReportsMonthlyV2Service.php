@@ -259,8 +259,8 @@ class ReportsMonthlyV2Service
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
 
-            $dayValues[$i]['datum'] = $day->format('y-m-d');
-            $dayValues[$i]['datum_alt'] = $day->format('m-d');
+            $dayValues[$i]['datum'] = $day->format('d.m.Y');
+            $dayValues[$i]['datum_alt'] = $day->format('d.m');
             foreach($prArray as $key => $value) {
                 $dayValues[$i][$key] = $value;
             }

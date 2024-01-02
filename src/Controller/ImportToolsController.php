@@ -17,6 +17,7 @@ use App\Service\PdoService;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
+use JsonException;
 use Shuchkin\SimpleXLSX;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -107,7 +108,7 @@ class ImportToolsController extends BaseController
      * @param ImportService $importService
      * @return Response
      * @throws NonUniqueResultException
-     * @throws \JsonException
+     * @throws JsonException
      */
     #[Route('/import/cron', name: 'import_cron')]
     public function importCron(AnlagenRepository $anlagenRepo, ImportService $importService): Response
@@ -138,7 +139,7 @@ class ImportToolsController extends BaseController
      * @param ImportService $importService
      * @return Response
      * @throws NonUniqueResultException
-     * @throws \JsonException
+     * @throws JsonException
      */
     #[Route('/import/manuel', name: 'import_manuell')]
     public function importManuell(#[MapQueryParameter] int $id, #[MapQueryParameter] string $from, #[MapQueryParameter] string $to, AnlagenRepository $anlagenRepo, ImportService $importService): Response

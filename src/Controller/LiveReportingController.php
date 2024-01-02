@@ -47,7 +47,7 @@ class LiveReportingController extends AbstractController
             $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
         }
 
-        return $this->render('special_operations/reportMonthlyNew.html.twig', [
+        return $this->render('live_reporting/reportMonthlyNew.html.twig', [
             'headline' => $headline,
             'anlagen' => $anlagen,
             'anlage' => $anlage,
@@ -97,7 +97,7 @@ class LiveReportingController extends AbstractController
             $output['days'] = $reportsMonthly->buildTable2($anlage, $startDate, $endDate);
         }
 
-        return $this->render('special_operations/reportIndividualNew.html.twig', [
+        return $this->render('live_reporting/reportIndividualNew.html.twig', [
             'headline' => $headline,
             'message'  => '',
             'startday' => $startDate->format('Y-m-d'),
