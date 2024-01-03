@@ -1,0 +1,526 @@
+<script>
+    // The date RangePicker Config and Functions
+    $(function () {
+        [startDate, endDate] = $('.daterange span').html().split(' - ');
+        // Predefine the startDate and endDate
+        if (!startDate) {
+            var startDatex = moment().startOf('month');
+            var endDatex = moment().endOf('month');
+        } else {
+            var startDatex = moment(startDate).toDate();
+            var endDatex = moment(endDate).toDate();
+        }
+        // jQuery Selectors
+        $('.daterange').daterangepicker({
+                maxDate: moment().subtract(0, 'days'),
+                autostart: true,
+                showWeekNumbers: false,
+                startDate: startDatex,
+                endDate: endDatex,
+                showDropdowns: true,
+                minYear: 2020,
+                    {% if  form.selectedChart == 'heatmap'
+                        or form.selectedChart == 'tempheatmap'
+                        or form.selectedChart == 'sollistheatmap'
+                        or form.selectedChart == 'sollisttempanalyse'
+                        or form.selectedChart == 'sollistanalyse'
+                        or form.selectedChart == 'sollistirranalyse'
+                        or form.selectedChart == 'acpnom' %}
+                maxSpan: {months: 3,},
+                showCustomRangeLabel: true,
+                singleDatePicker: true,
+                linkedCalendars: true,
+                    {% else %}
+                maxSpan: {months: 1,},
+                showCustomRangeLabel: true,
+                singleDatePicker: false,
+                linkedCalendars: true,
+                    {% endif %}
+                ranges: {
+                    {% if  form.selectedChart == 'heatmap'
+                        or form.selectedChart == 'tempheatmap'
+                        or form.selectedChart == 'sollistheatmap'
+                        or form.selectedChart == 'sollisttempanalyse'
+                        or form.selectedChart == 'sollistanalyse'
+                        or form.selectedChart == 'sollistirranalyse'
+                        or form.selectedChart == 'dcpnomcurr'
+                        or form.selectedChart == 'acpnom' %}
+                    'Today': [moment(), moment()],
+
+                    {% else %}
+                    'Today': [moment(), moment()],
+                    //'Last 3 Days': [moment(startDatex).subtract(2, 'days'), moment(startDatex)],
+                    'Last 7 Days': [moment(startDatex).subtract(6, 'days'), moment(startDatex)],
+                    'Last 14 Days': [moment(startDatex).subtract(13, 'days'), moment(startDatex)],
+                    //'This Month': [moment(startDatex).startOf('month'), moment(startDatex).endOf('month')],
+                    //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    //'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    //'Last 3 Month': [moment().subtract(3, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    {% endif %}
+                },
+                opens: 'left',
+                buttonClasses: ['btn btn-default'],
+                applyClass: 'primary save button button',
+                cancelClass: 'secondary close button button',
+                format: 'YYYY-MM-DD',
+                separator: ' to ',
+                locale: {
+                    applyLabel: 'Submit',
+                    cancelLabel: 'Clear',
+                    fromLabel: 'From',
+                    toLabel: 'To',
+                    format: 'YYYY-MM-DD',
+                    customRangeLabel: 'Custom',
+                    daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                    monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    firstDay: 1
+                },
+            }, function (start, end, label) {
+                $('.daterange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+                $('#selRange').val(label);
+            },
+
+            $('.daterange').on('apply.daterangepicker', function (ev, picker, label) {
+                var rangesfr = picker.range;
+                var startDate = picker.startDate;
+                var endDate = picker.endDate;
+                $('#from').val(startDate.format('YYYY-MM-DD'));
+                $('#to').val(endDate.format('YYYY-MM-DD'));
+                $("#mysubmit").val('yes');
+                $("#chart-control").delay(100).submit();
+            })
+        );
+        // Extra function
+        var list = $('.ranges ul li');
+        for (i = 0; i <= list.length - 1; i++) {
+            list[i].addEventListener("click", setlabel);
+        }
+
+        function setlabel() {
+            var selectedLabel = $(this).attr('data-range-key');
+            $('#selRange').val(selectedLabel);
+        }
+
+        //
+        var labelfr = $('#selRange').val();
+        if (labelfr == "") {
+            labelfr = 'Today';
+        }
+
+        $('.ranges li.active').removeClass('active');
+
+        $('.daterange').click(function () {
+            $('.ranges li.active').removeClass('active');
+            $('.ranges li[data-range-key="' + labelfr + '"]').addClass('active');
+        });
+        // query the button lastDay
+        $('.button .lastday').click(function () {
+            [startDate, endDate] = $('.daterange span').html().split(' - ');
+            switch (labelfr) {
+                case "Today":
+                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
+                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
+                    break;
+                case "Last 3 Days":
+                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(3, 'days').format('YYYY-MM-DD'));
+                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
+                    break;
+                case "Last 7 Days":
+                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(7, 'days').format('YYYY-MM-DD'));
+                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
+                    break;
+                case "Last 14 Days":
+                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(14, 'days').format('YYYY-MM-DD'));
+                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
+                    break;
+                case "This Month":
+                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'month').startOf('month').format('YYYY-MM-DD'));
+                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'month').endOf('month').format('YYYY-MM-DD'));
+                    break;
+                case "Last Month":
+                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'month').startOf('month').format('YYYY-MM-DD'));
+                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'month').endOf('month').format('YYYY-MM-DD'));
+                    break;
+                case "Last 3 Month":
+                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(3, 'month').startOf('month').format('YYYY-MM-DD'));
+                    $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'month').endOf('month').format('YYYY-MM-DD'));
+                    break;
+                case "Custom":
+                    let dateOne = moment(startDate, "YYYY-MM-DD");
+                    let dateTwo = moment(endDate, "YYYY-MM-DD");
+                    let div = dateTwo.diff(dateOne, 'days');
+                    if (div > 0) {
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(div + 1 , 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(endDate, "YYYY-MM-DD").subtract(div + 1, 'days').format('YYYY-MM-DD'));
+                    } else {
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
+                    }
+                    break;
+            }
+            $("#mysubmit").val('yes');
+            $("#chart-control").delay(100).submit();
+        });
+        // query the button nextDay
+        $('.button .nextday').click(function () {
+            [startDate, endDate] = $('.daterange span').html().split(' - ');
+            let checkfutday = moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD');
+            if (moment(0, 'HH').diff(checkfutday) >= 0) {
+                switch (labelfr) {
+                    case "Today":
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD'));
+                        break;
+                    case "Last 3 Days":
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-3, 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-5, 'days').format('YYYY-MM-DD'));
+                        break;
+                    case "Last 7 Days":
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-7, 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-13, 'days').format('YYYY-MM-DD'));
+                        break;
+                    case "Last 14 Days":
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-14, 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-27, 'days').format('YYYY-MM-DD'));
+                        break;
+                    case "This Month":
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'month').startOf('month').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'month').endOf('month').format('YYYY-MM-DD'));
+                        break;
+                    case "Last Month":
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'month').startOf('month').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'month').endOf('month').format('YYYY-MM-DD'));
+                        break;
+                    case "Last 3 Month":
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'month').startOf('month').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-3, 'month').endOf('month').format('YYYY-MM-DD'));
+                        break;
+                    case "Custom":
+                        let dateOne = moment(startDate, "YYYY-MM-DD");
+                        let dateTwo = moment(endDate, "YYYY-MM-DD");
+                        let div = dateOne.diff(dateTwo, 'days');
+                        if (div < 0) {
+                            let divx = (div * 2);
+                            $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(div-1, 'days').format('YYYY-MM-DD'));
+                            $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(divx-1, 'days').format('YYYY-MM-DD'));
+                        } else {
+                            $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD'));
+                            $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD'));
+                        }
+                        break;
+                }
+                $("#mysubmit").val('yes');
+                $("#chart-control").delay(100).submit();
+            } else {
+                alert("Ups: the selected day is in the future");
+            }
+        });
+
+        //Add for New Dashboard -------
+        $('#chart-control').find('select').change(function (){
+            $("#mysubmit").val('yes');
+            $("#chart-control").delay(100).submit();
+        });
+        $('#chart-control').on('submit',function (e){
+            e.preventDefault();
+
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (data, status, xhr) {
+                    $('#anlChart').html($(data).find('#plantChart').html());
+                },
+                error: function (jqXhr, textStatus, errorMessage) {
+                    $('#anlChart').html(' ');
+                }
+            });
+        });
+        //Add for New Dashboard ------
+    });
+</script>
+
+{% if  form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap'
+    or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' %}
+    {% if  content.maxSeries|raw %}
+        {% set grlengthmax = content.maxSeries|raw %}
+        {% set grlengthmin = content.minSeries|raw %}
+    {% else %}
+        {% set grlengthmax = 50 %}
+        {% set grlengthmin = 1 %}
+    {% endif %}
+
+    <script>
+        // The range slider config and functions
+        $(function () {
+            $("#slider-range").slider({
+                    range: true,
+                    min: 1,
+                    max: {% if content.sumSeries|raw %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
+                    values: {% if form.selectedSet %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
+                slide:
+            function (event, ui) {
+                $("#sview").val("" + ui.values[0] + "-" + ui.values[1] + "");
+                $("#sviewhidden").val("[" + ui.values[0] + "," + ui.values[1] + "]");
+            }
+        ,
+            change: function (event, ui) {
+                if ((ui.values[1] - ui.values[0]) > 100) {
+                    alert("The selected range is greater than 100, which can lead to delays in the view!");
+                };
+                $("#sendrange").css("background-color", "#e6e6e6");
+            }
+        });
+            $("#sview").val("" + $("#slider-range").slider("values", 0) + "-" + $("#slider-range").slider("values", 1) + "");
+            $("#sviewhidden").val("[" + $("#slider-range").slider("values", 0) + "," + $("#slider-range").slider("values", 1) + "]");
+            $("#goshare").click(function () {
+                $("#mysubmit").val('yes');
+                $("#chart-control").delay(100).submit();
+            });
+        });
+    </script>
+{% endif %}
+
+{% from "newDashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showDCPnomCurr,showACPnom,showHeatmap ,showTempHeatmap ,showSollIstAnalyse,showSollIstTempAnalyse,showSollIstIrrAnalyse,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
+    currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive, voltageDc1, voltageDcString %}
+
+{% from "newDashboardPlants/_incl/macrosGroupeMenuSelectBox.html.twig" import groupMenu, groupMenuNew %}
+
+<div class="fluid grid-x grid-padding-x box text-center">
+    <input type="hidden" name="eide" value="{{ aktAnlage.eignerId }}">
+    <input type="hidden" name="aid" value="{{ aktAnlage.AnlId }}">
+    <input type="hidden" name="mysubmit" id="mysubmit" value="no">
+
+    <div class="cell medium-6 large-4 xlarge-2">
+        <select class="js-submit-onchange-select selectedChart" title="Please select a view from the list."
+                data-toggle="tooltip" name="selectedChart">
+            <optgroup label="Analysis">
+                {% if aktAnlage.settings.chartAnalyse1 or is_granted('ROLE_ADMIN') %}
+                    <option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show
+                        Availability [%]
+                    </option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAnalyse2 or is_granted('ROLE_ADMIN') %}
+                    <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAnalyse3 %}
+                    <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast
+                        Ertrag&nbsp;[kWh]
+                    </option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAnalyse10 %}
+                    <option value="forecast_pr" {% if form.selectedChart == 'forecast_pr' %}selected{% endif %}>Forecast
+                        PR&nbsp;[kWh / %]
+                    </option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAnalyse11 %}
+                    <option value="forecast3" {% if form.selectedChart == 'forecast3' %}selected{% endif %}>Forecast3&nbsp;[kWh]</option>
+                {% endif %}
+                {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
+                    {% if aktAnlage.settings.chartAnalyse4 %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Heatmap #}
+                    {% if aktAnlage.settings.chartAnalyse5 %}{{ showTempHeatmap(form, aktAnlage) }}{% endif %}         {# Heatmap #}
+                    {% if aktAnlage.hasDc %}   {# DC Current Headmap ausblenden wenn keine DC Daten vorhanden sind #}
+                        {% if aktAnlage.settings.chartAnalyse6 %}{{ showSollIstHeatmap(form, aktAnlage) }}{% endif %}
+                    {% endif %}
+                {% endif %}
+                {% if is_granted('ROLE_G4N') or is_granted('ROLE_BETA') %}
+                    {% if aktAnlage.settings.chartAnalyse7 %}{{ showSollIstAnalyse(form, aktAnlage) }}{% endif %}         {# Bubblechart #}
+                    {% if aktAnlage.settings.chartAnalyse8 %}{{ showSollIstTempAnalyse(form, aktAnlage) }}{% endif %}     {# Bubblechart #}
+                    {% if aktAnlage.hasDc %}
+                        {% if aktAnlage.settings.chartAnalyse9 %}{{ showSollIstIrrAnalyse(form, aktAnlage) }}{% endif %}
+                    {% endif %}  {# Bubblechart mit DC Anteil daher ausblenden wenn keine DC Daten vorhanden sind #}
+                {% endif %}
+            </optgroup>
+            <!-- ab hier AC -->
+            <optgroup label="AC">
+                {% if aktAnlage.settings.chartAC1 %}{{ acActPlant(form, aktAnlage) }}{% endif %}       {# AC1 #}
+                {% if aktAnlage.settings.chartAC2 %}{{ acActOverview(form, aktAnlage) }}{% endif %}    {# AC2 #}
+                {% if aktAnlage.settings.chartAC3 %}{{ acActGroup(form, aktAnlage) }}{% endif %}       {# AC3 #}
+                {% if aktAnlage.settings.chartAC9 %}{{ showACPnom(form, aktAnlage) }}{% endif %}       {# LineChart #}
+                {% if aktAnlage.settings.chartAC4 %}
+                    <option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff'
+                        or not form.selectedChart %}selected{% endif %}>AC -
+                        Inverter {% if is_granted('ROLE_DEV') %}[AC 4]{% endif %}</option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAC5 %}{{ acVoltage(form, aktAnlage) }}{% endif %}
+                {% if aktAnlage.settings.chartAC6 %}{{ acCurrent(form, aktAnlage) }}{% endif %}
+                {% if aktAnlage.settings.chartAC7 %}{{ acFrequency(form, aktAnlage) }}{% endif %}
+                {% if aktAnlage.settings.chartAC8 %}{{ acReactive(form, aktAnlage) }}{% endif %}
+            </optgroup>
+
+            {% if aktAnlage.hasDc or is_granted('ROLE_ADMIN') %}
+
+                <!-- ab hier DC -->
+                <optgroup label="DC Power">
+                    {% if aktAnlage.settings.chartDC1 %}{{ dcActPlant(form, aktAnlage) }}{% endif %}       {# DC1 #}
+                    {% if aktAnlage.settings.chartDC2 %}{{ dcActOverview(form, aktAnlage) }}{% endif %}    {# DC2 #}
+                    {% if aktAnlage.settings.chartDC3 %}{{ dcActGroup(form, aktAnlage) }}{% endif %}       {# DC3 #}
+                    {% if aktAnlage.settings.chartDC4 %}{{ dcGroupPowerDiff(form, aktAnlage) }}{% endif %} {# DC4 Bar Chart #}
+                </optgroup>
+
+                <!-- ab hier Current DC -->
+                <optgroup label="DC Current">
+                    {% if aktAnlage.settings.chartCurr1 %}{{ currentDcOverview(form, aktAnlage) }}{% endif %}    {# Curr1 #}
+                    {% if aktAnlage.settings.chartCurr2 %}{{ currentDcGroup(form, aktAnlage) }}{% endif %}       {# Curr2 #}
+                    {% if aktAnlage.settings.chartCurr3 %}{{ currentDcInverter(form, aktAnlage) }}{% endif%}     {# Curr3 und Curr 3A#}
+                    <!--{{ currentDcString(form, aktAnlage) }} -->     {# Curr4 #}
+                </optgroup>
+
+                <optgroup label="DC Voltage">
+                    {% if aktAnlage.settings.chartVolt1 %}{{ voltageDc1(form, aktAnlage) }}{% endif %}           {# VoltageDC1 #}
+                    {% if aktAnlage.settings.chartVolt2 %}{{ voltageDcString(form, aktAnlage) }}{% endif %}      {# VoltStringDC1 #}
+                </optgroup>
+
+            {% endif %}
+
+            <!-- diverses -->
+            <optgroup label="Sensors">
+                {% if aktAnlage.settings.chartSensor1 %}{{ irradiation(form, aktAnlage) }}{% endif %}
+                {% if aktAnlage.settings.chartSensor2 %}
+                    <option value="irradiation_plant"
+                            {% if form.selectedChart == 'irradiation_plant' %}selected{% endif %}>Irradiation Plant
+                        [W/m²]
+                    </option>
+                {% endif %}
+                {% if aktAnlage.settings.chartSensor3 %}
+                    <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature [°C]
+                    </option>
+                {% endif %}
+
+            </optgroup>
+
+            <!-- Developer and G4N Stuff -->
+            {% if is_granted('ROLE_ADMIN') %}
+                <optgroup label="Admin Stuff">
+                    <option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show
+                        status log
+                    </option>
+                    {% if aktAnlage.showPvSyst or is_granted('ROLE_DEV') %}
+                        <option value="pvsyst" {% if form.selectedChart == 'pvsyst' %}selected{% endif %}>Show pvSyst
+                        </option>
+                    {% endif %}
+                    {% if is_granted('ROLE_DEV') %}
+                        <option value="grid" {% if form.selectedChart == 'grid' %}selected{% endif %}>Show grid</option>
+                    {% endif %}
+                </optgroup>
+            {% endif %}
+
+        </select>
+    </div>
+
+    <div class="cell medium-4 large-2 xlarge-2">
+        {{ groupMenuNew(form, aktAnlage) }}
+        {% if form.selectedChart == 'heatmap'
+            or form.selectedChart == 'tempheatmap'
+            or form.selectedChart == 'sollistheatmap'
+            or form.selectedChart == 'dcpnomcurr'
+            or form.selectedChart == 'acpnom' %}
+            {% if grlengthmax %}
+                <div class="grid-x grid-padding-x" style="height:40px;">
+                    <div class="cell medium-5 large-5 xlarge-5"><label for="amount">INV Range:</label></div>
+                    <div class="cell medium-4 large-4 xlarge-4">
+                        <input type="text" id="sview" readonly
+                               style="border:0; background-color: #701b1b00 ; box-shadow: inset 0 0px 0px rgba(10, 10, 10, 0.1);font-weight:bold;">
+                        <input type="hidden" id="sviewhidden" name="selectedSet" value="0">
+                        <input type="hidden" name="selectedSetfrom" value="{{ form.selectedSet }}">
+                    </div>
+
+                    <div class="cell medium-3 large-3 xlarge-3">
+                        <label id="goshare" class="button" title="Submit the range"
+                               style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
+                            <div type="text" id="sendrange" style="display: block">
+                                <i class="fa fa fa-expand"></i>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div id="slider-range"></div>
+            {% else %}
+                <input type="hidden" id="sview" name="selectedSet" value="0">
+            {% endif %}
+        {% endif %}
+    </div>
+
+    {# neues Cahrt Control System #}
+
+    <div class="cell medium-2 large-4 xlarge-4">
+        <div class="input-group">
+            <label class="button"
+                   style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 5px 0 0;">
+                <div class="lastday" type="text" style="display: block">
+                    <i class="fa fa-angle-left"></i>
+                </div>
+            </label>
+            <label>
+                <div class="pull-right daterange"
+                     style="background: #fff; cursor: pointer; padding: 0; width: 250px; border: 1px solid #ccc">
+                    <i class="glyphicon glyphicon-calendar fa fa-calendar" style="padding-right: 10px;"></i>
+                    <span style="font-size:14px;">{{ form.from|date('Y-m-d') }} - {{ form.to|date('Y-m-d') }}</span>
+                    <i style="font-size:15px; padding-left: 10px;" class="fa fa-caret-down"></i>
+                </div>
+                <input type="text" id="from" name="from" value="{{ form.from|date('Y-m-d') }}" readonly
+                       style="display: none">
+                <input type="text" id="to" name="to" value="{{ form.to|date('Y-m-d') }}" readonly style="display: none">
+
+                <input type="text" id="selRange" name="selRange" value="{{ form.selRange }}" readonly
+                       style="display: none">
+
+                <input type="hidden" name="startDateNew" value="true">
+            </label>
+            <label class="button"
+                   style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
+                <div class="nextday" type="text" style="display: block">
+                    <i class="fa fa-angle-right"></i>
+                </div>
+            </label>
+        </div>
+    </div>
+
+    {% if form.selectedChart == 'sollistirranalyse' %}
+        <div class="cell medium-4 large-4 xlarge-4">
+            <div class="small button-group round toggle">
+                <label class="button js-submit-onchange {% if form.optionIrrVal == 400 %}active{% endif %}">
+                    <input type="radio" name="optionIrrVal" value="400"
+                           {% if form.optionIrrVal == 400 %}checked="checked"{% endif %}> < 400 W/m²
+                </label>
+                <label class="button js-submit-onchange {% if form.optionIrrVal == 800 %}active{% endif %}">
+                    <input type="radio" name="optionIrrVal" value="800"
+                           {% if form.optionIrrVal == 800 %}checked="checked"{% endif %}>400 - 800 W/m²
+                </label>
+                <label class="button js-submit-onchange {% if form.optionIrrVal == 1000 %}active{% endif %}">
+                    <input type="radio" name="optionIrrVal" value="1000"
+                           {% if form.optionIrrVal == 1000 %}checked="checked"{% endif %}> > 800 W/m²
+                </label>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if (form.selectedChart != 'availability')
+        and (form.selectedChart != 'acpnom')
+        and (form.selectedChart != 'dcpnomcurr')
+        and (form.selectedChart != 'pr_and_av')
+        and (form.selectedChart != 'forecast')
+        and (form.selectedChart != 'status_log')
+        and (form.selectedChart != 'pvsyst')
+        and (form.selectedChart != 'heatmap')
+        and (form.selectedChart != 'tempheatmap')
+        and (form.selectedChart != 'sollistanalyse')
+        and (form.selectedChart != 'sollistirranalyse')
+        and (form.selectedChart != 'sollisttempanalyse')
+        and (form.selectedChart != 'sollistheatmap')
+        and (form.selectedChart != 'grid') %}
+        <div class="cell medium-1 large-1 xlarge-1">
+            <div class="switch tiny align-center-middle">
+                <label class="" style="line-height: 1;"><small>Interval min.</small></label>
+                <input class="switch-input js-submit-onchange" id="hour" type="checkbox"
+                       name="hour" {% if form.hour == true %} checked {% endif %}>
+                <label class="switch-paddle" for="hour">
+                    <span class="show-for-sr"></span>
+                    <span class="switch-active" aria-hidden="true">60</span>
+                    <span class="switch-inactive" aria-hidden="true">15</span>
+                </label>
+            </div>
+        </div>
+    {% endif %}
+</div>

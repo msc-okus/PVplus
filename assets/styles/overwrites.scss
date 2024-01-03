@@ -481,6 +481,20 @@
             }
         }
 
+        #ownerNew{
+
+                ul.statusLights {
+
+                    li{
+                        margin-right: 2px;
+                    }
+                    .label-normal {background-color: $success}
+                    .label-warning {background-color: $warning}
+                    .label-alert {background-color: $danger}
+                }
+
+        }
+
         #plants{
             .scroll-area {
                 max-height: 550px;

@@ -132,7 +132,7 @@ class TicketRepository extends ServiceEntityRepository
         }
         else {
             $qb->andWhere("ticket.alertType < 90 or ticket.alertType >= 100");
-      
+
         }
         if ($prooftam == 1){
             $qb->andWhere("ticket.needsProof = 1");
@@ -363,5 +363,16 @@ class TicketRepository extends ServiceEntityRepository
 
         return $result->getResult();
     }
+
+    //new Dashboard
+    public  function  findByAnlageId(int $anlageId):array{
+        return $this->createQueryBuilder('t')
+            ->join('t.anlage', 'a')
+            ->where('a.anlId = :anlageId')
+            ->setParameter('anlageId', $anlageId)
+            ->getQuery()
+            ->getResult();
+    }
+
 
 }

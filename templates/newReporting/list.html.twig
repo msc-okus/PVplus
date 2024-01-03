@@ -16,25 +16,27 @@
 
 {% block body %}
     <h1>List Reports</h1>
-    <div {{ stimulus_controller('report', {
-            urlCreate: path('app_reporting_create'),
+    <div id="anlReport">
+    <div {{ stimulus_controller('newreport', {
+            urlCreate: path('app_newReporting_create'),
             urlSearch: path('app_reporting_search'),
         }) }}
-        data-report-target="reportForm"
+        data-newreport-target="reportForm"
     >
-        <form>
-            <div id="search-form" data-report-target="searchForm">
-                {% include 'reporting/_inc/_searchForm.html.twig' %}
-            </div>
-        </form>
-            {% include 'reporting/_inc/_listReports.html.twig' %}
+{#        <form>#}
+{#            <div id="search-form" data-report-target="searchForm">#}
+{#                {% include 'newReporting/_inc/_searchForm.html.twig' %}#}
+{#            </div>#}
+{#        </form>#}
+            {% include 'newReporting/_inc/_listReports.html.twig' %}
             <hr>
         {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA') ) %}
             <form>
-                <div id="create-form" data-report-target="createForm">
-                    {% include'reporting/_inc/_createForm.html.twig' %}
+                <div id="create-form" data-newreport-target="createForm">
+                    {% include'newReporting/_inc/_createForm.html.twig' %}
                 </div>
             </form>
         {% endif %}
+    </div>
     </div>
 {% endblock %}

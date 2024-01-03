@@ -33,10 +33,10 @@ $(document).ready( async function (tableSelector) {
                 className:'excelButton',
                 messageTop:' Monats Bericht',
                 messageBottom:null,
-                title:'Monthly Report',
-                filename:'_monthly report',
+                //  title:'Monthly Report',
+                //   filename:'_monthly report',
                 footer:true,
-              //  autoFilter:true,
+                //  autoFilter:true,
                 sheetName: 'Monthly report',
                 exportOptions:{
                     format: {
@@ -51,6 +51,35 @@ $(document).ready( async function (tableSelector) {
                             return data
                         }
                     }
+                },
+                action: function (e, dt, node, config) {
+                    // Using jQuery to show the modal and backdrop
+                    $('#modalBackdrop').show();
+                    $('#exportModal').show();
+
+                    $('#exportFileName').val(getExportFileName());
+
+                    // Binding the click event with jQuery
+                    $('#confirmExport').off('click').on('click', () => {
+                        // Hide the modal and backdrop using jQuery
+                        $('#modalBackdrop').hide();
+                        $('#exportModal').hide();
+
+                        // Set the new filename from the input value
+                        config.filename = $('#exportFileName').val();
+                        config.title = $('#exportFileName').val();
+
+                        // Execute the default export action with the updated configuration
+                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, node, config);
+                    });
+
+                    // Binding the click event with jQuery
+                    $('#cancelExport').off('click').on('click', () => {
+                        // Hide the modal and backdrop using jQuery
+                        $('#modalBackdrop').hide();
+                        $('#exportModal').hide();
+                    });
+
                 }
             }
         ]
@@ -58,4 +87,26 @@ $(document).ready( async function (tableSelector) {
 
     t.buttons(0,null).container()
         .appendTo( $('#special_export_buttons' ));
+
+
+    // Function to generate the export file name based on the values of userSelectForm fields
+    function getExportFileName() {
+        const username = $('#anlage-id option:selected').text();  // Get the text of the selected option in the Plant field
+        const startDate = $('#start-day').val();  // Get the value of the startDate field
+        const endDate = $('#end-day').val();  // Get the value of the endDate field
+
+
+        let title = 'monthly_report';  // Initialize the title with "Export"
+        if (username) {
+            title += `_${username}`;  // If username is not empty, add it to the title
+        }
+        if (startDate) {
+            title += `_${startDate}`;  // If startDate is not empty, add it to the title
+        }
+        if (endDate) {
+            title += `_${endDate}`;  // If endDate is not empty, add it to the title
+        }
+
+        return title;  // Return the title
+    }
 });

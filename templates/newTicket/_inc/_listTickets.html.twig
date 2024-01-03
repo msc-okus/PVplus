@@ -1,0 +1,134 @@
+<div {{ stimulus_controller('request') }}>
+    <form id="tableForm"></form>
+    <div data-action="ticket-edit:success->ticket-list#update submit-confirm:async:submitted->ticket-list#update">
+        <table class="table" id="anlTicketContent">
+            <thead>
+            <tr>
+                <th>Ticket ID
+                    <span data-tooltip tabindex="1" title="With '•' means: is created by 'AlertSystem'"><i class="fa fa-info-circle"></i></span>
+                    <span data-tooltip tabindex="1" title="For a Performance Ticket a green dot means it is active, a red one means it is not"><i class="fa fa-info-circle"></i></span>
+                </th>
+                <th>Plant</th>
+                <th>Identifier</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Priority</th>
+                <th>Editor</th>
+                <th>Begin</th>
+                <th>End</th>
+                <th>Last Update</th>
+                <th>Error Category{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
+                <th>Inverter</th>
+                <th>Open Status</th>
+                <th><small>needs<br>Proof</small></th>
+                <th>Action</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.id }}{% if ticket.createdBy == 'AlertSystem' %} •{% endif %}
+                        {% if (ticket.alertType >= 70 and ticket.alertType < 80) %}
+                            {% if (ticket.kpiStatus == 10) %} {# Activ #}
+                                <span style="color: green;font-size: 20px">●</span>
+                            {% elseif (ticket.kpiStatus == 20) %}{# inactiv #}
+                                <span style="color: red;font-size: 20px">●</span>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>{{ ticket.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ ticket.anlage.anlId }}) {% endif %}</td>
+                    {% set maxCharId = 10 %}
+                    <td {% if ticket.TicketName|length > maxCharId %}data-tooltip data-click-open="false" title="{{ ticket.TicketName }}"{% endif %}><span>{{ ticket.TicketName|u.truncate(maxCharId, ' ...', false) }}</span></td>
+
+                    <td class="text-center">
+                        {% set status %}ticket.status.{{ ticket.status }}{% endset %}
+                        <span class="label ticket-status-{{ ticket.status }}">{{ status|trans }}</span>
+                    </td>
+                    <td class="text-center">
+                        {% set priority %}ticket.priority.{{ ticket.priority }}{% endset %}
+                        <span class="label ticket-priority-{{ ticket.priority }}">{{ priority|trans }}</span>
+                    </td>
+                    <td>{{ ticket.editor }}</td>
+                    <td>{{ ticket.begin|date("d.m.y H:i")}}</td>
+                    <td>{{ ticket.end|date("d.m.y H:i") }}</td>
+                    <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}{# {% if is_granted('ROLE_DEV') %}<small>{{ ticket.createdAt|date("d.m.y H:i") }}</small>{% endif %} #}</td>
+                    <td>
+                        {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
+                        {{ errcat|trans }}{% if is_granted('ROLE_DEV') %}<small> {{ ticket.alertType }}</small>{% endif %}
+                    </td>
+                    {% set maxCharInverter = 16 %}
+                    <td {% if ticket.inverter|length > maxCharInverter %}data-tooltip data-click-open="false" title="{{ ticket.inverter }}"{% endif %}><span>{{ ticket.inverter|u.truncate(maxCharInverter, ' ...', false) }}</span></td>
+                    <td>{% if (ticket.openTicket) %} open {% endif %}</td>
+                    <td>{{ ticket.proof }}</td>
+                    <td class="text-right" style="display:flex; justify-content: space-between;">
+                        <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('ticket-edit', {
+                                formUrl: path('app_ticket_edit', { id: ticket.id}),
+                                splitUrl: path('app_ticket_split', { id: ticket.id}),
+                            }) }}
+                        >
+                            <button class="hollow button action-icon shadow"
+                                    data-action="ticket-edit#openModal"
+                                    data-append-to="div#modal-form{{ ticket.id }}"
+                            ><span class="fa fa-edit"></span></button>
+                            {{ include('newTicket/_inc/_modalTicket.html.twig', {
+                                modalId: ticket.id,
+                                modalTitel: 'Edit Ticket',
+                                class: 'large',
+                                dataVOffset: '10',
+                            }) }}
+                        </div>
+                        {% if is_granted('ROLE_DEV') %}
+                            <button
+                                    class="hollow alert button action-icon shadow"
+                                    {{ stimulus_controller('submit-confirm', {
+                                        title: 'Remove this ticket?',
+                                        confirmButtonText: 'Yes, remove it',
+                                        redirectUrl: path('app_ticket_deleteticket', { id: ticket.id})
+                                    }) }}
+                                    data-action="submit-confirm#onSubmit"
+                            ><span class="fa fa-trash-alt"></span>
+                            </button>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {# create New Ticket – End #}
+        <div id="modal-form0" {{ stimulus_controller('ticket-edit', {
+            formUrl: path('app_ticket_create'),
+        }) }}>
+            <div class="grid-x grid-margin-x align-middle">
+                {# create New Ticket – Begin #}
+                <div class="cell small-12 medium-2">
+                    <select name="anlage-id"
+                            data-ticket-edit-target="anlage"
+                            data-action="ticket-edit#toggle">
+                        <option value="" disabled selected hidden>Please choose a Plant</option>
+                        <option value="{{ anlage.anlId }}">{{ anlage.anlId }} - {{ anlage.anlName }}</option>
+
+                    </select>
+                </div>
+                <div class="cell small-12 medium-2">
+                    <button name="new-ticket" class="button secondary expanded no-margins"
+                            disabled
+                            data-ticket-edit-target="deactivable"
+                            data-action="ticket-edit#openModal"
+                    >
+                        New Ticket
+                    </button>
+                </div>
+
+                {{ include('newTicket/_inc/_modalTicket.html.twig', {
+                    modalId: 0,
+                    modalTitel: 'New Ticket',
+                    class: 'large',
+                    dataVOffset: '10',
+                }) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+
