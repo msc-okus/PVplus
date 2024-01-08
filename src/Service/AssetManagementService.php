@@ -1134,10 +1134,12 @@ class AssetManagementService
             (float) $powerAct[] = $data1_grid_meter['powerAct']; // Inv out
             if ($anlage->getShowEvuDiag()) {
                 (float) $powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
+                (float) $powerExp[] = $data1_grid_meter['powerExpEvu'];
             } else {
                 (float) $powerExpEvu[] = $data1_grid_meter['powerExp'];
+                (float) $powerExp[] = $data1_grid_meter['powerExp'];
             }
-            (float) $powerExp[] = $data1_grid_meter['powerExp'];
+
             (float) $powerExternal[] = $data1_grid_meter['powerEGridExt'];
             $expectedPvSyst[] = $Ertrag_design;
 
