@@ -55,6 +55,7 @@ class UpdateExpectedDbsCommand extends Command
             $from = $optionFrom;
         } else {
             $from = date('Y-m-d H:i:00', time() - (4 * 3600));
+           # $from = date('Y-m-d 00:00:00', time());
         }
         if ($optionTo) {
             $to = $optionTo;

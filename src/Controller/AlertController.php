@@ -1,23 +1,21 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
 use App\Repository\AnlagenRepository;
 use App\Repository\AnlagenStatusRepository;
 use App\Repository\EignerRepository;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\Attribute\Route;
 
 class AlertController extends BaseController
 {
-    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
+    public function __construct(
+    )
     {
     }
 
     #[Route(path: '/alert/send', name: 'app_alert_send')]
-    public function sendAlertMessages(AnlagenStatusRepository $anlagenStatusRepository, EignerRepository $ownerRepository, AnlagenRepository $anlagenRepository)
+    public function sendAlertMessages(AnlagenStatusRepository $anlagenStatusRepository, EignerRepository $ownerRepository, AnlagenRepository $anlagenRepository): void
     {
         $owners = $ownerRepository->findAll();
         foreach ($owners as $owner) {

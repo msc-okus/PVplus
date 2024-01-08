@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use DateTime;
 
@@ -421,6 +421,18 @@ class TicketController extends BaseController
         ]);
     }
 
+
+    /**
+     * Split Tickets by Time
+     *
+     * @param $id
+     * @param TicketDateRepository $ticketDateRepo
+     * @param TicketRepository $ticketRepo
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @return Response
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
     public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {
@@ -485,6 +497,86 @@ class TicketController extends BaseController
             'performanceTicket' => false
         ]);
     }
+
+    /**
+     * Split Ticket by Inverter
+     *
+     * @param TicketRepository $ticketRepo
+     * @param TicketDateRepository $ticketDateRepo
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @return Response
+     * @throws InvalidArgumentException
+     */
+    #[Route(path: '/ticket/splitbyinverter', name: 'app_ticket_split_inverter')]
+    public function splitByInverter(TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em): Response
+    {
+        $ticket = $ticketRepo->findOneById($request->query->get('id'));
+        $newTicket = new Ticket();
+        $newTicket->setInverter($request->query->get('inverterb'));
+        $ticket->setInverter($request->query->get('invertera'));
+        $newTicket->copyTicket($ticket);
+        $newTicket->setInverter($request->query->get('inverterb'));
+        $ticket->setInverter($request->query->get('invertera'));
+
+        $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
+        $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
+
+        $newTicket->setStatus(10);
+        $em->persist($ticket);
+        $em->persist($newTicket);
+        $em->flush();
+        $ticket->setDescription($ticket->getDescription()." Ticket splited into Ticket: ". $newTicket->getId());
+        $ticket->setUpdatedAt(new DateTime('now'));
+        $em->persist($ticket);
+        $em->flush();
+
+        $form = $this->createForm(TicketFormType::class, $ticket);
+
+        $anlage = $ticket->getAnlage();
+        $nameArray = $anlage->getInverterFromAnlage();
+        $selected = $ticket->getInverterArray();
+        $indexSelect = 0;
+        $inverterArray = [];
+        for ($index = 1; $index <= sizeof($nameArray); $index++){
+            $value = $nameArray[$index];
+            $inverterArray[$index]["inv"] = $value;
+            if ($index === (int)$selected[$indexSelect]){
+                $inverterArray[$index]["select"] = "checked";
+                $indexSelect++;
+            } else {
+                $inverterArray[$index]["select"] = "";
+            }
+        }
+        if ($ticket->getDates()->isEmpty()) {
+            $inverterArray = null;
+        }
+        $namesSensors = $anlage->getSensors();
+
+        $ticketDates = $ticket->getDates();
+        $sensorString = $ticketDates->first()->getSensors();
+        $sensorArray = [];
+        foreach ($namesSensors as $key => $sensor){
+            $sensorArray[$key]['name'] = $sensor->getName();
+            $sensorArray[$key]['nameS'] = $sensor->getNameShort();
+            if ((str_contains($sensorString, $sensor->getNameShort()) !== false)) {
+                $sensorArray[$key]['checked'] = "checked";
+            } else {
+                $sensorArray[$key]['checked'] = "";
+            }
+        }
+        return $this->render('ticket/_inc/_edit.html.twig', [
+            'ticketForm' => $form,
+            'ticket' => $ticket,
+            'anlage' => $anlage,
+            'edited' => true,
+            'invArray' => $inverterArray,
+            'performanceTicket' => false,
+            'sensorArray'   => $sensorArray,
+        ]);
+    }
+
+
     #[Route(path: '/ticket/deleteTicket/{id}', name: 'app_ticket_deleteticket')]
     public function deleteTicket($id, TicketRepository $ticketRepo,  PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $em, RequestStack $requestStack): Response
     {
@@ -699,74 +791,7 @@ class TicketController extends BaseController
         ]);
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
-    #[Route(path: '/ticket/splitbyinverter', name: 'app_ticket_split_inverter')]
-    public function splitByInverter(TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em): Response
-    {
-        $ticket = $ticketRepo->findOneById($request->query->get('id'));
-        $newTicket = new Ticket();
-        $newTicket->setInverter($request->query->get('inverterb'));
-        $ticket->setInverter($request->query->get('invertera'));
-        $newTicket->copyTicket($ticket);
-        $newTicket->setInverter($request->query->get('inverterb'));
-        $ticket->setInverter($request->query->get('invertera'));
 
-        $ticket->setEditor($this->getUser()->getUserIdentifier());
-        $newTicket->setEditor($this->getUser()->getUserIdentifier());
-
-        $newTicket->setStatus(10);
-        $em->persist($ticket);
-        $em->persist($newTicket);
-        $em->flush();
-        $ticket->setDescription($ticket->getDescription()." Ticket splited into Ticket: ". $newTicket->getId());
-        $ticket->setUpdatedAt(new DateTime('now'));
-        $em->persist($ticket);
-        $em->flush();
-
-        $form = $this->createForm(TicketFormType::class, $ticket);
-
-        $anlage = $ticket->getAnlage();
-        $nameArray = $anlage->getInverterFromAnlage();
-        $selected = $ticket->getInverterArray();
-        $indexSelect = 0;
-        for ($index = 1; $index <= sizeof($nameArray); $index++){
-            $value = $nameArray[$index];
-            $inverterArray[$index]["inv"] = $value;
-            if ($index === (int)$selected[$indexSelect]){
-                $inverterArray[$index]["select"] = "checked";
-                $indexSelect++;
-            } else {
-                $inverterArray[$index]["select"] = "";
-            }
-        }
-        if ($ticket->getDates()->isEmpty()) {
-            $inverterArray = null;
-        }
-        $namesSensors = $anlage->getSensors();
-
-        $ticketDates = $ticket->getDates();
-        $sensorString = $ticketDates->first()->getSensors();
-        foreach ($namesSensors as $key => $sensor){
-            $sensorArray[$key]['name'] = $sensor->getName();
-            $sensorArray[$key]['nameS'] = $sensor->getNameShort();
-            if ((str_contains($sensorString, $sensor->getNameShort()) !== false)) {
-                $sensorArray[$key]['checked'] = "checked";
-            } else {
-                $sensorArray[$key]['checked'] = "";
-            }
-        }
-        return $this->render('ticket/_inc/_edit.html.twig', [
-            'ticketForm' => $form,
-            'ticket' => $ticket,
-            'anlage' => $anlage,
-            'edited' => true,
-            'invArray' => $inverterArray,
-            'performanceTicket' => false,
-            'sensorArray'   => $sensorArray,
-        ]);
-    }
 
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods: ['GET', 'POST'])]
     public function join(TicketRepository $ticketRepo, EntityManagerInterface $em): Response

@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
+use App\Service\PdoService;
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
 use App\Entity\EconomicVarNames;
@@ -25,13 +25,11 @@ use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use League\Flysystem\FilesystemException;
-use RecursiveIteratorIterator;
-use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -356,7 +354,25 @@ class AnlagenAdminController extends BaseController
         }
 
     }
+    /**
+     * @throws \Exception
+     */
+    #[Route(path: '/admin/anlagen/builddayaheadforcast/{id}', name: 'app_admin_anlagen_build_day_ahead_forecast', methods: ['GET','POST'])]
+    public function buildDayAheadForcast($id, KernelInterface $kernel): RedirectResponse|Response
+    {
+        $response = new Response();
+        $response->setStatusCode(Response::HTTP_OK);
 
+        $application = new Application($kernel);
+        $application->setAutoExit(false);
+
+        $input = new ArrayInput(['command' => 'pvp:dayaheadwritedb', '-a'  => $id]);
+
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+
+        return $response;
+    }
     /**
      * @throws \Exception
      */
@@ -640,9 +656,6 @@ class AnlagenAdminController extends BaseController
                               `date` varchar(50) DEFAULT NULL,
                               `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
                               `id_sensor` int(3) DEFAULT NULL,
-                              `type_sensor` varchar(20) DEFAULT NULL,
-                              `shortname_sensor` varchar(20) DEFAULT NULL,
-                              `usetocalc_sensor` tinyint(1) DEFAULT NULL,
                               `value` float DEFAULT NULL,
                               `gmo` float DEFAULT NULL,
                               PRIMARY KEY (`db_id`) USING BTREE,

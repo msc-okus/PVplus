@@ -59,7 +59,8 @@ trait G4NTrait
      * return Zeitstempel im SQL Format
      *
      * @param $timestamp
-     * @param $reverse
+     * @param float $val
+     * @param bool $reverse
      * @return string
      */
     public static function timeAjustment($timestamp, float $val = 0, $reverse = false): string
@@ -74,7 +75,7 @@ trait G4NTrait
         return date($format, $timestamp);
     }
 
-    public static function isDateToday($date)
+    public static function isDateToday($date): bool
     {
         return date('Y-m-d', strtotime((string) $date)) == date('Y-m-d', self::getCetTime());
     }
@@ -327,10 +328,10 @@ trait G4NTrait
         return $month;
     }
 
-    public function printArrayAsTable(array $content): string
+    public function printArrayAsTable(array $content, string $decimalSeparator = '.'): string
     {
         $precision = 4;
-        $_html = "<div class='table-scroll'><table style='font-size: 90%'>";
+        $_html = "<div class='table-scroll'><table id='special_export' style='font-size: 90%'>";
         $_counter = 0;
         $_html .= '<thead>';
         foreach ($content as $key => $contentRow) {
@@ -346,7 +347,7 @@ trait G4NTrait
             $_html .= "<tr><td>$key</td>";
             foreach ($contentRow as $cell) {
                 if (is_float($cell)) {
-                    $_html .= '<td>'.round($cell, $precision).'</td>';
+                    $_html .= '<td>'.number_format(round($cell, $precision),$precision, $decimalSeparator,'').'</td>';
                 } else {
                     $_html .= "<td>$cell</td>";
                 }
@@ -448,6 +449,7 @@ trait G4NTrait
             $sensorType = $anlageSensors[$i]->getvirtualSensor();
             $sensorShortname = $anlageSensors[$i]->getNameShort();
             $sensorUseToCalc = $anlageSensors[$i]->getUseToCalc();
+            $sensorIsFromBasics = $anlageSensors[$i]->getIsFromBasics();
             $vcomId = $anlageSensors[$i]->getVcomId();
 
             $sensors[$sensorId] = [
@@ -455,6 +457,7 @@ trait G4NTrait
                 'type_sensor'           => $sensorType,
                 'shortname_sensor'      => $sensorShortname,
                 'usetocalc_sensor'      => $sensorUseToCalc,
+                'isfrombasics_sensor'   => $sensorUseToCalc,
                 'vcom_id'               => $vcomId
             ];
         }

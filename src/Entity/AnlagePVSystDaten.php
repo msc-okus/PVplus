@@ -107,9 +107,9 @@ class AnlagePVSystDaten
         return $this;
     }
 
-    public function getElectricityGrid(): ?string
+    public function getElectricityGrid(): ?float
     {
-        return $this->electricityGrid;
+        return (float)$this->electricityGrid;
     }
 
     public function setElectricityGrid(string $electricityGrid): self
@@ -119,9 +119,9 @@ class AnlagePVSystDaten
         return $this;
     }
 
-    public function getElectricityInverterOut(): ?string
+    public function getElectricityInverterOut(): ?float
     {
-        return $this->electricityInverterOut;
+        return (float)$this->electricityInverterOut;
     }
 
     public function setElectricityInverterOut(string $electricityInverterOut): self

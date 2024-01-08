@@ -399,6 +399,7 @@ export default class extends Controller {
                 $(this.fieldEnergyValueTargets).addClass('is-hidden');
                 $(this.fieldIrrValueTargets).addClass('is-hidden');
             }
+            $(this.inverterDivTargets).addClass('is-hidden');
             $(this.fieldHourTargets).removeClass('is-hidden');
             $(this.fieldCorrectionTargets).addClass('is-hidden');
             $(this.fieldEvaluationTargets).addClass('is-hidden');

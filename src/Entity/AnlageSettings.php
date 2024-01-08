@@ -136,6 +136,9 @@ class AnlageSettings
     private ?bool $chartAnalyse11 = false;
 
     #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse12 = false;
+
+    #[ORM\Column(nullable: true)]
     private ?bool $chartCurr1 = false;
 
     #[ORM\Column(nullable: true)]
@@ -179,6 +182,9 @@ class AnlageSettings
 
     #[ORM\Column(nullable: true)]
     private ?bool $useSensorsData = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $sensorsInBasics = false;
 
     public function getId(): ?int
     {
@@ -605,6 +611,18 @@ class AnlageSettings
         return $this;
     }
 
+    public function isChartAnalyse12(): ?bool
+    {
+        return $this->chartAnalyse12;
+    }
+
+    public function setChartAnalyse12(?bool $chartAnalyse12): self
+    {
+        $this->chartAnalyse12 = $chartAnalyse12;
+
+        return $this;
+    }
+
     public function isChartCurr1(): ?bool
     {
         return $this->chartCurr1;
@@ -769,6 +787,18 @@ class AnlageSettings
     public function setUseSensorsData(?bool $useSensorsData): self
     {
         $this->useSensorsData = $useSensorsData;
+
+        return $this;
+    }
+
+    public function isSensorsInBasics(): ?bool
+    {
+        return $this->sensorsInBasics;
+    }
+
+    public function setSensorsInBasics(?bool $sensorsInBasics): self
+    {
+        $this->sensorsInBasics = $sensorsInBasics;
 
         return $this;
     }

@@ -22,8 +22,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
-use Yaroslavche\Symfony\UX\Flatpickr\Form\Type\FlatpickrDateTimeType;
-use Yaroslavche\Symfony\UX\Flatpickr\Form\Type\FlatpickrDateType;
 
 class AnlageFormType extends AbstractType
 {
@@ -517,6 +515,11 @@ class AnlageFormType extends AbstractType
                 'help' => '[On / Off]',
                 'required' => false,
             ])
+            ->add('useDayaheadForecast', SwitchType::class, [
+                'label' => 'Use Dayahead forecast for this plant',
+                'help' => '[On / Off]',
+                'required' => false,
+            ])
             ->add('degradationForecast', TextType::class, [
                 'label' => 'Degradation, only forecast [%]',
                 'help' => '[Degradation forecast in %]',
@@ -643,22 +646,22 @@ class AnlageFormType extends AbstractType
             ])
             ->add('usePAFlag0', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formula to calulate irr limit for PA',
             ])
             ->add('usePAFlag1', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formula to calulate irr limit for PA',
             ])
             ->add('usePAFlag2', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formula to calulate irr limit for PA',
             ])
             ->add('usePAFlag3', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formula to calulate irr limit for PA',
             ])
             ->add('paFormular0', ChoiceType::class, [
-                'label' => 'PA Formular',
+                'label' => 'PA Formula',
                 'help' => '[paFormular0]',
                 'label_html' => true,
                 'choices' => $paFormulars,
@@ -667,7 +670,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('paFormular1', ChoiceType::class, [
-                'label' => 'PA Formular',
+                'label' => 'PA Formula',
                 'help' => '[paFormular1]',
                 'label_html' => true,
                 'choices' => $paFormulars,
@@ -676,7 +679,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('paFormular2', ChoiceType::class, [
-                'label' => 'PA Formular',
+                'label' => 'PA Formula',
                 'help' => '[paFormular2]',
                 'label_html' => true,
                 'choices' => $paFormulars,
@@ -685,7 +688,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('paFormular3', ChoiceType::class, [
-                'label' => 'PA Formular',
+                'label' => 'PA Formula',
                 'help' => '[paFormular3]',
                 'label_html' => true,
                 'choices' => $paFormulars,
@@ -698,7 +701,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[treatingDataGapsAsOutage]',
             ])
             ->add('prFormular0', ChoiceType::class, [
-                'label' => 'PR Formular',
+                'label' => 'PR Formula',
                 'help' => '[paFormular0]',
                 'label_html' => true,
                 'choices' => $prArray,
@@ -707,7 +710,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('prFormular1', ChoiceType::class, [
-                'label' => 'PR Formular',
+                'label' => 'PR Formula',
                 'help' => '[paFormular1]',
                 'label_html' => true,
                 'choices' => $prArray,
@@ -716,7 +719,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('prFormular2', ChoiceType::class, [
-                'label' => 'PR Formular',
+                'label' => 'PR Formula',
                 'help' => '[prFormular2]',
                 'label_html' => true,
                 'choices' => $prArray,
@@ -725,7 +728,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('prFormular3', ChoiceType::class, [
-                'label' => 'PR Formular',
+                'label' => 'PR Formula',
                 'help' => '[prFormular3]',
                 'label_html' => true,
                 'choices' => $prArray,
@@ -843,6 +846,7 @@ class AnlageFormType extends AbstractType
                 'label' => 'Anlage für Eigner:',
                 'help' => '[anlView]',
                 'choices' => ['aktiv' => 'Yes', 'deaktiviert' => 'No'],
+                'attr' => ['style' => 'width: 6em;'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 'No',
             ])
@@ -851,6 +855,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[anlHidePlant]',
                 'label_html' => true,
                 'choices' => ['Yes' => 'Yes', 'No' => 'No'],
+                'attr' => ['style' => 'width: 6em;'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 'Yes',
             ])
@@ -860,6 +865,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[anlMute]',
                 'label_html' => true,
                 'choices' => ['Yes' => 'Yes', 'No' => 'No'],
+                'attr' => ['style' => 'width: 6em;'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 'No',
             ])
@@ -869,12 +875,13 @@ class AnlageFormType extends AbstractType
                 'help' => '[anlMuteUntil]',
                 'label_html' => true,
                 'disabled' => true,
+                'attr' => ['style' => 'width: 8em;'],
                 'widget' => 'single_text',
             ])
 
             ->add('useCosPhi', SwitchType::class, [
                 'label' => 'Aktiviere cosPhi',
-                'help' => '[useCosPhi]',
+                'help' => '[Yes / No]',
             ])
 
             ->add('calcPR', SwitchType::class, [

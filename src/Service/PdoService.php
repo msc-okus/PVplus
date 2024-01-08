@@ -25,6 +25,12 @@ class PdoService
         return($this->getPdoConnection($this->host, $this->userPlant, $this->passwordPlant, 'pvp_data'));
     }
 
+    //connection for imported data from StringBoxes
+    public function getPdoStringBoxes(): PDO
+    {
+        return($this->getPdoConnection($this->host, $this->userPlant, $this->passwordPlant, 'pvp_division'));
+    }
+
     //connection for base tables like anlagen
     public function getPdoBase(): PDO
     {

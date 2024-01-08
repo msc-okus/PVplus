@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
@@ -10,13 +9,13 @@ use App\Form\DownloadAnalyse\DownloadAnalyseFormType;
 use App\Form\DownloadData\DownloadDataFormType;
 use App\Form\Model\DownloadAnalyseModel;
 use App\Form\Model\DownloadDataModel;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\DownloadAnalyseService;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\DownloadDataService;
+use App\Service\DownloadAnalyseService;
+use App\Service\DownloadDataService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DownloadController extends AbstractController
 {
@@ -237,8 +236,6 @@ class DownloadController extends AbstractController
         } else {
             $report = '';
         }
-
-
 
         return $this->render('downloadData/download.html.twig', [
             'downloadAnalysesExportForm' => $formPdfDownload,

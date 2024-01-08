@@ -80,7 +80,7 @@ trait PVPNameArraysTrait
         return [
             'ti / (titheo - tiFM)'  => 1,
             'ti / titheo'           => 2,
-            'ti + tiFM / titheo'    => 3,
+            '(ti + tiFM) / titheo'  => 3,
         ];
     }
 

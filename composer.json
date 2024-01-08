@@ -39,6 +39,7 @@
         "oneup/flysystem-bundle": "*",
         "pagerfanta/doctrine-orm-adapter": "^4.2",
         "pagerfanta/twig": "^4.2",
+        "php-ai/php-ml": "^0.10.0",
         "php-http/guzzle6-adapter": "^2.0",
         "php-http/httplug-bundle": "^1.30",
         "phpdocumentor/reflection-docblock": "^5.2",

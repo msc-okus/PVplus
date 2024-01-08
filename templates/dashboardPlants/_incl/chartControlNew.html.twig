@@ -43,6 +43,7 @@
                         or form.selectedChart == 'sollisttempanalyse'
                         or form.selectedChart == 'sollistanalyse'
                         or form.selectedChart == 'sollistirranalyse'
+                        or form.selectedChart == 'forecast_dayahead'
                         or form.selectedChart == 'dcpnomcurr'
                         or form.selectedChart == 'acpnom' %}
                     'Today': [moment(), moment()],
@@ -280,17 +281,20 @@
                     <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
                 {% endif %}
                 {% if aktAnlage.settings.chartAnalyse3 %}
-                    <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast
-                        Ertrag&nbsp;[kWh]
+                    <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast Ertrag&nbsp;[kWh]
                     </option>
                 {% endif %}
                 {% if aktAnlage.settings.chartAnalyse10 %}
-                    <option value="forecast_pr" {% if form.selectedChart == 'forecast_pr' %}selected{% endif %}>Forecast
-                        PR&nbsp;[kWh / %]
+                    <option value="forecast_pr" {% if form.selectedChart == 'forecast_pr' %}selected{% endif %}>Forecast PR&nbsp;[kWh / %]
                     </option>
                 {% endif %}
                 {% if aktAnlage.settings.chartAnalyse11 %}
-                    <option value="forecast3" {% if form.selectedChart == 'forecast3' %}selected{% endif %}>Forecast3&nbsp;[kWh]</option>
+                    <option value="forecast3" {% if form.selectedChart == 'forecast3' %}selected{% endif %}>Forecast3&nbsp;[kWh]
+                    </option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAnalyse12 and aktAnlage.useDayaheadForecast %}
+                    <option value="forecast_dayahead" {% if form.selectedChart == 'forecast_dayahead' %}selected{% endif %}>Forecast-Day-Ahead&nbsp;[kWh]
+                    </option>
                 {% endif %}
                 {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
                     {% if aktAnlage.settings.chartAnalyse4 %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Heatmap #}
@@ -468,11 +472,47 @@
         </div>
     {% endif %}
 
+    {% if form.selectedChart == 'forecast_dayahead' %}
+        <div class="cell medium-4 large-4 xlarge-4">
+            <div class="small button-group round toggle" style="margin-bottom: 0.1rem;">
+                <label title="Switch View" class="button js-submit-onchange {% if form.optionDayAheadView == 0 %}active{% endif %}">
+                    <input type="radio" name="optionDayAheadView" value="0"
+                           {% if form.optionDayAheadView == 0 %}checked="checked"{% endif %}> Dashboard
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDayAheadView == 1 %}active{% endif %}">
+                    <input title="Switch View" type="radio" name="optionDayAheadView" value="1"
+                           {% if form.optionDayAheadView == 1 %}checked="checked"{% endif %}> Hourly values
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDayAheadView == 2 %}active{% endif %}">
+                    <input title="Switch View" type="radio" name="optionDayAheadView" value="2"
+                           {% if form.optionDayAheadView == 2 %}checked="checked"{% endif %}> 15 Minutes
+                </label>
+            </div>
+
+            <div class="small button-group round toggle" style="margin-bottom: 0.1rem;{% if form.optionDayAheadView == 2 %}display:none;{% endif %}">
+                <label title="Forecast Day View" class="button js-submit-onchange {% if form.optionDayAheadViewDay == 0 %}active{% endif %}">
+                    <input type="radio" name="optionDayAheadViewDay" value="0"
+                           {% if form.optionDayAheadViewDay == 0 %}checked="checked"{% endif %}> 6 Days
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 1 %}active{% endif %}">
+                    <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="1"
+                           {% if form.optionDayAheadViewDay == 1 %}checked="checked"{% endif %}> 3 Days
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 2 %}active{% endif %}">
+                    <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="2"
+                           {% if form.optionDayAheadViewDay == 2 %}checked="checked"{% endif %}> 2 Days
+                </label>
+          </div>
+
+        </div>
+    {% endif %}
+
     {% if (form.selectedChart != 'availability')
         and (form.selectedChart != 'acpnom')
         and (form.selectedChart != 'dcpnomcurr')
         and (form.selectedChart != 'pr_and_av')
         and (form.selectedChart != 'forecast')
+        and (form.selectedChart != 'forecast_dayahead')
         and (form.selectedChart != 'status_log')
         and (form.selectedChart != 'pvsyst')
         and (form.selectedChart != 'heatmap')

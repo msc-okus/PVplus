@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
@@ -11,7 +10,7 @@ use Nuzkito\ChromePdf\ChromePdf;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[IsGranted('ROLE_G4N', 'ROLE_AM')]
 class AssetManagementController extends BaseController
