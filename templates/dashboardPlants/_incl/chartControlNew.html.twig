@@ -22,20 +22,25 @@
                     {% if  form.selectedChart == 'heatmap'
                         or form.selectedChart == 'tempheatmap'
                         or form.selectedChart == 'sollistheatmap'
-                        or form.selectedChart == 'sollisttempanalyse'
-                        or form.selectedChart == 'sollistanalyse'
-                        or form.selectedChart == 'sollistirranalyse'
                         or form.selectedChart == 'acpnom' %}
                 maxSpan: {months: 3,},
                 showCustomRangeLabel: true,
                 singleDatePicker: true,
                 linkedCalendars: true,
-                    {% else %}
+                   {% else %}
+                    {% if  form.selectedChart == 'sollisttempanalyse'
+                        or form.selectedChart == 'sollistanalyse'
+                        or form.selectedChart == 'sollistirranalyse' %}
+                maxSpan: {months: 3,},
+                showCustomRangeLabel: true,
+                singleDatePicker: true,
+                linkedCalendars: true,
+                    {% endif %}
                 maxSpan: {months: 1,},
                 showCustomRangeLabel: true,
                 singleDatePicker: false,
                 linkedCalendars: true,
-                    {% endif %}
+                 {% endif %}
                 ranges: {
                     {% if  form.selectedChart == 'heatmap'
                         or form.selectedChart == 'tempheatmap'
@@ -47,7 +52,6 @@
                         or form.selectedChart == 'dcpnomcurr'
                         or form.selectedChart == 'acpnom' %}
                     'Today': [moment(), moment()],
-
                     {% else %}
                     'Today': [moment(), moment()],
                     //'Last 3 Days': [moment(startDatex).subtract(2, 'days'), moment(startDatex)],
