@@ -100,22 +100,22 @@
 
 {% macro pvSystTable(pvSysts) %}
     <div class="status-log table-scroll" style="margin: 0 10px;">
-        <table id="statusTable" class=" " style="width: 100%">
+        <table id="statusTable" class="" style="width: 100%">
             <thead>
             <tr>
                 <th style="text-align: center">Date</th>
-                <th style="text-align: center">EVU </th>
-                <th style="text-align: center">electricity Grid</th>
-                <th style="text-align: center">electricity Inverter Out</th>
+                <th style="text-align: center">VCOM eGrid</th>
+                <th style="text-align: center">PV Syst eGrid</th>
+                <th style="text-align: center"></th>
             </tr>
             </thead>
             <tbody>
             {% for pvSyst in pvSysts %}
                 <tr>
-                    <td>{{ pvSyst.date|date("y-m-d") }}</td>
-                    <td>{{ pvSyst.pr.powerEvu|number_format(2, ',', '.') }}</td>
+                    <td>{{ pvSyst.date|date("y-m-d H:i") }}</td>
+                    <td>{{ pvSyst.evu }}</td>
                     <td>{{ pvSyst.electricityGrid|number_format(0, ',', '.') }}</td>
-                    <td>{{ pvSyst.electricityInverter|number_format(0, ',', '.') }}</td>
+                    <td></td>
                 </tr>
             {% endfor %}
             </tbody>

@@ -12,6 +12,7 @@ export default class extends Controller {
 
     connect() {
         useDispatch(this);
+        this.disableAllToolTips()
     }
 
     async search(event) {
@@ -25,6 +26,7 @@ export default class extends Controller {
             data: serializedData,
         });
         $(document).foundation();
+        this.disableAllToolTips()
     }
     async update(event) {
         event.preventDefault();
@@ -36,6 +38,7 @@ export default class extends Controller {
             data: serializedData,
         });
         $(document).foundation();
+        this.disableAllToolTips()
     }
 
     async page(event) {
@@ -46,25 +49,27 @@ export default class extends Controller {
             data: $queryParams,
         });
         $(document).foundation();
+        this.disableAllToolTips()
     }
     async sortId(event) {
         event.preventDefault();
         $(this.sortTarget).val('ticket.id');
 
-        if ($(this.directionTarget).val() == '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() == 'ASC'){$(this.directionTarget).val('DESC');}
+        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
+        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
         else {$(this.directionTarget).val('ASC');}
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
 
         });
         $(document).foundation();
+        this.disableAllToolTips()
     }
 
     async sortBegin(event) {
         $(this.sortTarget).val('ticket.begin');
-        if ($(this.directionTarget).val() == '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() == 'ASC'){$(this.directionTarget).val('DESC');}
+        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
+        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
         else {$(this.directionTarget).val('ASC');}
         event.preventDefault();
         this.listTarget.innerHTML = await $.ajax({
@@ -72,12 +77,13 @@ export default class extends Controller {
 
                     });
         $(document).foundation();
+        this.disableAllToolTips()
     }
     async sortEnd(event) {
         event.preventDefault();
         $(this.sortTarget).val('ticket.end');
-        if ($(this.directionTarget).val() == '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() == 'ASC'){$(this.directionTarget).val('DESC');}
+        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
+        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
         else {$(this.directionTarget).val('ASC');}
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
@@ -88,13 +94,21 @@ export default class extends Controller {
     async sortUpdate(event) {
         event.preventDefault();
         $(this.sortTarget).val('ticket.updatedAt');
-        if ($(this.directionTarget).val() == '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() == 'ASC'){$(this.directionTarget).val('DESC');}
+        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
+        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
         else {$(this.directionTarget).val('ASC');}
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
 
         });
         $(document).foundation();
+        this.disableAllToolTips()
+    }
+
+    disableAllToolTips(){
+        $("[id*='tooltip']").each(function() {
+            $(this).css('display', 'none');
+            //console.log(this);
+        });
     }
 }

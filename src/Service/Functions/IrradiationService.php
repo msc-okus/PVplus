@@ -5,11 +5,14 @@ namespace App\Service\Functions;
 use App\Entity\Anlage;
 use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
+use App\Repository\PVSystDatenRepository;
 use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Service\WeatherFunctionsService;
 use DateTime;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use PDO;
 use App\Service\PdoService;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
@@ -25,14 +28,17 @@ private readonly PdoService $pdoService,
         private readonly TicketRepository $ticketRepo,
         private readonly TicketDateRepository $ticketDateRepo,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
-        private readonly WeatherFunctionsService $weatherFunctionsService
-    )
+        private readonly WeatherFunctionsService $weatherFunctionsService,
+        private readonly PVSystDatenRepository $pvSystDatenRepo)
     {
 
     }
 
     /**
-     * @throws InvalidArgumentException
+     * @param Anlage $anlage
+     * @param String $from
+     * @param String $to
+     * @return array
      */
     public function getIrrData(Anlage $anlage, String $from, String $to): array
     {
@@ -147,11 +153,41 @@ private readonly PdoService $pdoService,
                         }
                     }
                     break;
+                case '73': // replace Irradiation (by PV Syst)
+
+                    /*
+                     * schwierig weil diese Werte auch für die Verfügbarkeit genutzt werden
+                     *
+                    // replace Irradiation ermitteln, abhänig von den eingegebenen Werten (Settings) des Tickets
+                    $replaceIrr = null;
+                    if ($ticket->isReplaceIrr()){ // Ersetzen durch PVSyst
+                        $replaceIrr = $this->getPvSystIrr($anlage, $tempoStartDate, $tempoEndDate);
+                    }
+                    // Nur wenn $replaceEnergy einen numerischen Wert hat wird auch die Verechnung gestart
+                    if ($replaceIrr !== null and is_numeric($replaceIrr)) {
+                        // ermittelten Wert von der gesamt Enerie abziehen und durch $replaceEnergy ersetzen
+                        if ($ticket->getTicket()->isScope(10)) $power1 = $power1 - $row['power'] + $replaceIrr; // Department 1
+                        if ($ticket->getTicket()->isScope(20)) $power2 = $power2 - $row['power'] + $replaceIrr; // Department 2
+                        if ($ticket->getTicket()->isScope(30)) $power3 = $power3 - $row['power'] + $replaceIrr; // Department 3
+                        #dump("Reduce Energy by: " . $row['power'] . " and replace with: " . $ticket->getValueEnergy());
+                    }
+                    */
+                    break;
             }
         }
 
 
         return $irrData;
+    }
+
+    private function getPvSystIrr(Anlage $anlage, DateTime $from, DateTime $to): ?float
+    {
+        try {
+            $irr = $this->pvSystDatenRepo->sumIrrByDateRange($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
+        } catch (NoResultException|NonUniqueResultException $e) {
+            $irr = null;
+        }
+        return $irr;
     }
 
     /**

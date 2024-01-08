@@ -249,7 +249,7 @@ class AvailabilityByTicketService
         //$from   = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampDay);
         //$to     = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampDay);
         $from   = date('Y-m-d 00:15', $timestampDay);
-        $to     = date('Y-m-d 00:00', $timestampDay + (3600 * 24));
+        $to     = date('Y-m-d 00:00', $timestampDay + (3600 * 25)); // +25 (stunden) um sicher auf einen Time stamp des nächsten Tages zu kommen, auch wenn Umstellung auf Winterzeit
 
         $maxFailTime = $timesConfig->getMaxFailTime();
         $powerThersholdkWh = $anlage->getPowerThreshold() / 4; // Umrechnung von kW auf kWh bei 15 minuten werten
@@ -257,8 +257,7 @@ class AvailabilityByTicketService
         // get plant data and irradiation data
         $istData = $this->getIstData($anlage, $from, $to);
         $einstrahlungen = $this->irradiationService->getIrrData($anlage, $from, $to);
-
-        // Aus IST Produktionsdaten und IST Strahlungsdaten die Tages-Verfügbarkeit je Inverter berechnen
+        // Aus IST Produktionsdaten und IST Strahlungsdaten die Tages-Verfügbarkeit je Inverter berechnen4
         if (count($einstrahlungen) > 0) {
             $anzInverter = $anlage->getAnzInverter();
             $case5Array = $case6Array = $commIssuArray = $skipTiAndTitheoArray = $skipTiOnlyArray = [];
@@ -441,7 +440,6 @@ class AvailabilityByTicketService
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                             ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
                             }
-                 ###        if ($inverter == 60 && $department == 0) dump("Power: $powerAc | ConnIrr: $conditionIrrCase2 | CommIssu: ".(int) $commIssu." | SkipTi: ".(int) $skipTi." | Case5: ".(int) $case5." | Case6: ".(int) $case6);
                             if ($hitCase2) {
                                 $case2 = true;
                                 ++$availability[$inverter]['case2'];
@@ -478,7 +476,8 @@ class AvailabilityByTicketService
                             // Case 5 ti,FM
                             if (($conditionIrrCase2 === true && $case5 === true)
                                 || ($conditionIrrCase2 === true && $case5 === true && $case3 === true)
-                                || ($conditionIrrCase2 === true && $case3 === true && $outageAsTiFm === true)) {
+                                || ($conditionIrrCase2 === true && $case3 === true && $outageAsTiFm === true)
+                                || ($conditionIrrCase2 === true && $case0 === true && $case5 === false && $commIssu === false && $outageAsTiFm === true)) {
                                 ++$availability[$inverter]['case5'];
                                 ++$availabilityPlantByStamp['case5'];
                             }
@@ -577,7 +576,6 @@ class AvailabilityByTicketService
             $istData = [];
             $dbNameIst = $anlage->getDbNameIst();
             $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM $dbNameIst WHERE stamp >= '$from' AND stamp <= '$to' ORDER BY stamp, unit";
-
             $result = $conn->query($sql);
             if ($result->rowCount() > 0) {
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {

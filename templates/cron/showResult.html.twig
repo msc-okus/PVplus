@@ -1,21 +1,23 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}
+    {{  parent() }}Result Cron Job
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('special_export') }}
+{% endblock %}
+
 {% block body %}
     <div class="grid-x">
         <div class="cell">
             <h1>Show Result Cron Job {{ headline }}</h1>
             {% if (availabilitys) %}Availability EPC – FAC start bis Berichts Monat: {{ availabilitys }}{% endif %}
+
+            <div id="special_export_buttons"></div>
             {% if (output) %}{{ output|raw }}{% endif %}
 
         </div>
     </div>
-{% endblock %}
-
-
-{% block title %}
-    {{  parent() }}Result Cron Job
-{% endblock %}
-
-
-{% block javascripts %}
 {% endblock %}

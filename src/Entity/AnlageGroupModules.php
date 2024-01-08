@@ -26,10 +26,10 @@ class AnlageGroupModules
     private ?string $numModulesPerString = null;
 
     #[ORM\ManyToOne(targetEntity: AnlageGroups::class, inversedBy: 'modules')]
-    private ?\App\Entity\AnlageGroups $anlageGroup = null;
+    private ?AnlageGroups $anlageGroup = null;
 
     #[ORM\ManyToOne(targetEntity: AnlageModules::class, inversedBy: 'anlageGroupModules')]
-    private ?\App\Entity\AnlageModules $moduleType = null;
+    private ?AnlageModules $moduleType = null;
 
     public function getId(): ?int
     {

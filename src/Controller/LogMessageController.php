@@ -6,7 +6,7 @@ use App\Service\PdoService;
 use App\Helper\G4NTrait;
 use App\Repository\LogMessagesRepository;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class LogMessageController extends BaseController
 {

@@ -93,6 +93,7 @@ class AlertSystemV2Service
      * this method should be called from the command to join the tickets
      * not in use now
      * no other method from this class should be called manually
+     * DEPRECATED
      * @param Anlage $anlage
      * @param string $from
      * @param string $to
@@ -128,6 +129,7 @@ class AlertSystemV2Service
 
     /**
      * function to join tickets based on inverters-timegaps
+     * DEPRECATED
      * @param Anlage $anlage
      * @param string|null $time
      * @return void
@@ -157,7 +159,6 @@ class AlertSystemV2Service
                 $stampBeginIrr +=900;
             }
         }
-
 
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) { // we iterate over all the quarters of the day
             //we retrieve all the tickets that begin in this quarter
@@ -207,7 +208,6 @@ class AlertSystemV2Service
                         }
                     }
                     if (($mainTicket0->getBegin()->getTimestamp()) == $stampBeginIrr){
-
 
                         $ticketOld = $this->getTicketYesterday($anlage, $time, 10, $mainTicket0->getInverter());
                         if ($ticketOld){
@@ -373,12 +373,10 @@ class AlertSystemV2Service
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $time = self::timeAjustment($time, -2);
-        dump($time);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
 
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
-
             $ticketOld = $this->getAllTickets($anlage, $time);
             //revise; maybe we can skip this
             if ((isset($ticketOld))) {
@@ -387,12 +385,17 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-            if ( $plant_status['ppc'] != null && $plant_status['ppc'] )  $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc']);
-            if ( $plant_status['Gap'] != null && count($plant_status['Gap']) > 0 ) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "",  ($plant_status['ppc']));
-            if ( $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "",  ($plant_status['ppc']));
-            if ( $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "",  ($plant_status['ppc']));
-            if ( $plant_status['Irradiation'] ) $this->generateTickets('', ticket::IRRADIATION, $anlage, '*', $time, "Data Gap in the irradiation Data Base", $plant_status['ppc']);
-
+            $anlType = $anlage->getAnlType();
+            if ( $plant_status['Irradiation'] == false ) {
+                if ($plant_status['ppc'] != null && $plant_status['ppc']) $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc'], false);
+                if ($plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "", ($plant_status['ppc']), false);
+                if ($anlType != "masterslave"){
+                    if ($plant_status['Power0'] != null && count($plant_status['Power0']) > 0) $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "", ($plant_status['ppc']), false);
+                }
+                if ($plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "", ($plant_status['ppc']), false);
+            }else {
+                $this->generateTickets('', ticket::DATA_GAP, $anlage, ['*'], $time, "Data Gap set automatically to com. issue because of a gap in the irradiation", $plant_status['ppc'], true);
+            }
         }
 
         $this->em->flush();
@@ -452,6 +455,7 @@ class AlertSystemV2Service
             $sqlAct = 'SELECT b.unit as unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac <= $powerThreshold ";
+
             $resp = $conn->query($sqlAct);
             $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
 
@@ -505,12 +509,12 @@ class AlertSystemV2Service
      * @param $message
      * @return void
      */
-    private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message, $PPC): void
+    private function generateTickets($errorType, $errorCategorie,Anlage $anlage, $inverter, $time, $message, $PPC, ?bool $fullGap = false): void
     {
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
             if($ticketArray != []) {
                 foreach ($ticketArray as $ticketOld) {
-                    $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
+                     $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
                     $result = self::subArrayFromArray($inverter, $ticketOld->getInverterArray());
                     $inverter = $result['array1'];
                     $intersection = implode(', ', $result['intersection']);
@@ -594,23 +598,21 @@ class AlertSystemV2Service
                 $ticketDate->setEnd($end);
                 $ticket->setEnd($end);
                 //default values por the kpi evaluation
-                if ($errorType == 20 || $errorType == 100) {
+                if ( $errorCategorie == 20) {
                     if (!$PPC) {
-                        $ticketDate->setKpiPaDep1(10);
-                        $ticketDate->setKpiPaDep2(10);
-                        $ticketDate->setKpiPaDep3(10);
-                    }
-                    else{
-                        if ($errorType == 20){
+                            $ticketDate->setDataGapEvaluation(10);
+                            $ticketDate->setKpiPaDep1(10);
+                            $ticketDate->setKpiPaDep2(10);
+                            $ticketDate->setKpiPaDep3(10);
+                    } else{
                             $ticketDate->setDataGapEvaluation(10);
                             $ticketDate->setKpiPaDep1(20);
                             $ticketDate->setKpiPaDep2(10);
                             $ticketDate->setKpiPaDep3(10);
-                        }else if($errorType == 100){
-                            $ticketDate->setDataGapEvaluation(20);
-                        }
                     }
                 }
+                if ($errorCategorie == 10 && $fullGap) $ticketDate->setDataGapEvaluation(20);
+
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
             }

@@ -237,23 +237,21 @@
         // The range slider config and functions
         $(function () {
             $("#slider-range").slider({
-                    range: true,
-                    min: 1,
-                    max: {% if content.sumSeries|raw %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
-                    values: {% if form.selectedSet %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
-                slide:
-            function (event, ui) {
-                $("#sview").val("" + ui.values[0] + "-" + ui.values[1] + "");
-                $("#sviewhidden").val("[" + ui.values[0] + "," + ui.values[1] + "]");
-            }
-        ,
-            change: function (event, ui) {
-                if ((ui.values[1] - ui.values[0]) > 100) {
-                    alert("The selected range is greater than 100, which can lead to delays in the view!");
-                };
-                $("#sendrange").css("background-color", "#e6e6e6");
-            }
-        });
+                range: true,
+                min: 1,
+                max: {% if content.sumSeries|raw %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
+                values: {% if form.selectedSet %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
+                slide: function (event, ui) {
+                    $("#sview").val("" + ui.values[0] + "-" + ui.values[1] + "");
+                    $("#sviewhidden").val("[" + ui.values[0] + "," + ui.values[1] + "]");
+                },
+                change: function (event, ui) {
+                    if ((ui.values[1] - ui.values[0]) > 100) {
+                        alert("The selected range is greater than 100, which can lead to delays in the view!");
+                    }
+                    $("#sendrange").css("background-color", "#e6e6e6");
+                }
+            });
             $("#sview").val("" + $("#slider-range").slider("values", 0) + "-" + $("#slider-range").slider("values", 1) + "");
             $("#sviewhidden").val("[" + $("#slider-range").slider("values", 0) + "," + $("#slider-range").slider("values", 1) + "]");
             $("#goshare").click(function () {
@@ -378,12 +376,9 @@
             <!-- Developer and G4N Stuff -->
             {% if is_granted('ROLE_ADMIN') %}
                 <optgroup label="Admin Stuff">
-                    <option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show
-                        status log
-                    </option>
-                    {% if aktAnlage.showPvSyst or is_granted('ROLE_DEV') %}
-                        <option value="pvsyst" {% if form.selectedChart == 'pvsyst' %}selected{% endif %}>Show pvSyst
-                        </option>
+                    <option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show status log</option>
+                    {% if aktAnlage.showPvSyst %}
+                        <option value="pvsyst" {% if form.selectedChart == 'pvsyst' %}selected{% endif %}>Show pvSyst</option>
                     {% endif %}
                     {% if is_granted('ROLE_DEV') %}
                         <option value="grid" {% if form.selectedChart == 'grid' %}selected{% endif %}>Show grid</option>
@@ -406,7 +401,7 @@
                     <div class="cell medium-5 large-5 xlarge-5"><label for="amount">INV Range:</label></div>
                     <div class="cell medium-4 large-4 xlarge-4">
                         <input type="text" id="sview" readonly
-                               style="border:0; background-color: #701b1b00 ; box-shadow: inset 0 0px 0px rgba(10, 10, 10, 0.1);font-weight:bold;">
+                               style="border:0; background-color: #701b1b00 ; box-shadow: inset 0 0 0 rgba(10, 10, 10, 0.1);font-weight:bold;">
                         <input type="hidden" id="sviewhidden" name="selectedSet" value="0">
                         <input type="hidden" name="selectedSetfrom" value="{{ form.selectedSet }}">
                     </div>

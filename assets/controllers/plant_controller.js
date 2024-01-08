@@ -14,11 +14,14 @@ export default class extends Controller {
         const $button = $(this.ticketTargets);
 
         const ticketActivated = this.activateTicketTargets[0].checked;
+        /*
         if (ticketActivated) {
             $button.removeAttr('disabled');
         } else {
             $button.attr('disabled', 'disabled');
         }
+
+         */
     }
 
 }

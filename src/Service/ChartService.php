@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
+use App\Entity\AnlagePVSystDaten;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenStatusRepository;
@@ -24,8 +25,10 @@ use App\Service\Charts\SollIstIrrAnalyseChartService;
 use App\Service\Charts\TempHeatmapChartService;
 use App\Service\Charts\VoltageChartService;
 use DateTime;
+use Exception;
 use PDO;
 use App\Service\PdoService;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -36,29 +39,28 @@ class ChartService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private Security $security,
-        private AnlagenStatusRepository $statusRepository,
-        private AnlageAvailabilityRepository $availabilityRepository,
-        private PRRepository $prRepository,
-        private PVSystDatenRepository $pvSystRepository,
-        private InvertersRepository $invertersRepo,
-        private FunctionsService $functions,
-        private ForecastChartService $forecastChart,
-        private ACPowerChartsService $acCharts,
-        private DCPowerChartService $dcChart,
-        private DCCurrentChartService $currentChart,
-        private VoltageChartService $voltageChart,
-        private IrradiationChartService $irradiationChart,
-        private GridMeterDayRepository $gridMeterDayRepository,
-        private HeatmapChartService $heatmapChartService,
-        private TempHeatmapChartService $tempheatmapChartService,
-        private SollIstAnalyseChartService $sollistAnalyseChartService,
-        private SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
-        private SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
-        private SollIstHeatmapChartService $sollistheatmapChartService)
+        private readonly PdoService $pdoService,
+        private readonly Security $security,
+        private readonly AnlagenStatusRepository $statusRepository,
+        private readonly AnlageAvailabilityRepository $availabilityRepository,
+        private readonly PRRepository $prRepository,
+        private readonly PVSystDatenRepository $pvSystRepository,
+        private readonly InvertersRepository $invertersRepo,
+        private readonly FunctionsService $functions,
+        private readonly ForecastChartService $forecastChart,
+        private readonly ACPowerChartsService $acCharts,
+        private readonly DCPowerChartService $dcChart,
+        private readonly DCCurrentChartService $currentChart,
+        private readonly VoltageChartService $voltageChart,
+        private readonly IrradiationChartService $irradiationChart,
+        private readonly GridMeterDayRepository $gridMeterDayRepository,
+        private readonly HeatmapChartService $heatmapChartService,
+        private readonly TempHeatmapChartService $tempheatmapChartService,
+        private readonly SollIstAnalyseChartService $sollistAnalyseChartService,
+        private readonly SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
+        private readonly SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
+        private readonly SollIstHeatmapChartService $sollistheatmapChartService)
     {
-
     }
 
     /**
@@ -66,11 +68,12 @@ private PdoService $pdoService,
      * @param Anlage|null $anlage
      * @param bool|null $hour
      * @return array
-     * @throws \Exception
+     * @throws Exception|InvalidArgumentException
      */
     public function getGraphsAndControl($form, ?Anlage $anlage, ?bool $hour): array
     {
 
+        /*
         $request = Request::createFromGlobals();
         $request->getPathInfo();
         $request = new Request(
@@ -83,6 +86,7 @@ private PdoService $pdoService,
         );
 
         $RURI = $request->getRequestUri();
+        */
 
         $resultArray = [];
         $resultArray['data'] = '';
@@ -122,8 +126,10 @@ private PdoService $pdoService,
             $form['selectedGroup'] = -1;
         }
 
+        /*
         $from = self::timeShift($anlage, $form['from'], true);
         $to = self::timeShift($anlage, $form['to'], true);
+        */
 
         $from =  $form['from'];
         $to =  $form['to'];
@@ -668,7 +674,7 @@ private PdoService $pdoService,
      *  //
      * @param bool $hour
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function getAirAndPanelTemp(Anlage $anlage, $from, $to, bool $hour): array
     {
@@ -719,17 +725,26 @@ private PdoService $pdoService,
      *  //
      * @param bool $hour
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function getAirAndPanelTempFromSensorsData(Anlage $anlage, $from, $to, bool $hour): array
     {
         $conn = $this->pdoService->getPdoPlant();
-        $isEastWest = $anlage->getIsOstWestAnlage();
+        $anlageSensors = $anlage->getSensors()->toArray();
+        $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
+        $sensorsArray = self::getSensorsData($anlageSensors, $length);
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
+        $dataArray['chart'] = [];
         if ($hour) {
-            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'temp-ambient' OR type_sensor like 'temp-modul' OR type_sensor like 'wind-speed') and stamp like '%:00:00' order by stamp;";
+            //zu from eine Stunde + da sonst Diagrammm nicht erscheint
+            $fromPlusOneHour = strtotime($from)+3600;
+            $from = date('Y-m-d H:i', $fromPlusOneHour);
+            $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value, avg(gmo) as gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
+            $timeStepp = 3600;
         }else{
-            $sql_irr_plant = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to' AND (type_sensor like 'temp-ambient' OR type_sensor like 'temp-modul' OR type_sensor like 'wind-speed') order by stamp;";
+            $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value, avg(gmo) as gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
+            $timeStepp = 900;
         }
 
         $result = $conn->query($sql_irr_plant);
@@ -758,26 +773,62 @@ private PdoService $pdoService,
 
                     }
 
-                    if($row['usetocalc_sensor'] && $row['type_sensor'] == 'temp-ambient'){
+                    if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-ambient'){
                         array_push($tempAmbientArray, $row['value']);
                     }
-                    if($row['usetocalc_sensor'] && $row['type_sensor'] == 'temp-modul'){
+                    if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-modul'){
                         array_push($tempModuleArray, $row['value']);
                     }
 
-                    if($row['usetocalc_sensor'] && $row['type_sensor'] == 'wind-speed'){
+                    if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'wind-speed'){
                         array_push($windSpeedArray, $row['value']);
                     }
 
-                    $stampTemp = $row['stamp'];
-
-                    $counter++;
+                    #if($sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-ambient' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-modul' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'wind-speed') {
+                        $stampTemp = $row['stamp'];
+                        $counter++;
+                    #}
                 }
             }
         }
 
         $conn = null;
+        $from = substr($stampTemp, 0, -3);
 
+        $fromObj = date_create($from);
+        $endObj  = date_create($to);
+
+        //fil up rest of day
+        if(is_array($dataArray) && count($dataArray) > 0) {
+            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
+
+                #echo "$dayStamp <br>";
+                $date = date('Y-m-d H:i', $dayStamp);
+                $dataArray['chart'][count($dataArray['chart'])] = [
+                    'date' => $date
+                ];
+            }
+        }
+
+        if(is_array($dataArray) && count($dataArray) == 0){
+            $x = [];
+            $from = $date = date('Y-m-d 00:00', time());;
+
+            $fromObj = date_create($from);
+            $endObj  = date_create($to);
+
+            //fil up rest of day
+            $i = 0;
+            for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
+                $date = date('Y-m-d H:i', $dayStamp);
+                $dataArray['chart'][$i] = [
+                    'date'              =>  $date,
+                    'val1'=>0
+                ];
+                $i++;
+            }
+
+        }
         return $dataArray;
     }
 
@@ -789,7 +840,7 @@ private PdoService $pdoService,
      * @param $to
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      *
      * pr_and_av
      */
@@ -821,25 +872,38 @@ private PdoService $pdoService,
     /**
      * PV SystWerte als Diagramm ausgeben.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      *
-     * @deprecated
+     * @return array
      */
     public function getpvSyst(Anlage $anlage, $from, $to): array
     {
         $dataArray = [];
-        $prs = $this->prRepository->findPrAnlageDate($anlage, $from, $to);
-        $counter = 0;
-        /** @var AnlagenPR $pr */
-        foreach ($prs as $pr) {
-            $stamp = $pr->getstamp()->format('Y-m-d');
-            $dataArray[$counter]['date'] = $stamp;
-            $dataArray[$counter]['pr'] = $pr;
-            $pvSyst = $this->pvSystRepository->sumByStamp($anlage, $stamp);
-            $dataArray[$counter]['electricityGrid'] = round($pvSyst[0]['eGrid'] / 1000, 2); // durch 100 um auf kWh zu kommen
-            $dataArray[$counter]['electricityInverter'] = round($pvSyst[0]['eInverter'] / 1000, 2); // durch 100 um auf kWh zu kommen
-            ++$counter;
+        $pvsysts= $this->pvSystRepository->allGreateZero($anlage, $from, $to);
+
+        $conn = $this->pdoService->getPdoPlant();
+        /** @var AnlagePVSystDaten $pvsyst */
+        foreach ($pvsysts as $key => $pvsyst) {
+            $stampAdjust = self::timeAjustment($pvsyst->getStamp(), 0.25);
+            $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+            $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and unit = 1 GROUP by date_format(stamp, '%y%m%d%')";
+            $resEvu = $conn->query($sqlEvu);
+            $eZEvu = 0;
+            if ($resEvu->rowCount() == 1) {
+                $rowEvu = $resEvu->fetch(PDO::FETCH_ASSOC);
+                if ($rowEvu['eZEvu'] == "") {
+                    $eZEvu = null;
+                } else {
+                    $eZEvu = max($rowEvu['eZEvu'], 0);
+                }
+            }
+            $dataArray[$key]['date'] = $pvsyst->getStamp();
+            $dataArray[$key]['evu'] = $eZEvu;
+            $dataArray[$key]['electricityGrid'] = round($pvsyst->getElectricityGrid()); // durch 100 um auf kWh zu kommen
+            $dataArray[$key]['electricityInverter'] = round($pvsyst->getElectricityInverterOut()); // durch 100 um auf kWh zu kommen
+
         }
 
         return $dataArray;

@@ -20,7 +20,7 @@ class AnlageAcGroups
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private string $id; // DBAL return Type of bigint = string
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'acGroups')]
     private ?\App\Entity\Anlage $anlage = null;
