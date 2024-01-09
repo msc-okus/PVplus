@@ -59,7 +59,8 @@ class ChartService
         private readonly SollIstAnalyseChartService $sollistAnalyseChartService,
         private readonly SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
         private readonly SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
-        private readonly SollIstHeatmapChartService $sollistheatmapChartService)
+        private readonly SollIstHeatmapChartService $sollistheatmapChartService,
+        private readonly AvailabilityByTicketService $availabilityByTicket)
     {
     }
 
@@ -72,22 +73,6 @@ class ChartService
      */
     public function getGraphsAndControl($form, ?Anlage $anlage, ?bool $hour): array
     {
-
-        /*
-        $request = Request::createFromGlobals();
-        $request->getPathInfo();
-        $request = new Request(
-            $_GET,
-            $_POST,
-            array(),
-            $_COOKIE,
-            $_FILES,
-            $_SERVER
-        );
-
-        $RURI = $request->getRequestUri();
-        */
-
         $resultArray = [];
         $resultArray['data'] = '';
         $resultArray['showEvuDiag'] = 0;
@@ -423,7 +408,7 @@ class ChartService
                 case 'irradiation':
                     if($anlage->getSettings()->isUseSensorsData()){
                         $dataArray = $this->irradiationChart->getIrradiationFromSensorsData($anlage, $from, $to, 'all', $hour);
-                    }else{
+                    } else {
                         $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                     }
                     if ($dataArray) {
@@ -447,7 +432,7 @@ class ChartService
                 case 'irradiation_plant':
                     if($anlage->getSettings()->isUseSensorsData()){
                         $dataArray = $this->irradiationChart->getIrradiationPlantFromSensorsData($anlage, $from, $to, $hour);
-                    }else{
+                    } else {
                         $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to, $hour);
                     }
                     if ($dataArray) {
@@ -464,7 +449,7 @@ class ChartService
                 case 'temp':
                     if($anlage->getSettings()->isUseSensorsData()) {
                         $dataArray = $this->getAirAndPanelTempFromSensorsData($anlage, $from, $to, $hour);
-                    }else{
+                    } else {
                         $dataArray = $this->getAirAndPanelTemp($anlage, $from, $to, $hour);
                     }
                     if ($dataArray) {
@@ -548,9 +533,6 @@ class ChartService
                                 $resultArray['headline'] = 'Forecast-Day-Ahead per 15 Minutes';
                                 break;
                         }
-
-                       # $resultArray['series1']['name'] = '';
-                       # $resultArray['series1']['tooltipText'] = '';
                     }
                     break;
                 case 'acpnom':
@@ -619,11 +601,28 @@ class ChartService
         return $resultArray;
     }
     // ##########################################
+
+    /**
+     * @throws InvalidArgumentException
+     */
     private function getPlantAvailability(Anlage $anlage, DateTime $from, DateTime $to): array
     {
         $dataArray = [];
+        $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
         $dataArray['availability'] = $this->availabilityRepository->findAvailabilityAnlageDate($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
+        foreach ($dataArray['availability'] as $key => $value) {
+            $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$key +1] > 0) ? $inverterPowerDc[$key +1] / $anlage->getPnom() : 1;
+            $dataArray['availability'][$key]['invAPart10'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case10'], 'case2' => $value['case20'], 'case3' => $value['case30'], 'case5' => $value['case50'], 'control' => $value['control0']]);
+            $dataArray['availability'][$key]['invAPart11'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case11'], 'case2' => $value['case21'], 'case3' => $value['case31'], 'case5' => $value['case51'], 'control' => $value['control1']]);
+            $dataArray['availability'][$key]['invAPart12'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case12'], 'case2' => $value['case22'], 'case3' => $value['case32'], 'case5' => $value['case52'], 'control' => $value['control2']]);
+            $dataArray['availability'][$key]['invAPart13'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case13'], 'case2' => $value['case23'], 'case3' => $value['case33'], 'case5' => $value['case53'], 'control' => $value['control3']]);
 
+            $dataArray['availability'][$key]['invA0'] = $dataArray['availability'][$key]['invAPart10'] * $invWeight;
+            $dataArray['availability'][$key]['invA1'] = $dataArray['availability'][$key]['invAPart11'] * $invWeight;
+            $dataArray['availability'][$key]['invA2'] = $dataArray['availability'][$key]['invAPart12'] * $invWeight;
+            $dataArray['availability'][$key]['invA3'] = $dataArray['availability'][$key]['invAPart13'] * $invWeight;
+        }
+        dump($dataArray['availability']);
         return $dataArray;
     }
 

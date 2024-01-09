@@ -81,8 +81,10 @@ class DashboardPlantsController extends BaseController
             return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
         }
     }
+
     /**
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     #[Route(path: '/dashboard/plants/{eignerId}/{anlageId}', name: 'app_dashboard_plant')]
     public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService): Response

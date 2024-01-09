@@ -18,7 +18,6 @@ use Symfony\Bundle\SecurityBundle\Security;
 class TicketRepository extends ServiceEntityRepository
 {
 
-
     public function __construct(
         ManagerRegistry $registry,
         private readonly Security $security,
@@ -45,7 +44,7 @@ class TicketRepository extends ServiceEntityRepository
      * @param string $sort
      * @param string $direction
      * @param bool $ignore
-     * @param string $TicketName
+     * @param string $ticketName
      * @param int $kpistatus
      * @param string $begin
      * @param string $end
@@ -63,7 +62,6 @@ class TicketRepository extends ServiceEntityRepository
             ->addSelect('a')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
-
                 $qb->andWhere('a.anlId IN (:plantList)')
                     ->setParameter('plantList', $granted);
         }
@@ -92,17 +90,14 @@ class TicketRepository extends ServiceEntityRepository
         if ((int) $category == 7){
             $qb->andWhere("ticket.alertType >= 70");
             $qb->andWhere("ticket.alertType < 80");
-        }
-        else if ((int) $category == 9){
+        } elseif ((int) $category == 9){
             $qb->andWhere("ticket.alertType > 90");
             $qb->andWhere("ticket.alertType < 100");
         }
         else if ((int) $category > 0) {
             $qb->andWhere("ticket.alertType = $category");
-        }
-        else {
+        } else {
             $qb->andWhere("ticket.alertType < 90 or ticket.alertType >= 100");
-      
         }
         if ($prooftam == 1){
             $qb->andWhere("ticket.needsProof = 1");
@@ -124,19 +119,14 @@ class TicketRepository extends ServiceEntityRepository
         }
         if ($ignore) {
             $qb->andWhere("ticket.ignoreTicket = true");
-        } else {
+        } elseif (!$this->security->isGranted('ROLE_ADMIN')) { // G4N Admin Users should see the 'ignore' Tickets
             $qb->andWhere("ticket.ignoreTicket = false");
         }
-        if ($sort !== "") $qb->addOrderBy($sort, $direction);
-            $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
         if ($begin != "" && $end == ""){
-
             $qb->andWhere("ticket.begin LIKE '$begin%'");
-        }
-        else if ($begin == "" && $end != ""){
+        }  elseif ($begin == "" && $end != ""){
             $qb->andWhere("ticket.begin LIKE '$end%'");
-        }
-        else{
+        } else {
             if ($begin != "" ){
                 $qb->andWhere("ticket.end > '$begin'");
             }
@@ -145,6 +135,11 @@ class TicketRepository extends ServiceEntityRepository
             }
         }
 
+        # Sorting
+        if ($sort !== "") {
+            $qb->addOrderBy($sort, $direction);
+        }
+        $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
 
         return $qb;
     }

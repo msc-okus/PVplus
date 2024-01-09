@@ -23,7 +23,7 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
         parent::__construct($registry, AnlageAvailability::class);
     }
 
-    public function sumAvailabilityPerDay($anlagenId, $day)
+    public function sumAvailabilityPerDay($anlagenId, $day): float|bool|int|string|null
     {
         $result =  $this->createQueryBuilder('pa')
             ->andWhere('pa.anlage = :anlageId and pa.stamp = :day')
@@ -39,21 +39,6 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
         }
     }
 
-    public function sumAvailabilitySecondPerDay($anlagenId, $day)
-    {
-        $result = $this->createQueryBuilder('pa')
-            ->andWhere('pa.anlage = :anlageId and pa.stamp = :day')
-            ->setParameter('anlageId', $anlagenId)
-            ->setParameter('day', $day)
-            ->select('SUM(pa.invA_2)')
-            ->getQuery();
-
-         try {
-             return $result->getSingleScalarResult();
-         } catch (NoResultException | NonUniqueResultException) {
-             return 0;
-         }
-    }
 
     public function findAvailabilityAnlageDate($anlage, $from, $to)
     {

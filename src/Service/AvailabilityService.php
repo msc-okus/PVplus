@@ -20,7 +20,7 @@ use Psr\Cache\InvalidArgumentException;
 use JetBrains\PhpStorm\Deprecated;
 
 #[Deprecated]
-class AvailabilityService
+class   AvailabilityService
 {
     use G4NTrait;
 
