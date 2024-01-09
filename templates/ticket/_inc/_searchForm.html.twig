@@ -1,14 +1,15 @@
-
+<div class="cell medium-9">
 <form method="get">
-    <div class="grid-x grid-margin-x align-middle" style="margin-top: 20px; margin-bottom: 20px">
+    <label><b>Filter / Search by:</b></label>
+    <div class="grid-x grid-margin-x align-top" style="margin-top: 20px; margin-bottom: 20px">
         <div class="cell medium-2"  style="margin-top:-17px!important;">
             <input type="text" name="id" class="input-group-field" value="{{ id }}" placeholder="Ticket Id">
         </div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
+        <div class="cell medium-2"  style="margin-top:-17px!important;">
             <input type="date" name="begin" class="input-group-field" value="{{ begin }}" title="Interval Begin" >
         </div>
 
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
+        <div class="cell medium-2"  style="margin-top:-17px!important;">
             <input type="date" name="end" class="input-group-field" value="{{ end }}" title="Interval End">
         </div>
         <div class="cell medium-2" style="margin-top:-17px!important;">
@@ -29,12 +30,12 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="cell medium-2"  style="margin-top:-17px!important;">
+        <div class="cell medium-1"  style="margin-top:-17px!important;">
             <input type="text" name="TicketName" class="input-group-field" value="{{ TicketName }}" placeholder="Identifier">
         </div>
 
     </div>
-    <div class="grid-x grid-margin-x align-middle" style="margin-top: 30px">
+    <div class="grid-x grid-margin-x align-top" style="margin-top: 30px">
         <div class="cell medium-1" style="margin-top:-17px!important;">
             <select name="prio" class="no-margin">
                 <option value="00"> {% trans %}ticket.priority.name{% endtrans %} </option>
@@ -47,7 +48,7 @@
             <input type="text" name="editor" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Editor">
         </div>
         {# we will use this field to recogniye when we are explicitely clicking the search button over jscript #}
-        <div class="cell medium-1" style="margin-top:-17px!important;">
+        <div class="cell medium-2" style="margin-top:-17px!important;">
             <select name="category" class="no-margin">{# category = alertType (bsp: datagap, inverter power, etc.) #}
                 {{ filter.category.value }}
                 <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
@@ -94,21 +95,67 @@
             <div data-ticket-list-target="proofg4n" style="font-size: 12px">{{ countProofByG4N }}</div>
         </div>
         <div class="cell medium-1"  style="margin-top:-17px!important;">
-
             {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
                 <label> Ignored Tickets
                     <input type="checkbox" name="ignored" class="input-group-field" value="1">
                 </label>
             {% endif %}
         </div>
-        <div class="cell medium-2 text-right" style="margin-top:-17px!important;">
-            <div class="input-group-button" style="height:35px !important; display: inline-flex;">
-                <button type="submit" name="search" class="button" value="yes"
-                        data-action="ticket-list#search"
+        <div class="cell medium-1 text-left" style="margin-top:-17px!important;">
+            <div class="input-group-button" style="display: inline-flex;">
+                <span data-tooltip tabindex="1" title="Search Ticket">
+                <button title="Search Ticket" type="submit" name="search" class="button action-icon tiny hollow shadow" value="yes" data-action="ticket-list#search"
                 ><span class="fa fa-search"></span></button>
+                    </span>
+
             </div>
         </div>
         <input type="hidden" name="sort" class="input-group-field" value="" data-ticket-list-target="sort">
         <input type="hidden" name="direction" class="input-group-field" value="" data-ticket-list-target="direction">
     </div>
 </form>
+</div>
+
+<div class="cell medium-3 text-left" >
+ <div id="modal-form0" {{ stimulus_controller('ticket-edit', {formUrl: path('app_ticket_create'),}) }}>
+     <label><b>Create New Ticket:</b></label>
+        {# create New Ticket – Begin #}
+        <div class="grid-x grid-margin-x align-top align-center">
+
+        <div class="cell small-8 medium-8 ">
+            <select name="anlage-id"
+                    data-ticket-edit-target="anlage"
+                    data-action="ticket-edit#toggle">
+                <option value="" disabled selected hidden>Please choose a Plant</option>
+                {% for anlage in anlagen %}
+                    <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="cell small-3 medium-3">
+            <div class="input-group-button" style="display: inline-flex;">
+                <span data-tooltip tabindex="1" title="Create New Ticket">
+            <button title="New Ticket" name="new-ticket" class="button action-icon tiny hollow shadow expanded no-margins"
+                    disabled
+                    data-ticket-edit-target="deactivable"
+                    data-action="ticket-edit#openModal">
+                <span class="fa fa-plus"></span>
+            </button>
+                    </span>
+            </div>
+        </div>
+            <div class="cell small-1 medium-1 "> &nbsp; </div>
+        </div>
+
+        {{ include('ticket/_inc/_modalTicket.html.twig', {
+            modalId: 0,
+            modalTitel: 'New Ticket',
+            class: 'large',
+            dataVOffset: '10',
+        }) }}
+
+ {# <div id="modal-form0" {{ stimulus_controller('ticket-edit', {formUrl: path('app_ticket_create'),}) }}> </div> #}
+
+ </div>
+</div>
+
