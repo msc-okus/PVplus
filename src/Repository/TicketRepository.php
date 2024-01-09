@@ -68,6 +68,44 @@ class TicketRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    public function countByProof(){
+
+        $result = $this->createQueryBuilder('t')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.needsProof = true')
+            ->getQuery()
+        ;
+        return $result->getResult()[0][1];
+    }
+
+    public function countByProofAM(){
+
+        $result = $this->createQueryBuilder('t')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.ProofAM = true')
+            ->getQuery()
+        ;
+        return $result->getResult()[0][1];
+    }
+    public function countByProofEPC(){
+
+        $result = $this->createQueryBuilder('t')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.needsProofEPC = true')
+            ->getQuery()
+        ;
+        return $result->getResult()[0][1];
+    }
+
+    public function countByProofG4N(){
+
+        $result = $this->createQueryBuilder('t')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.needsProofg4n = true')
+            ->getQuery()
+        ;
+        return $result->getResult()[0][1];
+    }
     /**
      * Build query with all options, including 'has user rights to see'.
      *
@@ -79,6 +117,17 @@ class TicketRepository extends ServiceEntityRepository
      * @param string|null $category
      * @param string|null $type
      * @param string|null $inverter
+     * @param int $prooftam
+     * @param int $proofepc
+     * @param int $proofam
+     * @param int $proofg4n
+     * @param string $sort
+     * @param string $direction
+     * @param bool $ignore
+     * @param string $TicketName
+     * @param int $kpistatus
+     * @param string $begin
+     * @param string $end
      * @return QueryBuilder
      */
     public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, int $proofg4n = 0, string $sort = "", string $direction = "", bool $ignore = false, string $TicketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder

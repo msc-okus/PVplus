@@ -4,7 +4,7 @@ import {Reveal} from "foundation-sites";
 import {useDispatch} from "stimulus-use";
 
 export default class extends Controller {
-    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd', 'sort', 'direction'];
+    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd', 'sort', 'direction', 'proofam', 'proofepc', 'prooftam', 'proofg4n'];
     static values = {
         urlCreate: String,
         urlSearch: String,
@@ -37,6 +37,14 @@ export default class extends Controller {
             method: $searchListform.prop('method'),
             data: serializedData,
         });
+        var response = await $.ajax({
+            url: '/ticket/proofCount',
+        });
+        (this.proofepcTarget).innerText = response['countProofByEPC'];
+        (this.prooftamTarget).innerText = response['countProofByTAM'];
+        (this.proofg4nTarget).innerText = response['countProofByG4N'];
+        (this.proofamTarget).innerText = response['countProofByAM'];
+
         $(document).foundation();
         this.disableAllToolTips()
     }

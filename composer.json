@@ -33,6 +33,7 @@
         "league/html-to-markdown": "^4.10",
         "liip/imagine-bundle": "^2.8",
         "nelmio/cors-bundle": "^2.1",
+        "nexylan/slack": "*",
         "nuzkito/chrome-html-to-pdf": "^2.0",
         "omines/datatables-bundle": "*",
         "oneup/flysystem-bundle": "*",
