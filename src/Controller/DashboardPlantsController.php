@@ -6,11 +6,10 @@ use App\Entity\Anlage;
 use App\Entity\User;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-use App\Service\AvailabilityService;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\Charts\HeatmapChartService;
+use App\Service\Charts\HeatmapChartService;
 use App\Service\ChartService;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,6 +18,10 @@ use Symfony\Component\Routing\Attribute\Route;
 class DashboardPlantsController extends BaseController
 {
     use G4NTrait;
+
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/api/plants/{eignerId}/{anlageId}/{analyse}', name: 'api_dashboard_plant_analsyse', methods: ['GET','POST'])]
     public function analysePlantAPI($eignerId, $anlageId, $analyse, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, HeatmapChartService $heatmapChartService,): Response
     {
@@ -82,7 +85,7 @@ class DashboardPlantsController extends BaseController
      * @throws Exception
      */
     #[Route(path: '/dashboard/plants/{eignerId}/{anlageId}', name: 'app_dashboard_plant')]
-    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService): Response
+    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService): Response
     {
         $hour = '';
         $form = [];

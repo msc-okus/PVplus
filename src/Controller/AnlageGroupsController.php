@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
 use App\Entity\Anlage;
 use App\Entity\AnlageGroups;

@@ -53,7 +53,7 @@
     {% for day in report.days %}
         {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
         {% if loop.first %}
-            {% if excel is defined %}<tfoot>{% else  %}<thead>{% endif %}
+            {% if excel is defined %}<tfoot>{% else %}<thead>{% endif %}
             <tr class="left">
                 <th></th>
                 <th class="border-left-2" colspan="{{ 3 }}">Misc.{% if anlage.useppc %}(PPC Corr.){% endif %}</th>
@@ -62,7 +62,7 @@
                 {% if anlage.settings.disableDep2 != true %}<th class="border-left-2" colspan="{{ colspanDep2 }}">EPC</th>{% endif %}
                 {% if anlage.settings.disableDep3 != true %}<th class="border-left-2" colspan="{{ colspanDep3 }}">AM</th>{% endif %}
             </tr>
-            {% if excel is defined %}</tfoot><thead>{% endif %}
+           {% if excel is defined %}</tfoot><thead>{% endif %}
             <tr>
                 <th>Datum</th>
 
@@ -111,9 +111,9 @@
             </tr>
             </thead>
         {% endif %}
-        <tbody>
+
         <tr {{ trstyle }}>
-            <td>{{ day["datum_alt"] }}</td>
+            <td>{% if excel is defined %} {{ day["datum"] }} {% else %} {{ day["datum_alt"] }} {% endif %}</td>
 
             <td class="border-left-2">{{ day["powerAct"]|number_format(2,',','.') }}</td>
             <td>{{ day["powerExp"]|number_format(2,',','.') }}</td>
@@ -159,5 +159,4 @@
             {% endif %}
         </tr>
     {% endfor %}
-    </tbody>
 </table>

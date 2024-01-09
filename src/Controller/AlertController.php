@@ -6,7 +6,6 @@ use App\Repository\AnlagenRepository;
 use App\Repository\AnlagenStatusRepository;
 use App\Repository\EignerRepository;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AlertController extends BaseController
 {

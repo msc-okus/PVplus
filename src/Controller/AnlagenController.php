@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
 use App\Entity\EconomicVarNames;
 use App\Entity\Eigner;
