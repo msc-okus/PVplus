@@ -1126,18 +1126,22 @@ class AssetManagementService
             }
             if ($anlage->hasGrid()){
                 (float) $powerEvu[] = $data1_grid_meter['powerEvu'];
+                (float) $powerAct[] = $data1_grid_meter['powerEvu']; // Inv out
             }
             else{
                 (float) $powerEvu[] = $data1_grid_meter['powerAct'];
+                (float) $powerAct[] = $data1_grid_meter['powerAct']; // Inv out
             }
 
-            (float) $powerAct[] = $data1_grid_meter['powerAct']; // Inv out
+
             if ($anlage->getShowEvuDiag()) {
                 (float) $powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
+                (float) $powerExp[] = $data1_grid_meter['powerExpEvu'];
             } else {
                 (float) $powerExpEvu[] = $data1_grid_meter['powerExp'];
+                (float) $powerExp[] = $data1_grid_meter['powerExp'];
             }
-            (float) $powerExp[] = $data1_grid_meter['powerExp'];
+
             (float) $powerExternal[] = $data1_grid_meter['powerEGridExt'];
             $expectedPvSyst[] = $Ertrag_design;
 
