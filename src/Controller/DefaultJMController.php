@@ -45,6 +45,13 @@ class DefaultJMController extends AbstractController
 
     }
 
+    #[Route(path: '/test/ticketsName', name: 'test_tickets')]
+    public function teastTicketName(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
+    {
+        $ticket = $ticketRepo->findOneById("399529 ");
+        dd($ticket->getInverterName());
+    }
+
 
 
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
