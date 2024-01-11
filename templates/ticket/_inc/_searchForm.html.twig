@@ -115,11 +115,11 @@
     </div>
 </form>
 </div>
-
+{#
 <div class="cell medium-3 text-left" >
  <div id="modal-form0" {{ stimulus_controller('ticket-edit', {formUrl: path('app_ticket_create'),}) }}>
      <label><b>Create New Ticket:</b></label>
-        {# create New Ticket – Begin #}
+        {# create New Ticket – Begin
         <div class="grid-x grid-margin-x align-top align-center">
 
         <div class="cell small-8 medium-8 ">
@@ -132,6 +132,7 @@
                 {% endfor %}
             </select>
         </div>
+
         <div class="cell small-3 medium-3">
             <div class="input-group-button" style="display: inline-flex;">
                 <span data-tooltip tabindex="1" title="Create New Ticket">
@@ -154,8 +155,9 @@
             dataVOffset: '10',
         }) }}
 
- {# <div id="modal-form0" {{ stimulus_controller('ticket-edit', {formUrl: path('app_ticket_create'),}) }}> </div> #}
+  <div id="modal-form0" {{ stimulus_controller('ticket-edit', {formUrl: path('app_ticket_create'),}) }}> </div>
 
  </div>
 </div>
-
+</div>
+#}

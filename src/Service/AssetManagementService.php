@@ -146,6 +146,7 @@ class AssetManagementService
             'pr3image' => $anlage->getPrFormular3Image(),
 
         ]);
+
         $html = str_replace('src="//', 'src="https://', $html);
         $reportParts['head'] = $pdf->createPage($html, $fileroute, "head", false);// we will store this later in the entity
 
@@ -626,7 +627,7 @@ class AssetManagementService
 
             $startDate = new \DateTime($report['reportYear']."-$tempMonth-01 00:00");
             $daysInThisMonth = $startDate->format("t");
-            $endDate = new \DateTime($report['reportYear']."-$tempMonth-$daysInThisMonth 00:00");
+            $endDate = new \DateTime($report['reportYear']."-$tempMonth-$daysInThisMonth 23:59");
 
             $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $startDate->format('Y-m-d H:i:s'), $endDate->format('Y-m-d H:i:s'), true, $anlage);
             if (is_array($weather)) {
@@ -2505,14 +2506,14 @@ class AssetManagementService
 
         if ($anlage->hasPVSYST()){
             $PVSYSTyearExpected = 1;
-            for($index = 0; $index < $month -1; $index++){
+            for($index = 0; $index < $month ; $index++){
                 $PVSYSTyearExpected = $PVSYSTyearExpected + $tbody_a_production['forecast'][$index];
             }
         }
 
         $G4NmonthExpected = $tbody_a_production['powerExp'][$month-1] * ((100 - $anlage->getTotalKpi())/100);
         $G4NyearExpected = 0;
-        for($index = 0; $index < $month -1; $index++){
+        for($index = 0; $index < $month ; $index++){
             $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExpEvu'][$index] * ((100 - $anlage->getTotalKpi())/100));
         }
         $ActualPower = $powerEvu[$month-1];

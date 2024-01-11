@@ -150,20 +150,20 @@ trait TicketTrait
 
     public function getInverterName(): string
     {
+
         if ($this->inverter !== "*"){
 
             $inverterArray = explode(", ", $this->inverter);
-            dd($inverterArray);
-            $inverterNames = $this->anlage->getInverters()[$inverterArray[0]]->getInverterName();
+
+            $inverterNames = $this->anlage->getInverterFromAnlage()[$inverterArray[0]];
             for($i = 1; $i < count($inverterArray); $i++){
-                $inverterNames = $inverterNames . ", ". $this->anlage->getInverters()[$inverterArray[$i]]->getInverterName();
+                $inverterNames = $inverterNames . ", ". $this->anlage->getInverterFromAnlage()[$inverterArray[$i]];
             }
         }
         else{
             $inverterNames = "*";
         }
-
-
+        if ($inverterNames == null)   $inverterNames = "";
         return $inverterNames;
     }
 

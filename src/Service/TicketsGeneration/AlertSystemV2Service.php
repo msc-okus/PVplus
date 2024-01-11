@@ -798,7 +798,6 @@ class AlertSystemV2Service
                 $this->generateTicketsMulti('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, $message);
 
             } else {
-                $errorType = ticket::OMC;
                 $errorCategorie = ticket::EXTERNAL_CONTROL;
                 $this->generateTicketsMulti(ticket::OMC, $errorCategorie, $anlage, '*', $time, "");
                 $this->generateTicketsMulti('', ticket::DATA_GAP, $anlage, '', $time, "");
