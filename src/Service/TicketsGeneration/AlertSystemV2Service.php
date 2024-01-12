@@ -390,7 +390,9 @@ class AlertSystemV2Service
                 if ($plant_status['ppc'] != null && $plant_status['ppc']) $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc'], false);
                 if ($plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "", ($plant_status['ppc']), false);
                 if ($anlType != "masterslave"){
-                    if ($plant_status['Power0'] != null && count($plant_status['Power0']) > 0) $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "", ($plant_status['ppc']), false);
+                    if ($plant_status['Power0'] != null && count($plant_status['Power0']) > 0 ){
+                        if (!$anlage->isPpcBlockTicket() or !$plant_status['ppc'])$this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "", ($plant_status['ppc']), false);
+                    }
                 }
                 if ($plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "", ($plant_status['ppc']), false);
             }else {
