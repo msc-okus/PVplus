@@ -324,13 +324,14 @@ class ReportsMonthlyV2Service
                     break;
                 default:
                     $startDay = 1;
-                    $endDay = (int) date('t', strtotime("$currentYear-$startMonth-01"));
+                    $endDay = (int) date('t', strtotime("$currentYear-$currentMonth-01"));
                     $monthValues[$monthCount]['datum'] = date("M Y",strtotime("$currentYear-$currentMonth-1"));
                     $monthValues[$monthCount]['datum_alt'] = date("M Y",strtotime("$currentYear-$currentMonth-1"));
             }
             $localStartDate = new \DateTime("$currentYear-$currentMonth-$startDay 12:00");
             $localEndDate = new \DateTime("$currentYear-$currentMonth-$endDay 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $localStartDate, $localEndDate);
+            dump($endDay);
 
 
             foreach($prArray as $key => $value) {

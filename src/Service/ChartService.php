@@ -608,7 +608,6 @@ class ChartService
     private function getPlantAvailability(Anlage $anlage, DateTime $from, DateTime $to): array
     {
         $dataArray = [];
-        $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
         $dataArray['availability'] = $this->availabilityRepository->findAvailabilityAnlageDate($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
         foreach ($dataArray['availability'] as $key => $value) {
             $dataArray['availability'][$key]['invAPart10'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case10'], 'case2' => $value['case20'], 'case3' => $value['case30'], 'case5' => $value['case50'], 'control' => $value['control0']],0);
@@ -621,7 +620,7 @@ class ChartService
             $dataArray['availability'][$key]['invA2'] = $dataArray['availability'][$key]['invAPart12'] * $dataArray['availability'][$key]['invAPart22'];
             $dataArray['availability'][$key]['invA3'] = $dataArray['availability'][$key]['invAPart13'] * $dataArray['availability'][$key]['invAPart23'];
         }
-        dump($dataArray['availability']);
+
         return $dataArray;
     }
 
