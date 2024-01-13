@@ -103,6 +103,7 @@ class ReportingController extends AbstractController
                 } else if ($_ENV['APP_ENV'] == 'prod'){
                     $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
+                    $output .= 'Command was send to messenger! Will be processed in background.<br>';
                     $messageBus->dispatch($message);
                 }
                 break;

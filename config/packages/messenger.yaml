@@ -37,13 +37,21 @@ framework:
                     delay: 2000
                     max_retries: 0
 
+            report:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: report
+                retry_strategy:
+                    delay: 2000
+                    max_retries: 0
+
 
             # a transport used consuming messages from an external system
             # messages are not meant to be *sent* to this transport
 
 
             failed: 'doctrine://default?queue_name=failed'
-            # sync: 'sync://'
+            sync: 'sync://'
 
         routing:
             # Route your messages to the transports
@@ -51,7 +59,7 @@ framework:
             'App\Message\Command\CalcPR': async
             'App\Message\Command\CalcPlantAvailabilityNew': async
             'App\Message\Command\GenerateTickets': async
-            'App\Message\Command\GenerateAMReport': async
+            'App\Message\Command\GenerateAMReport': report
             'App\Message\Command\LoadAPIData': async
             'App\Message\Command\LoadINAXData': async
             'App\Message\Command\ImportData': import
