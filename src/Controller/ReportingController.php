@@ -85,12 +85,6 @@ class ReportingController extends AbstractController
         $userId = $this->getUser()->getUserIdentifier();
         $uid = $this->getUser()->getUserId();
 
-        $myfile = fopen("uid.txt", "w") or die("Unable to open file!");
-        $txt = "John Doe $uid\n";
-        fwrite($myfile, $txt);
-
-        fclose($myfile);
-
         switch ($reportType) {
             case 'monthly':
                 $output = $reportsMonthly->createReportV2($aktAnlagen[0], $reportMonth, $reportYear);
