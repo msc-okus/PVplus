@@ -38,6 +38,7 @@
             {% if is_granted('ROLE_USER') %}
                 <div class="grid-x align-right">
                     <div class="cell medium-5 show-for-medium">
+                        <a href=""><i class="far fa-bell"></i>&nbsp;<span id="uhr" data-servertime-target="content" ></span></a>
                         {% if is_granted('ROLE_G4N') %}
                             <div class="background-processes"
                                 {{ stimulus_controller('background-processes', {

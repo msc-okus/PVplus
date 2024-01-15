@@ -16,7 +16,8 @@ class GenerateAMReportHandler
     public function __construct(
         private readonly AssetManagementService $assetManagement,
         private readonly LogMessagesService $logMessages,
-        private readonly AnlagenRepository $anlagenRepo
+        private readonly AnlagenRepository $anlagenRepo,
+
     )
     {
     }
@@ -27,21 +28,13 @@ class GenerateAMReportHandler
      */
     public function __invoke(GenerateAMReport $generateAMReport): void
     {
-
         /** @var $anlage Anlage */
         $anlage = $this->anlagenRepo->find($generateAMReport->getAnlageId());
-        $logId = $generateAMReport->getlogId();
-        $myfile = fopen("newfilex.txt", "w") or die("Unable to open file!");
-        $txt = "Jango\n";
-        fwrite($myfile, $logId);
-        fclose($myfile);
+        $userId = $generateAMReport->getUserId();
 
+        $logId = $generateAMReport->getlogId();
         $this->logMessages->updateEntry($logId, 'working', 0);
         $this->assetManagement->createAmReport($anlage, $generateAMReport->getMonth(), $generateAMReport->getYear(), $generateAMReport->getUserId(), $logId);
-        $myfile = fopen("newfiley.txt", "w") or die("Unable to open file!");
-        $txt = "Hulk\n";
-        fwrite($myfile, $logId);
-        fclose($myfile);
         $this->logMessages->updateEntry($logId, 'done', 100);
     }
 }

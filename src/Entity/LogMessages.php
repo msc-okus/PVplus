@@ -16,6 +16,9 @@ class LogMessages
     #[ORM\Column(type: 'string', length: 50)]
     private string $plant;
 
+    #[ORM\Column(type: 'integer', length: 5)]
+    private string $userId;
+
     #[ORM\Column(type: 'string', length: 50)]
     private string $function;
 
@@ -47,6 +50,18 @@ class LogMessages
     public function setPlant(string $plant): self
     {
         $this->plant = $plant;
+
+        return $this;
+    }
+
+    public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(string $userId): self
+    {
+        $this->userId = $userId;
 
         return $this;
     }

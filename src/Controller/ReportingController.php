@@ -83,6 +83,13 @@ class ReportingController extends AbstractController
         $anlageId = $request->query->get('anlage-id');
         $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
         $userId = $this->getUser()->getUserIdentifier();
+        $uid = $this->getUser()->getUserId();
+
+        $myfile = fopen("uid.txt", "w") or die("Unable to open file!");
+        $txt = "John Doe $uid\n";
+        fwrite($myfile, $txt);
+
+        fclose($myfile);
 
         switch ($reportType) {
             case 'monthly':
@@ -96,14 +103,14 @@ class ReportingController extends AbstractController
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
-                if ($_ENV['APP_ENV'] == 'dev') {
-                    $report = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
+                if ($_ENV['APP_ENV'] === 'dev') {
+                    $report = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear, (int)$uid);
                     $em->persist($report);
                     $em->flush();
-                } else if ($_ENV['APP_ENV'] == 'prod'){
-                    $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
+                } else if ($_ENV['APP_ENV'] === 'prod'){
+                    $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
-                    $output .= 'Command was send to messenger! Will be processed in background.<br>';
+
                     $messageBus->dispatch($message);
                 }
                 break;

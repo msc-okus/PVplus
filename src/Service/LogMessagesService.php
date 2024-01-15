@@ -14,7 +14,7 @@ class LogMessagesService
     )
     {
     }
-    public function writeNewEntry(Anlage $anlage, string $function, string $job): int
+    public function writeNewEntry(Anlage $anlage, string $function, string $job, int $userId): int
     {
         $log = new LogMessages();
         $log
@@ -23,6 +23,7 @@ class LogMessagesService
             ->setJob($job)
             ->setStartedAt(new \DateTimeImmutable())
             ->setState('waiting')
+            ->setUserId($userId)
         ;
         $this->em->persist($log);
         $this->em->flush();
