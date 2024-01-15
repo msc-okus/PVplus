@@ -166,7 +166,7 @@ class WeatherFunctionsService
                 $sqlTheoPowerPart = "
                 SUM(g_upper * $pNom)  as theo_power_raw,
                 SUM(g_upper * $pNom * $degradation)  as theo_power_raw_deg,
-                SUM(g_upper * $tempCorrFunctionNREL * $pNom ) as theo_power_temp_corr_mnrel,
+                SUM(g_upper * $tempCorrFunctionNREL * $pNom ) as theo_power_temp_corr_nrel,
                 SUM(g_upper * $tempCorrFunctionIEC * $pNom * $degradation) as theo_power_temp_corr_deg_iec,
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
@@ -238,7 +238,6 @@ class WeatherFunctionsService
                 $weather = null;
             }
             $conn = null;
-
             return $weather;
         });
     }

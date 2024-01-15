@@ -70,15 +70,24 @@ class AssetManagementService
      */
     public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null, ?int $logId = null): AnlagenReports
     {
-
+        $myfile = fopen("newfile1.txt", "w") or die("Unable to open file!");
+        $txt = "aaaaaaaaaaaaa\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
         $report = $this->reportRepo->findOneByAMY($anlage, $reportMonth, $reportYear)[0];
+
         $comment = '';
         if ($report) {
             $this->em->remove($report);
             $this->em->flush();
         }
+        $myfile = fopen("newfile3.txt", "w") or die("Unable to open file!");
+        $txt = "rrrrr\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
         // then we generate our own report and try to persist it
         $output = $this->assetReport($anlage, $reportMonth, $reportYear, $logId);
+
         $data = [
             'Production' => true,
             'ProdCap' => true,
@@ -96,12 +105,21 @@ class AssetManagementService
             'Economics' => true, ];
         $output['data'] = $data;
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+        $myfile = fopen("newfile5.txt", "w") or die("Unable to open file!");
+        $txt = "cccc $fileroute \n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
         $pdf = $this->pdf;
         $reportParts = [];
         $content = $output;
         $this->logMessages->updateEntry($logId, 'working', 95);
         //rendering the header
 
+        $myfile = fopen("newfile3.txt", "w") or die("Unable to open file!");
+        $txt = "wwwwwwwwwwwwwwwwwwwww\n";
+        fwrite($myfile, $txt);
+
+        fclose($myfile);
 
         $owner = $anlage->getEigner();
         $tempFileLogo = '';
@@ -583,6 +601,13 @@ class AssetManagementService
         $this->em->persist($report);
         $this->em->flush();
 
+        $myfile = fopen("newfile4.txt", "w") or die("Unable to open file!");
+        $txt = "John Doe\n";
+        fwrite($myfile, $txt);
+        $txt = "Jane Doe\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
+
         return $report; //$output;
     }
 
@@ -621,8 +646,11 @@ class AssetManagementService
     public function buildAssetReport(Anlage $anlage, array $report, ?int $logId = null): array
     {
         // Variables
-
+        $myfile = fopen("newfilemonth.txt", "w") or die("Unable to open file!");
         for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; ++$tempMonth) {
+
+            $txt = "Month: $tempMonth\n";
+            fwrite($myfile, $txt);
 
             $startDate = new \DateTime($report['reportYear']."-$tempMonth-01 00:00");
             $daysInThisMonth = $startDate->format("t");
@@ -633,7 +661,6 @@ class AssetManagementService
                 $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, $startDate, $endDate);
             }
 
-
             // Strahlungen berechnen – (upper = Ost / lower = West)
             if ($anlage->getIsOstWestAnlage()) {
                 $irradiation[] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
@@ -641,7 +668,11 @@ class AssetManagementService
                 $irradiation[] = $weather['upperIrr'] / 4 / 1000; // Umrechnung zu kWh
             }
         }
-
+        fclose($myfile);
+        $myfile = fopen("newfileGurke.txt", "w") or die("Unable to open file!");
+        $txt = "2222222222222222\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
         $daysInReportMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
         $monthArray = [
             'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
@@ -650,7 +681,7 @@ class AssetManagementService
 
 
 
-            $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
+        $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
 
 
         $invArray = $anlage->getInverterFromAnlage();
@@ -745,7 +776,10 @@ class AssetManagementService
             ],
         ];
         $chart->setOption($option);
-
+        $myfile = fopen("newfile4.txt", "w") or die("Unable to open file!");
+        $txt = "ppppppppp\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
         $sumary_pie_graph = $chart->render('sumary_pie_graph'.$key, ['style' => 'height: 250px; width:500px;']);
 
         if (count($anlage->getInverterFromAnlage()) > 20) {
@@ -1145,7 +1179,10 @@ class AssetManagementService
                 $forecast = $expectedPvSyst;
             }
         }
-
+        $myfile = fopen("newfile5.txt", "w") or die("Unable to open file!");
+        $txt = "ppppppppp\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
         // fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,
@@ -1330,7 +1367,10 @@ class AssetManagementService
                 $tbody_forecast_PVSYSTP90[] = $powerSum[$i];
             }
         }
-
+        $myfile = fopen("newfile6.txt", "w") or die("Unable to open file!");
+        $txt = "ppppppppp\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
         // Forecast / PVSYST - P90
         $PVSYSExpSum[0] = $forecast[0];
         $tbody_forecast_plan_PVSYSTP50[] = $PVSYSExpSum[0];
@@ -1465,7 +1505,10 @@ class AssetManagementService
             'forcast_plan_G4NP50' => $tbody_forcast_plan_G4NP50,
             'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
         ];
-
+        $myfile = fopen("newfile7.txt", "w") or die("Unable to open file!");
+        $txt = "ppppppppp\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
         $this->logMessages->updateEntry($logId, 'working', 30);
         $chart = new ECharts();
         $chart->xAxis = [
@@ -1812,7 +1855,10 @@ class AssetManagementService
             $var,
         ];
 
-
+        $myfile = fopen("newfile8.txt", "w") or die("Unable to open file!");
+        $txt = "ppppppppp\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
         $start = $report['reportYear'].'-01-01 00:00';
 
         $end = $report['reportMonth'] >= '3' ? $report['reportYear'].'-03-31 23:59' : $report['to'];
@@ -3668,7 +3714,10 @@ class AssetManagementService
         $chart->setOption($option);
         $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 210px; width:26cm; margin-left:80px;']);
 
-
+        $myfile = fopen("newfile9.txt", "w") or die("Unable to open file!");
+        $txt = "ppppppppp\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
         $chart = new ECharts();
 
         $chart->xAxis = [
@@ -3912,6 +3961,10 @@ class AssetManagementService
                 'width' => '90%',
             ],
         ];
+        $myfile = fopen("newfile10.txt", "w") or die("Unable to open file!");
+        $txt = "ppppppppp\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
 
         $chart->setOption($option);
         if ($anlage->getConfigType() == 1) {
@@ -4313,6 +4366,10 @@ class AssetManagementService
             'pr_rank_graph_20_inv' => $pr_rank_graph_20_inv,
 
         ];
+        $myfile = fopen("newfile11.txt", "w") or die("Unable to open file!");
+        $txt = "ppppppppp\n";
+        fwrite($myfile, $txt);
+        fclose($myfile);
 
         return $output;
     }
