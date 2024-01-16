@@ -91,7 +91,7 @@ class AnlageFormType extends AbstractType
 
             // ##### Plant Location #######
             ->add('eigner', EntityType::class, [
-                'label' => 'Eigner',
+                'label' => 'Owner of the Plant',
                 'help' => '[eigner]',
                 'class' => Eigner::class,
                 'choice_label' => 'firma',
@@ -99,37 +99,37 @@ class AnlageFormType extends AbstractType
                 'disabled' => !($isDeveloper || $isAdmin),
             ])
             ->add('anlName', TextType::class, [
-                'label' => 'Anlagen Name',
-                'help' => '[anlName]',
+                'label' => 'Plant Name',
+                'help' =>  '[anlName]<br>The Name of the Plant',
                 'empty_data' => '',
                 'required' => true,
             ])
             ->add('projektNr', TextType::class, [
-                'label' => 'Projekt Nummer',
-                'help' => '[projektNr]',
+                'label' => 'Project Nummer',
+                'help' => '[projektNr]<br>optional Project No',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlStrasse', TextType::class, [
-                'label' => 'Strasse',
+                'label' => 'Street',
                 'help' => '[anlStrasse]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlPlz', TextType::class, [
-                'label' => 'PLZ',
+                'label' => 'ZIP Code',
                 'help' => '[anlPlz]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlOrt', TextType::class, [
-                'label' => 'Ort',
+                'label' => 'City',
                 'help' => '[anlOrt]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('country', TextType::class, [
-                'label' => 'Land als Kürzel (de, nl, ...)',
+                'label' => 'Shortcut for the country (de, nl, ...)',
                 'help' => '[country]',
                 'empty_data' => '',
                 'required' => false,

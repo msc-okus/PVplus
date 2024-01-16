@@ -328,8 +328,7 @@ class TicketController extends BaseController
         $filter['priority']['value'] = $prio;
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
-        $filter['category']['array'] = self::errorCategorie(true, true, false, $this->isGranted('ROLE_G4N'));
-        #$filter['category']['array'] = self::errorCategorie(true, true, true);
+        $filter['category']['array'] = self::listAllErrorCategorie($this->isGranted('ROLE_G4N'));
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;
@@ -357,7 +356,7 @@ class TicketController extends BaseController
 
         }
         //here we will configure the array of reason suggestions
-
+dump($filter);
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
@@ -596,7 +595,7 @@ class TicketController extends BaseController
         $filter['priority']['value'] = $prio;
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
-        $filter['category']['array'] = self::errorCategorie(true, true, false, $this->isGranted('ROLE_G4N'));
+        $filter['category']['array'] = self::listAllErrorCategorie($this->isGranted('ROLE_G4N'));
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;

@@ -12,7 +12,9 @@ use App\Message\Command\GenerateTickets;
 use App\Message\Command\LoadAPIData;
 use App\Message\Command\LoadINAXData;
 use App\Repository\AnlagenRepository;
+use App\Repository\TicketRepository;
 use App\Service\LogMessagesService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +27,7 @@ class ToolsController extends BaseController
     use G4NTrait;
 
     #[Route(path: '/admin/tools', name: 'app_admin_tools')]
-    public function tools(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo): Response
+    public function tools(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, TicketRepository $ticketRepo, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(ToolsFormType::class);
         $form->handleRequest($request);
@@ -76,6 +78,15 @@ class ToolsController extends BaseController
                         $job = 'Generate Tickets – from ' . $toolsModel->startDate->format('Y-m-d H:i') . ' until ' . $toolsModel->endDate->format('Y-m-d H:i');
                         $job .= " - " . $this->getUser()->getname();
                         $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'GenerateTickets', $job);
+                        $tickets = $ticketRepo->findForSafeDelete($anlage, $toolsModel->startDate->format('Y-m-d H:i'), $toolsModel->endDate->format('Y-m-d H:i'));
+                        foreach ($tickets as $ticket) {
+                            $dates = $ticket->getDates();
+                            foreach ($dates as $date) {
+                                $em->remove($date);
+                            }
+                            $em->remove($ticket);
+                        }
+                        $em->flush();
                         $message = new GenerateTickets($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                         $messageBus->dispatch($message);
                         $output .= 'Command was send to messenger! Will be processed in background.<br>';

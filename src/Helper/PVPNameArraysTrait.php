@@ -218,7 +218,9 @@ trait PVPNameArraysTrait
         }
         return $errorCategory;
     }
-    /** @deprecated  try to replace with 'errorCategorie(bool $performanceTickets = true, bool $paTickets = true, bool $addGroup = false, $addG4NCategory = false)' */
+    /** @deprecated  try to replace with 'errorCategorie(bool $performanceTickets = true, bool $paTickets = true, bool $addGroup = false, $addG4NCategory = false)'
+     * Not finaly ready need some addional stuff for ticket search form
+     * */
     public function listAllErrorCategorie($isG4N): array
     {
         $errorCategory[$this->translator->trans('ticket.error.category.10')] = 10; //data gap
