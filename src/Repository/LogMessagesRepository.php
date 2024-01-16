@@ -61,12 +61,11 @@ class LogMessagesRepository extends ServiceEntityRepository
     public function findSmallList($uid)
     {
         if ($this->security->isGranted('ROLE_G4N')) {
-            echo "UID = $uid";
             $q = $this->createQueryBuilder('log')
                 ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
                 ->andWhere("log.userId = $uid")
-                ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 1))
-                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600 * 1))
+                ->setParameter('end', date('Y-m-d H:i:s', time() - 14400 * 1))
+                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 14400 * 1))
                 ->orderBy('log.startedAt', 'DESC')
                 ->setMaxResults(4)
                 ->getQuery()
