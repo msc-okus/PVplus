@@ -20,7 +20,7 @@
         <div class="grid-x grid-margin-y" id="ticket-edit">
             <div class="cell">
                 {{ form_start(ticketForm) }}
-                <div class="content">
+                <div class="ticket-content">
                     {% if (edited) %}
                         {% set dropdownId = ticketForm.vars.value.id %}
                         {% set openTicket = ticketForm.vars.value.openTicket %}
@@ -64,7 +64,7 @@
                                                         <label for="check-all" class="">Select All</label>
                                                     </div>
                                                 </div>
-                                                <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
+                                                <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-9">
                                                     {% for inverter in invArray %}
                                                         <div class="cell small-form">
                                                             <input id="{{ inverter['inv'] }}" type="checkbox" class="js-checkbox" name="{{ loop.index }}" {{ inverter['select'] }} {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %} data-action="click->ticket-edit#saveCheck">
@@ -102,7 +102,7 @@
                                                     </div>
                                                 </div>
                                                 <h4>This Ticket</h4>
-                                                <div class="grid-x small-up-3 medium-up-6 large-up-6 xlarge-up-9">
+                                                <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-9">
                                                     {% for inverter in invArray %}
                                                         {% if (inverter['select'] == "checked") %}
                                                             <div class="cell js-div-split-a small-form" id="div-split-{{ loop.index }}a">
@@ -119,7 +119,7 @@
                                                 </div>
                                                 <hr>
                                                 <h4>New Ticket</h4>
-                                                <div class="grid-x small-up-3 medium-up-6 large-up-6 xlarge-up-9">
+                                                <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-9">
                                                     {% for inverter in invArray %}
                                                         {% if (inverter['select'] == "checked") %}
                                                             <div class="cell js-div-split-b small-form" id="div-split-{{ loop.index }}b">
@@ -226,7 +226,7 @@
         </div>
         {# error messages #}
         <div class="grid-x grid-margin-y">
-            <div {% if edited %}class="cell small-12 callout warning is-hidden"{% else %}class="cell small-12 callout warning"{% endif %}
+            <div {% if edited %} class="cell small-12 callout warning is-hidden" {% else %} class="cell small-12 callout warning" {% endif %}
                  data-ticket-edit-target="Callout">
                 <p class="is-hidden"
                    data-ticket-edit-target="AlertFormat"

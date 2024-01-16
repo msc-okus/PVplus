@@ -259,8 +259,8 @@ class ReportsMonthlyV2Service
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
 
-            $dayValues[$i]['datum'] = $day->format('y-m-d');
-            $dayValues[$i]['datum_alt'] = $day->format('m-d');
+            $dayValues[$i]['datum'] = $day->format('d.m.Y');
+            $dayValues[$i]['datum_alt'] = $day->format('d.m');
             foreach($prArray as $key => $value) {
                 $dayValues[$i][$key] = $value;
             }
@@ -324,14 +324,13 @@ class ReportsMonthlyV2Service
                     break;
                 default:
                     $startDay = 1;
-                    $endDay = (int) date('t', strtotime("$currentYear-$startMonth-01"));
+                    $endDay = (int) date('t', strtotime("$currentYear-$currentMonth-01"));
                     $monthValues[$monthCount]['datum'] = date("M Y",strtotime("$currentYear-$currentMonth-1"));
                     $monthValues[$monthCount]['datum_alt'] = date("M Y",strtotime("$currentYear-$currentMonth-1"));
             }
             $localStartDate = new \DateTime("$currentYear-$currentMonth-$startDay 12:00");
             $localEndDate = new \DateTime("$currentYear-$currentMonth-$endDay 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $localStartDate, $localEndDate);
-
 
             foreach($prArray as $key => $value) {
                 $monthValues[$monthCount][$key] = $value;

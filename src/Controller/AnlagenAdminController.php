@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
+use App\Service\PdoService;
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
 use App\Entity\EconomicVarNames;
@@ -25,8 +25,6 @@ use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use League\Flysystem\FilesystemException;
-use RecursiveIteratorIterator;
-use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -658,7 +656,6 @@ class AnlagenAdminController extends BaseController
                               `date` varchar(50) DEFAULT NULL,
                               `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
                               `id_sensor` int(3) DEFAULT NULL,
-                              `type_sensor` varchar(20) DEFAULT NULL,
                               `value` float DEFAULT NULL,
                               `gmo` float DEFAULT NULL,
                               PRIMARY KEY (`db_id`) USING BTREE,

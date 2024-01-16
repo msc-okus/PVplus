@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
@@ -237,8 +236,6 @@ class DownloadController extends AbstractController
         } else {
             $report = '';
         }
-
-
 
         return $this->render('downloadData/download.html.twig', [
             'downloadAnalysesExportForm' => $formPdfDownload,

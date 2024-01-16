@@ -57,7 +57,7 @@ class ImportEGridFormType extends AbstractType
                 'constraints' => [
                     new File([
                         'maxSize' => '5Mi',
-                        'extensions' => ['xslx'],
+                        'extensions' => ['xlsx'],
                     ]),
                 ],
             ])
