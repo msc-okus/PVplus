@@ -31,8 +31,8 @@ class PvSystImportService
             for ($n = 1; $n <= 10; $n++) {
                 fgetcsv($fileStream, null, $separator);
             }
-            $headline = fgetcsv($fileStream, null, ';');
-            $units = fgetcsv($fileStream, null, ';');
+            $headline = fgetcsv($fileStream, null, $separator);
+            $units = fgetcsv($fileStream, null, $separator);
             $keyStamp       = array_search('date', $headline);
             $keyEGrid       = array_search('E_Grid', $headline);
             $keyGlobHor     = array_search('GlobHor', $headline);
@@ -47,7 +47,6 @@ class PvSystImportService
             while ($row = fgetcsv($fileStream, null, $separator)){
                 $timeZone = null; //new \DateTimeZone('UTC');
                 $stamp = date_create_from_format($dateFormat, $row[$keyStamp], $timeZone);
-                dump($dateFormat, $row, $stamp);
                 if ($stamp->format('I') == '1') {
                     $stamp->add(new \DateInterval('PT3600S'));
                 }
