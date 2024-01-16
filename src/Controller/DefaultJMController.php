@@ -45,19 +45,31 @@ class DefaultJMController extends AbstractController
 
     }
 
+    #[Route(path: '/test/ticketsName', name: 'test_tickets')]
+    public function teastTicketName(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
+    {
+        $ticket = $ticketRepo->findOneById("399529 ");
+        dd($ticket->getInverterName());
+    }
+    #[Route(path: '/generate/newInverter', name: 'generate_tickets_temp')]
+    public function updateTicketsTemp(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
+    {
+        $tickets = $ticketRepo->findAll();
+        foreach ($tickets as $ticket){
+            $ticket->setInverter($ticket->getInverter());
+            $em->persist($ticket);
+        }
+        $em->flush();
+        dd("done");
+    }
 
 
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
     {
-        $fromDate = "2023-11-01 00:00";
-        $toDate = "2023-11-16 00:00";
-        $anlagen[] = $anlagenRepository->findIdLike("56")[0];
-        $anlagen[] = $anlagenRepository->findIdLike("233")[0];//faulty included in purpose
-        $anlagen[] = $anlagenRepository->findIdLike("219")[0];
-        $anlagen[] = $anlagenRepository->findIdLike("231")[0];
-        $anlagen[] = $anlagenRepository->findIdLike("182")[0];
-
+        $fromDate = "2024-01-13 00:00";
+        $toDate = "2024-01-15 00:00";
+        $anlagen[] = $anlagenRepository->findIdLike("218")[0];
 
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);

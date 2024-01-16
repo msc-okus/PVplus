@@ -70,41 +70,85 @@ class TicketRepository extends ServiceEntityRepository
 
     public function countByProof(){
 
+
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
         $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.needsProof = true')
-            ->getQuery()
         ;
-        return $result->getResult()[0][1];
+        if (!$this->security->isGranted('ROLE_G4N')) {
+
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+
     }
 
     public function countByProofAM(){
 
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
         $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.ProofAM = true')
-            ->getQuery()
         ;
-        return $result->getResult()[0][1];
+        if (!$this->security->isGranted('ROLE_G4N')) {
+
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
     }
     public function countByProofEPC(){
 
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
         $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.needsProofEPC = true')
-            ->getQuery()
         ;
-        return $result->getResult()[0][1];
+        if (!$this->security->isGranted('ROLE_G4N')) {
+
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+
     }
 
     public function countByProofG4N(){
 
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
         $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.needsProofg4n = true')
-            ->getQuery()
         ;
-        return $result->getResult()[0][1];
+        if (!$this->security->isGranted('ROLE_G4N')) {
+
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+
     }
     /**
      * Build query with all options, including 'has user rights to see'.

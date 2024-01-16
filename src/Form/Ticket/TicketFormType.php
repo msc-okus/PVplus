@@ -62,7 +62,16 @@ class TicketFormType extends AbstractType
                 ],
             ]);
         if ($isNewTicket) {
-            $builder->add('alertType', ChoiceType::class, [
+            $builder       ->add('inverterName', TextType::class,[
+                'label' => 'Inverter Names',
+                'required' => true,
+                'help' => '* = all Inverters',
+                'attr' => [
+                    'readonly' => true,
+                ],
+            ])
+
+                ->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
                 'choices' => $errorCategorie,
@@ -77,7 +86,17 @@ class TicketFormType extends AbstractType
             ])
             ;
         } else {
-            $builder->add('alertType', ChoiceType::class, [
+            $builder       ->add('inverterName', TextType::class,[
+                'label' => 'Inverter Names',
+                'required' => true,
+                'help' => '* = all Inverters',
+                'data' => $ticket->getInverterName(),
+                'attr' => [
+                    'readonly' => true,
+                ],
+            ])
+
+                ->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
                 'choices' => $errorCategorie,
@@ -96,11 +115,12 @@ class TicketFormType extends AbstractType
             ->add('inverter', TextType::class, [
                 'label' => 'Inverter',
                 'required' => true,
-                'help' => '* = all Invertres',
+                'help' => '* = all Inverters',
                 'attr' => [
                     'readonly' => true,
                 ],
             ])
+
             ->add('begin', DateTimeType::class, [
                 'label' => 'Begin',
                 'label_html' => true,
