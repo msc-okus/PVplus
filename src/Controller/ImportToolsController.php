@@ -17,8 +17,10 @@ use App\Service\PdoService;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
+use Gedmo\Sluggable\Util\Urlizer;
 use JsonException;
 use Shuchkin\SimpleXLSX;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -249,19 +251,37 @@ class ImportToolsController extends BaseController
     #[Route(path: '/import/pvsyst', name: 'import_pvsyst')]
     public function importPvSyst(Request $request, PvSystImportService $pvSystImport): Response
     {
-
+        $filename = null;
         $form = $this->createForm(ImportPvSystFormType::class);
         $form->handleRequest($request);
 
         $output = '';
 
-        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
+        if ($form->isSubmitted() && $form->isValid() && $form->get('preview')->isClicked()) {
 
             $anlage = $form->getData()->anlage;
-            $file = $form['file']->getData();
 
-            $output = $pvSystImport->import($anlage, $file);
+            /** @var UploadedFile $uploadedFile */
+            /** @var UploadedFile $file */
+            $uploadedFile = $form['file']->getData();
+            $destination = $this->getParameter('kernel.project_dir') . '/tempfiles';
+            $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $newFilename = Urlizer::urlize($originalFilename) . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
+            $file = $uploadedFile->move($destination, $newFilename);
+            $filename = $file->getPathname();
+            $fileStream = fopen($file->getPathname(), 'r');
+            for ($n = 1; $n <= 20; $n++) {
+                $output .= fgets($fileStream) . '<br>';
+            }
+        }
 
+        if ($form->isSubmitted() && $form->isValid() && $form->get('import')->isClicked()) {
+            $anlage = $form->getData()->anlage;
+            $file = $form['filename']->getData();
+            $fileStream = fopen($file, 'r');
+            $output = $pvSystImport->import($anlage, $fileStream, $form['separator']->getData(), $form['dateFormat']->getData());
+
+            unlink($file);
         }
 
         // Wenn Close geklickt wird mache dies:
@@ -271,9 +291,9 @@ class ImportToolsController extends BaseController
 
         return $this->render('import/pvSystImport.html.twig', [
             'form'     => $form,
+            'filename' => $filename,
             'output'   => $output,
         ]);
     }
-
 
 }
