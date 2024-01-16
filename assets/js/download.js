@@ -28,7 +28,7 @@ $(document).ready( async function (tableSelector) {
         buttons: [
             {
                 extend: 'excelHtml5',
-                text: 'Donwload as Excel',
+                text: 'Download as Excel',
                 className:'excelButton',
                 messageTop:' Download Data',
                 messageBottom:null,
