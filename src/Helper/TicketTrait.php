@@ -148,49 +148,7 @@ trait TicketTrait
         return $this;
     }
 
-    public function getInverterName(): string
-    {
 
-        if ($this->inverter !== "*"){
-
-            $inverterArray = explode(", ", $this->inverter);
-
-            $inverterNames = $this->anlage->getInverterFromAnlage()[$inverterArray[0]];
-            for($i = 1; $i < count($inverterArray); $i++){
-                $inverterNames = $inverterNames . ", ". $this->anlage->getInverterFromAnlage()[$inverterArray[$i]];
-            }
-        }
-        else{
-            $inverterNames = "*";
-        }
-        if ($inverterNames == null)   $inverterNames = "";
-        return $inverterNames;
-    }
-
-    public function getInverter(): string
-    {
-        return $this->inverter;
-    }
-
-    public function setInverter(string $inverter): self
-    {
-        $this->inverter = $inverter;
-        if ($this->description == "") {
-            switch ($this->getAlertType()) {
-                case 10:
-                    $this->description = "Data gap in Inverter(s): " . $inverter;
-                    break;
-                case 20:
-                    $this->description = "Power Error in Inverter(s): " . $inverter;
-                    break;
-                case 30:
-                    $this->description = "Grid Error in Inverter(s): " . $inverter;
-                    break;
-
-            }
-        }
-        return $this;
-    }
 
     /**
      * we will use this to provide an array and turn it into a string to save it

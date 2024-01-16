@@ -148,6 +148,9 @@ class Ticket
     #[ORM\OneToMany(mappedBy: 'Ticket', targetEntity: NotificationInfo::class)]
     private Collection $notificationInfos;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $inverterName = "";
+
 
     /*
         #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -525,6 +528,61 @@ class Ticket
                 $notificationInfo->setTicket(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getInverterName(): ?string
+    {
+        return $this->inverterName;
+    }
+
+    public function setInverterName(?string $inverterName): static
+    {
+        $this->inverterName = $inverterName;
+
+        return $this;
+    }
+
+    public function getInverter(): string
+    {
+        return $this->inverter;
+    }
+
+    public function setInverter(string $inverter): self
+    {
+        $this->inverter = $inverter;
+        if (isset($this->anlage)) {
+
+            if ($this->inverter !== "*"){
+                $inverterArray = explode(", ", $this->inverter);
+                $inverterNames = $this->anlage->getInverterFromAnlage()[$inverterArray[0]];
+                for($i = 1; $i < count($inverterArray); $i++){
+                    $inverterNames = $inverterNames . ", ". $this->anlage->getInverterFromAnlage()[$inverterArray[$i]];
+                }
+            }
+            else{
+                $inverterNames = "*";
+            }
+            if ($inverterNames == null)   $inverterNames = "";
+            $inverterString = $inverterNames;
+        }
+        else $inverterString = $this->getInverter();
+        switch ($this->getAlertType()) {
+            case 10:
+                $this->description = "Data gap in Inverter(s): " . $inverterString;
+                break;
+            case 20:
+                $this->description = "Power Error in Inverter(s): " .  $inverterString;
+                break;
+            case 30:
+                $this->description = "Grid Error in Inverter(s): " .  $inverterString;
+                break;
+
+            default:
+                $this->description = "Error in inverter: " .  $inverterString;
+        }
+        $this->setInverterName($inverterString);
 
         return $this;
     }
