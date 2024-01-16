@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+
 class DownloadAnalyseFormType extends AbstractType
 {
     public function __construct(private readonly AnlagenRepository $anlagenRepository)
@@ -29,10 +30,10 @@ class DownloadAnalyseFormType extends AbstractType
                 'required' => true,
             ])
             ->add('years', ChoiceType::class, [
+                'required' => true,
                 'label' => 'please select a Year',
                 'choices' => $this->getYears(),
-                'placeholder' => 'please Choose a year first ...',
-            ])
+             ])
             ->add('months', ChoiceType::class, [
                 'label' => 'please select a Month',
                 'choices' => $this->getMonths(),
@@ -69,7 +70,7 @@ class DownloadAnalyseFormType extends AbstractType
     public function getYears(): array
     {
         $years = range(date('Y'), 2016);
-        $yearsfinal = [];
+        $yearsfinal = ['please Choose a year first ...' => '0'];
 
         for ($i = 0; $i < count($years); ++$i) {
             $yearsfinal[$years[$i]] = $years[$i];

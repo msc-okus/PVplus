@@ -37,8 +37,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const positionPlants = elementplants.getBoundingClientRect();
         const height = positionChart.height + positionPlants.height - 80;
         const hightpx = height + "px";
-        setTimeout(function() {window.scrollTo(0, height);},1)
+        setTimeout(function() {window.scrollTo(0, height);},1);
     }
+});
+
+/* for Kebab Menue*/
+
+var kebab = document.querySelector('.kebab'),
+    middle = document.querySelector('.middle'),
+    cross = document.querySelector('.cross'),
+    dropdown = document.querySelector('.dropdown');
+
+kebab.addEventListener('click', function() {
+    middle.classList.toggle('active');
+    cross.classList.toggle('active');
+    dropdown.classList.toggle('active');
 });
 
 
