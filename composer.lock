@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "447cf50cf976347455c509029570cd0b",
+    "content-hash": "f9d9b197101f075920adc02e05f71ba9",
     "packages": [
         {
             "name": "api-platform/core",
-            "version": "v3.2.10",
+            "version": "v3.2.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/core.git",
-                "reference": "05629a1229f705d1abf927d130ffd70b5dfe86bd"
+                "reference": "227c85871b00613f427ea985b54f4af24ce56a29"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/core/zipball/05629a1229f705d1abf927d130ffd70b5dfe86bd",
-                "reference": "05629a1229f705d1abf927d130ffd70b5dfe86bd",
+                "url": "https://api.github.com/repos/api-platform/core/zipball/227c85871b00613f427ea985b54f4af24ce56a29",
+                "reference": "227c85871b00613f427ea985b54f4af24ce56a29",
                 "shasum": ""
             },
             "require": {
@@ -167,9 +167,9 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/core/issues",
-                "source": "https://github.com/api-platform/core/tree/v3.2.10"
+                "source": "https://github.com/api-platform/core/tree/v3.2.11"
             },
-            "time": "2023-12-23T08:37:05+00:00"
+            "time": "2024-01-12T13:17:28+00:00"
         },
         {
             "name": "babdev/pagerfanta-bundle",
@@ -3981,59 +3981,6 @@
             "time": "2023-11-30T16:41:19+00:00"
         },
         {
-            "name": "nexylan/slack",
-            "version": "1.7.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nexylan/slack.git",
-                "reference": "7f21fefc70c76b304adc1b3a780c8740dfcfb595"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nexylan/slack/zipball/7f21fefc70c76b304adc1b3a780c8740dfcfb595",
-                "reference": "7f21fefc70c76b304adc1b3a780c8740dfcfb595",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mbstring": "*",
-                "guzzlehttp/guzzle": "~6.0|~5.0|~4.0",
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "mockery/mockery": "0.9.*",
-                "phpunit/phpunit": "4.2.*"
-            },
-            "suggest": {
-                "illuminate/support": "Required for Laravel support"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Maknz\\Slack\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-2-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "maknz",
-                    "email": "github@mak.geek.nz"
-                }
-            ],
-            "description": "A simple PHP package for sending messages to Slack, with a focus on ease of use and elegant syntax. Includes Laravel support out of the box.",
-            "keywords": [
-                "laravel",
-                "slack"
-            ],
-            "support": {
-                "issues": "https://github.com/nexylan/slack/issues",
-                "source": "https://github.com/nexylan/slack/tree/1.7.0"
-            },
-            "time": "2015-06-03T03:35:16+00:00"
-        },
-        {
             "name": "nikic/php-parser",
             "version": "v4.18.0",
             "source": {
@@ -5368,16 +5315,16 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.7.3",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "3219c6ee25c9ea71e3d9bbaf39c67c9ebd499419"
+                "reference": "fad452781b3d774e3337b0c0b245dd8e5a4455fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/3219c6ee25c9ea71e3d9bbaf39c67c9ebd499419",
-                "reference": "3219c6ee25c9ea71e3d9bbaf39c67c9ebd499419",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/fad452781b3d774e3337b0c0b245dd8e5a4455fc",
+                "reference": "fad452781b3d774e3337b0c0b245dd8e5a4455fc",
                 "shasum": ""
             },
             "require": {
@@ -5420,9 +5367,9 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.7.3"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.8.0"
             },
-            "time": "2023-08-12T11:01:26+00:00"
+            "time": "2024-01-11T11:49:22+00:00"
         },
         {
             "name": "phpoffice/phpspreadsheet",
@@ -13584,5 +13531,5 @@
         "ext-pdo": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

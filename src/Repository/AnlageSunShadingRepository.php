@@ -2,11 +2,8 @@
 
 namespace App\Repository;
 
-use App\Entity\Anlage;
 use App\Entity\AnlageSunShading;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,8 +18,11 @@ class AnlageSunShadingRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AnlageSunShading::class);
     }
+
     /**
-     * @return AnlageSunShading Returns an array of AnlageSunShading objects
+     * @param AnlageSunShading $entity
+     * @param bool $flush
+     * @return void Returns an array of AnlageSunShading objects
      */
     public function add(AnlageSunShading $entity, bool $flush = true): void
     {

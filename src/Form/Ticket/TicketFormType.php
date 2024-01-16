@@ -43,20 +43,12 @@ class TicketFormType extends AbstractType
         $isG4N = $this->security->isGranted('ROLE_G4N');
 
         /** @var Ticket $ticket */
-
         $ticket = $options['data'] ?? null;
 
-        if ($ticket != null && $ticket->getCreatedAt() != null) $isNewTicket = false;
-        else $isNewTicket = true;
-
-        if ($ticket != null) $anlage = $ticket->getAnlage();
-        else $anlage = null;
-
-        if ($anlage) $full = $anlage->getKpiTicket();
-        else $full = true;
-
-        $errorCategorie = self::listAllErrorCategorie($isG4N);
-
+        $isNewTicket = ($ticket !== null && $ticket->getCreatedAt() !== null) ? false : true;
+        $anlage = ($ticket != null) ? $ticket->getAnlage() : null;
+        $full = ($anlage) ?  $anlage->getKpiTicket() : true;
+        $errorCategorie = self::errorCategorie();
 
         $builder
             ->add('TicketName', TextType::class, [
@@ -116,7 +108,6 @@ class TicketFormType extends AbstractType
                     'data-action' => 'change->ticket-edit#saveCheck',
                     'data-ticket-edit-target' => 'formCategory',
                 ],
-
             ]);
         }
 

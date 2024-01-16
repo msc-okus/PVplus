@@ -336,7 +336,7 @@ class TicketController extends BaseController
         $filter['priority']['value'] = $prio;
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
-        $filter['category']['array'] = self::listAllErrorCategorie($this->isGranted('ROLE_G4N'));
+        $filter['category']['array'] = self::errorCategorie(true, true, false, $this->isGranted('ROLE_G4N'));
         #$filter['category']['array'] = self::errorCategorie(true, true, true);
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
@@ -648,7 +648,7 @@ class TicketController extends BaseController
         $filter['priority']['value'] = $prio;
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
-        $filter['category']['array'] = self::listAllErrorCategorie($this->isGranted('ROLE_G4N'));
+        $filter['category']['array'] = self::errorCategorie(true, true, false, $this->isGranted('ROLE_G4N'));
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;
