@@ -1,5 +1,10 @@
 {% extends 'base.html.twig' %}
 
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('Eigner') }}
+{% endblock %}
+
 {% block body %}
     <div class="grid-x">
         <div class="cell">
@@ -15,6 +20,3 @@
 {% endblock %}
 
 
-{% block javascripts %}
-    {{ parent() }}
-{% endblock %}

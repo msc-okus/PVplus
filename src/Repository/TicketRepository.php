@@ -18,6 +18,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 class TicketRepository extends ServiceEntityRepository
 {
 
+
     public function __construct(
         ManagerRegistry $registry,
         private readonly Security $security,
@@ -26,6 +27,129 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
+    /**
+     * Build query with all options, including 'has user rights to see'
+     * OLD VERSION.
+     *
+     * @deprecated
+     */
+    public function getWithSearchQueryBuilder(?string $status, ?string $editor, ?string $anlage, ?string $id, ?string $prio, ?string $inverter): QueryBuilder
+    {
+        /** @var User $user */
+        $user = $this->security->getUser();
+        $granted = explode(',', $user->getGrantedList());
+
+        $qb = $this->createQueryBuilder('ticket')
+            ->innerJoin('ticket.anlage', 'a')
+            ->addSelect('a')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $qb
+                ->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted)
+            ;
+        }
+        if ($status != '' && $status != '00') {
+            $qb->andWhere("ticket.status = $status");
+        }
+        if ($editor != '') {
+            $qb->andWhere("ticket.editor = '$editor'");
+        }
+        if ($anlage != '') {
+            $qb->andWhere("a.anlName LIKE '$anlage'");
+        }
+        if ($id != '') {
+            $qb->andWhere("ticket.id = '$id'");
+        }
+        if ($prio != '' && $prio != '00') {
+            $qb->andWhere("ticket.priority = '$prio'");
+        }
+
+        return $qb;
+    }
+
+    public function countByProof(){
+
+
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.needsProof = true')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+
+    }
+
+    public function countByProofAM(){
+
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.ProofAM = true')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+    }
+    public function countByProofEPC(){
+
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.needsProofEPC = true')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+
+    }
+
+    public function countByProofG4N(){
+
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.needsProofg4n = true')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+
+    }
     /**
      * Build query with all options, including 'has user rights to see'.
      *
@@ -44,13 +168,13 @@ class TicketRepository extends ServiceEntityRepository
      * @param string $sort
      * @param string $direction
      * @param bool $ignore
-     * @param string $ticketName
+     * @param string $TicketName
      * @param int $kpistatus
      * @param string $begin
      * @param string $end
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, int $proofg4n = 0, string $sort = "", string $direction = "", bool $ignore = false, string $ticketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, int $proofg4n = 0, string $sort = "", string $direction = "", bool $ignore = false, string $TicketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -62,6 +186,7 @@ class TicketRepository extends ServiceEntityRepository
             ->addSelect('a')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
+
                 $qb->andWhere('a.anlId IN (:plantList)')
                     ->setParameter('plantList', $granted);
         }
@@ -90,14 +215,17 @@ class TicketRepository extends ServiceEntityRepository
         if ((int) $category == 7){
             $qb->andWhere("ticket.alertType >= 70");
             $qb->andWhere("ticket.alertType < 80");
-        } elseif ((int) $category == 9){
+        }
+        else if ((int) $category == 9){
             $qb->andWhere("ticket.alertType > 90");
             $qb->andWhere("ticket.alertType < 100");
         }
         else if ((int) $category > 0) {
             $qb->andWhere("ticket.alertType = $category");
-        } else {
+        }
+        else {
             $qb->andWhere("ticket.alertType < 90 or ticket.alertType >= 100");
+      
         }
         if ($prooftam == 1){
             $qb->andWhere("ticket.needsProof = 1");
@@ -114,19 +242,20 @@ class TicketRepository extends ServiceEntityRepository
         if ($kpistatus != 0){
             $qb->andWhere("ticket.kpiStatus = $kpistatus");
         }
-        if ($ticketName !== "") {
-            $qb->andWhere("ticket.TicketName LIKE '%$ticketName%'");
-        }
-        if ($ignore) {
-            $qb->andWhere("ticket.ignoreTicket = true");
-        } elseif (!$this->security->isGranted('ROLE_ADMIN')) { // G4N Admin Users should see the 'ignore' Tickets
-            $qb->andWhere("ticket.ignoreTicket = false");
-        }
+        if ($TicketName !== "") $qb->andWhere("ticket.TicketName = '$TicketName'");
+        if ($ignore) $qb->andWhere("ticket.ignoreTicket = true");
+        else $qb->andWhere("ticket.ignoreTicket = false");
+
+        if ($sort !== "") $qb->addOrderBy($sort, $direction);
+            $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
         if ($begin != "" && $end == ""){
+
             $qb->andWhere("ticket.begin LIKE '$begin%'");
-        }  elseif ($begin == "" && $end != ""){
+        }
+        else if ($begin == "" && $end != ""){
             $qb->andWhere("ticket.begin LIKE '$end%'");
-        } else {
+        }
+        else{
             if ($begin != "" ){
                 $qb->andWhere("ticket.end > '$begin'");
             }
@@ -135,11 +264,6 @@ class TicketRepository extends ServiceEntityRepository
             }
         }
 
-        # Sorting
-        if ($sort !== "") {
-            $qb->addOrderBy($sort, $direction);
-        }
-        $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
 
         return $qb;
     }

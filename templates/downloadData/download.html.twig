@@ -17,14 +17,17 @@
 {% endblock %}
 
 {% block body %}
-    <div class="grid-x">
-        <div class="cell">
-            <h1>Download Data</h1>
+    <div class="grid-x grid-margin-x grid-padding-x">
+        <div class="cell small-12">
+            <h1>Download Data </h1>
         </div>
     </div>
+
     {%  if section == 'data' %}
+
+<div class="defaultheatbar">
     {{ form_start(downloadForm, {'attr': {'novalidate': 'no'}}) }}
-            <div class="grid-x grid-margin-x grid-padding-x">
+            <div class="grid-x grid-margin-x grid-padding-y">
                 <div class="cell medium-2">
                     {{ form_row(downloadForm.anlage) }}
                 </div>
@@ -40,13 +43,19 @@
                 <div class="cell medium-3">
                     {{ form_row(downloadForm.intervall) }}
                 </div>
-            </div>
-            <div class="grid-x grid-margin-x grid-padding-x text-right">
-                <div class="cell">
+                <div class="cell medium-3">
                     {{ form_widget(downloadForm.close) }}
                     {{ form_widget(downloadForm.calc) }}
                 </div>
             </div>
+
+    <div class="grid-x grid-margin-x grid-padding-x text-right">
+        <div class="cell">
+        <div id="download_buttons"></div>
+        </div>
+    </div>
+
+</div>
             <div class="grid-x">
                 <div class="cell">
                     <div class="callout" style="min-height: 50vh;">
@@ -56,9 +65,12 @@
             </div>
         {{ form_end(downloadForm) }}
     {% endif %}
+
     {% if section == 'analyse' %}
+
+<div class="defaultheatbar">
         {{ form_start(downloadAnalysesForm, {'attr': {'novalidate': 'no'}}) }}
-        <div class="grid-x grid-margin-x grid-padding-x">
+        <div class="grid-x grid-margin-x grid-padding-y">
             <div class="cell medium-2">
                 {{ form_row(downloadAnalysesForm.anlage) }}
             </div>
@@ -71,23 +83,30 @@
             <div class="cell medium-3">
                 {{ form_row(downloadAnalysesForm.days) }}
             </div>
-        </div>
-        <div class="grid-x grid-margin-x grid-padding-x text-right">
-            <div class="cell">
+            <div class="cell medium-3">
                 {{ form_widget(downloadAnalysesForm.close) }}
                 {{ form_widget(downloadAnalysesForm.calc) }}
             </div>
         </div>
+
+    <div class="grid-x grid-margin-x grid-padding-x text-right">
+        <div class="cell ">
+       <div id="download_buttons"></div>
+        </div>
+    </div>
+
+</div>
+
         {{ form_end(downloadAnalysesForm) }}
 
         {{ form_start(downloadAnalysesExportForm, {'attr': {'novalidate': 'no'}}) }}
         <div class="grid-x grid-margin-x grid-padding-x">
+
             <div class="cell medium-2">
                 <span style="display: none">{{ form_row(downloadAnalysesExportForm.anlageexport) }}</span>
                 {{ form_row(downloadAnalysesExportForm.year) }}
                 {{ form_row(downloadAnalysesExportForm.month) }}
                 {{ form_row(downloadAnalysesExportForm.day) }}
-                <div id="download_buttons"></div>
             </div>
 
         </div>

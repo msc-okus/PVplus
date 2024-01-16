@@ -13,13 +13,15 @@ export default class extends Controller {
                         'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
                         'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
-                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv'];
+                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'contactButton', 'modalContactBody'];
     static values = {
         formUrl: String,
         splitUrl: String,
+        notifyUrl: String,
     }
     modal = null;
     splitModal = null;
+    contactModal = null;
 
     connect() {
         useDispatch(this);
@@ -44,6 +46,17 @@ export default class extends Controller {
 
         $(this.modalBodyTarget).foundation();
     }
+    async openContactModal(event) {
+        event.preventDefault();
+        this.modalContactBodyTarget.innerHTML = 'Loading ...';
+        this.contactModal = new Reveal($(this.contactModalTarget));
+        this.contactModal.open();
+        console.log(this.notifyUrlValue);
+        this.modalContactBodyTarget.innerHTML = await $.ajax({
+            url: this.notifyUrlValue,
+        });
+    }
+
 
     reasonCheck(){
         let reason = $(this.reasonInputTarget).val();
@@ -408,17 +421,19 @@ export default class extends Controller {
     checkCategory(){
         const cat = $(this.formCategoryTarget).val();
         var inverterString = '';
+        var inverterNameString = '';
         let body = $(this.modalBodyTarget);
         // in this switch we remove the hidding class to show the fields of the ticket date on demand
 
         if (cat >= 70 && cat <= 80 ){
-
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
                 if (inverterString == '') {
                     inverterString = inverterString + $(this).prop('name');
+                    inverterNameString = inverterNameString + $(this).prop('id');
                 } else {
                     inverterString = inverterString + ', ' + $(this).prop('name');
+                    inverterNameString = inverterNameString + ', ' + $(this).prop('id');
                 }
                 body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
                 body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
@@ -427,6 +442,7 @@ export default class extends Controller {
 
             inverterString = '*';
             body.find('#ticket_form_inverter').val(inverterString);
+            body.find('#ticket_form_inverterName').val(inverterNameString);
         }
 
         if (cat >= 72 && cat <= 80 ){
@@ -539,13 +555,12 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 body.find('input:checkbox[class=js-checkbox]').each(function () {
                     $(this).prop('checked', true);
-                    if (inverterString == '')
-                    {
+                    if (inverterString == '') {
                         inverterString = inverterString + $(this).prop('name');
-                    }
-                    else
-                    {
+                        inverterNameString = inverterNameString + $(this).prop('id');
+                    } else {
                         inverterString = inverterString + ', ' + $(this).prop('name');
+                        inverterNameString = inverterNameString + ', ' + $(this).prop('id');
                     }
                     body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
                     body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
@@ -554,6 +569,7 @@ export default class extends Controller {
 
                 inverterString = '*';
                 body.find('#ticket_form_inverter').val(inverterString);
+                body.find('#ticket_form_inverterName').val(inverterNameString);
                 $(this.formkpiStatusTargets).removeClass('is-hidden');
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
                 if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(10)};
@@ -591,13 +607,12 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 body.find('input:checkbox[class=js-checkbox]').each(function () {
                     $(this).prop('checked', true);
-                    if (inverterString == '')
-                    {
+                    if (inverterString == '') {
                         inverterString = inverterString + $(this).prop('name');
-                    }
-                    else
-                    {
+                        inverterNameString = inverterNameString + $(this).prop('id');
+                    } else {
                         inverterString = inverterString + ', ' + $(this).prop('name');
+                        inverterNameString = inverterNameString + ', ' + $(this).prop('id');
                     }
                     body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
                     body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
@@ -606,6 +621,7 @@ export default class extends Controller {
 
                 inverterString = '*';
                 body.find('#ticket_form_inverter').val(inverterString);
+                body.find('#ticket_form_inverterName').val(inverterNameString);
                 $(this.formkpiStatusTargets).removeClass('is-hidden');
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
@@ -798,6 +814,11 @@ export default class extends Controller {
         this.modal.destroy();
     }
 
+    closeContact(event) {
+        event.preventDefault();
+        this.contactModal.destroy();
+    }
+
     async saveTicket(event) {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
@@ -816,7 +837,10 @@ export default class extends Controller {
         }
 
     }
+    closeNotify(event) {
+        event.preventDefault();
 
+    }
     async reload(event){
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
         this.checkCategory();
@@ -843,17 +867,16 @@ export default class extends Controller {
             $(this).find('.js-checkbox-split-b').prop('checked', false);
         });
         let inverterString = '';
-
+        let inverterNameString = '';
         if ($(this.switchTarget).prop('checked')) {
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (inverterString == '')
-                {
+                if (inverterString == '') {
                     inverterString = inverterString + $(this).prop('name');
-                }
-                else
-                {
+                    inverterNameString = inverterNameString + $(this).prop('id');
+                } else {
                     inverterString = inverterString + ', ' + $(this).prop('name');
+                    inverterNameString = inverterNameString + ', ' + $(this).prop('id');
                 }
                 body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
                 body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
@@ -863,15 +886,17 @@ export default class extends Controller {
                 $(this.splitDeployTarget).removeAttr('disabled');
             }
             inverterString = '*';
+            inverterNameString = '*';
         } else {
             $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
             });
             $(this.splitDeployTarget).attr('disabled', 'disabled');
             inverterString = '';
+            inverterNameString = '*';
         }
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
-
+        body.find('#ticket_form_inverterName').val(inverterNameString);
         if (inverterString == '') {
             $(this.CalloutTarget).removeClass('is-hidden');
             $(this.AlertInverterTarget).removeClass('is-hidden');
@@ -1107,6 +1132,7 @@ export default class extends Controller {
         //getting a string with the inverters so later we can check if there is any or none
 
         let inverterString = '';
+        let inverterNameString = '';
         let body = $(this.modalBodyTarget);
         let counter = 0;
         this.checkCategory()
@@ -1120,8 +1146,14 @@ export default class extends Controller {
         });
         body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
             counter ++;
-            if (inverterString == '') {inverterString = inverterString + $(this).prop('name');}
-            else {inverterString = inverterString + ', ' + $(this).prop('name');}
+            if (inverterString == '') {
+                inverterString = inverterString + $(this).prop('name');
+                inverterNameString = inverterNameString + $(this).prop('id');
+            }
+            else {
+                inverterString = inverterString + ', ' + $(this).prop('name');
+                inverterNameString = inverterNameString + ', ' + $(this).prop('id');
+            }
             body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
             body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
             body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
@@ -1129,6 +1161,7 @@ export default class extends Controller {
         });
         if (counter == body.find('input:checkbox[class=js-checkbox]').length){
             inverterString = '*';
+            inverterNameString = '*';
         }
 
         let sensorString = '';
@@ -1260,6 +1293,7 @@ export default class extends Controller {
         }
 
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
+        body.find('#ticket_form_inverterName').val(inverterNameString);
         $(this.modalBodyTarget).find('#ticket_form_dates_0_sensors').val(sensorString);
     }
 

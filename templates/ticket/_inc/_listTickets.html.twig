@@ -1,7 +1,6 @@
-<div {{ stimulus_controller('request') }}>
-    <form id="tableForm"></form>
-    <div data-action="ticket-edit:success->ticket-list#update submit-confirm:async:submitted->ticket-list#update">
-        <table class="table sortable">
+   <form id="tableForm"></form>
+   <div data-action="ticket-edit:success->ticket-list#update submit-confirm:async:submitted->ticket-list#update">
+        <table class="table sortable stickyheader">
             <thead>
             <tr>
                 <th {% if pagination.isSorted('ticket.id') %} class="sorted"{% endif %}>
@@ -26,7 +25,10 @@
                     {% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
                 {# <th>Error Type</th>  #}
                 <th>Inverter</th>
-                <th></th>
+                {# <th>Satus</th> #}
+                <th {% if pagination.isSorted('ticket.openTicket') %} class="sorted"{% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'Open', ['ticket.openTicket'], {'data-action': 'ticket-list#sortUpdate'}) }}
+                </th>
                 <th><small>needs<br>Proof</small></th>
                 <th>{# Join #}</th>
                 <th colspan="2"></th>
@@ -68,7 +70,7 @@
                         {{ errcat|trans }}{% if is_granted('ROLE_DEV') %}<small> {{ ticket.alertType }}</small>{% endif %}
                     </td>
                     {% set maxCharInverter = 16 %}
-                    <td {% if ticket.inverter|length > maxCharInverter %}data-tooltip data-click-open="false" title="{{ ticket.inverter }}"{% endif %}><span>{{ ticket.inverter|u.truncate(maxCharInverter, ' ...', false) }}</span></td>
+                    <td {% if ticket.getInverterName|length > maxCharInverter %}data-tooltip data-click-open="false" title="{{ ticket.getInverterName }}"{% endif %}><span>{{ ticket.getInverterName|u.truncate(maxCharInverter, ' ...', false) }}</span></td>
                     <td>{% if (ticket.openTicket) %} open {% endif %}</td>
                     <td>{{ ticket.proof }}</td>
                     <td>{# <input data-request-target="box" data-action="click->request#check" type="checkbox" value="{{ ticket.id }}" class="generated-checkbox" form="tableForm"> #}</td>
@@ -76,12 +78,14 @@
                         <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('ticket-edit', {
                                 formUrl: path('app_ticket_edit', { id: ticket.id}),
                                 splitUrl: path('app_ticket_split', { id: ticket.id}),
-                            }) }}
-                        >
-                            <button class="hollow button action-icon shadow"
+                                notifyUrl: path('app_ticket_notify', {id: ticket.id})
+                            }) }}>
+                             <span data-tooltip tabindex="1" title="Edit Ticket [{{ ticket.id }}]">
+                            <button class="button action-icon tiny hollow shadow"
                                     data-action="ticket-edit#openModal"
-                                    data-append-to="div#modal-form{{ ticket.id }}"
-                            ><span class="fa fa-edit"></span></button>
+                                    data-append-to="div#modal-form{{ ticket.id }}"><span class="fa fa-edit"></span></button>
+                             </span>
+
 
                             {{ include('ticket/_inc/_modalTicket.html.twig', {
                                 modalId: ticket.id,
@@ -93,8 +97,7 @@
                     </td>
                     <td>
                         {% if is_granted('ROLE_DEV') %}
-                            <button
-                               class="hollow alert button action-icon shadow"
+                            <button title="Remove Ticket [{{ ticket.id }}]" class="hollow alert button action-icon tiny shadow"
                                     {{ stimulus_controller('submit-confirm', {
                                         title: 'Remove this ticket?',
                                         confirmButtonText: 'Yes, remove it',
@@ -109,7 +112,10 @@
             {% endfor %}
             </tbody>
         </table>
+
         {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}
+
+   </div>
 
         {# create New Ticket – End #}
         <div id="modal-form0" {{ stimulus_controller('ticket-edit', {
@@ -121,7 +127,7 @@
                     <select name="anlage-id"
                             data-ticket-edit-target="anlage"
                             data-action="ticket-edit#toggle">
-                        <option value="" disabled selected hidden>Please choose a Plant</option>
+                        <option value="" disabled selected >Please choose a Plant</option>
                         {% for anlage in anlagen %}
                             <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
                         {% endfor %}
@@ -137,13 +143,4 @@
                     </button>
                 </div>
 
-                {{ include('ticket/_inc/_modalTicket.html.twig', {
-                    modalId: 0,
-                    modalTitel: 'New Ticket',
-                    class: 'large',
-                    dataVOffset: '10',
-                }) }}
-            </div>
-        </div>
-    </div>
-</div>
+

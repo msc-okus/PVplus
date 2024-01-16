@@ -72,6 +72,9 @@ class TicketDate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $sensors = "";
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $inverterName = "";
+
 
     public function __construct()
     {
@@ -310,6 +313,34 @@ class TicketDate
     {
         $this->sensors = $sensors;
 
+        return $this;
+    }
+
+    public function getInverter(): string
+    {
+        return $this->inverter;
+    }
+
+    public function setInverter(string $inverter): self
+    {
+        $this->inverter = $inverter;
+        if (isset($this->anlage)) $inverterString = $this->getInverterName();
+        else $inverterString = $this->getInverter();
+        switch ($this->getAlertType()) {
+            case 10:
+                $this->description = "Data gap in Inverter(s): " . $inverterString;
+                break;
+            case 20:
+                $this->description = "Power Error in Inverter(s): " .  $inverterString;
+                break;
+            case 30:
+                $this->description = "Grid Error in Inverter(s): " .  $inverterString;
+                break;
+
+            default:
+                $this->description = "Error in inverter: " .  $inverterString;
+        }
+        $this->inverterName = $inverterString;
         return $this;
     }
 
