@@ -1310,7 +1310,8 @@ class AssetManagementService
         $chart->setOption($option);
 
         $operations_right_withForecast = $chart->render('operations_right_withForecast', ['style' => 'height: 450px; width: 100%;']);
-                
+
+
         $degradation = $anlage->getLossesForecast();
         // Cumulative Forecast
         $powerSum[0] = $powerEvu[0];
@@ -1824,6 +1825,8 @@ class AssetManagementService
         }
         if ($powerEvuQ1 > 0 ) {
             $expectedPvSystQ1 = 0;
+
+
             if ($month >= 3) {
                 $expectedPvSystQ1 = $forecast[0] + $forecast[1] + $forecast[2];
             } else {
@@ -1839,8 +1842,8 @@ class AssetManagementService
             ];
         }else{
             $operations_monthly_right_pvsyst_tr2 = [
+                $monthName.' '.$report['reportYear'],
                 $powerEvuQ1,
-                0.0,
                 0.0,
                 0.0,
             ];
@@ -2506,7 +2509,7 @@ class AssetManagementService
 
         $G4NmonthExpected = $tbody_a_production['powerExp'][$month-1] * ((100 - $anlage->getTotalKpi())/100);
         $G4NyearExpected = 0;
-        for($index = 0; $index < $month ; $index++){
+        for($index = 0; $index < $month -1; $index++){
             $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExpEvu'][$index] * ((100 - $anlage->getTotalKpi())/100));
         }
         $ActualPower = $powerEvu[$month-1];
@@ -2554,31 +2557,18 @@ class AssetManagementService
             'PPCLosses' => $kwhLossesMonthTable['PPCLosses'],
             'GapLosses' =>  $kwhLossesMonthTable['GapLosses'],
         ];
-        if ($G4NyearExpected > 0) {
-            $percentageTableYear = [
-                'G4NExpected' => 100,
-                'PVSYSExpected' => (int)($PVSYSTyearExpected * 100 / $G4NyearExpected),
-                'forecast' => (int)($forecastSum[$month - 1] * 100 / $G4NyearExpected),
-                'ActualPower' => (int)($ActualPowerYear * 100 / $G4NyearExpected),
-                'SORLosses' => number_format(-($kwhLossesYearTable['SORLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
-                'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
-                'OMCLosses' => number_format(-($kwhLossesYearTable['OMCLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
-                'PPCLosses' => number_format(-($kwhLossesYearTable['PPCLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
-                'GapLosses' => number_format(-($kwhLossesYearTable['GapLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
-            ];
-        }else{
-            $percentageTableYear = [
-                'G4NExpected' => 0,
-                'PVSYSExpected' => 0,
-                'forecast' => 0,
-                'ActualPower' => 0,
-                'SORLosses' => 0,
-                'EFORLosses' => 0,
-                'OMCLosses' => 0,
-                'PPCLosses' => 0,
-                'GapLosses' => 0,
-            ];
-        }
+
+        $percentageTableYear = [
+            'G4NExpected' =>  100 ,
+            'PVSYSExpected' => (int)($PVSYSTyearExpected * 100 / $G4NyearExpected),
+            'forecast' =>  (int)($forecastSum[$month - 1] * 100 / $G4NyearExpected),
+            'ActualPower' => (int)($ActualPowerYear * 100 / $G4NyearExpected),
+            'SORLosses' => number_format(-($kwhLossesYearTable['SORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+            'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+            'OMCLosses' => number_format(-($kwhLossesYearTable['OMCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+            'PPCLosses' => number_format(-($kwhLossesYearTable['PPCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+            'GapLosses' => number_format(-($kwhLossesYearTable['GapLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+        ];
 
         $yearLossesHelpTable = [
             'ExpectedG4N' => $G4NyearExpected,
@@ -3959,8 +3949,7 @@ class AssetManagementService
                 'axisLabel' => [
                     'show' => true,
                     'margin' => '10',
-                    'rotate' => 45,
-                    'fontsize' => '12'
+                    'rotate' => 45
                 ],
                 'splitArea' => [
                     'show' => true,

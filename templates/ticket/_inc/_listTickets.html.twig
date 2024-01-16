@@ -1,7 +1,6 @@
-<div {{ stimulus_controller('request') }}>
-    <form id="tableForm"></form>
-    <div data-action="ticket-edit:success->ticket-list#update submit-confirm:async:submitted->ticket-list#update">
-        <table class="table sortable">
+   <form id="tableForm"></form>
+   <div data-action="ticket-edit:success->ticket-list#update submit-confirm:async:submitted->ticket-list#update">
+        <table class="table sortable stickyheader">
             <thead>
             <tr>
                 <th {% if pagination.isSorted('ticket.id') %} class="sorted"{% endif %}>
@@ -26,7 +25,10 @@
                     {% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
                 {# <th>Error Type</th>  #}
                 <th>Inverter</th>
-                <th></th>
+                {# <th>Satus</th> #}
+                <th {% if pagination.isSorted('ticket.openTicket') %} class="sorted"{% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'Open', ['ticket.openTicket'], {'data-action': 'ticket-list#sortUpdate'}) }}
+                </th>
                 <th><small>needs<br>Proof</small></th>
                 <th>{# Join #}</th>
                 <th colspan="2"></th>
@@ -76,12 +78,13 @@
                         <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('ticket-edit', {
                                 formUrl: path('app_ticket_edit', { id: ticket.id}),
                                 splitUrl: path('app_ticket_split', { id: ticket.id}),
-                            }) }}
-                        >
-                            <button class="hollow button action-icon shadow"
+                            }) }}>
+
+                            <button title="Edit Ticket [{{ ticket.id }}]" class="button action-icon tiny hollow shadow"
                                     data-action="ticket-edit#openModal"
-                                    data-append-to="div#modal-form{{ ticket.id }}"
-                            ><span class="fa fa-edit"></span></button>
+                                    data-append-to="div#modal-form{{ ticket.id }}">
+                                <span class="fa fa-edit"></span>
+                            </button>
 
                             {{ include('ticket/_inc/_modalTicket.html.twig', {
                                 modalId: ticket.id,
@@ -93,8 +96,7 @@
                     </td>
                     <td>
                         {% if is_granted('ROLE_DEV') %}
-                            <button
-                               class="hollow alert button action-icon shadow"
+                            <button title="Remove Ticket [{{ ticket.id }}]" class="hollow alert button action-icon tiny shadow"
                                     {{ stimulus_controller('submit-confirm', {
                                         title: 'Remove this ticket?',
                                         confirmButtonText: 'Yes, remove it',
@@ -109,41 +111,10 @@
             {% endfor %}
             </tbody>
         </table>
+
         {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}
 
-        {# create New Ticket – End #}
-        <div id="modal-form0" {{ stimulus_controller('ticket-edit', {
-            formUrl: path('app_ticket_create'),
-        }) }}>
-            <div class="grid-x grid-margin-x align-middle">
-                {# create New Ticket – Begin #}
-                <div class="cell small-12 medium-2">
-                    <select name="anlage-id"
-                            data-ticket-edit-target="anlage"
-                            data-action="ticket-edit#toggle">
-                        <option value="" disabled selected hidden>Please choose a Plant</option>
-                        {% for anlage in anlagen %}
-                            <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="cell small-12 medium-2">
-                    <button name="new-ticket" class="button secondary expanded no-margins"
-                            disabled
-                            data-ticket-edit-target="deactivable"
-                            data-action="ticket-edit#openModal"
-                    >
-                        New Ticket
-                    </button>
-                </div>
+   </div>
 
-                {{ include('ticket/_inc/_modalTicket.html.twig', {
-                    modalId: 0,
-                    modalTitel: 'New Ticket',
-                    class: 'large',
-                    dataVOffset: '10',
-                }) }}
-            </div>
-        </div>
-    </div>
-</div>
+
+

@@ -13,13 +13,15 @@ export default class extends Controller {
                         'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
                         'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
-                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv'];
+                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'contactButton', 'modalContactBody'];
     static values = {
         formUrl: String,
         splitUrl: String,
+        notifyUrl: String,
     }
     modal = null;
     splitModal = null;
+    contactModal = null;
 
     connect() {
         useDispatch(this);
@@ -44,6 +46,17 @@ export default class extends Controller {
 
         $(this.modalBodyTarget).foundation();
     }
+    async openContactModal(event) {
+        event.preventDefault();
+        this.modalContactBodyTarget.innerHTML = 'Loading ...';
+        this.contactModal = new Reveal($(this.contactModalTarget));
+        this.contactModal.open();
+        console.log(this.notifyUrlValue);
+        this.modalContactBodyTarget.innerHTML = await $.ajax({
+            url: this.notifyUrlValue,
+        });
+    }
+
 
     reasonCheck(){
         let reason = $(this.reasonInputTarget).val();
@@ -798,6 +811,11 @@ export default class extends Controller {
         this.modal.destroy();
     }
 
+    closeContact(event) {
+        event.preventDefault();
+        this.contactModal.destroy();
+    }
+
     async saveTicket(event) {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
@@ -816,7 +834,10 @@ export default class extends Controller {
         }
 
     }
+    closeNotify(event) {
+        event.preventDefault();
 
+    }
     async reload(event){
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
         this.checkCategory();

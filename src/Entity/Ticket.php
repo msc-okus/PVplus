@@ -145,6 +145,9 @@ class Ticket
 
     private ?string $creationLog = null;
 
+    #[ORM\OneToMany(mappedBy: 'Ticket', targetEntity: NotificationInfo::class)]
+    private Collection $notificationInfos;
+
 
     /*
         #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -156,6 +159,7 @@ class Ticket
         $this->dates = new ArrayCollection();
         $this->priority = 10; // Low
         $this->status = 30; // Work in Progress
+        $this->notificationInfos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -491,6 +495,36 @@ class Ticket
     public function setCreationLog(?string $creationLog): static
     {
         $this->creationLog = $creationLog;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, NotificationInfo>
+     */
+    public function getNotificationInfos(): Collection
+    {
+        return $this->notificationInfos;
+    }
+
+    public function addNotificationInfo(NotificationInfo $notificationInfo): static
+    {
+        if (!$this->notificationInfos->contains($notificationInfo)) {
+            $this->notificationInfos->add($notificationInfo);
+            $notificationInfo->setTicket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotificationInfo(NotificationInfo $notificationInfo): static
+    {
+        if ($this->notificationInfos->removeElement($notificationInfo)) {
+            // set the owning side to null (unless already changed)
+            if ($notificationInfo->getTicket() === $this) {
+                $notificationInfo->setTicket(null);
+            }
+        }
 
         return $this;
     }
