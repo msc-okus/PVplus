@@ -148,9 +148,6 @@ class Ticket
     #[ORM\OneToMany(mappedBy: 'Ticket', targetEntity: NotificationInfo::class)]
     private Collection $notificationInfos;
 
-    #[ORM\OneToMany(mappedBy: 'Ticket', targetEntity: NotificationInfo::class)]
-    private Collection $notificationInfos;
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $inverterName = "";
 
@@ -536,35 +533,7 @@ class Ticket
         return $this;
     }
 
-    /**
-     * @return Collection<int, NotificationInfo>
-     */
-    public function getNotificationInfos(): Collection
-    {
-        return $this->notificationInfos;
-    }
 
-    public function addNotificationInfo(NotificationInfo $notificationInfo): static
-    {
-        if (!$this->notificationInfos->contains($notificationInfo)) {
-            $this->notificationInfos->add($notificationInfo);
-            $notificationInfo->setTicket($this);
-        }
-
-        return $this;
-    }
-
-    public function removeNotificationInfo(NotificationInfo $notificationInfo): static
-    {
-        if ($this->notificationInfos->removeElement($notificationInfo)) {
-            // set the owning side to null (unless already changed)
-            if ($notificationInfo->getTicket() === $this) {
-                $notificationInfo->setTicket(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getInverterName(): ?string
     {
