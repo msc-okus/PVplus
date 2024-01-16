@@ -7,7 +7,7 @@ use App\Entity\User;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityService;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\Charts\HeatmapChartService;
+use App\Service\Charts\HeatmapChartService;
 use App\Service\ChartService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -135,10 +135,7 @@ class DashboardPlantsController extends BaseController
 
             if ($request->request->get('mysubmit') === 'select') {
                 /* New: Fix for not leaving the date unless you change the plant */
-                if ($form['selectedChart'] == 'heatmap'
-                    or $form['selectedChart'] == 'tempheatmap'
-                    or $form['selectedChart'] == 'sollistheatmap'
-                    or $form['selectedChart'] == 'sollisttempanalyse'
+                if ($form['selectedChart'] == 'sollisttempanalyse'
                     or $form['selectedChart'] == 'sollistanalyse'
                     or $form['selectedChart'] == 'sollistirranalyse'
                     or $form['selectedChart'] == 'acpnom') {
@@ -147,19 +144,28 @@ class DashboardPlantsController extends BaseController
                     $form['to'] = date('Y-m-d 23:59', strtotime($request->request->get('to')));
 
                     } else {
+                    /* Selected Charts are excluded and remain unchanged by data handling */
+                    if ($form['selectedChart'] == 'heatmap'
+                        or $form['selectedChart'] == 'tempheatmap'
+                        or $form['selectedChart'] == 'sollistheatmap') {
 
-                    $date1 = strtotime(date('Y-m-d', strtotime($request->request->get('from'))));
-                    $date2 = strtotime(date('Y-m-d ', strtotime($request->request->get('to'))));
-                    $datediff = abs(round(($date1 - $date2) / (60 * 60 * 24)));
-
-                    if ($datediff > 31) {
                         $form['from'] = (new \DateTime())->format('Y-m-d 00:00');
                         $form['to'] = (new \DateTime())->format('Y-m-d 23:59');
-                      } else {
-                        $form['from'] = date('Y-m-d 00:00', strtotime($request->request->get('from')));
-                        $form['to'] = date('Y-m-d 23:59', strtotime($request->request->get('to')));
-                    }
 
+                    } else {
+
+                        $date1 = strtotime(date('Y-m-d', strtotime($request->request->get('from'))));
+                        $date2 = strtotime(date('Y-m-d ', strtotime($request->request->get('to'))));
+                        $datediff = abs(round(($date1 - $date2) / (60 * 60 * 24)));
+
+                        if ($datediff > 31) {
+                            $form['from'] = (new \DateTime())->format('Y-m-d 00:00');
+                            $form['to'] = (new \DateTime())->format('Y-m-d 23:59');
+                        } else {
+                            $form['from'] = date('Y-m-d 00:00', strtotime($request->request->get('from')));
+                            $form['to'] = date('Y-m-d 23:59', strtotime($request->request->get('to')));
+                        }
+                    }
                 }
 
                } else {
@@ -192,6 +198,4 @@ class DashboardPlantsController extends BaseController
             'hour' => $hour,
         ]);
     }
-
-
 }

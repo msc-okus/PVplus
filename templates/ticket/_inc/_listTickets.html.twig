@@ -79,12 +79,12 @@
                                 formUrl: path('app_ticket_edit', { id: ticket.id}),
                                 splitUrl: path('app_ticket_split', { id: ticket.id}),
                             }) }}>
-                             <span data-tooltip tabindex="1" title="Edit Ticket [{{ ticket.id }}]">
-                            <button class="button action-icon tiny hollow shadow"
+
+                            <button title="Edit Ticket [{{ ticket.id }}]" class="button action-icon tiny hollow shadow"
                                     data-action="ticket-edit#openModal"
-                                    data-append-to="div#modal-form{{ ticket.id }}"
-                            ><span class="fa fa-edit"></span></button>
-                             </span>
+                                    data-append-to="div#modal-form{{ ticket.id }}">
+                                <span class="fa fa-edit"></span>
+                            </button>
 
                             {{ include('ticket/_inc/_modalTicket.html.twig', {
                                 modalId: ticket.id,
@@ -96,8 +96,7 @@
                     </td>
                     <td>
                         {% if is_granted('ROLE_DEV') %}
-                            <button
-                               class="hollow alert button action-icon shadow"
+                            <button title="Remove Ticket [{{ ticket.id }}]" class="hollow alert button action-icon tiny shadow"
                                     {{ stimulus_controller('submit-confirm', {
                                         title: 'Remove this ticket?',
                                         confirmButtonText: 'Yes, remove it',
@@ -117,40 +116,5 @@
 
    </div>
 
-        {# create New Ticket – End #}
-        <div id="modal-form0" {{ stimulus_controller('ticket-edit', {
-            formUrl: path('app_ticket_create'),
-        }) }}>
-            <div class="grid-x grid-margin-x align-middle">
-                {# create New Ticket – Begin #}
-                <div class="cell small-12 medium-2">
-                    <select name="anlage-id"
-                            data-ticket-edit-target="anlage"
-                            data-action="ticket-edit#toggle">
-                        <option value="" disabled selected hidden>Please choose a Plant</option>
-                        {% for anlage in anlagen %}
-                            <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="cell small-12 medium-2">
-                    <button name="new-ticket" class="button secondary expanded no-margins"
-                            disabled
-                            data-ticket-edit-target="deactivable"
-                            data-action="ticket-edit#openModal"
-                    >
-                        New Ticket
-                    </button>
-                </div>
 
-                {{ include('ticket/_inc/_modalTicket.html.twig', {
-                    modalId: 0,
-                    modalTitel: 'New Ticket',
-                    class: 'large',
-                    dataVOffset: '10',
-                }) }}
-            </div>
-        </div>
-   </div>
-</div>
 

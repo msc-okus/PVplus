@@ -88,6 +88,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     final public const ARRAY_OF_FUNCTIONS_BY_ROLE = [
         'AssetManagement'   => 'ROLE_AM',
         'Analyse'           => 'ROLE_ANALYSE',
+        'Beta Tester'       => 'ROLE_BETA',
     ];
 
     #[Groups(['user:read'])]

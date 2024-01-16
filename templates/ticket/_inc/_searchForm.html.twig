@@ -70,37 +70,61 @@
         <div class="cell medium-1" style="margin-top:-17px!important;">
             <input type="text" name="inverter" class="input-group-field" value="{{ inverter }}" placeholder="Inverter">
         </div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <label> Proof by TAM
-                <input type="checkbox" name="prooftam" class="input-group-field" value="1">
-            </label>
-            <div data-ticket-list-target="prooftam" style="font-size: 12px">{{ countProofByTAM }}</div>
+
+        <div class="cell medium-1 notifyclass">
+        <div class="notifyheader">
+            <div class="notifyheader-label">Proof by TAM
+             <input type="checkbox" name="prooftam" class="input-group-field" value="1">
+            </div>
+            <div class="notifyheaderbadge">
+                <div class="notifyheaderbadge-number">{{ countProofByTAM }}</div>
+            </div>
         </div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <label> Proof by EPC
-                <input type="checkbox" name="proofepc" class="input-group-field" value="1">
-            </label>
-            <div data-ticket-list-target="proofepc" style="font-size: 12px">{{ countProofByEPC }}</div>
         </div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <label> Proof by AM
-                <input type="checkbox" name="proofam" class="input-group-field" value="1">
-            </label>
-            <div data-ticket-list-target="proofam" style="font-size: 12px">{{ countProofByAM }}</div>
+        <div class="cell medium-1 notifyclass">
+            <div class="notifyheader">
+                <div class="notifyheader-label">Proof by EPC
+                    <input type="checkbox" name="proofepc" class="input-group-field" value="1">
+                </div>
+                <div class="notifyheaderbadge">
+                    <div class="notifyheaderbadge-number">{{ countProofByEPC }}</div>
+                </div>
+            </div>
         </div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <label> Proof by G4N
-                <input type="checkbox" name="proofg4n" class="input-group-field" value="1">
-            </label>
-            <div data-ticket-list-target="proofg4n" style="font-size: 12px">{{ countProofByG4N }}</div>
+        <div class="cell medium-1 notifyclass">
+            <div class="notifyheader">
+                <div class="notifyheader-label">Proof by AM
+                    <input type="checkbox" name="proofam" class="input-group-field" value="1">
+                </div>
+                <div class="notifyheaderbadge">
+                    <div class="notifyheaderbadge-number">{{ countProofByAM }}</div>
+                </div>
+            </div>
         </div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
+        <div class="cell medium-1 notifyclass" >
+            <div class="notifyheader">
+                <div class="notifyheader-label">Proof by G4N
+                    <input type="checkbox" name="proofg4n" class="input-group-field" value="1">
+                </div>
+                <div class="notifyheaderbadge">
+                    <div class="notifyheaderbadge-number">{{ countProofByG4N }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cell medium-1 notifyclass" >
             {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
-                <label> Ignored Tickets
+            <div class="notifyheader">
+                <div class="notifyheader-label">Ignored Tickets
                     <input type="checkbox" name="ignored" class="input-group-field" value="1">
-                </label>
+                </div>
+                <div class="notifyheaderbadge">
+                    <div class="notifyheaderbadge-number">0</div>
+                </div>
+            </div>
             {% endif %}
         </div>
+
         <div class="cell medium-1 text-left" style="margin-top:-17px!important;">
             <div class="input-group-button" style="display: inline-flex;">
                 <span data-tooltip tabindex="1" title="Search Ticket">
@@ -141,7 +165,7 @@
                     data-action="ticket-edit#openModal">
                 <span class="fa fa-plus"></span>
             </button>
-                    </span>
+                </span>
             </div>
         </div>
             <div class="cell small-1 medium-1 "> &nbsp; </div>
@@ -154,8 +178,24 @@
             dataVOffset: '10',
         }) }}
 
- {# <div id="modal-form0" {{ stimulus_controller('ticket-edit', {formUrl: path('app_ticket_create'),}) }}> </div> #}
-
  </div>
 </div>
 
+{# Ein Snippet für ein Kebab Menue --- MS 01/24 getestet
+<div class="cell medium-1 text-right">
+    <ul class="nav-kebab">
+        <div class="kebab">
+            <figure></figure>
+            <figure class="middle"></figure>
+            <p class="cross">x</p>
+            <figure></figure>
+            <ul class="dropdown">
+                <li><a href="#">Link 1</a></li>
+                <li><a href="#">Link 2</a></li>
+                <li><a href="#">Link 3</a></li>
+                <li><a href="#">Link 4</a></li>
+            </ul>
+        </div>
+    </ul>
+</div>
+#}

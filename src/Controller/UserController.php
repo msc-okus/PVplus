@@ -199,12 +199,11 @@ class UserController extends BaseController
             }
 
             if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
+
                 if ($form['newPlainPassword']->getData() != '') {
-                    $user->setPassword($userPasswordHasher->hashPassword(
-                        $user,
-                        $form['newPlainPassword']->getData()
-                    ));
+                    $user->setPassword($userPasswordHasher->hashPassword($user,$form['newPlainPassword']->getData()));
                 }
+
                 $em->persist($user);
                 $em->flush();
                 $this->addFlash('success', 'User saved!');
