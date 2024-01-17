@@ -1,0 +1,31 @@
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].oneOf[1].use[1]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[4].oneOf[1].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].oneOf[1].use[3]!./assets/styles/components/autocomplete.scss ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************/
+.algolia-autocomplete {
+  width: 100%;
+}
+.algolia-autocomplete .aa-input, .algolia-autocomplete .algolia-autocomplete .aa-hint {
+  width: 100%;
+}
+.algolia-autocomplete .aa-hint {
+  color: #999;
+}
+.algolia-autocomplete .aa-dropdown-menu {
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #999;
+  border-top: none;
+}
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion {
+  cursor: pointer;
+  padding: 5px 4px;
+}
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion.aa-cursor {
+  background-color: #B2D7FF;
+}
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion em {
+  font-weight: bold;
+  font-style: normal;
+}
+
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidGlja2V0c19saXN0LmNzcyIsIm1hcHBpbmdzIjoiOzs7QUFFQTtFQUNJO0FBREo7QUFHSTtFQUNJO0FBRFI7QUFJSTtFQUNJO0FBRlI7QUFLSTtFQUNJO0VBQ0E7RUFDQTtFQUNBO0FBSFI7QUFLUTtFQUNJO0VBQ0E7QUFIWjtBQU1RO0VBQ0k7QUFKWjtBQU9RO0VBQ0k7RUFDQTtBQUxaLEMiLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9hc3NldHMvc3R5bGVzL2NvbXBvbmVudHMvYXV0b2NvbXBsZXRlLnNjc3MiXSwic291cmNlc0NvbnRlbnQiOlsiQGltcG9ydCAnLi4vc2V0dGluZ3MnO1xuXG4uYWxnb2xpYS1hdXRvY29tcGxldGUge1xuICAgIHdpZHRoOiAxMDAlO1xuXG4gICAgLmFhLWlucHV0LCAuYWxnb2xpYS1hdXRvY29tcGxldGUgLmFhLWhpbnQge1xuICAgICAgICB3aWR0aDogMTAwJTtcbiAgICB9XG5cbiAgICAuYWEtaGludCB7XG4gICAgICAgIGNvbG9yOiAjOTk5O1xuICAgIH1cblxuICAgIC5hYS1kcm9wZG93bi1tZW51IHtcbiAgICAgICAgd2lkdGg6IDEwMCU7XG4gICAgICAgIGJhY2tncm91bmQtY29sb3I6ICNmZmY7XG4gICAgICAgIGJvcmRlcjogMXB4IHNvbGlkICM5OTk7XG4gICAgICAgIGJvcmRlci10b3A6IG5vbmU7XG5cbiAgICAgICAgLmFhLXN1Z2dlc3Rpb24ge1xuICAgICAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICAgICAgcGFkZGluZzogNXB4IDRweDtcbiAgICAgICAgfVxuXG4gICAgICAgIC5hYS1zdWdnZXN0aW9uLmFhLWN1cnNvciB7XG4gICAgICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjQjJEN0ZGO1xuICAgICAgICB9XG5cbiAgICAgICAgLmFhLXN1Z2dlc3Rpb24gZW0ge1xuICAgICAgICAgICAgZm9udC13ZWlnaHQ6IGJvbGQ7XG4gICAgICAgICAgICBmb250LXN0eWxlOiBub3JtYWw7XG4gICAgICAgIH1cbiAgICB9XG59XG4iXSwibmFtZXMiOltdLCJzb3VyY2VSb290IjoiIn0=*/

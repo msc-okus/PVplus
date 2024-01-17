@@ -1,6 +1,13 @@
-aaaaaaaaaaaaaaaaaa
-<div class="dropdown-content"
-{{ stimulus_controller('mouse') }}
->
-</div>
-{{ message }}
+
+{% block body %}
+    <div class="dropdown-content"
+            {{ stimulus_controller('mouse', {
+                message: { messagex }
+            }) }}
+    >
+    </div>
+
+{% endblock %}
+{% block styles %}
+    <link href="{{ absolute_url(asset('build/app.css')) }}" rel="stylesheet" type="text/css">
+{% endblock %}

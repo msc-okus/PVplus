@@ -39,6 +39,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use App\Service\TestService;
 
 class ReportingController extends AbstractController
 {
@@ -66,7 +67,8 @@ class ReportingController extends AbstractController
         ReportEpcPRNewService $reportEpcNew,
         LogMessagesService $logMessages,
         MessageBusInterface $messageBus,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        TestService $testService
     ): Response
     {
         $anlage = $request->query->get('anlage');
@@ -106,6 +108,7 @@ class ReportingController extends AbstractController
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
 
                     $messageBus->dispatch($message);
+                    return new Response($testService->testMal());
                 }
                 break;
         }
