@@ -39,7 +39,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use App\Service\TestService;
+use App\Service\SchowService;
 
 class ReportingController extends AbstractController
 {
@@ -68,7 +68,7 @@ class ReportingController extends AbstractController
         LogMessagesService $logMessages,
         MessageBusInterface $messageBus,
         EntityManagerInterface $em,
-        TestService $testService
+        SchowService $testService
     ): Response
     {
         $anlage = $request->query->get('anlage');
@@ -106,9 +106,9 @@ class ReportingController extends AbstractController
                 } else if ($_ENV['APP_ENV'] === 'prod'){
                     $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
-
                     $messageBus->dispatch($message);
-                    return new Response($testService->testMal());
+                    $anlageName = $aktAnlagen[0]->getAnlName();
+                    return new Response($testService->showMessege("Your AM Repoert for Plant $anlageName is ready!"));
                 }
                 break;
         }

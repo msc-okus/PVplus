@@ -4,17 +4,17 @@ namespace App\Service;
 
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
-class TestService
+class SchowService
 {
     public function __construct(
         private Environment $twig
     )
     {
     }
-    public function testMal()
+    public function showMessege($messege)
     {
         $html =  $this->twig->render('logMessages/_prozessReady.html.twig', [
-            'messagex' => 'Ready mein Schatz',
+            'message' => $messege,
         ]);
 
         return($html);

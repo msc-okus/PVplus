@@ -10,7 +10,7 @@ use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use App\Service\TestService;
+use App\Service\SchowService;
 #[AsMessageHandler]
 class GenerateAMReportHandler
 {
@@ -18,7 +18,7 @@ class GenerateAMReportHandler
         private readonly AssetManagementService $assetManagement,
         private readonly LogMessagesService $logMessages,
         private readonly AnlagenRepository $anlagenRepo,
-        private readonly TestService $testService
+        private readonly SchowService $testService
     )
     {
     }
