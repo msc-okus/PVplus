@@ -252,34 +252,34 @@ class AvailabilityByTicketService
         $to     = date('Y-m-d 00:00', $timestampDay + (3600 * 25)); // +25 (stunden) um sicher auf einen Time stamp des nächsten Tages zu kommen, auch wenn Umstellung auf Winterzeit
 
         $maxFailTime = $timesConfig->getMaxFailTime();
-        $powerThersholdkWh = $anlage->getPowerThreshold() / 4; // Umrechnung von kW auf kWh bei 15 minuten werten
+        $powerThersholdkWh = $anlage->getPowerThreshold() / 4; // Umrechnung von kW auf kWh bei 15 Minuten Werten
 
         // get plant data and irradiation data
         $istData = $this->getIstData($anlage, $from, $to);
         $einstrahlungen = $this->irradiationService->getIrrData($anlage, $from, $to);
+
         // Aus IST Produktionsdaten und IST Strahlungsdaten die Tages-Verfügbarkeit je Inverter berechnen4
         if (count($einstrahlungen) > 0) {
             $anzInverter = $anlage->getAnzInverter();
             $case5Array = $case6Array = $commIssuArray = $skipTiAndTitheoArray = $skipTiOnlyArray = [];
-            if ($department > 0) {
-                // suche commIssu Tickets und schreibe diese in Array $commIssuArray[inverter][stamp] = true|false
-                // nur für Department 1 bis 3
-                $commIssus = $this->ticketDateRepo->findCommIssu($anlage, $from, $to, $department);
-                /** @var TicketDate $commIssu */
-                foreach ($commIssus as $commIssu) {
-                    $c5From = $commIssu->getBegin()->getTimestamp();
-                    $c5To = $commIssu->getEnd()->getTimestamp();
-                    $inverters = $this->functions->readInverters($commIssu->getInverter(), $anlage);
 
-                    for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
-                        foreach ($inverters as $inverter) {
-                            $inverter = trim((string) $inverter, ' ');
-                            $commIssuArray[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
-                        }
+            // suche commIssu Tickets und schreibe diese in Array $commIssuArray[inverter][stamp] = true|false
+            $commIssus = $this->ticketDateRepo->findCommIssu($anlage, $from, $to, $department);
+            /** @var TicketDate $commIssu */
+            foreach ($commIssus as $commIssu) {
+                $c5From = $commIssu->getBegin()->getTimestamp();
+                $c5To = $commIssu->getEnd()->getTimestamp();
+                $inverters = $this->functions->readInverters($commIssu->getInverter(), $anlage);
+
+                for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
+                    foreach ($inverters as $inverter) {
+                        $inverter = trim((string) $inverter, ' ');
+                        $commIssuArray[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                     }
                 }
-                unset($commIssus);
             }
+            unset($commIssus);
+
 
             // suche Performance Tickets die die PA beeinflussen (alertType = 72)
             $perfTicketsSkips  = $this->ticketDateRepo->findPerformanceTicketWithPA($anlage, $from, $to, $department, 0); // behaviour = Skip for PA and Replace outage with TiFM for PA
@@ -305,6 +305,8 @@ class AvailabilityByTicketService
             unset($perfTicketsSkips);
 
             // suche Case 5 Fälle und schreibe diese in case5Array[inverter][stamp] = true|false
+            // sollte so bald wie möglich entfallen, da 'Case5' durch Ticketsystem ersetzt wird (gibt auch keine erfassung für 'Case5' mehr)
+            /*
             foreach ($this->case5Repository->findAllCase5($anlage, $from, $to) as $case) {
                 $c5From = strtotime((string) $case['stampFrom']);
                 $c5To = strtotime((string) $case['stampTo']);
@@ -316,6 +318,7 @@ class AvailabilityByTicketService
                     }
                 }
             }
+            */
 
 
             // Handele case5 by ticket
@@ -335,6 +338,8 @@ class AvailabilityByTicketService
             unset($perfTicketsCase5);
 
             // suche Case 6 Fälle und schreibe diese in case6Array[inverter][stamp] = true|false
+            // sollte so bald wie möglich entfallen, da 'Case6' durch Ticketsystem ersetzt wird ('Case6' war nur eine Hilfslösung)
+            /*
             foreach ($this->case6Repository->findAllCase6($anlage, $from, $to) as $case) {
                 $c6From = strtotime((string) $case['stampFrom']);
                 $c6To = strtotime((string) $case['stampTo']);
@@ -346,6 +351,7 @@ class AvailabilityByTicketService
                     }
                 }
             }
+            */
 
             // Handel case6 by ticket
             /** @var TicketDate $case6Ticket */
@@ -408,7 +414,7 @@ class AvailabilityByTicketService
                             // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);
-                            $commIssu       = isset($commIssuArray[$inverter][$stamp]);
+                            $commIssu       = isset($commIssuArray[$inverter][$stamp])          && !$case5; // ignoriere Communication eroros wenn case5 (tiFM) gesetzt ist
                             $skipTi         = isset($skipTiAndTitheoArray[$inverter][$stamp])   && $skipTiAndTitheoArray[$inverter][$stamp] === true;
                             $skipTiTheo     = isset($skipTiAndTitheoArray[$inverter][$stamp])   && $skipTiAndTitheoArray[$inverter][$stamp] === true;
                             $outageAsTiFm   = isset($skipTiOnlyArray[$inverter][$stamp])        && $skipTiOnlyArray[$inverter][$stamp]      === true; // Replace outage with TiFM for PA
@@ -609,7 +615,7 @@ class AvailabilityByTicketService
      * @param int $department
      * @return float
      */
-    private function calcInvAPart1(Anlage $anlage, array $row, int $department = 0): float
+    public function calcInvAPart1(Anlage $anlage, array $row, int $department = 0): float
     {
         $paInvPart1 = 0.0;
 
@@ -633,9 +639,8 @@ class AvailabilityByTicketService
                         $paInvPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
                     }
                 }
-
-
                 /*
+                 * NOCH nicht löschen, wird event noch benötigt (MR)
                  if ($row['case1'] + $row['case2'] + $row['case5'] != 0 && $row['control'] - $row['case5'] != 0) {
                     if ((int) $row['case1'] + (int) $row['case2'] === 0 && (int) $row['control'] - (int) $row['case5'] === 0) {
                         // Sonderfall wenn Dividend und Divisor = 0 => dann ist PA per definition 100%
@@ -649,7 +654,6 @@ class AvailabilityByTicketService
                  */
                 break;
 
-            ## Formulars from case 2 and 3 are not Testes yet
             case '2': // PA = ti / ti,theo
                 if ($row['case1'] + $row['case2'] != 0 && $row['control'] != 0) {
                     $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control']) * 100;

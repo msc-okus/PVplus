@@ -19,12 +19,15 @@
             data-ticket-list-target="ticketForm"
             class="ticket"
     >
-        <div data-ticket-list-target="searchBar" style="margin-top: 10px; margin-bottom: 10px; height: 140px">
-            <h3 style="margin-bottom: 10px">Filter / Search by:</h3>
+    <div {{ stimulus_controller('request') }}>
+         <div data-ticket-list-target="searchBar" class="ticketsearchbar" >
+            <div class="grid-x grid-margin-x align-top" >
             {% include 'ticket/_inc/_searchForm.html.twig' %}
+            </div>
         </div>
         <div data-ticket-list-target="list" >
             {% include 'ticket/_inc/_listTickets.html.twig' %}
         </div>
+    </div>
     </div>
 {% endblock %}

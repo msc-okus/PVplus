@@ -75,7 +75,7 @@
             {% for stati in availability %}
                 <tr>
                     <td>{{ stati.stamp|date("Y-m-d") }} </td>
-                    <td style="text-align: left;">{{ aktAnlage.inverterFromAnlage[stati.inverter] }} <br> ({{ stati.inverter }})</td>
+                    <td style="text-align: left;">{% if aktAnlage.inverterFromAnlage[stati.inverter] is defined() %}{{ aktAnlage.inverterFromAnlage[stati.inverter] }}{% endif %} <br> ({{ stati.inverter }})</td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">PA.0 (Open Book) </span>
                         {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">PA.1 ({{ aktAnlage.eigner.settings.nameDep1 }})</span>{% endif %}

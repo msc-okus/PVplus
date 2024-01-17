@@ -8,6 +8,7 @@ use App\Repository\TicketRepository;
 use App\Service\TicketsGeneration\AlertSystemService;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -66,7 +67,6 @@ class GenerateTicketsCommand extends Command
 
             foreach ($anlagen as $anlage) {
                 try {
-
                     $tickets = $this->ticketRepo->findForSafeDelete($anlage, $optionFrom, $optionTo);
                     foreach ($tickets as $ticket) {
                         $dates = $ticket->getDates();

@@ -7,6 +7,7 @@
         </div>
     </div>
     {{ form_start(downloadForm, {'attr': {'novalidate': 'no'}}) }}
+    <div class="defaultheatbar">
         <div class="grid-x grid-margin-x grid-padding-x">
             <div class="cell medium-2">
                 {{ form_row(downloadForm.anlage) }}
@@ -30,6 +31,7 @@
                 {{ form_widget(downloadForm.calc) }}
             </div>
         </div>
+    </div>
         <div class="grid-x">
             <div class="cell">
                 <div class="callout" style="min-height: 50vh;">
