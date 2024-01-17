@@ -337,9 +337,12 @@ class IrradiationChartService
      */
     public function getIrradiationPlantFromSensorsData(Anlage $anlage, $from, $to, bool $hour): array
     {
+
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
+        $dataArrayTemp = [];
         $dataArrayFinal = [];
+        $gmPyEast = [];
         $dataArray['maxSeries'] = 0;
         $isEastWest = $anlage->getIsOstWestAnlage();
         $anlageSensors = $anlage->getSensors()->toArray();
@@ -347,16 +350,14 @@ class IrradiationChartService
         $sensorsArray = self::getSensorsData($anlageSensors, $length);
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
 
-        // Strom für diesen Zeitraum und diesen Inverter
-
         if ($hour) {
             //zu from eine Stunde + da sonst Diagrammm nicht erscheint
             $fromPlusOneHour = strtotime($from) + 3600;
             $from = date('Y-m-d H:i', $fromPlusOneHour);
-            $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value, avg(gmo) as gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
+            $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
             $timeStepp = 3600;
         }else{
-            $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value, avg(gmo) as gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
+            $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
             $timeStepp = 900;
         }
 
@@ -364,129 +365,151 @@ class IrradiationChartService
 
         if ($result) {
             if ($result->rowCount() > 0) {
-                $counter = 0;
-                $irrCounter = 1;
+                $i = 0;
                 $gmO = null;
-                $gmPyHori = $gmPyEast = $gmPyWest = $irrValueArray = [];
-                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                    $dataArray['nameX'][1] = 'G_M0';
-                    //create the data for each timepoint
-                    if($stampTemp != $row['stamp']){
-                        $dataArray[$counter] = [
-                            'gmo'               =>  $gmO[0],
-                            'irrHorizontal'     =>  $this->mittelwert($gmPyHori),
-                            'irrLower'          =>  $this->mittelwert($gmPyWest),
-                            'irrUpper'          =>  $this->mittelwert($gmPyEast),
-                            'stamp'             =>  $stampTemp,
-                            'values'            =>  $irrValueArray,
-                            'sensorShortName'   =>  $shortNameTemp //this is for sensors they are activated by date-from in plant-sensors-table
+                while ($i = $result->fetch(PDO::FETCH_ASSOC)) {
+
+                    if($sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr-west' || $sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr-east' || $sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr' || $sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr-hori'){
+                        $dataArray[] = [
+                            #'gmo'               =>  $i['gmo'],
+                            'stamp'             =>  $i['stamp'],
+                            'sensorID'          =>  $i['id_sensor'],
+                            'value'             =>  $i['value'],
+                            'sensorType'        =>  $sensorsArray[$i['id_sensor']]['type_sensor'],
+                            'sensorShortName'   =>  $sensorsArray[$i['id_sensor']]['shortname_sensor'],
+                            'useToCalc'         =>  $sensorsArray[$i['id_sensor']]['usetocalc_sensor']
                         ];
-                        unset($gmPyHori);
-                        unset($gmPyWest);
-                        unset($gmPyEast);
-                        unset($irrValueArray);
-                        $gmPyHori = $gmPyEast = $gmPyWest = $irrValueArray = [];
-                        $irrCounter = 2;
-                        $counter++;
                     }
+                }
 
-                    //$sensorsArray[$row['id_sensor']['usetocalc_sensor']
-                    if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr-hori'){
-                        $gmPyHori[] = $row['value'];
+
+                $arrayTemp = [];
+                $counter = 0;
+                #$dataArrayTemp['nameX'][1] = 'G_M0';
+                for ($i = 0; $i < count($dataArray); $i++) {
+                    if ($i > 0 && $stampTemp != $dataArray[$i]['stamp']) {
+                        $dataArrayTemp['maxSeries'] = $i;
+                        $counter = $i - 1;
+                        break;
                     }
+                    $dataArrayTemp['nameX'][$i+1] = $dataArray[$i]['sensorShortName'];
+                    $stampTemp = $dataArray[$i]['stamp'];
+                }
 
+                $j = 0;
+                $valcounter = 0;
+                for ($i = 0; $i < count($dataArray); $i++) {
+                    if($dataArray[$i]['useToCalc'] && $dataArray[$i]['sensorType'] == 'irr-hori'){
+                        $gmPyHori[] = $dataArray[$i]['value'];
+                    }
                     if($isEastWest){
-                        if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr-west'){
-                            $gmPyWest[] = $row['value'];
+                        if($dataArray[$i]['useToCalc'] && $dataArray[$i]['sensorType'] == 'irr-west'){
+                            $gmPyWest[] = $dataArray[$i]['value'];
                         }
-                        if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr-east'){
-                            $gmPyEast[] = $row['value'];
+                        if($dataArray[$i]['useToCalc'] && $dataArray[$i]['sensorType'] == 'irr-east'){
+                            $gmPyEast[] = $dataArray[$i]['value'];
                         }
-
                     }else{
-                        if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr'){
-                            $gmPyEast[] = $row['value'];
+                        $gmPyEast[] = 0;
+                        if($dataArray[$i]['useToCalc'] && $dataArray[$i]['sensorType'] == 'irr'){
+                            $gmPyEast[] = $dataArray[$i]['value'];
                         }
                         $gmPyWest = [];
                     }
 
-                    if($sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr-hori' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr-east' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'irr-west'){
-
-                        if (!isset($dataArray['nameX'][$irrCounter])) {
-                            $dataArray['nameX'][$irrCounter] = $sensorsArray[$row['id_sensor']]['shortname_sensor'];
-                        }
-                        if (!in_array($sensorsArray[$row['id_sensor']]['shortname_sensor'], $dataArray['nameX'])) {
-                            $innArray = count( $dataArray['nameX']);
-
-                            $dataArray['nameX'][$innArray+1] = $sensorsArray[$row['id_sensor']]['shortname_sensor'];
-                            $dataArray['shortName'][] = $sensorsArray[$row['id_sensor']]['shortname_sensor'];
-                        }
-                        $irrValueArray["val".$irrCounter] = $row['value'];
-                        if ($irrCounter > $dataArray['maxSeries']) {
-                            if (!isset($dataArray['nameX'][$irrCounter])) {
-                                $dataArray['nameX'][$irrCounter] = $sensorsArray[$row['id_sensor']]['shortname_sensor'];
-                            }
-                            $dataArray['maxSeries'] = $irrCounter;
-                        }
-
-                        $irrCounter++;
-                        $gmO[0] = $row['gmo'];
-
-                        $shortNameTemp = $dataArray['shortName'];
-                        $stampTemp = $row['stamp'];
+                    if($dataArray[$i]['startDateSensor'] != 0){
+                        $start = strtotime($dataArray[$i]['startDateSensor']);
+                    }else{
+                        $start = $dataArray[$i]['startDateSensor'];
                     }
 
+                    if($dataArray[$i]['endDateSensor'] != 0){
+                        $end = strtotime($dataArray[$i]['endDateSensor']);
+                    }else{
+                        $end = $dataArray[$i]['endDateSensor'];
+                    }
+                    $nameXString= '';
+                    foreach($dataArrayTemp['nameX'] as $value)
+                    {
+                        $nameXString = $nameXString.$value;
+                    }
+
+                    $nameXString= '';
+                    foreach($dataArrayTemp['nameX'] as $value)
+                    {
+                        $nameXString = $nameXString.$value;
+                    }
+
+                    if (!str_contains($nameXString,$dataArray[$i]['sensorShortName'])) {
+                        #echo 'YES:'.$dataArray[$i]['sensorShortName'].' / '.$dataArray[$i]['stamp'] .' / '. $dataArray[$i]['value'].' <br>';
+                        $innArray = count($dataArrayTemp['nameX']);
+                        $dataArrayTemp['nameX'][$innArray+1] = $dataArray[$i]['sensorShortName'];
+                        $dataArrayTemp['maxSeries']++;
+                        $valcounter++;
+                    }
+
+                    $arrayTemp[$j+1+$valcounter] = $dataArray[$i]['value'];
+
+                    if ($j == $counter) {
+                        for ($k = 0; $k < $valcounter; $k++) {
+                            $x = $k+1;
+                            #echo 'YES:'.$x.' / '.$valcounter.'<br>';
+                            $arrayTemp[$x] = 0;
+                        }
+                        $dataArrayTemp[] = [
+                            'irrHoriz'          => $this->mittelwert($gmPyHori),
+                            'irrLower'          => $this->mittelwert($gmPyWest),
+                            'irrUpper'          => $this->mittelwert($gmPyEast),
+                            'stamp'             => $dataArray[$i]['stamp'],
+                            #'gmo'               => $dataArray[$i]['gmo'],
+                            'values'            => $arrayTemp
+                        ];
+                        unset($gmPyHori);
+                        unset($gmPyEast);
+                        unset($gmPyWest);
+                        unset($arrayTemp);
+                        $j = 0;
+                    }else{
+                        $j++;
+                    }
                 }
 
-                unset($dataArray['shortName']);
+
 
                 //create the output Array
-                $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'];
+                $dataArrayFinal['maxSeries'] = $dataArrayTemp['maxSeries'];
                 $updateMaxSeries = 0;
-                $inDataArray = count($dataArray)-3;
+                $inDataArray = count($dataArrayTemp);
 
-                if(is_array($dataArray[$inDataArray]['sensorShortName'])){
-                    $updateMaxSeriesReal = count($dataArray[$inDataArray]['sensorShortName']);
-                }else{
-                    $updateMaxSeriesReal = 0;
-                }
-                $dateLastEntry = $dataArray[$inDataArray]['stamp'];
+                $dateLastEntry = $dataArrayTemp[$inDataArray-3]['stamp'];
 
                 for ($i = 0; $i < $inDataArray; $i++) {
-                    if(is_array($dataArray[$i]['sensorShortName']) && count($dataArray[$i]['sensorShortName']) > 0 && $updateMaxSeries == 0){
-                        $updateMaxSeries = $updateMaxSeriesReal;
 
-                    }
-                    $dataArrayFinal['chart'][$i]['date'] = $dataArray[$i]['stamp'];
+                    $dataArrayFinal['chart'][$i]['date'] = $dataArrayTemp[$i]['stamp'];
                     if ($anlage->getIsOstWestAnlage()) {
-                        $dataArrayFinal['chart'][$i]['g4n'] = round(((float) $dataArray[$i]['irrUpper'] * $anlage->getPowerEast() + (float) $dataArray[$i]['irrLower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()), 3);
+                        $dataArrayFinal['chart'][$i]['g4n'] = round(((float) $dataArrayTemp[$i]['irrUpper'] * $anlage->getPowerEast() + (float) $dataArrayTemp[$i]['irrLower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()), 3);
                         if ($dataArrayFinal['chart'][$i]['g4n'] < 0) {
                             $dataArrayFinal['chart'][$i]['g4n'] = 0;
                         }
                     } else {
                         if ($anlage->getWeatherStation()->getChangeSensor() == 'Yes') {
-                            $dataArrayFinal['chart'][$i]['g4n'] = round((float) $dataArray[$i]['irrLower'],3); // getauscht, nutze unterene Sensor
+                            $dataArrayFinal['chart'][$i]['g4n'] = round((float) $dataArrayTemp[$i]['irrLower'],3); // getauscht, nutze unterene Sensor
                         } else {
-                            $dataArrayFinal['chart'][$i]['g4n'] = round((float) $dataArray[$i]['irrUpper'],3); // nicht getauscht, nutze oberen Sensor
+                            $dataArrayFinal['chart'][$i]['g4n'] = round((float) $dataArrayTemp[$i]['irrUpper'],3); // nicht getauscht, nutze oberen Sensor
                         }
                     }
 
-                    $dataArrayFinal['chart'][$i]["val1"] = round($dataArray[$i]['gmo'], 3);
-                    if(is_array($dataArray[$i]['values']) && count($dataArray[$i]['values']) > 0){
-                        $k = 2;
-                        $valueSumm = 0;
-                        //adding the single values frpm an row to an array
-                        for ($j = 0; $j < count($dataArray[$i]['values']); $j++) {
-                            $l = $updateMaxSeries + $k;
-                            $dataArrayValues['val'.$l] =  round($dataArray[$i]['values']['val'.$k], 3);
-                            $valueSumm = $valueSumm+$dataArray[$i]['values']['val'.$k];
+                    #$dataArrayFinal['chart'][$i]["val1"] = round($dataArrayTemp[$i]['gmo'], 3);
+                    if(is_array($dataArrayTemp[$i]['values']) && count($dataArrayTemp[$i]['values']) > 0){
+                        $k = 1;
 
-                            $k++;
+                        //adding the single values frpm an row to an array
+                        for ($j = 0; $j < count($dataArrayTemp[$i]['values']); $j++) {
+                            $dataArrayValues['val'.$j + $k] =  round($dataArrayTemp[$i]['values'][$j+$k], 3);
                         }
                         if ($anlage->getIsOstWestAnlage()) {
-                            #echo "$l <br>";
-                            $dataArrayValues['val' . $dataArray['maxSeries'] + $updateMaxSeriesReal + 1] = $dataArray[$i]['irrUpper'];
-                            $dataArrayValues['val' . $dataArray['maxSeries'] + $updateMaxSeriesReal + 2] = $dataArray[$i]['irrLower'];
+                            $dataArrayValues['val' . $dataArrayTemp['maxSeries'] + 1] = $dataArrayTemp[$i]['irrUpper'];
+                            $dataArrayValues['val' . $dataArrayTemp['maxSeries'] + 2] = $dataArrayTemp[$i]['irrLower'];
 
                         }
                         $dataArrayFinal['chart'][$i] = $dataArrayFinal['chart'][$i] + $dataArrayValues;
@@ -494,18 +517,14 @@ class IrradiationChartService
                     }
                 }
 
-                $dataArrayFinal['nameX'] = $dataArray['nameX'];
+                $dataArrayFinal['nameX'] = $dataArrayTemp['nameX'];
 
-                if($updateMaxSeries > 0){
-                    $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'] + $updateMaxSeries;
-                }
                 if ($anlage->getIsOstWestAnlage()) {
-                    $dataArrayFinal['maxSeries'] = $dataArray['maxSeries'] + 2 + $updateMaxSeries;
+                    $dataArrayFinal['maxSeries'] = $dataArrayTemp['maxSeries'] + 2;
                     array_push($dataArrayFinal['nameX'], 'GM_Py_East');
                     array_push($dataArrayFinal['nameX'], 'GM_Py_West');
                 }
 
-                $dataArrayValues['val'] = [];
                 $from = substr($dateLastEntry, 0, -3);
 
                 $fromObj = date_create($from);
@@ -523,8 +542,6 @@ class IrradiationChartService
         $conn = null;
 
         if(is_array($dataArrayFinal) && count($dataArrayFinal) == 0){
-
-            $x = [];
             $from = $date = date('Y-m-d 00:00', time());;
 
             $fromObj = date_create($from);
@@ -546,4 +563,3 @@ class IrradiationChartService
         return $dataArrayFinal;
     }
 }
-
