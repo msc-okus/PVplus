@@ -95,11 +95,15 @@ class Eigner
     #[ORM\OneToOne(mappedBy: 'owner', cascade: ['persist', 'remove'])]
     private ?OwnerSettings $settings = null;
 
+    #[ORM\OneToMany(mappedBy: 'Owner', targetEntity: ContactInfo::class, cascade: ['persist', 'remove'])]
+    private Collection $ContactInfos;
+
     public function __construct()
     {
         $this->user = new ArrayCollection();
         $this->anlage = new ArrayCollection();
         $this->anlagenReports = new ArrayCollection();
+        $this->ContactInfos = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -478,6 +482,36 @@ class Eigner
         }
 
         $this->settings = $settings;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ContactInfo>
+     */
+    public function getContactInfos(): Collection
+    {
+        return $this->ContactInfos;
+    }
+
+    public function addContactInfo(ContactInfo $contactInfo): static
+    {
+        if (!$this->ContactInfos->contains($contactInfo)) {
+            $this->ContactInfos->add($contactInfo);
+            $contactInfo->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContactInfo(ContactInfo $contactInfo): static
+    {
+        if ($this->ContactInfos->removeElement($contactInfo)) {
+            // set the owning side to null (unless already changed)
+            if ($contactInfo->getOwner() === $this) {
+                $contactInfo->setOwner(null);
+            }
+        }
 
         return $this;
     }

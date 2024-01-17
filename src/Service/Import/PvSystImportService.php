@@ -2,6 +2,7 @@
 
 namespace App\Service\Import;
 
+use App\Entity\Anlage;
 use App\Entity\AnlagePVSystDaten;
 use App\Repository\PVSystDatenRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,20 +18,21 @@ class PvSystImportService
 
     /**
      * Importiere PV Syst Stunden Daten
-     * @param $anlage
-     * @param $file
-     * @return void
+     * @param Anlage $anlage
+     * @param $fileStream
+     * @param string $separator
+     * @param string $dateFormat
+     * @return string
      */
-    public function import($anlage, $file): string
+    public function import(Anlage $anlage, $fileStream, string $separator = ';', string $dateFormat = "d/m/y h:i"): string
     {
         $output = "";
-        if ($file && $file->getMimeType() === 'text/plain') {
-            $fileStream = fopen($file->getPathname(), 'r');
+        if ($fileStream ) { // && $file->getMimeType() === 'text/plain'
             for ($n = 1; $n <= 10; $n++) {
-                fgetcsv($fileStream, null, ';');
+                fgetcsv($fileStream, null, $separator);
             }
-            $headline = fgetcsv($fileStream, null, ';');
-            $units = fgetcsv($fileStream, null, ';');
+            $headline = fgetcsv($fileStream, null, $separator);
+            $units = fgetcsv($fileStream, null, $separator);
             $keyStamp       = array_search('date', $headline);
             $keyEGrid       = array_search('E_Grid', $headline);
             $keyGlobHor     = array_search('GlobHor', $headline);
@@ -39,12 +41,12 @@ class PvSystImportService
             $keyEGrid       = array_search('E_Grid', $headline);
 
             // leerzeile überspringen
-            $row = fgetcsv($fileStream, null, ';');
+            $row = fgetcsv($fileStream, null, $separator);
             $oldStamp = null;
 
-            while ($row = fgetcsv($fileStream, null, ';')){
+            while ($row = fgetcsv($fileStream, null, $separator)){
                 $timeZone = null; //new \DateTimeZone('UTC');
-                $stamp = date_create_from_format('d/m/y H:i', $row[$keyStamp], $timeZone);
+                $stamp = date_create_from_format($dateFormat, $row[$keyStamp], $timeZone);
                 if ($stamp->format('I') == '1') {
                     $stamp->add(new \DateInterval('PT3600S'));
                 }

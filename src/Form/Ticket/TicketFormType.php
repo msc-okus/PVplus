@@ -43,20 +43,12 @@ class TicketFormType extends AbstractType
         $isG4N = $this->security->isGranted('ROLE_G4N');
 
         /** @var Ticket $ticket */
-
         $ticket = $options['data'] ?? null;
 
-        if ($ticket != null && $ticket->getCreatedAt() != null) $isNewTicket = false;
-        else $isNewTicket = true;
-
-        if ($ticket != null) $anlage = $ticket->getAnlage();
-        else $anlage = null;
-
-        if ($anlage) $full = $anlage->getKpiTicket();
-        else $full = true;
-
-        $errorCategorie = self::listAllErrorCategorie($isG4N);
-
+        $isNewTicket = ($ticket !== null && $ticket->getCreatedAt() !== null) ? false : true;
+        $anlage = ($ticket != null) ? $ticket->getAnlage() : null;
+        $full = ($anlage) ?  $anlage->getKpiTicket() : true;
+        $errorCategorie = self::errorCategorie();
 
         $builder
             ->add('TicketName', TextType::class, [
@@ -70,7 +62,16 @@ class TicketFormType extends AbstractType
                 ],
             ]);
         if ($isNewTicket) {
-            $builder->add('alertType', ChoiceType::class, [
+            $builder       ->add('inverterName', TextType::class,[
+                'label' => 'Inverter Names',
+                'required' => true,
+                'help' => '* = all Inverters',
+                'attr' => [
+                    'readonly' => true,
+                ],
+            ])
+
+                ->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
                 'choices' => $errorCategorie,
@@ -85,7 +86,17 @@ class TicketFormType extends AbstractType
             ])
             ;
         } else {
-            $builder->add('alertType', ChoiceType::class, [
+            $builder       ->add('inverterName', TextType::class,[
+                'label' => 'Inverter Names',
+                'required' => true,
+                'help' => '* = all Inverters',
+                'data' => $ticket->getInverterName(),
+                'attr' => [
+                    'readonly' => true,
+                ],
+            ])
+
+                ->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
                 'choices' => $errorCategorie,
@@ -97,7 +108,6 @@ class TicketFormType extends AbstractType
                     'data-action' => 'change->ticket-edit#saveCheck',
                     'data-ticket-edit-target' => 'formCategory',
                 ],
-
             ]);
         }
 
@@ -105,11 +115,12 @@ class TicketFormType extends AbstractType
             ->add('inverter', TextType::class, [
                 'label' => 'Inverter',
                 'required' => true,
-                'help' => '* = all Invertres',
+                'help' => '* = all Inverters',
                 'attr' => [
                     'readonly' => true,
                 ],
             ])
+
             ->add('begin', DateTimeType::class, [
                 'label' => 'Begin',
                 'label_html' => true,

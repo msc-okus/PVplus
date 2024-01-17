@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Anlage;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityByTicketService;
+use App\Service\Reports\ReportEpcService;
+use App\Service\Reports\ReportsEpcYieldV2;
 use App\Service\Reports\ReportsMonthlyV2Service;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Cache\InvalidArgumentException;
@@ -108,5 +110,55 @@ class LiveReportingController extends AbstractController
             'status' => $anlageId,
         ]);
 
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
+     */
+    #[Route(path: '/livereport/epc', name: 'epc_live_report')]
+    public function epcLiveReport(Request $request, AnlagenRepository $anlagenRepository, ReportEpcService $reportEpc, ReportsEpcYieldV2 $epcYieldV2, AvailabilityByTicketService $availabilityByTicket)
+    {
+        $output = $table = null;
+
+        $anlageId = $request->request->get('anlage-id');
+        $date = new \DateTime("now");
+
+        /** @var Anlage $anlage */
+        $headline = 'Report – individual date, but only monthly values.';
+        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+
+        if ($request->request->get('new-report') == 'yes' && $anlageId !== "") {
+            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+            // recalculate Availability
+            for ($stamp = $anlage->getEpcReportStart()->getTimestamp(); $stamp <= $anlage->getEpcReportEnd()->getTimestamp(); $stamp += (24 * 3600)) {
+                $day = date_create(date("Y-m-d 12:00", $stamp));
+                $availabilityByTicket->checkAvailability($anlage, $day, 2);
+            }
+
+            switch ($anlage->getEpcReportType()) {
+                case 'prGuarantee' :
+                    $reportArray = $reportEpc->reportPRGuarantee($anlage, $date);
+                    break;
+                case 'yieldGuarantee':
+                    $monthTable = $epcYieldV2->monthTable($anlage, $date);
+                    $reportArray['monthTable'] = $monthTable;
+                    #$reportArray['forcastTable'] = $epcYieldV2->forcastTable($anlage, $monthTable, $date);
+                    break;
+                default:
+                    $error = true;
+                    $reportArray = [];
+                    $report = null;
+            }
+        }
+
+        return $this->render('live_reporting/reportEpc.html.twig', [
+            'headline' => $headline,
+            'message'  => '',
+            'anlagen' => $anlagen,
+            'anlage' => $anlage,
+            'report' => $output,
+            'status' => $anlageId,
+        ]);
     }
 }

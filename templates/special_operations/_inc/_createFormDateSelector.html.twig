@@ -12,12 +12,16 @@
         </div>
 
         <div class="cell medium-2">
-            <label for="start-day">Start Day</label>
-            <input type="date" id="start-day" name="start-day" value="{{ startday }}" />
+            {% if startday is defined %}
+                <label for="start-day">Start Day</label>
+                <input type="date" id="start-day" name="start-day" value="{{ startday }}" />
+            {% endif %}
         </div>
         <div class="cell medium-2">
-            <label for="end-day">End Day</label>
-            <input type="date" id="end-day" name="end-day" value="{{ endday }}" />
+            {% if endday is defined %}
+                <label for="end-day">End Day</label>
+                <input type="date" id="end-day" name="end-day" value="{{ endday }}" />
+            {% endif %}
         </div>
         <div class="cell medium-2" style="margin-top: 22px;">
             <button name="recalc-PA" class="button" value="yes"

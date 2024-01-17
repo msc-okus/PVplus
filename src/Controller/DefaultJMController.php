@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\ContactInfo;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use App\Repository\EignerRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketRepository;
 use App\Service\TicketsGeneration\InternalAlertSystemService;
@@ -18,7 +20,7 @@ use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use PDO;
 use Hisune\EchartsPHP\ECharts;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -43,19 +45,31 @@ class DefaultJMController extends AbstractController
 
     }
 
+    #[Route(path: '/test/ticketsName', name: 'test_tickets')]
+    public function teastTicketName(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
+    {
+        $ticket = $ticketRepo->findOneById("399529 ");
+        dd($ticket->getInverterName());
+    }
+    #[Route(path: '/generate/newInverter', name: 'generate_tickets_temp')]
+    public function updateTicketsTemp(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
+    {
+        $tickets = $ticketRepo->findAll();
+        foreach ($tickets as $ticket){
+            $ticket->setInverter($ticket->getInverter());
+            $em->persist($ticket);
+        }
+        $em->flush();
+        dd("done");
+    }
 
 
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
     {
-        $fromDate = "2023-11-01 00:00";
-        $toDate = "2023-11-16 00:00";
-        $anlagen[] = $anlagenRepository->findIdLike("56")[0];
-        $anlagen[] = $anlagenRepository->findIdLike("233")[0];//faulty included in purpose
-        $anlagen[] = $anlagenRepository->findIdLike("219")[0];
-        $anlagen[] = $anlagenRepository->findIdLike("231")[0];
-        $anlagen[] = $anlagenRepository->findIdLike("182")[0];
-
+        $fromDate = "2024-01-13 00:00";
+        $toDate = "2024-01-15 00:00";
+        $anlagen[] = $anlagenRepository->findIdLike("218")[0];
 
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
@@ -82,15 +96,25 @@ class DefaultJMController extends AbstractController
     }
 
     #[Route(path: '/test/time', name: 'default_time')]
-    public function testTime(AnlagenRepository $anlagenRepository)
+    public function testTime(AnlagenRepository $anlagenRepository, EignerRepository $er,  EntityManagerInterface $em)
     {
-        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
-
-        foreach ($anlagen as $anlage){
-            $timeZone = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
-            date_default_timezone_set($timeZone->getName());
-        }
-
+        $test1 = new ContactInfo();
+        $test1->setName("Mr Test");
+        $test1->setCompanyName("G4N");
+        $test1->setEmail("test@g4n.de");
+        $test1->setService("It Man");
+        $test1->setPhone("123456789");
+        $test1->setOwner($er->find("1"));
+        $test2 = new ContactInfo();
+        $test2->setName("Mr X");
+        $test2->setCompanyName("G4N");
+        $test2->setEmail("test2@g4n.de");
+        $test2->setService("It Man");
+        $test2->setPhone("987654321");
+        $test2->setOwner($er->find("1"));
+        $em->persist($test1);
+        $em->persist($test2);
+        $em->flush();
         dd("hello World");
     }
 

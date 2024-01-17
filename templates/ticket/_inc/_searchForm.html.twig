@@ -1,108 +1,201 @@
-
-<form method="get">
-    <div class="grid-x grid-margin-x align-middle" style="margin-top: 20px; margin-bottom: 20px">
-        <div class="cell medium-2"  style="margin-top:-17px!important;">
-            <input type="text" name="id" class="input-group-field" value="{{ id }}" placeholder="Ticket Id">
-        </div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <input type="date" name="begin" class="input-group-field" value="{{ begin }}" title="Interval Begin" >
-        </div>
-
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <input type="date" name="end" class="input-group-field" value="{{ end }}" title="Interval End">
-        </div>
-        <div class="cell medium-2" style="margin-top:-17px!important;">
-
-            <select name="anlage" class="no-margin">
-                <option value="" disabled selected hidden>Please choose a Plant</option>
-                <option value="" {% if filter.anlagen.value == '' %} selected {% endif %} >Select a Plant</option>
-                {% for anlage in filter.anlagen.array %}
-                    <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="cell medium-2" style="margin-top:-17px!important;">
-            <select name="status" class="no-margin">
-                <option value="00"> {% trans %}ticket.status.name{% endtrans %} </option>
-                {% for key, value in filter.status.array %}
-                    <option value="{{ value }}" {% if filter.status.value == value %} selected {% endif %}>{{ key }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="cell medium-2"  style="margin-top:-17px!important;">
-            <input type="text" name="TicketName" class="input-group-field" value="{{ TicketName }}" placeholder="Identifier">
-        </div>
-
-    </div>
-    <div class="grid-x grid-margin-x align-middle" style="margin-top: 30px">
-        <div class="cell medium-1" style="margin-top:-17px!important;">
-            <select name="prio" class="no-margin">
-                <option value="00"> {% trans %}ticket.priority.name{% endtrans %} </option>
-                {% for key, value in filter.priority.array %}
-                    <option value="{{ value }}" {% if filter.priority.value == value %} selected {% endif %}>{{ key }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div  class="cell medium-1" style="margin-top:-17px!important;">
-            <input type="text" name="editor" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Editor">
-        </div>
-        {# we will use this field to recogniye when we are explicitely clicking the search button over jscript #}
-        <div class="cell medium-1" style="margin-top:-17px!important;">
-            <select name="category" class="no-margin">{# category = alertType (bsp: datagap, inverter power, etc.) #}
-                {{ filter.category.value }}
-                <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
-                {% for key, value in filter.category.array %}
-                    <option value="{{ value }}"{% if filter.category.value == value %} selected {% endif %}>{% if ((value >= 70 and value < 80) or (value >= 90 and value < 100)) %}&nbsp;&nbsp;&nbsp;&nbsp;{% endif %} {{ key }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="cell medium-1" style="margin-top:-17px!important;">
-            <select name="kpistatus" class="no-margin">
-                {{ filter.kpistatus.value }}
-                <option value="00">{% trans %}ticket.kpistatus.name{% endtrans %}</option>
-                {% for key, value in filter.kpistatus.array %}
-                    <option value="{{ value }}" {% if filter.kpistatus.value == value %} selected {% endif %}>{{ key }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="cell medium-1" style="margin-top:-17px!important;">
-            <input type="text" name="inverter" class="input-group-field" value="{{ inverter }}" placeholder="Inverter">
-        </div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <label> Proof by TAM
-                <input type="checkbox" name="prooftam" class="input-group-field" value="1">
-            </label></div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <label> Proof by EPC
-                <input type="checkbox" name="proofepc" class="input-group-field" value="1">
-            </label></div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <label> Proof by AM
-                <input type="checkbox" name="proofam" class="input-group-field" value="1">
-            </label>
-        </div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <label> Proof by G4N
-                <input type="checkbox" name="proofg4n" class="input-group-field" value="1">
-            </label>
-        </div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
-
-            {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
-                <label> Ignored Tickets
-                    <input type="checkbox" name="ignored" class="input-group-field" value="1">
-                </label>
-            {% endif %}
-        </div>
-        <div class="cell medium-2 text-right" style="margin-top:-17px!important;">
-            <div class="input-group-button" style="height:35px !important; display: inline-flex;">
-                <button type="submit" name="search" class="button" value="yes"
-                        data-action="ticket-list#search"
-                ><span class="fa fa-search"></span></button>
+<div class="cell medium-9">
+    <form method="get">
+        <label><b>Filter / Search by:</b></label>
+        <div class="grid-x grid-margin-x align-top" style="margin-top: 20px; margin-bottom: 20px">
+            <div class="cell medium-2"  style="margin-top:-17px!important;">
+                <input type="text" name="id" class="input-group-field" value="{{ id }}" placeholder="Ticket Id">
             </div>
+            <div class="cell medium-2"  style="margin-top:-17px!important;">
+                <input type="date" name="begin" class="input-group-field" value="{{ begin }}" title="Interval Begin" >
+            </div>
+
+            <div class="cell medium-2"  style="margin-top:-17px!important;">
+                <input type="date" name="end" class="input-group-field" value="{{ end }}" title="Interval End">
+            </div>
+            <div class="cell medium-2" style="margin-top:-17px!important;">
+
+                <select name="anlage" class="no-margin">
+                    <option value="" disabled selected hidden>Please choose a Plant</option>
+                    <option value="" {% if filter.anlagen.value == '' %} selected {% endif %} >Select a Plant</option>
+                    {% for anlage in filter.anlagen.array %}
+                        <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="cell medium-2" style="margin-top:-17px!important;">
+                <select name="status" class="no-margin">
+                    <option value="00"> {% trans %}ticket.status.name{% endtrans %} </option>
+                    {% for key, value in filter.status.array %}
+                        <option value="{{ value }}" {% if filter.status.value == value %} selected {% endif %}>{{ key }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="cell medium-1"  style="margin-top:-17px!important;">
+                <input type="text" name="TicketName" class="input-group-field" value="{{ TicketName }}" placeholder="Identifier">
+            </div>
+
         </div>
-        <input type="hidden" name="sort" class="input-group-field" value="" data-ticket-list-target="sort">
-        <input type="hidden" name="direction" class="input-group-field" value="" data-ticket-list-target="direction">
+        <div class="grid-x grid-margin-x align-top" style="margin-top: 30px">
+            <div class="cell medium-1" style="margin-top:-17px!important;">
+                <select name="prio" class="no-margin">
+                    <option value="00"> {% trans %}ticket.priority.name{% endtrans %} </option>
+                    {% for key, value in filter.priority.array %}
+                        <option value="{{ value }}" {% if filter.priority.value == value %} selected {% endif %}>{{ key }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div  class="cell medium-1" style="margin-top:-17px!important;">
+                <input type="text" name="editor" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Editor">
+            </div>
+            {# we will use this field to recogniye when we are explicitely clicking the search button over jscript #}
+            <div class="cell medium-2" style="margin-top:-17px!important;">
+                <select name="category" class="no-margin">{# category = alertType (bsp: datagap, inverter power, etc.) #}
+                    {{ filter.category.value }}
+                    <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
+                    {% for key, value in filter.category.array %}
+                        <option value="{{ value }}"{% if filter.category.value == value %} selected {% endif %}>{% if ((value >= 70 and value < 80) or (value >= 90 and value < 100)) %}&nbsp;&nbsp;&nbsp;&nbsp;{% endif %} {{ key }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="cell medium-1" style="margin-top:-17px!important;">
+                <select name="kpistatus" class="no-margin">
+                    {{ filter.kpistatus.value }}
+                    <option value="00">{% trans %}ticket.kpistatus.name{% endtrans %}</option>
+                    {% for key, value in filter.kpistatus.array %}
+                        <option value="{{ value }}" {% if filter.kpistatus.value == value %} selected {% endif %}>{{ key }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="cell medium-1" style="margin-top:-17px!important;">
+                <input type="text" name="inverter" class="input-group-field" value="{{ inverter }}" placeholder="Inverter">
+            </div>
+
+            <div class="cell medium-1 notifyclass">
+                <div class="notifyheader">
+                    <div class="notifyheader-label">Proof by TAM
+                        <input type="checkbox" name="prooftam" class="input-group-field" value="1">
+                    </div>
+                    <div class="notifyheaderbadge">
+                        <div class="notifyheaderbadge-number">{{ countProofByTAM }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="cell medium-1 notifyclass">
+                <div class="notifyheader">
+                    <div class="notifyheader-label">Proof by EPC
+                        <input type="checkbox" name="proofepc" class="input-group-field" value="1">
+                    </div>
+                    <div class="notifyheaderbadge">
+                        <div class="notifyheaderbadge-number">{{ countProofByEPC }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="cell medium-1 notifyclass">
+                <div class="notifyheader">
+                    <div class="notifyheader-label">Proof by AM
+                        <input type="checkbox" name="proofam" class="input-group-field" value="1">
+                    </div>
+                    <div class="notifyheaderbadge">
+                        <div class="notifyheaderbadge-number">{{ countProofByAM }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="cell medium-1 notifyclass" >
+                <div class="notifyheader">
+                    <div class="notifyheader-label">Proof by G4N
+                        <input type="checkbox" name="proofg4n" class="input-group-field" value="1">
+                    </div>
+                    <div class="notifyheaderbadge">
+                        <div class="notifyheaderbadge-number">{{ countProofByG4N }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cell medium-1 notifyclass" >
+                {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
+                    <div class="notifyheader">
+                        <div class="notifyheader-label">Ignored Tickets
+                            <input type="checkbox" name="ignored" class="input-group-field" value="1">
+                        </div>
+                        <div class="notifyheaderbadge">
+                            <div class="notifyheaderbadge-number">0</div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="cell medium-1 text-left" style="margin-top:-17px!important;">
+                <div class="input-group-button" style="display: inline-flex;">
+                <span data-tooltip tabindex="1" title="Search Ticket">
+                <button title="Search Ticket" type="submit" name="search" class="button action-icon tiny hollow shadow" value="yes" data-action="ticket-list#search"
+                ><span class="fa fa-search"></span></button>
+                    </span>
+
+                </div>
+            </div>
+            <input type="hidden" name="sort" class="input-group-field" value="" data-ticket-list-target="sort">
+            <input type="hidden" name="direction" class="input-group-field" value="" data-ticket-list-target="direction">
+        </div>
+    </form>
+</div>
+
+<div class="cell medium-3 text-left" >
+    <div id="modal-form0" {{ stimulus_controller('ticket-edit', {formUrl: path('app_ticket_create'),}) }}>
+        <label><b>Create New Ticket:</b></label>
+        {# create New Ticket – Begin #}
+        <div class="grid-x grid-margin-x align-top align-center">
+
+            <div class="cell small-8 medium-8 ">
+                <select name="anlage-id"
+                        data-ticket-edit-target="anlage"
+                        data-action="ticket-edit#toggle">
+                    <option value="" disabled selected hidden>Please choose a Plant</option>
+                    {% for anlage in anlagen %}
+                        <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="cell small-3 medium-3">
+                <div class="input-group-button" style="display: inline-flex;">
+                    <span data-tooltip tabindex="1" title="Create New Ticket">
+                        <button title="New Ticket" name="new-ticket" class="button action-icon tiny hollow shadow expanded no-margins"
+                                disabled
+                                data-ticket-edit-target="deactivable"
+                                data-action="ticket-edit#openModal">
+                            <span class="fa fa-plus"></span>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="cell small-1 medium-1 "> &nbsp; </div>
+        </div>
+
+        {{ include('ticket/_inc/_modalTicket.html.twig', {
+            modalId: 0,
+            modalTitel: 'New Ticket',
+            class: 'large',
+            dataVOffset: '10',
+        }) }}
+
     </div>
-</form>
+</div>
+
+{# Ein Snippet für ein Kebab Menue --- MS 01/24 getestet
+<div class="cell medium-1 text-right">
+    <ul class="nav-kebab">
+        <div class="kebab">
+            <figure></figure>
+            <figure class="middle"></figure>
+            <p class="cross">x</p>
+            <figure></figure>
+            <ul class="dropdown">
+                <li><a href="#">Link 1</a></li>
+                <li><a href="#">Link 2</a></li>
+                <li><a href="#">Link 3</a></li>
+                <li><a href="#">Link 4</a></li>
+            </ul>
+        </div>
+    </ul>
+</div>
+#}
