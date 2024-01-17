@@ -38,28 +38,20 @@
             {% if is_granted('ROLE_USER') %}
                 <div class="grid-x align-right">
                     <div class="cell medium-5 show-for-medium">
-                        <i class="far fa-bell"
-                                {{ stimulus_controller('mouse') }}
-                           data-action="mouseenter->mouse#here mouseleave->mouse#gone"
-                        ></i>
-                        <div id="x" style="display: none">
-                            Test
-                        </div>
-                        <div class="hamburger-menu">
-                            <input id="menu__toggle" type="checkbox" />
-                            <label class="menu__btn" for="menu__toggle">
-                                <span></span>
-                            </label>
+
                             {% if is_granted('ROLE_G4N') %}
-                                <div class="menu__box"
-                                        {{ stimulus_controller('background-processes', {
-                                            url: path('app_log_background_messages'),
-                                            refreshIntervale: 15000,
-                                        }) }}
-                                >
+
+                                <div class="dropdown">
+                                    <div class="dropbtn"><i class="far fa-bell"></i></div>
+                                    <div class="dropdown-content"
+                                            {{ stimulus_controller('background-processes', {
+                                                url: path('app_log_background_messages'),
+                                                refreshIntervale: 15000,
+                                            }) }}
+                                    </div>
                                 </div>
                             {% endif %}
-                        </div>
+
 
                     </div>
                     <div class="cell small-1 show-for-medium">&nbsp;</div>

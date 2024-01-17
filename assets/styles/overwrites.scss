@@ -183,7 +183,7 @@
         left: 0;
         right: 0;
         height: $navHeight;
-        overflow: hidden;
+        overflow: visible;
         background-color: $g4n-white;
         box-shadow: 0 0 10px 0 rgba(100,100,100,0.75);
 
@@ -195,6 +195,7 @@
             .header-menu {
                 min-width: 150px;
                 a {padding: 0.3rem;}
+                float:right;
             }
             .button-hamburger {
                 font-size: 1.1em;
@@ -214,66 +215,33 @@
                 i {color: $g4n-white; background-color: transparent;}
             }
 
-            #menu__toggle {
-                opacity: 0;
+            .dropbtn {
+                margin-left: 5px;
             }
-            #menu__toggle:checked + .menu__btn > span {
-                transform: rotate(45deg);
-            }
-            #menu__toggle:checked + .menu__btn > span::before {
-                top: 0;
-                transform: rotate(0deg);
-            }
-            #menu__toggle:checked + .menu__btn > span::after {
-                top: 0;
-                transform: rotate(90deg);
-            }
-            #menu__toggle:checked ~ .menu__box {
-                top: 0 !important;
-            }
-            .hamburger-menu, .menu__btn {
-                position: fixed;
-                top: 20px;
-                right: 300px;
-                z-index: 1;
-            }
-            .menu__btn {
-                cursor: pointer;
-                width: 26px;
-                height: 26px;
-                right: 150px;
-            }
-            .menu__btn > span,
-            .menu__btn > span::before,
-            .menu__btn > span::after {
-                display: block;
+
+            .dropdown {
                 position: absolute;
-                width: 100%;
-                height: 2px;
-                background-color: #616161;
-                transition-duration: .25s;
-            }
-            .menu__btn > span::before {
-                content: '';
-                top: -8px;
-            }
-            .menu__btn > span::after {
-                content: '';
-                top: 8px;
-            }
-            .menu__box {
                 display: block;
-                position: fixed;
-                top: -150%;
-                right: 200px;
-                width: 300px;
-                margin: 0;
-                padding: 10px;
-                background-color: #0c82ce;
-                color: #ffffff;
-                box-shadow: 2px 2px 6px rgba(0, 0, 0, .4);
-                transition-duration: .25s;
+                right: 170px;
+                top: 27px;
+                z-index: 2000;
             }
+
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                background-color: #22538c;
+                padding: 10px 10px 5px 10px;
+                min-width: 400px;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                z-index: 2000;
+                right: 15px;
+                top: -5px;
+            }
+
+            .dropdown-content a:hover {background-color: #ddd;}
+
+            .dropdown:hover .dropdown-content {display: inline-block; z-index: 9999 !important;}
 
             .background-processes {
                 max-height: $navHeight;
@@ -767,7 +735,7 @@
     .message-log{
         font-size: 80%;
         .done td{ color: #157539;}
-        .working td{ color: #fdb500;}
+        .working td{ color: #22538c;}
         .waiting td {color: #be0000;}
     }
     footer {
