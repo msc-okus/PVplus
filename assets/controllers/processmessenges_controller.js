@@ -1,6 +1,7 @@
 import { Controller } from 'stimulus';
 
 export default class extends Controller {
+
     static values = {
         message: String
     }
@@ -8,7 +9,8 @@ export default class extends Controller {
 
         var messageelem = document.getElementById('messageProzessReady');
         messageelem.style.display = 'block';
-        messageelem.innerText = (this.messageValue);
+
+        messageelem.innerText = this.messageValue;
 
         window.setTimeout(() => {
             messageelem.style.display = 'none';

@@ -11,10 +11,10 @@ class SchowService
     )
     {
     }
-    public function showMessege($messege)
+    public function showMessege(string $messege)
     {
         $html =  $this->twig->render('logMessages/_prozessReady.html.twig', [
-            'message' => $messege,
+            'messagetext' => $messege,
         ]);
 
         return($html);
