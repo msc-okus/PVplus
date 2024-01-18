@@ -40,6 +40,7 @@ export default class extends Controller {
         var response = await $.ajax({
             url: '/ticket/proofCount',
         });
+        console.log(response);
         (this.proofepcTarget).innerText = response['countProofByEPC'];
         (this.prooftamTarget).innerText = response['countProofByTAM'];
         (this.proofg4nTarget).innerText = response['countProofByG4N'];

@@ -79,10 +79,10 @@ class TicketRepository extends ServiceEntityRepository
         $result = $this->createQueryBuilder('t')
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
-            ->andWhere('t.needsProof = true')
-        ;
-        if (!$this->security->isGranted('ROLE_G4N')) {
+            ->andWhere('t.needsProof = true');
 
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $result->andWhere('t.internal = false');
             $result->andWhere('a.anlId IN (:plantList)')
                 ->setParameter('plantList', $granted);
         }
@@ -92,27 +92,21 @@ class TicketRepository extends ServiceEntityRepository
 
     public function countByProofAM(){
 
-        /** @var User $user */
-        $user = $this->security->getUser();
-
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
-
         $result = $this->createQueryBuilder('t')
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.ProofAM = true')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
-
+            $result->andWhere('t.internal = false');
             $result->andWhere('a.anlId IN (:plantList)')
                 ->setParameter('plantList', $granted);
         }
+        dump($result);
         return $result->getQuery()->getResult()[0][1];
     }
     public function countByProofEPC(){
-
-        /** @var User $user */
-        $user = $this->security->getUser();
 
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
@@ -122,7 +116,7 @@ class TicketRepository extends ServiceEntityRepository
             ->andWhere('t.needsProofEPC = true')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
-
+            $result->andWhere('t.internal = false');
             $result->andWhere('a.anlId IN (:plantList)')
                 ->setParameter('plantList', $granted);
         }
@@ -132,9 +126,6 @@ class TicketRepository extends ServiceEntityRepository
 
     public function countByProofG4N(){
 
-        /** @var User $user */
-        $user = $this->security->getUser();
-
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $result = $this->createQueryBuilder('t')
@@ -143,7 +134,7 @@ class TicketRepository extends ServiceEntityRepository
             ->andWhere('t.needsProofg4n = true')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
-
+            $result->andWhere('t.internal = false');
             $result->andWhere('a.anlId IN (:plantList)')
                 ->setParameter('plantList', $granted);
         }
