@@ -28,96 +28,106 @@
 {% endblock %}
 
 {% block body %}
-<div id="ownerNew" data-controller="newdashboard newticket">
+<div class="tabs-content" data-tabs-content="all-tabs">
+    <!-- Existing Tab Titles -->
+    <ul class="tabs" data-tabs id="all-tabs">
+        <li class="tabs-title "><a href="#plantTab" aria-selected="true">Plants</a></li>
+        <li class="tabs-title " id="ticketTab" style="position: relative;"></li>
+        <li class="tabs-title " id="reportTab"></li>
 
-    {% if is_granted('ROLE_G4N') %}
-    <div id="1" class="grid-x">
-        <div class="cell small-12 medium-3">
-            <select id="companyFilter" >
-                <option value="">Select a Company</option>
-                {% for owner in content %}
-                    <option value="{{ owner.firma }}">{{ owner.firma }}</option>
-                {% endfor %}
-            </select>
-        </div>
+    </ul>
 
-    </div>
-    {% endif %}
+    <!-- Existing Tab Content -->
+    <div class="tabs-panel " id="plantTab">
+        <div id="ownerNew" data-controller="newdashboard newticket">
 
-    <div   class="grid-x grid-margin-x ">
-        <div class="cell large-6 medium-6 small-6 ">
-                <table id="new_dashboard" class=" striped  hover nowrap" style="width: 100%" >
-                    <thead>
-                    <tr>
-                        <th>Project Nr</th>
-                        <th>Plant Name</th>
-                        <th>Plant Owner</th>
-                        <th>Pnom</th>
-                        <th>Flag</th>
-                        <th>Country</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-{#                    {{ dump(content[0].activeAnlage) }}#}
-                    {% for owner in content %}
-                        {% for plant in owner.activeAnlage(is_granted('ROLE_G4N')) %}
-                            {% if plant.anlId in app.user.grantedList or is_granted('ROLE_G4N') %}
-                                <tr>
-                                    <td>{{ plant.projektNr }}</td>
-                                    <td>{{ plant.anlName }}</td>
-                                    <td>{{ owner.firma }}</td>
-                                    <td>{{ plant.getPnom }}</td>
-                                    <td><img height='25' width='25' style='margin-top: -9px;' src='/images/flag/flag-{{ plant.country }}.png'  alt="{{ plant.country }}"/></td>
-                                    <td>{{ plant.country }}</td>
-                                    <td style="justify-items: center">
-                                        <ul style="display: flex; justify-content: space-between; align-items: center;padding: 0; margin: 0;" >
-                                            <button class="button button-icon round-corner chart"
-                                                    data-anlage="{{ plant.anlId }}"
-                                                    style="padding: 2px;margin: 0;">
-                                                Charts
-                                            </button>
-                                            <button class="button button-icon round-corner ticket-btn"
-                                                    data-anlage="{{ plant.anlId }}"
-                                                    style="padding: 2px;margin: 0;">
-                                               Tickets
-                                            </button>
-{#                                            <button class="button button-icon round-corner margin-right-1"#}
-{#                                                    style="padding: 2px;margin: 0; color: red;"#}
-{#                                                    onclick="location.href='{{ path('app_ticket_list_anlId', {anlageId: plant.anlId }) }}'">#}
-{#                                               Tickets#}
-{#                                            </button>#}
-                                            <button class="button button-icon round-corner report-btn"
-                                                    data-anlage="{{ plant.anlId }}"
-                                                    style="padding: 2px;margin: 0;">
-                                                Reports
-                                            </button>
-{#                                            <button class="button button-icon round-corner margin-right-1"#}
-{#                                                    style="padding: 2px;margin: 0; color: red;"#}
-{#                                                    onclick="location.href='{{ path('app_reporting_list_anlId', {anlageId: plant.anlId }) }}'">#}
-{#                                                Reports#}
-{#                                            </button>#}
-                                        </ul>
-                                    </td>
-                                </tr>
-                            {% endif %}
+            {% if is_granted('ROLE_G4N') %}
+                <div id="1" class="grid-x">
+                    <div class="cell small-12 medium-3">
+                        <select id="companyFilter" >
+                            <option value="">Select a Company</option>
+                            {% for owner in content %}
+                                <option value="{{ owner.firma }}">{{ owner.firma }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                </div>
+            {% endif %}
+
+            <div   class="grid-x grid-margin-x ">
+                <div class="cell large-12 medium-12 small-12 ">
+                    <table id="new_dashboard" class=" striped  hover nowrap" style="width: 100%" >
+                        <thead>
+                        <tr>
+                            <th>Project Nr</th>
+                            <th>Plant Name</th>
+                            <th>Plant Owner</th>
+                            <th>Pnom</th>
+                            <th>Flag</th>
+                            <th>Country</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {#                    {{ dump(content[0].activeAnlage) }}#}
+                        {% for owner in content %}
+                            {% for plant in owner.activeAnlage(is_granted('ROLE_G4N')) %}
+                                {% if plant.anlId in app.user.grantedList or is_granted('ROLE_G4N') %}
+                                    <tr>
+                                        <td>{{ plant.projektNr }}</td>
+                                        <td>{{ plant.anlName }}</td>
+                                        <td>{{ owner.firma }}</td>
+                                        <td>{{ plant.getPnom }}</td>
+                                        <td><img height='25' width='25' style='margin-top: -9px;' src='/images/flag/flag-{{ plant.country }}.png'  alt="{{ plant.country }}"/></td>
+                                        <td>{{ plant.country }}</td>
+                                        <td style="justify-items: center">
+                                            <ul style="display: flex; justify-content: space-between; align-items: center;padding: 0; margin: 0;" >
+                                                <button class="button button-icon round-corner chart"
+                                                        data-anlage="{{ plant.anlId }}"
+                                                        data-anlage-name="{{ plant.anlName }}"
+                                                        style="padding: 2px;margin: 0;">
+                                                    Charts
+                                                </button>
+                                                <button class="button button-icon round-corner"
+                                                        data-anlage="{{ plant.anlId }}"
+                                                        data-anlage-name="{{ plant.anlName }}"
+                                                        style="color:red;padding: 2px;margin: 0;"
+                                                        onclick="window.location.href='{{ path('app_newDashboard_plant', {'anlageId': plant.anlId}) }}';"
+                                                >
+                                                    Charts
+                                                </button>
+
+
+                                                <button class="button button-icon round-corner ticket-btn"
+                                                        data-anlage="{{ plant.anlId }}"
+                                                        data-anlage-name="{{ plant.anlName }}"
+                                                        style="padding: 2px;margin: 0;">
+                                                    Tickets
+                                                </button>
+                                                <button class="button button-icon round-corner report-btn"
+                                                        data-anlage="{{ plant.anlId }}"
+                                                        style="padding: 2px;margin: 0;">
+                                                    Reports
+                                                </button>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
                         {% endfor %}
-                    {% endfor %}
-                    </tbody>
-                </table>
-        </div>
-        <div class="cell large-6 medium-6 small-6" >
-            <div id="loadingGif" style=" height:100%;display: none; justify-content: center; align-items: center;">
-                <img src="/images/loading.gif" width="60" height="60">
+                        </tbody>
+                    </table>
+                    <div id="loadingGif" style=" position:fixed; top:0;left:0; width:100%;height:100%;display: none; justify-content: center; align-items: center; background-color:transparent;z-index: 10000;">
+                        <img src="/images/loading.gif" width="100" height="100">
+                    </div>
+                </div>
             </div>
-            <div id="anlTicket"></div>
-            <div id="anlReport"></div>
+
         </div>
     </div>
-
-
-    <div id="anlChart"  class="cell small-12"></div>
-
+    <div class="tabs-panel " id="anlTicketTab"></div>
+    <div class="tabs-panel " id="anlReportTab"></div>
 </div>
 {% endblock %}
 

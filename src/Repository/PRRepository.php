@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Validator\Constraints\DateTime;
 
@@ -25,17 +27,15 @@ class PRRepository extends ServiceEntityRepository
     {
         $from = "$year-$month-01";
         $to = date('Y-m-t', strtotime($from));
-        $result = $this->createQueryBuilder('pr')
+
+        return $this->createQueryBuilder('pr')
             ->andWhere('pr.anlage = :anlage AND pr.stamp BETWEEN :from AND :to')
             ->orderBy('pr.stamp', 'ASC')
             ->setParameter('anlage', $anlage)
             ->setParameter('from', $from)
             ->setParameter('to', $to)
             ->getQuery()
-            ->getResult()
-        ;
-
-        return $result;
+            ->getResult();
     }
 
     public function findPrAnlageDate($anlage, $from, $to)
@@ -69,7 +69,11 @@ class PRRepository extends ServiceEntityRepository
         ;
     }
 
-    public function sumAvailabilityByRange($anlagenId, $from, $to)
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function sumAvailabilityByRange($anlagenId, $from, $to): float|bool|int|string|null
     {
         return $this->createQueryBuilder('pr')
             ->andWhere('pr.anlage = :anlageId and pr.stamp >= :from and pr.stamp <= :to')
@@ -81,7 +85,11 @@ class PRRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function sumAvailabilityPerYear($anlagenId, $year, $to)
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function sumAvailabilityPerYear($anlagenId, $year, $to): float|bool|int|string|null
     {
         $from = "$year-01-01";
 
@@ -95,7 +103,11 @@ class PRRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function sumAvailabilitySecondPerYear($anlagenId, $year, $to)
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function sumAvailabilitySecondPerYear($anlagenId, $year, $to): float|bool|int|string|null
     {
         $from = "$year-01-01";
 
@@ -109,7 +121,11 @@ class PRRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function sumAvailabilityPerPac($anlagenId, $from, $to)
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function sumAvailabilityPerPac($anlagenId, $from, $to): float|bool|int|string|null
     {
         return $this->createQueryBuilder('pr')
             ->andWhere('pr.anlage = :anlageId and pr.stamp >= :from and pr.stamp <= :to')
@@ -121,7 +137,11 @@ class PRRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function sumAvailabilitySecondPerPac($anlagenId, $from, $to)
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function sumAvailabilitySecondPerPac($anlagenId, $from, $to): float|bool|int|string|null
     {
         return $this->createQueryBuilder('pr')
             ->andWhere('pr.anlage = :anlageId and pr.stamp >= :from and pr.stamp <= :to')
@@ -133,7 +153,11 @@ class PRRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function anzRecordsPRPerYear($anlage, $year, $to)
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function anzRecordsPRPerYear($anlage, $year, $to): float|bool|int|string|null
     {
         $from = "$year-01-01";
 
@@ -149,7 +173,11 @@ class PRRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function anzRecordsPRPerPac($anlage, $from, $to)
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function anzRecordsPRPerPac($anlage, $from, $to): float|bool|int|string|null
     {
         return $this->createQueryBuilder('pr')
             ->andWhere('pr.anlage = :anlage')

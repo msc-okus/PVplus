@@ -1,5 +1,10 @@
 <?php
-
+/*
+ * MS 10/23
+ * DEK Service zur Erstellung der Gesamtstrahlung in der Modulebene anhand
+ * Wetterdaten aus Daten von PVsyst
+ *
+ */
 namespace App\Service\Forecast;
 
 use App\Repository\AnlagenRepository;
@@ -7,7 +12,6 @@ use App\Repository\AnlageSunShadingRepository;
 use App\Repository\AnlageModulesDBRepository;
 
 class ForcastDEKService {
-
     /**
      * The constructor
      * @param string $input_gl
@@ -18,7 +22,6 @@ class ForcastDEKService {
      * @param string $input_ab
      * @param array $datfile
      */
-
 
     public function __construct(AnlageModulesDBRepository $anlageModulesDBRepository,ForecastCalcService $forecastCalcService,SunShadingModelService $shadingModelService,AnlagenRepository $anlagenRepository,AnlageSunShadingRepository $anlageSunShadingRepository) {
         $this->shadingmodelservice = $shadingModelService;
@@ -33,7 +36,6 @@ class ForcastDEKService {
         $sshrep = $this->anlagesunshadingrepository->findBy(['anlage' => $anlageId]);
         // Muss noch geändert werden in eine verknüpfung zur tabelle modules to Anlage die zur MudulesDB geht
         $modrep = $this->anlagenmodulesdbrepository->findBy(['id' => '1']);
-
         $valueofdayandhour = [];
         $SGES = 0;
         $faktorRVSued=$faktorRVOst=$faktorRVWest = 1;
@@ -80,13 +82,11 @@ class ForcastDEKService {
                             case 180:
                                 $RGES = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour Süd
                                 if ($has_suns_model) {
-
                                    if ($RGES >= 500) { // Wenn Strahlung größer 500 W/m2
                                        $faktorRVSued = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren // Return Array faktor RSH
                                        $DIRpoa = $DIRpoa * $faktorRVSued['FKR'];  // Neuer DIRpoa mit multiplikation des Verschattungs Faktor
                                        $RSHArray = $faktorRVSued['RSH']; // Array der Reihenabschattung
                                        $this->shadingmodelservice->modrow_shading_loss($RSHArray,$DIFFSAMA,$GDIRPRZ,$sshrep,$modrep);
-
                                        $RGES = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour zzg. Verschattungs Faktor
                                    }
                                 }

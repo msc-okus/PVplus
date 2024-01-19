@@ -6,19 +6,22 @@ use App\Entity\Anlage;
 use App\Entity\User;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-use App\Service\AvailabilityService;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\Charts\HeatmapChartService;
+use App\Service\Charts\HeatmapChartService;
 use App\Service\ChartService;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DashboardPlantsController extends BaseController
 {
     use G4NTrait;
+
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/api/plants/{eignerId}/{anlageId}/{analyse}', name: 'api_dashboard_plant_analsyse', methods: ['GET','POST'])]
     public function analysePlantAPI($eignerId, $anlageId, $analyse, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, HeatmapChartService $heatmapChartService,): Response
     {
@@ -82,7 +85,7 @@ class DashboardPlantsController extends BaseController
      * @throws Exception
      */
     #[Route(path: '/dashboard/plants/{eignerId}/{anlageId}', name: 'app_dashboard_plant')]
-    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService): Response
+    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService): Response
     {
         $hour = '';
         $form = [];
@@ -113,6 +116,8 @@ class DashboardPlantsController extends BaseController
             $form['from'] = (new \DateTime())->format('Y-m-d');
             $form['optionDate'] = 1;
             $form['optionIrrVal'] = 400;
+            $form['optionDayAheadView'] = 0;    #0=Dashborrd;1=60Min;2=15Min;
+            $form['optionDayAheadViewDay'] = 0; #0=6Tage;1=3Tage;2=2Tage;
             $form['hour'] = false;
             $form['selRange'] = $request->request->get('selRange');
         }
@@ -125,6 +130,8 @@ class DashboardPlantsController extends BaseController
             $form['startDateNew']       = $request->request->get('startDateNew');
             $form['selRange']           = $request->request->get('selRange');
             $form['optionIrrVal']       = $request->request->get('optionIrrVal');
+            $form['optionDayAheadView']  = $request->request->get('optionDayAheadView');
+            $form['optionDayAheadViewDay']  = $request->request->get('optionDayAheadViewDay');
             $form['hour']               = $request->request->get('hour');
             if ($form['selectedChart'] == 'sollistirranalyse'   && !$form['optionIrrVal']) $form['optionIrrVal'] = 400;
             if ($form['selectedChart'] == 'pr_and_av'           && $form['optionDate'] < 7) $form['optionDate'] = 7;

@@ -2,12 +2,12 @@
     <div>
         <table style="margin-top: 15px!important;">
             <tr style="border-bottom: solid 2px #00386d;">
-                <td style=" width: 254mm;" class="text-left">
-                    <h1>{{ anlage.projektNr }} {{ anlage.anlName }}
+                <td style=" width: 254mm;" class="text-left"> {% set month %}monthName.{{ report.month }}{% endset %}
+                    <h1>{{ anlage.projektNr }} {{ anlage.anlName }} ({{ month|trans }} {{ report.year }})
                         <small>({% if anlage.kwPeakPLDCalculation > 0 %}{{ anlage.kwPeakPLDCalculation|number_format(2, ',', '.') }}{% else %}{{ anlage.power|number_format(2, ',', '.') }}{% endif%} kWp)</small>
                     </h1>
                 </td>
-                <td> <img class="customer_logo" src="{{ absolute_url(asset(anlage.eigner.getCustomerLogo)) }}" alt=""></td>
+                <td> <img class="customer_logo" src="{{ absolute_url(asset(logo)) }}" alt=""></td>
             </tr>
         </table>
     </div>

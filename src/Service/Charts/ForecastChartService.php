@@ -9,8 +9,10 @@ use App\Repository\ForcastRepository;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use DateTime;
+use DateTimeZone;
 use PDO;
 use App\Service\PdoService;
+
 
 class ForecastChartService
 {
@@ -307,6 +309,93 @@ private readonly PdoService $pdoService,
             ++$counter;
         }
 
+        return $dataArray;
+    }
+    // Get the Dayahead Forecast data for Chart
+    public function getForecastDayAhead(Anlage $anlage, $from, $view, $days ): array {
+        $now = new DateTime('now', new DateTimeZone('Europe/Berlin'));
+
+        switch ($view) {
+            case 0 :
+                $form = '%y%m%d';
+                $dateform = '%Y-%m-%d';
+                $datenowhour = '';
+            break;
+            case 1 :
+                $form = '%y%m%d%H';
+                $dateform = '%Y-%m-%d %H:%i';
+                $datenowhour = $now->format("Y-m-d H:00");
+            break;
+            case 2 :
+                $form = '%y%m%d%H%i';
+                $dateform = '%Y-%m-%d %H:%i';
+                $datenowhour = $now->format("Y-m-d H:00");
+                $days = '3';
+            break;
+            default :
+                $form = '%y%m%d';
+                $dateform = '%Y-%m-%d';
+                $datenowhour = '';
+        }
+
+        switch ($days) {
+            case 0 :
+                $day = '+6 day';
+                break;
+            case 1 :
+                $day = '+3 day';
+                break;
+            case 2 :
+                $day = '+2 day';
+                break;
+            case 3 :
+                $day = '+2 day';
+                break;
+            default :
+                $day = '+6 day';
+        }
+
+        $nextDays = strtotime($day, strtotime($from));
+        $enddate = date("Y-m-d 23:45", $nextDays);
+
+        $counter = 0;
+        $dataArray = [];
+        $conn = $this->pdoService->getPdoPlant();
+
+        if ($anlage->getUseDayaheadForecast()) {
+            $SQL = "SELECT af1.date, af1.hour, af1.minute, af1.fc_pac, af1.irr, af1.temp,  af2.wr_pac FROM 
+                    ( SELECT date_format(stamp, '".$dateform."') AS date, UNIX_TIMESTAMP(date_format(stamp, '%Y-%m-%d %H:%i')) AS unixstp, date_format(stamp, '%H') AS hour, date_format(stamp, '%i') AS minute, sum(fc_pac) AS fc_pac, sum(irr) AS irr, sum(temp) AS temp FROM ".$anlage->getDbNameForecastDayahead()." WHERE `stamp` BETWEEN '".$from."' AND '".$enddate."' GROUP BY date_format(stamp, '".$form."')) 
+                    AS af1 
+                    LEFT JOIN 
+                    ( SELECT date_format(stamp, '".$dateform."') AS date, UNIX_TIMESTAMP(date_format(stamp, '%Y-%m-%d %H:%i')) AS unixstp,date_format(stamp, '%H') AS hour, date_format(stamp, '%i') AS minute, sum(wr_pac) AS wr_pac FROM ".$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '".$from."' AND '".$enddate."' GROUP BY date_format(stamp, '".$form."') )
+                    AS af2 on (af1.date = af2.date); ";
+
+            $result = $conn->prepare($SQL);
+            $result->execute();
+
+            foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
+                $dataArray['chart'][$counter]['date'] = $value['date'];
+                $dataArray['chart'][$counter]['hour'] = $value['hour'];
+
+                if ($datenowhour == $value['date']) {
+                    $dataArray['chart'][$counter]['label'] = 'Now';
+                    $dataArray['chart'][$counter]['color'] = 'am4core.color("#050")';
+                    $dataArray['chart'][$counter]['opacity'] = '1';
+                }
+
+                $dataArray['chart'][$counter]['minute'] = $value['minute'];
+                $dataArray['chart'][$counter]['irr'] = round($value['irr'],2);
+                $dataArray['chart'][$counter]['temp'] = round($value['temp'],2);
+                $dataArray['chart'][$counter]['forecast'] = round($value['fc_pac'],2);
+                $dataArray['chart'][$counter]['real'] = (is_null($value['wr_pac']) ? '0' : round($value['wr_pac'],2));
+                $counter++;
+            }
+
+         } else {
+
+            $dataArray['chart'];
+
+        }
         return $dataArray;
     }
 }

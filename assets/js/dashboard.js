@@ -73,13 +73,13 @@ function searchPlants() {
 }
 
 $(".js-submit-onchange").change(function () {
-    $("#mysubmit").val('yes');
-    $("#chart-control").submit();
+    $('#mysubmit').val('yes');
+    $('#chart-control').submit();
 });
 
 $(".js-submit-onchange-select").change(function () {
-    $("#mysubmit").val('select');
-    $("#chart-control").submit();
+    $('#mysubmit').val('select');
+    $('#chart-control').submit();
 });
 
 $('#startDate').fdatepicker({

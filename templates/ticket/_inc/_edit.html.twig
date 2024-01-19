@@ -20,7 +20,7 @@
         <div class="grid-x grid-margin-y" id="ticket-edit">
             <div class="cell">
                 {{ form_start(ticketForm) }}
-                <div class="content">
+                <div class="ticket-content">
                     {% if (edited) %}
                         {% set dropdownId = ticketForm.vars.value.id %}
                         {% set openTicket = ticketForm.vars.value.openTicket %}
@@ -226,7 +226,7 @@
         </div>
         {# error messages #}
         <div class="grid-x grid-margin-y">
-            <div {% if edited %}class="cell small-12 callout warning is-hidden"{% else %}class="cell small-12 callout warning"{% endif %}
+            <div {% if edited %} class="cell small-12 callout warning is-hidden" {% else %} class="cell small-12 callout warning" {% endif %}
                  data-ticket-edit-target="Callout">
                 <p class="is-hidden"
                    data-ticket-edit-target="AlertFormat"

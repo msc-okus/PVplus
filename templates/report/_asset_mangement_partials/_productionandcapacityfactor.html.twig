@@ -40,7 +40,7 @@
     {% set g4nsum = 0 %}
     <tr>
         <td class="tr_first_column" style="text-align: right;">Expected g4n</td>
-        {% for data in table_overview_monthly.powerExp %}
+        {% for data in table_overview_monthly.powerExpEvu %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
             {% set g4nsum = g4nsum + data %}
         {% endfor %}

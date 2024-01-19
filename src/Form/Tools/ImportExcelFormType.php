@@ -43,21 +43,12 @@ class ImportExcelFormType extends AbstractType
             $anlagen = $this->anlagenRepository->findAllIDByEigner($eigner);
         }
 
-        $anlagen_toShow = [];
-        $i = 0;
-        foreach ($anlagen as $anlage) {
-            if($anlage->getPathToImportScript() != ''){
-                $anlagen_toShow[$i] = $anlage;
-                $i++;
-            }
-        }
-
 
         $builder
             ->add('anlage', EntityType::class, [
                 'label' => 'Please select a Plant',
                 'class' => Anlage::class,
-                'choices' => $anlagen_toShow,
+                'choices' => $anlagen,
                 'choice_label' => 'anlName',
             ])
             ->add('File', FileType::class, [

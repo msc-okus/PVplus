@@ -86,8 +86,8 @@
                 var endDate = picker.endDate;
                 $('#from').val(startDate.format('YYYY-MM-DD'));
                 $('#to').val(endDate.format('YYYY-MM-DD'));
-                $("#mysubmit").val('yes');
-                $("#chart-control").delay(100).submit();
+                $('#mysubmit').val('yes');
+                $('#chart-control').delay(100).submit();
             })
         );
         // Extra function
@@ -158,8 +158,8 @@
                     }
                     break;
             }
-            $("#mysubmit").val('yes');
-            $("#chart-control").delay(100).submit();
+            $('#mysubmit').val('yes');
+            $('#chart-control').delay(100).submit();
         });
         // query the button nextDay
         $('.button .nextday').click(function () {
@@ -209,35 +209,62 @@
                         }
                         break;
                 }
-                $("#mysubmit").val('yes');
-                $("#chart-control").delay(100).submit();
+                $('#mysubmit').val('yes');
+                $('#chart-control').delay(100).submit();
             } else {
                 alert("Ups: the selected day is in the future");
             }
         });
 
-        //Add for New Dashboard -------
+        //Add for New Dashboard ------------------------------------------
         $('#chart-control').find('select').change(function (){
-            $("#mysubmit").val('yes');
-            $("#chart-control").delay(100).submit();
+            $('#mysubmit').val('yes');
+            $('#chart-control').delay(100).submit();
         });
         $('#chart-control').on('submit',function (e){
             e.preventDefault();
-
             var form = $(this);
             $.ajax({
                 type: form.attr('method'),
                 url: form.attr('action'),
                 data: form.serialize(),
                 success: function (data, status, xhr) {
-                    $('#anlChart').html($(data).find('#plantChart').html());
+                    var id=$(e.target).data('tabId');
+                    var tabId='#' + id;
+                    var plantChartHtml = $(data).find('#plantChart').html().replaceAll('$(\'#', `$(\'#${id}_`)
+                    var tempDiv = $('<div>').html(plantChartHtml);
+
+                    tempDiv.find('[id]').each(function() {
+                        var originalId = $(this).attr('id');
+                        $(this).attr('id', id + '_'+ originalId);
+                    });
+                    plantChartHtml = tempDiv.html();
+                    plantChartHtml = plantChartHtml.replace(/create\("amchart-holder"/g, `create("${id}_amchart-holder"`);
+
+                    $(tabId).html(plantChartHtml);
+
+                    var chartC= tabId + '_chart-control'
+                    $(chartC).data('tabId',id);
+
+                    console.log(document.querySelector(tabId));
+                    executeScripts(document.querySelector(tabId));
                 },
                 error: function (jqXhr, textStatus, errorMessage) {
-                    $('#anlChart').html(' ');
+                    $($(e.target).data('tabId')).html(' ');
                 }
             });
         });
-        //Add for New Dashboard ------
+
+        function executeScripts(container) {
+            container.querySelectorAll('script').forEach((script) => {
+                const newScript = document.createElement('script');
+                Array.from(script.attributes)
+                    .forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.appendChild(document.createTextNode(script.innerHTML));
+                script.parentNode.replaceChild(newScript, script);
+            });
+        }
+        //Add for New Dashboard --------------------------------------------------
     });
 </script>
 
@@ -254,29 +281,29 @@
     <script>
         // The range slider config and functions
         $(function () {
-            $("#slider-range").slider({
+            $('#slider-range').slider({
                     range: true,
                     min: 1,
                     max: {% if content.sumSeries|raw %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
                     values: {% if form.selectedSet %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
                 slide:
             function (event, ui) {
-                $("#sview").val("" + ui.values[0] + "-" + ui.values[1] + "");
-                $("#sviewhidden").val("[" + ui.values[0] + "," + ui.values[1] + "]");
+                $('#sview').val("" + ui.values[0] + "-" + ui.values[1] + "");
+                $('#sviewhidden').val("[" + ui.values[0] + "," + ui.values[1] + "]");
             }
         ,
             change: function (event, ui) {
                 if ((ui.values[1] - ui.values[0]) > 100) {
                     alert("The selected range is greater than 100, which can lead to delays in the view!");
                 };
-                $("#sendrange").css("background-color", "#e6e6e6");
+                $('#sendrange').css("background-color", "#e6e6e6");
             }
         });
-            $("#sview").val("" + $("#slider-range").slider("values", 0) + "-" + $("#slider-range").slider("values", 1) + "");
-            $("#sviewhidden").val("[" + $("#slider-range").slider("values", 0) + "," + $("#slider-range").slider("values", 1) + "]");
-            $("#goshare").click(function () {
-                $("#mysubmit").val('yes');
-                $("#chart-control").delay(100).submit();
+            $('#sview').val("" + $('#slider-range').slider("values", 0) + "-" + $('#slider-range').slider("values", 1) + "");
+            $('#sviewhidden').val("[" + $('#slider-range').slider("values", 0) + "," + $('#slider-range').slider("values", 1) + "]");
+            $('#goshare').click(function () {
+                $('#mysubmit').val('yes');
+                $('#chart-control').delay(100).submit();
             });
         });
     </script>

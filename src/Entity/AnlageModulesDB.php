@@ -102,7 +102,7 @@ class AnlageModulesDB
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $backSideFactor = null;
 
-    #[ORM\Column(type: 'integer', length: 1, nullable: false)]
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private ?bool $isBifacial = null;
 
     #[ORM\Column(type: 'string', length: 3, nullable: true)]

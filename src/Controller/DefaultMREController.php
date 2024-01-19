@@ -13,9 +13,9 @@ use App\Service\ExpectedService;
 use App\Service\PRCalulationService;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[IsGranted('ROLE_G4N')]
@@ -121,6 +121,9 @@ class DefaultMREController extends BaseController
     }
 
 
+    /**
+     * @throws \JsonException
+     */
     #[Route(path: '/mr/export/rawdata/{id}')]
     public function exportRawDataExport($id, ExportService $exportService, AnlagenRepository $anlagenRepository): Response
     {
@@ -169,7 +172,7 @@ class DefaultMREController extends BaseController
         $output = '';
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $output .= self::printArrayAsTable($export->getFacPRData($anlage, $anlage->getEpcReportStart(), $anlage->getEpcReportEnd()));
+        $output .= self::printArrayAsTable($export->getFacPRData($anlage, $anlage->getEpcReportStart(), $anlage->getEpcReportEnd()),',');
         $output .= '<hr>';
         // $output .= self::printArrayAsTable($export->getFacPAData($anlage, $from, $to));
         $output .= '<hr>';

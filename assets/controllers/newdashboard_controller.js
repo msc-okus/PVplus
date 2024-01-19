@@ -11,6 +11,7 @@ import 'datatables.net-buttons/js/buttons.print.mjs';
 import 'datatables.net-responsive/js/dataTables.responsive';
 import 'datatables.net-responsive-zf/js/responsive.foundation';
 import 'datatables.net-select-zf/js/select.foundation';
+import 'foundation-sites';
 
 window.JSZip= JSZip;
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -26,6 +27,7 @@ export default class extends Controller {
             language: { //customize
                 lengthMenu: "Show _MENU_"
             },
+            pageLength:25,
             columnDefs:[
                 { targets: 1, className: 'all' }, // Always show 'Project Nr'
                 { targets: 2, className: 'all' }, // Always show 'Plant Name'
@@ -121,12 +123,15 @@ export default class extends Controller {
             }
 
         });
-
+        $(document).foundation();
         this.setupCompanyFilter(t);
         this.setupRowSelection('#new_dashboard tbody');
         this.chart();
         this.ticket();
         this.report();
+        this.tabControl();
+        this.closeControl();
+
     }
     setupCompanyFilter(table) {
         $('#companyFilter').on('change', function() {
@@ -136,17 +141,34 @@ export default class extends Controller {
     }
 
     chart() {
+
+        // Initialize the first tab
+        document.querySelector('#all-tabs li:first-child').classList.add('is-active');
+        document.querySelector('#plantTab').classList.add('is-active');
         // Attach click event listener to all elements with class 'chart'
         document.querySelectorAll('.chart').forEach(chartElement => {
             chartElement.addEventListener('click', () => {
+                document.querySelector("#loadingGif").style.display='flex';
                 // Retrieve the anlageId from the data attribute of the clicked button
                 const anlageId = chartElement.getAttribute('data-anlage');
-                document.getElementById('anlReport').innerHTML='';
-                document.getElementById('anlTicket').innerHTML='';
+                const anlageName = chartElement.getAttribute('data-anlage-name');
+                const tabId = 'chart' + new Date().getTime();
 
 
+                // Create new tab navigation
+                const newTabTitle = document.createElement('li');
+                newTabTitle.className = 'tabs-title';
+                newTabTitle.style.position = 'relative';
+                newTabTitle.innerHTML = `<a href="#${tabId}">${anlageName} Chart</a>
+                                     <span class="close-tab-chart" style="position: absolute; top: 0; right: 0; cursor: pointer; color: red; "><i class="fas fa-window-close"></i></span>`;
 
-                // Perform the Fetch request
+                document.querySelector('#all-tabs').appendChild(newTabTitle);
+
+                // Create new tab content
+                let newTabContent = document.createElement('div');
+                newTabContent.className = 'tabs-panel';
+                newTabContent.id = tabId;
+                document.querySelector('.tabs-content').appendChild(newTabContent);
                 fetch(`/newDashboard/plants/${anlageId}`)
                     .then(response => {
                         if (!response.ok) {
@@ -158,34 +180,46 @@ export default class extends Controller {
 
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, "text/html");
-                        // Insert the plantChart content into the anlChart element
-                        document.querySelector('#anlChart').innerHTML = doc.querySelector('#plantChart').innerHTML;
+                        let contentDiv = document.querySelector('#' + tabId);
 
+                        if (contentDiv) {
+                            contentDiv.innerHTML = doc.querySelector('#plantChart').innerHTML
+                                .replaceAll('id="', `id="${tabId}_`)
+                                .replaceAll("$('#", `$('#${tabId}_`)
+                                .replaceAll('create("amchart-holder"', `create("${tabId}_amchart-holder"`);
 
-                        this.executeScripts( document.querySelector('#anlChart'));
+                            let elementX = contentDiv.querySelector('#' + tabId + '_chart-control');
+                            if (elementX) {
+                                elementX.dataset.tabId = tabId;
+                            }
+                            console.log(contentDiv);
+                            this.executeScripts( contentDiv);
+                          newTabTitle.querySelector('a').click();
+                          document.querySelector("#loadingGif").style.display='none';
+                        }
 
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        document.querySelector('#anlChart').innerHTML = ' ';
-                        document.getElementById('anlReport').innerHTML='';
-                        document.getElementById('anlTicket').innerHTML='';
                     });
 
             });
+
         });
     }
     ticket(){
         // Attach click event listener to all elements with class 'chart'
         document.querySelectorAll('.ticket-btn').forEach(ticketElement => {
             ticketElement.addEventListener('click', () => {
+                document.querySelector("#loadingGif").style.display='flex';
                 // Retrieve the anlageId from the data attribute of the clicked button
                 const anlageId = ticketElement.getAttribute('data-anlage');
+                const anlageName = ticketElement.getAttribute('data-anlage-name');
 
-                document.getElementById('anlReport').innerHTML='';
-                document.getElementById('anlChart').innerHTML='';
-                document.querySelector('#loadingGif').style.display='flex';
-
+                // Create new tab navigation
+                const newTabTitle = document.querySelector('#ticketTab');
+                newTabTitle.innerHTML = `<a href="#anlTicketTab">${anlageName} Ticket</a>
+                                     <span class="close-tab-ticket" style="position: absolute; top: 0; right: 0; cursor: pointer; color: red;"><i class="fas fa-window-close"></i></span>`;
 
                // Perform the Fetch request
                 fetch(`/ticket/list/${anlageId}`)
@@ -199,14 +233,10 @@ export default class extends Controller {
 
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, "text/html");
+                        let contentDiv = document.querySelector('#anlTicketTab');
 
-                        document.querySelector('#loadingGif').style.display='none';
-                        // Insert the plantChart content into the anlChart element
-                        document.querySelector('#anlTicket').innerHTML = doc.querySelector('#anlTicket').innerHTML;
-
-
-                        if ($.fn.DataTable.isDataTable('#anlTicketContent')) {
-                            $('#anlTicketContent').DataTable().clear().destroy();
+                        if (contentDiv) {
+                            contentDiv.innerHTML = doc.querySelector('#anlTicket').innerHTML
                         }
                         $('#anlTicketContent').DataTable({
                             dom:'lfrtip',
@@ -297,17 +327,16 @@ export default class extends Controller {
 
                         });
                         this.setupRowSelection('#anlTicketContent tbody');
-
+                        document.querySelector('#ticketTab a').click();
+                        document.querySelector("#loadingGif").style.display='none';
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        document.getElementById('anlReport').innerHTML='';
-                        document.getElementById('anlTicket').innerHTML='';
-                        document.getElementById('anlChart').innerHTML='';
                     });
 
             });
         });
+
     }
     report(){
         // Attach click event listener to all elements with class 'chart'
@@ -444,6 +473,63 @@ export default class extends Controller {
             });
         });
     }
+
+    tabControl(){
+        // Attach event for tab navigation (including dynamically added tabs)
+        $(document).on('click', '#all-tabs a', function (e) {
+            e.preventDefault();
+
+            $('#all-tabs li').removeClass('is-active');
+            $('.tabs-content .tabs-panel').removeClass('is-active');
+
+            $(this).parent('li').addClass('is-active');
+            $($(this).attr('href')).addClass('is-active');
+
+        });
+
+
+    }
+    closeControl(){
+        // Attach event for closing tabs
+        $(document).on('click', '.tabs .close-tab-chart', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent activating the tab when closing it
+
+            $($(this).parent('li').find('a').attr('href')).remove();
+            $(this).parent('li').remove();
+
+            if($('#all-tabs li').length === 3){
+                $('#all-tabs li:first-child ').addClass('is-active');
+                $('#plantTab').addClass('is-active');
+            }else{
+                if( $(this).parent('li').hasClass('is-active')){
+                    $('#all-tabs li:first-child ').addClass('is-active');
+                    $('#plantTab').addClass('is-active');
+                }
+            }
+
+        });
+
+        $(document).on('click', '.tabs .close-tab-ticket', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent activating the tab when closing it
+
+            if($(this).parent('li').hasClass('is-active')){
+                $(this).parent('li').removeClass('is-active');
+                $('#anlTicketTab').removeClass('is-active');
+                $('#all-tabs li:first-child ').addClass('is-active');
+                $('#plantTab').addClass('is-active');
+            }
+            $($(this).parent('li').find('a').attr('href')).html('');
+            $(this).parent('li').html('');
+
+
+
+
+
+
+        });
+    }
     executeScripts(container) {
         container.querySelectorAll('script').forEach((script) => {
             const newScript = document.createElement('script');
@@ -453,8 +539,8 @@ export default class extends Controller {
             script.parentNode.replaceChild(newScript, script);
         });
     }
-    // Function to setup row selection
     setupRowSelection(selector) {
+        // Function to setup row selection
         $(selector).on('click', 'tr', function() {
             if ($(this).hasClass('selected')) {
 
@@ -466,6 +552,7 @@ export default class extends Controller {
             }
         });
     }
+
 
 
 }

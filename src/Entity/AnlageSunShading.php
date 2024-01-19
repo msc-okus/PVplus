@@ -54,7 +54,7 @@ class AnlageSunShading {
     private ?string $ground_slope = null;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private ?string $has_row_shading = null;
+    private ?bool $has_row_shading = null;
 
     #[ORM\Column(length: 10)]
     private ?string $mod_alignment = null;

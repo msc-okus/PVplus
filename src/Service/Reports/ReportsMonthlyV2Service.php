@@ -14,6 +14,7 @@ use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Service\AvailabilityByTicketService;
+use App\Service\Functions\ImageGetterService;
 use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
@@ -21,6 +22,7 @@ use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Hisune\EchartsPHP\ECharts;
+use League\Flysystem\FilesystemException;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -56,15 +58,22 @@ class ReportsMonthlyV2Service
         private readonly Environment $twig,
         private readonly PdfService $pdf,
         private readonly TranslatorInterface $translator,
-        private readonly AvailabilityByTicketService $availabilityByTicket)
+        private readonly AvailabilityByTicketService $availabilityByTicket,
+        private readonly ImageGetterService $imageGetter
+    )
     {
     }
 
     /**
+     * @param Anlage $anlage
+     * @param int $reportMonth
+     * @param int $reportYear
      * @return string
      *
      * @throws InvalidArgumentException
-     * @throws Exception
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function createReportV2(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): string
     {
@@ -250,8 +259,8 @@ class ReportsMonthlyV2Service
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
 
-            $dayValues[$i]['datum'] = $day->format('Y-m-d');
-            $dayValues[$i]['datum_alt'] = $day->format('m-d');
+            $dayValues[$i]['datum'] = $day->format('d.m.Y');
+            $dayValues[$i]['datum_alt'] = $day->format('d.m');
             foreach($prArray as $key => $value) {
                 $dayValues[$i][$key] = $value;
             }
@@ -266,10 +275,10 @@ class ReportsMonthlyV2Service
         // Summe / Total Row
         $i = $daysInMonth + 1;
         $dayValues[$i]['datum'] = 'Total';
+        $dayValues[$i]['datum_alt'] = 'Total';
         foreach($prSumArray as $key => $value) {
             $dayValues[$i][$key] = $value;
         }
-
         return $dayValues;
     }
 
@@ -278,10 +287,8 @@ class ReportsMonthlyV2Service
      */
     public function buildTable2(Anlage $anlage, DateTime $startDate, DateTime $endDate): array
     {
-        #$startDay   = (int) $startDate->format('j');
         $startMonth = (int) $startDate->format('n');
         $startYear  = (int) $startDate->format('y');
-        #$endDay     = (int) $endDate->format('j');
         $endMonth   = (int) $endDate->format('n');
         $endYear    = (int) $endDate->format('y');
 
@@ -307,7 +314,7 @@ class ReportsMonthlyV2Service
                     $startDay = (int) $startDate->format('j');
                     $endDay = (int) date('t', strtotime("$currentYear-$startMonth-01"));
                     $monthValues[$monthCount]['datum'] = date("Y-m-d -->",strtotime("$currentYear-$currentMonth-$startDay"));
-                    $monthValues[$monthCount]['datum_alt'] = date("Y-m-d -->",strtotime("$currentYear - $currentMonth - $startDay"));
+                    $monthValues[$monthCount]['datum_alt'] = date("Y-m-d -->",strtotime("$currentYear-$currentMonth-$startDay"));
                     break;
                 case $numOfMonth:
                     $startDay = 1;
@@ -380,12 +387,15 @@ class ReportsMonthlyV2Service
      * @throws SyntaxError
      * @throws RuntimeError
      * @throws LoaderError
+     * @throws FilesystemException
      */
     private function createPDF(Anlage $anlage, array $report): array
     {
+
         $html = $this->twig->render('report/_monthly/monthlyReport2023.html.twig', [
             'anlage'        => $anlage,
             'report'        => $report,
+            'logo'          => $this->imageGetter->getOwnerLogo($anlage->getEigner()),
         ]);
 
         $html = str_replace('src="//', 'src="https://', $html); // replace local pathes to global

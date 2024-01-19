@@ -1,7 +1,8 @@
 {% extends 'report/_base_layouts/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Day Values</h3>
+    {% set month %}monthName.{{ report.month }}{% endset %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Day Values ({{ month|trans }} {{ report.year }})</h3>
     {% if report != null %}
        {% include "report/_monthly/_tableSub.html.twig" %}
     {% else %}

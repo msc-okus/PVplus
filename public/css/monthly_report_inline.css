@@ -87,11 +87,12 @@ table th.left {
 .basetable tr:nth-child(odd) { }
 
 .monthtable {
+  border: solid 2px #9f9f9f !important;
 }
 .monthtable td, .monthtable th{
   text-align: right;
-  font-size: 12px;
-  padding: 2px;
+  font-size: 7px;
+  padding: 2px 1px;
 }
 .monthtable th{
   text-align: center;

@@ -21,13 +21,13 @@ framework:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 retry_strategy:
                     delay: 2000
-                    max_retries: 1
+                    max_retries: 0
 
             dev:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 retry_strategy:
                     delay: 2000
-                    max_retries: 1
+                    max_retries: 0
 
             import:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
@@ -35,7 +35,7 @@ framework:
                     queue_name: import
                 retry_strategy:
                     delay: 2000
-                    max_retries: 1
+                    max_retries: 0
 
 
             # a transport used consuming messages from an external system

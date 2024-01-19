@@ -40,16 +40,16 @@ class ForecastCalcService {
                $SW = deg2rad($mozofhour[$hour]['SW']); // Stundenwinkel der Sonne
                $SH = asin(sin($DEK) * sin(deg2rad($input_gb)) + cos($DEK) * cos(deg2rad($input_gb)) * cos($SW) ); // Sonnenhöhe in RAD
                $SHGD = rad2deg($SH); // Sonnenhöhe in Grad
-               if ($SHGD < 3) {
-                   $SH = 0.1; // Sonnenhöhe auf 0.1 setzen wenn SH kleiner 3 Grad
+               if ($SHGD < 2) {
+                   $SH = 0.1; // Sonnenhöhe auf 0.1 setzen wenn SH kleiner 2 Grad
                }
                $SZ = deg2rad(90) - $SH; // Zenitwinkel der Sonne in RAD
                $AT = asin((-cos($DEK) * sin($SW)) / cos($SH) ); // Azimutwinkel in RAD
                $SA = deg2rad(180) - $AT; // Sonnenazimut
-               // $AOI = -(cos(cos(cos($SZ) * cos(deg2rad($this->mn)) + sin($SZ) * sin(deg2rad($this->mn)) * cos($SA - deg2rad($this->ma))))); // Einfallwinkel Strahlung auf Modul
-               $AOI = -(cos(cos($SZ) * cos(deg2rad($input_mn)) + sin($SZ) * sin(deg2rad($input_mn)) * cos($SA - deg2rad($winkel)))); // Einfallwinkel Strahlung auf Modul
+               $AOI = acos(cos($SZ) * cos(deg2rad($input_mn)) + sin($SZ) * sin(deg2rad($input_mn)) * cos($SA - deg2rad($winkel))); // Einfallwinkel Strahlung auf Modul
+               #$AOI = -(cos(cos($SZ) * cos(deg2rad($input_mn)) + sin($SZ) * sin(deg2rad($input_mn)) * cos($SA - deg2rad($winkel)))); // Einfallwinkel Strahlung auf Modul
                $out = ['AOI' => $AOI,'SA' => $SA,'SZ' => $SZ,'SH' => $SH];
-       } else {
+         } else {
            $out = [];
        }
        return $out;

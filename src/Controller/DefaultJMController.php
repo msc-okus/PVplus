@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use _PHPStan_adbc35a1c\Nette\Utils\DateTime;
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
@@ -15,11 +14,11 @@ use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
 use App\Service\WeatherServiceNew;
+use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use PDO;
 use Hisune\EchartsPHP\ECharts;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -47,26 +46,38 @@ class DefaultJMController extends AbstractController
 
 
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
-    public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $ts)
+    public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
     {
-        $fromDate = "2023-01-01 00:00";
-        $toDate = "2023-11-09 00:00";
+        $fromDate = "2023-11-01 00:00";
+        $toDate = "2023-11-16 00:00";
+        $anlagen[] = $anlagenRepository->findIdLike("56")[0];
+        $anlagen[] = $anlagenRepository->findIdLike("233")[0];//faulty included in purpose
+        $anlagen[] = $anlagenRepository->findIdLike("219")[0];
+        $anlagen[] = $anlagenRepository->findIdLike("231")[0];
+        $anlagen[] = $anlagenRepository->findIdLike("182")[0];
+
+
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
-        $anlage = $anlagenRepository->findIdLike("217")[0];
-        $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
-        foreach ($tickets as $ticket){
-            $dates = $ticket->getDates();
-            foreach ($dates as $date){
-                $em->remove($date);
-            }
-            $em->remove($ticket); 
+        foreach ($anlagen as $anlage){
+            $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
+            try {
+                foreach ($tickets as $ticket) {
+                    $dates = $ticket->getDates();
+                    foreach ($dates as $date) {
+                        $em->remove($date);
+                    }
+                    $em->remove($ticket);
+                }
+                $em->flush();
+                for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+
+
+                    $alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
+                }
+            } catch(\Exception $e){}
         }
 
-        $em->flush();
-        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-            $ts->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
-        }
         dd("hello world");
     }
 
@@ -77,9 +88,7 @@ class DefaultJMController extends AbstractController
 
         foreach ($anlagen as $anlage){
             $timeZone = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
-            dump($timeZone->getName());
             date_default_timezone_set($timeZone->getName());
-            dump(new DateTime('now'));
         }
 
         dd("hello World");
@@ -219,7 +228,7 @@ class DefaultJMController extends AbstractController
 
     }
 
-    #[Route(path: '/test/pdfw', name: 'default_pdf')]
+    #[Route(path: '/test/pdfw', name: 'default_waterfall_pdf')]
     public function testpdfwaterfall(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): \Symfony\Component\HttpFoundation\Response{
         $anlage = $ar->findIdLike("57")[0];
 

@@ -12,12 +12,11 @@ use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use League\Flysystem\Filesystem;
-use RecursiveIteratorIterator;
-use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
+use League\Flysystem\FilesystemException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[IsGranted('ROLE_G4N')]
 class EignerController extends BaseController
@@ -68,6 +67,10 @@ class EignerController extends BaseController
         ]);
     }
 
+    /**
+     * @throws FilesystemException
+     * @throws \Exception
+     */
     #[Route(path: '/admin/owner/edit/{id}', name: 'app_admin_owner_edit')]
     public function edit($id, EntityManagerInterface $em, Request $request, EignerRepository $ownerRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): Response
     {
@@ -111,29 +114,22 @@ class EignerController extends BaseController
             // the rest
             $em->persist($owner);
             $em->flush();
-            if ($form->get('save')->isClicked()) {
-                $response = $this->render('owner/edit.html.twig', [
-                    'ownerForm' => $form,
-                    'isupload' => $isupload,
-                    'imageuploadet' => $tempFile,
-                ]);
-            }
+            $this->addFlash('success', 'Owner data saved');
+
             if ($form->get('saveclose')->isClicked()) {
-                $response = $this->redirectToRoute('app_admin_owner_list');
+                return $this->redirectToRoute('app_admin_owner_list');
             }
         }
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
 
-            $response = $this->redirectToRoute('app_admin_owner_list');
+            return $this->redirectToRoute('app_admin_owner_list');
         }
 
-        if (!$form->isSubmitted() || $form->isValid()) $response = $this->render('owner/edit.html.twig', [
-                'ownerForm' => $form,
-                'fileUploadForm' => $form,
-                'isupload' => $isupload,
-                'imageuploadet' => $tempFile,
-            ]);
-        return $response;
+        return $this->render('owner/edit.html.twig', [
+            'ownerForm' => $form,
+            'isupload' => $isupload,
+            'imageuploadet' => $tempFile,
+        ]);
     }
 }

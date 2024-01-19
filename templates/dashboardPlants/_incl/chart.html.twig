@@ -104,7 +104,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
             chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             ;
-            
+
             chart.events.on("ready", function(ev) {
                 //yAxes1.min = 0; //yAxes1.minZoomed;
                 //yAxes1.max = yAxes1.maxZoomed;
@@ -1373,6 +1373,8 @@ and form.selectedChart != 'sollistirranalyse'%}
     {% include 'dashboardPlants/_incl/chart/forecast.html.twig' %}
 {% elseif form.selectedChart == 'forecast_pr' %}
     {% include 'dashboardPlants/_incl/chart/forecast_pr.html.twig' %}
+{% elseif form.selectedChart == 'forecast_dayahead' %}
+    {% include 'dashboardPlants/_incl/chart/forecast_dayahead.html.twig' %}
 {% elseif form.selectedChart == 'acpnom' %}
     {% include 'dashboardPlants/_incl/chart/acPNom.html.twig' %}
 {% elseif form.selectedChart == 'dcpnomcurr' %}

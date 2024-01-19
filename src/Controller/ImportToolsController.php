@@ -2,20 +2,27 @@
 
 namespace App\Controller;
 
+use App\Form\Import\ImportEGridFormType;
+use App\Form\Import\ImportPvSystFormType;
 use App\Form\ImportTools\ImportToolsFormType;
 use App\Form\Model\ImportToolsModel;
 use App\Helper\G4NTrait;
 use App\Helper\ImportFunctionsTrait;
 use App\Message\Command\ImportData;
 use App\Repository\AnlagenRepository;
+use App\Service\Import\PvSystImportService;
 use App\Service\ImportService;
 use App\Service\LogMessagesService;
+use App\Service\PdoService;
+use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
+use JsonException;
+use Shuchkin\SimpleXLSX;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 
 class ImportToolsController extends BaseController
@@ -24,6 +31,15 @@ class ImportToolsController extends BaseController
     use G4NTrait;
 
     /**
+     * VCOM Import per Import Tools Menü.
+     *
+     * @param Request $request
+     * @param MessageBusInterface $messageBus
+     * @param LogMessagesService $logMessages
+     * @param AnlagenRepository $anlagenRepo
+     * @param EntityManagerInterface $entityManagerInterface
+     * @param ImportService $importService
+     * @return Response
      * @throws \Exception
      */
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
@@ -86,10 +102,13 @@ class ImportToolsController extends BaseController
     }
 
     /**
-     * Cronjob to Import PLants direct by symfony (configured in backend)
+     * VCOM Import by Cronjob; PLants direct by symfony (configured in backend)
      *
+     * @param AnlagenRepository $anlagenRepo
+     * @param ImportService $importService
      * @return Response
      * @throws NonUniqueResultException
+     * @throws JsonException
      */
     #[Route('/import/cron', name: 'import_cron')]
     public function importCron(AnlagenRepository $anlagenRepo, ImportService $importService): Response
@@ -113,16 +132,17 @@ class ImportToolsController extends BaseController
     /**
      * Manuel Import PLants direct by symfony via URL (configured in backend)
      *
+     * @param int $id
+     * @param string $from
+     * @param string $to
+     * @param AnlagenRepository $anlagenRepo
+     * @param ImportService $importService
      * @return Response
      * @throws NonUniqueResultException
+     * @throws JsonException
      */
     #[Route('/import/manuel', name: 'import_manuell')]
-    public function importManuell(
-        #[MapQueryParameter] int $id,
-        #[MapQueryParameter] string $from,
-        #[MapQueryParameter] string $to,
-        AnlagenRepository $anlagenRepo,
-        ImportService $importService): Response
+    public function importManuell(#[MapQueryParameter] int $id, #[MapQueryParameter] string $from, #[MapQueryParameter] string $to, AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
         $fromts = strtotime("$from 00:00:00");
         $tots = strtotime("$to 23:59:00");
@@ -156,5 +176,104 @@ class ImportToolsController extends BaseController
 
         return new Response('This is used for import via manual Import.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
     }
+
+    /**
+     * Import der eGrid Daten aus Excel.
+     * Format Kopf Zeile muss 'stamp' und '' haben.
+     * Format 'stamp' = 'Y-m-d H:i'
+     *
+     * @param Request $request
+     * @param UploaderHelper $uploaderHelper
+     * @param AnlagenRepository $anlagenRepository
+     * @param PdoService $pdoService
+     * @param $uploadsPath
+     * @return Response
+     */
+    #[Route(path: '/import/egrid', name: 'import_egrid')]
+    public function importEGrid(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, PdoService $pdoService, $uploadsPath): Response
+    {
+
+        $form = $this->createForm(ImportEGridFormType::class); // anpassen
+        $form->handleRequest($request);
+
+        $output = '';
+
+        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
+            $anlageForm = $form['anlage']->getData();
+            $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageForm]);
+            $anlageId = $anlage->getAnlagenId();
+            $dataBaseNTable = $anlage->getDbNameIst();
+            $uploadedFile = $form['file']->getData();
+            if ($uploadedFile) {
+                if ($xlsx = simpleXLSX::parse($uploadedFile->getPathname())) {
+                    $conn = $pdoService->getPdoPlant();
+                    foreach ($xlsx->rows(0) as $key => $row) {
+                        if ($key === 0) {
+                            $data_fields = $row;
+                            $indexStamp = array_search('stamp', $data_fields);
+                            $indexEzevu = array_search('e_z_evu', $data_fields);
+                            if ($indexEzevu === false) $indexEzevu  = array_search('eGridValue', $data_fields);
+                        } else {
+                            $eZEvu = $row[$indexEzevu] != '' ? $row[$indexEzevu] : NULL;
+                            $stamp = $row[$indexStamp];
+                            $stmt= $conn->prepare("UPDATE $dataBaseNTable SET e_z_evu = ? WHERE stamp = ?");
+                            $stmt->execute([$eZEvu, $stamp]);
+                        }
+                    }
+
+                } else {
+                    $output .= "No valid XLSX File.<br>";
+                    $output .= "(" . SimpleXLSX::parseError() . ")";
+                }
+            }
+        }
+
+        // Wenn Close geklickt wird mache dies:
+        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        return $this->render('import/eGridImport.html.twig', [
+            'form'     => $form,
+            'output'   => $output,
+        ]);
+    }
+
+    /**
+     * Import der PvSyst Stunden Daten aus CSV (Excel).
+     *
+     * @param Request $request
+     * @param PvSystImportService $pvSystImport
+     * @return Response
+     */
+    #[Route(path: '/import/pvsyst', name: 'import_pvsyst')]
+    public function importPvSyst(Request $request, PvSystImportService $pvSystImport): Response
+    {
+
+        $form = $this->createForm(ImportPvSystFormType::class);
+        $form->handleRequest($request);
+
+        $output = '';
+
+        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
+
+            $anlage = $form->getData()->anlage;
+            $file = $form['file']->getData();
+
+            $output = $pvSystImport->import($anlage, $file);
+
+        }
+
+        // Wenn Close geklickt wird mache dies:
+        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        return $this->render('import/pvSystImport.html.twig', [
+            'form'     => $form,
+            'output'   => $output,
+        ]);
+    }
+
 
 }

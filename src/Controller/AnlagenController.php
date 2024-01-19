@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-use App\Service\PdoService;
 
 use App\Entity\EconomicVarNames;
 use App\Entity\Eigner;
@@ -18,7 +17,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class AnlagenController extends BaseController
 {

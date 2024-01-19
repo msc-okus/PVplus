@@ -3,56 +3,49 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production - Losses</h3>
-    <table >
-        <tr>
-            <td  style="text-align: left">
-                <table class="asset_report_table_operations_data " >
-                    <thead>
-                    <tr>
-                        <th style="text-align: right;width:230px" rowspan="2">Monthly Losses - {{ year }}</th>
-                        {% for data in monthArray %}
-                            <th style="text-align: center;width: 6.5%"><div style="width: 100%">{{ data }}</div></th>
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        {% for data in monthArray %}
-                            <th style="text-align: center"><div style="width: 100%">[kWh]</div></th>
-                        {% endfor %}
-                    </tr>
-                    </thead>
-                    <tbody>
+
+    <div>
+        <table style="width: 100%" class="asset_report_table_operations_data " >
+            <thead>
+            <tr>
+                <th style="text-align: right;width:12% " rowspan="2" class="tr_first_column">Monthly Losses - {{ year }}</th>
+                {% for data in monthArray %}
+                    <th style="text-align: center;width: 6.5%" class="tr_next_columns"><div>{{ data }}</div></th>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for data in monthArray %}
+                    <th style="text-align: center; width: 6.5%" class="tr_next_columns"><div >[kWh]</div></th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
 
 
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right">Diff. ACT <sup>*</sup> to EXP g4n<sup>**</sup></td>
-                            {% for data in losses_t2.diefference_prod_to_expected_g4n %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
+                <tr>
+                    <td class="tr_first_column" style="text-align: right ;width: 12%">Diff. ACT <sup>*</sup> to EXP g4n<sup>**</sup></td>
+                    {% for data in losses_t2.diefference_prod_to_expected_g4n %}
+                        <td class="tr_next_columns" style="width: 6.5%">{{ data|number_format(0, ',', '.') }}</td>
+                    {% endfor %}
+                </tr>
 
 
-                    <tr>
-                        <td class="tr_first_column" style="text-align: right">Diff. ACT to forecast</td>
-                        {% for data in losses_t2.difference_prod_to_forecast %}
-                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                        {% endfor %}
-                    </tr>
+            <tr>
+                <td class="tr_first_column" style="text-align: right; width: 12%">Diff. ACT to forecast</td>
+                {% for data in losses_t2.difference_prod_to_forecast %}
+                    <td class="tr_next_columns" style="width: 6.5%">{{ data|number_format(0, ',', '.') }}</td>
+                {% endfor %}
+            </tr>
 
-                    </tbody>
-                    <tr>
-                        <td  style="text-align: left" colspan="6">
-                            <sup>*</sup>ACT; Prod actual. <br>
-                            <sup>**</sup>Expected g4n production. <br>
-                        </td>
-                    </tr>
-                </table>
-                <table style="width:100%!important;">
-                    <tr>
-                        <td style="text-align: left">{{ losses_monthly|raw }}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+            </tbody>
+        </table>
+    </div>
+    <div style="font-size: 10px">
+        <sup>*</sup>ACT; Prod actual. <br>
+        <sup>**</sup>Expected g4n production. <br>
+    </div>
+    <div style="text-align: left">
+        {{ losses_monthly|raw }}
+    </div>
 
 {% endblock page %}

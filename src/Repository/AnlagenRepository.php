@@ -168,6 +168,16 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getResult()
             ;
     }
+    public function findAlertSystemActiveByEigner(bool $active, string $eignerId){
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.ActivateTicketSystem = (:val)')
+            ->setParameter('val', $active)
+            ->andWhere('a.eignerId = (:owner)')
+            ->setParameter('owner', $eignerId)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 
     public function findInternalAlertSystemActive(bool $active){
         return $this->createQueryBuilder('a')
@@ -303,6 +313,15 @@ class AnlagenRepository extends ServiceEntityRepository
             ->orderBy('a.country')
             ->addOrderBy('a.anlName')
             ->setParameter('eigner', $eigner)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllIDByUseDayahead(): array
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.useDayaheadForecast = 1')
+            ->orderBy('a.anlId', 'ASC')
             ->getQuery()
             ->getResult();
     }

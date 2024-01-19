@@ -39,6 +39,15 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $disableDep3 = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $enablePADep1 = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $enablePADep2 = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $enablePADep3 = true;
+
     // Settings for Expected
     #[ORM\Column(nullable: true)]
     private ?bool $epxCalculationByCurrent = true; // if true = caclulate Expected by current*voltage / if false = caclulate by power settings
@@ -127,6 +136,9 @@ class AnlageSettings
     private ?bool $chartAnalyse11 = false;
 
     #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse12 = false;
+
+    #[ORM\Column(nullable: true)]
     private ?bool $chartCurr1 = false;
 
     #[ORM\Column(nullable: true)]
@@ -170,6 +182,9 @@ class AnlageSettings
 
     #[ORM\Column(nullable: true)]
     private ?bool $useSensorsData = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $sensorsInBasics = false;
 
     public function getId(): ?int
     {
@@ -216,6 +231,45 @@ class AnlageSettings
     public function setDisableDep3(bool $disableDep3): void
     {
         $this->disableDep3 = $disableDep3;
+    }
+
+    public function getEnablePADep0(): ?bool
+    {
+        return true;
+    }
+
+
+    public function getEnablePADep1(): ?bool
+    {
+        if ($this->enablePADep1 === null) return true;
+        return $this->enablePADep1;
+    }
+
+    public function setEnablePADep1(?bool $enablePADep1): void
+    {
+        $this->enablePADep1 = $enablePADep1;
+    }
+
+    public function getEnablePADep2(): ?bool
+    {
+        if ($this->enablePADep2 === null) return true;
+        return $this->enablePADep2;
+    }
+
+    public function setEnablePADep2(?bool $enablePADep2): void
+    {
+        $this->enablePADep2 = $enablePADep2;
+    }
+
+    public function getEnablePADep3(): ?bool
+    {
+        if ($this->enablePADep3 === null) return true;
+        return $this->enablePADep3;
+    }
+
+    public function setEnablePADep3(?bool $enablePADep3): void
+    {
+        $this->enablePADep3 = $enablePADep3;
     }
 
 
@@ -557,6 +611,18 @@ class AnlageSettings
         return $this;
     }
 
+    public function isChartAnalyse12(): ?bool
+    {
+        return $this->chartAnalyse12;
+    }
+
+    public function setChartAnalyse12(?bool $chartAnalyse12): self
+    {
+        $this->chartAnalyse12 = $chartAnalyse12;
+
+        return $this;
+    }
+
     public function isChartCurr1(): ?bool
     {
         return $this->chartCurr1;
@@ -721,6 +787,18 @@ class AnlageSettings
     public function setUseSensorsData(?bool $useSensorsData): self
     {
         $this->useSensorsData = $useSensorsData;
+
+        return $this;
+    }
+
+    public function isSensorsInBasics(): ?bool
+    {
+        return $this->sensorsInBasics;
+    }
+
+    public function setSensorsInBasics(?bool $sensorsInBasics): self
+    {
+        $this->sensorsInBasics = $sensorsInBasics;
 
         return $this;
     }

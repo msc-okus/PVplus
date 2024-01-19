@@ -68,7 +68,7 @@ class Anlage implements \Stringable
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private int $anlId;
+    private string $anlId;  // DBAL return Type of bigint = string
 
     #[Groups(['main'])]
     #[ORM\Column(name: 'eigner_id', type: 'bigint', nullable: false)]
@@ -521,7 +521,7 @@ class Anlage implements \Stringable
     #[ORM\Column(type: 'boolean', nullable: true)]
     private bool $hasPannelTemp = false;
 
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: Ticket::class)]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: Ticket::class, cascade: ['remove'])]
     private Collection $tickets;
 
     #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: EconomicVarNames::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
@@ -532,6 +532,9 @@ class Anlage implements \Stringable
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $useDayForecast = false;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $useDayaheadForecast = false;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $hasSunshadingModel  = false;
@@ -1238,6 +1241,11 @@ class Anlage implements \Stringable
     public function getDbNameDcSoll(): string
     {
         return $this->dbAnlagenData.'.db__pv_dcsoll_'.$this->getAnlIntnr();
+    }
+
+    public function getDbNameForecastDayahead(): string
+    {
+        return $this->dbAnlagenData.'.db__pv_fc_'.$this->getAnlIntnr();
     }
 
     public function getDbNameMeters(): string
@@ -3353,6 +3361,17 @@ class Anlage implements \Stringable
         return $this;
     }
 
+    public function getUseDayaheadForecast(): ?bool
+    {
+        return $this->useDayaheadForecast;
+    }
+
+    public function setUseDayaheadForecast(bool $useDayaheadForecast): self
+    {
+        $this->useDayaheadForecast = $useDayaheadForecast;
+
+        return $this;
+    }
 
     public function getHasSunshadingModel(): ?bool
     {
@@ -3421,9 +3440,12 @@ class Anlage implements \Stringable
         return $this;
     }
 
+    /**
+     * we use this to determine whether a plant uses pvsys or not
+     */
     public function hasPVSYST(): bool
     {
-        return intval($this->kwPeakPvSyst) > 0;
+        return (intval($this->kwPeakPvSyst) > 0 ||  $this->showPvSyst);
     }
 
     public function getPicture(): ?string
