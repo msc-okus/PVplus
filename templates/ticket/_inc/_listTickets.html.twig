@@ -80,11 +80,10 @@
                                 splitUrl: path('app_ticket_split', { id: ticket.id}),
                                 notifyUrl: path('app_ticket_notify', {id: ticket.id})
                             }) }}>
-                             <span data-tooltip tabindex="1" title="Edit Ticket [{{ ticket.id }}]">
-                            <button class="button action-icon tiny hollow shadow"
+
+                            <button title="Edit Ticket [{{ ticket.id }}]" class="button action-icon tiny hollow shadow"
                                     data-action="ticket-edit#openModal"
                                     data-append-to="div#modal-form{{ ticket.id }}"><span class="fa fa-edit"></span></button>
-                             </span>
 
 
                             {{ include('ticket/_inc/_modalTicket.html.twig', {
