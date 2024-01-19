@@ -2,7 +2,7 @@
 {% block body %}
     {% set mt = messagetext %}
 
-    <div class="dropdown-content" {{ stimulus_controller('processmessenges', { message: mt})}}>
+    <div class="dropdown-content" {{ stimulus_controller('processmessenges->getshowmessage()', { message: mt})}}>
     </div>
 
 {% endblock %}

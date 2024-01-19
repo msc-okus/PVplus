@@ -35,8 +35,7 @@ class GenerateAMReportHandler
         $logId = $generateAMReport->getlogId();
         $this->logMessages->updateEntry($logId, 'working', 0);
 
-        #$this->assetManagement->createAmReport($anlage, $generateAMReport->getMonth(), $generateAMReport->getYear(), $generateAMReport->getUserId(), $logId);
+        $this->assetManagement->createAmReport($anlage, $generateAMReport->getMonth(), $generateAMReport->getYear(), $generateAMReport->getUserId(), $logId);
         $this->logMessages->updateEntry($logId, 'done', 100);
-        $this->testService->testMal();
     }
 }
