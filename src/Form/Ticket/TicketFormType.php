@@ -2,18 +2,12 @@
 
 namespace App\Form\Ticket;
 
-use App\Entity\Anlage;
-use App\Entity\AnlagenReports;
 use App\Entity\Ticket;
 use App\Form\Type\AnlageTextType;
 use App\Form\Type\SwitchType;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
-use FOS\CKEditorBundle\Form\Type\CKEditorType;
-use Stakovicz\UXCollection\Form\UXCollectionType;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -45,7 +39,7 @@ class TicketFormType extends AbstractType
         /** @var Ticket $ticket */
         $ticket = $options['data'] ?? null;
 
-        $isNewTicket = ($ticket !== null && $ticket->getCreatedAt() !== null) ? false : true;
+        $isNewTicket = !(($ticket !== null && $ticket->getCreatedAt() !== null));
         $anlage = ($ticket != null) ? $ticket->getAnlage() : null;
         $full = ($anlage) ?  $anlage->getKpiTicket() : true;
         $errorCategorie = self::errorCategorie();
@@ -62,53 +56,53 @@ class TicketFormType extends AbstractType
                 ],
             ]);
         if ($isNewTicket) {
-            $builder       ->add('inverterName', TextType::class,[
-                'label' => 'Inverter Names',
-                'required' => true,
-                'help' => '* = all Inverters',
-                'attr' => [
-                    'readonly' => true,
-                ],
-            ])
-
+            $builder
+                ->add('inverterName', TextType::class,[
+                    'label' => 'Inverter Names',
+                    'required' => true,
+                    'help' => '* = all Inverters',
+                    'attr' => [
+                        'readonly' => true,
+                    ],
+                ])
                 ->add('alertType', ChoiceType::class, [
-                'label' => 'Category of ticket ',
-                'help' => 'data gap, inverter, ...',
-                'choices' => $errorCategorie,
-                'placeholder' => 'Please select ...',
-                'invalid_message' => 'Please select a Error Category.',
-                'empty_data' => 0,
-                'attr' => [
-                    'data-action' => 'change->ticket-edit#saveCheck',
-                    'data-ticket-edit-target' => 'formCategory',
-                    'data-ticket-edit-edited-param' => 'false',
-                ],
-            ])
-            ;
+                    'label' => 'Category of ticket ',
+                    'help' => 'data gap, inverter, ...',
+                    'choices' => $errorCategorie,
+                    'placeholder' => 'Please select ...',
+                    'invalid_message' => 'Please select a Error Category.',
+                    'empty_data' => 0,
+                    'attr' => [
+                        'data-action' => 'change->ticket-edit#saveCheck',
+                        'data-ticket-edit-target' => 'formCategory',
+                        'data-ticket-edit-edited-param' => 'false',
+                    ],
+                ]);
         } else {
-            $builder       ->add('inverterName', TextType::class,[
-                'label' => 'Inverter Names',
-                'required' => true,
-                'help' => '* = all Inverters',
-                'data' => $ticket->getInverterName(),
-                'attr' => [
-                    'readonly' => true,
-                ],
-            ])
+            $builder
+                ->add('inverterName', TextType::class,[
+                    'label' => 'Inverter Names',
+                    'required' => true,
+                    'help' => '* = all Inverters',
+                    'data' => $ticket->getInverterName(),
+                    'attr' => [
+                        'readonly' => true,
+                    ],
+                ])
 
                 ->add('alertType', ChoiceType::class, [
-                'label' => 'Category of ticket ',
-                'help' => 'data gap, inverter, ...',
-                'choices' => $errorCategorie,
-                'disabled' => true,
-                'placeholder' => 'Please select ...',
-                'invalid_message' => 'Please select a Error Category.',
-                'empty_data' => 0,
-                'attr' => [
-                    'data-action' => 'change->ticket-edit#saveCheck',
-                    'data-ticket-edit-target' => 'formCategory',
-                ],
-            ]);
+                    'label' => 'Category of ticket ',
+                    'help' => 'data gap, inverter, ...',
+                    'choices' => $errorCategorie,
+                    'disabled' => true,
+                    'placeholder' => 'Please select ...',
+                    'invalid_message' => 'Please select a Error Category.',
+                    'empty_data' => 0,
+                    'attr' => [
+                        'data-action' => 'change->ticket-edit#saveCheck',
+                        'data-ticket-edit-target' => 'formCategory',
+                    ],
+                ]);
         }
 
         $builder
