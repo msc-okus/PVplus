@@ -10,7 +10,7 @@ use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use App\Service\SchowService;
+
 #[AsMessageHandler]
 class GenerateAMReportHandler
 {
@@ -18,9 +18,7 @@ class GenerateAMReportHandler
         private readonly AssetManagementService $assetManagement,
         private readonly LogMessagesService $logMessages,
         private readonly AnlagenRepository $anlagenRepo,
-        private readonly SchowService $testService
-    )
-    {
+    ) {
     }
 
     /**
@@ -35,7 +33,13 @@ class GenerateAMReportHandler
         $logId = $generateAMReport->getlogId();
         $this->logMessages->updateEntry($logId, 'working', 0);
 
-        $this->assetManagement->createAmReport($anlage, $generateAMReport->getMonth(), $generateAMReport->getYear(), $generateAMReport->getUserId(), $logId);
+        $this->assetManagement->createAmReport(
+            $anlage,
+            $generateAMReport->getMonth(),
+            $generateAMReport->getYear(),
+            $generateAMReport->getUserId(),
+            $logId
+        );
         $this->logMessages->updateEntry($logId, 'done', 100);
     }
 }
