@@ -67,7 +67,7 @@ class UserFormType extends AbstractType
 
        if ($this->security->isGranted('ROLE_G4N')){
            $choicesRolesArray = [...User::ARRAY_OF_G4N_ROLES, ...User::ARRAY_OF_ROLES_USER, ...User::ARRAY_OF_FUNCTIONS_BY_ROLE];
-          } else {
+       } else {
            $choicesRolesArray = [...User::ARRAY_OF_ROLES_USER, ...User::ARRAY_OF_FUNCTIONS_BY_ROLE];
        }
 
@@ -100,7 +100,6 @@ class UserFormType extends AbstractType
                 'choices' => $choicesRolesArray,
                 'multiple' => true,
                 'expanded' => true,
-               # 'mapped'    => $this->security->isGranted('ROLE_G4N'),
             ])
             ->add('eigners', EntityType::class, [
                 'class' => Eigner::class,

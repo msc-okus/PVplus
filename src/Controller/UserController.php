@@ -126,6 +126,7 @@ class UserController extends BaseController
             $form->handleRequest($request);
             $selEigner = $form->get('eigners')->getData()[0];
             $selSingleEigner = $form->get('singleeigners')->getData();
+            /** @var User $user */
             $user = $form->getData();
             // für die Rolle G4N entfällt die Prüfung
             if (!$this->isGranted('ROLE_G4N')){
