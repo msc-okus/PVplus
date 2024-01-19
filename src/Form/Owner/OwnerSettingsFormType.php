@@ -14,21 +14,29 @@ class OwnerSettingsFormType extends AbstractType
     {
         $builder
             ->add('nameDep1', TextType::class, [
-
+                'label' => 'Name Department 1',
+                'help'  => '[nameDep1]<br>Default Value is "O&M"'
             ])
             ->add('nameDep2', TextType::class, [
-
+                'label' => 'Name Department 2',
+                'help'  => '[nameDep2]<br>Default Value is "EPC"'
             ])
             ->add('nameDep3', TextType::class, [
-
+                'label' => 'Name Department 3',
+                'help'  => '[nameDep3]<br>Default Value is "AM (Aset Management)"'
             ])
             ->add('mcUser', TextType::class, [
-
+                'label' => 'MedioControl VCOM User',
+                'help'  => '[mcUser]'
             ])
             ->add('mcPassword', TextType::class, [
+                'label' => 'MedioControl VCOM Passwort',
+                'help'  => '[mcPassword]'
 
             ])
             ->add('mcToken', TextType::class, [
+                'label' => 'MedioControl VCOM API Token',
+                'help'  => '[mcToken]'
 
             ])
         ;

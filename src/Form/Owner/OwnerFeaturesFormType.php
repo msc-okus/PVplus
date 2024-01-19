@@ -15,26 +15,32 @@ class OwnerFeaturesFormType extends AbstractType
     {
         $builder
             ->add('simulatorName', TextType::class, [
-                'label'     => 'Name of the simulator tool used'
+                'label'     => 'Name of the simulator tool used',
+                'help'      => '[simulatorName]<br>example: PVSyst, PV Sol, etc <br>default value = "Simulation"'
             ])
             ->add('aktDep1', SwitchType::class, [
-                'label'     => 'Aktivate Departemnet 1 (O&M)',
+                'label'     => 'Aktivate Department 1 (O&M)',
+                'help'      => '[aktDep1]'
             ])
             ->add('aktDep2', SwitchType::class, [
-                'label'     => 'Aktivate Departemnet 2 (EPC)',
+                'label'     => 'Aktivate Department 2 (EPC)',
+                'help'      => '[aktDep2]'
             ])
             ->add('aktDep3', SwitchType::class, [
-                'label'     => 'Aktivate Departemnet 3 (AM)',
+                'label'     => 'Aktivate Department 3 (AM)',
+                'help'      => '[aktDep3]'
             ])
             ->add('SplitInverter', SwitchType::class, [
                 'label'     => 'Split by Inverter',
+                'help'      => '[SplitInverter]<br>Ticket feature - Split ticket by inverter'
             ])
             ->add('SplitGap', SwitchType::class, [
                 'label'     => 'Split by Time',
+                'help'      => '[SplitGap]<br>Ticket feature - Split ticket by time'
             ])
             ->add('ManAktive', SwitchType::class, [
                 'label'     => 'Aktivate Maintenance Contact',
-                'help'      => 'Aktivate the maintenance contact function [on/off] ',
+                'help'      => '[ManAktive]<br>Aktivate the maintenance contact function [on/off] ',
             ])
         ;
     }
