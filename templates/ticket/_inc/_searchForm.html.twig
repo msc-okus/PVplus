@@ -68,7 +68,7 @@
             </div>
 
             <div class="cell medium-1" style="margin-top:-17px!important;">
-                <input type="text" name="inverter" class="input-group-field" value="{{ inverter }}" placeholder="Inverter">
+                <input type="text" name="inverter" class="input-group-field" {% if ( is_granted('ROLE_G4N') == false) %} style="display:none;" {% endif %}value="{{ inverter }}" placeholder="Inverter">
             </div>
 
             <div class="cell medium-1 notifyclass">
@@ -113,7 +113,7 @@
             </div>
 
             <div class="cell medium-1 notifyclass" >
-                {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
+                {% if (is_granted('ROLE_G4N') ) %}
                     <div class="notifyheader">
                         <div class="notifyheader-label">Ignored Tickets
                             <input type="checkbox" name="ignored" class="input-group-field" value="1">
