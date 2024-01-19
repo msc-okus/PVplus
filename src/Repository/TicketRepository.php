@@ -267,7 +267,6 @@ class TicketRepository extends ServiceEntityRepository
             }
         }
 
-
         return $qb;
     }
 

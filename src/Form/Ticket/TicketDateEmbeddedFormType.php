@@ -30,6 +30,7 @@ class TicketDateEmbeddedFormType extends AbstractType
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
         $isBeta      = $this->security->isGranted('ROLE_BETA');
+        $isTicket      = $this->security->isGranted('ROLE_TICKET');
 
         $builder
             ->add('begin', DateTimeType::class, [
@@ -111,7 +112,7 @@ class TicketDateEmbeddedFormType extends AbstractType
             ;
 
         ########### Performance Tickets ###########
-        if ($isDeveloper || $isBeta) {
+        if ($isDeveloper || $isBeta || $isTicket) {
             $builder
 
                 ########## exclude Sensors &  replace Sensor

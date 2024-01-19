@@ -29,6 +29,9 @@ class OwnerFeatures
     private ?bool $SplitInverter = false;
 
     #[ORM\Column(nullable: true, options: ['default' => '0'])]
+    private ?bool $ManAktive = false;
+
+    #[ORM\Column(nullable: true, options: ['default' => '0'])]
     private ?bool $SplitGap = false;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -107,6 +110,18 @@ class OwnerFeatures
     public function setSplitGap(bool $SplitGap): self
     {
         $this->SplitGap = $SplitGap;
+
+        return $this;
+    }
+
+    public function isManAktive(): ?bool
+    {
+        return $this->ManAktive;
+    }
+
+    public function setManAktive(bool $ManAktive): self
+    {
+        $this->ManAktive = $ManAktive;
 
         return $this;
     }

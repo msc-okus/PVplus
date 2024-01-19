@@ -4,9 +4,32 @@
 {% block title %}List User{% endblock %}
 
 {% block body %}
-    <h1>List Users</h1>
+    <div class="grid-x">
+        <div class="cell">
+            <h1>List Users</h1>
+        </div>
+    </div>
+<div class="ticketsearchbar" >
+    <div class="grid-x grid-margin-x align-top" >
+
+        <div class="cell medium-2">
+            <label><b>Filter / Search by:</b></label>
     {{ macrolibrary.searchbox(app.request.query.get('qu'), 'qu') }}
-    <table class="table">
+        </div>
+        <div class="cell medium-10">
+            &nbsp;
+        </div>
+        <div class="cell medium-2">
+            <label><b>Aktion:</b></label>
+            <span data-tooltip tabindex="1" title="Create New User">
+            <a class="button action-icon tiny hollow shadow expanded no-margins" title="Create new user" alt="Create new user" href="{{ path('app_admin_user_new') }}">  <span class="fa fa-plus"></span></a>
+            </span>
+        </div>
+
+    </div>
+</div>
+
+<table class="table sortable stickyheader">
         <thead>
         <tr>
             <th>{{ knp_pagination_sortable(pagination,'Nr','user.id') }}</th>
@@ -35,11 +58,14 @@
                     <td><small>{{ user.grantedList }}</small></td>
                     <td><a class="hollow button tiny no-margin shadow" href="{{ path('app_dashboard', {_switch_user: user.email}) }}">Impersonate</a></td>
                 {% endif %}
-                <td><a href="{{ path('app_admin_user_edit', {id: user.userId}) }}" class="hollow button action-icon shadow"><span class="fa fa-edit"></span></a></td>
+                <td>
+                    <span data-tooltip tabindex="1" title="Edit User">
+                    <a href="{{ path('app_admin_user_edit', {id: user.userId}) }}" title="Edit User" class="button action-icon tiny hollow shadow expanded no-margins"><span class="fa fa-edit"></span></a>
+                    </span>
+                </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
     {{ knp_pagination_render(pagination) }}
-    <a class="button primary" href="{{ path('app_admin_user_new') }}">Create New</a>
 {% endblock %}

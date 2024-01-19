@@ -35,6 +35,7 @@ class TicketFormType extends AbstractType
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
         $isBeta = $this->security->isGranted('ROLE_BETA');
         $isG4N = $this->security->isGranted('ROLE_G4N');
+        $isTicket = $this->security->isGranted('ROLE_TICKET');
 
         /** @var Ticket $ticket */
         $ticket = $options['data'] ?? null;
@@ -159,7 +160,7 @@ class TicketFormType extends AbstractType
             ->add('ProofAM', SwitchType::class, [
                 'label' => 'proof by AM'
             ]);
-            if($isAdmin || $isDeveloper || $isBeta){
+            if($isAdmin || $isDeveloper || $isBeta || $isTicket){
                 $builder ->add('needsProofg4n', SwitchType::class, [
                     'label' => 'proof by G4N'
                 ]);
