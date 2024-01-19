@@ -281,6 +281,7 @@ class TicketController extends BaseController
         $countByProofAM = $ticketRepo->countByProofAM();
         $countByProofG4N = $ticketRepo->countByProofG4N();
 
+        //dd($countByProofAM, $countByProofG4N, $countProofByEPC, $countProofByTam);
         $filter = [];
         $session = $request->getSession();
         $pageSession = $session->get('page');

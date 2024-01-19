@@ -150,7 +150,7 @@ class TicketFormType extends AbstractType
                 'empty_data' => 10, // Low
                 'invalid_message' => 'Please select a Priority.',
             ])
-            ->add('needsProofTAM', SwitchType::class, [
+            ->add('needsProof', SwitchType::class, [
                 'label' => 'proof by TAM',
             ])
             ->add('needsProofEPC', SwitchType::class, [
@@ -159,17 +159,11 @@ class TicketFormType extends AbstractType
             ])
             ->add('ProofAM', SwitchType::class, [
                 'label' => 'proof by AM'
+            ])
+            ->add('needsProofg4n', SwitchType::class, [
+                'label' => 'proof by G4N'
             ]);
-            if($isAdmin || $isDeveloper || $isBeta || $isTicket){
-                $builder ->add('needsProofg4n', SwitchType::class, [
-                    'label' => 'proof by G4N'
-                ]);
-            }
-            else {
-                $builder ->add('needsProofg4n', SwitchType::class, [
-                    'label' => 'proof by G4N'
-                ]);
-            }
+
             $builder->add('ignoreTicket', SwitchType::class, [
                 'label' => 'Ignore',
             ])
