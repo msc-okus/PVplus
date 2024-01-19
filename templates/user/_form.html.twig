@@ -6,6 +6,7 @@
 {% endmacro %}
 
 {{ form_start(userForm, {'attr': {'novalidate': 'no', 'autocomplete': 'new-password'}}) }}
+
 <div class="grid-x grid-margin-x grid-padding-x">
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
@@ -18,7 +19,6 @@
             {{ form_row(userForm.allPlants) }}
         </fieldset>
     </div>
-
 
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
@@ -44,37 +44,15 @@
         </fieldset>
     </div>
 
-    <div class="cell small-6 medium-3">
+    <div class="cell small-6 medium-3" >
         <fieldset class="fieldset">
             <legend>List with Plants
                 <span data-tooltip tabindex="1" title="Please assign a plant for this User !"><i class="fa fa-info-circle"></i></span>
             </legend>
-            {#  {% if userForm.eigners.vars.data is not null %}
-              {{ form_widget(userForm.eignersPlantList) }}
-            {% endif %}#}
 
-            {# {% if userForm.eigners.vars.data is not null %} #}
-
+           <div style="width: 100%; height: 400px; overflow-y: scroll;">
              {{ form_widget(userForm.eignersPlantList) }}
-
-            {# <div id="user_form_eignersPlantList">
-                {% for key, item in userForm.eignersPlantList %}
-                    <label>{{item.vars.label}}</label>
-                    <div class="switch tiny checkbox">
-                        <input
-                                type="checkbox"
-                                value="{{item.vars.value}}"
-                                id="{{item.vars.id}}"
-                                class="switch-input"
-                                name="{{item.vars.full_name}}"
-                                aria-describedby="{{item.vars.id}}"
-                                {{ item.vars.checked ? 'checked="checked"' : '' }}
-                        >
-                        <label class="switch-paddle" for="{{item.vars.id}}" id="{{item.vars.id}}" name="{{item.vars.full_name}}" required="required" aria-describedby="{{item.vars.id}}"></label>
-                    </div>
-                {% endfor %}
-            </div>
-            #}
+           </div>
 
         </fieldset>
     </div>
