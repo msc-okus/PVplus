@@ -27,7 +27,6 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
 use League\Flysystem\Filesystem;
-
 class AssetManagementService
 {
     use G4NTrait;
@@ -59,7 +58,6 @@ class AssetManagementService
         private Filesystem $filesystem,
         private AnlageFileRepository $RepositoryUpload,
         private readonly Security $security,
-
     )
     {
         $this->conn = $this->pdoService->getPdoPlant();
@@ -72,19 +70,8 @@ class AssetManagementService
      */
     public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null, ?int $logId = null): AnlagenReports
     {
-        $html =  $this->twig->render('logMessages/_prozessReady.html.twig', [
-            'message' => 'Ready',
-        ]);
-        echo $html;
-        $myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
-        $txt = "John Doe\n";
-        fwrite($myfile, $txt);
-
-        fwrite($myfile, $html);
-        fclose($myfile);
 
         $report = $this->reportRepo->findOneByAMY($anlage, $reportMonth, $reportYear)[0];
-
         $comment = '';
         if ($report) {
             $this->em->remove($report);
