@@ -21,6 +21,7 @@
 {% endblock %}
 
 {% block body %}
+    {{ dump() }}
     {% if anlagen == 0 %} {# Keine Datensätze gefunden #}
         <div class="callout alert" >
             <h4>Sorry your database are not not available !</h4>

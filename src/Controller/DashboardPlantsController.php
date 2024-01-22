@@ -183,6 +183,7 @@ class DashboardPlantsController extends BaseController
         $hour = $request->get('hour') == 'on';
         if ($aktAnlage) {
             $content = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
+
         }
 
         $isInTimeRange = self::isInTimeRange();

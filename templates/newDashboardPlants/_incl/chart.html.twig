@@ -3,7 +3,7 @@
 {% from "newDashboardPlants/_incl/macrosStatus.html.twig" import gridTable as gridTable %}
 
 {% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' and form.selectedChart != 'grid'
-    and form.selectedChart != 'sollistirranalyse'%}
+and form.selectedChart != 'sollistirranalyse'%}
     <div id="amchart-holder"></div>
 {% endif %}
 
@@ -67,9 +67,9 @@
             series1.tooltip.label.interactionsEnabled = false;
             series1.tooltip.keepTargetHover = true;
             {% if aktAnlage.anlType != 'ZWR' %} // Wenn kein ZentralWechselRichter vorliegt wird der Lnk erzeugt
-            series1.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Expected {valueY} [KWh]</a>";
+                series1.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Expected {valueY} [KWh]</a>";
             {% else %}
-            series1.columns.template.tooltipHTML = "<b>{category}:</b><br>Expected {valueY} [KWh]";
+                series1.columns.template.tooltipHTML = "<b>{category}:</b><br>Expected {valueY} [KWh]";
             {% endif %}
             series1.tooltip.dy = 50;
             series1.dataFields.valueY = "exp";
@@ -87,9 +87,9 @@
             series2.tooltip.label.interactionsEnabled = false;
             series2.tooltip.keepTargetHover = true;
             {% if aktAnlage.anlType != 'ZWR' %}
-            series2.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Actual {valueY} [KWh]</a>";
+                series2.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Actual {valueY} [KWh]</a>";
             {% else %}
-            series2.columns.template.tooltipHTML = "<b>{category}:</b><br>Actual {valueY} [KWh]";
+                series2.columns.template.tooltipHTML = "<b>{category}:</b><br>Actual {valueY} [KWh]";
             {% endif %}
             series2.tooltip.dy = -100;
             chart.scrollbarX = new am4core.Scrollbar();
@@ -150,7 +150,7 @@
             series1.stroke = am4core.color("#057a07");
             series1.fill = am4core.color("#057a07");
             series1.strokeWidth = 1;
-            series1.defaultState.transitionDuration = 300;
+            series1.defaultState.transitionDuration = 0;
             series1.tensionX = 0.8;
             series1.connect = false;
 
@@ -162,7 +162,7 @@
             series2.stroke = am4core.color("#d6a9e0");
             series2.fill = am4core.color("#d6a9e0");
             series2.strokeWidth = 1;
-            series2.defaultState.transitionDuration = 300;
+            series2.defaultState.transitionDuration = 0;
             series2.tensionX = 0.8;
             series2.connect = false;
 
@@ -174,7 +174,7 @@
             series3.stroke = am4core.color("#a97335");
             series3.fill = am4core.color("#a97335");
             series3.strokeWidth = 1;
-            series3.defaultState.transitionDuration = 300;
+            series3.defaultState.transitionDuration = 0;
             series3.tensionX = 0.8;
             series3.connect = false;
 
@@ -233,7 +233,7 @@
             series0.stroke = am4core.color("#016195");
             series0.fill = am4core.color("#016195");
             series0.strokeWidth = 1;
-            series0.defaultState.transitionDuration = 300;
+            series0.defaultState.transitionDuration = 0;
             series0.tensionX = 0.8;
 
             let series1 = chart.series.push(new am4charts.LineSeries());
@@ -244,7 +244,7 @@
             series1.stroke = am4core.color("#057a07");
             series1.fill = am4core.color("#057a07");
             series1.strokeWidth = 1;
-            series1.defaultState.transitionDuration = 300;
+            series1.defaultState.transitionDuration = 0;
             series1.tensionX = 0.8;
 
             let series2 = chart.series.push(new am4charts.LineSeries());
@@ -255,7 +255,7 @@
             series2.stroke = am4core.color("#d6a9e0");
             series2.fill = am4core.color("#d6a9e0");
             series2.strokeWidth = 1;
-            series2.defaultState.transitionDuration = 300;
+            series2.defaultState.transitionDuration = 0;
             series2.tensionX = 0.8;
 
             let series3 = chart.series.push(new am4charts.LineSeries());
@@ -266,7 +266,7 @@
             series3.stroke = am4core.color("#a97335");
             series3.fill = am4core.color("#a97335");
             series3.strokeWidth = 1;
-            series3.defaultState.transitionDuration = 300;
+            series3.defaultState.transitionDuration = 0;
             series3.tensionX = 0.8;
 
             chart.cursor = new am4charts.XYCursor();
@@ -326,7 +326,7 @@
             series0.stroke = am4core.color("#016195");
             series0.fill = am4core.color("#016195");
             series0.strokeWidth = 2;
-            series0.defaultState.transitionDuration = 300;
+            series0.defaultState.transitionDuration = 0;
             series0.tensionX = 0.8;
 
             // Create series
@@ -336,16 +336,16 @@
                 // Create series Actual
                 let series = new am4charts.LineSeries();
                 {% if (content.offsetLegende) %}
-                let newSeriesId = seriesId + {{ content.offsetLegende }};
-                series.name = "{{ content.seriesx.name }}" + newSeriesId ;
+                    let newSeriesId = seriesId + {{ content.offsetLegende }};
+                    series.name = "{{ content.seriesx.name }}" + newSeriesId ;
                 {% else %}
-                series.name = "{{ content.seriesx.name }}" + seriesId;
+                    series.name = "{{ content.seriesx.name }}" + seriesId;
                 {% endif %}
                 series.dataFields.dateX = "date";
                 series.dataFields.valueY = "val" + seriesId;
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series.connect = false;
                 series = chart.series.push(series);
@@ -378,7 +378,7 @@
     <script>
         am4core.ready(function() {
             // Create chart instance
-            am4core.useTheme(am4themes_animated);
+                am4core.useTheme(am4themes_animated);
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             let title = chart.titles.create();
             title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
@@ -411,7 +411,7 @@
             series0.stroke = am4core.color("#016195");
             series0.fill = am4core.color("#016195");
             series0.strokeWidth = 2;
-            series0.defaultState.transitionDuration = 300;
+            series0.defaultState.transitionDuration = 0;
             series0.tensionX = 0.8;
 
             // Create series
@@ -421,16 +421,16 @@
                 // Create series Actual
                 let series = new am4charts.LineSeries();
                 {% if (content.offsetLegende) %}
-                let newSeriesId = seriesId + {{ content.offsetLegende }};
-                series.name = "{{ content.seriesx.name }}" + newSeriesId ;
+                    let newSeriesId = seriesId + {{ content.offsetLegende }};
+                    series.name = "{{ content.seriesx.name }}" + newSeriesId ;
                 {% else %}
-                series.name = "{{ content.seriesx.name }}" + seriesId;
+                    series.name = "{{ content.seriesx.name }}" + seriesId;
                 {% endif %}
                 series.dataFields.dateX = "date";
                 series.dataFields.valueY = "val" + seriesId;
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series.connect = false;
                 series = chart.series.push(series);
@@ -516,7 +516,7 @@
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series = chart.series.push(series);
             }
@@ -574,12 +574,12 @@
             let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
             {% if (is_granted('ROLE_G4N')) %}
-            let valueAxisIrr = chart.yAxes.push(new am4charts.ValueAxis());
-            valueAxisIrr.title.text = "Irradiation [[W/m²]]";
-            valueAxisIrr.renderer.opposite = true;
-            valueAxisIrr.renderer.ticks.template.disabled = true;
-            valueAxisIrr.renderer.grid.template.disabled = true;
-            valueAxisIrr.extraMax = 0.1;
+                let valueAxisIrr = chart.yAxes.push(new am4charts.ValueAxis());
+                valueAxisIrr.title.text = "Irradiation [[W/m²]]";
+                valueAxisIrr.renderer.opposite = true;
+                valueAxisIrr.renderer.ticks.template.disabled = true;
+                valueAxisIrr.renderer.grid.template.disabled = true;
+                valueAxisIrr.extraMax = 0.1;
             {% endif %}
 
             let series0 = chart.series.push(new am4charts.LineSeries());
@@ -591,32 +591,17 @@
             series0.fill = am4core.color("#fdd400");
             series0.strokeWidth = 2;
             series0.sequencedInterpolation = false;
-            series0.defaultState.transitionDuration = 300;
+            series0.defaultState.transitionDuration = 0;
             series0.tensionX = 0.8;
-
-            {% if (is_granted('ROLE_G4N')) %}
-            let seriesIrr = chart.series.push(new am4charts.LineSeries());
-            seriesIrr.name = "Irradiation W/m²"
-            seriesIrr.dataFields.dateX = "date";
-            seriesIrr.dataFields.valueY = "irradiation";
-            seriesIrr.tooltipText = "Irradiation W/m²: {valueY} [/]";
-            seriesIrr.stroke = am4core.color("#950101");
-            seriesIrr.strokeWidth = 1;
-            //series5Irr.defaultState.transitionDuration = 50;
-            seriesIrr.tensionX = 0.8;
-            seriesIrr.hidden = true;
-            seriesIrr.yAxis = valueAxisIrr;
-            {% endif %}
-
-
 
             // Create series
             let units = JSON.parse('{{ content.inverterArray | raw  }}');
-            function addSeries(seriesId) {
 
+            function addSeries(seriesId) {
                 // Create series Actual
                 let series = new am4charts.LineSeries();
                 let newSeriesId = seriesId + {{ content.offsetLegende }};
+                console.log(units[newSeriesId])
 
                 series.dataFields.valueY = units[newSeriesId];
                 series.name = units[newSeriesId];
@@ -624,7 +609,7 @@
                 series.dataFields.dateX = "date";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series = chart.series.push(series);
             }
@@ -632,6 +617,20 @@
             for (let i = 1; i <= {{ content.maxSeries }}; i++) {
                 addSeries(i);
             }
+
+            {% if (is_granted('ROLE_G4N')) %}
+                let seriesIrr = chart.series.push(new am4charts.LineSeries());
+                seriesIrr.name = "Irradiation W/m²"
+                seriesIrr.dataFields.dateX = "date";
+                seriesIrr.dataFields.valueY = "irradiation";
+                seriesIrr.tooltipText = "Irradiation W/m²: {valueY} [/]";
+                seriesIrr.stroke = am4core.color("#950101");
+                seriesIrr.strokeWidth = 1;
+                seriesIrr.defaultState.transitionDuration = 0;
+                seriesIrr.tensionX = 0.8;
+                seriesIrr.hidden = true;
+                seriesIrr.yAxis = valueAxisIrr;
+            {% endif %}
 
             chart.cursor = new am4charts.XYCursor();
             chart.cursor.xAxis = dateAxis;
@@ -658,7 +657,7 @@
     <script>
         am4core.ready(function() {
             // Create chart instance
-            am4core.useTheme(am4themes_animated);
+                am4core.useTheme(am4themes_animated);
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             chart.data = {{ content.data|raw }};
@@ -694,7 +693,7 @@
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series = chart.series.push(series);
             }
@@ -723,11 +722,12 @@
     </script>
 
 {% elseif form.selectedChart == 'dc_voltage_1' %}
-    {# Volt1 #}
+    {# VoltDC1 #}
     <!-- Liniendiagramm DC (voltage plant) -->
-    {% include 'newDashboardPlants/_incl/chart/curr1.html.twig' %}
+    {% include 'newDashboardPlants/_incl/chart/volt1.html.twig' %}
 
 {% elseif form.selectedChart == 'dc_voltage_groups' %}
+    {# VoltDC1 #}
     <!-- Liniendiagramm DC (voltage groups) -->
     <script>
         am4core.ready(function() {
@@ -763,7 +763,7 @@
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series = chart.series.push(series);
             }
@@ -795,7 +795,7 @@
     <script>
         am4core.ready(function() {
             // Create chart instance
-            am4core.useTheme(am4themes_animated);
+                am4core.useTheme(am4themes_animated);
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
@@ -832,7 +832,7 @@
                 series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series = chart.series.push(series);
             }
@@ -903,9 +903,9 @@
             series1.tooltip.label.interactionsEnabled = false;
             series1.tooltip.keepTargetHover = true;
             {% if aktAnlage.anlType != 'ZWR' %} // Wenn kein ZentralWechselRichter vorliegt wird der Link erzeugt
-            series1.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Expected {valueY} [KWh]</a>";
+                series1.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Expected {valueY} [KWh]</a>";
             {% else %}
-            series1.columns.template.tooltipHTML = "<b>{category}:</b><br>Expected {valueY} [[KWh]]";
+                series1.columns.template.tooltipHTML = "<b>{category}:</b><br>Expected {valueY} [[KWh]]";
             {% endif %}
             series1.tooltip.dy = 50;
             series1.dataFields.valueY = "exp";
@@ -925,9 +925,9 @@
             series2.tooltip.label.interactionsEnabled = false;
             series2.tooltip.keepTargetHover = true;
             {% if aktAnlage.anlType != 'ZWR' %}
-            series2.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Actual {valueY} [KWh]</a>";
+                series2.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Actual {valueY} [KWh]</a>";
             {% else %}
-            series2.columns.template.tooltipHTML = "<b>{category}:</b><br>Actual {valueY} [[KWh]]";
+                series2.columns.template.tooltipHTML = "<b>{category}:</b><br>Actual {valueY} [[KWh]]";
             {% endif %}
             series2.tooltip.dy = -50;
 
@@ -1069,40 +1069,40 @@
             series1.fill = "#fdd400";
             series1.strokeWidth = 1;
             series1.sequencedInterpolation = true;
-            series1.defaultState.transitionDuration = 300;
+            series1.defaultState.transitionDuration = 0;
             series1.tensionX = 0.8;
             series1.connect = false;
 
             {% if aktAnlage.weatherStation.hasPannelTemp == true %}
             let series2 = chart.series.push(new am4charts.LineSeries());
-            series2.name = "{{ content.series2.name }}";
-            series2.ttname = "{{ content.series2.tooltipText }}";
-            series2.dataFields.dateX = "date";
-            series2.dataFields.valueY = "tempCellMeasuerd";
-            series2.tooltipText = "{ttname}: {valueY} [/]";
-            series2.stroke = am4core.color("#016195");
-            series2.fill = "#016195";
-            series2.strokeWidth = 1;
-            series2.sequencedInterpolation = true;
-            series2.defaultState.transitionDuration = 300;
-            series2.tensionX = 0.8;
-            series2.connect = false;
+                series2.name = "{{ content.series2.name }}";
+                series2.ttname = "{{ content.series2.tooltipText }}";
+                series2.dataFields.dateX = "date";
+                series2.dataFields.valueY = "tempCellMeasuerd";
+                series2.tooltipText = "{ttname}: {valueY} [/]";
+                series2.stroke = am4core.color("#016195");
+                series2.fill = "#016195";
+                series2.strokeWidth = 1;
+                series2.sequencedInterpolation = true;
+                series2.defaultState.transitionDuration = 0;
+                series2.tensionX = 0.8;
+                series2.connect = false;
             {% endif %}
 
             {% if aktAnlage.useCustPRAlgorithm == 'Lelystad' %}
-            let series3 = chart.series.push(new am4charts.LineSeries());
-            series3.name = "{{ content.series3.name }}";
-            series3.ttname = "{{ content.series3.tooltipText }}";
-            series3.dataFields.dateX = "date";
-            series3.dataFields.valueY = "tempCellCorr";
-            series3.tooltipText = "{ttname}: {valueY} [/]";
-            series3.stroke = am4core.color("#950193");
-            series3.fill = "#950193";
-            series3.strokeWidth = 1;
-            series3.sequencedInterpolation = true;
-            series3.defaultState.transitionDuration = 300;
-            series3.tensionX = 0.8;
-            series3.connect = false;
+                let series3 = chart.series.push(new am4charts.LineSeries());
+                series3.name = "{{ content.series3.name }}";
+                series3.ttname = "{{ content.series3.tooltipText }}";
+                series3.dataFields.dateX = "date";
+                series3.dataFields.valueY = "tempCellCorr";
+                series3.tooltipText = "{ttname}: {valueY} [/]";
+                series3.stroke = am4core.color("#950193");
+                series3.fill = "#950193";
+                series3.strokeWidth = 1;
+                series3.sequencedInterpolation = true;
+                series3.defaultState.transitionDuration = 0;
+                series3.tensionX = 0.8;
+                series3.connect = false;
             {% endif %}
 
             let windSpeed = chart.series.push(new am4charts.LineSeries());
@@ -1115,7 +1115,7 @@
             windSpeed.fill = "#019524";
             windSpeed.strokeWidth = 1;
             windSpeed.sequencedInterpolation = true;
-            windSpeed.defaultState.transitionDuration = 300;
+            windSpeed.defaultState.transitionDuration = 0;
             windSpeed.tensionX = 0.8;
             windSpeed.connect = false;
 
@@ -1143,7 +1143,7 @@
     <script>
         am4core.ready(function() {
             // Create chart instance
-            am4core.useTheme(am4themes_animated);
+                am4core.useTheme(am4themes_animated);
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
@@ -1177,24 +1177,24 @@
             series1.fill = "#fdd400";
             series1.strokeWidth = 1;
             series1.sequencedInterpolation = true;
-            series1.defaultState.transitionDuration = 300;
+            series1.defaultState.transitionDuration = 0;
             series1.tensionX = 0.8;
             series1.connect = false;
 
             {% if aktAnlage.showOnlyUpperIrr == false %}
-            let series2 = chart.series.push(new am4charts.LineSeries());
-            series2.name = "{{ content.series2.name }}";
-            series2.ttname = "{{ content.series2.tooltipText }}";
-            series2.dataFields.dateX = "date";
-            series2.dataFields.valueY = "val2";
-            series2.tooltipText = "{ttname}: {valueY} [/]";
-            series2.stroke = am4core.color("#016195");
-            series2.fill = "#016195";
-            series2.strokeWidth = 1;
-            series2.sequencedInterpolation = true;
-            series2.defaultState.transitionDuration = 300;
-            series2.tensionX = 0.8;
-            series2.connect = false;
+                let series2 = chart.series.push(new am4charts.LineSeries());
+                series2.name = "{{ content.series2.name }}";
+                series2.ttname = "{{ content.series2.tooltipText }}";
+                series2.dataFields.dateX = "date";
+                series2.dataFields.valueY = "val2";
+                series2.tooltipText = "{ttname}: {valueY} [/]";
+                series2.stroke = am4core.color("#016195");
+                series2.fill = "#016195";
+                series2.strokeWidth = 1;
+                series2.sequencedInterpolation = true;
+                series2.defaultState.transitionDuration = 0;
+                series2.tensionX = 0.8;
+                series2.connect = false;
             {% endif %}
 
             chart.cursor = new am4charts.XYCursor();
@@ -1220,7 +1220,7 @@
     <script>
         am4core.ready(function() {
             // Create chart instance
-            am4core.useTheme(am4themes_animated);
+                am4core.useTheme(am4themes_animated);
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
@@ -1254,7 +1254,7 @@
             series1.fill = "#fdd400";
             series1.strokeWidth = 1;
             series1.sequencedInterpolation = true;
-            series1.defaultState.transitionDuration = 300;
+            series1.defaultState.transitionDuration = 0;
             series1.tensionX = 0.8;
             series1.connect = false;
 
@@ -1281,7 +1281,7 @@
     <script>
         am4core.ready(function() {
             // Create chart instance
-            am4core.useTheme(am4themes_animated);
+                am4core.useTheme(am4themes_animated);
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             //chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             chart.data = {{ content.data|raw }};
@@ -1314,7 +1314,7 @@
             series0.fill = am4core.color("#fdd400");
             series0.strokeWidth = 2;
             series0.sequencedInterpolation = false;
-            series0.defaultState.transitionDuration = 300;
+            series0.defaultState.transitionDuration = 0;
             series0.tensionX = 0.8;
             series0.connect = false;
 
@@ -1328,7 +1328,7 @@
                 series.tooltipText = nameX[seriesId] + ": {valueY} [/]";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
+                series.defaultState.transitionDuration = 0;
                 series.tensionX = 0.8;
                 series.connect = false;
                 chart.series.push(series);
@@ -1371,10 +1371,14 @@
     {{ gridTable(content.grid) }}
 {% elseif form.selectedChart == 'forecast' %}
     {% include 'newDashboardPlants/_incl/chart/forecast.html.twig' %}
+{% elseif form.selectedChart == 'forecast_pr' %}
+    {% include 'newDashboardPlants/_incl/chart/forecast_pr.html.twig' %}
+{% elseif form.selectedChart == 'forecast_dayahead' %}
+    {% include 'newDashboardPlants/_incl/chart/forecast_dayahead.html.twig' %}
 {% elseif form.selectedChart == 'acpnom' %}
-    {% include 'newDashboardPlants/_incl/chart/AcPNom.html.twig' %}
+    {% include 'newDashboardPlants/_incl/chart/acPNom.html.twig' %}
 {% elseif form.selectedChart == 'dcpnomcurr' %}
-    {% include 'newDashboardPlants/_incl/chart/DcPNomCurr.html.twig' %}
+    {% include 'newDashboardPlants/_incl/chart/dcPNomCurr.html.twig' %}
 {% elseif form.selectedChart == 'heatmap' %}
     {% include 'newDashboardPlants/_incl/chart/heatmap.html.twig' %}
 {% elseif form.selectedChart == 'tempheatmap' %}
@@ -1387,4 +1391,6 @@
     {% include 'newDashboardPlants/_incl/chart/sollisttempanalyse.html.twig' %}
 {% elseif form.selectedChart == 'sollistirranalyse' %}
     {% include 'newDashboardPlants/_incl/chart/sollistirranalyse.html.twig' %}
+{# {% elseif form.selectedChart == 'ppcontrollerchart' %}
+    {% include 'newDashboardPlants/_incl/chart/Ppcontroller1.html.twig' %} #}
 {% endif %}

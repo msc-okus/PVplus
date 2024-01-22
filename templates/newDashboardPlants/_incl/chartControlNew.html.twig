@@ -43,6 +43,7 @@
                         or form.selectedChart == 'sollisttempanalyse'
                         or form.selectedChart == 'sollistanalyse'
                         or form.selectedChart == 'sollistirranalyse'
+                        or form.selectedChart == 'forecast_dayahead'
                         or form.selectedChart == 'dcpnomcurr'
                         or form.selectedChart == 'acpnom' %}
                     'Today': [moment(), moment()],
@@ -215,56 +216,6 @@
                 alert("Ups: the selected day is in the future");
             }
         });
-
-        //Add for New Dashboard ------------------------------------------
-        $('#chart-control').find('select').change(function (){
-            $('#mysubmit').val('yes');
-            $('#chart-control').delay(100).submit();
-        });
-        $('#chart-control').on('submit',function (e){
-            e.preventDefault();
-            var form = $(this);
-            $.ajax({
-                type: form.attr('method'),
-                url: form.attr('action'),
-                data: form.serialize(),
-                success: function (data, status, xhr) {
-                    var id=$(e.target).data('tabId');
-                    var tabId='#' + id;
-                    var plantChartHtml = $(data).find('#plantChart').html().replaceAll('$(\'#', `$(\'#${id}_`)
-                    var tempDiv = $('<div>').html(plantChartHtml);
-
-                    tempDiv.find('[id]').each(function() {
-                        var originalId = $(this).attr('id');
-                        $(this).attr('id', id + '_'+ originalId);
-                    });
-                    plantChartHtml = tempDiv.html();
-                    plantChartHtml = plantChartHtml.replace(/create\("amchart-holder"/g, `create("${id}_amchart-holder"`);
-
-                    $(tabId).html(plantChartHtml);
-
-                    var chartC= tabId + '_chart-control'
-                    $(chartC).data('tabId',id);
-
-                    console.log(document.querySelector(tabId));
-                    executeScripts(document.querySelector(tabId));
-                },
-                error: function (jqXhr, textStatus, errorMessage) {
-                    $($(e.target).data('tabId')).html(' ');
-                }
-            });
-        });
-
-        function executeScripts(container) {
-            container.querySelectorAll('script').forEach((script) => {
-                const newScript = document.createElement('script');
-                Array.from(script.attributes)
-                    .forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                newScript.appendChild(document.createTextNode(script.innerHTML));
-                script.parentNode.replaceChild(newScript, script);
-            });
-        }
-        //Add for New Dashboard --------------------------------------------------
     });
 </script>
 
@@ -282,23 +233,21 @@
         // The range slider config and functions
         $(function () {
             $('#slider-range').slider({
-                    range: true,
-                    min: 1,
-                    max: {% if content.sumSeries|raw %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
-                    values: {% if form.selectedSet %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
-                slide:
-            function (event, ui) {
-                $('#sview').val("" + ui.values[0] + "-" + ui.values[1] + "");
-                $('#sviewhidden').val("[" + ui.values[0] + "," + ui.values[1] + "]");
-            }
-        ,
-            change: function (event, ui) {
-                if ((ui.values[1] - ui.values[0]) > 100) {
-                    alert("The selected range is greater than 100, which can lead to delays in the view!");
-                };
-                $('#sendrange').css("background-color", "#e6e6e6");
-            }
-        });
+                range: true,
+                min: 1,
+                max: {% if content.sumSeries|raw %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
+                values: {% if form.selectedSet %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
+                slide: function (event, ui) {
+                    $('#sview').val("" + ui.values[0] + "-" + ui.values[1] + "");
+                    $('#sviewhidden').val("[" + ui.values[0] + "," + ui.values[1] + "]");
+                },
+                change: function (event, ui) {
+                    if ((ui.values[1] - ui.values[0]) > 100) {
+                        alert("The selected range is greater than 100, which can lead to delays in the view!");
+                    }
+                    $('#sendrange').css("background-color", "#e6e6e6");
+                }
+            });
             $('#sview').val("" + $('#slider-range').slider("values", 0) + "-" + $('#slider-range').slider("values", 1) + "");
             $('#sviewhidden').val("[" + $('#slider-range').slider("values", 0) + "," + $('#slider-range').slider("values", 1) + "]");
             $('#goshare').click(function () {
@@ -332,17 +281,20 @@
                     <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
                 {% endif %}
                 {% if aktAnlage.settings.chartAnalyse3 %}
-                    <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast
-                        Ertrag&nbsp;[kWh]
+                    <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast Ertrag&nbsp;[kWh]
                     </option>
                 {% endif %}
                 {% if aktAnlage.settings.chartAnalyse10 %}
-                    <option value="forecast_pr" {% if form.selectedChart == 'forecast_pr' %}selected{% endif %}>Forecast
-                        PR&nbsp;[kWh / %]
+                    <option value="forecast_pr" {% if form.selectedChart == 'forecast_pr' %}selected{% endif %}>Forecast PR&nbsp;[kWh / %]
                     </option>
                 {% endif %}
                 {% if aktAnlage.settings.chartAnalyse11 %}
-                    <option value="forecast3" {% if form.selectedChart == 'forecast3' %}selected{% endif %}>Forecast3&nbsp;[kWh]</option>
+                    <option value="forecast3" {% if form.selectedChart == 'forecast3' %}selected{% endif %}>Forecast3&nbsp;[kWh]
+                    </option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAnalyse12 and aktAnlage.useDayaheadForecast %}
+                    <option value="forecast_dayahead" {% if form.selectedChart == 'forecast_dayahead' %}selected{% endif %}>Forecast-Day-Ahead&nbsp;[kWh]
+                    </option>
                 {% endif %}
                 {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
                     {% if aktAnlage.settings.chartAnalyse4 %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Heatmap #}
@@ -420,12 +372,9 @@
             <!-- Developer and G4N Stuff -->
             {% if is_granted('ROLE_ADMIN') %}
                 <optgroup label="Admin Stuff">
-                    <option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show
-                        status log
-                    </option>
-                    {% if aktAnlage.showPvSyst or is_granted('ROLE_DEV') %}
-                        <option value="pvsyst" {% if form.selectedChart == 'pvsyst' %}selected{% endif %}>Show pvSyst
-                        </option>
+                    <option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show status log</option>
+                    {% if aktAnlage.showPvSyst %}
+                        <option value="pvsyst" {% if form.selectedChart == 'pvsyst' %}selected{% endif %}>Show pvSyst</option>
                     {% endif %}
                     {% if is_granted('ROLE_DEV') %}
                         <option value="grid" {% if form.selectedChart == 'grid' %}selected{% endif %}>Show grid</option>
@@ -448,7 +397,7 @@
                     <div class="cell medium-5 large-5 xlarge-5"><label for="amount">INV Range:</label></div>
                     <div class="cell medium-4 large-4 xlarge-4">
                         <input type="text" id="sview" readonly
-                               style="border:0; background-color: #701b1b00 ; box-shadow: inset 0 0px 0px rgba(10, 10, 10, 0.1);font-weight:bold;">
+                               style="border:0; background-color: #701b1b00 ; box-shadow: inset 0 0 0 rgba(10, 10, 10, 0.1);font-weight:bold;">
                         <input type="hidden" id="sviewhidden" name="selectedSet" value="0">
                         <input type="hidden" name="selectedSetfrom" value="{{ form.selectedSet }}">
                     </div>
@@ -523,11 +472,47 @@
         </div>
     {% endif %}
 
+    {% if form.selectedChart == 'forecast_dayahead' %}
+        <div class="cell medium-4 large-4 xlarge-4">
+            <div class="small button-group round toggle" style="margin-bottom: 0.1rem;">
+                <label title="Switch View" class="button js-submit-onchange {% if form.optionDayAheadView == 0 %}active{% endif %}">
+                    <input type="radio" name="optionDayAheadView" value="0"
+                           {% if form.optionDayAheadView == 0 %}checked="checked"{% endif %}> Dashboard
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDayAheadView == 1 %}active{% endif %}">
+                    <input title="Switch View" type="radio" name="optionDayAheadView" value="1"
+                           {% if form.optionDayAheadView == 1 %}checked="checked"{% endif %}> Hourly values
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDayAheadView == 2 %}active{% endif %}">
+                    <input title="Switch View" type="radio" name="optionDayAheadView" value="2"
+                           {% if form.optionDayAheadView == 2 %}checked="checked"{% endif %}> 15 Minutes
+                </label>
+            </div>
+
+            <div class="small button-group round toggle" style="margin-bottom: 0.1rem;{% if form.optionDayAheadView == 2 %}display:none;{% endif %}">
+                <label title="Forecast Day View" class="button js-submit-onchange {% if form.optionDayAheadViewDay == 0 %}active{% endif %}">
+                    <input type="radio" name="optionDayAheadViewDay" value="0"
+                           {% if form.optionDayAheadViewDay == 0 %}checked="checked"{% endif %}> 6 Days
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 1 %}active{% endif %}">
+                    <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="1"
+                           {% if form.optionDayAheadViewDay == 1 %}checked="checked"{% endif %}> 3 Days
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 2 %}active{% endif %}">
+                    <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="2"
+                           {% if form.optionDayAheadViewDay == 2 %}checked="checked"{% endif %}> 2 Days
+                </label>
+          </div>
+
+        </div>
+    {% endif %}
+
     {% if (form.selectedChart != 'availability')
         and (form.selectedChart != 'acpnom')
         and (form.selectedChart != 'dcpnomcurr')
         and (form.selectedChart != 'pr_and_av')
         and (form.selectedChart != 'forecast')
+        and (form.selectedChart != 'forecast_dayahead')
         and (form.selectedChart != 'status_log')
         and (form.selectedChart != 'pvsyst')
         and (form.selectedChart != 'heatmap')
@@ -551,3 +536,65 @@
         </div>
     {% endif %}
 </div>
+<script>
+
+    //Add for New Dashboard ------------------------------------------
+
+    $('#chart-control').on('submit',function (e){
+        e.preventDefault();
+        var form = $(this);
+        $.ajax({
+            type: form.attr('method'),
+            url: form.attr('action'),
+            data: form.serialize(),
+            success: function (data, status, xhr) {
+                var id=$(e.target).data('tabId');
+                var tabId='#' + id;
+                var plantChartHtml = $(data).find('#plantChart').html().replaceAll('$(\'#', `$(\'#${id}_`)
+                var tempDiv = $('<div>').html(plantChartHtml);
+
+                tempDiv.find('[id]').each(function() {
+                    var originalId = $(this).attr('id');
+                    $(this).attr('id', id + '_'+ originalId);
+                });
+                tempDiv.find('[for]').each(function() {
+                    var originalFor = $(this).attr('for');
+                    $(this).attr('for', id + '_'+ originalFor);
+                });
+                tempDiv.find('[name]').each(function() {
+                    var originalFor = $(this).attr('name');
+                    $(this).attr('name', id + '_'+ originalFor);
+                });
+                plantChartHtml = tempDiv.html();
+                plantChartHtml = plantChartHtml.replace(/create\("amchart-holder"/g, `create("${id}_amchart-holder"`);
+
+                $(tabId).html(plantChartHtml);
+
+                var chartC= tabId + '_chart-control'
+                $(chartC).data('tabId',id);
+
+                let key = $('<input/>', {
+                    type: 'hidden',
+                    name: 'tab',
+                    value: id + '_'
+                });
+                $(chartC).append(key);
+
+            },
+            error: function (jqXhr, textStatus, errorMessage) {
+                $($(e.target).data('tabId')).html(' ');
+            }
+        });
+    });
+
+    //Add for New Dashboard --------------------------------------------------
+    $(".js-submit-onchange").change(function () {
+        $('#mysubmit').val('yes');
+        $('#chart-control').submit();
+    });
+
+    $(".js-submit-onchange-select").change(function () {
+        $('#mysubmit').val('select');
+        $('#chart-control').submit();
+    });
+</script>

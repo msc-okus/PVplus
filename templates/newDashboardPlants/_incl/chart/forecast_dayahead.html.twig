@@ -1,0 +1,528 @@
+<script>
+    am4core.ready(function() {
+        // Create chart Forecast-Day-Ahead
+        am4core.useTheme(am4themes_animated);
+
+        let chart = am4core.create("amchart-holder", am4charts.XYChart);
+        chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+        {% if form.optionDayAheadViewDay == 0 %}
+        {% set Dayvalue = '6' %}
+        {% elseif form.optionDayAheadViewDay == 1 %}
+        {% set Dayvalue = '3' %}
+        {% else %}
+        {% set Dayvalue = '2' %}
+        {% endif %}
+        {% if form.optionDayAheadView == 2 %}
+        {% set Dayvalue = '2' %}
+        {% endif %}
+
+        let title = chart.titles.create();
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} and {{ Dayvalue }} more days)";
+        title.fontSize = 18;
+        title.marginBottom = 30;
+
+        chart.data = {{ content.data|raw }};
+
+        {% if form.selectedChart == 'forecast_dayahead' %}
+
+            {% if form.optionDayAheadView == 0 %}
+            // Dashboard Start
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+            // Create Axes
+            let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = "date";
+            categoryAxis.dateFormatter.dateFormat = "yyyy-MM-dd";
+            categoryAxis.renderer.line.opacity = 0;
+            categoryAxis.renderer.ticks.template.disabled = true;
+            categoryAxis.renderer.grid.template.location = 0;
+            categoryAxis.renderer.grid.template.disabled = true;
+            categoryAxis.renderer.grid.template.strokeOpacity = 1;
+            //
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.min = 0;
+            valueAxis.renderer.minWidth = 35;
+            valueAxis.title.text = "[[kWh]]";
+            // Create Series 1
+            let series1 = chart.series.push(new am4charts.ColumnSeries());
+            series1.columns.template.tooltipText = "{name} : {valueY.value} kWh [/]";
+            series1.name = "Forecast yield";
+            series1.dataFields.categoryX = "date";
+            series1.dataFields.valueY = "forecast";
+            series1.tooltip.getFillFromObject = false;
+            series1.tooltip.background.fill = am4core.color("#344eb6");
+         //   series1.tooltip.pointerOrientation = "vertical";
+            series1.tooltip.dy = -5;
+            series1.fill = am4core.color("#344eb6");
+            series1.stroke = am4core.color("#344eb6");
+            series1.stacked = false;
+            series1.dateFormatter.dateFormat = "yyyy-MM-dd";
+            series1.clustered = false;
+            series1.columns.template.dx = 0;
+            series1.columns.template.width = am4core.percent(50);
+            series1.columns.template.strokeWidth = 0;
+            series1.columns.template.column.cornerRadiusTopLeft = 3;
+            series1.columns.template.column.cornerRadiusTopRight = 3;
+            series1.columns.template.column.fillOpacity = 1;
+            // Create Series 2
+            let series2 = chart.series.push(new am4charts.ColumnSeries());
+            series2.columns.template.tooltipText = "{name} : {valueY.value} kWh [/]";
+            series2.name = "Real yield";
+            series2.dataFields.categoryX = "date";
+            series2.dataFields.valueY = "real";
+            series2.stacked = false;
+            series2.dateFormatter.dateFormat = "yyyy-MM-dd";
+            series2.columns.template.strokeWidth = 0;
+            series2.clustered = false;
+            series2.columns.template.dx = 50;
+            series2.tooltip.getFillFromObject = false;
+            series2.columns.template.width = am4core.percent(50);
+            series2.stroke = am4core.color("#31af31");
+            series2.fill = am4core.color("#31af31");
+            series2.tooltip.background.fill = am4core.color("#31af31");
+            series2.tooltip.pointerOrientation = "vertical";
+            series2.columns.template.column.cornerRadiusTopLeft = 3;
+            series2.columns.template.column.cornerRadiusTopRight = 3;
+            series2.columns.template.column.fillOpacity = 1;
+            // Create a hover state
+            // var hoverState = series2.columns.template.states.create("hover");
+            // hoverState.properties.width = 0;
+
+            // Label inside the colums
+            var label = series1.columns.template.createChild(am4core.Label);
+            label.text = "{valueY} kWh [/]";
+            label.valign = "center";
+            label.strokeWidth = 0;
+            label.valign = "top";
+            label.align = "left";
+            label.dy = -20;
+            label.fill = am4core.color("#000");
+            // Label inside the colums
+            var label = series2.columns.template.createChild(am4core.Label);
+            label.text = "{valueY} kWh [/]";
+            label.valign = "center";
+            label.strokeWidth = 0;
+            label.valign = "top";
+            label.align = "right";
+            label.dy = -20;
+            label.fill = am4core.color("#000");
+
+           // Dashboard ENDE
+           {% elseif form.optionDayAheadView == 1 %}
+           // Hourly START
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.renderer.grid.template.location = 0;
+            dateAxis.renderer.minGridDistance = 60;
+
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.tooltip.disabled = true;
+            valueAxis.title.text = "[[kWh]]";
+
+            let valueAxisIrr = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxisIrr.title.text = "Irradiation [[W/m²]]";
+            valueAxisIrr.renderer.opposite = true;
+            valueAxisIrr.renderer.ticks.template.disabled = true;
+            valueAxisIrr.renderer.grid.template.disabled = true;
+            valueAxisIrr.extraMax = 0.1;
+
+            let valueAxisTmp = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxisTmp.title.text = "Temperature [[C°]]";
+            valueAxisTmp.renderer.opposite = true;
+            valueAxisTmp.renderer.ticks.template.disabled = true;
+            valueAxisTmp.renderer.grid.template.disabled = true;
+            valueAxisTmp.extraMax = 0.1;
+
+            // only for the legend
+            let iconSeries = chart.series.push(new am4charts.ColumnSeries())
+            iconSeries.strokeOpacity = 0;
+            //iconSeries.name = "Events";
+            iconSeries.dataFields.dateX = "date";
+            iconSeries.dataFields.valueY = "v";
+            iconSeries.fill = am4core.color("#fff");
+            iconSeries.tooltip.background.fill = am4core.color("#fff");
+
+            let series = chart.series.push(new am4charts.LineSeries());
+            series.dataFields.dateX = "date";
+            series.dataFields.openValueY = "forecast";
+            series.dataFields.valueY = "real";
+            series.tooltip.getFillFromObject = false;
+            series.sequencedInterpolation = true;
+            series.tooltip.background.fill = am4core.color("#31af31");
+            series.tooltipText = "Real: {valueY.value} kWh [/]";
+            series.stroke = am4core.color("#31af31");
+            series.strokeWidth = 2;
+            series.name = "Real";
+        //   series.stroke = chart.colors.getIndex(0);
+            series.fill = series.stroke;
+            series.fillOpacity = 0.8;
+
+            let bullet = series.bullets.push(new am4charts.CircleBullet())
+            bullet.fill = new am4core.InterfaceColorSet().getFor("background");
+            bullet.fillOpacity = 1;
+            bullet.strokeWidth = 2;
+            bullet.circle.radius = 4;
+
+            let series2 = chart.series.push(new am4charts.LineSeries());
+            series2.dataFields.dateX = "date";
+            series2.dataFields.valueY = "forecast";
+            series2.tooltipText = "Forecast: {valueY.value} kWh [/]";
+            series2.sequencedInterpolation = true;
+            series2.strokeWidth = 2;
+            series2.tooltip.getFillFromObject = false;
+            series2.tooltip.getStrokeFromObject = false;
+           // series2.tooltip.label.fill = am4core.color("#000");
+            series2.tooltip.background.fill = am4core.color("#344eb6");
+            series2.sequencedInterpolation = true;
+            series2.name = "Forecast ";
+            series2.stroke = am4core.color("#344eb6");
+            series2.fill = series2.stroke;
+            // Irr Value Chart
+            let seriesIrr = chart.series.push(new am4charts.LineSeries());
+            seriesIrr.dataFields.dateX = "date";
+            seriesIrr.dataFields.valueY = "irr";
+            seriesIrr.name = "Irradiation";
+            seriesIrr.tooltipText = "Irradiation : {valueY} W/m² [/]";
+            seriesIrr.fill = am4core.color("#95018e");
+            seriesIrr.stroke = am4core.color("#95018e");
+            seriesIrr.strokeWidth = 1;
+            seriesIrr.tensionX = 0.8;
+            seriesIrr.hidden = false;
+            seriesIrr.yAxis = valueAxisIrr;
+            seriesIrr.connect = false;
+            // TempValue Chart
+            let seriesTemp = chart.series.push(new am4charts.LineSeries());
+            seriesTemp.dataFields.dateX = "date";
+            seriesTemp.dataFields.valueY = "temp";
+            seriesTemp.name = "Temperature";
+            seriesTemp.tooltipText = "Temperature : {valueY} C° [/]";
+            seriesTemp.fill = am4core.color("#ec8907");
+            seriesTemp.stroke = am4core.color("#ec8907");
+            seriesTemp.strokeWidth = 1;
+            seriesTemp.tensionX = 0.8;
+            seriesTemp.hidden = false;
+            seriesTemp.yAxis = valueAxisTmp;
+            seriesTemp.connect = false;
+            // Bullet
+            let bullet2 = series2.bullets.push(new am4charts.CircleBullet())
+            bullet2.fill = bullet.fill;
+            bullet2.fillOpacity = 1;
+            bullet2.strokeWidth = 2;
+            bullet2.circle.radius = 4;
+            // Label
+            let labelx = bullet2.createChild(am4core.Label);
+            labelx.propertyFields.text = "label";
+            labelx.propertyFields.fill = am4core.color("#131");
+            labelx.strokeWidth = 0;
+            labelx.horizontalCenter = "middle";
+            labelx.verticalCenter = "bottom";
+            labelx.dy = -20;
+            // Line
+            let line = bullet2.createChild(am4core.Line);
+            line.x1 = 0;
+            line.y1 = 0;
+            line.x2 = 0;
+            line.y2 = 1000;
+            line.strokeOpacity = 0;
+            line.strokeDasharray = "3,3";
+            line.fill = am4core.color("#000");
+            line.stroke = am4core.color("#000");
+            line.propertyFields.strokeOpacity = "opacity";
+
+            let triangle = bullet2.createChild(am4core.Triangle);
+            triangle.width = 15;
+            triangle.height = 13;
+            triangle.dy = -8;
+            triangle.direction = "bottom";
+            triangle.propertyFields.fill = "color";
+            triangle.propertyFields.fillOpacity = "opacity";
+            triangle.fillOpacity = 0;
+            triangle.strokeWidth = 0;
+            triangle.horizontalCenter = "middle";
+            triangle.verticalCenter = "bottom";
+            // create negative ranges
+            let negativeRange;
+
+            chart.events.on("datavalidated", function() {
+                series.dataItems.each(function(s1DataItem) {
+                    let s1PreviousDataItem;
+                    let s2PreviousDataItem;
+                    let s2DataItem = series2.dataItems.getIndex(s1DataItem.index);
+
+                    if (s1DataItem.index > 0) {
+                        s1PreviousDataItem = series.dataItems.getIndex(s1DataItem.index - 1);
+                        s2PreviousDataItem = series2.dataItems.getIndex(s1DataItem.index - 1);
+                    }
+
+                   let startTime = am4core.time.round(new Date(s1DataItem.dateX.getTime()), dateAxis.baseInterval.timeUnit, dateAxis.baseInterval.count).getTime();
+
+                    // Intersections
+                    if (s1PreviousDataItem && s2PreviousDataItem) {
+                        var x0 = am4core.time.round(new Date(s1PreviousDataItem.dateX.getTime()), dateAxis.baseInterval.timeUnit, dateAxis.baseInterval.count).getTime() + dateAxis.baseDuration / 2;
+                        var y01 = s1PreviousDataItem.valueY;
+                        var y02 = s2PreviousDataItem.valueY;
+
+                        var x1 = startTime + dateAxis.baseDuration / 2;
+                        var y11 = s1DataItem.valueY;
+                        var y12 = s2DataItem.valueY;
+
+                        var intersection = am4core.math.getLineIntersection({ x: x0, y: y01 }, { x: x1, y: y11 }, { x: x0, y: y02 }, { x: x1, y: y12 });
+
+                        startTime = Math.round(intersection.x);
+                    }
+                    // start range here
+                    if (s2DataItem.valueY > s1DataItem.valueY) {
+                        if (!negativeRange) {
+                            negativeRange = dateAxis.createSeriesRange(series);
+                            negativeRange.date = new Date(startTime);
+                            negativeRange.contents.fill = series2.fill;
+                            negativeRange.contents.fillOpacity = 0.8;
+                        }
+                    }
+                    else {
+                        // if negative range started
+                        if (negativeRange) {
+                            negativeRange.endDate = new Date(startTime);
+                        }
+                        negativeRange = undefined;
+                    }
+                    // end if last
+                    if (s1DataItem.index == series.dataItems.length - 1) {
+                        if (negativeRange) {
+                            negativeRange.endDate = new Date(s1DataItem.dateX.getTime() + dateAxis.baseDuration / 2);
+                            negativeRange = undefined;
+                        }
+                    }
+                })
+            })
+           // Hourly Ende
+           {% else %}
+           // Minutly Start
+        chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:ii";
+        chart.numberFormatter.intlLocales = "de-DE";
+        chart.numberFormatter.numberFormat = {
+            "style": "decimal",
+            "minimumFractionDigits": 0
+        };
+
+        dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        dateAxis.renderer.grid.template.location = 0;
+        dateAxis.renderer.minGridDistance = 60;
+
+        let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxis.tooltip.disabled = true;
+        valueAxis.title.text = "[[kWh]]";
+
+        let valueAxisIrr = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxisIrr.title.text = "Irradiation [[W/m²]]";
+        valueAxisIrr.renderer.opposite = true;
+        valueAxisIrr.renderer.ticks.template.disabled = true;
+        valueAxisIrr.renderer.grid.template.disabled = true;
+        valueAxisIrr.extraMax = 0.1;
+
+        let valueAxisTmp = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxisTmp.title.text = "Temperature [[C°]]";
+        valueAxisTmp.renderer.opposite = true;
+        valueAxisTmp.renderer.ticks.template.disabled = true;
+        valueAxisTmp.renderer.grid.template.disabled = true;
+        valueAxisTmp.extraMax = 0.1;
+
+        // only for the legend
+        let iconSeries = chart.series.push(new am4charts.ColumnSeries())
+        iconSeries.strokeOpacity = 0;
+        //iconSeries.name = "Events";
+        iconSeries.dataFields.dateX = "date";
+        iconSeries.dataFields.valueY = "v";
+        iconSeries.fill = am4core.color("#fff");
+        iconSeries.tooltip.background.fill = am4core.color("#fff");
+
+        let series = chart.series.push(new am4charts.LineSeries());
+        series.dataFields.dateX = "date";
+        series.dataFields.openValueY = "forecast";
+        series.dataFields.valueY = "real";
+        series.tooltip.getFillFromObject = false;
+        series.sequencedInterpolation = true;
+        series.tooltip.background.fill = am4core.color("#31af31");
+        series.tooltipText = "Real: {valueY.value} kWh [/]";
+        series.stroke = am4core.color("#31af31");
+        series.strokeWidth = 2;
+        series.name = "Real";
+        series.fill = series.stroke;
+        series.fillOpacity = 0.8;
+
+        let bullet = series.bullets.push(new am4charts.CircleBullet())
+        bullet.fill = new am4core.InterfaceColorSet().getFor("background");
+        bullet.fillOpacity = 1;
+        bullet.strokeWidth = 2;
+        bullet.circle.radius = 4;
+
+        let series2 = chart.series.push(new am4charts.LineSeries());
+        series2.dataFields.dateX = "date";
+        series2.dataFields.valueY = "forecast";
+        series2.tooltipText = "Forecast: {valueY.value} kWh [/]";
+        series2.sequencedInterpolation = true;
+        series2.strokeWidth = 2;
+        series2.tooltip.getFillFromObject = false;
+        series2.tooltip.getStrokeFromObject = false;
+        // series2.tooltip.label.fill = am4core.color("#000");
+        series2.tooltip.background.fill = am4core.color("#344eb6");
+        series2.sequencedInterpolation = true;
+        series2.name = "Forecast ";
+        series2.stroke = am4core.color("#344eb6");
+        series2.fill = series2.stroke;
+        // Irr Value Chart
+        let seriesIrr = chart.series.push(new am4charts.LineSeries());
+        seriesIrr.dataFields.dateX = "date";
+        seriesIrr.dataFields.valueY = "irr";
+        seriesIrr.name = "Irradiation";
+        seriesIrr.tooltipText = "Irradiation : {valueY} W/m² [/]";
+        seriesIrr.fill = am4core.color("#95018e");
+        seriesIrr.stroke = am4core.color("#95018e");
+        seriesIrr.strokeWidth = 1;
+        seriesIrr.tensionX = 0.8;
+        seriesIrr.hidden = false;
+        seriesIrr.yAxis = valueAxisIrr;
+        seriesIrr.connect = false;
+        // TempValue Chart
+        let seriesTemp = chart.series.push(new am4charts.LineSeries());
+        seriesTemp.dataFields.dateX = "date";
+        seriesTemp.dataFields.valueY = "temp";
+        seriesTemp.name = "Temperature";
+        seriesTemp.tooltipText = "Temperature : {valueY} C° [/]";
+        seriesTemp.fill = am4core.color("#ec8907");
+        seriesTemp.stroke = am4core.color("#ec8907");
+        seriesTemp.strokeWidth = 1;
+        seriesTemp.tensionX = 0.8;
+        seriesTemp.hidden = false;
+        seriesTemp.yAxis = valueAxisTmp;
+        seriesTemp.connect = false;
+        // Bullet
+        let bullet2 = series2.bullets.push(new am4charts.CircleBullet())
+        bullet2.fill = bullet.fill;
+        bullet2.fillOpacity = 1;
+        bullet2.strokeWidth = 2;
+        bullet2.circle.radius = 4;
+        // Label
+        let labelx = bullet2.createChild(am4core.Label);
+        labelx.propertyFields.text = "label";
+        labelx.propertyFields.fill = am4core.color("#131");
+        labelx.strokeWidth = 0;
+        labelx.horizontalCenter = "middle";
+        labelx.verticalCenter = "bottom";
+        labelx.dy = -20;
+        // Line
+        let line = bullet2.createChild(am4core.Line);
+        line.x1 = 0;
+        line.y1 = 0;
+        line.x2 = 0;
+        line.y2 = 1000;
+        line.strokeOpacity = 0;
+        line.strokeDasharray = "3,3";
+        line.fill = am4core.color("#000");
+        line.stroke = am4core.color("#000");
+        line.propertyFields.strokeOpacity = "opacity";
+
+        let triangle = bullet2.createChild(am4core.Triangle);
+        triangle.width = 15;
+        triangle.height = 13;
+        triangle.dy = -8;
+        triangle.direction = "bottom";
+        triangle.propertyFields.fill = "color";
+        triangle.propertyFields.fillOpacity = "opacity";
+        triangle.fillOpacity = 0;
+        triangle.strokeWidth = 0;
+        triangle.horizontalCenter = "middle";
+        triangle.verticalCenter = "bottom";
+        // create negative ranges
+        let negativeRange;
+
+        chart.events.on("datavalidated", function() {
+            series.dataItems.each(function(s1DataItem) {
+                let s1PreviousDataItem;
+                let s2PreviousDataItem;
+                let s2DataItem = series2.dataItems.getIndex(s1DataItem.index);
+
+                if (s1DataItem.index > 0) {
+                    s1PreviousDataItem = series.dataItems.getIndex(s1DataItem.index - 1);
+                    s2PreviousDataItem = series2.dataItems.getIndex(s1DataItem.index - 1);
+                }
+
+                let startTime = am4core.time.round(new Date(s1DataItem.dateX.getTime()), dateAxis.baseInterval.timeUnit, dateAxis.baseInterval.count).getTime();
+
+                // Intersections
+                if (s1PreviousDataItem && s2PreviousDataItem) {
+                    var x0 = am4core.time.round(new Date(s1PreviousDataItem.dateX.getTime()), dateAxis.baseInterval.timeUnit, dateAxis.baseInterval.count).getTime() + dateAxis.baseDuration / 2;
+                    var y01 = s1PreviousDataItem.valueY;
+                    var y02 = s2PreviousDataItem.valueY;
+
+                    var x1 = startTime + dateAxis.baseDuration / 2;
+                    var y11 = s1DataItem.valueY;
+                    var y12 = s2DataItem.valueY;
+
+                    var intersection = am4core.math.getLineIntersection({ x: x0, y: y01 }, { x: x1, y: y11 }, { x: x0, y: y02 }, { x: x1, y: y12 });
+
+                    startTime = Math.round(intersection.x);
+                }
+                // start range here
+                if (s2DataItem.valueY > s1DataItem.valueY) {
+                    if (!negativeRange) {
+                        negativeRange = dateAxis.createSeriesRange(series);
+                        negativeRange.date = new Date(startTime);
+                        negativeRange.contents.fill = series2.fill;
+                        negativeRange.contents.fillOpacity = 0.8;
+                    }
+                }
+                else {
+                    // if negative range started
+                    if (negativeRange) {
+                        negativeRange.endDate = new Date(startTime);
+                    }
+                    negativeRange = undefined;
+                }
+                // end if last
+                if (s1DataItem.index == series.dataItems.length - 1) {
+                    if (negativeRange) {
+                        negativeRange.endDate = new Date(s1DataItem.dateX.getTime() + dateAxis.baseDuration / 2);
+                        negativeRange = undefined;
+                    }
+                }
+            })
+        })
+           // Minutly Ende
+           {% endif %}
+
+        {% endif %}
+
+        // Legend
+        chart.cursor = new am4charts.XYCursor();
+        //chart.cursor.xAxis = dateAxis;
+        chart.legend = new am4charts.Legend();
+        chart.legend.useDefaultMarker = true;
+       // chart.cursor = new am4charts.XYCursor();
+       // chart.cursor.xAxis = dateAxis;
+        chart.exporting.menu = new am4core.ExportMenu();
+        chart.scrollbarX = new am4core.Scrollbar();
+        chart.scrollbarX.marginBottom = "20"
+        chart.scrollbarY = new am4core.Scrollbar();
+        chart.scrollbarY.marginLeft = "20";
+        chart.exporting.menu.items[0].label = "Download";
+        chart.exporting.formatOptions.getKey("json").disabled = true;
+        chart.exporting.formatOptions.getKey("html").disabled = true;
+        chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+        chart.exporting.formatOptions.getKey("print").disabled = true;
+        chart.exporting.formatOptions.getKey("pdf").disabled = true;
+        chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} and {{ Dayvalue }} more days)";
+
+    }); // end am4core.ready()
+</script>

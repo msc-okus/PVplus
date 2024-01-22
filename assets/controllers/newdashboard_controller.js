@@ -185,14 +185,24 @@ export default class extends Controller {
                         if (contentDiv) {
                             contentDiv.innerHTML = doc.querySelector('#plantChart').innerHTML
                                 .replaceAll('id="', `id="${tabId}_`)
+                                .replaceAll('name="', `name="${tabId}_`)
                                 .replaceAll("$('#", `$('#${tabId}_`)
-                                .replaceAll('create("amchart-holder"', `create("${tabId}_amchart-holder"`);
+                                .replaceAll('create("amchart-holder"', `create("${tabId}_amchart-holder"`)
+                                .replaceAll('for="hour"', `for="${tabId}_hour"`);
 
                             let elementX = contentDiv.querySelector('#' + tabId + '_chart-control');
                             if (elementX) {
                                 elementX.dataset.tabId = tabId;
                             }
-                            console.log(contentDiv);
+
+                            let key= document.createElement('input');
+                            key.type='hidden';
+                            key.name='tab';
+                            key.value=tabId+'_';
+                            elementX.appendChild(key);
+
+                            document.querySelector('.daterange span')
+
                             this.executeScripts( contentDiv);
                           newTabTitle.querySelector('a').click();
                           document.querySelector("#loadingGif").style.display='none';
