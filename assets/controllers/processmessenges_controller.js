@@ -36,11 +36,12 @@ export default class extends Controller {
 
     showmessage() {
 
-        var headerbell = document.getElementById('dropbtn');
+        var xxx = document.getElementById('dropbtn');
         var messageelem = document.getElementById('messageProzessReady');
+        xxx.style.color = '#00ff0';
         messageelem.style.display = 'block';
         messageelem.innerText = this.messageValue;
-        headerbell.style.display = 'none !importand';
+
 
         window.setTimeout(() => {
             messageelem.style.display = 'none';
