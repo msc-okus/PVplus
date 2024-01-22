@@ -1,4 +1,5 @@
 import { Controller } from 'stimulus';
+import {color} from "chart.js/helpers";
 
 export default class extends Controller {
 
@@ -34,15 +35,19 @@ export default class extends Controller {
     }
 
     showmessage() {
-        alert(this.messageValue);
+
+        var headerbell = document.getElementById('dropbtn');
         var messageelem = document.getElementById('messageProzessReady');
         messageelem.style.display = 'block';
-
         messageelem.innerText = this.messageValue;
+        headerbell.style.display = 'none !importand';
 
         window.setTimeout(() => {
             messageelem.style.display = 'none';
         }, 10000);
+
+
+
         //alert(this.messageValue);
 
     }

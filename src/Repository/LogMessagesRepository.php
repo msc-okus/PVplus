@@ -85,4 +85,45 @@ class LogMessagesRepository extends ServiceEntityRepository
         return $q;
     }
 
+    public function getStatusMessages($uid)
+    {
+        if ($this->security->isGranted('ROLE_G4N')) {
+            $q = $this->createQueryBuilder('log')
+                ->where("log.state = 'done' AND log.userId = $uid and log.isSeen = 0 and log.progress = 100")
+                ->orderBy('log.finishedAt')
+                ->setMaxResults(1);
+            try {
+                return $q->getQuery()->getOneOrNullResult();
+            }
+            catch(\Doctrine\ORM\NoResultException $e) {
+                return 'noMessage';
+            }
+        } else {
+            $q = $this->createQueryBuilder('log')
+                ->where("log.state = 'done' AND log.userId = $uid and log.isSeen = 0 and log.progress = 100")
+                ->orderBy('log.finishedAt')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getResult();
+        }
+
+        return $q;
+    }
+
+    public function stStatusMessagesIsSeen($id)
+    {
+            $q = $this->createQueryBuilder('log')
+                ->update()
+                ->set('log.isSeen', 1)
+                ->where("log.id = $id");
+            try {
+                return $q->getQuery()->execute();
+            }
+            catch(\Doctrine\ORM\NoResultException $e) {
+                return 'noMessage';
+            }
+
+
+    }
+
 }

@@ -37,6 +37,9 @@ class LogMessages
     #[ORM\Column(type: 'integer')]
     private int $progress = 0;
 
+    #[ORM\Column(type: 'integer')]
+    private int $isSeen = 0;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -134,6 +137,19 @@ class LogMessages
     public function setProgress(int $progress): self
     {
         $this->progress = $progress;
+
+        return $this;
+    }
+
+
+    public function getIsSeen(): int
+    {
+        return $this->isSeen;
+    }
+
+    public function setIsSeen(int $isSeen): self
+    {
+        $this->isSeen = $isSeen;
 
         return $this;
     }

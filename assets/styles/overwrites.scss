@@ -217,7 +217,9 @@
             }
 
             .dropbtn {
-                margin-left: 5px;
+                top: -20px;
+                right: 0px;
+                position: absolute;
             }
 
             .dropdownMessages {
@@ -849,6 +851,7 @@
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
+            top: 5px;
         }
 
     }
