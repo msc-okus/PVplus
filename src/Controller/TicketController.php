@@ -281,6 +281,7 @@ class TicketController extends BaseController
         $countByProofAM = $ticketRepo->countByProofAM();
         $countByProofG4N = $ticketRepo->countByProofG4N();
 
+        //dd($countByProofAM, $countByProofG4N, $countProofByEPC, $countProofByTam);
         $filter = [];
         $session = $request->getSession();
         $pageSession = $session->get('page');
@@ -364,7 +365,6 @@ class TicketController extends BaseController
 
         }
         //here we will configure the array of reason suggestions
-dump($filter);
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,

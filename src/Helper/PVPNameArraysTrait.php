@@ -229,14 +229,14 @@ trait PVPNameArraysTrait
         $errorCategory[$this->translator->trans('ticket.error.category.40')] = 40; //weather
         $errorCategory[$this->translator->trans('ticket.error.category.50')] = 50; //external control
         $errorCategory[$this->translator->trans('ticket.error.category.60')] = 60; //power/expected error
-        #$errorCategory[$this->translator->trans('ticket.error.category.7')]  =  7;
+        $errorCategory[$this->translator->trans('ticket.error.category.7')]  =  7;
         $errorCategory[$this->translator->trans('ticket.error.category.70')] = 70; //performance ticket
         $errorCategory[$this->translator->trans('ticket.error.category.71')] = 71; //performance ticket
         $errorCategory[$this->translator->trans('ticket.error.category.72')] = 72; //performance ticket
         $errorCategory[$this->translator->trans('ticket.error.category.73')] = 73; //performance ticket
         $errorCategory[$this->translator->trans('ticket.error.category.74')] = 74; //performance ticket
         if($isG4N) {
-            #$errorCategory[$this->translator->trans('ticket.error.category.9')] = 9;
+            $errorCategory[$this->translator->trans('ticket.error.category.9')] = 9;
             $errorCategory[$this->translator->trans('ticket.error.category.91')] = 91; //internal ticket
             $errorCategory[$this->translator->trans('ticket.error.category.92')] = 92; //internal ticket
             $errorCategory[$this->translator->trans('ticket.error.category.93')] = 93; //internal ticket

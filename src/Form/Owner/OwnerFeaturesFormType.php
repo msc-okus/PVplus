@@ -18,19 +18,23 @@ class OwnerFeaturesFormType extends AbstractType
                 'label'     => 'Name of the simulator tool used'
             ])
             ->add('aktDep1', SwitchType::class, [
-                'label'     => 'aktiviere Departemnet 1 (O&M)',
+                'label'     => 'Aktivate Departemnet 1 (O&M)',
             ])
             ->add('aktDep2', SwitchType::class, [
-                'label'     => 'aktiviere Departemnet 2 (EPC)',
+                'label'     => 'Aktivate Departemnet 2 (EPC)',
             ])
             ->add('aktDep3', SwitchType::class, [
-                'label'     => 'aktiviere Departemnet 3 (AM)',
+                'label'     => 'Aktivate Departemnet 3 (AM)',
             ])
             ->add('SplitInverter', SwitchType::class, [
                 'label'     => 'Split by Inverter',
             ])
             ->add('SplitGap', SwitchType::class, [
                 'label'     => 'Split by Time',
+            ])
+            ->add('ManAktive', SwitchType::class, [
+                'label'     => 'Aktivate Maintenance Contact',
+                'help'      => 'Aktivate the maintenance contact function [on/off] ',
             ])
         ;
     }

@@ -539,6 +539,9 @@ class Anlage implements \Stringable
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $hasSunshadingModel  = false;
 
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $isTrackerEow  = false;
+
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $degradationForecast = '0';
 
@@ -3384,6 +3387,17 @@ class Anlage implements \Stringable
         return $this;
     }
 
+    public function getIsTrackerEow(): ?bool
+    {
+        return $this->isTrackerEow;
+    }
+
+    public function setIsTrackerEow(bool $isTrackerEow): self
+    {
+        $this->isTrackerEow = $isTrackerEow;
+
+        return $this;
+    }
 
     public function getDegradationForecast(): float
     {

@@ -26,8 +26,10 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für das normale Soll/Ist AC Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param bool $hour
      * @return array
      * @throws \Exception
      */
@@ -77,7 +79,7 @@ private readonly PdoService $pdoService,
                 $expDiffInvOut      = round($expectedInvOut - $expectedInvOut * 10 / 100, 2);   // Minus 10 % Toleranz Invberter Out.
                 $expDiffEvu         = round($expectedEvu - $expectedEvu * 10 / 100, 2);         // Minus 10 % Toleranz Grid (EVU).
 
-                $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
+                $whereQueryPart1 = $hour ? "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'" : "stamp = '$stampAdjust'";
                 $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
                         WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
 
@@ -86,7 +88,7 @@ private readonly PdoService $pdoService,
                 } else {
                     $sqlEvu = 'SELECT e_z_evu as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
                 }
-
+                dump($sqlActual);
                 $resActual = $conn->query($sqlActual);
                 $resEvu = $conn->query($sqlEvu);
 
@@ -180,8 +182,11 @@ private readonly PdoService $pdoService,
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
      * @return array
      * @throws \Exception
      */
@@ -204,7 +209,7 @@ private readonly PdoService $pdoService,
 
         $sqlExpected = 'SELECT a.stamp , sum(b.ac_exp_power) as soll
                             FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                            WHERE a.stamp BETWEEN '$from' AND '$to'
+                            WHERE a.stamp > '$from' AND a.stamp <= '$to'
                             GROUP by date_format(a.stamp, '$form')";
 
         $conn = $this->pdoService->getPdoPlant();
@@ -221,7 +226,7 @@ private readonly PdoService $pdoService,
             $dataArray['label'] = $acGroups[$group]['GroupName'];
 
             // get Irradiation
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
             } else {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
@@ -235,7 +240,7 @@ private readonly PdoService $pdoService,
                 $counterInv = 1;
                 if ($hour) {
                     $endStamp = date('Y-m-d H:i', strtotime((string) $stamp) + 3600);
-                    $sqlIst = 'SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur as cosPhi FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp >= '$stamp' AND  stamp < '$endStamp' group by unit ORDER BY unit";
+                    $sqlIst = 'SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur as cosPhi FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp > '$stamp' AND  stamp <= '$endStamp' group by unit ORDER BY unit";
                 } else {
                     $sqlIst = 'SELECT wr_pac as actPower, wr_cos_phi_korrektur as cosPhi FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp = '$stamp' ORDER BY unit";
                 }
@@ -278,7 +283,7 @@ private readonly PdoService $pdoService,
                 ($counterInv > 0) ? $dataArray['chart'][$counter]['expected'] = $expected / $counterInv : $dataArray['chart'][$counter]['exp'] = $expected;
                 // add Irradiation
 
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                     $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
                 } else {
                     $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
@@ -294,8 +299,11 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für das Soll/Ist AC Diagramm nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
      * @return array
      * @throws \Exception
      */
@@ -324,7 +332,7 @@ private readonly PdoService $pdoService,
 
         $sqlIst = 'SELECT a.stamp, sum(c.wr_pac) as actPower, avg(c.wr_temp) as temp, c.wr_cos_phi_korrektur FROM ( `db_dummysoll` a 
                  LEFT JOIN (SELECT * FROM '.$anlage->getDbNameIst().' WHERE '.$groupQuery."  ) c ON a.stamp = c.stamp ) WHERE a.stamp 
-                 BETWEEN '$from' AND '$to' GROUP BY date_format(a.stamp, '$form')";
+                 > '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
 
         $dataArray['inverterArray'] = $nameArray;
         $resultIst = $conn->query($sqlIst);
@@ -363,7 +371,7 @@ private readonly PdoService $pdoService,
 
                 $dataArray['chart'][$counter]['date'] = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone() * (-1));
 
-                $queryf = $hour ? "stamp BETWEEN '$stampAdjust' AND '$stampAdjust2'" : "stamp = '$stampAdjust'";
+                $queryf = $hour ? "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'" : "stamp = '$stampAdjust'";
                 $sqlSoll = "SELECT stamp, sum(ac_exp_power) as soll FROM ".$anlage->getDbNameDcSoll()." WHERE $queryf AND $groupQuery GROUP BY date_format(stamp, '$form')";
 
                 $result = $conn->query($sqlSoll);
@@ -442,8 +450,8 @@ private readonly PdoService $pdoService,
         $acGroups = $anlage->getGroupsAc();
 
         // Strom für diesen Zeitraum und diese Gruppe
-        $sql_soll = 'SELECT stamp, sum(ac_exp_power) as soll, group_ac as inv_group FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to' GROUP BY group_ac ORDER BY group_ac * 1"; // 'wr_num * 1' damit die Sortierung als Zahl und nicht als Text erfolgt
-        $sqlInv = 'SELECT sum(wr_pac) as acinv, group_ac as inv_group FROM '.$anlage->getDbNameIst()." WHERE stamp BETWEEN '$from' AND '$to' GROUP BY group_ac ORDER BY group_ac * 1;";
+        $sql_soll = 'SELECT stamp, sum(ac_exp_power) as soll, group_ac as inv_group FROM '.$anlage->getDbNameDcSoll()." WHERE stamp > '$from' AND stamp <= '$to' GROUP BY group_ac ORDER BY group_ac * 1"; // 'wr_num * 1' damit die Sortierung als Zahl und nicht als Text erfolgt
+        $sqlInv = 'SELECT sum(wr_pac) as acinv, group_ac as inv_group FROM '.$anlage->getDbNameIst()." WHERE stamp > '$from' AND stamp <= '$to' GROUP BY group_ac ORDER BY group_ac * 1;";
         $result = $conn->query($sql_soll);
         $resultInv = $conn->query($sqlInv);
         $counter = 0;
@@ -501,7 +509,7 @@ private readonly PdoService $pdoService,
                 // Spannung für diesen Zeitraum und diese Gruppe
                 $sql = 'SELECT a.stamp, sum(b.u_ac) as uac_ist, sum(b.u_ac_p1) as u_ac_p1, sum(b.u_ac_p2) as u_ac_p2,  sum(b.u_ac_p3) as u_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY  date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP BY  date_format(a.stamp, '$form')";
                 break;
             default:
                 $acGroups = $anlage->getGroupsAc();
@@ -509,7 +517,7 @@ private readonly PdoService $pdoService,
                 // Spannung für diesen Zeitraum und diese Gruppe
                 $sql = 'SELECT a.stamp, sum(b.u_ac) as uac_ist, sum(b.u_ac_p1) as u_ac_p1, sum(b.u_ac_p2) as u_ac_p2,  sum(b.u_ac_p3) as u_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY  date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP BY  date_format(a.stamp, '$form')";
         }
 
         if ($hour) {
@@ -520,7 +528,7 @@ private readonly PdoService $pdoService,
                     // Spannung für diesen Zeitraum und diese Gruppe
                     $sql = 'SELECT a.stamp, sum(b.u_ac) as uac_ist, sum(b.u_ac_p1) as u_ac_p1, sum(b.u_ac_p2) as u_ac_p2,  sum(b.u_ac_p3) as u_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by  date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by  date_format(a.stamp, '$form')";
                     break;
                 default:
                     $acGroups = $anlage->getGroupsAc();
@@ -528,7 +536,7 @@ private readonly PdoService $pdoService,
                     // Spannung für diesen Zeitraum und diese Gruppe
                     $sql = 'SELECT a.stamp, sum(b.u_ac) as uac_ist, sum(b.u_ac_p1) as u_ac_p1, sum(b.u_ac_p2) as u_ac_p2,  sum(b.u_ac_p3) as u_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by  date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by  date_format(a.stamp, '$form')";
             }
         }
 
@@ -602,14 +610,14 @@ private readonly PdoService $pdoService,
                 // Strom für diesen Zeitraum und diese Gruppe
                 $sql = 'SELECT a.stamp, sum(b.i_ac) as iac_sum, sum(b.i_ac_p1) as i_ac_p1, sum(b.i_ac_p2) as i_ac_p2,  sum(b.i_ac_p3) as i_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
                 break;
             default:
                 $acGroups = $anlage->getGroupsAc();
                 // Strom für diesen Zeitraum und diese Gruppe
                 $sql = 'SELECT a.stamp, sum(b.i_ac) as iac_sum, sum(b.i_ac_p1) as i_ac_p1, sum(b.i_ac_p2) as i_ac_p2,  sum(b.i_ac_p3) as i_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
         }
         if ($hour) {
             switch ($anlage->getConfigType()) {
@@ -618,14 +626,14 @@ private readonly PdoService $pdoService,
                     // Strom für diesen Zeitraum und diese Gruppe
                     $sql = 'SELECT a.stamp, sum(b.i_ac) as iac_sum, sum(b.i_ac_p1) as i_ac_p1, sum(b.i_ac_p2) as i_ac_p2,  sum(b.i_ac_p3) as i_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
                     break;
                 default:
                     $acGroups = $anlage->getGroupsAc();
                     // Strom für diesen Zeitraum und diese Gruppe
                     $sql = 'SELECT a.stamp, sum(b.i_ac) as iac_sum, sum(b.i_ac_p1) as i_ac_p1, sum(b.i_ac_p2) as i_ac_p2,  sum(b.i_ac_p3) as i_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
             }
         }
 
@@ -699,14 +707,14 @@ private readonly PdoService $pdoService,
                     // Frequenz für diesen Zeitraum und diese Gruppe
                     $sql = 'SELECT a.stamp, sum(b.frequency) as frequency 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
                     break;
                 default:
                     $acGroups = $anlage->getGroupsAc();
                     // Frequenz für diesen Zeitraum und diese Gruppe
                     $sql = 'SELECT a.stamp, sum(b.frequency) as frequency 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
             }
         } else {
             switch ($anlage->getConfigType()) {
@@ -715,14 +723,14 @@ private readonly PdoService $pdoService,
                     // Frequenz für diesen Zeitraum und diese Gruppe
                     $sql = 'SELECT a.stamp, b.frequency as frequency 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
                     break;
                 default:
                     $acGroups = $anlage->getGroupsAc();
                     // Frequenz für diesen Zeitraum und diese Gruppe
                     $sql = 'SELECT a.stamp, b.frequency as frequency 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
             }
         }
         $result = $conn->query($sql);
@@ -786,14 +794,14 @@ private readonly PdoService $pdoService,
                 // Blindleistung für diesen Zeitraum und diese Gruppe
                 $sql = 'SELECT a.stamp, sum(b.p_ac_blind) as p_ac_blind 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
                 break;
             default:
                 $acGroups = $anlage->getGroupsAc();
                 // Blindleistung für diesen Zeitraum und diese Gruppe
                 $sql = 'SELECT a.stamp, sum(b.p_ac_blind) as p_ac_blind 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
         }
 
         $result = $conn->query($sql);
@@ -866,8 +874,8 @@ private readonly PdoService $pdoService,
                 $res = explode(',', (string) $sets);
                 $min = (int)ltrim($res[0], "[");
                 $max = (int)rtrim($res[1], "]");
-                (($max > $groupct) ? $max = $groupct : $max = $max);
-                (($groupct > $min) ? $min = $min : $min = 1);
+                if ($max > $groupct) $max = $groupct;
+                if ($groupct <= $min) $min = 1;
                 $sqladd = "AND $group BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '5' : $max) . "";
             }
         } else {
@@ -881,7 +889,7 @@ private readonly PdoService $pdoService,
         // build the Sql Query
         $sql = "SELECT c.stamp as ts, c.wr_idc as istCurrent ,c.wr_pac as istPower, c.$group as inv FROM
                  " . $anlage->getDbNameACIst() . " c WHERE c.stamp 
-                 BETWEEN '$from' AND '$to' 
+                 > '$from' AND c.stamp <= '$to' 
                  $sqladd
                  GROUP BY c.stamp,c.$group ORDER BY NULL";
         // process the Query result

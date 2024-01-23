@@ -68,7 +68,7 @@
             </div>
 
             <div class="cell medium-1" style="margin-top:-17px!important;">
-                <input type="text" name="inverter" class="input-group-field" value="{{ inverter }}" placeholder="Inverter">
+                <input type="text" name="inverter" class="input-group-field" {% if ( is_granted('ROLE_G4N') == false) %} style="display:none;" {% endif %}value="{{ inverter }}" placeholder="Inverter">
             </div>
 
             <div class="cell medium-1 notifyclass">
@@ -77,7 +77,7 @@
                         <input type="checkbox" name="prooftam" class="input-group-field" value="1">
                     </div>
                     <div class="notifyheaderbadge">
-                        <div class="notifyheaderbadge-number">{{ countProofByTAM }}</div>
+                        <div class="notifyheaderbadge-number"  data-ticket-list-target="prooftam">{{ countProofByTAM }}</div>
                     </div>
                 </div>
             </div>
@@ -87,7 +87,7 @@
                         <input type="checkbox" name="proofepc" class="input-group-field" value="1">
                     </div>
                     <div class="notifyheaderbadge">
-                        <div class="notifyheaderbadge-number">{{ countProofByEPC }}</div>
+                        <div class="notifyheaderbadge-number" data-ticket-list-target="proofepc">{{ countProofByEPC }}</div>
                     </div>
                 </div>
             </div>
@@ -97,7 +97,7 @@
                         <input type="checkbox" name="proofam" class="input-group-field" value="1">
                     </div>
                     <div class="notifyheaderbadge">
-                        <div class="notifyheaderbadge-number">{{ countProofByAM }}</div>
+                        <div class="notifyheaderbadge-number" data-ticket-list-target="proofam">{{ countProofByAM }}</div>
                     </div>
                 </div>
             </div>
@@ -107,13 +107,13 @@
                         <input type="checkbox" name="proofg4n" class="input-group-field" value="1">
                     </div>
                     <div class="notifyheaderbadge">
-                        <div class="notifyheaderbadge-number">{{ countProofByG4N }}</div>
+                        <div class="notifyheaderbadge-number" data-ticket-list-target="proofg4n">{{ countProofByG4N }}</div>
                     </div>
                 </div>
             </div>
 
             <div class="cell medium-1 notifyclass" >
-                {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
+                {% if (is_granted('ROLE_G4N') ) %}
                     <div class="notifyheader">
                         <div class="notifyheader-label">Ignored Tickets
                             <input type="checkbox" name="ignored" class="input-group-field" value="1">
