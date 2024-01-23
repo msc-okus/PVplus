@@ -1,6 +1,6 @@
 import {Controller} from '@hotwired/stimulus';
 import $ from 'jquery';
-import '../styles/special_export.scss';
+import '../styles/new_dashboard.scss';
 import JSZip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -160,7 +160,13 @@ export default class extends Controller {
                 newTabTitle.className = 'tabs-title';
                 newTabTitle.style.position = 'relative';
                 newTabTitle.innerHTML = `<a href="#${tabId}">${anlageName} Chart</a>
-                                     <span class="close-tab-chart" style="position: absolute; top: 0; right: 0; cursor: pointer; color: red; "><i class="fas fa-window-close"></i></span>`;
+                                     <span class="close-tab-chart" style="position: absolute; top: 0; right: 0; cursor: pointer; color: gray; "><i class="fas fa-window-close"></i></span>
+                                       <button class="refresh-button-chart" id="${tabId}_refresh-button-chart" 
+                                       style="position: absolute; bottom: 0; left: 0;cursor: pointer; color: gray; transition: color 0.3s;">
+                                       <i class="fas fa-sync-alt"></i>
+                                       </button>`;
+
+
 
                 document.querySelector('#all-tabs').appendChild(newTabTitle);
 
@@ -201,7 +207,6 @@ export default class extends Controller {
                             key.value=tabId+'_';
                             elementX.appendChild(key);
 
-                            document.querySelector('.daterange span')
 
                             this.executeScripts( contentDiv);
                           newTabTitle.querySelector('a').click();
@@ -229,7 +234,7 @@ export default class extends Controller {
                 // Create new tab navigation
                 const newTabTitle = document.querySelector('#ticketTab');
                 newTabTitle.innerHTML = `<a href="#anlTicketTab">${anlageName} Ticket</a>
-                                     <span class="close-tab-ticket" style="position: absolute; top: 0; right: 0; cursor: pointer; color: red;"><i class="fas fa-window-close"></i></span>`;
+                                     <span  class="close-tab-ticket" style="position: absolute; top: 0; right: 0; cursor: pointer; color: gray;"><i class="fas fa-window-close"></i></span>`;
 
                // Perform the Fetch request
                 fetch(`/ticket/list/${anlageId}`)
@@ -352,12 +357,16 @@ export default class extends Controller {
         // Attach click event listener to all elements with class 'chart'
         document.querySelectorAll('.report-btn').forEach(reportElement => {
             reportElement.addEventListener('click', () => {
+
+                document.querySelector('#loadingGif').style.display='flex';
                 // Retrieve the anlageId from the data attribute of the clicked button
                 const anlageId = reportElement.getAttribute('data-anlage');
+                const anlageName = reportElement.getAttribute('data-anlage-name');
 
-                document.getElementById('anlTicket').innerHTML='';
-                document.getElementById('anlChart').innerHTML='';
-                document.querySelector('#loadingGif').style.display='flex';
+                // Create new tab navigation
+                const newTabTitle = document.querySelector('#reportTab');
+                newTabTitle.innerHTML = `<a href="#anlReportTab">${anlageName} Report</a>
+                                     <span  class="close-tab-report" style="position: absolute; top: 0; right: 0; cursor: pointer; color: gray;"><i class="fas fa-window-close"></i></span>`;
 
 
                 // Perform the Fetch request
@@ -372,15 +381,13 @@ export default class extends Controller {
 
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, "text/html");
+                        let contentDiv = document.querySelector('#anlReportTab');
 
-                        document.querySelector('#loadingGif').style.display='none';
-                        // Insert the plantChart content into the anlChart element
-                        document.querySelector('#anlReport').innerHTML = doc.querySelector('#anlReport').innerHTML;
-
-
-                        if ($.fn.DataTable.isDataTable('#anlReportContent')) {
-                            $('#anlReportContent').DataTable().clear().destroy();
+                        if (contentDiv) {
+                            contentDiv.innerHTML = doc.querySelector('#anlReport').innerHTML
                         }
+
+
                         $('#anlReportContent').DataTable({
                             dom:'lfrtip',
                             responsive:true,
@@ -471,19 +478,17 @@ export default class extends Controller {
                         });
 
                         this.setupRowSelection('#anlReportContent tbody');
+                        document.querySelector('#reportTab a').click();
+                        document.querySelector("#loadingGif").style.display='none';
 
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        document.getElementById('anlReport').innerHTML='';
-                        document.getElementById('anlChart').innerHTML='';
-                        document.getElementById('anlTicket').innerHTML='';
                     });
 
             });
         });
     }
-
     tabControl(){
         // Attach event for tab navigation (including dynamically added tabs)
         $(document).on('click', '#all-tabs a', function (e) {
@@ -533,12 +538,53 @@ export default class extends Controller {
             $($(this).parent('li').find('a').attr('href')).html('');
             $(this).parent('li').html('');
 
+        });
+        $(document).on('click', '.tabs .close-tab-report', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent activating the tab when closing it
 
-
-
-
+            if($(this).parent('li').hasClass('is-active')){
+                $(this).parent('li').removeClass('is-active');
+                $('#anlReportTab').removeClass('is-active');
+                $('#all-tabs li:first-child ').addClass('is-active');
+                $('#plantTab').addClass('is-active');
+            }
+            $($(this).parent('li').find('a').attr('href')).html('');
+            $(this).parent('li').html('');
 
         });
+
+        $(document).on('mouseenter','.tabs .close-tab-ticket', function(e) {
+
+            $(this).css({
+                "color": "red",
+                "transform": "scale(1.1)"
+            });
+        });
+
+        $(document).on('mouseleave','.tabs .close-tab-ticket', function(e)  {
+
+            $(this).css({
+                "color": "gray",
+                "transform": "scale(1)"
+            });
+        });
+        $(document).on('mouseenter','.tabs .close-tab-report', function(e) {
+
+            $(this).css({
+                "color": "red",
+                "transform": "scale(1.1)"
+            });
+        });
+
+        $(document).on('mouseleave','.tabs .close-tab-report', function(e)  {
+
+            $(this).css({
+                "color": "gray",
+                "transform": "scale(1)"
+            });
+        });
+
     }
     executeScripts(container) {
         container.querySelectorAll('script').forEach((script) => {

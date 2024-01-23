@@ -597,4 +597,40 @@
         $('#mysubmit').val('select');
         $('#chart-control').submit();
     });
+    $('#refresh-button-chart').click(function (){
+        $('#mysubmit').val('yes');
+        $('#chart-control').submit();
+    });
+
+    $('.refresh-button-chart').on("mouseenter", function() {
+
+        $(this).css({
+            "color": "black",
+            "transform": "scale(1.1)"
+        });
+    });
+
+    $('.refresh-button-chart').on("mouseleave", function() {
+
+        $(this).css({
+            "color": "gray",
+            "transform": "scale(1)"
+        });
+    });
+    $('.close-tab-chart').on("mouseenter", function() {
+
+        $(this).css({
+            "color": "red",
+            "transform": "scale(1.1)"
+        });
+    });
+
+    $('.close-tab-chart').on("mouseleave", function() {
+
+        $(this).css({
+            "color": "gray",
+            "transform": "scale(1)"
+        });
+    });
+
 </script>
