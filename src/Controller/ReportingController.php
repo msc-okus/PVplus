@@ -105,7 +105,6 @@ class ReportingController extends AbstractController
                     $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
                     $messageBus->dispatch($message);
-
                 }
                 break;
         }
