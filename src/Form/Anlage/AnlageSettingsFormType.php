@@ -217,6 +217,11 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => '[chartSensor4]'
             ])
 
+            ->add('usePpcTicketToReplacePvSyst', SwitchType::class,[
+                'label'     => 'Use PPC Tickets for PVSyst Replace',
+                'help'      => '[usePpcTicketToReplacePvSyst]<br>To use this its nessesary to import the PVSyst hour data.'
+            ])
+
             ->add('epxCalculationByCurrent', SwitchType::class, [
                 'label'     => 'Calculate \'expected\' with (current * voltage)',
                 'help'      => '[epxCalculationByCurrent]'
@@ -234,8 +239,8 @@ class AnlageSettingsFormType extends AbstractType
             ])
 
             ->add('sensorsInBasics', SwitchType::class, [
-                'label'     => 'This plant hve sensors in Vcom/Basics',
-                'help'      => 'This plant hve sensors in Vcom/Basics'
+                'label'     => 'This plant have sensors in VCOM/Basics',
+                'help'      => '[sensorsInBasics]<br>This plant have sensors in Vcom/Basics'
             ])
 
             ->add('importType', ChoiceType::class, [
@@ -246,14 +251,14 @@ class AnlageSettingsFormType extends AbstractType
 
             ->add('stringboxesUnits', IntegerType::class, [
                 'label' => 'Stringboxes Units',
-                'help' => '[Stringboxes Units(für die Anzahl Schleifen beim Import)]',
+                'help' => '[stringboxesUnits]<br>Stringboxes Units (für die Anzahl Schleifen beim Import)',
                 'empty_data' => '',
                 'required' => false,
             ])
 
             ->add('invertersUnits', IntegerType::class, [
                 'label' => 'Inverters Units',
-                'help' => '[Inverters Units(für die Anzahl Schleifen beim Import)]',
+                'help' => '[invertersUnits]<br>Inverters Units(für die Anzahl Schleifen beim Import)',
                 'empty_data' => '',
                 'required' => false,
             ])

@@ -159,7 +159,7 @@ class TicketRepository extends ServiceEntityRepository
      * @param string $sort
      * @param string $direction
      * @param bool $ignore
-     * @param string $TicketName
+     * @param string $ticketName
      * @param int $kpistatus
      * @param string $begin
      * @param string $end
@@ -268,7 +268,7 @@ class TicketRepository extends ServiceEntityRepository
                 ->andWhere('t.anlage = :anl')
                 ->andWhere('t.begin >= :begin')
                 ->andWhere('t.begin <= :end')
-                ->andWhere("t.editor = 'Alert system'")
+                ->andWhere("t.editor = 'ImportSystem'") //Alert system
                 ->setParameter('anl', $anlage)
                 ->setParameter('begin', $begin)
                 ->setParameter('end', $end)
@@ -278,7 +278,7 @@ class TicketRepository extends ServiceEntityRepository
             $result = $this->createQueryBuilder('t')
                 ->andWhere('t.anlage = :anl')
                 ->andWhere('t.begin >= :begin')
-                ->andWhere("t.editor = 'Alert system'")
+                ->andWhere("t.editor = 'ImportSystem'") //Alert system
                 ->setParameter('anl', $anlage)
                 ->setParameter('begin', $begin)
                 ->getQuery()

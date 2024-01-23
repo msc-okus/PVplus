@@ -186,6 +186,9 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $sensorsInBasics = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $usePpcTicketToReplacePvSyst = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -814,4 +817,20 @@ class AnlageSettings
 
         return $this;
     }
+
+    public function getUsePpcTicketToReplacePvSyst(): ?bool
+    {
+        return $this->usePpcTicketToReplacePvSyst;
+    }
+
+    public function usePpcTicketToReplacePvSyst(): ?bool
+    {
+        return $this->usePpcTicketToReplacePvSyst;
+    }
+
+    public function setUsePpcTicketToReplacePvSyst(?bool $usePpcTicketToReplacePvSyst): void
+    {
+        $this->usePpcTicketToReplacePvSyst = $usePpcTicketToReplacePvSyst;
+    }
+
 }

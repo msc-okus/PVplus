@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
-use App\Form\Owner\NotificationFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
@@ -19,18 +18,21 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use DateTime;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TicketController extends BaseController
 {
-
     public function __construct(
         private readonly TranslatorInterface $translator)
     {
     }
 
     use PVPNameArraysTrait;
+
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
     public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions): Response
     {
@@ -281,7 +283,6 @@ class TicketController extends BaseController
         $countByProofAM = $ticketRepo->countByProofAM();
         $countByProofG4N = $ticketRepo->countByProofG4N();
 
-        //dd($countByProofAM, $countByProofG4N, $countProofByEPC, $countProofByTam);
         $filter = [];
         $session = $request->getSession();
         $pageSession = $session->get('page');

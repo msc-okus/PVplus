@@ -10,6 +10,7 @@ use App\Helper\G4NTrait;
 use App\Helper\ImportFunctionsTrait;
 use App\Message\Command\ImportData;
 use App\Repository\AnlagenRepository;
+use App\Service\Import\ImportTicketFBExcel;
 use App\Service\Import\PvSystImportService;
 use App\Service\ImportService;
 use App\Service\LogMessagesService;
@@ -280,6 +281,63 @@ class ImportToolsController extends BaseController
             $file = $form['filename']->getData();
             $fileStream = fopen($file, 'r');
             $output = $pvSystImport->import($anlage, $fileStream, $form['separator']->getData(), $form['dateFormat']->getData());
+
+            unlink($file);
+        }
+
+        // Wenn Close geklickt wird mache dies:
+        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        return $this->render('import/pvSystImport.html.twig', [
+            'form'     => $form,
+            'filename' => $filename,
+            'output'   => $output,
+        ]);
+    }
+
+    /**
+     * Import der FB Excel Liste zur Erstellung von Tickets
+     *
+     * @param Request $request
+     * @param PvSystImportService $pvSystImport
+     * @return Response
+     */
+    #[Route(path: '/import/fbexcel', name: 'import_fb_excel')]
+    public function importFbExcel(Request $request, ImportTicketFBExcel $fbExcelImport): Response
+    {
+        $filename = null;
+        $form = $this->createForm(ImportPvSystFormType::class);
+        $form->handleRequest($request);
+
+        $output = '';
+
+        if ($form->isSubmitted() && $form->isValid() && $form->get('preview')->isClicked()) {
+
+            $anlage = $form->getData()->anlage;
+
+            /** @var UploadedFile $uploadedFile */
+            /** @var UploadedFile $file */
+            $uploadedFile = $form['file']->getData();
+            $destination = $this->getParameter('kernel.project_dir') . '/tempfiles';
+            $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $newFilename = Urlizer::urlize($originalFilename) . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
+            $file = $uploadedFile->move($destination, $newFilename);
+            $filename = $file->getPathname();
+            $fileStream = fopen($file->getPathname(), 'r');
+            for ($n = 1; $n <= 20; $n++) {
+                $output .= fgets($fileStream) . '<br>';
+            }
+        }
+
+        if ($form->isSubmitted() && $form->isValid() && $form->get('import')->isClicked()) {
+            $anlage = $form->getData()->anlage;
+            $file = $form['filename']->getData();
+            $fileStream = fopen($file, 'r');
+
+            $output = "Jetzt sollte die Import ROUTINE STARTEN";
+            $output .= $fbExcelImport->import($anlage, $fileStream); //, $form['separator']->getData(), $form['dateFormat']->getData());
 
             unlink($file);
         }

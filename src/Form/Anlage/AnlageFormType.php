@@ -489,8 +489,8 @@ class AnlageFormType extends AbstractType
                 'help' => '[pldAlgorithm]',
             ])
             ->add('hasStrings', SwitchType::class, [
-                'label' => 'Plat has String Data',
-                'help' => '[Yes / No]',
+                'label' => 'Plant has String Data',
+                'help' => '[hasStrings]<br>Yes / No',
             ])
             ->add('hasPPC', SwitchType::class, [
                 'label' => 'Plant has PPC',
@@ -498,15 +498,15 @@ class AnlageFormType extends AbstractType
             ])
             ->add('usePPC', SwitchType::class, [
                 'label' => 'Respect PPC Signal on calc',
-                'help' => 'Power, TheoPower, Irradiation will be excluded if PPC signal is lower 100 [Yes / No]',
+                'help' => '[usePPC]<br>Power, TheoPower, Irradiation will be excluded if PPC signal is lower 100 (Yes / No)',
             ])
             ->add('ignoreNegativEvu', SwitchType::class, [
                 'label' => 'Ignore negative EVU values',
-                'help' => '[Yes / No]',
+                'help' => '[ignoreNegativEvu]<br>(Yes / No)',
             ])
             ->add('hasPannelTemp', SwitchType::class, [
-                'label' => 'Anlage hat Pannel Temperatur',
-                'help' => '[Yes / No]',
+                'label' => 'Plant has Pannel Temperatur',
+                'help' => '[hasPannelTemp]<br>(Yes / No)',
             ])
             // ###############################################
             // ###          FORECAST                      ####

@@ -362,17 +362,18 @@ class AlertSystemV2Service
      * Given all the information needed to generate a ticket, the tickets are created and commited to the db (single ticket variant)
      * @param $errorType
      * @param $errorCategorie
-     * @param $anlage
+     * @param Anlage $anlage
      * @param $inverter
      * @param $time
      * @param $message
+     * @param $PPC
+     * @param bool|null $fullGap
      * @return void
      */
     private function generateTickets($errorType, $errorCategorie,Anlage $anlage, $inverter, $time, $message, $PPC, ?bool $fullGap = false): void
     {
-        dump($time);
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
-            if($ticketArray != []) {
+            if ($ticketArray != []) {
                 foreach ($ticketArray as $ticketOld) {
                     $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
                     $result = self::subArrayFromArray($inverter, $ticketOld->getInverterArray());
