@@ -14,15 +14,33 @@ class ProzessStatusMessageController extends BaseController
     #[Route(path: '/log/messages/prozess-status', name: 'app_log_processmessenges')]
     public function showProzessStatusMessages(LogMessagesRepository $logMessagesRepo): Response
     {
+        $user = $this->getUser();
+        $uid = $user->getUserId();
+        $logMessages = $logMessagesRepo->getStatusMessages($uid);
 
-        $myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
-        $txt = "sdfsdfsdf\n";
-        fwrite($myfile, $txt);
-        $txt = "Maximus\n";
-        fwrite($myfile, $txt);
-        fclose($myfile);
-        return $this->render('logMessages/_prozessReady.html.twig', [
-            'messagetext' => 'Manomann',
-        ]);
+        if(!is_object($logMessages)){
+            return new Response('');
+        }else{
+            $id = $logMessages->getId();
+            $plant = $logMessages->getPlant();
+            $function = $logMessages->getFunction();
+            #$logMessagesRepo->setStatusMessagesIsSeen($id);
+
+            switch ($function){
+                case 'Expected';
+                    $message = "Your $function calculation for $plant is ready.";
+                    break;
+                case 'AM Report';
+                    $message = "Your $function calculation for $plant is ready.";
+                    break;
+                default:
+                    $message = "Your $function for $plant is ready.";
+                    break;
+            }
+
+            return $this->render('logMessages/_prozessReady.html.twig', [
+                'messagetext' => "$message",
+            ]);
+        }
     }
 }

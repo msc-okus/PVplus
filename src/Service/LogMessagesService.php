@@ -45,4 +45,13 @@ class LogMessagesService
             $this->em->flush();
         }
     }
+
+    public function updateEntryAddReportId(?int $id, ?int $reportId = null): void
+    {
+        if ($id !== null) {
+            $log = $this->logMessagesRepo->findOneBy(['id' => $id]);
+            $log->setProzessId($reportId);
+            $this->em->flush();
+        }
+    }
 }

@@ -249,6 +249,20 @@
                 overflow: hidden;
                 padding: 5px;
             }
+
+            .messageProzessReady{
+                color: #ffffff;
+                display: none;
+                background-color: #22538c;
+                padding: 10px 10px 5px 10px;
+                min-width: 400px;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                z-index: 2000;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                top: 5px;
+            }
         }
         .user-settings-link {
             z-index: 100;
@@ -837,20 +851,6 @@
                 }
             }
         }
-
-        .messageProzessReady{
-            color: #ffffff;
-            display: none;
-            background-color: #22538c;
-            padding: 10px 10px 5px 10px;
-            min-width: 400px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 2000;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
     }
 
     .message-log{

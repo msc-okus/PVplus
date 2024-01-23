@@ -25,8 +25,8 @@
   "build/vendors-node_modules_core-js_modules_es_array_push_js.js": "/build/vendors-node_modules_core-js_modules_es_array_push_js.js",
   "build/vendors-node_modules_foundation-datepicker_js_foundation-datepicker_min_js.js": "/build/vendors-node_modules_foundation-datepicker_js_foundation-datepicker_min_js.js",
   "build/vendors-node_modules_symfony_webpack-encore_lib_webpack_copy-files-loader_js_context_home_gsc-1939ed.js": "/build/vendors-node_modules_symfony_webpack-encore_lib_webpack_copy-files-loader_js_context_home_gsc-1939ed.js",
-  "build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-c22f01.css": "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-c22f01.css",
-  "build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-c22f01.js": "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-c22f01.js",
+  "build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-2c308d.css": "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-2c308d.css",
+  "build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-2c308d.js": "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-2c308d.js",
   "build/assets_styles_special_export_scss.css": "/build/assets_styles_special_export_scss.css",
   "build/images/fa-solid-900.svg": "/build/images/fa-solid-900.7a8b4f13.svg",
   "build/images/fa-brands-400.svg": "/build/images/fa-brands-400.2f517e09.svg",
@@ -2654,5 +2654,7 @@
   "build/ckeditor/plugins/save/lang/vi.js": "/build/ckeditor/plugins/save/lang/vi.js",
   "build/ckeditor/plugins/print/lang/vi.js": "/build/ckeditor/plugins/print/lang/vi.js",
   "build/ckeditor/plugins/save/lang/da.js": "/build/ckeditor/plugins/save/lang/da.js",
-  "build/ckeditor/plugins/exportpdf/plugindefinition.js": "/build/ckeditor/plugins/exportpdf/plugindefinition.js"
+  "build/ckeditor/plugins/exportpdf/plugindefinition.js": "/build/ckeditor/plugins/exportpdf/plugindefinition.js",
+  "build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-c22f01.css": "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-c22f01.css",
+  "build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-c22f01.js": "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-c22f01.js"
 }

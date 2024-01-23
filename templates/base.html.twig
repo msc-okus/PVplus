@@ -49,10 +49,10 @@
                                 </div>
                             </div>
                         {% endif %}
-                        <div class="xx"
+                        <div class="processmessenges"
                             {{ stimulus_controller('processmessenges', {
                                 url: path('app_log_processmessenges'),
-                                refreshIntervale: 15000,
+                                refreshIntervale: 60000,
                             }) }}>
                         </div>
                     </div>
@@ -77,6 +77,8 @@
                     </div>
                 </div>
             {% endif %}
+        </div>
+        <div class="messageProzessReady" id="messageProzessReady">
         </div>
     </div>
 </header>

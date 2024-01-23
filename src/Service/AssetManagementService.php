@@ -584,7 +584,8 @@ class AssetManagementService
 
         $this->em->persist($report);
         $this->em->flush();
-
+        $reportId = $report->getId();
+        $this->logMessages->updateEntryAddReportId($logId, $reportId);
         return $report; //$output;
     }
 
