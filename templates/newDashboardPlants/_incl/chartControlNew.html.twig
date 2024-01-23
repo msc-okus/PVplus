@@ -1,7 +1,7 @@
 <script>
     // The date RangePicker Config and Functions
     $(function () {
-        [startDate, endDate] = $('.daterange span').html().split(' - ');
+        [startDate, endDate] = $('#daterange span').html().split(' - ');
         // Predefine the startDate and endDate
         if (!startDate) {
             var startDatex = moment().startOf('month');
@@ -11,7 +11,7 @@
             var endDatex = moment(endDate).toDate();
         }
         // jQuery Selectors
-        $('.daterange').daterangepicker({
+        $('#daterange').daterangepicker({
                 maxDate: moment().subtract(0, 'days'),
                 autostart: true,
                 showWeekNumbers: false,
@@ -77,11 +77,11 @@
                     firstDay: 1
                 },
             }, function (start, end, label) {
-                $('.daterange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+                $('#daterange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
                 $('#selRange').val(label);
             },
 
-            $('.daterange').on('apply.daterangepicker', function (ev, picker, label) {
+            $('#daterange').on('apply.daterangepicker', function (ev, picker, label) {
                 var rangesfr = picker.range;
                 var startDate = picker.startDate;
                 var endDate = picker.endDate;
@@ -110,13 +110,13 @@
 
         $('.ranges li.active').removeClass('active');
 
-        $('.daterange').click(function () {
+        $('#daterange').click(function () {
             $('.ranges li.active').removeClass('active');
             $('.ranges li[data-range-key="' + labelfr + '"]').addClass('active');
         });
         // query the button lastDay
         $('.button .lastday').click(function () {
-            [startDate, endDate] = $('.daterange span').html().split(' - ');
+            [startDate, endDate] = $('#daterange span').html().split(' - ');
             switch (labelfr) {
                 case "Today":
                     $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
@@ -164,7 +164,7 @@
         });
         // query the button nextDay
         $('.button .nextday').click(function () {
-            [startDate, endDate] = $('.daterange span').html().split(' - ');
+            [startDate, endDate] = $('#daterange span').html().split(' - ');
             let checkfutday = moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD');
             if (moment(0, 'HH').diff(checkfutday) >= 0) {
                 switch (labelfr) {
@@ -429,7 +429,7 @@
                 </div>
             </label>
             <label>
-                <div class="pull-right daterange"
+                <div class="pull-right" id="daterange"
                      style="background: #fff; cursor: pointer; padding: 0; width: 250px; border: 1px solid #ccc">
                     <i class="glyphicon glyphicon-calendar fa fa-calendar" style="padding-right: 10px;"></i>
                     <span style="font-size:14px;">{{ form.from|date('Y-m-d') }} - {{ form.to|date('Y-m-d') }}</span>
