@@ -1,6 +1,6 @@
 
 {% block body %}
-    <div class="dropdown-content" {{ stimulus_controller('processmessengesshowmessage', { message: messagetext})}}>
+    <div class="dropdown-content" {{ stimulus_controller('processmessengesshowmessage', { message: messagetext, prozesstype: function, prozessid: prozessid})}}>
     </div>
 
 {% endblock %}

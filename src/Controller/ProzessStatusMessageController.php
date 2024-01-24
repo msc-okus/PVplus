@@ -24,6 +24,7 @@ class ProzessStatusMessageController extends BaseController
             $id = $logMessages->getId();
             $plant = $logMessages->getPlant();
             $function = $logMessages->getFunction();
+            $prozessId = $logMessages->getProzessId();
             #$logMessagesRepo->setStatusMessagesIsSeen($id);
 
             switch ($function){
@@ -39,7 +40,9 @@ class ProzessStatusMessageController extends BaseController
             }
 
             return $this->render('logMessages/_prozessReady.html.twig', [
-                'messagetext' => "$message",
+                'messagetext'   => "$message",
+                'function'      => $function,
+                'prozessid'     => $prozessId
             ]);
         }
     }
