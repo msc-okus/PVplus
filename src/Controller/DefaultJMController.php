@@ -51,18 +51,6 @@ class DefaultJMController extends AbstractController
         $ticket = $ticketRepo->findOneById("399529 ");
         dd($ticket->getInverterName());
     }
-    #[Route(path: '/generate/newInverter', name: 'generate_tickets_temp')]
-    public function updateTicketsTemp(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
-    {
-        $tickets = $ticketRepo->findAll();
-        foreach ($tickets as $ticket){
-            $ticket->setInverter($ticket->getInverter());
-            $em->persist($ticket);
-        }
-        $em->flush();
-        dd("done");
-    }
-
 
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)

@@ -407,7 +407,7 @@ class TicketController extends BaseController
         ]);
     }
     #[Route(path: '/ticket/notify/{id}', name: 'app_ticket_notify', methods: ['GET', 'POST'])]
-    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, ContactInfoRepository $contactRepo): Response
+    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, ContactInfoRepository $contactRepo, MessageService $messageService): Response
     {
         $ticket = $ticketRepo->findOneById($id);
         $notifications = $ticket->getNotificationInfos();

@@ -441,19 +441,13 @@ export default class extends Controller {
         if (cat >= 70 && cat <= 80 ){
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (inverterString == '') {
-                    inverterString = inverterString + $(this).prop('name');
-                    inverterNameString = inverterNameString + $(this).prop('id');
-                } else {
-                    inverterString = inverterString + ', ' + $(this).prop('name');
-                    inverterNameString = inverterNameString + ', ' + $(this).prop('id');
-                }
                 body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
                 body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
                 body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
             });
 
             inverterString = '*';
+            inverterNameString = '*';
             body.find('#ticket_form_inverter').val(inverterString);
             body.find('#ticket_form_inverterName').val(inverterNameString);
         }
@@ -568,18 +562,11 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 body.find('input:checkbox[class=js-checkbox]').each(function () {
                     $(this).prop('checked', true);
-                    if (inverterString == '') {
-                        inverterString = inverterString + $(this).prop('name');
-                        inverterNameString = inverterNameString + $(this).prop('id');
-                    } else {
-                        inverterString = inverterString + ', ' + $(this).prop('name');
-                        inverterNameString = inverterNameString + ', ' + $(this).prop('id');
-                    }
                     body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
                     body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
                     body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
                 });
-
+                inverterNameString = '*';
                 inverterString = '*';
                 body.find('#ticket_form_inverter').val(inverterString);
                 body.find('#ticket_form_inverterName').val(inverterNameString);
@@ -620,18 +607,12 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 body.find('input:checkbox[class=js-checkbox]').each(function () {
                     $(this).prop('checked', true);
-                    if (inverterString == '') {
-                        inverterString = inverterString + $(this).prop('name');
-                        inverterNameString = inverterNameString + $(this).prop('id');
-                    } else {
-                        inverterString = inverterString + ', ' + $(this).prop('name');
-                        inverterNameString = inverterNameString + ', ' + $(this).prop('id');
-                    }
+
                     body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
                     body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
                     body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
                 });
-
+                inverterNameString = '*';
                 inverterString = '*';
                 body.find('#ticket_form_inverter').val(inverterString);
                 body.find('#ticket_form_inverterName').val(inverterNameString);
@@ -916,13 +897,6 @@ export default class extends Controller {
         if ($(this.switchTarget).prop('checked')) {
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (inverterString == '') {
-                    inverterString = inverterString + $(this).prop('name');
-                    inverterNameString = inverterNameString + $(this).prop('id');
-                } else {
-                    inverterString = inverterString + ', ' + $(this).prop('name');
-                    inverterNameString = inverterNameString + ', ' + $(this).prop('id');
-                }
                 body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
                 body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
                 body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
@@ -938,7 +912,7 @@ export default class extends Controller {
             });
             $(this.splitDeployTarget).attr('disabled', 'disabled');
             inverterString = '';
-            inverterNameString = '*';
+            inverterNameString = '';
         }
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
         body.find('#ticket_form_inverterName').val(inverterNameString);
@@ -1210,7 +1184,7 @@ export default class extends Controller {
         }
 
         let sensorString = '';
-
+        console.log(inverterString, inverterNameString);
 
         body.find('input:checkbox[class=sensor-checkbox]:checked').each(function (){
             if (sensorString == '') {sensorString = sensorString + $(this).prop('name');}

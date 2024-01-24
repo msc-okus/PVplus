@@ -344,6 +344,7 @@ class TicketRepository extends ServiceEntityRepository
             ->getQuery();
         return $result->getResult();
     }
+
     public function findAllByTime($anlage, $time){
         $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
