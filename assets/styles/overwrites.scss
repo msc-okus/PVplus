@@ -271,17 +271,14 @@
         border-top: 2px solid #71A8E2;
         border-bottom: 2px solid #71A8E2;
         margin-top: 10px;
-        margin-bottom: 0px;
-        height: 140px;
+        margin-bottom: 0;
     }
 
-    .ticketsearchbar {
+    .ticketsearchbar, .searchbar {
         background-color: #F9F8F8;
         padding: 5px;
         border-top: 2px solid #71A8E2;
-        margin-top: 10px;
-        margin-bottom: 0px;
-        height: 140px;
+        margin-bottom: 10px;
     }
 
     .stickyheader {

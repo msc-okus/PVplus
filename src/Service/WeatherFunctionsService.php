@@ -240,8 +240,6 @@ class WeatherFunctionsService
                     $weather['theoPowerDeg'] = $row['theo_power_raw_deg'] / 1000 / 4;
                     $weather['theoPowerTempCorr_NREL'] = $row['theo_power_temp_corr_nrel'] / 1000 / 4;
                     $weather['theoPowerTempCorDeg_IEC'] = $row['theo_power_temp_corr_deg_iec'] / 1000 / 4;
-
-
                 }
                 unset($res);
             } else {

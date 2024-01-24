@@ -778,6 +778,7 @@ class PRCalulationService
      * @return array
      * @throws InvalidArgumentException
      * @throws NonUniqueResultException
+     * @throws \Exception
      */
     public function calcPRByInverter(Anlage $anlage, int $inverterID, DateTime $startDate, DateTime $endDate = null): array
     {
@@ -835,7 +836,7 @@ class PRCalulationService
         $inverterPowerDc = $anlage->getPnomInverterArray();
         // PR Calculation
         $result['powerTheoDep0'] = match($anlage->getPrFormular0()) {
-            'Lelystad'  => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'Lelystad'  => $weather['theoPowerTempCorr_NREL'], //$power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'Veendam'   => $weather['theoPowerPA0'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default     => $inverterPowerDc[$inverterID] * $irr    // all others calc by Pnom and Irr.
         };
@@ -846,7 +847,7 @@ class PRCalulationService
         $result['prDep0EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $result['powerEGridExt'], $result['powerTheoDep0'], $pa0); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
 
         $result['powerTheoDep1'] = match($anlage->getPrFormular1()) {
-            'Lelystad'  => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'Lelystad'  => $weather['theoPowerTempCorr_NREL'], //$power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'Veendam'   => $weather['theoPowerPA1'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default     => $inverterPowerDc[$inverterID] * $irr    // all others calc by Pnom and Irr.
         };
@@ -856,7 +857,7 @@ class PRCalulationService
         $result['prDep1EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $result['powerEGridExt'], $result['powerTheoDep1'], $pa1); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
 
         $result['powerTheoDep2'] = match($anlage->getPrFormular2()) {
-            'Lelystad'  => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'Lelystad'  => $weather['theoPowerTempCorr_NREL'], //$power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'Veendam'   => $weather['theoPowerPA2'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default     => $inverterPowerDc[$inverterID] * $irr    // all others calc by Pnom and Irr.
         };
@@ -866,7 +867,7 @@ class PRCalulationService
         $result['prDep2EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $result['powerEGridExt'], $result['powerTheoDep2'], $pa2); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
 
         $result['powerTheoDep3'] = match($anlage->getPrFormular3()) {
-            'Lelystad'  => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'Lelystad'  => $weather['theoPowerTempCorr_NREL'], //$power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'Veendam'   => $weather['theoPowerPA3'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default     => $inverterPowerDc[$inverterID] * $irr    // all others calc by Pnom and Irr.
         };
@@ -960,7 +961,7 @@ class PRCalulationService
      * @param DateTime $startDate
      * @return array
      * @throws InvalidArgumentException
-     * @throws NonUniqueResultException
+     * @throws NonUniqueResultException|\JsonException
      */
     public function calcPRByInverterAMDay(Anlage $anlage, int $inverterID, DateTime $startDate): array{
         $result = [];
@@ -1009,7 +1010,7 @@ class PRCalulationService
      * Return value is in percentage
      * @param Anlage $anlage
      * @param int $dep
-     * @param float $irr
+     * @param float|null $irr
      * @param float $eGrid
      * @param float $theoPower
      * @param float|null $pa
