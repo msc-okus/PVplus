@@ -629,30 +629,17 @@ class PRCalulationService
         $result['powerExp'] = $power['powerExpEvu'] > 0 ? $power['powerExpEvu'] : $power['powerExp'];
         $result['powerEGridExt'] = $power['powerEGridExt'];
 
-        // Strahlungen berechnen – (upper = Ost / lower = West)
-        if ($anlage->getIsOstWestAnlage()) {
-            $irr = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
-            $irr0 = ($weather['irrEast0'] * $anlage->getPowerEast() + $weather['irrWest0'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
-            $irr1 = ($weather['irrEast1'] * $anlage->getPowerEast() + $weather['irrWest1'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
-            $irr2 = ($weather['irrEast2'] * $anlage->getPowerEast() + $weather['irrWest2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
-            $irr3 = ($weather['irrEast3'] * $anlage->getPowerEast() + $weather['irrWest3'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
-            $irrNoPpc = ($weatherNoPpc['irrEast0'] * $anlage->getPowerEast() + $weatherNoPpc['irrWest0'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
-            $irrNoPpc0 = ($weatherNoPpc['irrEast0'] * $anlage->getPowerEast() + $weatherNoPpc['irrWest0'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
-            $irrNoPpc1 = ($weatherNoPpc['irrEast1'] * $anlage->getPowerEast() + $weatherNoPpc['irrWest1'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
-            $irrNoPpc2 = ($weatherNoPpc['irrEast2'] * $anlage->getPowerEast() + $weatherNoPpc['irrWest2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
-            $irrNoPpc3 = ($weatherNoPpc['irrEast3'] * $anlage->getPowerEast() + $weatherNoPpc['irrWest3'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
-        } else {
-            $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
-            $irr0 = $weather['irr0'] / 4 / 1000;
-            $irr1 = $weather['irr1'] / 4 / 1000;
-            $irr2 = $weather['irr2'] / 4 / 1000;
-            $irr3 = $weather['irr3'] / 4 / 1000;
-            $irrNoPpc = $weatherNoPpc['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
-            $irrNoPpc0 = $weatherNoPpc['irr0'] / 4 / 1000;
-            $irrNoPpc1 = $weatherNoPpc['irr1'] / 4 / 1000;
-            $irrNoPpc2 = $weatherNoPpc['irr2'] / 4 / 1000;
-            $irrNoPpc3 = $weatherNoPpc['irr3'] / 4 / 1000;
-        }
+        // Strahlungen vereinfachen und Umrechnen
+        $irr = $weather['irr0'] / 4 / 1000; // Umrechnug zu kWh
+        $irr0 = $weather['irr0'] / 4 / 1000;
+        $irr1 = $weather['irr1'] / 4 / 1000;
+        $irr2 = $weather['irr2'] / 4 / 1000;
+        $irr3 = $weather['irr3'] / 4 / 1000;
+        $irrNoPpc = $weatherNoPpc['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
+        $irrNoPpc0 = $weatherNoPpc['irr0'] / 4 / 1000;
+        $irrNoPpc1 = $weatherNoPpc['irr1'] / 4 / 1000;
+        $irrNoPpc2 = $weatherNoPpc['irr2'] / 4 / 1000;
+        $irrNoPpc3 = $weatherNoPpc['irr3'] / 4 / 1000;
 
         $tempCorrection = 0; // not used at the Moment
 
@@ -690,7 +677,7 @@ class PRCalulationService
         $result['powerTheoDep1NoPpc'] = match($anlage->getPrFormular1()) {
             'Lelystad'          => $power['powerTheoNoPpc'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'IEC61724-1:2021'   => $weatherNoPpc['theoPowerTempCorDeg_IEC'],
-            'Veendam'           => $weatherNoPpc['theoPowerPA1'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
+            'Veendam'           => $weatherNoPpc['theoPowerPA1'],    // if theoretic Power is weighter by PA (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irrNoPpc0    // all others calc by Pnom and Irr.
         };
         if ($result['powerTheoDep1'] !== null) {

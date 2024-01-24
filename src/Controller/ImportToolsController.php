@@ -196,10 +196,11 @@ class ImportToolsController extends BaseController
     public function importEGrid(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, PdoService $pdoService, $uploadsPath): Response
     {
 
-        $form = $this->createForm(ImportEGridFormType::class); // anpassen
+        $form = $this->createForm(ImportEGridFormType::class);
         $form->handleRequest($request);
 
         $output = '';
+        $indexEzevu = $indexStamp = 0;
 
         if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
             $anlageForm = $form['anlage']->getData();
@@ -301,7 +302,7 @@ class ImportToolsController extends BaseController
      * Import der FB Excel Liste zur Erstellung von Tickets
      *
      * @param Request $request
-     * @param PvSystImportService $pvSystImport
+     * @param ImportTicketFBExcel $fbExcelImport
      * @return Response
      */
     #[Route(path: '/import/fbexcel', name: 'import_fb_excel')]
@@ -336,8 +337,8 @@ class ImportToolsController extends BaseController
             $file = $form['filename']->getData();
             $fileStream = fopen($file, 'r');
 
-            $output = "Jetzt sollte die Import ROUTINE STARTEN";
-            $output .= $fbExcelImport->import($anlage, $fileStream); //, $form['separator']->getData(), $form['dateFormat']->getData());
+            $output = "Jetzt sollte die Import ROUTINE STARTEN<br>";
+            $output .= $fbExcelImport->import($anlage, $fileStream, $form['separator']->getData() , 'd.m.y H:i'); //, $form['separator']->getData(), $form['dateFormat']->getData());
 
             unlink($file);
         }
@@ -347,7 +348,7 @@ class ImportToolsController extends BaseController
             return $this->redirectToRoute('app_dashboard');
         }
 
-        return $this->render('import/pvSystImport.html.twig', [
+        return $this->render('import/ticketImport.html.twig', [
             'form'     => $form,
             'filename' => $filename,
             'output'   => $output,

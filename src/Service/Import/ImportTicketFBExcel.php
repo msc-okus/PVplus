@@ -38,11 +38,9 @@ class ImportTicketFBExcel
     public function import(Anlage $anlage, $fileStream, string $separator = ';', string $dateFormat = "d.m.y H:i"): string
     {
         $output = "";
-        if ($fileStream) { // && $file->getMimeType() === 'text/plain'
-            for ($n = 1; $n <= 0; $n++) {
-                fgetcsv($fileStream, null, $separator);
-            }
-            $headline = fgetcsv($fileStream, null, $separator);
+        if ($fileStream) {
+            // read headline and analyse
+            $headline       = fgetcsv($fileStream, null, $separator);
             $keyStamp       = array_search('Datetime', $headline);
             $keyHourStamp   = array_search('Hourly timestamp', $headline);
             $keyExcludeHour = array_search('Exclude hour', $headline);
@@ -51,17 +49,14 @@ class ImportTicketFBExcel
             $keyReplace     = array_search('Replace', $headline);
             $keyEGrid       = array_search('E_Grid', $headline);
 
-
-            $oldStamp = null;
-
+            // init variables
             $ticketArray = [];
             $ticketNo = 0;
-            $ticketCategory = null;
             $oldTicketCartegory = 0;
             $oldTicketStartDate = $oldTicketStartDateHour = null;
 
+            // main loop to read the file
             while ($row = fgetcsv($fileStream, null, $separator)){
-                $counter++; // für debug
                 $timeZone = null; //new \DateTimeZone('UTC');
                 $stamp          = date_create_from_format($dateFormat, $row[$keyStamp], $timeZone);
                 $stampEnd       = date_create(date('Y-m-d H:i', $stamp->getTimestamp()+900));
@@ -99,13 +94,13 @@ class ImportTicketFBExcel
             }
             fclose($fileStream);
 
-            $this->generateTickets($anlage, $ticketArray);
+            $output .= $this->generateTickets($anlage, $ticketArray);
         }
 
         return $output;
     }
 
-    private function generateTickets(Anlage $anlage, array $ticketArray): void
+    private function generateTickets(Anlage $anlage, array $ticketArray): string
     {
         foreach ($ticketArray as $ticketRow) {
             $ticket = new Ticket();
@@ -134,6 +129,10 @@ class ImportTicketFBExcel
             $ticketDate->setInverter('*');
             $ticket->setDescription('');
             $ticketDate->setDescription('');
+            if ($ticketRow['category'] == 73) {
+                $ticketDate->setReplaceEnergy(true);
+                $ticketDate->setReplaceIrr(true);
+            }
 
             $ticketDate->setUseHour($ticketRow['useHour']);
 
@@ -155,7 +154,7 @@ class ImportTicketFBExcel
                 $ticketDate->setEndHidden($ticketRow['endDateHour']);
             }
 
-            $ticket->setScope([20, 30]);
+            $ticket->setScope([20]);
             $ticket->setKpiStatus(10);
 
             $ticket->addDate($ticketDate);
@@ -164,5 +163,7 @@ class ImportTicketFBExcel
             $this->em->persist($ticketDate);
             $this->em->flush();
         }
+
+        return "Es wurden " . sizeof($ticketArray) . " Tickets erzeugt.";
     }
 }

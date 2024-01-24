@@ -47,10 +47,19 @@ class PvSystImportService
             while ($row = fgetcsv($fileStream, null, $separator)){
                 $timeZone = null; //new \DateTimeZone('UTC');
                 $stamp = date_create_from_format($dateFormat, $row[$keyStamp], $timeZone);
+                $stamp->add(new \DateInterval('PT3600S')); // move from UTC to local Time
                 if ($stamp->format('I') == '1') {
-                    $stamp->add(new \DateInterval('PT3600S'));
+                    $stamp->add(new \DateInterval('PT3600S')); // one more hour if we are in DLS
                 }
                 if ($oldStamp !== $stamp->format("Y-m-d H:i")) { // Zum Übersprinegn der doppelten Daten bei der umstellung auf DLS
+
+                    // korrigiere Dezimal Trennung von ',' auf '.'
+                    foreach ($row as $key => $value){
+                        if ($key !== $keyStamp){ // nicht beim Datum anwenden
+                            $row[$key]  = str_replace(',','.', $value);
+                        }
+                    }
+
                     $eGrid = (float)$row[$keyEGrid] > 0 ? $this->correctUnitPower($units[$keyEGrid], $row[$keyEGrid]) : 0;
                     $irrHor = (float)$row[$keyGlobHor] > 0 ? $this->correctUnitIrr($units[$keyGlobHor], $row[$keyGlobHor]) : 0;
                     $irrInc = (float)$row[$keyGlobInc] > 0 ? $this->correctUnitIrr($units[$keyGlobInc], $row[$keyGlobInc]) : 0;
