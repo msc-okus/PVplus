@@ -4,7 +4,7 @@ import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable',
+    static targets =    ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable',
                         'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton',
                         'splitDeploy','AlertInverter', 'Callout', 'formCategory', 'AlertCategory', 'headerExclude',
                         'headerReplace', 'headerReplacePower', 'headerReplaceIrr', 'headerHour', 'headerEnergyValue',
@@ -13,15 +13,18 @@ export default class extends Controller {
                         'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
                         'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
-                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'contactButton', 'modalContactBody'];
+                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'modalContactBody', 'contactButton', 'modalContactCreateBody',
+                        'contactModalCreate'];
     static values = {
         formUrl: String,
         splitUrl: String,
         notifyUrl: String,
+        createContactUrl: String,
     }
     modal = null;
     splitModal = null;
     contactModal = null;
+    contactCreateModal = null;
 
     connect() {
         useDispatch(this);
@@ -47,16 +50,26 @@ export default class extends Controller {
         $(this.modalBodyTarget).foundation();
     }
     async openContactModal(event) {
-        event.preventDefault();
+
         this.modalContactBodyTarget.innerHTML = 'Loading ...';
         this.contactModal = new Reveal($(this.contactModalTarget));
         this.contactModal.open();
-        console.log(this.notifyUrlValue);
         this.modalContactBodyTarget.innerHTML = await $.ajax({
             url: this.notifyUrlValue,
         });
     }
 
+    async openContactCreateModal(event){
+
+        console.log(this.createContactUrlValue);
+        event.preventDefault();
+        this.modalContactCreateBodyTarget.innerHTML = 'Loading ...';
+        this.contactCreateModal = new Reveal($(this.contactModalCreateTarget));
+        this.contactCreateModal.open();
+        this.modalContactCreateBodyTarget.innerHTML = await $.ajax({
+            url: this.createContactUrlValue,
+        });
+    }
 
     reasonCheck(){
         let reason = $(this.reasonInputTarget).val();
@@ -748,6 +761,7 @@ export default class extends Controller {
                 $(this.headerCorrectionTargets).addClass('is-hidden');
                 $(this.headerEvaluationTargets).addClass('is-hidden');
                 $(this.headerAktDep1Targets).addClass('is-hidden');
+                $(this.headerReasonTargets).addClass('is-hidden');
                 $(this.headerAktDep3Targets).addClass('is-hidden');
                 $(this.headerAktDep3Targets).addClass('is-hidden');
                 $(this.headerFormKpiTargets).addClass('is-hidden');
@@ -760,6 +774,7 @@ export default class extends Controller {
                 $(this.fieldEnergyValueTargets).addClass('is-hidden');
                 $(this.fieldIrrValueTargets).addClass('is-hidden');
                 $(this.fieldCorrectionTargets).addClass('is-hidden');
+                $(this.fieldReasonTargets).addClass('is-hidden');
                 $(this.fieldEvaluationTargets).addClass('is-hidden');
                 $(this.fieldAktDep1Targets).addClass('is-hidden');
                 $(this.fieldAktDep2Targets).addClass('is-hidden');
@@ -781,6 +796,7 @@ export default class extends Controller {
                 $(this.headerCorrectionTargets).addClass('is-hidden');
                 $(this.headerEvaluationTargets).addClass('is-hidden');
                 $(this.headerAktDep1Targets).addClass('is-hidden');
+                $(this.headerReasonTargets).addClass('is-hidden');
                 $(this.headerAktDep2Targets).addClass('is-hidden');
                 $(this.headerAktDep3Targets).addClass('is-hidden');
                 $(this.headerFormKpiTargets).addClass('is-hidden');
@@ -797,6 +813,7 @@ export default class extends Controller {
                 $(this.fieldAktDep1Targets).addClass('is-hidden');
                 $(this.fieldAktDep2Targets).addClass('is-hidden');
                 $(this.fieldAktDep3Targets).addClass('is-hidden');
+                $(this.fieldReasonTargets).addClass('is-hidden');
                 $(this.formHourTargets).prop('checked', false);
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
                 $(this.inverterDivTargets).removeClass('is-hidden');
@@ -830,7 +847,7 @@ export default class extends Controller {
                 data: $form.serialize(),
             });
 
-            this.dispatch('success');
+            //this.dispatch('success');
             this.modal.destroy();
         } catch(e) {
             this.modalBodyTarget.innerHTML = e.responseText;
@@ -846,7 +863,35 @@ export default class extends Controller {
         this.checkCategory();
         $(document).foundation();
     }
-
+    async contact() {
+        const $form = $(this.contactModalTarget).find('form');
+        try {
+            await $.ajax({
+                url: this.notifyUrlValue,
+                method: $form.prop('method'),
+                data: $form.serialize(),
+            });
+            this.contactModal.destroy();
+        } catch (e) {
+            this.modalContactBodyTarget.innerHTML = e.responseText;
+        }
+    }
+    async saveNewContact(){
+        const  $form = $(this.contactModalCreateTarget).find('form');
+        try {
+            await $.ajax({
+                url: this.createContactUrlValue,
+                method: $form.prop('method'),
+                data: $form.serialize(),
+            });
+            console.log(this.createContactUrlValue);
+            this.contactCreateModal.destroy();
+            this.contactModal.destroy();
+            this.openContactModal();
+            }catch(e) {
+            this.modalContactCreateBodyTarget.innerHTML = e.responseText;
+        }
+    }
     checkSelect({ params: { edited }}){
         const cat = $(this.formCategoryTarget).val();
         const valueBegin = $(this.formBeginTarget).prop('value');

@@ -78,7 +78,8 @@
                         <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('ticket-edit', {
                                 formUrl: path('app_ticket_edit', { id: ticket.id}),
                                 splitUrl: path('app_ticket_split', { id: ticket.id}),
-                                notifyUrl: path('app_ticket_notify', {id: ticket.id})
+                                notifyUrl: path('app_ticket_notify', {id: ticket.id}),
+                                createContactUrl: path('app_ticket_create_contact', {id: ticket.id})
                             }) }}>
 
                             <button title="Edit Ticket [{{ ticket.id }}]" class="button action-icon tiny hollow shadow"

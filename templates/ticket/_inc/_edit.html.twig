@@ -83,6 +83,7 @@
                                     <div class="cell small-12 medium-4">
                                         {# Split by Inverter stuff #}
                                         <label>&nbsp;</label>
+                                        {% if (edited ) %}
                                         <button class="button small no-margin hollow expanded {% if (features == null or features.SplitInverter != true) %} is-hidden {% endif%}"
                                                 type="button"
                                                 {% if (edited) %}data-toggle="split-dropdown-{{ dropdownId }}"{% else %} disabled{% endif %}{% if (counter <= 1)%} disabled {% endif%}
@@ -139,6 +140,7 @@
                                                 No Inverters found to select
                                             {% endif %}
                                         </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>

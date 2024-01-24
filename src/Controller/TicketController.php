@@ -8,6 +8,7 @@ use App\Form\Owner\NotificationFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
+use App\Repository\ContactInfoRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
@@ -386,8 +387,27 @@ class TicketController extends BaseController
         ]);
     }
 
+    #[Route(path: '/ticket/contact/create/{id}', name: 'app_ticket_create_contact', methods: ['GET', 'POST'])]
+    public function createContact($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em){
+        $ticket = $ticketRepo->findOneById($id);
+        $eigner = $ticket->getAnlage()->getEigner();
+        $notifications = $ticket->getNotificationInfos();
+        $form = $this->createForm(\App\Form\Owner\OwnerContactFormType::class, null);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $eigner->addContactInfo($form->getData());
+            $em->persist($eigner);
+            $em->flush();
+            return new Response(null, Response::HTTP_NO_CONTENT);
+        }
+        return $this->render('ticket/_inc/_contact_create.html.twig', [
+            'ticket'            => $ticket,
+            'modalId'           => $ticket->getId(),
+            'creationForm'      => $form,
+        ]);
+    }
     #[Route(path: '/ticket/notify/{id}', name: 'app_ticket_notify', methods: ['GET', 'POST'])]
-    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
+    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, ContactInfoRepository $contactRepo): Response
     {
         $ticket = $ticketRepo->findOneById($id);
         $notifications = $ticket->getNotificationInfos();
@@ -395,13 +415,14 @@ class TicketController extends BaseController
         $form = $this->createForm(\App\Form\Notification\NotificationFormType::class, null, ['eigner' => $eigner]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            dd("submited");
+            dd($contactRepo->findBy(["id" => $form->getData()])[0]);
         }
         return $this->render('ticket/_inc/_notification.html.twig', [
             'ticket'            => $ticket,
             'notifications'     => $notifications,
             'notificationForm'  => $form,
             'owner'             => $eigner,
+            'modalId'           => $ticket->getId(),
         ]);
     }
 
