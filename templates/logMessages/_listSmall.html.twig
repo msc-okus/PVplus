@@ -1,9 +1,14 @@
 <table id="background-tasks" class=" message-log">
     {% for log in logs %}
-        <tr class="{{ log.state }}" style="background-color: white;">
-            <td>{{ log.plant }}</td>
-            <td>{{ log.function }}</td>
-            <td>{{ log.state }} ({{ log.progress }}%)</td>
-        </tr>
+            <tr class="{{ log.state }}" style="background-color: white;">
+                <td>{{ log.plant }}</td>
+                <td>{{ log.function }}</td>
+                <td>{{ log.state }} ({{ log.progress }}%)</td>
+                {% if log.state == 'done' %}
+                    <td>download : <a class="hollow button tiny action-icon shadow" href="/reporting/pdf/{{ log.prozessId }}" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></td>
+                {% else %}
+                    <td>&nbsp;</td>
+                {% endif %}
+            </tr>
     {% endfor %}
 </table>

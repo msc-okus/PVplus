@@ -13,15 +13,22 @@ export default class extends Controller {
         var messagetext = document.getElementById('messagetext');
         var pdfdownload = document.getElementById('pdfdownload');
 
-        messageelem.style.display = 'block';
-
+        //messageelem.style.display = 'block';
+        this.fadeInElement(messageelem);
         messagetext.innerText = this.messageValue;
-        pdfdownload.innerHTML = '<div><a class="hollow button tiny action-icon shadow" href="/reporting/pdf/'+this.prozessidValue+'" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></div>'
+        pdfdownload.innerHTML = '<div>You can dowanload it here: <a class="hollow button tiny action-icon shadow" href="/reporting/pdf/'+this.prozessidValue+'" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></div>'
 
         window.setTimeout(() => {
-            messageelem.style.display = 'none';
+            this.fadeOutElement(messageelem);
         }, 10000);
         //alert(this.messageValue);
     }
 
+    fadeInElement(element) {
+        element.classList.remove('fade');
+    }
+
+    fadeOutElement(element) {
+        element.classList.add('fade');
+    }
 }

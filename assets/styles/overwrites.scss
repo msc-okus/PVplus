@@ -229,20 +229,22 @@
             }
 
             .dropdown-content {
-                display: none;
+                display: block;
                 position: absolute;
-                background-color: #22538c;
+                background-color: #71A8E2;
                 padding: 10px 10px 5px 10px;
-                min-width: 400px;
+                min-width: 500px;
                 box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
                 z-index: 2000;
                 right: 15px;
                 top: -5px;
+                opacity: 0;
+                transition: opacity 1s;
             }
 
-            .dropdown-content a:hover {background-color: #ddd;}
+            .dropdown-content a:hover {background-color: #ddd; opacity: 1 !important}
 
-            .dropdownMessages:hover .dropdown-content {display: inline-block; z-index: 9999 !important;}
+            .dropdownMessages:hover .dropdown-content {z-index: 9999 !important; opacity: 1 !important}
 
             .background-processes {
                 max-height: $navHeight;
@@ -252,8 +254,8 @@
 
             .messageProzessReady{
                 color: #ffffff;
-                display: none;
-                background-color: #22538c;
+                display: block;
+                background-color: #71A8E2;
                 padding: 10px 10px 5px 10px;
                 min-width: 400px;
                 box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -262,6 +264,11 @@
                 left: 50%;
                 transform: translateX(-50%);
                 top: 5px;
+                opacity: 1;
+                transition: opacity 1s;
+            }
+            .fade {
+                opacity: 0 !important;
             }
         }
         .user-settings-link {
@@ -856,7 +863,7 @@
     .message-log{
         font-size: 80%;
         .done td{ color: #157539;}
-        .working td{ color: #22538c;}
+        .working td{ color: #71A8E2;}
         .waiting td {color: #be0000;}
     }
     footer {

@@ -41,7 +41,7 @@
                         {% if is_granted('ROLE_G4N') %}
                             <div class="dropdownMessages">
                                 <div class="dropbtn"><i class="far fa-bell"></i></div>
-                                <div class="dropdown-content"
+                                <div class="dropdown-content fade"
                                         {{ stimulus_controller('background-processes', {
                                             url: path('app_log_background_messages'),
                                             refreshIntervale: 15000,
@@ -78,7 +78,7 @@
                 </div>
             {% endif %}
         </div>
-        <div class="messageProzessReady" id="messageProzessReady">
+        <div class="messageProzessReady fade" id="messageProzessReady">
             <div id="messagetext"></div>
             <div id="pdfdownload">saASAS</div>
         </div>
