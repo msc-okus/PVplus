@@ -99,6 +99,13 @@ class MessageService
         }
     }
 
+    public function sendMessageTo(Anlage $anlage, $subject, $message, $email, $name, $attachedFiles = false, $g4nAlert = true, $g4nAdmin = false, $upAlert = false){
+
+        $email = new TemplatedEmail();
+        $email->from(new Address('alert@g4npvplus.net', 'PVplus Alert System'));
+
+    }
+
     public function logMessage(Anlage $anlage, $subject, $message, $eventType, $alertType, $to)
     {
         $alertMessage = new AlertMessages();
