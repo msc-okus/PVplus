@@ -144,10 +144,10 @@ class SensorService
                         $debuglevel = 1111110;
                         $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempoStartDate->format('Y-m-d H:i'), $tempoEndDate->format('Y-m-d H:i'), false, $anlage);
                         $replaceArray = $this->getPvSystIrr($anlage, $pvSystStartDate, $pvSystEndDate);
-                        if ($debugCounter > $debuglevel) dump($tempoStartDate, $tempoEndDate, $pvSystStartDate, $pvSystEndDate, $tempWeatherArray, $replaceArray);
-                        if ($debugCounter > $debuglevel) dump($sensorData);
+                        #if ($debugCounter > $debuglevel) dump($tempoStartDate, $tempoEndDate, $pvSystStartDate, $pvSystEndDate, $tempWeatherArray, $replaceArray);
+                        #if ($debugCounter > $debuglevel) dump($sensorData);
                         $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
-                        if ($debugCounter > $debuglevel) dd($sensorData);
+                        #if ($debugCounter > $debuglevel) dd($sensorData);
                     }
 
                     break;

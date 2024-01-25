@@ -394,14 +394,12 @@ class AlertSystemV2Service
                             $ticketDate->setEnd($end);
                             $ticketNew->setCreatedBy("AlertSystem");
                             $ticketNew->setUpdatedBy("AlertSystem");
-                            dump($ticketNew);
                             $this->em->persist($ticketNew);
                         } else {
                             $ticketOld->setEnd($end);
                             $ticketOld->setOpenTicket(true);
                             $ticketOld->setInverter($intersection);
                             $ticketDate->setEnd($end);
-                            dump($ticketOld);
                             $this->em->persist($ticketOld);
                         }
                     }
@@ -445,11 +443,10 @@ class AlertSystemV2Service
                     $ticket->setInverter('*');
                     $ticketDate->setInverter('*');
                 } else {
-                    dump("here i am");
+                    #dump("here i am");
                     $ticket->setInverter($restInverter);
                     $ticketDate->setInverter($restInverter);
                 }
-                dump($ticket,$ticketDate);
 
 
                 if ($ticket->getAlertType() == "20") $ticketDate->setDataGapEvaluation(10);
@@ -478,7 +475,6 @@ class AlertSystemV2Service
                 }
                 if ($errorCategorie == 10 && $fullGap) $ticketDate->setDataGapEvaluation(20);
 
-                dump($ticket);
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
             }
