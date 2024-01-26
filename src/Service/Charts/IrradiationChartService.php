@@ -14,13 +14,9 @@ class IrradiationChartService
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userPlant,
-        private $passwordPlant,
         private readonly FunctionsService $functions,
         private readonly InvertersRepository $invertersRep,
         private readonly PdoService $pdoService,
-
     )
     {
     }

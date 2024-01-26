@@ -15,7 +15,7 @@ class DCPowerChartService
     use G4NTrait;
 
     public function __construct(
-private readonly PdoService $pdoService,
+        private readonly PdoService $pdoService,
         private readonly AnlagenStatusRepository $statusRepository,
         private readonly InvertersRepository $invertersRepo,
         private readonly IrradiationChartService $irradiationChart,

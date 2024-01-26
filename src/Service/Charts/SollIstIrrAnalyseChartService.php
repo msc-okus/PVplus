@@ -17,7 +17,7 @@ class SollIstIrrAnalyseChartService
     use G4NTrait;
 
     public function __construct(
-private readonly PdoService $pdoService,
+        private readonly PdoService $pdoService,
         private readonly Security $security,
         private readonly AnlagenStatusRepository $statusRepository,
         private readonly InvertersRepository $invertersRepo,
@@ -30,6 +30,7 @@ private readonly PdoService $pdoService,
 
     // Help Function for Array search
     // MS
+    // ToDo: please move to G4NTrait
     public static function array_recursive_search_key_map($needle, $haystack)
     {
         foreach ($haystack as $first_level_key => $value) {
@@ -46,9 +47,12 @@ private readonly PdoService $pdoService,
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param int|null $inverter
+     * @param int $filter
+     * @param bool $hour
      * @return array|null
      */
     // MS 10 / 2022

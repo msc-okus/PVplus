@@ -32,6 +32,7 @@ class TempHeatmapChartService
 
     // Help Function for Array search
     // MS
+    // ToDo: please move to G4NTrait
     private static function array_recursive_search_key_map($needle, $haystack): array|bool
     {
         foreach ($haystack as $first_level_key => $value) {
@@ -49,12 +50,13 @@ class TempHeatmapChartService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $sets
+     * @param bool $hour
      * @return array|null [Heatmap]
      *
-     * @throws \Exception
      */
     // MS 06/2022
     public function getTempHeatmap(Anlage $anlage, $from, $to, $sets, bool $hour = false): ?array

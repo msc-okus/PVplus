@@ -16,7 +16,7 @@ class DCCurrentChartService
     use G4NTrait;
 
     public function __construct(
-private readonly PdoService $pdoService,
+        private readonly PdoService $pdoService,
         private readonly AnlagenStatusRepository $statusRepository,
         private readonly InvertersRepository     $invertersRepo,
         private readonly IrradiationChartService $irradiationChart,
@@ -141,11 +141,13 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Strom Diagram Diagramm, eine Linie je Gruppe.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $set
+     * @param bool $hour
      * @return array
      *
-     * @throws \Exception
      */
     public function getCurr2(Anlage $anlage, $from, $to, int $set = 1, bool $hour = false): array
     {
@@ -172,9 +174,9 @@ private readonly PdoService $pdoService,
                         // ACHTUNG Strom und Spannungswerte werden im Moment (Sep2020) immer in der AC TAbelle gespeichert, auch wenn neues 'DC IST Schema' genutzt wird.
                         if ($hour) {
                             if ($anlage->getUseNewDcSchema()) {
-                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameDCIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND wr_group = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
+                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameDCIst() . " WHERE stamp > '$stampAdjust' AND stamp =< '$stampAdjust2' AND wr_group = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
                             } else {
-                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameACIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  AND group_dc = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
+                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameACIst() . " WHERE stamp > '$stampAdjust' AND stamp =< '$stampAdjust2'  AND group_dc = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
                             }
                         } else {
                             if ($anlage->getUseNewDcSchema()) {
@@ -185,8 +187,8 @@ private readonly PdoService $pdoService,
                         }
                         $resultIst = $conn->query($sql);
 
-                        if ($resultIst->num_rows > 0) {
-                            $rowIst = $resultIst->fetch_assoc();
+                        if ($resultIst->rowCount() > 0) {
+                            $rowIst = $resultIst->fetch(PDO::FETCH_ASSOC);
                             $currentIst = round($rowIst['istCurrent'], 2);
                             if (!($currentIst == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                                 $dataArray['chart'][$counter]["val$gruppenProSet"] = $currentIst;
@@ -391,7 +393,7 @@ private readonly PdoService $pdoService,
      * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param int $sets
+     * @param string|null $sets
      * @param int $group
      * @param bool $hour
      * @return array
@@ -399,23 +401,24 @@ private readonly PdoService $pdoService,
      *
      * DC
      */
-    public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, ?int $sets = 0, int $group = 1, bool $hour = false): array
+    public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, ?string $sets = '0', int $group = 1, bool $hour = false): array
     {
         $conn = $this->pdoService->getPdoPlant();
-        $dataArray = [];
-        $nameArray = [];
-        $group = 1;
-        $g = 1;
+        $dataArray = $nameArray = [];
         $counter = 0;
-        $counterInv = 0;
+
+        /*
+         * ToDo: Macht das Sinn ? Mann kann dan nicht mehrer Tage auswählen
+         *
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
         $zenith = 90 + 50 / 60;
         $current_date = strtotime(str_replace("T", "", (string) $from));
-        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-
+        $sunInfo = date_sun_info($current_date, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
+        $sunset = $sunInfo['sunset'];
+        $sunrise = $sunInfo['sunrise'];
         $from = date('Y-m-d H:00', $sunrise - 3600);
         $to = date('Y-m-d H:00', $sunset + 5400);
+        */
 
         $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
         $to = self::timeAjustment($to, 1);
@@ -469,20 +472,17 @@ private readonly PdoService $pdoService,
                         $sqladd
                         GROUP BY stamp, $groupdc ORDER BY NULL";
         }
-
         $resultIst = $conn->query($sql);
 
-        foreach ($dcGroups as $group) {
-            $nameArray[$g] = $group['GroupName'];
-            $g++;
+        foreach ($dcGroups as $key => $group) {
+            $nameArray[$key] = $group['GroupName'];
         }
 
         if ($resultIst->rowCount() > 0) {
-
             while ($rowCurrIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowCurrIst['ts'];
                 $dataArray['chart'][$counter]['date'] = $stamp;
-                (($rowCurrIst['istCurrent']) ? $currentIst = round($rowCurrIst['istCurrent'], 2) : $currentIst = 0);
+                $currentIst = $rowCurrIst['istCurrent'] ? round($rowCurrIst['istCurrent'], 2) : 0;
                 $currentGroupName = $dcGroups[$rowCurrIst['inv']]['GroupName'];
                 $currentImpp = $mImpp[$rowCurrIst['inv'] - 1]; // the array beginn at zero
                 $value_dcpnom = $currentImpp > 0 ? round(($currentIst / $currentImpp), 2) : 0;
@@ -490,7 +490,6 @@ private readonly PdoService $pdoService,
                 $dataArray['chart'][$counter]['pnomdc'] = $value_dcpnom;
                 ++$counter;
             }
-
         }
         // the array for range slider min max
         $dataArray['minSeries'] = $min;
