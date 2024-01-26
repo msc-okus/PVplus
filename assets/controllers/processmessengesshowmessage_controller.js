@@ -1,5 +1,5 @@
 import { Controller } from 'stimulus';
-
+import $ from 'jquery';
 export default class extends Controller {
 
     static values = {
@@ -30,5 +30,25 @@ export default class extends Controller {
 
     fadeOutElement(element) {
         element.classList.add('fade');
+    }
+
+    toggleElementFade(element) {
+        element.classList.toggle('fade');
+    }
+
+
+    toggletabs(event) {
+        event.preventDefault();
+        const value = event.target.dataset.value;
+        //alert(value);
+
+        $('#messagestabs div').addClass('fade');
+        $('#messagestabs div').attr("style","display:none !important");
+
+        var tabtoshow = document.getElementById(value);
+        $('#'+value).attr("style","display:block !important");
+        $('#'+value).removeClass('fade');
+        this.fadeInElement(tabtoshow);
+
     }
 }

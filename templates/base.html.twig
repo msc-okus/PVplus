@@ -44,7 +44,7 @@
                                 <div class="dropdown-content fade"
                                         {{ stimulus_controller('background-processes', {
                                             url: path('app_log_background_messages'),
-                                            refreshIntervale: 15000,
+                                            refreshIntervale: 180000,
                                         }) }}>
                                 </div>
                             </div>
@@ -52,7 +52,7 @@
                         <div class="processmessenges"
                             {{ stimulus_controller('processmessenges', {
                                 url: path('app_log_processmessenges'),
-                                refreshIntervale: 60000,
+                                refreshIntervale: 180000,
                             }) }}>
                         </div>
                     </div>

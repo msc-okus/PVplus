@@ -264,12 +264,43 @@
                 left: 50%;
                 transform: translateX(-50%);
                 top: 5px;
-                opacity: 1;
+                #opacity: 1;
                 transition: opacity 1s;
             }
             .fade {
                 opacity: 0 !important;
             }
+
+            .nav {
+                display: flex;
+                flex-wrap: wrap;
+                padding-left: 0;
+                margin-bottom: 0;
+                list-style: none;
+            }
+
+            .nav-justified .nav-item {
+                flex-basis: 0;
+                flex-grow: 1;
+                text-align: center;
+            }
+
+            ul {
+                display: block;
+                list-style-type: disc;
+                margin-block-start: 1em;
+                margin-block-end: 1em;
+                margin-inline-start: 0px;
+                margin-inline-end: 0px;
+                padding-inline-start: 40px;
+            }
+
+            li {
+                display: list-item;
+                text-align: -webkit-match-parent;
+            }
+
+
         }
         .user-settings-link {
             z-index: 100;

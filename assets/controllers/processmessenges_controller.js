@@ -33,23 +33,4 @@ export default class extends Controller {
             clearInterval(this.refreshTimer)
         }
     }
-
-    showmessage() {
-
-        var xxx = document.getElementById('dropbtn');
-        var messageelem = document.getElementById('messageProzessReady');
-        xxx.style.color = '#00ff0';
-        messageelem.style.display = 'block';
-        messageelem.innerText = this.messageValue;
-
-
-        window.setTimeout(() => {
-            messageelem.style.display = 'none';
-        }, 10000);
-
-
-
-        //alert(this.messageValue);
-
-    }
 }
