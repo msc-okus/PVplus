@@ -322,8 +322,9 @@ class AvailabilityByTicketService
 
 
             // Handele case5 by ticket
+            $case5Tickets = $this->ticketDateRepo->findTiFm($anlage, $from, $to, $department);
             /** @var TicketDate $case5Ticket */
-            foreach ($this->ticketDateRepo->findTiFm($anlage, $from, $to, $department) as $case5Ticket){
+            foreach ($case5Tickets as $case5Ticket){
                 $c5From = $case5Ticket->getBegin()->getTimestamp();
                 $c5To = $case5Ticket->getEnd()->getTimestamp();
                 $inverters = $this->functions->readInverters($case5Ticket->getInverter(), $anlage);

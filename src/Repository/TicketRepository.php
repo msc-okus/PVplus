@@ -69,11 +69,6 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     public function countByProof(){
-
-
-        /** @var User $user */
-        $user = $this->security->getUser();
-
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $result = $this->createQueryBuilder('t')
@@ -91,7 +86,6 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     public function countByProofAM(){
-
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
         $result = $this->createQueryBuilder('t')
             ->innerJoin('t.anlage', 'a')
@@ -106,8 +100,8 @@ class TicketRepository extends ServiceEntityRepository
 
         return $result->getQuery()->getResult()[0][1];
     }
-    public function countByProofEPC(){
 
+    public function countByProofEPC(){
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $result = $this->createQueryBuilder('t')
@@ -125,7 +119,6 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     public function countByProofG4N(){
-
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $result = $this->createQueryBuilder('t')
