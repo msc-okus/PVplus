@@ -27,8 +27,10 @@ private readonly PdoService $pdoService,
      * DC Diagramme
      * Erzeugt Daten für das normale Soll/Ist DC Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param bool $hour
      * @return array|null
      * @throws \Exception
      *
@@ -41,7 +43,7 @@ private readonly PdoService $pdoService,
         $dataArray = [];
         $sqlDcSoll = 'SELECT a.stamp as stamp, sum(b.soll_pdcwr) as soll
                   FROM (db_dummysoll a left JOIN '.$anlage->getDbNameDcSoll()." b ON a.stamp = b.stamp) 
-                  WHERE a.stamp BETWEEN '$from' AND '$to' 
+                  WHERE a.stamp > '$from' AND a.stamp <= '$to' 
                   GROUP by date_format(a.stamp, '$form')";
 
         $resultExpected = $conn->query($sqlDcSoll);
@@ -117,11 +119,15 @@ private readonly PdoService $pdoService,
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
      * @return array
-     *               [DC2]
      * @throws \Exception
+     *
+     *  [DC2]
      */
     public function getDC2(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
@@ -140,7 +146,7 @@ private readonly PdoService $pdoService,
 
         $sqlExpected = 'SELECT a.stamp as stamp , sum(b.dc_exp_power) as expected
                             FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM '.$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                            WHERE a.stamp BETWEEN '$from' AND '$to'
+                            WHERE a.stamp > '$from' AND a.stamp <= '$to'
                             GROUP by date_format(a.stamp, '$form')";
 
         $conn = $this->pdoService->getPdoPlant();
@@ -157,7 +163,7 @@ private readonly PdoService $pdoService,
             $dataArray['label'] = $acGroups[$group]['GroupName'];
 
             // get Irradiation
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
             } else {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
@@ -177,7 +183,7 @@ private readonly PdoService $pdoService,
                 }
                 $resultActual = $conn->query($sqlIst);
                 while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                    $actCurrent = (float)$rowActual['istCurrent'] > 0 ? (float)$rowActual['istCurrent'] : 0 ;
+                    $actCurrent = max((float)$rowActual['istCurrent'], 0);
 
                     if (!($actCurrent == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                         switch ($anlage->getConfigType()) {
@@ -210,7 +216,7 @@ private readonly PdoService $pdoService,
                 ($counterInv > 0) ? $dataArray['chart'][$counter]['expected'] = $expected / $counterInv : $dataArray['chart'][$counter]['expected'] = $expected;
 
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                     $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
                 } else {
                     $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
@@ -226,10 +232,15 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für das Soll/Ist AC Diagramm nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
      * @return array
-     * @throws \Exception [DC3]
+     * @throws \Exception
+     *
+     * [DC3]
      */
     public function getDC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
@@ -251,18 +262,18 @@ private readonly PdoService $pdoService,
 
             $sqlExp = 'SELECT a.stamp as stamp, sum(b.dc_exp_power) as expected
                         FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM '.$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                        WHERE a.stamp BETWEEN '$from' AND '$to' 
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' 
                         GROUP BY date_format(a.stamp, '$form')";
 
             if ($anlage->getUseNewDcSchema()) {
                 $sql = 'SELECT sum(wr_pdc) as istCurrent 
                                     FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameDCIst()." b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' 
+                                    WHERE a.stamp > '$from' AND a.stamp <= '$to' 
                                     GROUP BY date_format(a.stamp, '$form'), b.group_ac ";
             } else {
                 $sql = 'SELECT sum(wr_pdc) as istCurrent 
                                     FROM (db_dummysoll a LEFT JOIN  '.$anlage->getDbNameACIst()." b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' 
+                                    WHERE a.stamp > '$from' AND a.stamp <= '$to' 
                                     GROUP BY date_format(a.stamp, '$form'), group_dc ";
             }
 
@@ -275,7 +286,7 @@ private readonly PdoService $pdoService,
 
             if ($resultExp->rowCount() > 0) {
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
                 } else {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
@@ -338,12 +349,12 @@ private readonly PdoService $pdoService,
             }
             $sqlExpected = 'SELECT a.stamp, sum(b.soll_pdcwr) as soll 
             FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameDcSoll()." WHERE $groupQuery) b ON a.stamp = b.stamp) 
-            WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+            WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
             $dataArray['inverterArray'] = $nameArray;
             $result = $conn->query($sqlExpected);
             $maxInverter = 0;
             // add Irradiation
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
             } else {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
@@ -380,7 +391,7 @@ private readonly PdoService $pdoService,
                     if (!($expected == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                         $dataArray['chart'][$counter]['expected'] = $expected;
                     }
-                    $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
+                    $whereQueryPart1 = $hour ? "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'" : "stamp = '$stampAdjust'";
                     if ($anlage->getUseNewDcSchema()) {
                         $sql = 'SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM '.$anlage->getDbNameDCIst()." WHERE $whereQueryPart1 AND $groupQuery GROUP BY group_ac;";
                     } else {
@@ -452,11 +463,13 @@ private readonly PdoService $pdoService,
     /**
      * erzeugt Daten für Gruppen Leistungs Unterschiede Diagramm (Group Power Difference).
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      *
      * @return array
-     *               [DC4] DC - Inverter / DC - Inverter Group // dc_grp_power_diff Bar Chart
+     *
+     * [DC4] DC - Inverter / DC - Inverter Group // dc_grp_power_diff Bar Chart
      */
     public function getGroupPowerDifferenceDC(Anlage $anlage, $from, $to): array
     {
@@ -466,9 +479,9 @@ private readonly PdoService $pdoService,
         $dcGroups = $anlage->getGroupsDc();
         // IST Leistung für diesen Zeitraum nach Gruppen gruppiert
         if ($anlage->getUseNewDcSchema()) {
-            $sqlIst = 'SELECT sum(wr_pdc) as power_dc_ist, wr_group as inv_group FROM '.$anlage->getDbNameDCIst()." WHERE stamp BETWEEN '$from' AND '$to' GROUP BY wr_group ;";
+            $sqlIst = 'SELECT sum(wr_pdc) as power_dc_ist, wr_group as inv_group FROM '.$anlage->getDbNameDCIst()." WHERE stamp > '$from' AND stamp <= '$to' GROUP BY wr_group ;";
         } else {
-            $sqlIst = 'SELECT sum(wr_pdc) as power_dc_ist, group_dc as inv_group FROM '.$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '$from' AND '$to' GROUP BY group_dc ;";
+            $sqlIst = 'SELECT sum(wr_pdc) as power_dc_ist, group_dc as inv_group FROM '.$anlage->getDbNameAcIst()." WHERE stamp > '$from' AND stamp <= '$to' GROUP BY group_dc ;";
         }
         $resultIst = $conn->query($sqlIst);
         while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) { // Speichern des SQL ergebnisses in einem Array, Gruppe ist assosiativer Array Index
@@ -505,11 +518,13 @@ private readonly PdoService $pdoService,
     /**
      * erzeugt Daten für Inverter Leistungs Unterschiede Diagramm (Inverter Power Difference).
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $group
      * @return array
-     *               DC - Inverter // dc_inv_power_diff
+     *
+     * DC - Inverter // dc_inv_power_diff
      */
     public function getInverterPowerDifference(Anlage $anlage, $from, $to, $group): array
     {
@@ -537,7 +552,7 @@ private readonly PdoService $pdoService,
         }
 
         // Leistung für diesen Zeitraum und diese Gruppe
-        $sql_soll = 'SELECT stamp, sum(soll_pdcwr) as soll FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to' AND wr_num = '$group' GROUP BY wr LIMIT 1";
+        $sql_soll = 'SELECT stamp, sum(soll_pdcwr) as soll FROM '.$anlage->getDbNameDcSoll()." WHERE stamp > '$from' AND stamp <= '$to' AND wr_num = '$group' GROUP BY wr LIMIT 1";
         $result = $conn->query($sql_soll);
         $counter = 0;
         if ($result->rowCount() > 0) {
@@ -549,9 +564,9 @@ private readonly PdoService $pdoService,
                     'color' => '#fdd400',
                 ];
                 if ($anlage->getUseNewDcSchema()) {
-                    $sqlInv = 'SELECT sum(wr_pdc) as dcinv, wr_num AS inverter FROM '.$anlage->getDbNameDCIst()." WHERE stamp BETWEEN '$from' AND '$to' AND wr_group = '$group' GROUP BY wr_num";
+                    $sqlInv = 'SELECT sum(wr_pdc) as dcinv, wr_num AS inverter FROM '.$anlage->getDbNameDCIst()." WHERE stamp > '$from' AND stamp <= '$to' AND wr_group = '$group' GROUP BY wr_num";
                 } else {
-                    $sqlInv = 'SELECT sum(wr_pdc) as dcinv, unit AS inverter FROM '.$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '$from' AND '$to' AND group_ac = '$group' GROUP BY unit";
+                    $sqlInv = 'SELECT sum(wr_pdc) as dcinv, unit AS inverter FROM '.$anlage->getDbNameAcIst()." WHERE stamp > '$from' AND stamp <= '$to' AND group_ac = '$group' GROUP BY unit";
                 }
                 $resultInv = $conn->query($sqlInv);
                 if ($resultInv->rowCount() > 0) {

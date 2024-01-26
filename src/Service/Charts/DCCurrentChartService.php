@@ -25,8 +25,11 @@ private readonly PdoService $pdoService,
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
      * @return array
      * @throws \Exception
      */
@@ -53,7 +56,7 @@ private readonly PdoService $pdoService,
         // SOLL Strom für diesen Zeitraum und diese Gruppe
         $sqlExp = 'SELECT a.stamp as stamp, sum(b.dc_exp_current) as expected
                    FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM ' . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp)
-                   WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+                   WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
         
         $result = $conn->query($sqlExp);
         $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
@@ -152,7 +155,7 @@ private readonly PdoService $pdoService,
         $dataArray = [];
 
         // Strom für diesen Zeitraum und diese Gruppe
-        $sql_time = "SELECT stamp FROM db_dummysoll WHERE stamp BETWEEN '$from' AND '$to' GROUP BY date_format(stamp, '$form')";
+        $sql_time = "SELECT stamp FROM db_dummysoll WHERE stamp > '$from' AND stamp <= '$to' GROUP BY date_format(stamp, '$form')";
         $result = $conn->query($sql_time);
         if ($result->rowCount() > 0) {
             $counter = 0;
@@ -205,8 +208,11 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Strom Diagram Diagramm, eine Linie je Inverter gruppiert nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
      * @return array
      *
      * @throws \Exception
@@ -227,7 +233,7 @@ private readonly PdoService $pdoService,
         // Strom für diesen Zeitraum und diesen Inverter
         $sql_strom = 'SELECT a.stamp as stamp, b.soll_imppwr as sollCurrent 
                   FROM (db_dummysoll a left JOIN (SELECT * FROM ' . $anlage->getDbNameDcSoll() . " WHERE wr_num = '$group') b ON a.stamp = b.stamp) 
-                  WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY date_format(a.stamp, '$form')";
+                  WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
         $result = $conn->query($sql_strom);
         if ($result->rowCount() > 0) {
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
@@ -311,12 +317,14 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Strom Diagram, eine Linie je MPP gruppiert nach Inverter.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param int|null $inverter
+     * @param bool $hour
      * @return bool|array // dc_current_mpp
      *                    // dc_current_mpp
-     * @throws \Exception
+     * @throws \JsonException
      */
     public function getCurr4(Anlage $anlage, $from, $to, ?int $inverter = 1, bool $hour = false): bool|array
     {
@@ -376,16 +384,20 @@ private readonly PdoService $pdoService,
             return false;
         }
     }
+
     /**
      * Erzeugt die Daten für den Pnom Power Chart auf der DC Seite
      * MS 02/23 update 03/29
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param int $sets
+     * @param int $group
+     * @param bool $hour
      * @return array
      * Pnom DC Seite
      */
-    public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array
+    public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, int $sets = 0, int $group = 1, bool $hour = false): array
     {
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
@@ -446,12 +458,12 @@ private readonly PdoService $pdoService,
         //
         if ($anlage->getUseNewDcSchema()) {
             $sql = "SELECT stamp as ts, wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameDCIst() . " WHERE 
-                        stamp BETWEEN '$from' AND '$to' 
+                        stamp > '$from' AND stamp <= '$to' 
                         $sqladd
                         GROUP BY stamp, $groupdc ORDER BY NULL";
         } else {
             $sql = "SELECT stamp as ts, wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameACIst() . " WHERE 
-                        stamp BETWEEN '$from' AND '$to' 
+                        stamp > '$from' AND stamp <= '$to' 
                         $sqladd
                         GROUP BY stamp, $groupdc ORDER BY NULL";
         }
