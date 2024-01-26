@@ -28,12 +28,12 @@ class IrradiationChartService
     /**
      * Erzeugt Daten für das Strahlungs Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param string|null $mode
      * @param bool|null $hour
      * @return array
-     * @throws \Exception
      */
     public function getIrradiation(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {

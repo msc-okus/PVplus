@@ -48,7 +48,7 @@ private readonly PdoService $pdoService,
                         FROM db_dummysoll a 
                         LEFT JOIN '.$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp
                         LEFT JOIN '.$anlage->getDbNamePPC()." c ON a.stamp = c.stamp
-                        WHERE a.stamp >= '$from' AND a.stamp < '$to' 
+                        WHERE a.stamp > '$from' AND a.stamp < '$to' 
                         GROUP by date_format(a.stamp, '$formExp')";
         } else {
             $sqlExp = 'SELECT a.stamp as stamp, 
@@ -57,7 +57,7 @@ private readonly PdoService $pdoService,
                         sum(b.ac_exp_power_no_limit) as soll_nolimit
                         FROM db_dummysoll a 
                         LEFT JOIN '.$anlage->getDbNameDcSoll()." b ON a.stamp = b.stamp                     
-                        WHERE a.stamp >= '$from' AND a.stamp <= '$to' 
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' 
                         GROUP by date_format(a.stamp, '$formExp')";
         }
 

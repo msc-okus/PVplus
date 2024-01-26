@@ -396,8 +396,10 @@ private readonly PdoService $pdoService,
      * @param bool $hour
      * @return array
      * Pnom DC Seite
+     *
+     * DC
      */
-    public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, int $sets = 0, int $group = 1, bool $hour = false): array
+    public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, ?int $sets = 0, int $group = 1, bool $hour = false): array
     {
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
