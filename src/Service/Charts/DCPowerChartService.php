@@ -41,12 +41,21 @@ class DCPowerChartService
         $conn = $this->pdoService->getPdoPlant();
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
-        $sqlDcSoll = 'SELECT a.stamp as stamp, sum(b.soll_pdcwr) as soll
-                  FROM (db_dummysoll a left JOIN '.$anlage->getDbNameDcSoll()." b ON a.stamp = b.stamp) 
-                  WHERE a.stamp > '$from' AND a.stamp <= '$to' 
-                  GROUP by date_format(a.stamp, '$form')";
+        if ($hour) {
+            $exppart1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $exppart2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $exppart1 = 'a.stamp as stamp, ';
+            $exppart2 = "GROUP by date_format(a.stamp, '$form')";
+        }
+        $sqlExpected = "SELECT 
+                            $exppart1
+                            sum(b.soll_pdcwr) as soll
+                        FROM (db_dummysoll a left JOIN ".$anlage->getDbNameDcSoll()." b ON a.stamp = b.stamp) 
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' 
+                        $exppart2";
 
-        $resultExpected = $conn->query($sqlDcSoll);
+        $resultExpected = $conn->query($sqlExpected);
         $actSum = $expSum = $irrSum = 0;
 
         $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
@@ -65,13 +74,26 @@ class DCPowerChartService
                     $expdiff = null;
                 }
                 // start query actual
-                $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
-                if ($anlage->getUseNewDcSchema()) {
-                    $sqlActual = 'SELECT sum(wr_pdc) AS dcIst FROM '.$anlage->getDbNameDCIst()." 
-                        WHERE $whereQueryPart1 GROUP BY date_format(stamp, '$form')";
+                if ($hour) {
+                    $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone()-1);
+                    $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+                    $whereQueryPart1 = "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'";
                 } else {
-                    $sqlActual = 'SELECT sum(wr_pdc) AS dcIst FROM '.$anlage->getDbNameIst()." 
-                        WHERE $whereQueryPart1 GROUP BY date_format(stamp, '$form')";
+                    $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
+                    $whereQueryPart1 = "stamp = '$stampAdjust'";
+                }
+                if ($anlage->getUseNewDcSchema()) {
+                    $sqlActual = 'SELECT 
+                                    sum(wr_pdc) AS dcIst 
+                                  FROM '.$anlage->getDbNameDCIst()." 
+                                  WHERE $whereQueryPart1 
+                                  GROUP BY date_format(stamp, '$form')";
+                } else {
+                    $sqlActual = 'SELECT 
+                                    sum(wr_pdc) AS dcIst 
+                                  FROM '.$anlage->getDbNameIst()." 
+                                  WHERE $whereQueryPart1 
+                                  GROUP BY date_format(stamp, '$form')";
                 }
                 $resActual = $conn->query($sqlActual);
                 if ($resActual->rowCount() == 1) {
@@ -136,18 +158,25 @@ class DCPowerChartService
         $nameArray = $this->functions->getNameArray($anlage, 'ac');
         $dataArray['inverterArray'] = $nameArray;
         $acGroups = $anlage->getGroupsAc();
-        $type = '';
         $hour ? $form = '%y%m%d%H' : $form = '%y%m%d%H%i';
 
-        $type .= match ($anlage->getConfigType()) {
-            1 => " group_ac = '$group' AND",
-            default => " group_dc = '$group' AND",
+        $type = match ($anlage->getConfigType()) {
+            1 => " group_ac = '$group' AND ",
+            default => " group_dc = '$group' AND ",
         };
-
-        $sqlExpected = 'SELECT a.stamp as stamp , sum(b.dc_exp_power) as expected
-                            FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM '.$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                            WHERE a.stamp > '$from' AND a.stamp <= '$to'
-                            GROUP by date_format(a.stamp, '$form')";
+        if ($hour) {
+            $part1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $part2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $part1 = 'a.stamp as stamp, ';
+            $part2 = "GROUP by date_format(a.stamp, '$form')";
+        }
+        $sqlExpected = "SELECT 
+                            $part1 
+                            sum(b.dc_exp_power) as expected
+                        FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM ".$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to'
+                        $part2";
 
         $conn = $this->pdoService->getPdoPlant();
         $resultExp = $conn->query($sqlExpected);
@@ -176,11 +205,18 @@ class DCPowerChartService
                 $dataArray['chart'][$counter]['date'] = $rowExp['stamp']; //self::timeShift($anlage, $rowExp['stamp']);
                 $counterInv = 1;
                 if ($hour) {
-                    $endStamp = date('Y-m-d H:i', strtotime((string) $stamp) + 3600);
-                    $sqlIst = 'SELECT sum(wr_pdc) as istCurrent FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp >= '$stamp' AND  stamp < '$endStamp' group by unit ORDER BY unit";
+                    $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone()-1);
+                    $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+                    $queryf = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
                 } else {
-                    $sqlIst = 'SELECT wr_pdc as istCurrent FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp = '$stamp' ORDER BY unit";
+                    $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
+                    $queryf = "stamp = '$stampAdjust'";
                 }
+                $sqlIst = "SELECT 
+                              wr_pdc as istCurrent 
+                           FROM ".$anlage->getDbNameIst()."
+                           WHERE $type $queryf
+                           ORDER BY unit";
                 $resultActual = $conn->query($sqlIst);
                 while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
                     $actCurrent = max((float)$rowActual['istCurrent'], 0);
@@ -213,7 +249,7 @@ class DCPowerChartService
 
                 // and here
                 --$counterInv;
-                ($counterInv > 0) ? $dataArray['chart'][$counter]['expected'] = $expected / $counterInv : $dataArray['chart'][$counter]['expected'] = $expected;
+                $dataArray['chart'][$counter]['expected'] = $counterInv > 0 ? $expected / $counterInv : $expected;
 
                 // add Irradiation
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
@@ -230,7 +266,7 @@ class DCPowerChartService
     }
 
     /**
-     * Erzeugt Daten für das Soll/Ist AC Diagramm nach Gruppen.
+     * Erzeugt Daten für das Soll/Ist AC Diagramm nach Inverter (Typ 1 und 2) / Gruppen (Typ 3 und 4).
      *
      * @param Anlage $anlage
      * @param $from
@@ -244,34 +280,45 @@ class DCPowerChartService
      */
     public function getDC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
-        if ($group == -1) {
-            if ($hour) {
-                $form = '%y%m%d%H';
-            } else {
-                $form = '%y%m%d%H%i';
-            }
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+        $conn = $this->pdoService->getPdoPlant();
+        $dataArray = [];
 
-            $conn = $this->pdoService->getPdoPlant();
-            $groups = $anlage->getGroupsAc();
-            $dataArray = [];
-            $inverterNr = 0;
-            $nameArray = match ($anlage->getConfigType()) {
-                3, 4 => $this->functions->getNameArray($anlage, 'ac'),
-                default => $this->functions->getNameArray($anlage, 'dc'),
-            };
+        $groups = $anlage->getGroupsDc();
+        switch ($anlage->getConfigType()) {
+            case 3:
+            case 4:
+                // z.B. Gronningen
+                $groupQuery = "group_ac = '$group' ";
+                $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                break;
+            default:
+                $groupQuery = "group_dc = '$group' ";
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+        }
+        if ($hour) {
+            $exppart1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $exppart2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $exppart1 = 'a.stamp as stamp, ';
+            $exppart2 = "GROUP by date_format(a.stamp, '$form')";
+        }
 
-            $sqlExp = 'SELECT a.stamp as stamp, sum(b.dc_exp_power) as expected
-                        FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM '.$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' 
-                        GROUP BY date_format(a.stamp, '$form')";
+        if ($group === -1) { // Select all Inverter
+            $sqlExp = "SELECT 
+                          $exppart1
+                          sum(b.dc_exp_power) as expected
+                       FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM ".$anlage->getDbNameDcSoll().") b ON a.stamp = b.stamp)
+                       WHERE a.stamp > '$from' AND a.stamp <= '$to' 
+                       $exppart2";
 
-            if ($anlage->getUseNewDcSchema()) {
-                $sql = 'SELECT sum(wr_pdc) as istCurrent 
+            if ($anlage->getConfigType() === 3 || $anlage->getConfigType() === 4) {
+                $sql = 'SELECT sum(wr_pdc) as istDc 
                                     FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameDCIst()." b ON a.stamp = b.stamp)
                                     WHERE a.stamp > '$from' AND a.stamp <= '$to' 
                                     GROUP BY date_format(a.stamp, '$form'), b.group_ac ";
             } else {
-                $sql = 'SELECT sum(wr_pdc) as istCurrent 
+                $sql = 'SELECT sum(wr_pdc) as istDc 
                                     FROM (db_dummysoll a LEFT JOIN  '.$anlage->getDbNameACIst()." b ON a.stamp = b.stamp)
                                     WHERE a.stamp > '$from' AND a.stamp <= '$to' 
                                     GROUP BY date_format(a.stamp, '$form'), group_dc ";
@@ -287,38 +334,72 @@ class DCPowerChartService
             if ($resultExp->rowCount() > 0) {
                 // add Irradiation
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
-                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
                 } else {
-                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                 }
                 // SOLL Strom für diesen Zeitraum und diese Gruppe
 
                 $dataArray['maxSeries'] = 0;
                 $legend = $groups[$group]['GMIN'] - 1;
                 $counter = 0;
+
                 while ($rowExp = $resultExp->fetch(PDO::FETCH_ASSOC)) {
                     $stamp = $rowExp['stamp'];
-                    ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
-                    $counterInv = 1;
-                    $dataArray['chart'][$counter]['date'] = $stamp; //self::timeShift($anlage, $stamp);
-                    #$dataArray['chart'][$counter]['expected'] = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] == 0 ? $rowExp['expected'] : $rowExp['expected'] / ($groups[$group]['GMAX'] - $groups[$group]['GMIN']);
-                    $dataArray['chart'][$counter]['expected'] = $expected;
-                    while ($counterInv <= $maxInverter) {
-                        $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC);
+                    $dataArray['chart'][$counter]['date'] = $stamp;
+                    // expected hidden, because make no sense to show a single expectewd for all inverter
+                    // $dataArray['chart'][$counter]['expected'] = $rowExp['expected'] == null ? 0 : $rowExp['expected'];
 
-                        $currentIst = $rowActual['istCurrent'];
-                        if ($currentIst != null) {
-                            $currentIst = round($rowActual['istCurrent'], 2);
-                        } else {
-                            $currentIst = 0;
-                        }
-
-                        if (!(self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
-                            $dataArray['chart'][$counter][$nameArray[$counterInv]] = $currentIst;
-                        }
-                        ++$counterInv;
+                    if ($hour) {
+                        $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone() - 1);
+                        $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+                        $whereQueryPart1 = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
+                        $groupBy = "date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form'), ";
+                    } else {
+                        $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
+                        $whereQueryPart1 = "stamp = '$stampAdjust'";
+                        $groupBy = "";
                     }
-                    $dataArray['maxSeries'] = $maxInverter;
+                    if ($anlage->getConfigType() === 3 || $anlage->getConfigType() === 4) {
+                        $sql = 'SELECT stamp, sum(wr_pdc) as actPower, avg(wr_temp) as temp FROM ' . $anlage->getDbNameDCIst() . " WHERE $whereQueryPart1 GROUP BY $groupBy group_ac ;";
+                    } else {
+                        $sql = 'SELECT stamp, sum(wr_pdc) as actPower, avg(wr_temp) as temp FROM ' . $anlage->getDbNameAcIst() . " WHERE $whereQueryPart1 GROUP BY $groupBy unit;";
+                    }
+
+                    if ($stamp == '2024-01-26 12:00:00') dump($sql);
+
+                    $resultIst = $conn->query($sql);
+                    if ($resultIst->rowCount() > 0) {
+                        $counterInv = 0;
+                        $sumTemp = 0;
+                        while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
+                            ++$counterInv;
+                            $sumTemp += (float)$rowIst['temp'];
+                            $actPower = $rowIst['actPower'];
+                            #if ($stamp == '2024-01-26 11:15:00') dump($rowIst['stamp'] . ' - '.$actPower .' - '.$dataArray['chart'][$counter]['temperature']);
+                            if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string)$stamp) < 7200)) {
+                                switch ($anlage->getConfigType()) {
+                                    case 3: // Groningen, Saran
+                                        $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
+                                        break;
+                                    default:
+                                        $dataArray['chart'][$counter][$nameArray[$counterInv]] = $actPower;
+                                }
+                            }
+                            switch ($anlage->getConfigType()) {
+                                case 3:
+                                case 4:
+                                    if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv;
+                                    break;
+                                default:
+                                    if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv - 1;
+                            }
+                        }
+                        $dataArray['chart'][$counter]['temperature'] = $sumTemp / $counterInv;
+
+                    }
+
+                    $dataArray['maxSeries'] = $counterInv;
                     // add Irradiation
                     if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                         $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
@@ -329,35 +410,23 @@ class DCPowerChartService
                 }
                 $dataArray['offsetLegend'] = 0;
             }
-        } else {
-            $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-            $conn = $this->pdoService->getPdoPlant();
-            $dataArray = [];
-            $nameArray = $this->functions->getNameArray($anlage, 'dc');
+        }
+        else {
+            $sqlExpected = "SELECT 
+                                $exppart1 
+                                sum(b.soll_pdcwr) as expected 
+                            FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp) 
+                            WHERE a.stamp > '$from' AND a.stamp <= '$to' 
+                            $exppart2";
 
-            $groups = $anlage->getGroupsDc();
-            switch ($anlage->getConfigType()) {
-                case 3:
-                case 4:
-                    // z.B. Gronningen
-                    $groupQuery = "group_ac = '$group' ";
-                    $nameArray = $this->functions->getNameArray($anlage, 'ac');
-                    break;
-                default:
-                    $groupQuery = "group_dc = '$group' ";
-                    $nameArray = $this->functions->getNameArray($anlage, 'dc');
-            }
-            $sqlExpected = 'SELECT a.stamp, sum(b.soll_pdcwr) as soll 
-            FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameDcSoll()." WHERE $groupQuery) b ON a.stamp = b.stamp) 
-            WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
             $dataArray['inverterArray'] = $nameArray;
             $result = $conn->query($sqlExpected);
             $maxInverter = 0;
             // add Irradiation
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
             } else {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             }
             if ($result->rowCount() > 0) {
                 $dataArray['maxSeries'] = 0;
@@ -368,34 +437,33 @@ class DCPowerChartService
                 };
                 foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $rowExp) {
                     $stamp = $rowExp['stamp'];
-                    $stampAdjust = self::timeAjustment($stamp, (float) $anlage->getAnlZeitzone());
-                    $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                     $anzInvPerGroup = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] + 1;
-
-                    $expected = $rowExp['soll'];
+                    $expected = $rowExp['expected'];
                     if ($expected !== null) {
-                        $expected = $expected > 0 ? $expected : 0;
-                        switch ($anlage->getConfigType()) {
-                            case 1:
-                            case 2:
-                                $expected = $anzInvPerGroup > 0 ? $expected / $anzInvPerGroup : $expected;
-                                break;
+                        $expected = max($expected, 0);
+                        if ($anlage->getConfigType() === 1 || $anlage->getConfigType() === 2) {
+                            $expected = $anzInvPerGroup > 0 ? $expected / $anzInvPerGroup : $expected;
                         }
-                        if ($expected < 0) {
-                            $expected = 0;
-                        }
+                        if ($expected < 0) $expected = 0;
                     }
 
                     // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                     $dataArray['chart'][$counter]['date'] = $stamp; // self::timeShift($anlage, $stamp);
-                    if (!($expected == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
-                        $dataArray['chart'][$counter]['expected'] = $expected;
+                    if (!($expected == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string)$stamp) < 7200)) {
+                       $dataArray['chart'][$counter]['expected'] = $expected;
                     }
-                    $whereQueryPart1 = $hour ? "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'" : "stamp = '$stampAdjust'";
-                    if ($anlage->getUseNewDcSchema()) {
-                        $sql = 'SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM '.$anlage->getDbNameDCIst()." WHERE $whereQueryPart1 AND $groupQuery GROUP BY group_ac;";
+                    if ($hour) {
+                        $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone() - 1);
+                        $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+                        $whereQueryPart1 = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
                     } else {
-                        $sql = 'SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM '.$anlage->getDbNameAcIst()." WHERE $whereQueryPart1 AND $groupQuery GROUP BY unit;";
+                        $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
+                        $whereQueryPart1 = "stamp = '$stampAdjust'";
+                    }
+                    if ($anlage->getConfigType() === 3 || $anlage->getConfigType() === 4) {
+                        $sql = 'SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM ' . $anlage->getDbNameDCIst() . " WHERE $whereQueryPart1 AND $groupQuery GROUP BY group_ac;";
+                    } else {
+                        $sql = 'SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM ' . $anlage->getDbNameAcIst() . " WHERE $whereQueryPart1 AND $groupQuery GROUP BY unit;";
                     }
 
                     $resultIst = $conn->query($sql);
@@ -405,14 +473,10 @@ class DCPowerChartService
                             if ($counterInv > $maxInverter) {
                                 $maxInverter = $counterInv;
                             }
-                            if ($rowIst['temp'] == null) {
-                                $temperature = 0;
-                            } else {
-                                $temperature = $rowIst['temp'];
-                            }
-                            $dataArray['chart'][$counter]['temperature'] = $temperature;
+                            $dataArray['chart'][$counter]['temperature'] = $rowIst['temp'] === null ? 0 : (float)$rowIst['temp'];
+
                             $actPower = $rowIst['actPower'];
-                            if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
+                            if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string)$stamp) < 7200)) {
                                 switch ($anlage->getConfigType()) {
                                     case 3: // Groningen, Saran
                                         $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
@@ -424,6 +488,7 @@ class DCPowerChartService
                             }
                             switch ($anlage->getConfigType()) {
                                 case 3:
+                                case 4:
                                     if ($counterInv > $dataArray['maxSeries']) {
                                         $dataArray['maxSeries'] = $counterInv;
                                     }
@@ -455,8 +520,9 @@ class DCPowerChartService
                 }
             }
         }
-        $conn = null;
 
+        $conn = null;
+        #dd($dataArray);
         return $dataArray;
     }
 
@@ -473,6 +539,7 @@ class DCPowerChartService
      */
     public function getGroupPowerDifferenceDC(Anlage $anlage, $from, $to): array
     {
+        Dump('DC4');
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $istGruppenArray = [];
@@ -528,6 +595,7 @@ class DCPowerChartService
      */
     public function getInverterPowerDifference(Anlage $anlage, $from, $to, $group): array
     {
+        Dump('DC5');
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
 

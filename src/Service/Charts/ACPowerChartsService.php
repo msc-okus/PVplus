@@ -333,11 +333,8 @@ class ACPowerChartsService
      */
     public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
-        ini_set('memory_limit', '3G');
-        set_time_limit(500);
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-
         $conn = $this->pdoService->getPdoPlant();
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $groupID = 1;
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
