@@ -37,14 +37,13 @@ class ACPowerChartsService
     public function getAC1(Anlage $anlage, $from, $to, bool $hour = false): array
     {
         $conn = $this->pdoService->getPdoPlant();
-        $formExp = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $form = $hour ?    '%y%m%d%H' : '%y%m%d%H%i'; //'%y%m%d%' : '%y%m%d%H%i';
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         if ($hour) {
             $exppart1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
-            $exppart2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$formExp')";
+            $exppart2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
         } else {
             $exppart1 = 'a.stamp as stamp, ';
-            $exppart2 = "GROUP by date_format(a.stamp, '$formExp')";
+            $exppart2 = "GROUP by date_format(a.stamp, '$form')";
         }
         if ($anlage->getHasPPC()) {
             $sqlExp = "SELECT 
@@ -91,18 +90,17 @@ class ACPowerChartsService
                     $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone()-1);
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                     $whereQueryPart1 = "stamp >= '$stampAdjust' AND stamp = '$stampAdjust2'";
+
+                    $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
                 } else {
                     $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
                     $whereQueryPart1 = "stamp = '$stampAdjust'";
+
+                    $sqlEvu = 'SELECT e_z_evu as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
                 }
                 $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
                         WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
 
-                if ($hour) {
-                    $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
-                } else {
-                    $sqlEvu = 'SELECT e_z_evu as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
-                }
                 $resActual = $conn->query($sqlActual);
                 $resEvu = $conn->query($sqlEvu);
 

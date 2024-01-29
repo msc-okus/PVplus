@@ -35,28 +35,27 @@ class DCCurrentChartService
      */
     public function getCurr1(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = $this->pdoService->getPdoPlant();
-        $acGroups = $anlage->getGroupsAc();
         $dataArray = [];
-        switch ($anlage->getConfigType()) {
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-                // z.B. Gronningen
-                $groupQuery = "group_ac = '$group' ";
-                $nameArray = $this->functions->getNameArray($anlage, 'dc');
-                break;
-            default:
-                $groupQuery = "group_dc = '$group' ";
-                $nameArray = $this->functions->getNameArray($anlage, 'dc');
-        }
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+        $acGroups = $anlage->getGroupsAc();
+        $groupQuery = "group_ac = '$group' ";
+        $nameArray = $this->functions->getNameArray($anlage, 'dc');
         $dataArray['inverterArray'] = $nameArray;
+        if ($hour) {
+            $exppart1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $exppart2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $exppart1 = 'a.stamp as stamp, ';
+            $exppart2 = "GROUP by date_format(a.stamp, '$form')";
+        }
         // SOLL Strom für diesen Zeitraum und diese Gruppe
-        $sqlExp = 'SELECT a.stamp as stamp, sum(b.dc_exp_current) as expected
-                   FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM ' . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp)
-                   WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+        $sqlExp = "SELECT 
+                     $exppart1
+                     sum(b.dc_exp_current) as expected
+                   FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM " . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp)
+                   WHERE a.stamp > '$from' AND a.stamp <= '$to' 
+                   $exppart2";
         
         $result = $conn->query($sqlExp);
         $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
