@@ -19,7 +19,7 @@ export default class extends Controller {
         messagetext.innerText = this.messageValue;
         pdfdownload.innerHTML = '<div>You can dowanload it here: <a class="hollow button tiny action-icon shadow" href="/reporting/pdf/'+this.prozessidValue+'" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></div>'
 
-        messagebutton.addAttr 
+        messagebutton.style.color = '#ff0000';
         window.setTimeout(() => {
             this.fadeOutElement(messageelem);
         }, 10000);

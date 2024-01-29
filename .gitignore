@@ -21,6 +21,8 @@ symfony.exe
 /vendor/
 ###< symfony/framework-bundle ###
 
+/assets - Kopie
+
 ###> liip/imagine-bundle ###
 /public/media/cache/
 ###< liip/imagine-bundle ###
