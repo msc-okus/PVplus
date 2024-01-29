@@ -1,15 +1,15 @@
 <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu-xl rm-pointers dropdown-menu dropdown-menu-right show" style="top: 0px; left: 0px; will-change: transform;" x-placement="bottom-end">
 
     <div class="messagebuttons" id="messagebuttons">
-        <ul class="tabs-animated-shadow tabs-animated nav nav-justified tabs-shadow-bordered p-3">
-            <li class="nav-item" data-controller="processmessengesshowmessage" style="left:90px; position: relative">
+        <ul class="tabs tabs-animated nav nav-justified tabs-shadow-bordered p-3">
+            <li class="is-active" id="limessagestab" data-controller="processmessengesshowmessage">
                 <button data-action="processmessengesshowmessage#toggletabs" data-value="messagestab">
                     Messages
                 </button>
             </li>
-            <li class="nav-item" data-controller="processmessengesshowmessage">
+            <li class="is-inactive" id="limessagesactionstab" data-controller="processmessengesshowmessage">
                 <button data-action="processmessengesshowmessage#toggletabs" data-value="messagesactionstab">
-                    Actions
+                    Downloads
                 </button>
             </li>
         </ul>
@@ -23,17 +23,22 @@
                         <td>{{ log.plant }}</td>
                         <td>{{ log.function }}</td>
                         <td>{{ log.state }} ({{ log.progress }}%)</td>
-                        {% if log.state == 'done' %}
-                            <td>download : <a class="hollow button tiny action-icon shadow" href="/reporting/pdf/{{ log.prozessId }}" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></td>
-                        {% else %}
-                            <td>&nbsp;</td>
-                        {% endif %}
                     </tr>
                 {% endfor %}
             </table>
         </div>
         <div class="messagesactionstab fade" id="messagesactionstab">
-            Schnurz
+            <table id="background-tasks" class=" message-log">
+                {% for log in logs %}
+                    <tr class="{{ log.state }}" style="background-color: white;">
+                        {% if log.state == 'done' %}
+                            <td>{{ log.plant }}</td>
+                            <td>{{ log.function }}</td>
+                            <td><a class="hollow button tiny action-icon shadow" href="/reporting/pdf/{{ log.prozessId }}" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </table>
         </div>
     </div>
 </div>

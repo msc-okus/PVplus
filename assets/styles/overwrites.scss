@@ -225,13 +225,13 @@
                 display: block;
                 right: 170px;
                 top: 27px;
-                z-index: 2000;
+                z-index: 9999;
             }
 
             .dropdown-content {
                 display: block;
                 position: absolute;
-                background-color: #71A8E2;
+                background-color: #1779ba;
                 padding: 10px 10px 5px 10px;
                 min-width: 500px;
                 box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -240,6 +240,7 @@
                 top: -5px;
                 opacity: 0;
                 transition: opacity 1s;
+                min-width: 500px;
             }
 
             .dropdown-content a:hover {background-color: #ddd; opacity: 1 !important}
@@ -255,7 +256,7 @@
             .messageProzessReady{
                 color: #ffffff;
                 display: block;
-                background-color: #71A8E2;
+                background-color: #1779ba;
                 padding: 10px 10px 5px 10px;
                 min-width: 400px;
                 box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -279,15 +280,8 @@
                 list-style: none;
             }
 
-            .nav-justified .nav-item {
-                flex-basis: 0;
-                flex-grow: 1;
-                text-align: center;
-            }
-
-            ul {
+            .dropdown-menu-x ul {
                 display: block;
-                list-style-type: disc;
                 margin-block-start: 1em;
                 margin-block-end: 1em;
                 margin-inline-start: 0px;
@@ -295,11 +289,44 @@
                 padding-inline-start: 40px;
             }
 
-            li {
+            .dropdown-menu-x ul li {
                 display: list-item;
                 text-align: -webkit-match-parent;
             }
 
+            .messagebuttons ul.tabs .is-inactive button {
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+                margin-right: 2px;
+                background: #ffffff;
+                border: 1px solid #b7b7b7;
+                margin-bottom: -1px;
+                transition: all 0.5s ease;
+                display: block;
+                padding: 1.25rem 1.5rem;
+                font-size: 0.75rem;
+                line-height: 1;
+                color: #1779ba;
+            }
+
+            .messagebuttons ul.tabs .is-active button {
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+                margin-right: 2px;
+                border: 1px solid #b7b7b7;
+                margin-bottom: -1px;
+                transition: all 0.5s ease;
+                display: block;
+                padding: 1.25rem 1.5rem;
+                font-size: 0.75rem;
+                line-height: 1;
+                color: #ffffff;
+                background: #0F5694;
+            }
+
+            .messagesactionstab {
+                display: none;
+            }
 
         }
         .user-settings-link {
