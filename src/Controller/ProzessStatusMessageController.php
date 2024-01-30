@@ -18,9 +18,7 @@ class ProzessStatusMessageController extends BaseController
         $uid = $user->getUserId();
         $logMessages = $logMessagesRepo->getStatusMessages($uid);
 
-        if(!is_object($logMessages)){
-            return new Response('');
-        }else{
+
             $id = $logMessages->getId();
             $plant = $logMessages->getPlant();
             $function = $logMessages->getFunction();
@@ -31,11 +29,14 @@ class ProzessStatusMessageController extends BaseController
                 case 'Expected';
                     $message = "Your $function calculation for $plant is ready.";
                     break;
+                case 'Import API Data';
+                    $message = "Your $function calculation for $plant is ready.";
+                    break;
                 case 'AM Report';
                     $message = "Your $function calculation for $plant is ready.";
                     break;
                 default:
-                    $message = "Your $function for $plant is ready.";
+                    $message = "XXXX";
                     break;
             }
 
@@ -44,6 +45,6 @@ class ProzessStatusMessageController extends BaseController
                 'function'      => $function,
                 'prozessid'     => $prozessId
             ]);
-        }
+
     }
 }

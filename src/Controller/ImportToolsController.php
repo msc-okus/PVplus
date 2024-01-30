@@ -71,6 +71,7 @@ class ImportToolsController extends BaseController
             if ($importToolsModel->anlage->getHasPPC() != 1 && $importToolsModel->importType == 'api-import-ppc'){
                 $output .= 'This plant has not PPC!<br>';
                 $start = false;
+
             }
             if ($start){
                 if ($form->get('function')->getData() != null) {
@@ -79,7 +80,9 @@ class ImportToolsController extends BaseController
                             $output = '<h3>Import API Data:</h3>';
                             $job = 'Import API Data('.$importToolsModel->importType.') – from ' . $importToolsModel->startDate->format('Y-m-d H:i') . ' until ' . $importToolsModel->endDate->format('Y-m-d H:i');
                             $job .= " - " . $this->getUser()->getname();
-                            $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
+                            $userId = $this->getUser()->getUserId();
+
+                            $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job, $userId);
                             $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId);
                             $messageBus->dispatch($message);
                             $output .= 'Command was send to messenger! Will be processed in background.<br>';

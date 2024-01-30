@@ -12,14 +12,14 @@ export default class extends Controller {
         var messageelem = document.getElementById('messageProzessReady');
         var messagetext = document.getElementById('messagetext');
         var pdfdownload = document.getElementById('pdfdownload');
-        var messagebutton = document.getElementById('far-fa-bell');
+        //var messagebutton = document.getElementById('far-fa-bell');
 
         //messageelem.style.display = 'block';
         this.fadeInElement(messageelem);
         messagetext.innerText = this.messageValue;
-        pdfdownload.innerHTML = '<div>You can dowanload it here: <a class="hollow button tiny action-icon shadow" href="/reporting/pdf/'+this.prozessidValue+'" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></div>'
+        pdfdownload.innerHTML = '<div>You can dowanload it here xxxx: <a class="hollow button tiny action-icon shadow" href="/reporting/pdf/'+this.prozessidValue+'" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></div>'
 
-        messagebutton.style.c = 'block';
+        //messagebutton.style.c = 'block';
         window.setTimeout(() => {
             this.fadeOutElement(messageelem);
         }, 10000);

@@ -31,7 +31,7 @@
             <table id="background-tasks" class=" message-log">
                 {% for log in logs %}
                     <tr class="{{ log.state }}" style="background-color: white;">
-                        {% if log.state == 'done' %}
+                        {% if log.state == 'done' and log.function == 'AM Report' %}
                             <td>{{ log.plant }}</td>
                             <td>{{ log.function }}</td>
                             <td><a class="hollow button tiny action-icon shadow" href="/reporting/pdf/{{ log.prozessId }}" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></td>

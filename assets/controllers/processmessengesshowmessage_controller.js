@@ -9,15 +9,26 @@ export default class extends Controller {
     }
 
     connect() {
+        if(this.messageValue != ''){
+            this.showReady();
+        }
+    }
+    showReady() {
         var messageelem = document.getElementById('messageProzessReady');
         var messagetext = document.getElementById('messagetext');
         var pdfdownload = document.getElementById('pdfdownload');
         var messagebutton = document.getElementById('far-fa-bell');
 
-        //messageelem.style.display = 'block';
+        messageelem.style.display = 'block';
         this.fadeInElement(messageelem);
         messagetext.innerText = this.messageValue;
-        pdfdownload.innerHTML = '<div>You can dowanload it here: <a class="hollow button tiny action-icon shadow" href="/reporting/pdf/'+this.prozessidValue+'" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></div>'
+        if(this.prozesstypeValue.includes('Report') ){
+            pdfdownload.innerHTML = '<div>You can dowanload it here: <a class="hollow button tiny action-icon shadow" href="/reporting/pdf/'+this.prozessidValue+'" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></div>'
+        }else{
+            pdfdownload.innerHTML = '';
+        }
+
+
 
         messagebutton.style.color = '#ff0000';
         window.setTimeout(() => {
