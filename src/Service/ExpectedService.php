@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Anlage;
 use App\Entity\AnlageGroupModules;
 use App\Entity\AnlageGroupMonths;
+use App\Entity\AnlageGroups;
 use App\Entity\OpenWeather;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
@@ -95,6 +96,7 @@ class ExpectedService
         // Lade Wetter (Wetterstation der Anlage) Daten für die angegebene Zeit und Speicher diese in ein Array
         $weatherStations = $this->groupsRepo->findAllWeatherstations($anlage, $anlage->getWeatherStation());
         $sqlWetterDaten = 'SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, temp_pannel AS panel_temp, temp_ambient AS ambient_temp FROM '.$anlage->getDbNameWeather()." WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
+
         $resWeather = $conn->prepare($sqlWetterDaten);
         $resWeather->execute();
         $weatherArray[$anlage->getWeatherStation()->getDatabaseIdent()] = $resWeather->fetchAll(PDO::FETCH_ASSOC);
@@ -117,6 +119,7 @@ class ExpectedService
             $ausrichtung = ($anlage->getIsOstWestAnlage()) ? '90' : '180';
         }
 
+        /** @var AnlageGroups $group  */
         foreach ($anlage->getGroups() as $group) {
             // Monatswerte für diese Gruppe laden
             /** @var AnlageGroupMonths $groupMonth */
@@ -221,7 +224,6 @@ class ExpectedService
                             $limitExpCurrentHlp = $modul->getNumStringsPerUnit() * ($modul->getModuleType()->getMaxImpp() * 1.015); // 1,5% Sicherheitsaufschlag
                             // Voltage
                             $expVoltageDcHlp = $modul->getModuleType()->getExpVoltage($irr) * $modul->getNumModulesPerString();
-
                         }
 
                         // Temperatur Korrektur
@@ -286,7 +288,7 @@ class ExpectedService
                     $loss = $group->getCabelLoss() + $group->getSecureLoss();
 
                     // Verhindert 'diff by zero'
-                    if ($loss != 0) {
+                    if ($loss !== 0) {
                         $expPowerDc = $expPowerDc - $expPowerDc * ($loss / 100);
                         $expCurrentDc = $expCurrentDc - $expCurrentDc * ($loss / 100);
                     }

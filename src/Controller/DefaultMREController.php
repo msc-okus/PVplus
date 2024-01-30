@@ -49,8 +49,8 @@ class DefaultMREController extends BaseController
     public function updateExpected($plant, ExpectedService $expectedService, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
-        $from = '2024-01-29 00:00'; //date('Y-m-d 00:00');
-        $to = date('Y-m-d 24:59');
+        $from = '2024-01-10 00:00'; //date('Y-m-d 00:00');
+        $to = date('Y-m-d 00:00');
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
