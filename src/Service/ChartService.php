@@ -111,13 +111,8 @@ class ChartService
             $form['selectedGroup'] = -1;
         }
 
-        /*
-        $from = self::timeShift($anlage, $form['from'], true);
-        $to = self::timeShift($anlage, $form['to'], true);
-        */
-
         $from =  $form['from'];
-        $to =  $form['to'];
+        $to =  date('Y-m-d 00:00:00',strtotime($form['to'])+60); //correct $to stamp to 0 oclock next day
 
         if ($anlage) {
             switch ($form['selectedChart']) {
@@ -684,9 +679,9 @@ class ChartService
         else $sql2 = "SELECT a.stamp, b.at_avg as at_avg, b.pt_avg as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         */
         if ($hour) {
-            $sql2 = 'SELECT a.stamp, avg(b.temp_ambient) as tempAmbient, avg(b.temp_pannel) as tempPannel, avg(b.temp_cell_corr) as tempCellCorr, avg(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = 'SELECT a.stamp, avg(b.temp_ambient) as tempAmbient, avg(b.temp_pannel) as tempPannel, avg(b.temp_cell_corr) as tempCellCorr, avg(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp > '$from' and a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
         } else {
-            $sql2 = 'SELECT a.stamp, sum(b.temp_ambient) as tempAmbient, sum(b.temp_pannel) as tempPannel, b.temp_cell_corr as tempCellCorr, sum(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = 'SELECT a.stamp, sum(b.temp_ambient) as tempAmbient, sum(b.temp_pannel) as tempPannel, b.temp_cell_corr as tempCellCorr, sum(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp > '$from' and a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
         }
 
         $res = $conn->query($sql2);

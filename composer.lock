@@ -897,16 +897,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "3.8.0",
+            "version": "3.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "d244f2e6e6bf32bff5174e6729b57214923ecec9"
+                "reference": "ce594cbc39a4866c544f1a970d285ff0548221ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/d244f2e6e6bf32bff5174e6729b57214923ecec9",
-                "reference": "d244f2e6e6bf32bff5174e6729b57214923ecec9",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/ce594cbc39a4866c544f1a970d285ff0548221ad",
+                "reference": "ce594cbc39a4866c544f1a970d285ff0548221ad",
                 "shasum": ""
             },
             "require": {
@@ -990,7 +990,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/3.8.0"
+                "source": "https://github.com/doctrine/dbal/tree/3.7.3"
             },
             "funding": [
                 {
@@ -1006,7 +1006,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-25T21:44:02+00:00"
+            "time": "2024-01-21T07:53:09+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -1699,16 +1699,16 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "2.17.4",
+            "version": "2.17.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/orm.git",
-                "reference": "ccfc97c32f63aaa0988ac6aa42e71c5590bb794d"
+                "reference": "398ab0547aaf90bdb352b560a94c24f44ff00670"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/orm/zipball/ccfc97c32f63aaa0988ac6aa42e71c5590bb794d",
-                "reference": "ccfc97c32f63aaa0988ac6aa42e71c5590bb794d",
+                "url": "https://api.github.com/repos/doctrine/orm/zipball/398ab0547aaf90bdb352b560a94c24f44ff00670",
+                "reference": "398ab0547aaf90bdb352b560a94c24f44ff00670",
                 "shasum": ""
             },
             "require": {
@@ -1794,9 +1794,9 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/orm/issues",
-                "source": "https://github.com/doctrine/orm/tree/2.17.4"
+                "source": "https://github.com/doctrine/orm/tree/2.17.3"
             },
-            "time": "2024-01-26T19:41:16+00:00"
+            "time": "2024-01-16T21:32:04+00:00"
         },
         {
             "name": "doctrine/persistence",
@@ -3420,16 +3420,16 @@
         },
         {
             "name": "league/mime-type-detection",
-            "version": "1.15.0",
+            "version": "1.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/mime-type-detection.git",
-                "reference": "ce0f4d1e8a6f4eb0ddff33f57c69c50fd09f4301"
+                "reference": "b6a5854368533df0295c5761a0253656a2e52d9e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/mime-type-detection/zipball/ce0f4d1e8a6f4eb0ddff33f57c69c50fd09f4301",
-                "reference": "ce0f4d1e8a6f4eb0ddff33f57c69c50fd09f4301",
+                "url": "https://api.github.com/repos/thephpleague/mime-type-detection/zipball/b6a5854368533df0295c5761a0253656a2e52d9e",
+                "reference": "b6a5854368533df0295c5761a0253656a2e52d9e",
                 "shasum": ""
             },
             "require": {
@@ -3460,7 +3460,7 @@
             "description": "Mime-type detection for Flysystem",
             "support": {
                 "issues": "https://github.com/thephpleague/mime-type-detection/issues",
-                "source": "https://github.com/thephpleague/mime-type-detection/tree/1.15.0"
+                "source": "https://github.com/thephpleague/mime-type-detection/tree/1.14.0"
             },
             "funding": [
                 {
@@ -3472,7 +3472,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-28T23:22:08+00:00"
+            "time": "2023-10-17T14:13:20+00:00"
         },
         {
             "name": "liip/imagine-bundle",
@@ -4339,16 +4339,16 @@
         },
         {
             "name": "pagerfanta/core",
-            "version": "v4.3.0",
+            "version": "v4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Pagerfanta/core.git",
-                "reference": "4154ca642c3a6c2e13df786fc5ff2002bf7a87b8"
+                "reference": "c7378a868b6291fe723a4d666f04c4be2faefdda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Pagerfanta/core/zipball/4154ca642c3a6c2e13df786fc5ff2002bf7a87b8",
-                "reference": "4154ca642c3a6c2e13df786fc5ff2002bf7a87b8",
+                "url": "https://api.github.com/repos/Pagerfanta/core/zipball/c7378a868b6291fe723a4d666f04c4be2faefdda",
+                "reference": "c7378a868b6291fe723a4d666f04c4be2faefdda",
                 "shasum": ""
             },
             "require": {
@@ -4356,7 +4356,7 @@
                 "php": "^8.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^10.3"
+                "phpunit/phpunit": "^10.2"
             },
             "type": "library",
             "autoload": {
@@ -4376,32 +4376,32 @@
                 "pagerfanta"
             ],
             "support": {
-                "source": "https://github.com/Pagerfanta/core/tree/v4.3.0"
+                "source": "https://github.com/Pagerfanta/core/tree/v4.2.0"
             },
-            "time": "2023-09-28T23:06:30+00:00"
+            "time": "2023-07-10T22:08:24+00:00"
         },
         {
             "name": "pagerfanta/doctrine-orm-adapter",
-            "version": "v4.3.0",
+            "version": "v4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Pagerfanta/doctrine-orm-adapter.git",
-                "reference": "faf3d8841e2dff37e3fddd928813a5dd6bc0d40a"
+                "reference": "81cd6b61449469ca511cb14df6d5ecbf9331d695"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Pagerfanta/doctrine-orm-adapter/zipball/faf3d8841e2dff37e3fddd928813a5dd6bc0d40a",
-                "reference": "faf3d8841e2dff37e3fddd928813a5dd6bc0d40a",
+                "url": "https://api.github.com/repos/Pagerfanta/doctrine-orm-adapter/zipball/81cd6b61449469ca511cb14df6d5ecbf9331d695",
+                "reference": "81cd6b61449469ca511cb14df6d5ecbf9331d695",
                 "shasum": ""
             },
             "require": {
-                "doctrine/orm": "^2.14 || ^3.0",
+                "doctrine/orm": "^2.14",
                 "pagerfanta/core": "^3.7 || ^4.0",
                 "php": "^8.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^10.3",
-                "symfony/cache": "^5.4 || ^6.3 || ^7.0"
+                "phpunit/phpunit": "^10.2",
+                "symfony/cache": "^5.4 || ^6.2"
             },
             "type": "library",
             "autoload": {
@@ -4423,22 +4423,22 @@
                 "pagerfanta"
             ],
             "support": {
-                "source": "https://github.com/Pagerfanta/doctrine-orm-adapter/tree/v4.3.0"
+                "source": "https://github.com/Pagerfanta/doctrine-orm-adapter/tree/v4.2.0"
             },
-            "time": "2024-01-27T17:20:48+00:00"
+            "time": "2023-07-10T22:06:56+00:00"
         },
         {
             "name": "pagerfanta/twig",
-            "version": "v4.3.0",
+            "version": "v4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Pagerfanta/twig.git",
-                "reference": "0a372f49d2bdca376f3bbbb1cebacafa7d845765"
+                "reference": "7284d6ff3537e42c36d94bfba8659d7791102853"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Pagerfanta/twig/zipball/0a372f49d2bdca376f3bbbb1cebacafa7d845765",
-                "reference": "0a372f49d2bdca376f3bbbb1cebacafa7d845765",
+                "url": "https://api.github.com/repos/Pagerfanta/twig/zipball/7284d6ff3537e42c36d94bfba8659d7791102853",
+                "reference": "7284d6ff3537e42c36d94bfba8659d7791102853",
                 "shasum": ""
             },
             "require": {
@@ -4447,7 +4447,7 @@
                 "twig/twig": "^2.13 || ^3.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^10.3"
+                "phpunit/phpunit": "^10.2"
             },
             "type": "library",
             "autoload": {
@@ -4467,9 +4467,9 @@
                 "pagerfanta"
             ],
             "support": {
-                "source": "https://github.com/Pagerfanta/twig/tree/v4.3.0"
+                "source": "https://github.com/Pagerfanta/twig/tree/v4.2.0"
             },
-            "time": "2023-09-28T23:06:30+00:00"
+            "time": "2023-07-10T22:06:56+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -12278,12 +12278,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-pdf.git",
-                "reference": "5b6510d13dba5e1b208686a080e06f2ac157c186"
+                "reference": "98de295e4f53ccccff62f20c373e5b0c5723b2aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf/zipball/5b6510d13dba5e1b208686a080e06f2ac157c186",
-                "reference": "5b6510d13dba5e1b208686a080e06f2ac157c186",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf/zipball/98de295e4f53ccccff62f20c373e5b0c5723b2aa",
+                "reference": "98de295e4f53ccccff62f20c373e5b0c5723b2aa",
                 "shasum": ""
             },
             "require": {
@@ -12294,7 +12294,7 @@
                 "tecnickcom/tc-lib-color": "^2.0",
                 "tecnickcom/tc-lib-file": "^2.0",
                 "tecnickcom/tc-lib-pdf-encrypt": "^2.1",
-                "tecnickcom/tc-lib-pdf-font": "^2.1",
+                "tecnickcom/tc-lib-pdf-font": "^2.0",
                 "tecnickcom/tc-lib-pdf-graph": "^2.0",
                 "tecnickcom/tc-lib-pdf-image": "^2.0",
                 "tecnickcom/tc-lib-pdf-page": "^4.0",
@@ -12344,7 +12344,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2024-01-27T16:18:05+00:00"
+            "time": "2023-12-08T13:49:50+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-pdf-encrypt",
@@ -12417,16 +12417,16 @@
         },
         {
             "name": "tecnickcom/tc-lib-pdf-font",
-            "version": "2.1.1",
+            "version": "2.0.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-pdf-font.git",
-                "reference": "9cd99255138302fe00863319d865890ffecf99b8"
+                "reference": "f5bbbfeefb648ae87e6b9ed267cdab45c76052da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-font/zipball/9cd99255138302fe00863319d865890ffecf99b8",
-                "reference": "9cd99255138302fe00863319d865890ffecf99b8",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-font/zipball/f5bbbfeefb648ae87e6b9ed267cdab45c76052da",
+                "reference": "f5bbbfeefb648ae87e6b9ed267cdab45c76052da",
                 "shasum": ""
             },
             "require": {
@@ -12474,7 +12474,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-pdf-font/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-pdf-font/tree/2.1.1"
+                "source": "https://github.com/tecnickcom/tc-lib-pdf-font/tree/2.0.13"
             },
             "funding": [
                 {
@@ -12482,7 +12482,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2024-01-27T16:04:59+00:00"
+            "time": "2023-11-29T11:12:10+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-pdf-graph",
@@ -13665,5 +13665,5 @@
         "ext-pdo": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

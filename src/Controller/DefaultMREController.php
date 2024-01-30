@@ -45,12 +45,12 @@ class DefaultMREController extends BaseController
     /**
      * @throws NonUniqueResultException
      */
-    #[Route(path: '/mr/expected/{plant}', defaults: ['plant' => 57])]
+    #[Route(path: '/mr/expected/{plant}', defaults: ['plant' => 208])]
     public function updateExpected($plant, ExpectedService $expectedService, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
-        $from = '2023-06-02 13:00'; //date('Y-m-d 00:00');
-        $to = date('Y-m-d 13:59');
+        $from = '2024-01-29 00:00'; //date('Y-m-d 00:00');
+        $to = date('Y-m-d 24:59');
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',

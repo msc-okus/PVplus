@@ -23,7 +23,8 @@ class SunShadingModelService {
  * Berechnung der Verschattungsverluste durch Reihenverschattung
  * MS 10/23 Co. TL - Guidelines: Verschattungsverluste.docx
 */
-    public function genSSM_Data($shdata,$aoi) {
+    public function genSSM_Data($shdata,$aoi): array
+    {
         // Verarbeiten der Daten aus dem Objekt
         $out = array();
 

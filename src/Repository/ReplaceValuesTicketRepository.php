@@ -7,6 +7,7 @@ use App\Entity\ReplaceValuesTicket;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Cache\InvalidArgumentException;
 
 /**
  * @extends ServiceEntityRepository<ReplaceValuesTicket>
@@ -24,7 +25,7 @@ class ReplaceValuesTicketRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws NonUniqueResultException
+     * @throws NonUniqueResultException|InvalidArgumentException
      */
     public function getSum(Anlage $anlage, \DateTime $startDate, \DateTime $endDate)
     {

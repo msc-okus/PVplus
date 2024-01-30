@@ -362,17 +362,18 @@ class AlertSystemV2Service
      * Given all the information needed to generate a ticket, the tickets are created and commited to the db (single ticket variant)
      * @param $errorType
      * @param $errorCategorie
-     * @param $anlage
+     * @param Anlage $anlage
      * @param $inverter
      * @param $time
      * @param $message
+     * @param $PPC
+     * @param bool|null $fullGap
      * @return void
      */
     private function generateTickets($errorType, $errorCategorie,Anlage $anlage, $inverter, $time, $message, $PPC, ?bool $fullGap = false): void
     {
-        dump($time);
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
-            if($ticketArray != []) {
+            if ($ticketArray != []) {
                 foreach ($ticketArray as $ticketOld) {
                     $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
                     $result = self::subArrayFromArray($inverter, $ticketOld->getInverterArray());
@@ -393,14 +394,12 @@ class AlertSystemV2Service
                             $ticketDate->setEnd($end);
                             $ticketNew->setCreatedBy("AlertSystem");
                             $ticketNew->setUpdatedBy("AlertSystem");
-                            dump($ticketNew);
                             $this->em->persist($ticketNew);
                         } else {
                             $ticketOld->setEnd($end);
                             $ticketOld->setOpenTicket(true);
                             $ticketOld->setInverter($intersection);
                             $ticketDate->setEnd($end);
-                            dump($ticketOld);
                             $this->em->persist($ticketOld);
                         }
                     }
@@ -444,11 +443,10 @@ class AlertSystemV2Service
                     $ticket->setInverter('*');
                     $ticketDate->setInverter('*');
                 } else {
-                    dump("here i am");
+                    #dump("here i am");
                     $ticket->setInverter($restInverter);
                     $ticketDate->setInverter($restInverter);
                 }
-                dump($ticket,$ticketDate);
 
 
                 if ($ticket->getAlertType() == "20") $ticketDate->setDataGapEvaluation(10);
@@ -477,7 +475,6 @@ class AlertSystemV2Service
                 }
                 if ($errorCategorie == 10 && $fullGap) $ticketDate->setDataGapEvaluation(20);
 
-                dump($ticket);
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
             }

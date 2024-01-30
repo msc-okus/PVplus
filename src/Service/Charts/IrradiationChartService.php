@@ -14,13 +14,9 @@ class IrradiationChartService
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userPlant,
-        private $passwordPlant,
         private readonly FunctionsService $functions,
         private readonly InvertersRepository $invertersRep,
         private readonly PdoService $pdoService,
-
     )
     {
     }
@@ -28,12 +24,12 @@ class IrradiationChartService
     /**
      * Erzeugt Daten für das Strahlungs Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param string|null $mode
      * @param bool|null $hour
      * @return array
-     * @throws \Exception
      */
     public function getIrradiation(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
@@ -41,9 +37,9 @@ class IrradiationChartService
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         if ($hour) {
-            $sql2 = 'SELECT a.stamp, sum(b.g_lower) as g_lower, sum(b.g_upper) as g_upper FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = 'SELECT a.stamp, sum(b.g_lower) as g_lower, sum(b.g_upper) as g_upper FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp > '$from' and a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
         } else {
-            $sql2 = 'SELECT a.stamp, b.g_lower as g_lower , b.g_upper as g_upper FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = 'SELECT a.stamp, b.g_lower as g_lower , b.g_upper as g_upper FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp > '$from' and a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
         }
 
         $res = $conn->query($sql2);
@@ -99,12 +95,12 @@ class IrradiationChartService
     /**
      * Erzeugt Daten für das Strahlungs Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param string|null $mode
      * @param bool|null $hour
      * @return array
-     * @throws \Exception
      */
     public function getIrradiationFromSensorsData(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {

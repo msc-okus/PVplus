@@ -27,7 +27,6 @@ export default class extends Controller {
             type: 'POST',
             data: jsonString
         });
-        //console.log(response);
 
         let modal = new Reveal($(this.modalTargets));
         modal.open();

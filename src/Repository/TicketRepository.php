@@ -69,11 +69,6 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     public function countByProof(){
-
-
-        /** @var User $user */
-        $user = $this->security->getUser();
-
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $result = $this->createQueryBuilder('t')
@@ -91,7 +86,6 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     public function countByProofAM(){
-
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
         $result = $this->createQueryBuilder('t')
             ->innerJoin('t.anlage', 'a')
@@ -103,11 +97,11 @@ class TicketRepository extends ServiceEntityRepository
             $result->andWhere('a.anlId IN (:plantList)')
                 ->setParameter('plantList', $granted);
         }
-        dump($result);
+
         return $result->getQuery()->getResult()[0][1];
     }
-    public function countByProofEPC(){
 
+    public function countByProofEPC(){
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $result = $this->createQueryBuilder('t')
@@ -125,7 +119,6 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     public function countByProofG4N(){
-
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $result = $this->createQueryBuilder('t')
@@ -159,7 +152,7 @@ class TicketRepository extends ServiceEntityRepository
      * @param string $sort
      * @param string $direction
      * @param bool $ignore
-     * @param string $TicketName
+     * @param string $ticketName
      * @param int $kpistatus
      * @param string $begin
      * @param string $end
@@ -268,7 +261,7 @@ class TicketRepository extends ServiceEntityRepository
                 ->andWhere('t.anlage = :anl')
                 ->andWhere('t.begin >= :begin')
                 ->andWhere('t.begin <= :end')
-                ->andWhere("t.editor = 'Alert system'")
+                ->andWhere("t.editor = 'ImportSystem'") //Alert system
                 ->setParameter('anl', $anlage)
                 ->setParameter('begin', $begin)
                 ->setParameter('end', $end)
@@ -278,7 +271,7 @@ class TicketRepository extends ServiceEntityRepository
             $result = $this->createQueryBuilder('t')
                 ->andWhere('t.anlage = :anl')
                 ->andWhere('t.begin >= :begin')
-                ->andWhere("t.editor = 'Alert system'")
+                ->andWhere("t.editor = 'ImportSystem'") //Alert system
                 ->setParameter('anl', $anlage)
                 ->setParameter('begin', $begin)
                 ->getQuery()

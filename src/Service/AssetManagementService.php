@@ -2511,7 +2511,7 @@ class AssetManagementService
 
         $G4NmonthExpected = $tbody_a_production['powerExp'][$month-1] * ((100 - $anlage->getTotalKpi())/100);
         $G4NyearExpected = 0;
-        for($index = 0; $index < $month -1; $index++){
+        for($index = 0; $index <= $month -1; $index++){
             $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExpEvu'][$index] * ((100 - $anlage->getTotalKpi())/100));
         }
         $ActualPower = $powerEvu[$month-1];

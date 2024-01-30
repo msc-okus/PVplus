@@ -324,8 +324,11 @@ class TicketDate
     public function setInverter(string $inverter): self
     {
         $this->inverter = $inverter;
-        if (isset($this->anlage)) $inverterString = $this->getInverterName();
-        else $inverterString = $this->getInverter();
+        if (isset($this->anlage)) {
+            $inverterString = $this->getInverterName();
+        } else {
+            $inverterString = $this->getInverter();
+        }
         switch ($this->getAlertType()) {
             case 10:
                 $this->description = "Data gap in Inverter(s): " . $inverterString;

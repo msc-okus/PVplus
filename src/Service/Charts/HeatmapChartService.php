@@ -49,9 +49,11 @@ class HeatmapChartService
 
     /**
      * [Heatmap]
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param null|int $sets
+     * @param int $sets
+     * @param bool $hour
      * @return array|null
      *
      * @throws InvalidArgumentException

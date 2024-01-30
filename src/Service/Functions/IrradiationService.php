@@ -85,6 +85,9 @@ private readonly PdoService $pdoService,
             return self::correctIrrByTicket($anlage, $from, $to, $irrData);
     }
 
+    /**
+     * @throws \JsonException
+     */
     private function correctIrrByTicket(Anlage $anlage, string $from, string $to, array $irrData): array
     {
         $startDate = date_create($from);
@@ -109,26 +112,25 @@ private readonly PdoService $pdoService,
                     // Funktionier in der ersten Version nur für Leek und Kampen
                     // es fehlt die Möglichkeit die gemittelte Strahlung, automatisiert aus den Sensoren zu berechnen
                     // ToDo: Sensor Daten müssen zur Wetter DB umgezogen werden, dann Code anpassen
-
                     // Search for sensor (irr) values in ac_ist database
                     $sensorValues = $this->weatherFunctionsService->getSensors($anlage, $tempoStartDate, $tempoEndDate);
                     // ermitteln welche Sensoren excludiert werden sollen
-                    $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
                     foreach ($sensorValues as $date => $sensorValue) {
+                        $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
                         foreach ($anlage->getSensorsInUse() as $sensor) {
                             if (!str_contains($ticket->getSensors(), $sensor->getNameShort())) {
                                 switch ($sensor->getVirtualSensor()) {
                                     case 'irr-hori':
-                                        $mittelwertPyrHoriArray[] = $sensorValue[$sensor->getNameShort()];
+                                        $mittelwertPyrHoriArray[] = (float)$sensorValue[$sensor->getNameShort()];
                                         break;
                                     case 'irr':
-                                        $mittelwertPyroArray[] = $sensorValue[$sensor->getNameShort()];
+                                        $mittelwertPyroArray[] = (float)$sensorValue[$sensor->getNameShort()];
                                         break;
                                     case 'irr-east':
-                                        $mittelwertPyroEastArray[] = $sensorValue[$sensor->getNameShort()];
+                                        $mittelwertPyroEastArray[] = (float)$sensorValue[$sensor->getNameShort()];
                                         break;
                                     case 'irr-west':
-                                        $mittelwertPyroWestArray[] = $sensorValue[$sensor->getNameShort()];
+                                        $mittelwertPyroWestArray[] = (float)$sensorValue[$sensor->getNameShort()];
                                         break;
                                 }
                             }

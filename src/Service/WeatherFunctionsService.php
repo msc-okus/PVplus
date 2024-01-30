@@ -206,10 +206,18 @@ class WeatherFunctionsService
                         $weather['upperIrr'] = $row['irr_upper'];
                         $weather['lowerIrr'] = $row['irr_lower'];
                     }
-                    $weather['irr0'] = $weather['upperIrr'];
-                    $weather['irr1'] = $weather['upperIrr'];
-                    $weather['irr2'] = $weather['upperIrr'];
-                    $weather['irr3'] = $weather['upperIrr'];
+                    if ($anlage->getIsOstWestAnlage()) {
+                        $weather['irr0'] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        $weather['irr1'] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        $weather['irr2'] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        $weather['irr3'] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                    } else {
+                        $weather['irr0'] = $weather['upperIrr'];
+                        $weather['irr1'] = $weather['upperIrr'];
+                        $weather['irr2'] = $weather['upperIrr'];
+                        $weather['irr3'] = $weather['upperIrr'];
+                    }
+
                     $weather['irrEast0'] = $weather['upperIrr'];
                     $weather['irrEast1'] = $weather['upperIrr'];
                     $weather['irrEast2'] = $weather['upperIrr'];
