@@ -443,7 +443,6 @@ class AlertSystemV2Service
                     $ticket->setInverter('*');
                     $ticketDate->setInverter('*');
                 } else {
-                    #dump("here i am");
                     $ticket->setInverter($restInverter);
                     $ticketDate->setInverter($restInverter);
                 }

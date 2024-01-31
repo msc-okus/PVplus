@@ -224,6 +224,7 @@ class AvailabilityByTicketService
      * @param int $department
      * @return array
      * @throws InvalidArgumentException
+     * @throws \JsonException
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampDay, TimesConfig $timesConfig, array $inverterPowerDc, int $department = 0): array
     {
@@ -371,7 +372,6 @@ class AvailabilityByTicketService
 
             $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
             $theoPowerByPA = 0;
-
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];
                 $strahlung = $einstrahlung['irr'];

@@ -54,29 +54,25 @@ class SensorService
         foreach ($ticketArray as $ticketDate){ #loop über query result
             // Start und End Zeitpunkt ermitteln, es sollen keine Daten gesucht werden die auserhalb des Übergebenen Zeitaums liegen.
             // Ticket kann ja schon vor dem Zeitraum gestartet oder danach erst beendet werden
-            $tempoStartDate = $startDate > $ticketDate->getBegin() ? $startDate : $ticketDate->getBegin();
-            $tempoEndDate = $endDate < $ticketDate->getEnd() ? $endDate :$ticketDate->getEnd();
-
-            if ($tempoStartDate->format('i') == '00'){
-                $hour = (int)$tempoStartDate->format('H') - 1;
-                $tempoStartDate = date_create($tempoStartDate->format("Y-m-d $hour:15"));
-                $tempoEndDate = date_create($tempoEndDate->format("Y-m-d H:00"));
-            } else {
-                $tempoStartDate = date_create($tempoStartDate->format('Y-m-d H:15'));
-                $hour = (int)$tempoStartDate->format('H') + 1;
-            }
-            $pvSystStartDate = date_create($tempoStartDate->format("Y-m-d $hour:00"));
-            $pvSystEndDate = date_create($tempoEndDate->format("Y-m-d H:00"));
+            $tempoStartDate = clone ($startDate > $ticketDate->getBegin() ? $startDate : $ticketDate->getBegin());
+            $tempoEndDate = clone ($endDate < $ticketDate->getEnd() ? $endDate : $ticketDate->getEnd());
+            // erzeuge Time mit 15 Minuten versatz nach hinten -> wenn wir nach wetter Daten suchen wird eine Datums suche > und <= genutzt,
+            // bei Tickets muss aber <= und < genutzt werden oder das datum muss um ein 1 quater (15minuten) nach hinten verschoben werden
+            $tempStartDateMinus15 = clone $tempoStartDate;
+            $tempEndDateMinus15 = clone $tempoEndDate;
+            $interval15 = new \DateInterval('PT15M');
+            $tempStartDateMinus15->sub($interval15);
+            $tempEndDateMinus15->sub($interval15);
 
             switch ($ticketDate->getAlertType()) {
                 // Exclude Sensors
-                case '70':
+                case '70x':
                     // Funktioniert in der ersten Version nur für Leek und Kampen
                     // es fehlt die Möglichkeit die gemittelte Strahlung, automatisiert aus den Sensoren zu berechnen
                     // ToDo: Sensor Daten müssen zur Wetter DB umgezogen werden, dann Code anpassen
 
                     // Search for sensor (irr) values in ac_ist database
-                    $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempoStartDate->format('Y-m-d H:i'), $tempoEndDate->format('Y-m-d H:i'), false, $anlage);
+                    $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
                     $sensorArrays = $this->weatherFunctionsService->getSensors($anlage, $tempoStartDate, $tempoEndDate);
 
                     $sensorSum = [];
@@ -87,7 +83,7 @@ class SensorService
                         }
                     }
 
-                    // ermitteln welche Sensoren excludiert werden SOllen
+                    // ermitteln welche Sensoren excludiert werden sollen
                     $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
                     foreach ($anlage->getSensorsInUse() as $sensor) {
                         if (!str_contains($ticketDate->getSensors(), $sensor->getNameShort())){
@@ -132,29 +128,36 @@ class SensorService
 
                 // Replace Sensors
                 case '71':
-                    $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempoStartDate->format('Y-m-d H:i'), $tempoEndDate->format('Y-m-d H:i'), false, $anlage);
+                    $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
                     $replaceArray = $this->replaceValuesTicketRepo->getSum($anlage, $tempoStartDate, $tempoEndDate);
-
                     $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
                     break;
 
+                //
                 case '73':
                     if ($ticketDate->isReplaceIrr()) {
-                        $debugCounter++;
-                        $debuglevel = 1111110;
-                        $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempoStartDate->format('Y-m-d H:i'), $tempoEndDate->format('Y-m-d H:i'), false, $anlage);
+                        if ($tempoStartDate->format('i') == '00') {
+                            $hour = (int)$tempoStartDate->format('H') - 1;
+                            $tempoStartDate = date_create($tempoStartDate->format("Y-m-d $hour:15"));
+                            $tempoEndDate = date_create($tempoEndDate->format("Y-m-d H:00"));
+                        } else {
+                            $tempoStartDate = date_create($tempoStartDate->format('Y-m-d H:15'));
+                            $hour = (int)$tempoStartDate->format('H') + 1;
+                        }
+                        $pvSystStartDate = date_create($tempoStartDate->format("Y-m-d $hour:00"));
+                        $pvSystEndDate = date_create($tempoEndDate->format("Y-m-d H:00"));
+
+                        $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
                         $replaceArray = $this->getPvSystIrr($anlage, $pvSystStartDate, $pvSystEndDate);
-                        #if ($debugCounter > $debuglevel) dump($tempoStartDate, $tempoEndDate, $pvSystStartDate, $pvSystEndDate, $tempWeatherArray, $replaceArray);
-                        #if ($debugCounter > $debuglevel) dump($sensorData);
+
                         $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
-                        #if ($debugCounter > $debuglevel) dd($sensorData);
                     }
 
                     break;
                     
                 // Exclude from PR/Energy (exclude Irr and TheoPower)
                 case '72':
-                    $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempoStartDate->format('Y-m-d H:i'), $tempoEndDate->format('Y-m-d H:i'), false, $anlage);
+                    $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
 
                     // korrigiere Horizontal Irradiation
                     $sensorData['irrModul0'] = $sensorData['upperIrr'];
@@ -183,6 +186,13 @@ class SensorService
                     $sensorData['theoPowerPA3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['theoPowerPA3'] - $tempWeatherArray['theoPowerPA3'] : $sensorData['theoPowerPA3'];
                     break;
             }
+        }
+
+        if ($anlage->getIsOstWestAnlage()) {
+            $sensorData['irr0'] = ($sensorData['irrEast0'] * $anlage->getPowerEast() + $sensorData['irrWest0'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+            $sensorData['irr1'] = ($sensorData['irrEast1'] * $anlage->getPowerEast() + $sensorData['irrWest1'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+            $sensorData['irr2'] = ($sensorData['irrEast2'] * $anlage->getPowerEast() + $sensorData['irrWest2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+            $sensorData['irr3'] = ($sensorData['irrEast3'] * $anlage->getPowerEast() + $sensorData['irrWest3'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
         }
 
         return $sensorData;
@@ -243,7 +253,7 @@ class SensorService
                     }
                     if ($newWeather['irrWest'] && $newWeather['irrWest'] > 0) {
                         $sensorData['lowerIrr'] = $sensorData['lowerIrr'] - $oldWeather['lowerIrr'] + $newWeather['irrWest'];
-                        $sensorData['irrWest0'] = $oldWeather['lowerIrr'];
+                        $sensorData['irrWest0'] = $sensorData['lowerIrr'];
                         $sensorData['irrWest1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['irrWest1'] - $oldWeather['lowerIrr'] + $newWeather['irrWest'] : $sensorData['irrWest1'];
                         $sensorData['irrWest2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['irrWest2'] - $oldWeather['lowerIrr'] + $newWeather['irrWest'] : $sensorData['irrWest2'];
                         $sensorData['irrWest3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['irrWest3'] - $oldWeather['lowerIrr'] + $newWeather['irrWest'] : $sensorData['irrWest3'];

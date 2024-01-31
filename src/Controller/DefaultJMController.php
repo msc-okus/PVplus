@@ -49,7 +49,6 @@ class DefaultJMController extends AbstractController
     public function teastTicketName(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
     {
         $ticket = $ticketRepo->findOneById("399529 ");
-        #dd($ticket->getInverterName());
     }
     #[Route(path: '/generate/newInverter', name: 'generate_tickets_temp')]
     public function updateTicketsTemp(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
@@ -60,7 +59,6 @@ class DefaultJMController extends AbstractController
             $em->persist($ticket);
         }
         $em->flush();
-        #dd("done");
     }
 
 

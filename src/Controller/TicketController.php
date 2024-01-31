@@ -396,7 +396,6 @@ class TicketController extends BaseController
         $form = $this->createForm(\App\Form\Notification\NotificationFormType::class, null, ['eigner' => $eigner]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            #dd("submited");
         }
         return $this->render('ticket/_inc/_notification.html.twig', [
             'ticket'            => $ticket,

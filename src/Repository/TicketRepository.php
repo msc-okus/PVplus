@@ -74,7 +74,8 @@ class TicketRepository extends ServiceEntityRepository
         $result = $this->createQueryBuilder('t')
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
-            ->andWhere('t.needsProof = true');
+            ->andWhere('t.needsProof = true')
+            ->andWhere('t.ignoreTicket = false');
 
         if (!$this->security->isGranted('ROLE_G4N')) {
             $result->andWhere('t.internal = false');
@@ -91,6 +92,7 @@ class TicketRepository extends ServiceEntityRepository
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.ProofAM = true')
+            ->andWhere('t.ignoreTicket = false');
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
             $result->andWhere('t.internal = false');
@@ -108,7 +110,8 @@ class TicketRepository extends ServiceEntityRepository
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.needsProofEPC = true')
-        ;
+            ->andWhere('t.ignoreTicket = false');
+
         if (!$this->security->isGranted('ROLE_G4N')) {
             $result->andWhere('t.internal = false');
             $result->andWhere('a.anlId IN (:plantList)')
@@ -125,7 +128,8 @@ class TicketRepository extends ServiceEntityRepository
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.needsProofg4n = true')
-        ;
+            ->andWhere('t.ignoreTicket = false');
+
         if (!$this->security->isGranted('ROLE_G4N')) {
             $result->andWhere('t.internal = false');
             $result->andWhere('a.anlId IN (:plantList)')
