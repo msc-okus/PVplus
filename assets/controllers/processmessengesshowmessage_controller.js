@@ -19,6 +19,13 @@ export default class extends Controller {
         var pdfdownload = document.getElementById('pdfdownload');
         var messagebutton = document.getElementById('far-fa-bell');
 
+        if(this.messageValue != 'empty'){
+            messagebutton.style.color = '#ff0000';
+        }else{
+            messagebutton.style.color = '#1779ba';
+            return process.exit(1);
+        }
+
         messageelem.style.display = 'block';
         this.fadeInElement(messageelem);
         messagetext.innerText = this.messageValue;
@@ -30,7 +37,6 @@ export default class extends Controller {
 
 
 
-        messagebutton.style.color = '#ff0000';
         window.setTimeout(() => {
             this.fadeOutElement(messageelem);
         }, 10000);

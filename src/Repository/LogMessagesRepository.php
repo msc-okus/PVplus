@@ -72,7 +72,6 @@ class LogMessagesRepository extends ServiceEntityRepository
                 ->getResult();
         } else {
             $q = $this->createQueryBuilder('log')
-                ->andWhere("log.function LIKE 'create AM Report%'")
                 ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
                 ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 1))
                 ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600 * 1))

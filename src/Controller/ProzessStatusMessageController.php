@@ -18,25 +18,28 @@ class ProzessStatusMessageController extends BaseController
         $uid = $user->getUserId();
         $logMessages = $logMessagesRepo->getStatusMessages($uid);
 
-
+        if(!is_object($logMessages)){
+            return $this->render('logMessages/_prozessReady.html.twig', [
+                'messagetext'   => "empty",
+                'function'      => "aaaaaa",
+                'prozessid'     => 0
+            ]);
+        }else{
             $id = $logMessages->getId();
             $plant = $logMessages->getPlant();
             $function = $logMessages->getFunction();
             $prozessId = $logMessages->getProzessId();
-            #$logMessagesRepo->setStatusMessagesIsSeen($id);
+            $logMessagesRepo->setStatusMessagesIsSeen($id);
 
             switch ($function){
                 case 'Expected';
-                    $message = "Your $function calculation for $plant is ready.";
-                    break;
-                case 'Import API Data';
                     $message = "Your $function calculation for $plant is ready.";
                     break;
                 case 'AM Report';
                     $message = "Your $function calculation for $plant is ready.";
                     break;
                 default:
-                    $message = "XXXX";
+                    $message = "";
                     break;
             }
 
@@ -45,6 +48,6 @@ class ProzessStatusMessageController extends BaseController
                 'function'      => $function,
                 'prozessid'     => $prozessId
             ]);
-
+        }
     }
 }
