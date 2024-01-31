@@ -612,7 +612,7 @@ trait ImportFunctionsTrait
 
         $result[] = $data_pv_dcist;
         $result[] = $data_db_string_pv;
-exit;
+
         return $result;
     }
 
