@@ -599,12 +599,9 @@ class PRCalulationService
         }
 
         // Wetter Daten ermitteln MIT Berücksichtigung des PPC Signals
-        $weatherWithPpc= [];
-        if(false) {
-            $weatherWithPpc = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
-            if (is_array($weatherWithPpc)) {
-                $weatherWithPpc = $this->sensorService->correctSensorsByTicket($anlage, $weatherWithPpc, date_create($localStartDate), date_create($localEndDate));
-            }
+        $weatherWithPpc = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
+        if (is_array($weatherWithPpc)) {
+            $weatherWithPpc = $this->sensorService->correctSensorsByTicket($anlage, $weatherWithPpc, date_create($localStartDate), date_create($localEndDate));
         }
         // Wetter Daten ermitteln OHNE Berücksichtigung des PPC Signals
         $weatherNoPpc = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, false, $anlage);
