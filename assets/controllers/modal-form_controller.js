@@ -18,6 +18,7 @@ export default class extends Controller {
     }
 
     async openModal(event) {
+        event.preventDefault();
         this.modalBodyTarget.innerHTML = 'Loading ...';
         this.modal = new Reveal($(this.modalTarget));
         this.modal.open();

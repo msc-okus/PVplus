@@ -30,8 +30,8 @@ class ReportsFormType extends AbstractType
                 'choices' => array_flip(self::reportStati()),//['final' => '0', 'under observation' => 3, 'proof reading' => '5', 'archive (only g4n)' => '9', 'draft (only g4n)' => '10', 'wrong (only g4n)' => '11'],
                 'empty_data' => '0',
             ])
-            ->add('comments', CKEditorType::class, [
-                'config' => ['toolbar' => 'my_toolbar'],
+            ->add('comments', TextType::class, [
+                #'config' => ['toolbar' => 'my_toolbar'],
                 'empty_data' => '',
             ])
             ->add('headline', TextType::class, [
