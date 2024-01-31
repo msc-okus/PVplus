@@ -93,16 +93,18 @@ class ImportService
         $basics = [];
         $inverters = [];
         $sensors = [];
+        $stringBoxes = [];
         $numberOfPlants = count($arrayVcomIds);
 
         for ($i = 0; $i < $numberOfPlants; ++$i) {
             $bulkMeaserments[$i] = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $arrayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
         }
         curl_close($curl);
-
         $data_pv_ist = [];
         $data_pv_dcist = [];
+
         if (count($bulkMeaserments) > 0) {
+
             for ($i = 0; $i < count($bulkMeaserments); ++$i) {
                 for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
                     #$stamp = date('Y-m-d H:i', $timestamp);
@@ -110,9 +112,13 @@ class ImportService
                     if($i == 0){
                         $sensors[$date] = $bulkMeaserments[$i]['sensors'][$date];
                         $inverters[$date] = $bulkMeaserments[$i]['inverters'][$date];
+                        if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
+                            $stringBoxes[$date] = $bulkMeaserments[$i]['stringboxes'][$date];
+                        }
                     }else{
                         $sensors[$date] = $sensors[$date] + $bulkMeaserments[$i]['sensors'][$date];
                         $inverters[$date] = $inverters[$date] + $bulkMeaserments[$i]['inverters'][$date];
+                        $stringBoxes[$date] = $stringBoxes[$date] + $bulkMeaserments[$i]['stringboxes'][$date];
                     }
                     if($bulkMeaserments[$i]['basics'][$date]['G_M0'] == null){
                         $basics[$date]["G_M".$i] = 0;
@@ -129,7 +135,6 @@ class ImportService
             $anlageSensors = $anlage->getSensors();
 
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
-
                 $stamp = date('Y-m-d H:i', $timestamp);
                 $date = date('c', $timestamp);
 
@@ -236,7 +241,6 @@ class ImportService
                 }
 
                 if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
-                    $stringBoxes = $bulkMeaserments['stringboxes'];
                     $stringBoxesTime = $stringBoxes[$date];
 
                     //Anzahl der Units in einer Stringbox
@@ -286,6 +290,8 @@ class ImportService
             //write Data in the tables
             $DBDataConnection = $this->pdoService->getPdoPlant();
             $DBStbConnection = $this->pdoService->getPdoStringBoxes();
+
+
 
             switch ($importType) {
                 case 'api-import-weather':
