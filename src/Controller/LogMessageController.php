@@ -27,9 +27,11 @@ class LogMessageController extends BaseController
         $user = $this->getUser();
         $uid = $user->getUserId();
         $logMessages = $logMessagesRepo->findSmallList($uid);
+        //$count = $logMessages->count();
 
         return $this->render('logMessages/_listSmall.html.twig', [
             'logs' => $logMessages,
+            'count' => 0,
         ]);
     }
 }

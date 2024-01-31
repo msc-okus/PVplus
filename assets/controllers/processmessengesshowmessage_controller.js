@@ -7,7 +7,6 @@ export default class extends Controller {
         prozesstype: String,
         prozessid: Number
     }
-
     connect() {
         if(this.messageValue != ''){
             this.showReady();

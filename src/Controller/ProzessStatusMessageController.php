@@ -21,7 +21,7 @@ class ProzessStatusMessageController extends BaseController
         if(!is_object($logMessages)){
             return $this->render('logMessages/_prozessReady.html.twig', [
                 'messagetext'   => "empty",
-                'function'      => "aaaaaa",
+                'function'      => "",
                 'prozessid'     => 0
             ]);
         }else{
