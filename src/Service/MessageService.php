@@ -9,6 +9,7 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlageEventMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 
@@ -16,14 +17,17 @@ class MessageService
 {
     use G4NTrait;
 
+
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly MailerInterface $mailer,
-        private readonly AnlageEventMailRepository $anlageEventMail)
+        private readonly AnlageEventMailRepository $anlageEventMail,
+        private PiiCryptoService $encryptService
+    )
     {
     }
 
-    public function sendMessage(Anlage $anlage, $eventType, $alertType, $subject, $message, $attachedFiles = false, $g4nAlert = true, $g4nAdmin = false, $upAlert = false)
+    public function sendMessage(Anlage $anlage, $eventType, $alertType, $subject, $message, $attachedFiles = false, $g4nAlert = true, $g4nAdmin = false, $upAlert = false):void
     {
         $alertEmailG4n = new Address('os@green4net.com', 'Oliver Skadow');
         $adminEmailG4n = new Address('mr@green4net.com', 'Matthias Reinhardt');
@@ -95,17 +99,93 @@ class MessageService
 
             $this->logMessage($anlage, $subject, $message, $eventType, $alertType, $to);
 
+
             sleep(2);
         }
     }
 
-    public function sendMessageTo(Anlage $anlage, $subject, $message, $email, $name, $attachedFiles = false, $g4nAlert = true, $g4nAdmin = false, $upAlert = false){
-
+    public function sendMessageToMaintenance($subject, $message, $to, $name, $attachedFiles = false, $ticket = false):void{
         $email = new TemplatedEmail();
-        $email->from(new Address('alert@g4npvplus.net', 'PVplus Alert System'));
+        $email->from(new Address('noreply@g4npvplus.de', 'noreply G4N'));
+        $email->to(new Address($to, $name));
+        $hashedkey = $this->encryptService->hashData($ticket->getSecurityToken());
+        $email
+            ->subject($subject)
+            ->htmlTemplate('email/notificationMail.html.twig')
+            ->context([
+                'name'      => $name,
+                'message'   => $message,
+                'ticket'    => $ticket,
+                'key'       => $hashedkey
+            ]);
+
+        if ($attachedFiles) {
+            foreach ($attachedFiles as $attachedFile) {
+                $email->attach($attachedFile['file'], $attachedFile['filename']);
+            }
+        }
+
+        try {
+            $this->mailer->send($email);
+        } catch (TransportExceptionInterface $e) {
+
+        }
+
+    }
+    public function sendConfirmationMessageToMaintenance($subject, $message, $to, $name, $attachedFiles = false, $ticket = false):void{
+        $email = new TemplatedEmail();
+        $email->from(new Address('noreply@g4npvplus.de', 'noreply G4N'));
+        $email->to(new Address($to, $name));
+        $hashedkey = $this->encryptService->hashData($ticket->getSecurityToken());
+        $email
+            ->subject($subject)
+            ->htmlTemplate('email/confirmationMail.html.twig')
+            ->context([
+                'name'      => $name,
+                'message'   => $message,
+                'ticket'    => $ticket,
+                'key'       => $hashedkey
+            ]);
+
+        if ($attachedFiles) {
+            foreach ($attachedFiles as $attachedFile) {
+                $email->attach($attachedFile['file'], $attachedFile['filename']);
+            }
+        }
+
+        try {
+            $this->mailer->send($email);
+        } catch (TransportExceptionInterface $e) {
+
+        }
 
     }
 
+    public function sendRawMessage($subject, $message, $to, $name, $attachedFiles = false):void{
+        $email = new TemplatedEmail();
+        $email->from(new Address('noreply@g4npvplus.de', 'noreply G4N'));
+        $email->to(new Address($to, $name));
+        $email
+            ->subject($subject)
+            ->htmlTemplate('email/rawMail.html.twig')
+            ->context([
+                'name'      => $name,
+                'message'   => $message,
+            ]);
+
+        if ($attachedFiles) {
+            foreach ($attachedFiles as $attachedFile) {
+                $email->attach($attachedFile['file'], $attachedFile['filename']);
+            }
+        }
+
+        try {
+            $this->mailer->send($email);
+        } catch (TransportExceptionInterface $e) {
+
+        }
+
+    }
     public function logMessage(Anlage $anlage, $subject, $message, $eventType, $alertType, $to)
     {
         $alertMessage = new AlertMessages();

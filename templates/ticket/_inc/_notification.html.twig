@@ -1,25 +1,27 @@
 <div class="grid-x"  >
     <div class="cell">
-        {% if (notifications|length == 0) %}
         <div>
             <fieldset class="fieldset">
                 <legend>Maintenance notification</legend>
                 <div class="grid-x grid-padding-y grid-padding-x">
-                    <div class="cell small-6">
-                        {{ form_start(notificationForm) }}
-                        {{ form_widget(notificationForm.contacted) }}
-                        <div class="is-hidden">{{ form_widget(notificationForm.contact) }}</div>
-                        <button type="button" class="button small "
-                                data-action="click->ticket-edit#contact">Contact</button>
-                        {{ form_end(notificationForm) }}
+                    {{ form_start(notificationForm) }}
+                    <div class="cell medium-3">
+                        {% if (actualNotification != null)%}
+                            Last contacted Person: {{ actualNotification.contactedPerson.name }}
+                            {% set errcat %}notification.status.{{ actualNotification.status }}{% endset %}
+                            <br> Status:  {{ errcat|trans }}
+                            <br> Notification Date: {{ actualNotification.date |date("d.m.y H:i") }} ({{ timeDiff }} ago)
+                        {% endif %}
+                        <br>{{ form_widget(notificationForm.contacted) }}
+                        <br>Text for the Maintenance Provider:
+                        {{ form_widget(notificationForm.freeText) }}
 
-                        {#  <button class="button small"><a style="color: white" href="/admin/owner/edit/{{ owner.id }}#contacts">Add contact</a></button> #}
-
+                        <br><button type="button" class="button small "
+                                data-action="click->ticket-edit#contact"  >{% if (actualNotification != null)%}Contact a different Maintenance provider{% else %}Contact{% endif %}</button>
 
                         <button type="button" class="button small "
                                 data-ticket-edit-target="contactButton"
                                 data-action="click->ticket-edit#openContactCreateModal"> Create Contact</button>
-
                         <div id="formContactCreate{{ modalId }}">
                             <div class="reveal text-left small" id="modal-contact-create-{{ modalId }}"
                                  data-reveal
@@ -33,8 +35,10 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
+                    <div class="is-hidden">{{ form_widget(notificationForm.contact) }}</div>
+
+                    {{ form_end(notificationForm) }}
                 </div>
             </fieldset>
             <button class="close-button"
@@ -44,9 +48,5 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        {% else %}
-
-            edit contact
-        {% endif %}
     </div>
 </div>

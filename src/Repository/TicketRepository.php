@@ -69,8 +69,6 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     public function countByProof(){
-
-
         /** @var User $user */
         $user = $this->security->getUser();
 
@@ -79,7 +77,8 @@ class TicketRepository extends ServiceEntityRepository
         $result = $this->createQueryBuilder('t')
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
-            ->andWhere('t.needsProof = true');
+            ->andWhere('t.needsProof = true')
+            ->andWhere('t.ignoreTicket = false');
 
         if (!$this->security->isGranted('ROLE_G4N')) {
             $result->andWhere('t.internal = false');
@@ -97,6 +96,7 @@ class TicketRepository extends ServiceEntityRepository
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.ProofAM = true')
+            ->andWhere('t.ignoreTicket = false')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
             $result->andWhere('t.internal = false');
@@ -114,6 +114,7 @@ class TicketRepository extends ServiceEntityRepository
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.needsProofEPC = true')
+            ->andWhere('t.ignoreTicket = false')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
             $result->andWhere('t.internal = false');
@@ -132,6 +133,7 @@ class TicketRepository extends ServiceEntityRepository
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.needsProofg4n = true')
+            ->andWhere('t.ignoreTicket = false')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
             $result->andWhere('t.internal = false');
@@ -139,8 +141,24 @@ class TicketRepository extends ServiceEntityRepository
                 ->setParameter('plantList', $granted);
         }
         return $result->getQuery()->getResult()[0][1];
-
     }
+    public function countIgnored(){
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.ignoreTicket = true')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $result->andWhere('t.internal = false');
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+    }
+
     /**
      * Build query with all options, including 'has user rights to see'.
      *

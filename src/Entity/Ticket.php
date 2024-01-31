@@ -151,6 +151,9 @@ class Ticket
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $inverterName = "";
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $securityToken = null;
+
 
     /*
         #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -586,6 +589,18 @@ class Ticket
                 $this->description = "Error in inverter: " .  $inverterString;
         }
         $this->setInverterName($inverterString);
+
+        return $this;
+    }
+
+    public function getSecurityToken(): ?string
+    {
+        return $this->securityToken;
+    }
+
+    public function setSecurityToken(?string $securityToken): static
+    {
+        $this->securityToken = $securityToken;
 
         return $this;
     }

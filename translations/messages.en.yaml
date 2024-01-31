@@ -64,9 +64,16 @@ ticket:
     30: High
     40: Urgent
 
+notification:
+    status:
+        10: Notified, not yet answered
+        20: Maintenance is working on it
+        30: Maintenance will work on it later
+        40: New provider required
+
 monthName:
-    1: Januar
-    2: Februar
+    1: January
+    2: February
     3: March
     4: April
     5: May
@@ -74,6 +81,6 @@ monthName:
     7: July
     8: August
     9: September
-    10: Oktober
+    10: October
     11: November
     12: December

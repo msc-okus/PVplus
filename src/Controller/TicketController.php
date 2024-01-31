@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\NotificationInfo;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
+use App\Form\Notification\NotificationConfirmFormType;
+use App\Form\Notification\NotificationEditFormType;
 use App\Form\Owner\NotificationFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Helper\PVPNameArraysTrait;
@@ -13,6 +16,7 @@ use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
 use App\Service\MessageService;
+use App\Service\PiiCryptoService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -27,6 +31,7 @@ use DateTime;
 class TicketController extends BaseController
 {
 
+    use PVPNameArraysTrait;
     public function __construct(
         private readonly TranslatorInterface $translator)
     {
@@ -282,8 +287,7 @@ class TicketController extends BaseController
         $countProofByEPC = $ticketRepo->countByProofEPC();
         $countByProofAM = $ticketRepo->countByProofAM();
         $countByProofG4N = $ticketRepo->countByProofG4N();
-
-        //dd($countByProofAM, $countByProofG4N, $countProofByEPC, $countProofByTam);
+        $countIgnored = $ticketRepo->countIgnored();
         $filter = [];
         $session = $request->getSession();
         $pageSession = $session->get('page');
@@ -384,7 +388,8 @@ class TicketController extends BaseController
             'countProofByAM'  => $countByProofAM,
             'countProofByEPC'  => $countProofByEPC,
             'countProofByTAM'  => $countProofByTam,
-            'countProofByG4N'  => $countByProofG4N
+            'countProofByG4N'  => $countByProofG4N,
+            'countIgnored'     => $countIgnored,
         ]);
     }
 
@@ -408,22 +413,46 @@ class TicketController extends BaseController
         ]);
     }
     #[Route(path: '/ticket/notify/{id}', name: 'app_ticket_notify', methods: ['GET', 'POST'])]
-    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, ContactInfoRepository $contactRepo, MessageService $messageService): Response
+    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, ContactInfoRepository $contactRepo, MessageService $messageService, PiiCryptoService $encryptService): Response
     {
         $ticket = $ticketRepo->findOneById($id);
         $notifications = $ticket->getNotificationInfos();
+        $timeDiff = null;
+        if (!$notifications->isEmpty()){
+            $actualNotification = $notifications->last();
+            $actualTime = new DateTime();
+            $timeDiff = $actualNotification->getDate()->diff($actualTime)->format("%d days %h hours");
+
+        }
         $eigner = $ticket->getAnlage()->getEigner();
         $form = $this->createForm(\App\Form\Notification\NotificationFormType::class, null, ['eigner' => $eigner]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            dd($contactRepo->findBy(["id" => $form->getData()])[0]);
+
+            $contact = $contactRepo->findBy(["id" => $form->getData()['contacted']])[0];
+            $key = uniqid($ticket->getId);
+            $notification = new NotificationInfo();
+            $notification->setTicket($ticket);
+            $notification->setStatus(10);
+            $notification->setContactedPerson($contact);
+            $notification->setWhoNotified($this->getUser());
+            $notification->setDate(new DateTime('now'));
+            $ticket->setSecurityToken($key);
+            $ticket->addNotificationInfo($notification);
+            $em->persist($notification);
+            $em->persist($ticket);
+            $em->flush();
+            $message = "Maintenance is needed in ". $ticket->getAnlage()->getAnlName().". Please click the button bellow to respond <br>".$form->getData()['freeText'];
+            $messageService->sendMessageToMaintenance(  $this->translator->trans("ticket.error.category.".$ticket->getAlertType()) . " in ". $ticket->getAnlage()->getAnlName(), $message, $contact->getEmail(), $contact->getName(), false, $ticket);
         }
+
         return $this->render('ticket/_inc/_notification.html.twig', [
             'ticket'            => $ticket,
-            'notifications'     => $notifications,
+            'actualNotification'=> $actualNotification,
             'notificationForm'  => $form,
             'owner'             => $eigner,
             'modalId'           => $ticket->getId(),
+            'timeDiff'          => $timeDiff
         ]);
     }
 
@@ -434,11 +463,13 @@ class TicketController extends BaseController
         $countProofByEPC = $ticketRepo->countByProofEPC();
         $countByProofAM = $ticketRepo->countByProofAM();
         $countByProofG4N = $ticketRepo->countByProofG4N();
+        $countIgnored = $ticketRepo->countIgnored();
         return new JsonResponse([
             'countProofByAM'  => $countByProofAM,
             'countProofByEPC'  => $countProofByEPC,
             'countProofByTAM'  => $countProofByTam,
-            'countProofByG4N'  => $countByProofG4N
+            'countProofByG4N'  => $countByProofG4N,
+            'countIgnored'     => $countIgnored,
         ]);
     }
 
@@ -812,6 +843,73 @@ class TicketController extends BaseController
         ]);
     }
 
+    #[Route(path: '/notification/confir/{id}', name: 'app_ticket_notification_confirm')]
+    public function confirmNotification($id, TicketRepository $ticketRepo, Request $request, PiiCryptoService $encryptService, MessageService $messageService, EntityManagerInterface $em) :Response{
+        $ticketId = $encryptService->unHashData($id);
+        $ticket = $ticketRepo->findOneBy(['securityToken' => $ticketId]);
+        $form = $this->createForm(NotificationConfirmFormType::class, null);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()){
+            dd($form->getData());
+        }
+        return $this->render('/ticket/confirmNotification.html.twig', [
+            'ticket'              => $ticket,
+            'notificationConfirmForm'  => $form,
+            'answered' => false,
+        ]);
+    }
+    #[Route(path: '/notification/edit/{id}', name: 'app_ticket_notification_edit')]
+    public function changeNotificationStatus($id, TicketRepository $ticketRepo, Request $request, PiiCryptoService $encryptService, MessageService $messageService, EntityManagerInterface $em) :Response{
+        $ticketId = $encryptService->unHashData($id);
+        $ticket = $ticketRepo->findOneBy(['securityToken' => $ticketId]);
+        $form = $this->createForm(NotificationEditFormType::class, null);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()){
+            $notification = $ticket->getNotificationInfos()->last();
+            $notification->setStatus($form->getData()['answers']);
+            $em->persist($ticket);
+            if ($form->getData()['answers'] == 40){
+                $ticket->setStatus(40);
+                $notification->setAnswerDate(new DateTime('now'));
+                $notification->setCloseDate(new DateTime('now'));
+                $em->persist($notification);
+
+                $em->flush();
+                $messageService->sendRawMessage("Request rejected", "The maintenance provider that was contacted will not be able to fulfill the request, thus we recommend contacting someone else for ticket ". $ticket->getId(), $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
+                return $this->render('/ticket/editNotification.html.twig', [
+                    'ticket'              => $ticket,
+                    'notificationEditForm'  => $form,
+                    'answered' => true,
+                ]);
+            }
+            else{
+                if ($form->getData()['answers'] == 20){
+                    $messageService->sendRawMessage("Request accepted", "The maintenance provider accepted the request and will start working as soon as possible ", $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
+                }
+                else{
+                    $messageService->sendRawMessage("Request accepted but delayed", "The maintenance provider that was contacted has accepted the request but will need some extra time to start doing it", $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
+                }
+                $notification->setAnswerDate(new DateTime('now'));
+                $messageService->sendConfirmationMessageToMaintenance("Maintenance confirmation", "Thanks for accepting the request, please report in the link in the button below when the reparations are ready", $notification->getContactedPerson()->getEmail(), $notification->getContactedPerson()->getName(), false, $ticket);
+                $ticket->setStatus(30);
+                $em->persist($notification);
+                $em->persist($ticket);
+                $em->flush();
+                return $this->render('/ticket/editNotification.html.twig', [
+                    'ticket'              => $ticket,
+                    'notificationEditForm'  => $form,
+                    'answered' => true,
+                ]);
+            }
+        }
+
+        return $this->render('/ticket/editNotification.html.twig', [
+            'ticket'              => $ticket,
+            'notificationEditForm'  => $form,
+            'answered' => false,
+        ]);
+
+    }
 
 
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods: ['GET', 'POST'])]

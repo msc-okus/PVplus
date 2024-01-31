@@ -14,8 +14,32 @@ class NotificationInfo
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $Date = null;
+    #[ORM\Column()]
+    private ?\DateTime $Date = null;
+    #[ORM\Column()]
+    private ?\DateTime $answerDate = null;
+    #[ORM\Column()]
+    private ?\DateTime $closeDate = null;
+
+    public function getAnswerDate(): ?\DateTime
+    {
+        return $this->answerDate;
+    }
+
+    public function setAnswerDate(?\DateTime $answerDate): void
+    {
+        $this->answerDate = $answerDate;
+    }
+
+    public function getCloseDate(): ?\DateTime
+    {
+        return $this->closeDate;
+    }
+
+    public function setCloseDate(?\DateTime $closeDate): void
+    {
+        $this->closeDate = $closeDate;
+    }
 
     #[ORM\Column]
     private ?int $status = null;
@@ -26,17 +50,30 @@ class NotificationInfo
     #[ORM\ManyToOne(inversedBy: 'notificationInfos')]
     private ?Ticket $Ticket = null;
 
+    #[ORM\ManyToOne()]
+    private User $whoNotified;
+
+    public function getWhoNotified(): User
+    {
+        return $this->whoNotified;
+    }
+
+    public function setWhoNotified(User $whoNotified): void
+    {
+        $this->whoNotified = $whoNotified;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getDate(): ?\DateTime
     {
         return $this->Date;
     }
 
-    public function setDate(\DateTimeInterface $Date): static
+    public function setDate(\DateTime $Date): static
     {
         $this->Date = $Date;
 

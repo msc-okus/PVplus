@@ -1,0 +1,26 @@
+{% extends 'email/baseEmail.html.twig' %}
+
+{% block content %}
+    <row class="welcome">
+        <columns>
+            <spacer size="35"></spacer>
+            <spacer size="10"></spacer>
+        </columns>
+    </row>
+    <spacer size="30"></spacer>
+
+    <row>
+        <columns>
+            Hello {{ name }},
+        </columns>
+    </row>
+    <row>
+        <columns>
+            <p>{{ message|raw }}</p>
+        </columns>
+    </row>
+    <spacer size="30"></spacer>
+    <row>
+        <button class="button action-icon tiny hollow shadow" href="{{ app.request.getSchemeAndHttpHost() }}{{ path('app_ticket_notification_edit', {id: key}) }}"> Click here to answer </button>
+    </row>
+{% endblock %}
