@@ -38,6 +38,9 @@ class ProzessStatusMessageController extends BaseController
                 case 'AM Report';
                     $message = "Your $function calculation for $plant is ready.";
                     break;
+                case 'monthly Report';
+                    $message = "Your $function calculation for $plant is ready.";
+                    break;
                 default:
                     $message = "";
                     break;
