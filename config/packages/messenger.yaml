@@ -59,7 +59,8 @@ framework:
             'App\Message\Command\CalcPR': async
             'App\Message\Command\CalcPlantAvailabilityNew': async
             'App\Message\Command\GenerateTickets': async
-            'App\Message\Command\GenerateAMReport': report
+            #'App\Message\Command\GenerateAMReport': report
+            'App\Message\Command\GenerateMonthlyReport': report
             'App\Message\Command\LoadAPIData': async
             'App\Message\Command\LoadINAXData': async
             'App\Message\Command\ImportData': import

@@ -1,18 +1,26 @@
-<div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu-xl rm-pointers dropdown-menu dropdown-menu-right show" style="top: 0px; left: 0px; will-change: transform;" x-placement="bottom-end">
+<div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu-xl" style="top: 0px; left: 0px;">
+    {% set counter = 0 %}
+    {% for log in logs %}
+        {% if 'Report' in log.function %}
+            {% set counter = 1 %}
+        {% endif %}
+    {% endfor %}
 
     <div class="messagebuttons" id="messagebuttons">
         {% if count > 0 %}
             <ul class="tabs tabs-animated nav nav-justified tabs-shadow-bordered p-3">
                 <li class="is-active" id="limessagestab" data-controller="processmessengesshowmessage">
                     <button data-action="processmessengesshowmessage#toggletabs" data-value="messagestab">
-                        Messages {{ count }}
+                        Messages
                     </button>
                 </li>
-                <li class="is-inactive" id="limessagesactionstab" data-controller="processmessengesshowmessage">
-                    <button data-action="processmessengesshowmessage#toggletabs" data-value="messagesactionstab">
-                        Downloads
-                    </button>
-                </li>
+                {% if counter == 1 %}
+                    <li class="is-inactive" id="limessagesactionstab" data-controller="processmessengesshowmessage">
+                        <button data-action="processmessengesshowmessage#toggletabs" data-value="messagesactionstab">
+                            Downloads
+                        </button>
+                    </li>
+                {% endif %}
             </ul>
         {% else %}
             <div><span>There are no Messegas in the Moment</span></div>
@@ -36,7 +44,7 @@
             <table id="background-tasks" class=" message-log">
                 {% for log in logs %}
                     <tr class="{{ log.state }}" style="background-color: white;">
-                        {% if log.state == 'done' and log.function == 'AM Report' %}
+                        {% if log.state == 'done' and 'Report' in log.function %}
                             <td>{{ log.plant }}</td>
                             <td>{{ log.function }}</td>
                             <td><a class="hollow button tiny action-icon shadow" href="/reporting/pdf/{{ log.prozessId }}" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></td>

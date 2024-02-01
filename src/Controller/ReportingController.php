@@ -8,6 +8,7 @@ use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
 use App\Message\Command\GenerateAMReport;
+use App\Message\Command\GenerateMonthlyReport;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Service\AssetManagementService;
@@ -87,7 +88,10 @@ class ReportingController extends AbstractController
 
         switch ($reportType) {
             case 'monthly':
-                $output = $reportsMonthly->createReportV2($aktAnlagen[0], $reportMonth, $reportYear);
+                #$output = $reportsMonthly->createReportV2($aktAnlagen[0], $reportMonth, $reportYear);
+                $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'monthly Report', "create monthly Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
+                $message = new GenerateMonthlyReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
+                $messageBus->dispatch($message);
                 break;
             case 'epc':
                 $output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
