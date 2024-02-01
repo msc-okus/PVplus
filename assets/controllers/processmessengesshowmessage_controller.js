@@ -18,11 +18,11 @@ export default class extends Controller {
         var pdfdownload = document.getElementById('pdfdownload');
         var messagebutton = document.getElementById('far-fa-bell');
 
-        if(this.messageValue != 'empty'){
-            messagebutton.style.color = '#ff0000';
-        }else{
+        if(this.messageValue == 'empty'){
             messagebutton.style.color = '#1779ba';
             return process.exit(1);
+        }else{
+            messagebutton.style.color = '#ff0000';
         }
 
         messageelem.style.display = 'block';

@@ -1,25 +1,24 @@
 <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu-xl rm-pointers dropdown-menu dropdown-menu-right show" style="top: 0px; left: 0px; will-change: transform;" x-placement="bottom-end">
 
     <div class="messagebuttons" id="messagebuttons">
-
         {% if count > 0 %}
-            aaaaa
+            <ul class="tabs tabs-animated nav nav-justified tabs-shadow-bordered p-3">
+                <li class="is-active" id="limessagestab" data-controller="processmessengesshowmessage">
+                    <button data-action="processmessengesshowmessage#toggletabs" data-value="messagestab">
+                        Messages {{ count }}
+                    </button>
+                </li>
+                <li class="is-inactive" id="limessagesactionstab" data-controller="processmessengesshowmessage">
+                    <button data-action="processmessengesshowmessage#toggletabs" data-value="messagesactionstab">
+                        Downloads
+                    </button>
+                </li>
+            </ul>
         {% else %}
-            bbbbbb
+            <div><span>There are no Messegas in the Moment</span></div>
         {% endif %}
-        <ul class="tabs tabs-animated nav nav-justified tabs-shadow-bordered p-3">
-            <li class="is-active" id="limessagestab" data-controller="processmessengesshowmessage">
-                <button data-action="processmessengesshowmessage#toggletabs" data-value="messagestab">
-                    Messages
-                </button>
-            </li>
-            <li class="is-inactive" id="limessagesactionstab" data-controller="processmessengesshowmessage">
-                <button data-action="processmessengesshowmessage#toggletabs" data-value="messagesactionstab">
-                    Downloads
-                </button>
-            </li>
-        </ul>
     </div>
+
 
     <div class="messagescontent" id="messagestabs">
         <div class="messagestab" id="messagestab">

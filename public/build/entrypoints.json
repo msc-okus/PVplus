@@ -6,11 +6,11 @@
         "/build/vendors-node_modules_foundation-sites_dist_js_foundation_esm_js.js",
         "/build/vendors-node_modules_core-js_modules_es_array_push_js.js",
         "/build/vendors-node_modules_foundation-datepicker_js_foundation-datepicker_min_js.js",
-        "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-2c308d.js",
+        "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_foundation-sites_js_f-53bf7f.js",
         "/build/app.js"
       ],
       "css": [
-        "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-2c308d.css",
+        "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_foundation-sites_js_f-53bf7f.css",
         "/build/app.css"
       ]
     },
