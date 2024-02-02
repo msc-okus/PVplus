@@ -176,7 +176,7 @@ class ReportingController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/reporting/edit/{id}/{page}', name: 'app_reporting_edit', defaults: ['page' => 1])]
+    #[Route(path: '/reporting/edit/{id}/{page}', name: 'app_reporting_edit', defaults: ['page' => 1], methods: ['GET', 'POST'])]
     public function edit($id, $page, ReportsRepository $reportsRepository, Request $request, EntityManagerInterface $em): Response
     {
         $report = $reportsRepository->find($id);
@@ -192,9 +192,7 @@ class ReportingController extends AbstractController
             }
         }
 
-        $template = '_inc/_editForm.html.twig';
-
-        return $this->render('reporting/'.$template, [
+        return $this->render('reporting/_inc/_editForm.html.twig', [
             'reportForm'    => $form,
             'report'        => $report,
             'anlage'        => $report->getAnlage(),
