@@ -26,7 +26,7 @@ class ReportEpcService
     use G4NTrait;
 
     public function __construct(
-private readonly PdoService $pdoService,
+        private readonly PdoService $pdoService,
         private readonly AnlagenRepository $anlageRepo,
         private readonly GridMeterDayRepository $gridMeterRepo,
         private readonly PRRepository $prRepository,
@@ -47,6 +47,7 @@ private readonly PdoService $pdoService,
      */
     public function createEpcReport(Anlage $anlage, DateTime $date, ?string $userId = null, ?int $logId = null): string
     {
+
         $currentDate = date('Y-m-d H-i');
         $error = false;
         $output = '';

@@ -5,7 +5,6 @@ use App\Entity\Anlage;
 use App\Message\Command\GenerateEpcReport;
 use App\Service\Reports\ReportEpcService;
 use App\Repository\AnlagenRepository;
-use App\Service\ReportsEpcService;
 use App\Service\LogMessagesService;
 use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Psr\Cache\InvalidArgumentException;
