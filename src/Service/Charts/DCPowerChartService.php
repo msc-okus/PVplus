@@ -366,7 +366,6 @@ class DCPowerChartService
                         $sql = 'SELECT stamp, sum(wr_pdc) as actPower, avg(wr_temp) as temp FROM ' . $anlage->getDbNameAcIst() . " WHERE $whereQueryPart1 GROUP BY $groupBy unit;";
                     }
 
-                    if ($stamp == '2024-01-26 12:00:00') dump($sql);
 
                     $resultIst = $conn->query($sql);
                     if ($resultIst->rowCount() > 0) {
@@ -376,7 +375,6 @@ class DCPowerChartService
                             ++$counterInv;
                             $sumTemp += (float)$rowIst['temp'];
                             $actPower = $rowIst['actPower'];
-                            #if ($stamp == '2024-01-26 11:15:00') dump($rowIst['stamp'] . ' - '.$actPower .' - '.$dataArray['chart'][$counter]['temperature']);
                             if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string)$stamp) < 7200)) {
                                 switch ($anlage->getConfigType()) {
                                     case 3: // Groningen, Saran
@@ -522,7 +520,7 @@ class DCPowerChartService
         }
 
         $conn = null;
-        #dd($dataArray);
+
         return $dataArray;
     }
 
@@ -539,7 +537,6 @@ class DCPowerChartService
      */
     public function getGroupPowerDifferenceDC(Anlage $anlage, $from, $to): array
     {
-        Dump('DC4');
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $istGruppenArray = [];
@@ -595,7 +592,6 @@ class DCPowerChartService
      */
     public function getInverterPowerDifference(Anlage $anlage, $from, $to, $group): array
     {
-        Dump('DC5');
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
 

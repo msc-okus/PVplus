@@ -75,12 +75,14 @@
                                     {{ visibility }}
                                 "><span class="fa fa-file-pdf"></span></a>
 
-                                {# edit report #}
+                                {# open Report in HTML #}
                                 {% if is_granted('ROLE_G4N') and report.reportType != 'am-report' %}
                                     <a href="{{ path('app_reporting_html', { id: report.id}) }}" target="_blank" title="load html code into new window" class="hollow button tiny action-icon shadow">
                                         <span class="fas fa-code"></span>
                                     </a>
                                 {% endif %}
+
+                                {# edit report #}
                                 {% if is_granted('ROLE_G4N') %}
                                     <button class="hollow button tiny action-icon shadow"
                                        data-action="modal-form#openModal"

@@ -83,8 +83,6 @@ class PvSystImportService
                     ;
 
                     $output .= $anlage->getAnlId() ." | ".$stamp->format('Y-m-d H:i')." | ".$eGrid."<br>";
-                } else {
-                    #dd($oldStamp, $stamp);
                 }
                 $oldStamp = $stamp->format("Y-m-d H:i");
             }

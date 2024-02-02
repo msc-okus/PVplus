@@ -414,7 +414,6 @@ private readonly PdoService $pdoService,
                         if ($ticketDate->isReplaceEnergy() || $ppcTicket ){
                             // Ersetzen durch PVSyst
                             $replaceEnery = $this->getPvSystEnergy($anlage, $pvSystStartDate, $pvSystEndDate);
-                            #dd($sql, $ticketDate, $replaceEnery, $row['power'], $pvSystStartDate, $pvSystEndDate);
                         } elseif ($ticketDate->isReplaceEnergyG4N()) {
                             // erstezen durch G4N Expected
                             $replaceEnery = $this->getG4NExpEnergy($anlage, $tempoStartDate, $tempoEndDate);

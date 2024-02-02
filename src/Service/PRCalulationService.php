@@ -575,10 +575,11 @@ class PRCalulationService
         // PR für einen Tag (wenn $endDate = null) oder für beliebigen Zeitraum (auch für Rumpfmonate in epc Berichten) berechnen
         $localStartDate = $startDate->format('Y-m-d 00:00');
         if ($endDate === null) {
-            $localEndDate = $startDate->format('Y-m-d 23:59');
+            $localEndDateObj = clone ($startDate);
         } else {
-            $localEndDate = $endDate->format('Y-m-d 23:59');
+            $localEndDateObj = clone ($endDate);
         }
+        $localEndDate =  $localEndDateObj->add(new \DateInterval('P1D'))->format('Y-m-d 00:00'); // sicherstellen das das endatum der folgetag 0 Uhr ist
 
         // Verfügbarkeit ermitteln
         $pa1 = $pa2 = $pa3 = 0;
@@ -598,9 +599,12 @@ class PRCalulationService
         }
 
         // Wetter Daten ermitteln MIT Berücksichtigung des PPC Signals
-        $weatherWithPpc = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
-        if (is_array($weatherWithPpc)) {
-            $weatherWithPpc = $this->sensorService->correctSensorsByTicket($anlage, $weatherWithPpc, date_create($localStartDate), date_create($localEndDate));
+        $weatherWithPpc= [];
+        if(false) {
+            $weatherWithPpc = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
+            if (is_array($weatherWithPpc)) {
+                $weatherWithPpc = $this->sensorService->correctSensorsByTicket($anlage, $weatherWithPpc, date_create($localStartDate), date_create($localEndDate));
+            }
         }
         // Wetter Daten ermitteln OHNE Berücksichtigung des PPC Signals
         $weatherNoPpc = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, false, $anlage);

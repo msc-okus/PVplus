@@ -98,7 +98,7 @@ class WeatherFunctionsService
             $conn = $this->pdoService->getPdoPlant();
             $weather = [];
             $dbTable = $weatherStation->getDbNameWeather();
-            $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp >= '$from' and stamp < '$to'";
+            $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp > '$from' and stamp <= '$to'";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -187,7 +187,7 @@ class WeatherFunctionsService
                     SUM(temp_cell_multi_irr) as temp_cell_multi_irr
                     FROM $dbTable s
                         $sqlPPCpart1
-                    WHERE s.stamp >= '$from' AND s.stamp < '$to'
+                    WHERE s.stamp > '$from' AND s.stamp <= '$to'
                         $sqlPPCpart2;
                  ";
 

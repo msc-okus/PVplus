@@ -56,6 +56,7 @@ class ReplaceValuesTicketRepository extends ServiceEntityRepository
                 SUM(t.irrModule * $pNom) / 4000 as theoPowerPA2,
                 SUM(t.irrModule * $pNom) / 4000 as theoPowerPA1,
                 SUM(t.irrModule * $pNom) / 4000 as theoPowerPA0";
+
         $q = $this->createQueryBuilder('t')
             ->andWhere("t.anlage = :anlage AND t.stamp >= :begin AND t.stamp < :end")
             ->setParameter('anlage', $anlage)
