@@ -9,6 +9,7 @@ use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
 use App\Message\Command\GenerateAMReport;
 use App\Message\Command\GenerateMonthlyReport;
+use App\Message\Command\GenerateEpcReport;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Service\AssetManagementService;
@@ -94,7 +95,10 @@ class ReportingController extends AbstractController
                 $messageBus->dispatch($message);
                 break;
             case 'epc':
-                $output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
+                #$output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
+                $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'epc Report', "create epc Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
+                $message = new GenerateEpcReport($aktAnlagen[0]->getAnlId(), $reportDate, $userId, $logId);
+                $messageBus->dispatch($message);
                 break;
             case 'epc-new-pr':
                 $output = $reportEpcNew->createEpcReportNew($aktAnlagen[0], $reportDate);
