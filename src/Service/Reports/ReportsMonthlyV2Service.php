@@ -123,7 +123,8 @@ class ReportsMonthlyV2Service
             ->setYear($startDate->format('Y'))
             ->setRawReport($html)
             ->setContentArray($report)
-            ->setFile($pathToPdf);
+            ->setFile($pathToPdf)
+            ->setCreatedBy($userId);;
         $this->em->persist($reportEntity);
         $this->em->flush();
 
