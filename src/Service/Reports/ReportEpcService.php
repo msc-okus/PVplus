@@ -19,6 +19,7 @@ use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use App\Service\PdoService;
+use App\Service\LogMessagesService;
 
 class ReportEpcService
 {
@@ -35,7 +36,8 @@ private readonly PdoService $pdoService,
         private readonly FunctionsService $functions,
         private readonly PRCalulationService $PRCalulation,
         private readonly AvailabilityService $availabilityService,
-        private readonly ReportsEpcYieldV2 $epcYieldV2
+        private readonly ReportsEpcYieldV2 $epcYieldV2,
+        private LogMessagesService $logMessages,
     )
     {}
 
@@ -43,7 +45,7 @@ private readonly PdoService $pdoService,
      * @throws Exception
      * @throws InvalidArgumentException
      */
-    public function createEpcReport(Anlage $anlage, DateTime $date): string
+    public function createEpcReport(Anlage $anlage, DateTime $date, ?string $userId = null, ?int $logId = null): string
     {
         $currentDate = date('Y-m-d H-i');
         $error = false;
@@ -78,9 +80,13 @@ private readonly PdoService $pdoService,
                 ->setRawReport($output)
                 ->setContentArray($reportArray)
                 ->setMonth($date->format('n'))
-                ->setYear($date->format('Y'));
+                ->setYear($date->format('Y'))
+                ->setCreatedBy($userId);
             $this->em->persist($reportEntity);
             $this->em->flush();
+
+            $reportId = $reportEntity->getId();
+            $this->logMessages->updateEntryAddReportId($logId, $reportId);
         } else {
             $output = '<h1>Fehler: Es Ist kein Report ausgewählt.</h1>';
         }
@@ -94,6 +100,7 @@ private readonly PdoService $pdoService,
     public function reportPRGuarantee(Anlage $anlage, DateTime $date): array
     {
         $anzahlMonate = ((int) $anlage->getEpcReportEnd()->format('Y') - (int) $anlage->getEpcReportStart()->format('Y')) * 12 + ((int) $anlage->getEpcReportEnd()->format('m') - (int) $anlage->getEpcReportStart()->format('m')) + 1;
+
         $startYear = $anlage->getEpcReportStart()->format('Y');
         $currentMonth = (int) $date->format('m');
         $currentYear = (int) $date->format('Y');
