@@ -4,7 +4,7 @@ import {Reveal} from "foundation-sites";
 import {useDispatch} from "stimulus-use";
 
 export default class extends Controller {
-    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd', 'sort', 'direction', 'proofam', 'proofepc', 'prooftam', 'proofg4n', 'ignored'];
+    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd', 'sort', 'direction', 'proofam', 'proofepc', 'prooftam', 'proofg4n', 'ignored', 'proofmaintenance'];
     static values = {
         urlCreate: String,
         urlSearch: String,
@@ -45,6 +45,7 @@ export default class extends Controller {
         (this.proofg4nTarget).innerText = response['countProofByG4N'];
         (this.proofamTarget).innerText = response['countProofByAM'];
         (this.ignoredTarget).innerText = response['countIgnored'];
+        (this.proofmaintenanceTarget).innerText = response['countProofByMaintenance'];
 
         $(document).foundation();
         this.disableAllToolTips()

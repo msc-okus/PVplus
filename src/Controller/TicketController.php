@@ -18,6 +18,7 @@ use App\Service\FunctionsService;
 use App\Service\MessageService;
 use App\Service\PiiCryptoService;
 use Doctrine\ORM\EntityManagerInterface;
+use DoctrineExtensions\Query\Mysql\Date;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -70,6 +71,7 @@ class TicketController extends BaseController
             /** @var Ticket $ticket */
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
+            if ($ticket->getStatus() == 90) $ticket->setWhenClosed(new DateTime('now'));
             $dates = $ticket->getDates();
             foreach ($dates as $date) {
                 $date->copyTicket($ticket);
@@ -169,7 +171,7 @@ class TicketController extends BaseController
             $ticketDates = $ticket->getDates();
             #$ticket->setEditor($this->getUser()->getUserIdentifier());
             $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
-
+            if ($ticket->getStatus() == 90) {$ticket->setWhenClosed(new DateTime('now')); }
             if ($ticket->getStatus() === 30 && $ticket->getEnd() === null) {
                 $ticket->setEnd(new \DateTime('now'));
             }
@@ -235,6 +237,7 @@ class TicketController extends BaseController
             }
             if ($ticket->getStatus() == '10') $ticket->setStatus(30); // If 'New' Ticket change to work in Progress
             $ticket->setUpdatedAt(new DateTime('now'));
+
             $em->persist($ticket);
             $em->flush();
 
@@ -287,6 +290,7 @@ class TicketController extends BaseController
         $countProofByEPC = $ticketRepo->countByProofEPC();
         $countByProofAM = $ticketRepo->countByProofAM();
         $countByProofG4N = $ticketRepo->countByProofG4N();
+        $countByProofMaintenance = $ticketRepo->countByProofMaintenance();
         $countIgnored = $ticketRepo->countIgnored();
         $filter = [];
         $session = $request->getSession();
@@ -327,6 +331,7 @@ class TicketController extends BaseController
         $proofam = $request->query->get('proofam', 0);
         $proofg4n = $request->query->get('proofg4n', 0);
         $ignored = $request->query->get('ignored', 0);
+        $proofMaintenance = $request->get('proofmaintenance', 0);
         $TicketName = $request->query->get('TicketName', "");
         $kpistatus = $request->query->get('kpistatus', 0);
         $begin = $request->query->get('begin', "");
@@ -348,7 +353,7 @@ class TicketController extends BaseController
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;
         $filter['kpistatus']['array'] = self::kpiStatus();
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $proofg4n, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $proofg4n, $proofMaintenance, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
 
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
@@ -390,6 +395,7 @@ class TicketController extends BaseController
             'countProofByTAM'  => $countProofByTam,
             'countProofByG4N'  => $countByProofG4N,
             'countIgnored'     => $countIgnored,
+            'countProofByMaintenance' => $countByProofMaintenance
         ]);
     }
 
@@ -428,7 +434,7 @@ class TicketController extends BaseController
         $form = $this->createForm(\App\Form\Notification\NotificationFormType::class, null, ['eigner' => $eigner]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-
+            $ticket->setNotified(true);
             $contact = $contactRepo->findBy(["id" => $form->getData()['contacted']])[0];
             $key = uniqid($ticket->getId);
             $notification = new NotificationInfo();
@@ -464,12 +470,14 @@ class TicketController extends BaseController
         $countByProofAM = $ticketRepo->countByProofAM();
         $countByProofG4N = $ticketRepo->countByProofG4N();
         $countIgnored = $ticketRepo->countIgnored();
+        $countByProofMaintenance = $ticketRepo->countByProofMaintenance();
         return new JsonResponse([
             'countProofByAM'  => $countByProofAM,
             'countProofByEPC'  => $countProofByEPC,
             'countProofByTAM'  => $countProofByTam,
             'countProofByG4N'  => $countByProofG4N,
             'countIgnored'     => $countIgnored,
+            'countProofByMaintenance' => $countByProofMaintenance
         ]);
     }
 
@@ -573,7 +581,7 @@ class TicketController extends BaseController
 
         $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
         $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
-
+        if ($ticket->getStatus() == 90) $ticket->setWhenClosed(new DateTime('now'));
         $newTicket->setStatus(10);
         $em->persist($ticket);
         $em->persist($newTicket);
@@ -683,6 +691,7 @@ class TicketController extends BaseController
         $proofepc = $request->query->get('proofepc', 0);
         $proofam = $request->query->get('proofam', 0);
         $proofg4n = $request->query->get('proofg4n', 0);
+        $proofmaintenance = $request->query->get('proofmaintenance', 0);
         $ignored = $request->query->get('ignored', 0);
         $TicketName = $request->query->get('TicketName', "");
         $kpistatus = $request->query->get('kpistatus', 0);
@@ -706,7 +715,7 @@ class TicketController extends BaseController
         $filter['kpistatus']['value'] = $kpistatus;
         $filter['kpistatus']['array'] = self::kpiStatus();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $proofg4n, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $proofg4n, $proofmaintenance, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
 
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
@@ -850,7 +859,24 @@ class TicketController extends BaseController
         $form = $this->createForm(NotificationConfirmFormType::class, null);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()){
-            dd($form->getData());
+            $notification = $ticket->getNotificationInfos()->last();
+
+            if ($form->getData()['answers'] == 50){
+                $messageService->sendRawMessage("Reparation finished", "The maintenance provider has finished the reparation job", $notification->getWhoNotified()->getEmail(), $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(), false);
+                $notification->setStatus(50);
+                $notification->setCloseDate(new DateTime('now'));
+            }else{
+                $messageService->sendRawMessage("Reparation could not be finished", "There was an unexpected problem and the maintenance provider could not fulfill the reparation request, we recomend contacting someone else for ticket ".$ticket->getId(), $notification->getWhoNotified()->getEmail(), $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(), false);
+                $notification->setStatus(60);
+                $notification->setCloseDate(new DateTime('now'));
+            }
+            $em->persist($notification);
+            $em->flush();
+            return $this->render('/ticket/confirmNotification.html.twig', [
+                'ticket'              => $ticket,
+                'notificationConfirmForm'  => $form,
+                'answered' => true,
+            ]);
         }
         return $this->render('/ticket/confirmNotification.html.twig', [
             'ticket'              => $ticket,
@@ -979,6 +1005,27 @@ class TicketController extends BaseController
 
         return $ticketDate;
     }
+    #[Route(path: '/notification/timeline/{id}', name: 'app_ticket_notification_timeline')]
+    public function getTimeline($id, TicketRepository $ticketRepo)
+    {
+        $ticket = $ticketRepo->findOneBy(['id' => $id]);
+        $notifications = $ticket->getNotificationInfos();
+        if (!$notifications->isEmpty()){
+            $beginDate = $notifications->first()->getDate();
+            if ($ticket->getStatus() == 90){
+                $endTime = $ticket->getWhenClosed();
+            }
+            else{
+                $endTime = new DateTime('now');
+            }
+            $timeDiff = $beginDate->diff($endTime)->format("%d days %h hours %i minutes");
+        }
 
+        return $this->render('/ticket/_inc/_timeline.html.twig', [
+            'ticket' => $ticket,
+            'notifications' => $notifications,
+            'timeElapsed' => $timeDiff,
+        ]);
+    }
 
 }

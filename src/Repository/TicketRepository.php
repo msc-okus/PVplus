@@ -142,6 +142,21 @@ class TicketRepository extends ServiceEntityRepository
         }
         return $result->getQuery()->getResult()[0][1];
     }
+    public function countByProofMaintenance(){
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.notified = true')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $result->andWhere('t.internal = false');
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+    }
     public function countIgnored(){
 
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
@@ -183,7 +198,7 @@ class TicketRepository extends ServiceEntityRepository
      * @param string $end
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, int $proofg4n = 0, string $sort = "", string $direction = "", bool $ignore = false, string $ticketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, int $proofg4n = 0, $proofmaintenance = 0, string $sort = "", string $direction = "", bool $ignore = false, string $ticketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -245,6 +260,10 @@ class TicketRepository extends ServiceEntityRepository
         if($proofg4n == 1){
             $qb->andWhere("ticket.needsProofg4n  = 1");
         }
+        if ($proofmaintenance == 1){
+            $qb->andWhere("ticket.notified  = 1");
+        }
+
         if ($kpistatus != 0){
             $qb->andWhere("ticket.kpiStatus = $kpistatus");
         }

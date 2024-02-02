@@ -14,17 +14,19 @@ export default class extends Controller {
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
                         'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
                         'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'modalContactBody', 'contactButton', 'modalContactCreateBody',
-                        'contactModalCreate'];
+                        'contactModalCreate', 'modalTimelineBody', 'timelineModal'];
     static values = {
         formUrl: String,
         splitUrl: String,
         notifyUrl: String,
         createContactUrl: String,
+        timelineUrl: String
     }
     modal = null;
     splitModal = null;
     contactModal = null;
     contactCreateModal = null;
+    timelineModal = null;
 
     connect() {
         useDispatch(this);
@@ -56,6 +58,17 @@ export default class extends Controller {
         this.contactModal.open();
         this.modalContactBodyTarget.innerHTML = await $.ajax({
             url: this.notifyUrlValue,
+        });
+    }
+
+    async openTimelineModal(event) {
+        this.modalTimelineBodyTarget.innerHTML = 'Loading ...';
+        this.contactModal = new Reveal($(this.timelineModalTarget));
+        this.contactModal.open();
+        console.log(this.timelineUrlValue);
+        console.log(this.timelineUrlValue);
+        this.modalTimelineBodyTarget.innerHTML = await $.ajax({
+            url: this.timelineUrlValue,
         });
     }
 
@@ -815,6 +828,14 @@ export default class extends Controller {
     closeContact(event) {
         event.preventDefault();
         this.contactModal.destroy();
+    }
+    closeContactCreate(event) {
+        event.preventDefault();
+        this.contactCreateModal.destroy();
+    }
+    closeTimeline(event){
+        event.preventDefault();
+        this.timelineModal.destroy();
     }
 
     async saveTicket(event) {

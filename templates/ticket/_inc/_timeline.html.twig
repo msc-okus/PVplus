@@ -1,0 +1,124 @@
+<html>
+
+<style>
+li{
+padding-bottom: 0.5rem;
+border-left: 1px solid #30b41d;
+position: relative;
+padding-left: 20px;
+margin-left: 10px;
+}
+li:last-child{
+border: 0px;
+padding-bottom: 0;
+}
+li:before{
+content: '';
+width: 15px;
+height: 15px;
+background: white;
+border: 1px solid #30b41d;
+box-shadow: 3px 3px 0px #30b41d;
+border-radius: 50%;
+position: absolute;
+left: -10px;
+top: 0px;
+}
+
+.time{
+color: #2a2839;
+font-family: 'Poppins', sans-serif;
+font-weight: 600;
+font-size: .9rem;
+}
+
+p{
+color: #4f4f4f;
+font-family: sans-serif;
+line-height: 1.5;
+margin-top:0.4rem;
+font-size: .9rem;
+}
+
+</style>
+
+<div class="container">
+    <div class="wrapper">
+        <h1> Ticket Nr {{ ticket.id}} History -  {{ ticket.anlage.anlName }}</h1>
+        <ul class="sessions">
+            {% for notification in notifications %}
+                {% if loop.first %}
+                    <li>
+                        <div class="time">{{ notification.Date|date("m/d/Y H:i") }}</div>
+                        <p>TAM contacted maintenance for the first time ({{ notification.contactedPerson.Name }})</p>
+                    </li>
+                {% else %}
+                    <li>
+                        <div class="time">{{ notification.Date|date("m/d/Y H:i") }}</div>
+                        {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
+                        <p>{{ notification.contactedPerson.Name }} was contacted to solve the {{ errcat|trans }}</p>
+                    </li>
+                {% endif %}
+                {% if notification.status ==  40 %}
+                    <li>
+                        <div class="time">{{ notification.answerDate|date("m/d/Y H:i") }}</div>
+                        <p>The maintenance provider rejected the request</p>
+                    </li>
+                {% else %}
+                    <li>
+                        <div class="time">{{ notification.answerDate|date("m/d/Y H:i") }}</div>
+                        <p>The maintenance provider accepted the request</p>
+                    </li>
+                    {% if notification.status == 50 %}
+                        <li>
+                            <div class="time">{{ notification.closeDate|date("m/d/Y H:i") }}</div>
+                            <p>The reparation has been finished</p>
+                        </li>
+                    {% elseif notification.status == 60%}
+                        <li>
+                            <div class="time">{{ notification.closeDate|date("m/d/Y H:i") }}</div>
+                            <p>The provider could not fulfill the request</p>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            {% if ticket.status == 90 %}
+                <li>
+                    <div class="time">{{ ticket.whenClosed|date("m/d/Y H:i") }}</div>
+                    <p>The TAM closed the ticket</p>
+                </li>
+            {% endif %}
+            Total time elapsed: {{ timeElapsed }}
+            {#
+            <li>
+                <div class="time">2024-01-01 09:00</div>
+                <p>Start Ticket opening by TAM</p>
+            </li>
+            <li>
+                <div class="time">2024-01-01 09:30</div>
+                <p>Contakt Bil for Check Inverter<br>on plant</p>
+            </li>
+            <li>
+                <div class="time">2024-01-02 10:30</div>
+                <p>Bil reject the order </p>
+            </li>
+            <li>
+                <div class="time">2024-01-02 11:30</div>
+                <p>Contakt Jon for Check Inverter<br>on plant</p>
+            </li>
+            <li>
+                <div class="time">2024-01-02 12:30</div>
+                <p>Jo accept the order</p>
+            </li>
+            <li>
+                <div class="time">2024-01-03 11:30</div>
+                <p>Jo finished order <br>all done</p>
+            </li>
+            <li>
+                <div class="time">2024-01-05 19:00</div>
+                <p>Ende Ticket close by TAM</p>
+            </li>
+            #}
+        </ul>
+    </div>
+</div>

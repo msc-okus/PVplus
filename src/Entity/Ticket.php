@@ -154,6 +154,9 @@ class Ticket
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $securityToken = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $whenClosed = null;
+
 
     /*
         #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -601,6 +604,18 @@ class Ticket
     public function setSecurityToken(?string $securityToken): static
     {
         $this->securityToken = $securityToken;
+
+        return $this;
+    }
+
+    public function getWhenClosed(): ?\DateTimeInterface
+    {
+        return $this->whenClosed;
+    }
+
+    public function setWhenClosed(?\DateTimeInterface $whenClosed): static
+    {
+        $this->whenClosed = $whenClosed;
 
         return $this;
     }
