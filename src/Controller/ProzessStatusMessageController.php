@@ -44,8 +44,11 @@ class ProzessStatusMessageController extends BaseController
                 case 'epc Report';
                     $message = "Your $function calculation for $plant is ready.";
                     break;
+                case 'epc new Report';
+                    $message = "Your $function calculation for $plant is ready.";
+                    break;
                 default:
-                    $message = "";
+                    $message = "Your $function calculation XXL for $plant is ready.";
                     break;
             }
 

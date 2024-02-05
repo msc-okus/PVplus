@@ -60,7 +60,7 @@ framework:
             'App\Message\Command\CalcPlantAvailabilityNew': async
             'App\Message\Command\GenerateTickets': async
             #'App\Message\Command\GenerateAMReport': report
-            'App\Message\Command\GenerateEpcReport': report
+            'App\Message\Command\GenerateEpcReportPRNew': report
             'App\Message\Command\LoadAPIData': async
             'App\Message\Command\LoadINAXData': async
             'App\Message\Command\ImportData': import

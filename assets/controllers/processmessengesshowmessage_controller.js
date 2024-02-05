@@ -34,8 +34,6 @@ export default class extends Controller {
             pdfdownload.innerHTML = '';
         }
 
-
-
         window.setTimeout(() => {
             this.fadeOutElement(messageelem);
         }, 10000);

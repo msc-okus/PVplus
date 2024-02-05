@@ -10,6 +10,7 @@ use App\Helper\PVPNameArraysTrait;
 use App\Message\Command\GenerateAMReport;
 use App\Message\Command\GenerateMonthlyReport;
 use App\Message\Command\GenerateEpcReport;
+use App\Message\Command\GenerateEpcReportPRNew;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Service\AssetManagementService;
@@ -101,7 +102,10 @@ class ReportingController extends AbstractController
                 $messageBus->dispatch($message);
                 break;
             case 'epc-new-pr':
-                $output = $reportEpcNew->createEpcReportNew($aktAnlagen[0], $reportDate);
+                #$output = $reportEpcNew->createEpcReportNew($aktAnlagen[0], $reportDate);
+                $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'epc new Report', "create epc new Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
+                $message = new GenerateEpcReportPRNew($aktAnlagen[0]->getAnlId(), $reportDate, $userId, $logId);
+                $messageBus->dispatch($message);
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
