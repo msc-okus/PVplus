@@ -32,9 +32,6 @@ class ProzessStatusMessageController extends BaseController
             $logMessagesRepo->setStatusMessagesIsSeen($id);
 
             switch ($function){
-                case 'Expected';
-                    $message = "Your $function calculation for $plant is ready.";
-                    break;
                 case 'AM Report';
                     $message = "Your $function calculation for $plant is ready.";
                     break;
@@ -47,8 +44,11 @@ class ProzessStatusMessageController extends BaseController
                 case 'epc new Report';
                     $message = "Your $function calculation for $plant is ready.";
                     break;
+                case 'Import API Data';
+                    $message = "Your $function for $plant is ready.";
+                    break;
                 default:
-                    $message = "Your $function calculation XXL for $plant is ready.";
+                    $message = "Your $function calculation for $plant is ready.";
                     break;
             }
 
