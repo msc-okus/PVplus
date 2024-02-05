@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Anlage;
-use App\Entity\TicketDate;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\ForcastRepository;
@@ -16,9 +15,7 @@ use App\Repository\PVSystDatenRepository;
 use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
-use Doctrine\ORM\NonUniqueResultException;
 use PDO;
-use App\Service\PdoService;
 use DateTime;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -166,7 +163,7 @@ class WeatherFunctionsService
                 $sqlTheoPowerPart = "
                 SUM(g_upper * $pNom)  as theo_power_raw,
                 SUM(g_upper * $pNom * $degradation)  as theo_power_raw_deg,
-                SUM(g_upper * $tempCorrFunctionNREL * $pNom ) as theo_power_temp_corr_mnrel,
+                SUM(g_upper * $tempCorrFunctionNREL * $pNom ) as theo_power_temp_corr_nrel,
                 SUM(g_upper * $tempCorrFunctionIEC * $pNom * $degradation) as theo_power_temp_corr_deg_iec,
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
@@ -190,7 +187,6 @@ class WeatherFunctionsService
                     WHERE s.stamp > '$from' AND s.stamp <= '$to'
                         $sqlPPCpart2;
                  ";
-
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -297,7 +293,9 @@ class WeatherFunctionsService
      * Function to retrieve weighted irradiation
      * definition is optimized for ticket generation, have a look into ducumentation
      *
-     * @return float
+     * @param Anlage $anlage
+     * @param DateTime $stamp
+     * @return float|null
      */
     public function getIrrByStampForTicket(Anlage $anlage, DateTime $stamp): ?float
     {

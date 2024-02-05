@@ -3,7 +3,6 @@
 namespace App\Service\Functions;
 
 use App\Entity\Anlage;
-use App\Entity\Ticket;
 use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
 use App\Repository\PVSystDatenRepository;
@@ -66,7 +65,7 @@ class SensorService
 
             switch ($ticketDate->getAlertType()) {
                 // Exclude Sensors
-                case '70x':
+                case '70':
                     // Funktioniert in der ersten Version nur für Leek und Kampen
                     // es fehlt die Möglichkeit die gemittelte Strahlung, automatisiert aus den Sensoren zu berechnen
                     // ToDo: Sensor Daten müssen zur Wetter DB umgezogen werden, dann Code anpassen
@@ -133,9 +132,10 @@ class SensorService
                     $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
                     break;
 
-                //
+                // Replace Enery / Irradiation
                 case '73':
-                    if ($ticketDate->isReplaceIrr()) {
+                    // wenn replace Enery with PVSyst und replace Irradiation
+                    if ($ticketDate->isReplaceEnergy() && $ticketDate->isReplaceIrr()) {
                         if ($tempoStartDate->format('i') == '00') {
                             $hour = (int)$tempoStartDate->format('H') - 1;
                             $tempoStartDate = date_create($tempoStartDate->format("Y-m-d $hour:15"));
@@ -151,8 +151,12 @@ class SensorService
                         $replaceArray = $this->getPvSystIrr($anlage, $pvSystStartDate, $pvSystEndDate);
 
                         $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
+                    } elseif ($ticketDate->isReplaceEnergyG4N()) {
+                        // do nothing at the moment
+                    } else {
+                        $replaceValueIrr = (float)$ticketDate->getValueIrr();
+                        // ToDo: Repolace IRR algorithmus
                     }
-
                     break;
                     
                 // Exclude from PR/Energy (exclude Irr and TheoPower)
