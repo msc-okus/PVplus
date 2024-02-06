@@ -12,6 +12,7 @@ import 'datatables.net-responsive/js/dataTables.responsive';
 import 'datatables.net-responsive-zf/js/responsive.foundation';
 import 'datatables.net-select-zf/js/select.foundation';
 import 'foundation-sites';
+import moment from "moment";
 
 window.JSZip= JSZip;
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -72,7 +73,7 @@ export default class extends Controller {
                 // Add an "All" option for searching in all columns.
                 $('<option>')
                     .val('')
-                    .text('Column')
+                    .text('')
                     .appendTo(columnSelect);
 
                 // Add an option for each column.
@@ -160,10 +161,10 @@ export default class extends Controller {
                 newTabTitle.className = 'tabs-title';
                 newTabTitle.style.position = 'relative';
                 newTabTitle.innerHTML = `<a href="#${tabId}">${anlageName} Chart</a>
-                                     <span class="close-tab-chart" style="position: absolute; top: 0; right: 0; cursor: pointer; color: gray; "><i class="fas fa-window-close"></i></span>
+                                     <span class="close-tab-chart" style="position: absolute; top: 0; right: 0; cursor: pointer; color: gray; "><i class="fas fa-window-close" title="close"></i></span>
                                        <button class="refresh-button-chart" id="${tabId}_refresh-button-chart" 
                                        style="position: absolute; bottom: 0; left: 0;cursor: pointer; color: gray; transition: color 0.3s;">
-                                       <i class="fas fa-sync-alt"></i>
+                                       <i class="fas fa-sync-alt" title="reload"></i>
                                        </button>`;
 
 
@@ -234,7 +235,7 @@ export default class extends Controller {
                 // Create new tab navigation
                 const newTabTitle = document.querySelector('#ticketTab');
                 newTabTitle.innerHTML = `<a href="#anlTicketTab">${anlageName} Ticket</a>
-                                     <span  class="close-tab-ticket" style="position: absolute; top: 0; right: 0; cursor: pointer; color: gray;"><i class="fas fa-window-close"></i></span>`;
+                                     <span  class="close-tab-ticket" style="position: absolute; top: 0; right: 0; cursor: pointer; color: gray;"><i class="fas fa-window-close" title="close"></i></span>`;
 
                // Perform the Fetch request
                 fetch(`/ticket/list/${anlageId}`)
@@ -290,7 +291,7 @@ export default class extends Controller {
                                 // Add an "All" option for searching in all columns.
                                 $('<option>')
                                     .val('')
-                                    .text('Column')
+                                    .text('')
                                     .appendTo(columnSelect);
 
                                 // Add an option for each column.
@@ -307,8 +308,6 @@ export default class extends Controller {
                                 });
 
                                 filterControl.prepend(columnSelect); // Add the column selector to the filter control.
-
-
 
 
                                 // Modify the search behavior to use the column selector.
@@ -338,6 +337,54 @@ export default class extends Controller {
 
                                 wrapper.prepend(topDiv); // Add the top div to the wrapper.
                                 wrapper.append(bottomDiv); // Add the bottom div to the wrapper.
+
+                                // Add individual column searching (select inputs)
+                                api.columns().every(function () {
+                                    const column = this;
+
+                                    const title = $(column.header()).text();
+                                    if(title !=='Action') {
+                                        const select = $('<select><option value=""></option></select>')
+                                            .appendTo($(column.footer()).empty())
+                                            .on('change', function () {
+                                                const val = $.fn.dataTable.util.escapeRegex(
+                                                    $(this).val()
+                                                );
+                                                column
+                                                    .search(val ? '^' + val + '$' : '', true, false)
+                                                    .draw();
+                                            });
+
+                                        if (title === 'Begin' || title === 'End' || title ==='Last Update') {
+                                            // Parse and sort the date values
+                                            column.data().sort(function (a, b) {
+                                                return moment(a, 'DD.MM.YY HH:mm').unix() - moment(b, 'DD.MM.YY HH:mm').unix();
+                                            }).unique().each(function (d, j) {
+                                                select.append('<option value="' + d + '">' + d + '</option>');
+                                            });
+                                        }else {
+                                            column.data().unique().sort().each(function (d, j) {
+                                                if(title ==='Status' || title ==='Priority'){
+                                                    select.append('<option value="' + $(d).text() + '">' + $(d).text() + '</option>')
+                                                }
+                                                else {
+                                                    select.append('<option value="' + d + '">' + d + '</option>')
+                                                }
+                                            });
+                                        }
+
+                                    }else{
+
+                                        const resetButton = $('<button><i class="fas fa-sync-alt" title="reload"></i></button>')
+                                            .appendTo($(column.footer()).empty())
+                                            .on('click', function () {
+                                                // Reinitialise inputs of DataTable
+                                                wrapper.find('select').val('');
+                                                wrapper.find('input[type="search"]').val('');
+                                                api.columns().search('').draw();
+                                            });
+                                    }
+                                });
                             }
 
                         });
@@ -366,7 +413,7 @@ export default class extends Controller {
                 // Create new tab navigation
                 const newTabTitle = document.querySelector('#reportTab');
                 newTabTitle.innerHTML = `<a href="#anlReportTab">${anlageName} Report</a>
-                                     <span  class="close-tab-report" style="position: absolute; top: 0; right: 0; cursor: pointer; color: gray;"><i class="fas fa-window-close"></i></span>`;
+                                     <span  class="close-tab-report" style="position: absolute; top: 0; right: 0; cursor: pointer; color: gray;"><i class="fas fa-window-close" title="close"></i></span>`;
 
 
                 // Perform the Fetch request
@@ -425,7 +472,7 @@ export default class extends Controller {
                                 // Add an "All" option for searching in all columns.
                                 $('<option>')
                                     .val('')
-                                    .text('Column')
+                                    .text('')
                                     .appendTo(columnSelect);
 
                                 // Add an option for each column.

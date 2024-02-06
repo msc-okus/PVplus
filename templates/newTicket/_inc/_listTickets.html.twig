@@ -17,10 +17,10 @@
                    <th>Begin</th>
                    <th>End</th>
                    <th>Last Update</th>
-                   <th>Error Category{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
+                   <th>Error Category{% if is_granted('ROLE_G4N') %} alertType {% endif %}</th>
                    <th>Inverter</th>
                    <th>Open Status</th>
-                   <th><small>needs<br>Proof</small></th>
+                   <th>needs Proof</th>
                    <th>Action</th>
                </tr>
                </thead>
@@ -55,10 +55,10 @@
                        <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}{# {% if is_granted('ROLE_DEV') %}<small>{{ ticket.createdAt|date("d.m.y H:i") }}</small>{% endif %} #}</td>
                        <td>
                            {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
-                           {{ errcat|trans }}{% if is_granted('ROLE_DEV') %}<small> {{ ticket.alertType }}</small>{% endif %}
+                           {{ errcat|trans }}{% if is_granted('ROLE_DEV') %} {{ ticket.alertType }}{% endif %}
                        </td>
                        {% set maxCharInverter = 16 %}
-                       <td {% if ticket.inverter|length > maxCharInverter %}data-tooltip data-click-open="false" title="{{ ticket.inverter }}"{% endif %}><span>{{ ticket.inverter|u.truncate(maxCharInverter, ' ...', false) }}</span></td>
+                       <td {% if ticket.inverter|length > maxCharInverter %}data-tooltip data-click-open="false" title="{{ ticket.inverter }}"{% endif %}>{{ ticket.inverter|u.truncate(maxCharInverter, ' ...', false) }}</td>
                        <td>{% if (ticket.openTicket) %} open {% endif %}</td>
                        <td>{{ ticket.proof }}</td>
                        <td  >
@@ -96,6 +96,25 @@
                    </tr>
                {% endfor %}
                </tbody>
+
+               <tfoot>
+               <tr>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+                   <th></th>
+               </tr>
+               </tfoot>
            </table>
 
 

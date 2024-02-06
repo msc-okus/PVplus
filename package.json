@@ -50,6 +50,7 @@
         "foundation": "^4.2.1-1",
         "foundation-sites": "^6.7.4",
         "jszip": "^3.10.1",
+        "moment": "^2.30.1",
         "moments": "^0.0.2",
         "pdfmake": "^0.2.7",
         "sass-loader": "^13.3.1",
