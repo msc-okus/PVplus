@@ -70,35 +70,42 @@ class DCCurrentChartService
             $counter = 0;
             foreach ($expectedResult as $rowSoll) {
                 $stamp = $rowSoll['stamp'];
-                $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
-                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = $stamp; //self::timeShift($anlage, $stamp);
-                $dataArray['chart'][$counter]['expectedUR'] = $rowSoll['expected'];
+                #$dataArray['chart'][$counter]['expectedUR'] = $rowSoll['expected'];
 
-                if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stampAdjust) && self::getCetTime() - strtotime($stampAdjust) < 7200))) {
-                    switch ($anlage->getConfigType()) {
-                        case 1:
-                        case 2:
-                            $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] > 0 ? $rowSoll['expected'] / $invertersInGroup : 0;
-                            $dataArray['chart'][$counter]['expected'] = $hour ? $dataArray['chart'][$counter]['expected'] / 4 : $dataArray['chart'][$counter]['expected'];
-                            break;
-                        default:
-                            $dataArray['chart'][$counter]['expected'] = $hour ? $rowSoll['expected'] / $invertersInGroup / 4 : $rowSoll['expected'] / $invertersInGroup;
+                if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200))) {
+                    if ($rowSoll['expected'] > 0) {
+                        switch ($anlage->getConfigType()) {
+                            case 1:
+                            case 2:
+                                $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] / $invertersInGroup;
+                                $dataArray['chart'][$counter]['expected'] = $hour ? $dataArray['chart'][$counter]['expected'] / 4 : $dataArray['chart'][$counter]['expected'];
+                                break;
+                            default:
+                                $dataArray['chart'][$counter]['expected'] = $hour ? $rowSoll['expected'] / $invertersInGroup / 4 : $rowSoll['expected'] / $invertersInGroup;
+                        }
+                        $dataArray['chart'][$counter]['expected'] = round($dataArray['chart'][$counter]['expected'], 2);
                     }
-                    $dataArray['chart'][$counter]['expected'] = round($dataArray['chart'][$counter]['expected'], 2);
                 }
 
                 if ($hour) {
+                    $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone() - 1);
+                    $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                     $wherePart1 = "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'";
                 } else {
+                    $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                     $wherePart1 = "stamp = '$stampAdjust' ";
                 }
                 switch ($anlage->getConfigType()) {
                     case 1:
                     case 2:
-                        $sql = 'SELECT sum(wr_idc) as istCurrent, group_dc as dc_num FROM ' . $anlage->getDbNameACIst() . ' WHERE ' . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
+                        $sql = 'SELECT 
+                                    sum(wr_idc) as istCurrent, 
+                                    group_dc as dc_num 
+                                FROM ' . $anlage->getDbNameACIst() . ' 
+                                WHERE ' . $wherePart1 . " AND $groupQuery 
+                                GROUP BY date_format(stamp, '$form'), group_dc;";
                         break;
                     case 3:
                         $sql = 'SELECT sum(wr_idc) as istCurrent, wr_num as dc_num FROM ' . $anlage->getDbNameDCIst() . ' WHERE ' . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), wr_num;";

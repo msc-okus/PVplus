@@ -205,21 +205,17 @@ class ACPowerChartsService
      */
     public function getAC2(Anlage $anlage, $from, $to, int $group, bool $hour = false): array
     {
-        ini_set('memory_limit', '3G');
-        set_time_limit(500);
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
         $nameArray = $this->functions->getNameArray($anlage, 'ac');
         $dataArray['inverterArray'] = $nameArray;
         $acGroups = $anlage->getGroupsAc();
-        $type = '';
         $hour ? $form = '%y%m%d%H' : $form = '%y%m%d%H%i';
 
-        match ($anlage->getConfigType()) {
-            1 => $type .= " group_ac = '$group' AND",
-            default => $type .= " group_dc = '$group' AND",
+        $type = match ($anlage->getConfigType()) {
+            1 => " group_ac = '$group' AND",
+            default => " group_dc = '$group' AND",
         };
-
         if ($hour) {
             $exppart1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
             $exppart2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
@@ -230,9 +226,9 @@ class ACPowerChartsService
         $sqlExpected = "SELECT 
                             $exppart1 
                             sum(b.ac_exp_power) as soll
-                            FROM (db_dummysoll a left JOIN (SELECT * FROM ".$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                            WHERE a.stamp > '$from' AND a.stamp <= '$to'
-                            $exppart2";
+                        FROM (db_dummysoll a left JOIN (SELECT * FROM ".$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to'
+                        $exppart2";
 
         $conn = $this->pdoService->getPdoPlant();
         $resultExp = $conn->query($sqlExpected);
@@ -257,7 +253,6 @@ class ACPowerChartsService
             $expectedArray = $resultExp->fetchAll(PDO::FETCH_ASSOC);
             foreach ($expectedArray as $rowExp) {
                 $stamp = $rowExp['stamp'];
-
                 $rowExp['soll'] == null || $rowExp['soll'] < 0 ? $expected = 0 : $expected = $rowExp['soll'];
                 $dataArray['chart'][$counter]['date'] = $rowExp['stamp']; //self::timeShift($anlage, $rowExp['stamp']);
                 $counterInv = 1;
@@ -271,8 +266,7 @@ class ACPowerChartsService
                 }
                 $resultActual = $conn->query($sqlIst);
                 while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                    $actPower = $rowActual['actPower'];
-                    $actPower = ($actPower > 0) ? $actPower : 0;
+                    $actPower = max((float)$rowActual['actPower'],0);
 
                     if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                         switch ($anlage->getConfigType()) {

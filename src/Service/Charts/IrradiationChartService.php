@@ -37,9 +37,21 @@ class IrradiationChartService
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         if ($hour) {
-            $sql2 = 'SELECT a.stamp, sum(b.g_lower) as g_lower, sum(b.g_upper) as g_upper FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp > '$from' and a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = "SELECT 
+                        DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp, 
+                        sum(b.g_lower) as g_lower, 
+                        sum(b.g_upper) as g_upper 
+                    FROM (db_dummysoll a LEFT JOIN ".$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
+                    WHERE a.stamp > '$from' and a.stamp <= '$to' 
+                    GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
         } else {
-            $sql2 = 'SELECT a.stamp, b.g_lower as g_lower , b.g_upper as g_upper FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp > '$from' and a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = 'SELECT 
+                        a.stamp, 
+                        b.g_lower as g_lower , 
+                        b.g_upper as g_upper 
+                    FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
+                    WHERE a.stamp > '$from' and a.stamp <= '$to' 
+                    GROUP BY date_format(a.stamp, '$form')";
         }
 
         $res = $conn->query($sql2);
