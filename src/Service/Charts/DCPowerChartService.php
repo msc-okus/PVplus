@@ -351,12 +351,12 @@ class DCPowerChartService
                     // $dataArray['chart'][$counter]['expected'] = $rowExp['expected'] == null ? 0 : $rowExp['expected'];
 
                     if ($hour) {
-                        $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone() - 1);
+                        $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone() - 1);
                         $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                         $whereQueryPart1 = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
                         $groupBy = "date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form'), ";
                     } else {
-                        $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
+                        $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
                         $whereQueryPart1 = "stamp = '$stampAdjust'";
                         $groupBy = "";
                     }
@@ -509,7 +509,7 @@ class DCPowerChartService
                         }
                     }
                     // add Irradiation
-                    if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                    if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                         $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
                     } else {
                         $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;

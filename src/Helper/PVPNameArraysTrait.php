@@ -67,11 +67,12 @@ trait PVPNameArraysTrait
         return [
             'No Cust PR (EnergyProduced / Theo.Energy)' => 'no',
             'EnergyProduced / (Theo.Energy * PA)' => 'Veendam',
-            'EnergyProduced / (Theo.Energy * Ft) | NREL' => 'Lelystad',
+            'EnergyProduced / (Theo.Energy * Ft) | NREL' => 'TempCorrNREL',
             'EnergyProduced / (Theo.Energy * Ft * deg) | IEC' => 'IEC61724-1:2021',
-            'Ladenburg' => 'Ladenburg',
-            'Doellen' => 'Doellen',
-            'Groningen' => 'Groningen',
+            'Lelystad (deprecated)' => 'Lelystad',
+            'Ladenburg (not ready)' => 'Ladenburg',
+            'Doellen (not ready)' => 'Doellen',
+            'Groningen (deprecated)' => 'Groningen',
         ];
     }
 

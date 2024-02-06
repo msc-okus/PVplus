@@ -8,7 +8,6 @@ use App\Entity\WeatherStation;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
-use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -580,10 +579,10 @@ class AnlageFormType extends AbstractType
                 ],
                 'required' => true,
             ])
-            ->add('dataSourceAM', CKEditorType::class, [
+            ->add('dataSourceAM', TextareaType::class, [
                 'label' => 'Summary DataSources AM Report',
                 'empty_data' => 'Module Inclination: <br>Module Name: <br>Module Type: <br>Module Performance: <br>Number of Modules: <br>Inverter Name: <br>Inverter Type: <br>Number of Inverters:',
-                'config' => ['toolbar' => 'my_toolbar'],
+                #'config' => ['toolbar' => 'my_toolbar'],
             ])
             ->add('retrieveAllData', SwitchType::class, [
                 'label' => 'Use all Data from begining of Working Time',

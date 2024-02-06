@@ -1,55 +1,55 @@
 <div class="grid-x align-middle ticketsearchbar">
+    <div class="cell medium-5" id="search-form" data-report-target="searchForm">
+        <h4>Search Report:</h4>
+        <div class="grid-x grid-padding-x">
 
-<div id="search-form" data-report-target="searchForm" class="cell medium-4">
-    <label><b>Search Report:</b></label>
-    <div class="grid-x">
+            <div class="cell medium-4" >
+               <input type="text" name="anlage" class="input-group-field js-autocomplete-plant" value="{{ anlage }}" placeholder="Search plants">
+            </div>
 
-    <div class="cell medium-4" >
-       <input type="text" name="anlage" class="input-group-field js-autocomplete-plant" value="{{ anlage }}" placeholder="Search plants">
-    </div>
+            <div class="cell medium-8">
+                <select name="searchstatus">
+                    <option value=""   {% if status == ''   %}   selected {% endif %} > status             </option>
+                    <option value="0"  {% if status == '0'  %}   selected {% endif %} > final              </option>
+                    {% if is_granted('ROLE_G4N') %}<option value="1"  {% if status == '1'  %}   selected {% endif %} > final FAC          </option>{% endif %}
+                    {% if is_granted('ROLE_G4N') %}<option value="3"  {% if status == '3'  %}   selected {% endif %} > under observation  </option>{% endif %}
+                    <option value="5"  {% if status == '5'  %}   selected {% endif %} > proof reading      </option>
+                    {% if is_granted('ROLE_G4N') %}<option value="9"  {% if status == '9'  %}   selected {% endif %} > archive (g4n only) </option>{% endif %}
+                    {% if is_granted('ROLE_G4N') %}<option value="10" {% if status == '10' %}   selected {% endif %} > draft (g4n only)   </option>{% endif %}
+                    {% if is_granted('ROLE_G4N') %}<option value="11" {% if status == '11' %}   selected {% endif %} > wrong (g4n only)   </option>{% endif %}
+                </select>
+            </div>
 
-    <div class="cell medium-8">
-        <select name="searchstatus">
-            <option value=""   {% if status == ''   %}   selected {% endif %} > status             </option>
-            <option value="0"  {% if status == '0'  %}   selected {% endif %} > final              </option>
-            {% if is_granted('ROLE_G4N') %}<option value="1"  {% if status == '1'  %}   selected {% endif %} > final FAC          </option>{% endif %}
-            {% if is_granted('ROLE_G4N') %}<option value="3"  {% if status == '3'  %}   selected {% endif %} > under observation  </option>{% endif %}
-            <option value="5"  {% if status == '5'  %}   selected {% endif %} > proof reading      </option>
-            {% if is_granted('ROLE_G4N') %}<option value="9"  {% if status == '9'  %}   selected {% endif %} > archive (g4n only) </option>{% endif %}
-            {% if is_granted('ROLE_G4N') %}<option value="10" {% if status == '10' %}   selected {% endif %} > draft (g4n only)   </option>{% endif %}
-            {% if is_granted('ROLE_G4N') %}<option value="11" {% if status == '11' %}   selected {% endif %} > wrong (g4n only)   </option>{% endif %}
-        </select>
-    </div>
+            <div class="cell medium-4">
+                <select name="searchtype">
+                    <option value=""               {% if type == '' %}               selected {% endif %} >Select a Type </option>
+                    <option value="monthly-report" {% if type == 'monthly-report' %} selected {% endif %} >monthly-report</option>
+                    <option value="epc"            {% if type == 'epc' %}            selected {% endif %} >epc-report</option>
+                    <option value="am-report"      {% if type == 'am-report' %}      selected {% endif %} >am-report</option>
+                </select>
+            </div>
 
-    <div class="cell medium-4">
-        <select name="searchtype">
-            <option value=""               {% if type == '' %}               selected {% endif %} >Select a Type </option>
-            <option value="monthly-report" {% if type == 'monthly-report' %} selected {% endif %} >monthly-report</option>
-            <option value="epc"            {% if type == 'epc' %}            selected {% endif %} >epc-report</option>
-            <option value="am-report"      {% if type == 'am-report' %}      selected {% endif %} >am-report</option>
-        </select>
-    </div>
+            <div class="cell medium-4">
+                <select name="searchmonth">
+                    <option value=""   {% if month == '' %}   selected {% endif %}>Select Month</option>
+                    {% for i in range (1, 12) %}
+                     <option value="{{ i }}"  {% if month == i %}  selected {% endif %}>   {{ "%02d"|format(i)}}    </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    <div class="cell medium-4">
-        <select name="searchmonth">
-            <option value=""   {% if month == '' %}   selected {% endif %}>Select Month</option>
-            {% for i in range (1, 12) %}
-             <option value="{{ i }}"  {% if month == i %}  selected {% endif %}>   {{ "%02d"|format(i)}}    </option>
-            {% endfor %}
-        </select>
-    </div>
+            <div class="cell medium-4">
+                <select name="searchyear">
+                    <option value=""  {% if searchyear == '' %}  selected {% endif %}>Select Year </option>
+                    {% set isyear = 'now' | date('Y')  %}
+                    {% for year in range (2020, isyear) %}
+                      <option value="{{ year }}"  {% if searchyear == year %}  selected {% endif %}>  {{ year }} </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
 
-    <div class="cell medium-4">
-        <select name="searchyear">
-            <option value=""  {% if searchyear == '' %}  selected {% endif %}>Select Year </option>
-            {% set isyear = 'now' | date('Y')  %}
-            {% for year in range (2020, isyear) %}
-              <option value="{{ year }}"  {% if searchyear == year %}  selected {% endif %}>  {{ year }} </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="cell medium-12">
+        <div class="cell medium-12">
             <div class="input-group-button" >
                 <span data-tooltip tabindex="1" title="Search Report">
                  <button type="submit" title="Search Report" name="search" class="button action-icon tiny hollow shadow" value="yes" data-action="report#search">
@@ -57,21 +57,17 @@
                  </button>
                 </span>
             </div>
+        </div>
+    </div>
+    <div class="call medium-2">
+        <input type="hidden" name="page" value="{{ pagination.currentPageNumber }}">
     </div>
 
-    </div>
+    {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
 
-</div>
-
-    <div class="cell medium-2">
-         <input type="hidden" name="page" value="{{ pagination.currentPageNumber }}">
-    </div>
-
-{% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA') ) %}
-
-<div id="create-form" data-report-target="createForm" class="cell medium-4">
-    <label><b>Create New Report:</b></label>
-    <div class="grid-x">
+        <div class="cell medium-5" id="create-form" data-report-target="createForm">
+            <h4>Create New Report:</h4>
+            <div class="grid-x grid-padding-x">
                 <div class="cell medium-6">
                     <select name="anlage-id" data-report-target="anlage" data-action="report#handleAnlageInput">
                         <option value="" disabled selected hidden>Please choose a Plant</option>
@@ -111,16 +107,14 @@
                         {% endfor %}
                     </select>
                 </div>
-
-                <div class="cell medium-12">
+            </div>
+            <div class="cell medium-12">
                 <span data-tooltip tabindex="1" title="Create New Report">
-                 <button name="new-report" title="Create Report" class="button action-icon tiny hollow shadow" value="yes" disabled data-report-target="deactivable"  data-action="report#create">
-                   <span class="fa fa-plus"></span>
-                 </button>
+                    <button name="new-report" title="Create Report" class="button action-icon tiny hollow shadow" value="yes" disabled data-report-target="deactivable"  data-action="report#create">
+                        <span class="fa fa-plus"></span>
+                    </button>
                 </span>
             </div>
-    </div>
-</div>
-{% endif %}
-
+        </div>
+    {% endif %}
 </div>

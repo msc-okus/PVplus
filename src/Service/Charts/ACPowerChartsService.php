@@ -402,7 +402,7 @@ class ACPowerChartsService
                 $stamp = $rowIst['stamp'];
                 $dataArray['chart'][$counter]['date'] = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone() * (-1));
                 if ($hour) {
-                    $stampAdjust = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone()-1);
+                    $stampAdjust = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone() - 1);
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                     $queryf = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
                     $groupBy = "GROUP by date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form')";
@@ -415,7 +415,7 @@ class ACPowerChartsService
                             FROM ".$anlage->getDbNameDcSoll()." 
                             WHERE $queryf AND $groupQuery 
                             $groupBy";
-                dump($sqlSoll);
+
                 $result = $conn->query($sqlSoll);
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                     ($row['soll'] == null || $row['soll'] < 0) ? $expected = 0 : $expected = $row['soll'];
