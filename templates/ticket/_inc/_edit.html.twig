@@ -168,7 +168,7 @@
                                 {{ form_row(ticketForm.priority) }}
                             </div>
                             <div class="cell small-6 medium-1">
-                                {{ form_row(ticketForm.needsProofTAM) }}
+                                {{ form_row(ticketForm.needsProof) }}
                             </div>
                             <div class="cell small-6 medium-1">
                                 {{ form_row(ticketForm.needsProofEPC) }}
@@ -185,7 +185,7 @@
                                     {{ form_row(ticketForm.KpiStatus) }}
                                 {% endif %}
                             </div>
-                            {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
+                            {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA') or is_granted('ROLE_TICKET')) %}
                                 {% if (edited) %}
                                     <div class="cell small-6 medium-1" >
                                         {{ form_row(ticketForm.ignoreTicket) }}

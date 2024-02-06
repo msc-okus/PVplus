@@ -105,7 +105,7 @@ class Ticket
     private Collection $dates;
 
     #[ORM\Column(nullable: true)]
-    private ?bool $needsProof = null; // this is proof by TAM
+    private ?bool $needsProof = false; // this is proof by TAM
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $openTicket;
@@ -141,7 +141,7 @@ class Ticket
     private ?bool $internal = false;
 
     #[ORM\Column(nullable: true)]
-    private ?bool $needsProofg4n = null;
+    private ?bool $needsProofg4n = false;
 
     private ?string $creationLog = null;
 

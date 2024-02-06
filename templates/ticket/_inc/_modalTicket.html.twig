@@ -1,11 +1,11 @@
 <div class="reveal text-left {{ class|default('') }}" id="modal{{ modalId }}"
      data-multiple-opened="true"
-     data-v-offset = "{{ dataVOffset|default('auto') }}"
+     data-v-offset="{{ dataVOffset|default('auto') }}"
      data-ticket-edit-target="modal"
      data-reveal
-     data-close-on-click = "false"
+     data-close-on-click="false"
      data-append-to="div#modal-form{{ modalId }}"
->
+     xmlns="http://www.w3.org/1999/html">
     <h1>{{ modalTitel }}{% if (modalId != 0)%} - {{ modalId }}{% endif %}</h1>
     <div class="grid-x grid-padding-y">
         <div class="cell modal-body"
@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    <div class="grid-x">
+    <div class="grid-x" >
         <div class="cell text-right">
             <button
                     class="close-button"
@@ -26,7 +26,26 @@
             </button>
             <button type="button" class="button secondary small" data-action="ticket-edit#closeTicket">Cancel</button>
             <button type="button" class="button small" data-ticket-list-target="saveButton" data-ticket-edit-target="saveButton" data-action="ticket-edit#saveTicket">Save</button>
+
+            <button type="button" class="button small is-hidden"
+                    data-ticket-edit-target="contactButton"
+                    data-action="click->ticket-edit#openContactModal">Contact Maintenance</button>
+
+            <div id="formContact{{ modalId }}">
+                <div class="reveal text-left small" id="modal-contact-{{ modalId }}"
+                     data-reveal
+                     data-append-to="div#formContact{{ modalId }}"
+                     data-multiple-opened="true"
+                     data-ticket-edit-target="contactModal">
+                        <div class="cell modal-body"
+                             data-ticket-edit-target="modalContactBody"
+                             data-action="modal-form#submitForm">
+                            {{ modalContent|default('Loading...') }}
+                        </div>
+                </div>
+            </div>
         </div>
     </div>
+
 
 </div>

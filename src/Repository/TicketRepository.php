@@ -28,6 +28,120 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     /**
+     * Build query with all options, including 'has user rights to see'
+     * OLD VERSION.
+     *
+     * @deprecated
+     */
+    public function getWithSearchQueryBuilder(?string $status, ?string $editor, ?string $anlage, ?string $id, ?string $prio, ?string $inverter): QueryBuilder
+    {
+        /** @var User $user */
+        $user = $this->security->getUser();
+        $granted = explode(',', $user->getGrantedList());
+
+        $qb = $this->createQueryBuilder('ticket')
+            ->innerJoin('ticket.anlage', 'a')
+            ->addSelect('a')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $qb
+                ->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted)
+            ;
+        }
+        if ($status != '' && $status != '00') {
+            $qb->andWhere("ticket.status = $status");
+        }
+        if ($editor != '') {
+            $qb->andWhere("ticket.editor = '$editor'");
+        }
+        if ($anlage != '') {
+            $qb->andWhere("a.anlName LIKE '$anlage'");
+        }
+        if ($id != '') {
+            $qb->andWhere("ticket.id = '$id'");
+        }
+        if ($prio != '' && $prio != '00') {
+            $qb->andWhere("ticket.priority = '$prio'");
+        }
+
+        return $qb;
+    }
+
+    public function countByProof(){
+
+
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.needsProof = true');
+
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $result->andWhere('t.internal = false');
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+
+    }
+
+    public function countByProofAM(){
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.ProofAM = true')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $result->andWhere('t.internal = false');
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        dump($result);
+        return $result->getQuery()->getResult()[0][1];
+    }
+    public function countByProofEPC(){
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.needsProofEPC = true')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $result->andWhere('t.internal = false');
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+
+    }
+
+    public function countByProofG4N(){
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.needsProofg4n = true')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $result->andWhere('t.internal = false');
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+
+    }
+    /**
      * Build query with all options, including 'has user rights to see'.
      *
      * @param Anlage|null $anlage
@@ -64,8 +178,8 @@ class TicketRepository extends ServiceEntityRepository
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
 
-                $qb->andWhere('a.anlId IN (:plantList)')
-                    ->setParameter('plantList', $granted);
+            $qb->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
         }
         if ($anlage != '') {
             $qb->andWhere("ticket.anlage = '$anlage'");
@@ -92,17 +206,14 @@ class TicketRepository extends ServiceEntityRepository
         if ((int) $category == 7){
             $qb->andWhere("ticket.alertType >= 70");
             $qb->andWhere("ticket.alertType < 80");
-        }
-        else if ((int) $category == 9){
+        }  else if ((int) $category == 9){
             $qb->andWhere("ticket.alertType > 90");
             $qb->andWhere("ticket.alertType < 100");
-        }
-        else if ((int) $category > 0) {
+        } else if ((int) $category > 0) {
             $qb->andWhere("ticket.alertType = $category");
         }
         else {
             $qb->andWhere("ticket.alertType < 90 or ticket.alertType >= 100");
-
         }
         if ($prooftam == 1){
             $qb->andWhere("ticket.needsProof = 1");
@@ -122,13 +233,15 @@ class TicketRepository extends ServiceEntityRepository
         if ($ticketName !== "") {
             $qb->andWhere("ticket.TicketName LIKE '%$ticketName%'");
         }
+
         if ($ignore) {
             $qb->andWhere("ticket.ignoreTicket = true");
-        } else {
+        } elseif (!$this->security->isGranted('ROLE_ADMIN')) { // G4N Admin Users should see the 'ignore' Tickets
             $qb->andWhere("ticket.ignoreTicket = false");
         }
+
         if ($sort !== "") $qb->addOrderBy($sort, $direction);
-            $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
+        $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
         if ($begin != "" && $end == ""){
 
             $qb->andWhere("ticket.begin LIKE '$begin%'");
@@ -144,7 +257,6 @@ class TicketRepository extends ServiceEntityRepository
                 $qb->andWhere("ticket.end < '$end'");
             }
         }
-
 
         return $qb;
     }
@@ -337,16 +449,5 @@ class TicketRepository extends ServiceEntityRepository
 
         return $result->getResult();
     }
-
-    //new Dashboard
-    public  function  findByAnlageId(int $anlageId):array{
-        return $this->createQueryBuilder('t')
-            ->join('t.anlage', 'a')
-            ->where('a.anlId = :anlageId')
-            ->setParameter('anlageId', $anlageId)
-            ->getQuery()
-            ->getResult();
-    }
-
 
 }

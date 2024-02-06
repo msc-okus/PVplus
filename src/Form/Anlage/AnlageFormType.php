@@ -310,8 +310,8 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0.5',
             ])
             ->add('useGridMeterDayData', SwitchType::class, [
-                'label' => 'Nutze externe GridMeter Daten',
-                'help' => '[useGridMeterDayData]',
+                'label' => 'Use externe GridMeter Data',
+                'help' => 'Use externe GridMeter Data [Yes / No]',
             ])
             ->add('contractualAvailability', TextType::class, [
                 'label' => 'Verfügbarkeit in %',
@@ -488,24 +488,24 @@ class AnlageFormType extends AbstractType
                 'help' => '[pldAlgorithm]',
             ])
             ->add('hasStrings', SwitchType::class, [
-                'label' => 'Anlage hat String Daten',
-                'help' => '[hasStrings]',
+                'label' => 'Plat has String Data',
+                'help' => '[Yes / No]',
             ])
             ->add('hasPPC', SwitchType::class, [
                 'label' => 'Plant has PPC',
-                'help' => '[hasPPC]',
+                'help' => '[Yes / No]',
             ])
             ->add('usePPC', SwitchType::class, [
                 'label' => 'Respect PPC Signal on calc',
-                'help' => '[usePPC]<br>Power, TheoPower, Irradiation will be excluded if PPC signal is lower 100',
+                'help' => 'Power, TheoPower, Irradiation will be excluded if PPC signal is lower 100 [Yes / No]',
             ])
             ->add('ignoreNegativEvu', SwitchType::class, [
                 'label' => 'Ignore negative EVU values',
-                'help' => '[ignoreNegativEvu]',
+                'help' => '[Yes / No]',
             ])
             ->add('hasPannelTemp', SwitchType::class, [
                 'label' => 'Anlage hat Pannel Temperatur',
-                'help' => '[hasPannelTemp]',
+                'help' => '[Yes / No]',
             ])
             // ###############################################
             // ###          FORECAST                      ####
@@ -598,6 +598,14 @@ class AnlageFormType extends AbstractType
             ->add('hasSunshadingModel', SwitchType::class, [
                 'label' => 'Use the Sunshading Model for this plant',
                 'help' => '[On / Off]',
+                'required' => false,
+            ])
+            // ###############################################
+            // ###         Is Tracker Eow           ####
+            // ###############################################
+            ->add('isTrackerEow', SwitchType::class, [
+                'label' => 'Is a one axis tracker',
+                'help' => 'Is a one axis tracker with east west orientation [Yes / No]',
                 'required' => false,
             ])
             // ###############################################

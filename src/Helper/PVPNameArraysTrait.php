@@ -188,7 +188,8 @@ trait PVPNameArraysTrait
      * 73: Replace Energy (Irr)
      * 74: Correct Energy
      */
-    public function errorCategorie(bool $performanceTickets = true, bool $paTickets = true, bool $addGroup = false): array
+    public function
+    errorCategorie(bool $performanceTickets = true, bool $paTickets = true, bool $addGroup = false, $addG4NCategory = false): array
     {
         if ($paTickets) {
             if ($addGroup) $errorCategory[$this->translator->trans('ticket.error.category.1')][$this->translator->trans('ticket.error.category.1all')]  =  1;
@@ -207,8 +208,19 @@ trait PVPNameArraysTrait
             $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.73')] = 73; //Replace Energy
             $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.74')] = 74; //Correct Energy
         }
+        if ($addG4NCategory) {
+            if ($addGroup) $errorCategory[$this->translator->trans('ticket.error.category.9')][$this->translator->trans('ticket.error.category.9all')]  =  9;
+            $errorCategory[$this->translator->trans('ticket.error.category.9')][$this->translator->trans('ticket.error.category.91')] = 91; //internal ticket
+            $errorCategory[$this->translator->trans('ticket.error.category.9')][$this->translator->trans('ticket.error.category.92')] = 92; //internal ticket
+            $errorCategory[$this->translator->trans('ticket.error.category.9')][$this->translator->trans('ticket.error.category.93')] = 93; //internal ticket
+
+            $errorCategory[$this->translator->trans('ticket.error.category.100')] = 100;
+        }
         return $errorCategory;
     }
+    /** @deprecated  try to replace with 'errorCategorie(bool $performanceTickets = true, bool $paTickets = true, bool $addGroup = false, $addG4NCategory = false)'
+     * Not finaly ready need some addional stuff for ticket search form
+     * */
     public function listAllErrorCategorie($isG4N): array
     {
         $errorCategory[$this->translator->trans('ticket.error.category.10')] = 10; //data gap
@@ -223,7 +235,7 @@ trait PVPNameArraysTrait
         $errorCategory[$this->translator->trans('ticket.error.category.72')] = 72; //performance ticket
         $errorCategory[$this->translator->trans('ticket.error.category.73')] = 73; //performance ticket
         $errorCategory[$this->translator->trans('ticket.error.category.74')] = 74; //performance ticket
-        if( $isG4N) {
+        if($isG4N) {
             $errorCategory[$this->translator->trans('ticket.error.category.9')] = 9;
             $errorCategory[$this->translator->trans('ticket.error.category.91')] = 91; //internal ticket
             $errorCategory[$this->translator->trans('ticket.error.category.92')] = 92; //internal ticket

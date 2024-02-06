@@ -68,7 +68,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     ];
     final public const ARRAY_OF_ROLES_USER = [
         'Owner (full)'      => 'ROLE_OWNER_FULL',
-        'Owner'             => 'ROLE_OWNER',
+       // 'Owner'             => 'ROLE_OWNER',
     ];
 
     final public const ARRAY_OF_ROLES = [
@@ -81,13 +81,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'Owner (admin)'     => 'ROLE_OWNER_ADMIN',
         'Owner (full)'      => 'ROLE_OWNER_FULL',
         'Owner'             => 'ROLE_OWNER',
-        'AssetManagement'   => 'ROLE_AM',
+        'Asset Management'   => 'ROLE_AM',
         'Analyse'           => 'ROLE_ANALYSE',
     ];
 
     final public const ARRAY_OF_FUNCTIONS_BY_ROLE = [
-        'AssetManagement'   => 'ROLE_AM',
+        'Asset Management'  => 'ROLE_AM',
         'Analyse'           => 'ROLE_ANALYSE',
+        'Ticket User'       => 'ROLE_TICKET',
     ];
 
     #[Groups(['user:read'])]

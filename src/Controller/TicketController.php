@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
+use App\Form\Owner\NotificationFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
@@ -13,6 +14,7 @@ use App\Service\FunctionsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -273,6 +275,13 @@ class TicketController extends BaseController
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo): Response
     {
 
+        //here we will count the number of different "proof by tickets"
+        $countProofByTam = $ticketRepo->countByProof();
+        $countProofByEPC = $ticketRepo->countByProofEPC();
+        $countByProofAM = $ticketRepo->countByProofAM();
+        $countByProofG4N = $ticketRepo->countByProofG4N();
+
+        //dd($countByProofAM, $countByProofG4N, $countProofByEPC, $countProofByTam);
         $filter = [];
         $session = $request->getSession();
         $pageSession = $session->get('page');
@@ -329,7 +338,6 @@ class TicketController extends BaseController
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
         $filter['category']['array'] = self::listAllErrorCategorie($this->isGranted('ROLE_G4N'));
-        #$filter['category']['array'] = self::errorCategorie(true, true, true);
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;
@@ -357,7 +365,6 @@ class TicketController extends BaseController
 
         }
         //here we will configure the array of reason suggestions
-
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
@@ -372,6 +379,44 @@ class TicketController extends BaseController
             'direction'     => $direction,
             'begin'         => $begin,
             'end'           => $end,
+            'countProofByAM'  => $countByProofAM,
+            'countProofByEPC'  => $countProofByEPC,
+            'countProofByTAM'  => $countProofByTam,
+            'countProofByG4N'  => $countByProofG4N
+        ]);
+    }
+
+    #[Route(path: '/ticket/notify/{id}', name: 'app_ticket_notify', methods: ['GET', 'POST'])]
+    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
+    {
+        $ticket = $ticketRepo->findOneById($id);
+        $notifications = $ticket->getNotificationInfos();
+        $eigner = $ticket->getAnlage()->getEigner();
+        $form = $this->createForm(\App\Form\Notification\NotificationFormType::class, null, ['eigner' => $eigner]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            dd("submited");
+        }
+        return $this->render('ticket/_inc/_notification.html.twig', [
+            'ticket'            => $ticket,
+            'notifications'     => $notifications,
+            'notificationForm'  => $form,
+            'owner'             => $eigner,
+        ]);
+    }
+
+    #[Route(path: '/ticket/proofCount', name: 'app_ticket_proof_count', methods: ['GET', 'POST'])]
+    public function getProofCount(TicketRepository $ticketRepo):Response
+    {
+        $countProofByTam = $ticketRepo->countByProof();
+        $countProofByEPC = $ticketRepo->countByProofEPC();
+        $countByProofAM = $ticketRepo->countByProofAM();
+        $countByProofG4N = $ticketRepo->countByProofG4N();
+        return new JsonResponse([
+            'countProofByAM'  => $countByProofAM,
+            'countProofByEPC'  => $countProofByEPC,
+            'countProofByTAM'  => $countProofByTam,
+            'countProofByG4N'  => $countByProofG4N
         ]);
     }
 
@@ -534,6 +579,12 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/deleteTicket/{id}', name: 'app_ticket_deleteticket')]
     public function deleteTicket($id, TicketRepository $ticketRepo,  PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $em, RequestStack $requestStack): Response
     {
+        //here we will count the number of different "proof by tickets"
+        $countProofByTam = $ticketRepo->countByProof();
+        $countProofByEPC = $ticketRepo->countByProofEPC();
+        $countByProofAM = $ticketRepo->countByProofAM();
+        $countByProofG4N = $ticketRepo->countByProofG4N();
+
         $filter = [];
         $session = $requestStack->getSession();
         $pageSession = $session->get('page');
@@ -633,6 +684,11 @@ class TicketController extends BaseController
             'direction'     => $direction,
             'begin'         => $begin,
             'end'           => $end,
+            'countProofByAM'  => $countByProofAM,
+            'countProofByEPC'  => $countProofByEPC,
+            'countProofByTAM'  => $countProofByTam,
+            'countProofByG4N'  => $countByProofG4N
+
         ]);
     }
 
