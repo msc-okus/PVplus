@@ -34,7 +34,7 @@ class ToolsController extends BaseController
 
         $output = '';
         // Wenn Calc gelickt wird mache dies:&& $form->get('calc')->isClicked() $form->isSubmitted() &&
-        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
+        if ($form->isSubmitted() && $form->isValid() && $request->getMethod() == 'POST') {
             /* @var ToolsModel $toolsModel */
             $toolsModel = $form->getData();
             $toolsModel->endDate = new \DateTime($toolsModel->endDate->format('Y-m-d 23:59'));
@@ -117,11 +117,6 @@ class ToolsController extends BaseController
             } else {
                 $output .= 'Please select a function.<br>';
             }
-        }
-
-        // Wenn Close geklickt wird mache dies:
-        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
-            return $this->redirectToRoute('app_dashboard');
         }
 
         return $this->render('tools/index.html.twig', [
