@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/macros.library.html.twig' as macrolibrary %}
+
+{% block title %}list plants{% endblock %}
+
+{% block body %}
+    <h1>List Plants</h1>
+    {{ macrolibrary.searchbox(app.request.query.get('qp'), 'qp') }}
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Plant id</th>
+            <th>Name</th>
+            <th>Project No</th>
+            {% if is_granted('ROLE_G4N') %}
+                <th>Eigner</th>
+            {% endif %}
+            {% if is_granted('ROLE_G4N') %}
+                <th>Database ident</th>
+                <th>Main weather ident</th>
+                <th>Owner activ</th>
+                <th>Hiden</th>
+                <th></th>
+                <th class="text-center"><small>Custom Plant ID</small></th>
+            {% else %}
+                <th>City</th>
+            {% endif %}
+            <th style="text-align: right;">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for plant in pagination %}
+            <tr>
+                <td>{{ plant.anlId }}</td>
+                <td>{{ plant.anlName }}</td>
+                <td>{{ plant.projektNr }}</td>
+                {% if is_granted('ROLE_G4N') %}
+                    <td>{{ plant.eigner.firma }}</td>
+                {% endif %}
+                {% if is_granted('ROLE_G4N') %}
+                    <td>{{ plant.anlIntnr }}</td>
+                    <td>{% if (plant.weatherStation) %}{{ plant.weatherStation.databaseIdent }}{% endif %}</td>
+                    <td>{{ plant.anlView }}</td>
+                    <td>{{ plant.anlHidePlant }}</td>
+                    <td>{{ plant.epcReportType }}</td>
+                    <td class="text-center"><small>{{ plant.customPlantId }}</small></td>
+                {% else %}
+                    <td>{{ plant.anlPlz }} {{ plant.anlOrt }}</td>
+                {% endif %}
+                <td style="text-align: right;">
+                    {% if is_granted('ROLE_G4N') %}
+                        <a href="{{ path('app_admin_anlagen_acgroupsexport', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> AC Groups</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ knp_pagination_render(pagination) }}
+{% endblock %}

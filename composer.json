@@ -48,6 +48,7 @@
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.3",
         "shuchkin/simplexlsx": "^1.0",
+        "shuchkin/simplexlsxgen": "*",
         "stof/doctrine-extensions-bundle": "^1.7",
         "symfony/asset": "6.4.*",
         "symfony/console": "6.4.*",

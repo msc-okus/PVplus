@@ -18,4 +18,17 @@ class AcGroupsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AnlageAcGroups::class);
     }
+
+
+    public function findBySearchTerm($searchTerm)
+    {
+        $qb = $this->createQueryBuilder('g');
+
+        if (!empty($searchTerm)) {
+            $qb->where('g.acGroupName LIKE :searchTerm')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

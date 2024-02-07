@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Form\GroupsAc\AnlageAcGroupsTypeSD;
+use App\Repository\AcGroupsRepository;
 use App\Service\PdoService;
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
@@ -25,6 +27,7 @@ use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use League\Flysystem\FilesystemException;
+use Shuchkin\SimpleXLSXGen;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,6 +40,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+
 
 class AnlagenAdminController extends BaseController
 {
@@ -448,6 +452,7 @@ class AnlagenAdminController extends BaseController
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
 
+
         return $this->render('anlagen/edit_acgroups.html.twig', [
             'anlageForm' => $form,
             'anlage' => $anlage,
@@ -528,6 +533,115 @@ class AnlagenAdminController extends BaseController
         return $this->redirectToRoute('app_admin_anlagen_list');
     }
 
+    #[Route(path: '/admin/anlagen/acgroupsexport/{id}', name: 'app_admin_anlagen_acgroupsexport')]
+    public function acExport($id,AnlagenRepository $anlagenRepository): Response
+    {
+
+        $anlage = $anlagenRepository->find($id);
+
+        if (!$anlage) {
+            throw $this->createNotFoundException('The Anlage does not exist');
+        }
+
+        $acGroups = $anlage->getAcGroups();
+        $data = [
+            [
+                'ID',
+                'AC Group ID',
+                'AC Group Name',
+                'Unit First',
+                'Unit Last',
+                'Limitation',
+                'DC Power Inverter',
+                'Is East West Group',
+                'Weather Station',
+                'Gewichtung Anlagen PR',
+                'T Cell Avg',
+                'Power East',
+                'Power West',
+                'Pyro 1',
+                'Pyro 2',
+                'Import ID'
+            ] // Header
+        ];
+
+        foreach ($acGroups as $group) {
+            $data[] = [
+                $group->getId(),
+                $group->getAcGroup(),
+                $group->getAcGroupName(),
+                $group->getUnitFirst(),
+                $group->getUnitLast(),
+                $group->getLimitation(),
+                $group->getDcPowerInverter(),
+                $group->getIsEastWestGroup() ? 'Yes' : 'No',
+                $group->getWeatherStation() ? $group->getWeatherStation()->getName() : 'N/A', // Assuming WeatherStation entity has a getName() method
+                $group->getGewichtungAnlagenPR(),
+                $group->getTCellAvg(),
+                $group->getPowerEast(),
+                $group->getPowerWest(),
+                $group->getPyro1(),
+                $group->getPyro2(),
+                $group->getImportId(),
+            ];
+        }
+
+        dd($data);
+        $xlsx = SimpleXLSXGen::fromArray($data);
+        $fileName = "ac_groups_{$id}.xlsx";
+
+
+        // Instead of using downloadAsString, save the file temporarily
+        $tempFile = tempnam(sys_get_temp_dir(), 'xlsx');
+        $xlsx->saveAs($tempFile); // Save the XLSX file to a temporary file
+
+        // Read the file content
+        $xlsxContent = file_get_contents($tempFile);
+        if ($xlsxContent === false) {
+            throw new \Exception('Failed to read the Excel file');
+        }
+
+        // Prepare the response with the file content
+        $response = new Response($xlsxContent);
+        $disposition = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $fileName
+        );
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', $disposition);
+
+        // Cleanup: Remove the temporary file
+        unlink($tempFile);
+
+        return $response;
+    }
+    #[Route(path: '/admin/anlagen/listexport', name: 'app_admin_anlagen_listexport')]
+    public function listExport(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
+    {
+
+
+        $q = $request->query->get('qp');
+        if ($request->query->get('search') == 'yes' && $q == '') {
+            $request->getSession()->set('qp', '');
+        }
+        if ($q) {
+            $request->getSession()->set('qp', $q);
+        }
+        if ($q == '' && $request->getSession()->get('qp') != '') {
+            $q = $request->getSession()->get('qp');
+            $request->query->set('qp', $q);
+        }
+        $queryBuilder = $anlagenRepository->getWithSearchQueryBuilder($q);
+        $pagination = $paginator->paginate(
+            $queryBuilder, /* query NOT result */
+            $request->query->getInt('page', 1), /* page number */
+            25                                         /* limit per page */
+        );
+
+        return $this->render('anlage_ac_groups/index.html.twig', [
+            'pagination' => $pagination,
+        ]);
+    }
     /**
      * Erzeugt alle Datenbanken für die Anlage
      * Braucht aber Zugriff auf die Datenbank der Anlagen (nicht per Doctrin).
@@ -695,4 +809,6 @@ class AnlagenAdminController extends BaseController
         return true;
 
     }
+
+
 }
