@@ -406,6 +406,7 @@ class TicketController extends BaseController
         $notifications = $ticket->getNotificationInfos();
         $form = $this->createForm(\App\Form\Owner\OwnerContactFormType::class, null);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
             $eigner->addContactInfo($form->getData());
             $em->persist($eigner);
@@ -448,8 +449,8 @@ class TicketController extends BaseController
             $em->persist($notification);
             $em->persist($ticket);
             $em->flush();
-            $message = "Maintenance is needed in ". $ticket->getAnlage()->getAnlName().". Please click the button bellow to respond <br>".$form->getData()['freeText'];
-            $messageService->sendMessageToMaintenance(  $this->translator->trans("ticket.error.category.".$ticket->getAlertType()) . " in ". $ticket->getAnlage()->getAnlName(), $message, $contact->getEmail(), $contact->getName(), false, $ticket);
+            $message = "Maintenance is needed in ". $ticket->getAnlage()->getAnlName().". Please click the button bellow to respond. <br> Free Text from TAM: ".$form->getData()['freeText'];
+            $messageService->sendMessageToMaintenance(  $this->translator->trans("ticket.error.category.".$ticket->getAlertType()) . " in ". $ticket->getAnlage()->getAnlName() . "- Ticket: " . $ticket->getId(), $message, $contact->getEmail(), $contact->getName(), $this->getUser()->getname(), false, $ticket);
         }
 
         return $this->render('ticket/_inc/_notification.html.twig', [
@@ -852,7 +853,7 @@ class TicketController extends BaseController
         ]);
     }
 
-    #[Route(path: '/notification/confir/{id}', name: 'app_ticket_notification_confirm')]
+    #[Route(path: '/notification/confirm/{id}', name: 'app_ticket_notification_confirm')]
     public function confirmNotification($id, TicketRepository $ticketRepo, Request $request, PiiCryptoService $encryptService, MessageService $messageService, EntityManagerInterface $em) :Response{
         $ticketId = $encryptService->unHashData($id);
         $ticket = $ticketRepo->findOneBy(['securityToken' => $ticketId]);
@@ -860,15 +861,20 @@ class TicketController extends BaseController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()){
             $notification = $ticket->getNotificationInfos()->last();
-
+            $notification->setCloseDate(new DateTime('now'));
+            $notification->setStatus($form->getData()['answers'] );
+            $notification->setCloseFreeText($form->getData()['freeText']);
             if ($form->getData()['answers'] == 50){
-                $messageService->sendRawMessage("Reparation finished", "The maintenance provider has finished the reparation job", $notification->getWhoNotified()->getEmail(), $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(), false);
-                $notification->setStatus(50);
-                $notification->setCloseDate(new DateTime('now'));
+                $messageService->sendRawMessage("Reparation finished - Ticket: " . $ticket->getId(),
+                    "The maintenance provider has finished the reparation job.". "<br> Maintenance answer: ". $notification->getCloseFreeText(),
+                    $notification->getWhoNotified()->getEmail(), $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(),
+                    false);
             }else{
-                $messageService->sendRawMessage("Reparation could not be finished", "There was an unexpected problem and the maintenance provider could not fulfill the reparation request, we recomend contacting someone else for ticket ".$ticket->getId(), $notification->getWhoNotified()->getEmail(), $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(), false);
-                $notification->setStatus(60);
-                $notification->setCloseDate(new DateTime('now'));
+                $messageService->sendRawMessage("Reparation could not be finished - Ticket: " . $ticket->getId(),
+                    "There was an unexpected problem and the maintenance provider could not fulfill the reparation request, we recommend contacting someone else for ticket ".$ticket->getId(). ".<br> Maintenance answer: ". $notification->getCloseFreeText(),
+                    $notification->getWhoNotified()->getEmail(),
+                    $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(),
+                    false);
             }
             $em->persist($notification);
             $em->flush();
@@ -893,15 +899,16 @@ class TicketController extends BaseController
         if ($form->isSubmitted() && $form->isValid()){
             $notification = $ticket->getNotificationInfos()->last();
             $notification->setStatus($form->getData()['answers']);
+            $notification->setAnswerDate(new DateTime('now'));
+            $notification->setAnswerFreeText($form->getData()['freeText']);
             $em->persist($ticket);
+
             if ($form->getData()['answers'] == 40){
                 $ticket->setStatus(40);
-                $notification->setAnswerDate(new DateTime('now'));
                 $notification->setCloseDate(new DateTime('now'));
                 $em->persist($notification);
-
                 $em->flush();
-                $messageService->sendRawMessage("Request rejected", "The maintenance provider that was contacted will not be able to fulfill the request, thus we recommend contacting someone else for ticket ". $ticket->getId(), $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
+                $messageService->sendRawMessage("Request rejected - Ticket: " . $ticket->getId(), "The maintenance provider that was contacted will not be able to fulfill the request, thus we recommend contacting someone else for ticket ". "<br> Maintenance answer: ".  $notification->getAnswerFreeText(). $ticket->getId(), $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
                 return $this->render('/ticket/editNotification.html.twig', [
                     'ticket'              => $ticket,
                     'notificationEditForm'  => $form,
@@ -910,13 +917,13 @@ class TicketController extends BaseController
             }
             else{
                 if ($form->getData()['answers'] == 20){
-                    $messageService->sendRawMessage("Request accepted", "The maintenance provider accepted the request and will start working as soon as possible ", $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
+                    $messageService->sendRawMessage("Request accepted - Ticket: " . $ticket->getId(), "The maintenance provider accepted the request and will start working as soon as possible. ". "<br> Maintenance answer: ".  $notification->getAnswerFreeText(), $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
                 }
                 else{
-                    $messageService->sendRawMessage("Request accepted but delayed", "The maintenance provider that was contacted has accepted the request but will need some extra time to start doing it", $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
+                    $messageService->sendRawMessage("Request accepted but delayed - Ticket: " . $ticket->getId(), "The maintenance provider that was contacted has accepted the request but will need some extra time to start doing it.". "<br> Maintenance answer: ". $notification->getAnswerFreeText(), $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
                 }
-                $notification->setAnswerDate(new DateTime('now'));
-                $messageService->sendConfirmationMessageToMaintenance("Maintenance confirmation", "Thanks for accepting the request, please report in the link in the button below when the reparations are ready", $notification->getContactedPerson()->getEmail(), $notification->getContactedPerson()->getName(), false, $ticket);
+
+                $messageService->sendConfirmationMessageToMaintenance("Maintenance confirmation - Ticket: " . $ticket->getId(), "Thanks for accepting the request, please report in the link in the button below when the reparations are ready.", $notification->getContactedPerson()->getEmail(), $notification->getContactedPerson()->getName(), false, $ticket);
                 $ticket->setStatus(30);
                 $em->persist($notification);
                 $em->persist($ticket);

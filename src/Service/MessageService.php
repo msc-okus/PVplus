@@ -104,7 +104,7 @@ class MessageService
         }
     }
 
-    public function sendMessageToMaintenance($subject, $message, $to, $name, $attachedFiles = false, $ticket = false):void{
+    public function sendMessageToMaintenance($subject, $message, $to, $name, $Tam, $attachedFiles = false, $ticket = false):void{
         $email = new TemplatedEmail();
         $email->from(new Address('noreply@g4npvplus.de', 'noreply G4N'));
         $email->to(new Address($to, $name));
@@ -116,7 +116,8 @@ class MessageService
                 'name'      => $name,
                 'message'   => $message,
                 'ticket'    => $ticket,
-                'key'       => $hashedkey
+                'key'       => $hashedkey,
+                'tam' => $Tam
             ]);
 
         if ($attachedFiles) {

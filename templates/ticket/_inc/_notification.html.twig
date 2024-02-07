@@ -4,20 +4,23 @@
             <fieldset class="fieldset">
                 <legend>Maintenance notification</legend>
                 <div class="grid-x grid-padding-y grid-padding-x">
-                    {{ form_start(notificationForm) }}
                     <div class="cell medium-3">
-                        {% if (actualNotification != null)%}
-                            Last contacted Person: {{ actualNotification.contactedPerson.name }}
-                            {% set errcat %}notification.status.{{ actualNotification.status }}{% endset %}
-                            <br> Status:  {{ errcat|trans }}
-                            <br> Notification Date: {{ actualNotification.date |date("d.m.y H:i") }} ({{ timeDiff }} ago)
-                        {% endif %}
-                        <br>{{ form_widget(notificationForm.contacted) }}
-                        <br>Text for the Maintenance Provider:
-                        {{ form_widget(notificationForm.freeText) }}
+                        {{ form_start(notificationForm) }}
+                            {% if (actualNotification != null)%}
+                                Last contacted Person: {{ actualNotification.contactedPerson.name }}
+                                {% set errcat %}notification.status.{{ actualNotification.status }}{% endset %}
+                                <br> Status:  {{ errcat|trans }}
+                                <br> Notification Date: {{ actualNotification.date |date("d.m.y H:i") }} ({{ timeDiff }} ago)
+                            {% endif %}
+                            <br>{{ form_widget(notificationForm.contacted) }}
+                            <br>Text for the Maintenance Provider:
+                            {{ form_widget(notificationForm.freeText) }}
+
+                            <div class="is-hidden">{{ form_widget(notificationForm.contact) }}</div>
+                        {{ form_end(notificationForm) }}
 
                         <br><button type="button" class="button small "
-                                data-action="click->ticket-edit#contact"  >{% if (actualNotification != null)%}Contact a different Maintenance provider{% else %}Contact{% endif %}</button>
+                                data-action="click->ticket-edit#contact"  >{% if (actualNotification != null)%}Send to a different Maintenance provider{% else %}Send{% endif %}</button>
 
                         <button type="button" class="button small "
                                 data-ticket-edit-target="contactButton"
@@ -36,9 +39,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="is-hidden">{{ form_widget(notificationForm.contact) }}</div>
 
-                    {{ form_end(notificationForm) }}
                 </div>
             </fieldset>
             <button class="close-button"

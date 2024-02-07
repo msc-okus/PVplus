@@ -88,9 +88,9 @@
                                     data-append-to="div#modal-form{{ ticket.id }}"><span class="fa fa-edit"></span></button>
 
                             {% if (ticket.notificationInfos|length > 0) %}
-                                <button type="button" class="button small "
+                                <button type="button" class="button small action-icon tiny hollow"
                                         data-ticket-edit-target="timelineButton"
-                                        data-action="click->ticket-edit#openTimelineModal">Timeline</button>
+                                        data-action="click->ticket-edit#openTimelineModal"><span class="fa fa-business-time"></span></button>
 
                                 <div id="formTimeline{{ ticket.id }}">
                                     <div class="reveal text-left small" id="modal-timeline-{{ ticket.id }}"

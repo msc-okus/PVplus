@@ -53,6 +53,12 @@ class NotificationInfo
     #[ORM\ManyToOne()]
     private User $whoNotified;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $answerFreeText = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $closeFreeText = null;
+
     public function getWhoNotified(): User
     {
         return $this->whoNotified;
@@ -112,6 +118,30 @@ class NotificationInfo
     public function setTicket(?Ticket $Ticket): static
     {
         $this->Ticket = $Ticket;
+
+        return $this;
+    }
+
+    public function getAnswerFreeText(): ?string
+    {
+        return $this->answerFreeText;
+    }
+
+    public function setAnswerFreeText(?string $answerFreeText): static
+    {
+        $this->answerFreeText = $answerFreeText;
+
+        return $this;
+    }
+
+    public function getCloseFreeText(): ?string
+    {
+        return $this->closeFreeText;
+    }
+
+    public function setCloseFreeText(?string $closeFreeText): static
+    {
+        $this->closeFreeText = $closeFreeText;
 
         return $this;
     }

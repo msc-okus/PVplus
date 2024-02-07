@@ -1,18 +1,19 @@
 <html>
 
 <style>
-li{
-padding-bottom: 0.5rem;
-border-left: 1px solid #30b41d;
-position: relative;
-padding-left: 20px;
-margin-left: 10px;
+.timeline li{
+    padding-bottom: 0.5rem;
+    border-left: 1px solid #30b41d;
+    position: relative;
+    padding-left: 20px;
+    margin-left: 10px;
+    list-style: none;
 }
-li:last-child{
+.timeline li:last-child{
 border: 0px;
 padding-bottom: 0;
 }
-li:before{
+.timeline li:before{
 content: '';
 width: 15px;
 height: 15px;
@@ -32,7 +33,7 @@ font-weight: 600;
 font-size: .9rem;
 }
 
-p{
+.timeline p{
 color: #4f4f4f;
 font-family: sans-serif;
 line-height: 1.5;
@@ -45,7 +46,7 @@ font-size: .9rem;
 <div class="container">
     <div class="wrapper">
         <h1> Ticket Nr {{ ticket.id}} History -  {{ ticket.anlage.anlName }}</h1>
-        <ul class="sessions">
+        <ul class="sessions timeline">
             {% for notification in notifications %}
                 {% if loop.first %}
                     <li>
@@ -59,26 +60,28 @@ font-size: .9rem;
                         <p>{{ notification.contactedPerson.Name }} was contacted to solve the {{ errcat|trans }}</p>
                     </li>
                 {% endif %}
-                {% if notification.status ==  40 %}
-                    <li>
-                        <div class="time">{{ notification.answerDate|date("m/d/Y H:i") }}</div>
-                        <p>The maintenance provider rejected the request</p>
-                    </li>
-                {% else %}
-                    <li>
-                        <div class="time">{{ notification.answerDate|date("m/d/Y H:i") }}</div>
-                        <p>The maintenance provider accepted the request</p>
-                    </li>
-                    {% if notification.status == 50 %}
+                {% if notification.answerDate != null %}
+                    {% if notification.status ==  40 %}
                         <li>
-                            <div class="time">{{ notification.closeDate|date("m/d/Y H:i") }}</div>
-                            <p>The reparation has been finished</p>
+                            <div class="time">{{ notification.answerDate|date("m/d/Y H:i") }}</div>
+                            <p>The maintenance provider rejected the request</p>
                         </li>
-                    {% elseif notification.status == 60%}
+                    {% else %}
                         <li>
-                            <div class="time">{{ notification.closeDate|date("m/d/Y H:i") }}</div>
-                            <p>The provider could not fulfill the request</p>
+                            <div class="time">{{ notification.answerDate|date("m/d/Y H:i") }}</div>
+                            <p>The maintenance provider accepted the request</p>
                         </li>
+                        {% if notification.status == 50 %}
+                            <li>
+                                <div class="time">{{ notification.closeDate|date("m/d/Y H:i") }}</div>
+                                <p>The reparation has been finished</p>
+                            </li>
+                        {% elseif notification.status == 60%}
+                            <li>
+                                <div class="time">{{ notification.closeDate|date("m/d/Y H:i") }}</div>
+                                <p>The provider could not fulfill the request</p>
+                            </li>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
             {% endfor %}

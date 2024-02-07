@@ -288,18 +288,19 @@ export default class extends Controller {
             let endDay = '';
             let beginHour = '';
             let endHour = '';
-            if (beginDate.getMonth() < 9) {
-                beginMonth = '0'.concat((beginDate.getMonth() + 1).toString());
+
+            let beginHourInt = 0;
+            if (beginDate.getMinutes() < 15) {
+                if (beginDate.getHours() > 0)beginHourInt = beginDate.getHours() - 1;
+                else beginHourInt = 23;
+
             }
-            else{
-                 beginMonth = (beginDate.getMonth() + 1).toString();
-            }
-            if (endDate.getMonth() < 9) {
-                 endMonth = '0'.concat((endDate.getMonth() + 1).toString());
-            }
-            else{
-                 endMonth = (endDate.getMonth() + 1).toString();
-            }
+            else beginHourInt = beginDate.getHours();
+
+            let hour = 0;
+            if (endDate.getMinutes() > 15) hour = endDate.getHours() + 1;
+            else hour = endDate.getHours();
+
             if (beginDate.getDate() < 10){
                 beginDay =  '0'.concat(beginDate.getDate().toString());
             }
@@ -312,13 +313,18 @@ export default class extends Controller {
             else{
                 endDay = endDate.getDate().toString();
             }
-            let beginHourInt = 0;
-            if (beginDate.getMinutes() < 15) beginHourInt = beginDate.getHours() - 1;
-            else beginHourInt = beginDate.getHours();
-
-            let hour = 0;
-            if (endDate.getMinutes() > 15) hour = endDate.getHours() + 1;
-            else hour = endDate.getHours();
+            if (beginDate.getMonth() < 9) {
+                beginMonth = '0'.concat((beginDate.getMonth() + 1).toString());
+            }
+            else{
+                beginMonth = (beginDate.getMonth() + 1).toString();
+            }
+            if (endDate.getMonth() < 9) {
+                endMonth = '0'.concat((endDate.getMonth() + 1).toString());
+            }
+            else{
+                endMonth = (endDate.getMonth() + 1).toString();
+            }
 
             if (beginHourInt < 10){
                 beginHour =  '0'.concat(beginHourInt.toString());
@@ -880,13 +886,13 @@ export default class extends Controller {
     }
     async saveNewContact(){
         const  $form = $(this.contactModalCreateTarget).find('form');
+        console.log($form);
         try {
             await $.ajax({
                 url: this.createContactUrlValue,
                 method: $form.prop('method'),
                 data: $form.serialize(),
             });
-            console.log(this.createContactUrlValue);
             this.contactCreateModal.destroy();
             this.contactModal.destroy();
             this.openContactModal();

@@ -37,7 +37,7 @@ class NotificationFormType extends AbstractType
             'attr' => ['rows' => '9'],
         ])
         ->add("contact", SubmitType::class,[
-            'label' => 'Contact',
+            'label' => 'Send',
             'attr' => ['class' => 'primary save'],
         ]);
 
