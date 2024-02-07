@@ -112,19 +112,23 @@ class ImportService
                     if($i == 0){
                         $sensors[$date] = $bulkMeaserments[$i]['sensors'][$date];
                         $inverters[$date] = $bulkMeaserments[$i]['inverters'][$date];
+                        $basics[$date] = $bulkMeaserments[$i]['basics'][$date];
                         if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                             $stringBoxes[$date] = $bulkMeaserments[$i]['stringboxes'][$date];
                         }
                     }else{
                         $sensors[$date] = $sensors[$date] + $bulkMeaserments[$i]['sensors'][$date];
                         $inverters[$date] = $inverters[$date] + $bulkMeaserments[$i]['inverters'][$date];
-                        $stringBoxes[$date] = $stringBoxes[$date] + $bulkMeaserments[$i]['stringboxes'][$date];
+                        $basics[$date] = $basics[$date] + $bulkMeaserments[$i]['basics'][$date];
+                        if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
+                            $stringBoxes[$date] = $stringBoxes[$date] + $bulkMeaserments[$i]['stringboxes'][$date];
+                        }
                     }
+
                     if($bulkMeaserments[$i]['basics'][$date]['G_M0'] == null){
                         $basics[$date]["G_M".$i] = 0;
-                    }else{
-                        $basics[$date]["G_M".$i] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
                     }
+
                     $basics[$date]["E_Z_EVU"] += $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
 
                 }
@@ -290,8 +294,6 @@ class ImportService
             //write Data in the tables
             $DBDataConnection = $this->pdoService->getPdoPlant();
             $DBStbConnection = $this->pdoService->getPdoStringBoxes();
-
-
 
             switch ($importType) {
                 case 'api-import-weather':
