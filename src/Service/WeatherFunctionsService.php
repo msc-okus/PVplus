@@ -123,8 +123,8 @@ class WeatherFunctionsService
             // Temperatur Korrektur Daten vorbereiten
             $tModAvg = 25; //$this->determineTModAvg($anlage, $from, $to);
             $gamma = $anlage->getTempCorrGamma() / 100;
-            $tempCorrFunctionNREL = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
-            $tempCorrFunctionIEC = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
+            $tempCorrFunctionNREL   = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
+            $tempCorrFunctionIEC    = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
             $degradation = (1 - $anlage->getDegradationPR() / 100) ** $anlage->getBetriebsJahre();
 
             // depending on $department generate correct SQL code to calculate
@@ -187,6 +187,7 @@ class WeatherFunctionsService
                     WHERE s.stamp > '$from' AND s.stamp <= '$to'
                         $sqlPPCpart2;
                  ";
+                dump($sql);
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);

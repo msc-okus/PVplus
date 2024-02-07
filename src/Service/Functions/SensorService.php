@@ -188,6 +188,8 @@ class SensorService
                     $sensorData['theoPowerPA1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['theoPowerPA1'] - $tempWeatherArray['theoPowerPA1'] : $sensorData['theoPowerPA1'];
                     $sensorData['theoPowerPA2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['theoPowerPA2'] - $tempWeatherArray['theoPowerPA2'] : $sensorData['theoPowerPA2'];
                     $sensorData['theoPowerPA3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['theoPowerPA3'] - $tempWeatherArray['theoPowerPA3'] : $sensorData['theoPowerPA3'];
+                    $sensorData['theoPowerTempCorr_NREL']   = $sensorData['theoPowerTempCorr_NREL']     - $tempWeatherArray['theoPowerTempCorr_NREL'];
+                    $sensorData['theoPowerTempCorDeg_IEC']  = $sensorData['theoPowerTempCorDeg_IEC']    - $tempWeatherArray['theoPowerTempCorDeg_IEC'];
                     break;
             }
         }
