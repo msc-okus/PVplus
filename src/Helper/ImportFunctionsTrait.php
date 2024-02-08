@@ -5,6 +5,7 @@ require_once __DIR__.'/../../public/config.php';
 
 use PDO;
 use PDOException;
+use phpseclib3\File\ASN1\Maps\Time;
 
 trait ImportFunctionsTrait
 {
@@ -184,10 +185,17 @@ trait ImportFunctionsTrait
                     }
                     $now = strtotime((string) $date);
                      if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                        if($anlageSensors[$i]->getUseToCalc() == 1){
-                            array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
-                        }
-                        $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                         if($anlageSensors[$i]->getIsFromBasics() == 1) {
+                             if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                 array_push($gmPyHori, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                             }
+                             $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
+                         }else{
+                             if($anlageSensors[$i]->getUseToCalc() == 1){
+                                 array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
+                             }
+                             $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                         }
                     }
                 }
 
@@ -202,10 +210,17 @@ trait ImportFunctionsTrait
                     }
                     $now = strtotime((string) $date);
                      if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                        if($anlageSensors[$i]->getUseToCalc() == 1){
-                            array_push($gmPyWest, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
-                        }
-                        $gmPyWestAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                         if($anlageSensors[$i]->getIsFromBasics() == 1) {
+                             if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                 array_push($gmPyWest, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                             }
+                             $gmPyWestAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
+                         }else{
+                             if($anlageSensors[$i]->getUseToCalc() == 1){
+                                 array_push($gmPyWest, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
+                             }
+                             $gmPyWestAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                         }
                     }
 
                 }
@@ -221,12 +236,18 @@ trait ImportFunctionsTrait
                     }
                     $now = strtotime((string) $date);
                      if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                        if($anlageSensors[$i]->getUseToCalc() == 1){
-                            array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
-                        }
-                        $gmPyEastAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                         if($anlageSensors[$i]->getIsFromBasics() == 1) {
+                             if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                 array_push($gmPyEast, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                             }
+                             $gmPyEastAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
+                         }else{
+                             if($anlageSensors[$i]->getUseToCalc() == 1){
+                                 array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
+                             }
+                             $gmPyEastAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                         }
                     }
-
                 }
             }
 
@@ -253,10 +274,17 @@ trait ImportFunctionsTrait
                     }
                     $now = strtotime((string) $date);
                      if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                        if($anlageSensors[$i]->getUseToCalc() == 1){
-                            array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
-                        }
-                        $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                         if($anlageSensors[$i]->getIsFromBasics() == 1) {
+                             if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                 array_push($gmPyHori, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                             }
+                             $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
+                         }else{
+                             if($anlageSensors[$i]->getUseToCalc() == 1){
+                                 array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
+                             }
+                             $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                         }
                     }
 
                 }
@@ -486,7 +514,7 @@ trait ImportFunctionsTrait
      * @param object $conn
      * @return array
      */
-    public function getPlantsImportReady($conn): array
+    public function getPlantsImportReady(object $conn): array
     {
         $query = "SELECT `anlage_id` FROM `anlage_settings` where `symfony_import` = 1  ";
         $stmt = $stmt = $conn->query($query);
@@ -511,7 +539,7 @@ trait ImportFunctionsTrait
      * @return array
      * @throws \JsonException
      */
-    function loadDataWithStringboxes($stringBoxesTime, $acGroups, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits): array
+    function loadDataWithStringboxes($stringBoxesTime, array $acGroups, array $inverters, string $date, int $plantId, string $stamp, float $eZEvu, string $irrAnlage, string $tempAnlage, string $windAnlage, object $groups, int $stringBoxUnits): array
     {
         for ($i = 1; $i <= count($acGroups); $i++) {
 
@@ -665,7 +693,7 @@ trait ImportFunctionsTrait
      * @return array
      * @throws \JsonException
      */
-    function loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits): array
+    function loadData(array $inverters, string $date, int $plantId, string $stamp, float $eZEvu, string $irrAnlage, string $tempAnlage, string $windAnlage, object $groups, int $invertersUnits): array
     {
 
         foreach ($groups as $group) {

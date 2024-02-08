@@ -85,7 +85,6 @@ class ACPowerChartsService
                 $expDiffInvOut      = round($expectedInvOut - $expectedInvOut * 10 / 100, 2);   // Minus 10 % Toleranz Invberter Out.
                 $expDiffEvu         = round($expectedEvu - $expectedEvu * 10 / 100, 2);         // Minus 10 % Toleranz Grid (EVU).
 
-
                 if ($hour) {
                     $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone()-1);
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
