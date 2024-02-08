@@ -235,6 +235,8 @@ class ImportService
                     'irr_flag' => NULL
                 ];
 
+
+
                 //Import different Types
                 if ($anlage->getSettings()->getImportType() == 'standart') {
                     //Anzahl der Units in eines Inverters
@@ -302,6 +304,8 @@ class ImportService
             $DBDataConnection = $this->pdoService->getPdoPlant();
             $DBStbConnection = $this->pdoService->getPdoStringBoxes();
 
+
+
             switch ($importType) {
                 case 'api-import-weather':
                     if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0) {
@@ -338,11 +342,14 @@ class ImportService
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
                     }
-
                     if(is_array($data_pv_weather) && count($data_pv_weather) > 0){
-                        $tableName = "db__pv_ws_$weatherDbIdent";
+                        $tableName = "db__pv_ws_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                     }
+                    echo $tableName;
+                    echo '<pre>';
+                    print_r($data_pv_weather);
+                    echo '</pre>';
 
                     if ($anlage->getHasPPC() && is_array($data_ppc) && count($data_ppc) > 0) {
                         $tableName = "db__pv_ppc_$anlagenTabelle";
