@@ -59,6 +59,9 @@ class NotificationInfo
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $closeFreeText = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $freeText = null;
+
     public function getWhoNotified(): User
     {
         return $this->whoNotified;
@@ -142,6 +145,18 @@ class NotificationInfo
     public function setCloseFreeText(?string $closeFreeText): static
     {
         $this->closeFreeText = $closeFreeText;
+
+        return $this;
+    }
+
+    public function getFreeText(): ?string
+    {
+        return $this->freeText;
+    }
+
+    public function setFreeText(string $freeText): static
+    {
+        $this->freeText = $freeText;
 
         return $this;
     }

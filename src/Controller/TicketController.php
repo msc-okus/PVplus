@@ -444,6 +444,7 @@ class TicketController extends BaseController
             $notification->setContactedPerson($contact);
             $notification->setWhoNotified($this->getUser());
             $notification->setDate(new DateTime('now'));
+            $notification->setFreeText($form->getData()['freeText']);
             $ticket->setSecurityToken($key);
             $ticket->addNotificationInfo($notification);
             $em->persist($notification);
@@ -459,7 +460,8 @@ class TicketController extends BaseController
             'notificationForm'  => $form,
             'owner'             => $eigner,
             'modalId'           => $ticket->getId(),
-            'timeDiff'          => $timeDiff
+            'timeDiff'          => $timeDiff,
+            'notifications'     => $ticket->getNotificationInfos()
         ]);
     }
 
