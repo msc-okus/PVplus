@@ -346,10 +346,6 @@ class ImportService
                         $tableName = "db__pv_ws_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                     }
-                    echo $tableName;
-                    echo '<pre>';
-                    print_r($data_pv_weather);
-                    echo '</pre>';
 
                     if ($anlage->getHasPPC() && is_array($data_ppc) && count($data_ppc) > 0) {
                         $tableName = "db__pv_ppc_$anlagenTabelle";
