@@ -74,8 +74,10 @@ class ToolsFormType extends AbstractType
                 'choices' => $choiceFunction,
                 'placeholder' => 'please Choose ...',
                 'mapped' => false,
-                'required' => true,
-            ]);
+                'required' => true
+            ])
+
+        ;
 
 
     }
