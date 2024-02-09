@@ -6,20 +6,33 @@
 
 {% block javascripts %}
     {{ parent() }}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script>
+        $(document).ready( function() {
+            $('#tools_form_function').change(function() {
+                // to get the selected value
+                var titletext = document.getElementsByClassName('titletextflexspan')[0];
 
+                titletext.innerText = $(this).val();
+                // do your magic pony stuff
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block body %}
     <div class="grid-x">
         <div class="cell">
             <h1 id="thechange">Tools</h1>
+            <div class = "titletextflex" style="display: none">This action will calculate <span class="titletextflexspan"></span> for selected Plant.</div>
         </div>
+
     </div>
-    
+
     {{ form_start(toolsForm, {'attr':{
         'data-controller':'submit-confirm',
         'data-action':'submit-confirm#onSubmit',
-        'data-submit-confirm-title-value':'This action will update xxxxxx for selected Plant. ',
+        'data-submit-confirm-title-value':'This action will make updates for selected Plant. ',
         'data-submit-confirm-text-value':"Are you sure you want to continue!",
         'data-submit-confirm-icon-value':'warning',
     }}) }}
@@ -51,6 +64,8 @@
             <div class="cell medium-4">
                 <button type="submit" id="tools_form_calc" name="tools_form[calc]" class="primary save button button">Start calculation</button>
             </div>
+
         </div>
     {{ form_end(toolsForm) }}
+
 {% endblock %}
