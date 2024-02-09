@@ -244,25 +244,28 @@ class AnlageFormType extends AbstractType
             // ###       Plant Data / Configuration       ####
             // ###############################################
             ->add('pnom', TextType::class, [
-                'label' => 'Anlagenleistung [kWp] (für PA Berechnung)',
+                'label' => 'Anlagenleistung (für PA Berechnung) <br>[kWp]',
                 'help' => '[pNom]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('kwPeakPvSyst', TextType::class, [
-                'label' => 'Anlagenleistung PVSYST [kWp]',
+                'label' => 'Anlagenleistung PVSYST <br> [kWp]',
                 'help' => '[kwPeakPvSyst]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('kwPeakPLDCalculation', TextType::class, [
-                'label' => 'Anlagenleistung für PLD Berechnung [kWp]',
+                'label' => 'Anlagenleistung für PLD Berechnung <br> [kWp]',
                 'help' => '[kwPeakPLDCalculation]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('tempCorrCellTypeAvg', TextType::class, [
                 'label' => 't Cell AVG ',
@@ -346,20 +349,23 @@ class AnlageFormType extends AbstractType
                 'choices' => ['No' => '0', 'Yes' => '1'],
                 // 'placeholder'   => 'Please Choose',
                 'empty_data' => 'No',
+                'attr' => ['style' => 'width: 95px']
             ])
             ->add('powerEast', TextType::class, [
-                'label' => 'Pnom [kWp] Osten',
+                'label' => 'Pnom Osten [kWp] ',
                 'help' => '[powerEast]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('powerWest', TextType::class, [
-                'label' => 'Pnom [kWp] Westen',
+                'label' => 'Pnom Westen [kWp] ',
                 'help' => '[powerWest]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('pacDate', null, [
                 'label' => 'PAC Date',
@@ -552,6 +558,7 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 55px']
             ])
+             /*
             ->add('modAzimut', TextType::class, [
                 'label' => 'Modul azimut',
                 'help' => '[Modul azimut in degrees for S=180 O=90 W=270 ]',
@@ -559,6 +566,7 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3, 'style' => 'width: 55px']
             ])
+             */
             ->add('albeto', TextType::class, [
                 'label' => 'Albedo',
                 'help' => '[The albedo are 0.15 for grass or 0.3 for roof]',
@@ -606,7 +614,7 @@ class AnlageFormType extends AbstractType
             // ###############################################
             ->add('isTrackerEow', SwitchType::class, [
                 'label' => 'Is a one axis tracker',
-                'help' => 'Is a one axis tracker with east west orientation [Yes / No]',
+                'help' => 'Is a one axis tracker with east west orientation [Yes / No] <bR> Check that Plant is oriented east/west of [NO]',
                 'required' => false,
             ])
             // ###############################################

@@ -340,19 +340,19 @@ private readonly PdoService $pdoService,
 
         switch ($days) {
             case 0 :
-                $day = '+6 day';
+                $day = '+5 day';
                 break;
             case 1 :
-                $day = '+3 day';
+                $day = '+2 day';
                 break;
             case 2 :
-                $day = '+2 day';
+                $day = '+1 day';
                 break;
             case 3 :
                 $day = '+2 day';
                 break;
             default :
-                $day = '+6 day';
+                $day = '+5 day';
         }
 
         $nextDays = strtotime($day, strtotime($from));
@@ -364,7 +364,7 @@ private readonly PdoService $pdoService,
 
         if ($anlage->getUseDayaheadForecast()) {
             $SQL = "SELECT af1.date, af1.hour, af1.minute, af1.fc_pac, af1.irr, af1.temp,  af2.wr_pac FROM 
-                    ( SELECT date_format(stamp, '".$dateform."') AS date, UNIX_TIMESTAMP(date_format(stamp, '%Y-%m-%d %H:%i')) AS unixstp, date_format(stamp, '%H') AS hour, date_format(stamp, '%i') AS minute, sum(fc_pac) AS fc_pac, sum(irr) AS irr, sum(temp) AS temp FROM ".$anlage->getDbNameForecastDayahead()." WHERE `stamp` BETWEEN '".$from."' AND '".$enddate."' GROUP BY date_format(stamp, '".$form."')) 
+                    ( SELECT date_format(stamp, '".$dateform."') AS date, UNIX_TIMESTAMP(date_format(stamp, '%Y-%m-%d %H:%i')) AS unixstp, date_format(stamp, '%H') AS hour, date_format(stamp, '%i') AS minute, sum(fc_pac) AS fc_pac, sum(irr) AS irr, temp AS temp FROM ".$anlage->getDbNameForecastDayahead()." WHERE `stamp` BETWEEN '".$from."' AND '".$enddate."' GROUP BY date_format(stamp, '".$form."')) 
                     AS af1 
                     LEFT JOIN 
                     ( SELECT date_format(stamp, '".$dateform."') AS date, UNIX_TIMESTAMP(date_format(stamp, '%Y-%m-%d %H:%i')) AS unixstp,date_format(stamp, '%H') AS hour, date_format(stamp, '%i') AS minute, sum(wr_pac) AS wr_pac FROM ".$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '".$from."' AND '".$enddate."' GROUP BY date_format(stamp, '".$form."') )

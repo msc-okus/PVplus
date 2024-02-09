@@ -148,7 +148,7 @@ class DashboardPlantsController extends BaseController
                     if ($form['selectedChart'] == 'heatmap'
                         or $form['selectedChart'] == 'tempheatmap'
                         or $form['selectedChart'] == 'sollistheatmap') {
-
+                        $form['selRange']  = 'Today';
                         $form['from'] = (new \DateTime())->format('Y-m-d 00:00');
                         $form['to'] = (new \DateTime())->format('Y-m-d 23:59');
 

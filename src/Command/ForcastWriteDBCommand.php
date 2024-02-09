@@ -83,20 +83,20 @@ class ForcastWriteDBCommand extends Command {
             exit();
         }
 
-        // Wenn datfile current
+        // Wenn datfile is current
         if ((is_countable($this->datFileReaderService->current()) ? count($this->datFileReaderService->current()) : 0) > 1) {
             $io->info("data read ! please wait");
             $reg_data = new Service\Forecast\APINasaGovService($input_gl, $input_gb, $startapidate, $endapidate);
-            $decarray = $this->forcastdekservice->get_DEK_Data( $input_gl,$input_mer,$input_gb, $input_mn, $input_ma, $input_ab, $this->datFileReaderService->current(),$has_suns_model,$anlageId,'all');
+            $decarray = $this->forcastdekservice->get_DEK_Data( $input_gl,$input_mer,$input_gb,$input_mn,$input_ab, $this->datFileReaderService->current(),$has_suns_model,$anlageId,'all');
             $reg_array = $reg_data->make_sortable_data('faktor');
             $dec_array = $this->expectedService->calcExpectedforForecast($anlage, $decarray);
 
 // only for debuging //
-#$h = fopen('decarray.txt', 'w');
-#fwrite($h, var_export($decarray, true));
+#$h = fopen('decarrayyes.txt', 'w');
 #print_R($decarray); // IR Values
 #print_R($dec_array);
 #print_R($reg_array);
+#fwrite($h, var_export($dec_array, true));
 #exit;
             $forcarstarray = $this->array_merge_recursive_distinct($dec_array,$reg_array);
             $endprz = (is_countable($forcarstarray) ? count($forcarstarray) : 0) -1;
