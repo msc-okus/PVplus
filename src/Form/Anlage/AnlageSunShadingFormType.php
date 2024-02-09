@@ -42,13 +42,13 @@ class AnlageSunShadingFormType extends AbstractType {
             // ###############################################
             // ###          SunShading                    ####
             // ###############################################
-            ->add('mod_height', TextType::class, [
+            /*>add('mod_height', TextType::class, [
                 'label' => 'Modul Height',
                 'help' => '[Module Height in mm , example 300]',
                 'label_html' => true,
                 'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2]
-            ])
+            ])*/
         ;
     }
 }

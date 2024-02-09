@@ -23,23 +23,24 @@
                         or form.selectedChart == 'tempheatmap'
                         or form.selectedChart == 'sollistheatmap'
                         or form.selectedChart == 'acpnom' %}
-                maxSpan: {months: 3,},
+                maxSpan: {months: 1,},
                 showCustomRangeLabel: true,
                 singleDatePicker: true,
                 linkedCalendars: true,
-                   {% else %}
-                    {% if  form.selectedChart == 'sollisttempanalyse'
+                    {% else %}
+                    {%  if  form.selectedChart == 'sollisttempanalyse'
                         or form.selectedChart == 'sollistanalyse'
                         or form.selectedChart == 'sollistirranalyse' %}
                 maxSpan: {months: 3,},
                 showCustomRangeLabel: true,
-                singleDatePicker: true,
+                singleDatePicker: false,
                 linkedCalendars: true,
-                    {% endif %}
+                    {% else %}
                 maxSpan: {months: 1,},
                 showCustomRangeLabel: true,
                 singleDatePicker: false,
                 linkedCalendars: true,
+                    {% endif %}
                  {% endif %}
                 ranges: {
                     {% if  form.selectedChart == 'heatmap'
