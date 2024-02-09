@@ -36,6 +36,7 @@ class NotificationConfirmFormType extends AbstractType
         ])
             ->add('freeText', TextareaType::class,[
                 'label' => 'Free Text',
+                'empty_data' => '',
                 'attr' => ['rows' => '9'],
                 'required'   => false,
             ])

@@ -210,7 +210,7 @@
                                 <br> Notification Date: {{ actualNotification.date |date("d.m.y H:i") }} ({{ timeDiff }} ago)
                             {% endif %}
                             <br>{{ form_widget(notificationForm.contacted) }}
-                            <br>Text for the Maintenance Provider:
+                            <br>Message for the Maintenance Provider:
                             {{ form_widget(notificationForm.freeText) }}
 
                             <div class="is-hidden">{{ form_widget(notificationForm.contact) }}</div>
@@ -238,14 +238,14 @@
                     </div>
                     <div class="cell medium-6">
                         {% if notifications|length > 0 %}
-                            <div style="text-align: center"> Chat Log </div>
+                            <div style="text-align: center"> Message Log </div>
                         <div class="container">
                                 <div class="msa">
                                     {% for notification in notifications %}
                                         <div style="text-align: center"> {{ notification.contactedPerson.Name }}</div>
-                                        {% if notification.freeText != '' %}<div class="other">{{ notification.Date |format_datetime(pattern="yyyy-MM-dd HH:mm") }} - {{ notification.freeText }}</div>{% endif %}
-                                        {% if notification.answerFreeText != '' %}<div class="receiver">{{ notification.answerDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }} - {{ notification.answerFreeText }}</div>{% endif %}
-                                        {% if notification.closeFreeText != '' %}<div class="receiver">{{ notification.closeDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }} - {{ notification.closeFreeText }}</div>{% endif %}
+                                        {% if notification.freeText != '' %}<div class="other"> {{ notification.freeText }} -<i>{{ notification.Date |format_datetime(pattern="yyyy-MM-dd HH:mm") }} </i></div>{% endif %}
+                                        {% if notification.answerFreeText != '' %}<div class="receiver"><i>{{ notification.answerDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i> - {{ notification.answerFreeText }}</div>{% endif %}
+                                        {% if notification.closeFreeText != '' %}<div class="receiver"><i>{{ notification.closeDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i> - {{ notification.closeFreeText }}</div>{% endif %}
                                     {% endfor %}
                                 </div>
                         </div>

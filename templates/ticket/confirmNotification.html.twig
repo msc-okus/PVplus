@@ -23,14 +23,14 @@
                     <br>
                     <br> Plant located in {{ ticket.anlage.anlStrasse }}, {{ ticket.anlage.anlPlz }}  {{ ticket.anlage.anlOrt }} ({{ ticket.anlage.anlGeoLat }}, {{ ticket.anlage.anlGeoLon }})
                     <br>
-                    <br>Affected inverters: {{ ticket.inverterName }}
+                    <br> Affected inverters: {{ ticket.inverterName }}
                     <br>
                     <br> Error
                     type: {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}{{ errcat|trans }}
                     <br>
 
                     <br>{{ form_widget(notificationConfirmForm.answers) }}
-                    <br> Free Text:
+                    <br> Close Message:
                     <br> {{ form_widget(notificationConfirmForm.freeText) }}
 
                     {{ form_end(notificationConfirmForm) }}

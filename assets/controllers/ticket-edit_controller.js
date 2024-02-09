@@ -1033,34 +1033,6 @@ export default class extends Controller {
             if (timestamp1 % 300000 == 0) {
                 var hour = date.getHours();
                 var minutes = date.getMinutes();
-                /*
-                switch (minutes) {
-                    case 0:
-                    case 5:
-                        minutes = 15;
-                        break;
-                    case 10:
-                    case 15:
-                    case 20:
-                        minutes = 30;
-                        break;
-                    case 25:
-                    case 30:
-                    case 35:
-                        minutes = 45;
-                        break;
-                    case 40:
-                    case 45:
-                    case 50:
-                        hour = hour + 1;
-                        minutes = 0;
-                        break;
-                    case 55:
-                        hour = hour + 1;
-                        minutes = 15;
-                        break;
-                }
-                */
                 switch (minutes) {
 
                     case 5:

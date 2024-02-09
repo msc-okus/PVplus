@@ -450,7 +450,7 @@ class TicketController extends BaseController
             $em->persist($notification);
             $em->persist($ticket);
             $em->flush();
-            $message = "Maintenance is needed in ". $ticket->getAnlage()->getAnlName().". Please click the button bellow to respond. <br> Free Text from TAM: ".$form->getData()['freeText'];
+            $message = "Maintenance is needed in ". $ticket->getAnlage()->getAnlName().". Please click the button bellow to respond. <br> Message from TAM: ".$form->getData()['freeText'];
             $messageService->sendMessageToMaintenance(  $this->translator->trans("ticket.error.category.".$ticket->getAlertType()) . " in ". $ticket->getAnlage()->getAnlName() . "- Ticket: " . $ticket->getId(), $message, $contact->getEmail(), $contact->getName(), $this->getUser()->getname(), false, $ticket);
         }
 

@@ -37,6 +37,7 @@ class NotificationEditFormType extends AbstractType
             ->add('freeText', TextareaType::class,[
                 'label' => 'Free Text',
                 'required'   => false,
+                'empty_data' => '',
                 'attr' => ['rows' => '9'],
             ])
             ->add("answer", SubmitType::class,[
