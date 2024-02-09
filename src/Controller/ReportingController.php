@@ -10,6 +10,7 @@ use App\Helper\PVPNameArraysTrait;
 use App\Message\Command\GenerateAMReport;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
+use App\Repository\TicketRepository;
 use App\Service\AssetManagementService;
 use App\Service\Functions\ImageGetterService;
 use App\Service\LogMessagesService;
@@ -201,16 +202,13 @@ class ReportingController extends AbstractController
     }
 
     #[Route(path: '/reporting/delete/{id}', name: 'app_reporting_delete')]
-    #[IsGranted('ROLE_DEV')]
+    #[IsGranted('ROLE_ADMIN')]
     public function deleteReport($id, ReportsRepository $reportsRepository, EntityManagerInterface $em): Response
     {
-        if ($this->isGranted('ROLE_DEV')) {
-            /** @var AnlagenReports|null $report */
-            $report = $reportsRepository->find($id);
-            if ($report) {
-                $em->remove($report);
-                $em->flush();
-            }
+        $report = $reportsRepository->find($id);
+        if ($report) {
+            $em->remove($report);
+            $em->flush();
         }
 
         return new Response(null, Response::HTTP_NO_CONTENT);
@@ -225,7 +223,7 @@ class ReportingController extends AbstractController
      * @throws FilterException|FilesystemException
      */
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
-    public function showReportAsPdf(Request $request, $id, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, PdfService $pdf, Filesystem $fileSystemFtp, ImageGetterService $imageGetter): Response
+    public function showReportAsPdf(Request $request, $id, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, PdfService $pdf, Filesystem $fileSystemFtp, ImageGetterService $imageGetter, TicketRepository $ticketRepo): Response
     {
         /** @var AnlagenReports|null $report */
         $session            = $request->getSession();
@@ -243,6 +241,7 @@ class ReportingController extends AbstractController
         $anlage             = $report->getAnlage();
         $currentDate        = date('Y-m-d H-i');
         $reportArray        = $report->getContentArray();
+        $tickets            = $ticketRepo->findAllPerformanceTicketFAC($anlage);
 
         switch ($report->getReportType()) {
             case 'epc-report':
@@ -276,6 +275,7 @@ class ReportingController extends AbstractController
                             'anlage'        => $anlage,
                             'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner()),
                             'report'        => $report,
+                            'tickets'       => $tickets,
                         ]);
                         $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
                         break;
@@ -540,7 +540,7 @@ class ReportingController extends AbstractController
      * @throws FilesystemException
      */
     #[Route(path: '/reporting/html/{id}', name: 'app_reporting_html')]
-    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, ImageGetterService $imageGetter) : Response
+    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, NormalizerInterface $serializer, ReportsEpcYieldV2 $epcNewService, ImageGetterService $imageGetter, TicketRepository $ticketRepo) : Response
     {
         $result = "<h2>Something is wrong !!! (perhaps no Report ?)</h2>";
         $report = $reportsRepository->find($id);
@@ -676,6 +676,7 @@ class ReportingController extends AbstractController
                                     'report'                => $report,
                                 ]
                             ;
+                            $tickets            = $ticketRepo->findAllPerformanceTicketFAC($anlage);
                             $result = $this->renderView('report/_epc_pr_2019/epcMonthlyPRGuarantee.html.twig', [ //report/_epc_new/epcMonthlyPRGuarantee.html.twig
                                 'headline'      => $headline,
                                 'main'          => $reportArray[0],
@@ -688,10 +689,12 @@ class ReportingController extends AbstractController
                                 'anlage'        => $anlage,
                                 'logo'          => $imageGetter->getOwnerLogo($anlage->getEigner()),
                                 'report'        => $report,
+                                'tickets'           => $tickets,
                             ]);
                             break;
 
                         case 'yieldGuarantee' :
+                            $tickets            = $ticketRepo->findAllPerformanceTicketFAC($anlage);
                             $result = $this->renderView('report/_epc_yield_2021/epcReportYield.html.twig', [
                                 'anlage'            => $anlage,
                                 'monthsTable'       => $reportArray['monthTable'],
@@ -701,6 +704,7 @@ class ReportingController extends AbstractController
                                 'chart2'            => $epcNewService->chartYieldCumulative($anlage, $reportArray['monthTable']),
                                 'logo'              => $imageGetter->getOwnerLogo($anlage->getEigner()),
                                 'report'            => $report,
+                                'tickets'           => $tickets,
                             ]);
                             break;
                     }

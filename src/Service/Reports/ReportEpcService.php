@@ -165,7 +165,7 @@ private readonly PdoService $pdoService,
                         case 1:
                         case $anzahlMonate:
                             $eGridReal      = $prArray['powerEvuDep2'];
-                            $irrMonth       = $prArray['irradiation'];
+                            $irrMonth       = $prArray['irr2'];
                             $prAvailability = $prArray['pa2'];
                             if ($anlage->getUseGridMeterDayData()) {
                                 $eGridReal  = $prArray['powerEGridExt'];
@@ -175,7 +175,7 @@ private readonly PdoService $pdoService,
                             break;
                         default:
                             $eGridReal      = $prArray['powerEvuDep2']; // $pr->getPowerEvuMonth();
-                            $irrMonth       = $prArray['irradiation']; // $pr->getIrrMonth();
+                            $irrMonth       = $prArray['irr2']; // $pr->getIrrMonth();
                             $prAvailability = $prArray['pa2']; // $this->availabilityService->calcAvailability($anlage, date_create("$year-$month-01 00:00"), date_create("$year-$month-$days 23:59"));
                             if ($anlage->getUseGridMeterDayData()) {
                                 $eGridReal  = $prArray['powerEGridExt']; // $this->gridMeterRepo->sumByDateRange($anlage, $from, $to);
@@ -196,7 +196,7 @@ private readonly PdoService $pdoService,
                             $formelEnergy   = $prArrayFormel['powerEvuDep2'];
                             $formelPR       = $prArrayFormel['prDep2Evu'];
                         }
-                        $formelIrr          = $prArrayFormel['irradiation'];
+                        $formelIrr          = $prArrayFormel['irr2'];
                         $formelPowerTheo    = $prArrayFormel['powerTheoDep2'];
                         $formelAvailability = $prArrayFormel['pa2'];
                         $formelAlgorithmus  = $prArrayFormel['algorithmus'];

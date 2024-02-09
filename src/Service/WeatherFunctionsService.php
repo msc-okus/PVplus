@@ -91,7 +91,7 @@ class WeatherFunctionsService
     public function getWeather(WeatherStation $weatherStation, $from, $to, bool $ppc, Anlage $anlage, ?int $inverterID = null): ?array
     {
         return $this->cache->get('getWeather_'.md5($weatherStation->getId().$from.$to.$ppc.$anlage->getAnlId().$inverterID), function(CacheItemInterface $cacheItem) use ($weatherStation, $from, $to, $ppc, $anlage, $inverterID) {
-            $cacheItem->expiresAfter(60);
+            $cacheItem->expiresAfter(30);
             $conn = $this->pdoService->getPdoPlant();
             $weather = [];
             $dbTable = $weatherStation->getDbNameWeather();
@@ -121,7 +121,8 @@ class WeatherFunctionsService
             $pNomWest = $anlage->getPowerWest();
 
             // Temperatur Korrektur Daten vorbereiten
-            $tModAvg = 25; //$this->determineTModAvg($anlage, $from, $to);
+            $tModAvg = $anlage->getTempCorrCellTypeAvg() > 0 ? $anlage->getTempCorrCellTypeAvg() : 25;
+            // ??? $this->determineTModAvg($anlage, $from, $to);
             $gamma = $anlage->getTempCorrGamma() / 100;
             $tempCorrFunctionNREL   = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
             $tempCorrFunctionIEC    = "(1 + ($gamma) * (temp_pannel - $tModAvg))";

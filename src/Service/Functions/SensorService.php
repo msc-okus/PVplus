@@ -63,7 +63,7 @@ class SensorService
             $tempStartDateMinus15->sub($interval15);
             $tempEndDateMinus15->sub($interval15);
 
-            switch ($ticketDate->getAlertType()) {
+            switch ($ticketDate->getTicket()->getAlertType()) {
                 // Exclude Sensors
                 case '70':
                     // Funktioniert in der ersten Version nur für Leek und Kampen
