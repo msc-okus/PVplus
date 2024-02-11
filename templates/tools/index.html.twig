@@ -12,9 +12,7 @@
             $('#tools_form_function').change(function() {
                 // to get the selected value
                 var titletext = document.getElementsByClassName('titletextflexspan')[0];
-
-                titletext.innerText = $(this).val();
-                // do your magic pony stuff
+                titletext.innerText = $("#tools_form_function option:selected").text();
             });
         });
     </script>
@@ -24,7 +22,7 @@
     <div class="grid-x">
         <div class="cell">
             <h1 id="thechange">Tools</h1>
-            <div class = "titletextflex" style="display: none">This action will calculate <span class="titletextflexspan"></span> for selected Plant.</div>
+            <div class = "titletextflex" id="titletextflex" style="display: none">This action will calculate <span class="titletextflexspan"></span> for selected Plant.</div>
         </div>
 
     </div>
@@ -62,7 +60,7 @@
 
         <div class="grid-x grid-margin-x grid-margin-y">
             <div class="cell medium-4">
-                <button type="submit" id="tools_form_calc" name="tools_form[calc]" class="primary save button button">Start calculation</button>
+                <button type="submit" id="tools_form_calc" name="tools_form[calc]" class="primary save button button">Start calculation &nbsp;<i class="fa fa-paper-plane" aria-hidden="true"></i></button>
             </div>
 
         </div>

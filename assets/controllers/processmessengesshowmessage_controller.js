@@ -41,11 +41,13 @@ export default class extends Controller {
     }
 
     fadeInElement(element) {
+        $('#messageProzessReady').attr("style","top:5px !important");
         element.classList.remove('fade');
     }
 
     fadeOutElement(element) {
         element.classList.add('fade');
+        $('#messageProzessReady').attr("style","top:-500px !important");
     }
 
     toggleElementFade(element) {
@@ -56,7 +58,6 @@ export default class extends Controller {
     toggletabs(event) {
         event.preventDefault();
         const value = event.target.dataset.value;
-        //alert(value);
 
         $('#messagestabs div').addClass('fade');
         $('#messagestabs div').attr("style","display:none !important");

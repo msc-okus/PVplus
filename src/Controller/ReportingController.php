@@ -88,21 +88,19 @@ class ReportingController extends AbstractController
         $userId = $this->getUser()->getUserIdentifier();
         $uid = $this->getUser()->getUserId();
 
+
         switch ($reportType) {
             case 'monthly':
-                #$output = $reportsMonthly->createReportV2($aktAnlagen[0], $reportMonth, $reportYear);
                 $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'monthly Report', "create monthly Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
                 $message = new GenerateMonthlyReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
                 $messageBus->dispatch($message);
                 break;
             case 'epc':
-                #$output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
                 $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'epc Report', "create epc Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
                 $message = new GenerateEpcReport($aktAnlagen[0]->getAnlId(), $reportDate, $userId, $logId);
                 $messageBus->dispatch($message);
                 break;
             case 'epc-new-pr':
-                #$output = $reportEpcNew->createEpcReportNew($aktAnlagen[0], $reportDate);
                 $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'epc new Report', "create epc new Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
                 $message = new GenerateEpcReportPRNew($aktAnlagen[0]->getAnlId(), $reportDate, $userId, $logId);
                 $messageBus->dispatch($message);

@@ -19,14 +19,13 @@ export default class extends Controller {
 
     onSubmit(event) {
         event.preventDefault();
-        var titletext = document.getElementsByClassName('titletextflex')[0];
-
-        if(titletext.textContent != ''){
-            var title = titletext.textContent;
-        }else{
-            var title = this.titleValue;
+        var title = this.titleValue;
+        if ($('#titletextflex').length > 0) {
+            var titletext = document.getElementsByClassName('titletextflex')[0];
+            if (titletext.textContent != '') {
+                var title = titletext.textContent;
+            }
         }
-
         Swal.fire({
             title: title || null,
             text: this.textValue || null,
@@ -34,7 +33,7 @@ export default class extends Controller {
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: this.confirmButtonTextValue || 'Yes',
+            confirmButtonText: this.confirmButtonTextValue || 'Yes &nbsp;<i class="fa fa-paper-plane" aria-hidden="true"></i>',
             preConfirm: () => {
                 return this.confirmAction();
             }

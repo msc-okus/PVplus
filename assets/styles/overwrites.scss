@@ -234,29 +234,26 @@
             .dropdown-content {
                 display: block;
                 position: absolute;
-
-
+                color:#1779ba;
                 min-width: 500px;
                 background: #f2f4f5;
                 z-index: 2000;
                 right: 15px;
-                top: -5px;
+                top: -500px;
                 opacity: 0;
                 transition: opacity 1s;
                 min-width: 500px;
-
                 margin: 0 auto;
                 padding: 15px;
                 transition: all .5s;
-
                 border-left: 5px solid #1779ba;
                 border-right: 5px solid #1779ba;
                 border-radius: 15px;
             }
 
-            .dropdown-content a:hover {background-color: #ddd; opacity: 1 !important}
+            .dropdown-content a:hover {background-color: #ddd; opacity: 1 !important; top: -5px;}
 
-            .dropdownMessages:hover .dropdown-content {z-index: 9999 !important; opacity: 1 !important}
+            .dropdownMessages:hover .dropdown-content {z-index: 9999 !important; opacity: 1 !important; top: -5px;}
 
             .background-processes {
                 max-height: $navHeight;
@@ -265,9 +262,9 @@
             }
 
             .messageProzessReady{
-                color: #ffffff;
+                color: #1779ba;
                 display: block;
-                background-color: #1779ba;
+                background-color: #f2f4f5;
                 padding: 10px 10px 5px 10px;
                 min-width: 400px;
                 box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -275,10 +272,15 @@
                 position: absolute;
                 left: 50%;
                 transform: translateX(-50%);
-                top: 5px;
+                top: -500px;
                 #opacity: 1;
                 transition: opacity 1s;
+                padding: 15px;
+                border-left: 5px solid #1779ba;
+                border-right: 5px solid #1779ba;
+                border-radius: 15px;
             }
+
             .fade {
                 opacity: 0 !important;
             }
@@ -307,36 +309,52 @@
 
             .messagebuttons{
                 border: none !important;
+                .tabsmessages {
+                    background: none;
+                    border: none;
+                    .is-inactive button {
+                        border-top-left-radius: 4px;
+                        border-top-right-radius: 4px;
+                        margin-right: 2px;
+                        background: #ffffff;
+                        border: 1px solid #b7b7b7;
+                        margin-bottom: -1px;
+                        transition: all 0.5s ease;
+                        display: block;
+                        padding: 1rem 1rem;
+                        font-size: 0.75rem;
+                        line-height: 1;
+                        color: #1779ba;
+                    }
+
+                    .is-active button {
+                        border-top-left-radius: 4px;
+                        border-top-right-radius: 4px;
+                        margin-right: 2px;
+                        border: 1px solid #b7b7b7;
+                        margin-bottom: -1px;
+                        transition: all 0.5s ease;
+                        display: block;
+                        padding: 1rem 1rem;
+                        font-size: 0.75rem;
+                        line-height: 1;
+                        color: #ffffff;
+                        background: #0F5694;
+                    }
+                }
             }
 
-            .messagebuttons ul.tabs .is-inactive button {
-                border-top-left-radius: 4px;
-                border-top-right-radius: 4px;
-                margin-right: 2px;
-                background: #ffffff;
-                border: 1px solid #b7b7b7;
-                margin-bottom: -1px;
-                transition: all 0.5s ease;
-                display: block;
-                padding: 1rem 1rem;
-                font-size: 0.75rem;
-                line-height: 1;
-                color: #1779ba;
-            }
+            .messagescontent{
+                margin-top: 5px;
+                transition: all .5s;
+                font-size: 100%;
+                border-left: 5px solid rgba(100,100,100,0.75);
+                border-right: 5px solid rgba(100,100,100,0.75);
+                border-radius: 15px;
+                .done td{ color: #157539;}
+                .working td{ color: #71A8E2;}
+                .waiting td {color: #be0000;}
 
-            .messagebuttons ul.tabs .is-active button {
-                border-top-left-radius: 4px;
-                border-top-right-radius: 4px;
-                margin-right: 2px;
-                border: 1px solid #b7b7b7;
-                margin-bottom: -1px;
-                transition: all 0.5s ease;
-                display: block;
-                padding: 1rem 1rem;
-                font-size: 0.75rem;
-                line-height: 1;
-                color: #ffffff;
-                background: #0F5694;
             }
 
             .messagesactionstab {
@@ -344,9 +362,8 @@
             }
 
             .nomessages {
-                color: #ffffff !important;
+                color: #1779ba !important;
             }
-
         }
         .user-settings-link {
             z-index: 100;
@@ -633,7 +650,7 @@
         ul.tabs {
             background: none;
             border: none;
-            border-bottom: 1px solid #b7b7b7;
+
             .tabs-title {
                 border-top-left-radius: 4px;
                 border-top-right-radius: 4px;

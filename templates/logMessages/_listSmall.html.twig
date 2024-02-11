@@ -8,7 +8,7 @@
 
     <div class="messagebuttons" id="messagebuttons">
         {% if count > 0 %}
-            <ul class="tabs tabs-animated nav nav-justified tabs-shadow-bordered p-3">
+            <ul class="tabsmessages tabs-animated nav nav-justified  p-3">
                 <li class="is-active" id="limessagestab" data-controller="processmessengesshowmessage">
                     <button data-action="processmessengesshowmessage#toggletabs" data-value="messagestab">
                         Messages
@@ -31,7 +31,7 @@
 
     <div class="messagescontent" id="messagestabs">
         <div class="messagestab" id="messagestab">
-            <table id="background-tasks" class=" message-log">
+            <table class="message-log">
                 {% for log in logs %}
                     <tr class="{{ log.state }}" style="background-color: white;">
                         <td>{{ log.plant }}</td>
@@ -42,7 +42,7 @@
             </table>
         </div>
         <div class="messagesactionstab fade" id="messagesactionstab">
-            <table id="background-tasks" class=" message-log">
+            <table class="message-log">
                 {% for log in logs %}
                     <tr class="{{ log.state }}" style="background-color: white;">
                         {% if log.state == 'done' and 'Report' in log.function %}
