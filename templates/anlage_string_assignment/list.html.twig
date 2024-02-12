@@ -49,7 +49,7 @@
                 {% endif %}
                 <td style="text-align: right;">
                     {% if is_granted('ROLE_G4N') %}
-                        <a href="{{ path('app_admin_anlagen_acgroupsexport', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> AC Groups</a>
+                        <a href="{{ path('app_anlage_string_assignment_export', { anlId: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-file-excel"></span> Export</a>
                     {% endif %}
                 </td>
             </tr>
@@ -57,4 +57,5 @@
         </tbody>
     </table>
     {{ knp_pagination_render(pagination) }}
+
 {% endblock %}

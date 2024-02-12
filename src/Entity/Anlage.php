@@ -11,6 +11,7 @@ use App\Repository\AnlagenRepository;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\CacheItemInterface;
@@ -678,6 +679,12 @@ class Anlage implements \Stringable
     #[ORM\Column(nullable: true)]
     private ?bool $ppcBlockTicket = false;
 
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageStringAssignment::class)]
+    private Collection $anlageStringAssignments;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $lastAnlageStringAssigmentUpload = null;
+
 
 
     /**
@@ -728,6 +735,7 @@ class Anlage implements \Stringable
         $this->anlageSunShading = new ArrayCollection();
         $this->sensors = new ArrayCollection();
         $this->ppcs = new ArrayCollection();
+        $this->anlageStringAssignments = new ArrayCollection();
     }
 
 
@@ -4103,6 +4111,48 @@ class Anlage implements \Stringable
     public function setInternalTicketSystem(?bool $internalTicketSystem): void
     {
         $this->internalTicketSystem = $internalTicketSystem;
+    }
+
+    /**
+     * @return Collection<int, AnlageStringAssignment>
+     */
+    public function getAnlageStringAssignments(): Collection
+    {
+        return $this->anlageStringAssignments;
+    }
+
+    public function addAnlageStringAssignment(AnlageStringAssignment $anlageStringAssignment): static
+    {
+        if (!$this->anlageStringAssignments->contains($anlageStringAssignment)) {
+            $this->anlageStringAssignments->add($anlageStringAssignment);
+            $anlageStringAssignment->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnlageStringAssignment(AnlageStringAssignment $anlageStringAssignment): static
+    {
+        if ($this->anlageStringAssignments->removeElement($anlageStringAssignment)) {
+            // set the owning side to null (unless already changed)
+            if ($anlageStringAssignment->getAnlage() === $this) {
+                $anlageStringAssignment->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getLastAnlageStringAssigmentUpload(): ?\DateTimeInterface
+    {
+        return $this->lastAnlageStringAssigmentUpload;
+    }
+
+    public function setLastAnlageStringAssigmentUpload(?\DateTimeInterface $lastAnlageStringAssigmentUpload): static
+    {
+        $this->lastAnlageStringAssigmentUpload = $lastAnlageStringAssigmentUpload;
+
+        return $this;
     }
 
 }
