@@ -91,7 +91,7 @@
                                 {% endif %}
 
                                 {# delete report #}
-                                {% if is_granted('ROLE_DEV') %}
+                                {% if is_granted('ROLE_ADMIN') %}
                                     <a href="#" class="hollow alert button tiny action-icon shadow"
                                        {{ stimulus_controller('submit-confirm', {
                                            title: 'Remove this report?',

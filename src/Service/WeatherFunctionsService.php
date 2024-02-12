@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Anlage;
-use App\Entity\TicketDate;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\ForcastRepository;
@@ -16,9 +15,7 @@ use App\Repository\PVSystDatenRepository;
 use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
-use Doctrine\ORM\NonUniqueResultException;
 use PDO;
-use App\Service\PdoService;
 use DateTime;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -94,7 +91,7 @@ class WeatherFunctionsService
     public function getWeather(WeatherStation $weatherStation, $from, $to, bool $ppc, Anlage $anlage, ?int $inverterID = null): ?array
     {
         return $this->cache->get('getWeather_'.md5($weatherStation->getId().$from.$to.$ppc.$anlage->getAnlId().$inverterID), function(CacheItemInterface $cacheItem) use ($weatherStation, $from, $to, $ppc, $anlage, $inverterID) {
-            $cacheItem->expiresAfter(60);
+            $cacheItem->expiresAfter(30);
             $conn = $this->pdoService->getPdoPlant();
             $weather = [];
             $dbTable = $weatherStation->getDbNameWeather();
@@ -124,10 +121,11 @@ class WeatherFunctionsService
             $pNomWest = $anlage->getPowerWest();
 
             // Temperatur Korrektur Daten vorbereiten
-            $tModAvg = 25; //$this->determineTModAvg($anlage, $from, $to);
+            $tModAvg = $anlage->getTempCorrCellTypeAvg() > 0 ? $anlage->getTempCorrCellTypeAvg() : 25;
+            // ??? $this->determineTModAvg($anlage, $from, $to);
             $gamma = $anlage->getTempCorrGamma() / 100;
-            $tempCorrFunctionNREL = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
-            $tempCorrFunctionIEC = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
+            $tempCorrFunctionNREL   = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
+            $tempCorrFunctionIEC    = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
             $degradation = (1 - $anlage->getDegradationPR() / 100) ** $anlage->getBetriebsJahre();
 
             // depending on $department generate correct SQL code to calculate
@@ -190,7 +188,7 @@ class WeatherFunctionsService
                     WHERE s.stamp > '$from' AND s.stamp <= '$to'
                         $sqlPPCpart2;
                  ";
-
+                dump($sql);
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -296,7 +294,9 @@ class WeatherFunctionsService
      * Function to retrieve weighted irradiation
      * definition is optimized for ticket generation, have a look into ducumentation
      *
-     * @return float
+     * @param Anlage $anlage
+     * @param DateTime $stamp
+     * @return float|null
      */
     public function getIrrByStampForTicket(Anlage $anlage, DateTime $stamp): ?float
     {

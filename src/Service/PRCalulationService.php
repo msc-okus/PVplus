@@ -18,7 +18,6 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Symfony\Component\HttpFoundation\Exception\JsonException;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\InvalidArgumentException;
 
@@ -599,12 +598,9 @@ class PRCalulationService
         }
 
         // Wetter Daten ermitteln MIT Berücksichtigung des PPC Signals
-        $weatherWithPpc= [];
-        if(false) {
-            $weatherWithPpc = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
-            if (is_array($weatherWithPpc)) {
-                $weatherWithPpc = $this->sensorService->correctSensorsByTicket($anlage, $weatherWithPpc, date_create($localStartDate), date_create($localEndDate));
-            }
+        $weatherWithPpc = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
+        if (is_array($weatherWithPpc)) {
+            $weatherWithPpc = $this->sensorService->correctSensorsByTicket($anlage, $weatherWithPpc, date_create($localStartDate), date_create($localEndDate));
         }
         // Wetter Daten ermitteln OHNE Berücksichtigung des PPC Signals
         $weatherNoPpc = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, false, $anlage);
@@ -651,12 +647,14 @@ class PRCalulationService
         // Departement 0 (OpenBook)
         $result['powerTheoDep0'] = match($anlage->getPRFormular0()) {
             'Lelystad'          => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'tempCorrNREL'      => $weather['theoPowerTempCorr_NREL'],
             'IEC61724-1:2021'   => $weather['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weather['theoPowerPA0'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irr0    // all others calc by Pnom and Irr.
         };
         $result['powerTheoDep0NoPpc'] = match($anlage->getPRFormular0()) {
-            'Lelystad'          => $power['powerTheoNoPpc'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'Lelystad'          => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'tempCorrNREL'      => $weatherNoPpc['theoPowerTempCorr_NREL'],
             'IEC61724-1:2021'   => $weatherNoPpc['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weatherNoPpc['theoPowerPA0'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irrNoPpc0    // all others calc by Pnom and Irr.
@@ -674,12 +672,14 @@ class PRCalulationService
         // Departemet 1 (O&M)
         $result['powerTheoDep1'] = match($anlage->getPrFormular1()) {
             'Lelystad'          => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'tempCorrNREL'      => $weather['theoPowerTempCorr_NREL'],
             'IEC61724-1:2021'   => $weather['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weather['theoPowerPA1'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irr1    // all others calc by Pnom and Irr.
         };
         $result['powerTheoDep1NoPpc'] = match($anlage->getPrFormular1()) {
-            'Lelystad'          => $power['powerTheoNoPpc'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'Lelystad'          => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'tempCorrNREL'      => $weatherNoPpc['theoPowerTempCorr_NREL'],
             'IEC61724-1:2021'   => $weatherNoPpc['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weatherNoPpc['theoPowerPA1'],    // if theoretic Power is weighter by PA (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irrNoPpc0    // all others calc by Pnom and Irr.
@@ -696,12 +696,14 @@ class PRCalulationService
         // Departemet 2 (EPC)
         $result['powerTheoDep2'] = match($anlage->getPrFormular2()) {
             'Lelystad'          => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'tempCorrNREL'      => $weather['theoPowerTempCorr_NREL'],
             'IEC61724-1:2021'   => $weather['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weather['theoPowerPA2'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irr2    // all others calc by Pnom and Irr.
         };
         $result['powerTheoDep2NoPpc'] = match($anlage->getPrFormular2()) {
-            'Lelystad'          => $power['powerTheoNoPpc'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'Lelystad'          => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'tempCorrNREL'      => $weatherNoPpc['theoPowerTempCorr_NREL'],
             'IEC61724-1:2021'   => $weatherNoPpc['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weatherNoPpc['theoPowerPA2'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irrNoPpc0    // all others calc by Pnom and Irr.
@@ -718,12 +720,14 @@ class PRCalulationService
         // Departement 3 (AM)
         $result['powerTheoDep3'] = match($anlage->getPrFormular3()) {
             'Lelystad'          => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'tempCorrNREL'      => $weather['theoPowerTempCorr_NREL'],
             'IEC61724-1:2021'   => $weather['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weather['theoPowerPA3'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irr3    // all others calc by Pnom and Irr.
         };
         $result['powerTheoDep3NoPpc'] = match($anlage->getPrFormular3()) {
-            'Lelystad'          => $power['powerTheoNoPpc'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'Lelystad'          => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
+            'tempCorrNREL'      => $weatherNoPpc['theoPowerTempCorr_NREL'],
             'IEC61724-1:2021'   => $weatherNoPpc['theoPowerTempCorDeg_IEC'],
             'Veendam'           => $weatherNoPpc['theoPowerPA3'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
             default             => $anlage->getPnom() * $irrNoPpc0    // all others calc by Pnom and Irr.

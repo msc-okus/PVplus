@@ -419,10 +419,11 @@ private readonly PdoService $pdoService,
                             $replaceEnery = $this->getG4NExpEnergy($anlage, $tempoStartDate, $tempoEndDate);
                         } else {
                             // erstezen durch den eingebenen Wert
-                            $replaceEnery = $ticketDate->getValueEnergy();
+                            $replaceEnery = (float)$ticketDate->getValueEnergy();
+                            $debug = true;
                         }
                         // Nur wenn $replaceEnergy einen numerischen Wert hat wird auch die Verechnung gestart
-                        if ($replaceEnery !== null and is_numeric($replaceEnery)) {
+                        if (is_numeric($replaceEnery)) {
                             // ermittelten Wert von der gesamt Enerie abziehen und durch $replaceEnergy ersetzen
                             if ($ticketDate->getTicket()->isScope(10)) $power1 = $power1 - $row['power'] + $replaceEnery; // Department 1
                             if ($ticketDate->getTicket()->isScope(20) || $ppcTicket) $power2 = $power2 - $row['power'] + $replaceEnery; // Department 2

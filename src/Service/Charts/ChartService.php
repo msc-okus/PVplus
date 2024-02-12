@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Charts;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
@@ -12,26 +12,14 @@ use App\Repository\GridMeterDayRepository;
 use App\Repository\InvertersRepository;
 use App\Repository\PRRepository;
 use App\Repository\PVSystDatenRepository;
-use App\Service\Charts\ACPowerChartsService;
-use App\Service\Charts\DCCurrentChartService;
-use App\Service\Charts\DCPowerChartService;
-use App\Service\Charts\ForecastChartService;
-use App\Service\Charts\HeatmapChartService;
-use App\Service\Charts\IrradiationChartService;
-use App\Service\Charts\SollIstAnalyseChartService;
-use App\Service\Charts\SollIstHeatmapChartService;
-use App\Service\Charts\SollIstTempAnalyseChartService;
-use App\Service\Charts\SollIstIrrAnalyseChartService;
-use App\Service\Charts\TempHeatmapChartService;
-use App\Service\Charts\VoltageChartService;
+use App\Service\AvailabilityByTicketService;
+use App\Service\FunctionsService;
+use App\Service\PdoService;
 use DateTime;
 use Exception;
 use PDO;
-use App\Service\PdoService;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 
 class ChartService
@@ -598,7 +586,11 @@ class ChartService
     // ##########################################
 
     /**
-     * @throws InvalidArgumentException
+     * @param Anlage $anlage
+     * @param DateTime $from
+     * @param DateTime $to
+     * @return array
+     * @return array
      */
     private function getPlantAvailability(Anlage $anlage, DateTime $from, DateTime $to): array
     {
@@ -674,14 +666,26 @@ class ChartService
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $counter = 0;
-        /*
-        if ($hour) $sql2 = "SELECT a.stamp, sum(b.at_avg) as at_avg, sum(b.pt_avg) as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
-        else $sql2 = "SELECT a.stamp, b.at_avg as at_avg, b.pt_avg as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
-        */
         if ($hour) {
-            $sql2 = 'SELECT a.stamp, avg(b.temp_ambient) as tempAmbient, avg(b.temp_pannel) as tempPannel, avg(b.temp_cell_corr) as tempCellCorr, avg(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp > '$from' and a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = "SELECT 
+                        DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp, 
+                        avg(b.temp_ambient) as tempAmbient, 
+                        avg(b.temp_pannel) as tempPannel, 
+                        avg(b.temp_cell_corr) as tempCellCorr, 
+                        avg(b.wind_speed) as windSpeed 
+                    FROM (db_dummysoll a LEFT JOIN ".$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
+                    WHERE a.stamp > '$from' and a.stamp <= '$to' 
+                    GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
         } else {
-            $sql2 = 'SELECT a.stamp, sum(b.temp_ambient) as tempAmbient, sum(b.temp_pannel) as tempPannel, b.temp_cell_corr as tempCellCorr, sum(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp > '$from' and a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = 'SELECT 
+                        a.stamp, 
+                        sum(b.temp_ambient) as tempAmbient, 
+                        sum(b.temp_pannel) as tempPannel, 
+                        sum(b.temp_cell_corr) as tempCellCorr, 
+                        sum(b.wind_speed) as windSpeed 
+                    FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
+                    WHERE a.stamp > '$from' and a.stamp <= '$to' 
+                    GROUP BY date_format(a.stamp, '$form')";
         }
 
         $res = $conn->query($sql2);
@@ -700,7 +704,6 @@ class ChartService
                 $dataArray['chart'][$counter]['tempCellCorr'] = $tempCellCorr; // Temp cell corrected
                 $dataArray['chart'][$counter]['windSpeed'] = $windSpeed; // Wind Speed
             }
-
             ++$counter;
         }
         $conn = null;

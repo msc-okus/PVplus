@@ -24,6 +24,7 @@ export default class extends Controller {
         this.modal.open();
 
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
+
     }
 
     async submitForm(event) {

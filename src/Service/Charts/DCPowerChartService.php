@@ -201,22 +201,30 @@ class DCPowerChartService
             $expectedArray = $resultExp->fetchAll(PDO::FETCH_ASSOC);
             foreach ($expectedArray as $rowExp) {
                 $stamp = $rowExp['stamp'];
-                $rowExp['expected'] === null || $rowExp['expected'] < 0 ? $expected = 0 : $expected = $rowExp['expected'];
                 $dataArray['chart'][$counter]['date'] = $rowExp['stamp']; //self::timeShift($anlage, $rowExp['stamp']);
                 $counterInv = 1;
                 if ($hour) {
+                    $expected = $rowExp['expected'] === null || $rowExp['expected'] < 0 ?  0 :  $rowExp['expected'] / 4;
                     $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone()-1);
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                     $queryf = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
+                    $sqlIst = "SELECT 
+                              wr_pdc as istCurrent 
+                           FROM ".$anlage->getDbNameIst()."
+                           WHERE $type $queryf
+                           GROUP BY date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form'), unit 
+                           ORDER BY unit";
                 } else {
+                    $expected = $rowExp['expected'] === null || $rowExp['expected'] < 0 ?  0 :  $rowExp['expected'];
                     $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
                     $queryf = "stamp = '$stampAdjust'";
-                }
-                $sqlIst = "SELECT 
+                    $sqlIst = "SELECT 
                               wr_pdc as istCurrent 
                            FROM ".$anlage->getDbNameIst()."
                            WHERE $type $queryf
                            ORDER BY unit";
+                }
+                dump($sqlIst);
                 $resultActual = $conn->query($sqlIst);
                 while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
                     $actCurrent = max((float)$rowActual['istCurrent'], 0);
@@ -351,12 +359,12 @@ class DCPowerChartService
                     // $dataArray['chart'][$counter]['expected'] = $rowExp['expected'] == null ? 0 : $rowExp['expected'];
 
                     if ($hour) {
-                        $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone() - 1);
+                        $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone() - 1);
                         $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                         $whereQueryPart1 = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
                         $groupBy = "date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form'), ";
                     } else {
-                        $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
+                        $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
                         $whereQueryPart1 = "stamp = '$stampAdjust'";
                         $groupBy = "";
                     }
@@ -509,7 +517,7 @@ class DCPowerChartService
                         }
                     }
                     // add Irradiation
-                    if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                    if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                         $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
                     } else {
                         $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;

@@ -36,17 +36,20 @@ class ReplaceValuesTicket
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $power = null;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $pa = '1';
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getStamp(): ?\DateTimeInterface
+    public function getStamp(): ?\DateTime
     {
         return $this->stamp;
     }
 
-    public function setStamp(\DateTimeInterface $stamp): self
+    public function setStamp(\DateTime $stamp): self
     {
         $this->stamp = $stamp;
 
@@ -65,9 +68,9 @@ class ReplaceValuesTicket
         return $this;
     }
 
-    public function getIrrHorizontal(): ?string
+    public function getIrrHorizontal(): ?float
     {
-        return $this->irrHorizontal;
+        return (float)$this->irrHorizontal;
     }
 
     public function setIrrHorizontal(?string $irrHorizontal): self
@@ -77,9 +80,9 @@ class ReplaceValuesTicket
         return $this;
     }
 
-    public function getIrrModule(): ?string
+    public function getIrrModule(): ?float
     {
-        return $this->irrModule;
+        return (float)$this->irrModule;
     }
 
     public function setIrrModule(?string $irrModule): self
@@ -89,9 +92,9 @@ class ReplaceValuesTicket
         return $this;
     }
 
-    public function getIrrEast(): ?string
+    public function getIrrEast(): ?float
     {
-        return $this->irrEast;
+        return (float)$this->irrEast;
     }
 
     public function setIrrEast(?string $irrEast): self
@@ -101,9 +104,9 @@ class ReplaceValuesTicket
         return $this;
     }
 
-    public function getIrrWest(): ?string
+    public function getIrrWest(): ?float
     {
-        return $this->irrWest;
+        return (float)$this->irrWest;
     }
 
     public function setIrrWest(?string $irrWest): self
@@ -113,7 +116,7 @@ class ReplaceValuesTicket
         return $this;
     }
 
-    public function getPower(): ?string
+    public function getPower(): ?float
     {
         return $this->power;
     }
@@ -124,4 +127,16 @@ class ReplaceValuesTicket
 
         return $this;
     }
+
+    public function getPa(): ?float
+    {
+        return (float)$this->pa;
+    }
+
+    public function setPa(?string $pa): void
+    {
+        $this->pa = $pa;
+    }
+
+
 }

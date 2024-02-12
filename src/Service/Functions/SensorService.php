@@ -3,7 +3,6 @@
 namespace App\Service\Functions;
 
 use App\Entity\Anlage;
-use App\Entity\Ticket;
 use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
 use App\Repository\PVSystDatenRepository;
@@ -64,9 +63,9 @@ class SensorService
             $tempStartDateMinus15->sub($interval15);
             $tempEndDateMinus15->sub($interval15);
 
-            switch ($ticketDate->getAlertType()) {
+            switch ($ticketDate->getTicket()->getAlertType()) {
                 // Exclude Sensors
-                case '70x':
+                case '70':
                     // Funktioniert in der ersten Version nur für Leek und Kampen
                     // es fehlt die Möglichkeit die gemittelte Strahlung, automatisiert aus den Sensoren zu berechnen
                     // ToDo: Sensor Daten müssen zur Wetter DB umgezogen werden, dann Code anpassen
@@ -133,9 +132,10 @@ class SensorService
                     $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
                     break;
 
-                //
+                // Replace Enery / Irradiation
                 case '73':
-                    if ($ticketDate->isReplaceIrr()) {
+                    // wenn replace Enery with PVSyst und replace Irradiation
+                    if ($ticketDate->isReplaceEnergy() && $ticketDate->isReplaceIrr()) {
                         if ($tempoStartDate->format('i') == '00') {
                             $hour = (int)$tempoStartDate->format('H') - 1;
                             $tempoStartDate = date_create($tempoStartDate->format("Y-m-d $hour:15"));
@@ -151,8 +151,12 @@ class SensorService
                         $replaceArray = $this->getPvSystIrr($anlage, $pvSystStartDate, $pvSystEndDate);
 
                         $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
+                    } elseif ($ticketDate->isReplaceEnergyG4N()) {
+                        // do nothing at the moment
+                    } else {
+                        $replaceValueIrr = (float)$ticketDate->getValueIrr();
+                        // ToDo: Repolace IRR algorithmus
                     }
-
                     break;
                     
                 // Exclude from PR/Energy (exclude Irr and TheoPower)
@@ -184,6 +188,8 @@ class SensorService
                     $sensorData['theoPowerPA1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['theoPowerPA1'] - $tempWeatherArray['theoPowerPA1'] : $sensorData['theoPowerPA1'];
                     $sensorData['theoPowerPA2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['theoPowerPA2'] - $tempWeatherArray['theoPowerPA2'] : $sensorData['theoPowerPA2'];
                     $sensorData['theoPowerPA3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['theoPowerPA3'] - $tempWeatherArray['theoPowerPA3'] : $sensorData['theoPowerPA3'];
+                    $sensorData['theoPowerTempCorr_NREL']   = $sensorData['theoPowerTempCorr_NREL']     - $tempWeatherArray['theoPowerTempCorr_NREL'];
+                    $sensorData['theoPowerTempCorDeg_IEC']  = $sensorData['theoPowerTempCorDeg_IEC']    - $tempWeatherArray['theoPowerTempCorDeg_IEC'];
                     break;
             }
         }

@@ -577,7 +577,7 @@ class AvailabilityByTicketService
     {
         return $this->cache->get('getIstData_'.md5($anlage->getAnlId().$from.$to), function(CacheItemInterface $cacheItem) use ($anlage, $from, $to) {
 
-            $cacheItem->expiresAfter(120); // Lifetime of cache Item
+            $cacheItem->expiresAfter(60); // Lifetime of cache Item
 
             $conn = $this->pdoService->getPdoPlant();
             $istData = [];

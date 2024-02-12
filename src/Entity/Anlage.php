@@ -459,7 +459,7 @@ class Anlage implements \Stringable
     private Collection $Inverters;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private string $tempCorrCellTypeAvg = '0';
+    private string $tempCorrCellTypeAvg = '25';
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrGamma = '-0.4';

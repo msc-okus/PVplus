@@ -89,9 +89,9 @@ class ACPowerChartsService
                 if ($hour) {
                     $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone()-1);
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-                    $whereQueryPart1 = "stamp >= '$stampAdjust' AND stamp = '$stampAdjust2'";
+                    $whereQueryPart1 = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
 
-                    $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
+                    $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form')";
                 } else {
                     $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
                     $whereQueryPart1 = "stamp = '$stampAdjust'";
@@ -101,6 +101,7 @@ class ACPowerChartsService
                 $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
                         WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
 
+                dump($sqlEvu);
                 $resActual = $conn->query($sqlActual);
                 $resEvu = $conn->query($sqlEvu);
 
@@ -204,21 +205,17 @@ class ACPowerChartsService
      */
     public function getAC2(Anlage $anlage, $from, $to, int $group, bool $hour = false): array
     {
-        ini_set('memory_limit', '3G');
-        set_time_limit(500);
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
         $nameArray = $this->functions->getNameArray($anlage, 'ac');
         $dataArray['inverterArray'] = $nameArray;
         $acGroups = $anlage->getGroupsAc();
-        $type = '';
         $hour ? $form = '%y%m%d%H' : $form = '%y%m%d%H%i';
 
-        match ($anlage->getConfigType()) {
-            1 => $type .= " group_ac = '$group' AND",
-            default => $type .= " group_dc = '$group' AND",
+        $type = match ($anlage->getConfigType()) {
+            1 => " group_ac = '$group' AND",
+            default => " group_dc = '$group' AND",
         };
-
         if ($hour) {
             $exppart1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
             $exppart2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
@@ -229,9 +226,9 @@ class ACPowerChartsService
         $sqlExpected = "SELECT 
                             $exppart1 
                             sum(b.ac_exp_power) as soll
-                            FROM (db_dummysoll a left JOIN (SELECT * FROM ".$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                            WHERE a.stamp > '$from' AND a.stamp <= '$to'
-                            $exppart2";
+                        FROM (db_dummysoll a left JOIN (SELECT * FROM ".$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to'
+                        $exppart2";
 
         $conn = $this->pdoService->getPdoPlant();
         $resultExp = $conn->query($sqlExpected);
@@ -256,22 +253,20 @@ class ACPowerChartsService
             $expectedArray = $resultExp->fetchAll(PDO::FETCH_ASSOC);
             foreach ($expectedArray as $rowExp) {
                 $stamp = $rowExp['stamp'];
-
                 $rowExp['soll'] == null || $rowExp['soll'] < 0 ? $expected = 0 : $expected = $rowExp['soll'];
                 $dataArray['chart'][$counter]['date'] = $rowExp['stamp']; //self::timeShift($anlage, $rowExp['stamp']);
                 $counterInv = 1;
                 if ($hour) {
                     $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone()-1);
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-                    $sqlIst = 'SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur as cosPhi FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp > '$stampAdjust' AND  stamp <= '$stampAdjust2' group by unit ORDER BY unit";
+                    $sqlIst = 'SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur as cosPhi FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp > '$stampAdjust' AND stamp <= '$stampAdjust2' GROUP BY date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form'), unit ORDER BY unit";
                 } else {
                     $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
                     $sqlIst = 'SELECT wr_pac as actPower, wr_cos_phi_korrektur as cosPhi FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp = '$stampAdjust' ORDER BY unit";
                 }
                 $resultActual = $conn->query($sqlIst);
                 while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                    $actPower = $rowActual['actPower'];
-                    $actPower = ($actPower > 0) ? $actPower : 0;
+                    $actPower = max((float)$rowActual['actPower'],0);
 
                     if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                         switch ($anlage->getConfigType()) {
@@ -401,28 +396,23 @@ class ACPowerChartsService
                 $stamp = $rowIst['stamp'];
                 $dataArray['chart'][$counter]['date'] = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone() * (-1));
                 if ($hour) {
-                    $stampAdjust = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone()-1);
+                    $stampAdjust = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone() - 1);
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                     $queryf = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
+                    $groupBy = "GROUP by date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form')";
                 } else {
                     $stampAdjust = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone());
                     $queryf = "stamp = '$stampAdjust'";
+                    $groupBy = "GROUP BY date_format(stamp, '$form')";
                 }
                 $sqlSoll = "SELECT stamp, sum(ac_exp_power) as soll 
                             FROM ".$anlage->getDbNameDcSoll()." 
                             WHERE $queryf AND $groupQuery 
-                            GROUP BY date_format(stamp, '$form')";
+                            $groupBy";
+
                 $result = $conn->query($sqlSoll);
-                if ($hour) {
-                    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                        if ($rowIst['stamp'] == $row['stamp']) {
-                            $row['soll'] == null ? $expected = 0 : $expected = $row['soll'];
-                        }
-                    }
-                } else {
-                    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                        ($row['soll'] == null || $row['soll'] < 0) ? $expected = 0 : $expected = $row['soll'];
-                    }
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    ($row['soll'] == null || $row['soll'] < 0) ? $expected = 0 : $expected = $row['soll'];
                 }
 
                 $dataArray['maxSeries'] = 1;
