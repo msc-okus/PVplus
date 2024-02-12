@@ -36,8 +36,7 @@ export default class extends Controller {
 
         window.setTimeout(() => {
             this.fadeOutElement(messageelem);
-        }, 10000);
-        //alert(this.messageValue);
+        }, 15000);
     }
 
     fadeInElement(element) {

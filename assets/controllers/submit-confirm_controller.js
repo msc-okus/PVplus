@@ -33,7 +33,7 @@ export default class extends Controller {
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: this.confirmButtonTextValue || 'Yes &nbsp;<i class="fa fa-paper-plane" aria-hidden="true"></i>',
+            confirmButtonText: this.confirmButtonTextValue || 'Yes',
             preConfirm: () => {
                 return this.confirmAction();
             }
