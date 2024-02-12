@@ -10,6 +10,7 @@ use App\Form\Notification\NotificationEditFormType;
 use App\Form\Owner\NotificationFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Helper\PVPNameArraysTrait;
+use App\Repository\AcGroupsRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\ContactInfoRepository;
 use App\Repository\TicketDateRepository;
@@ -115,12 +116,19 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/edit/{id}', name: 'app_ticket_edit')]
-    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request, functionsService $functions ): Response
+    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request, functionsService $functions, AcGroupsRepository $acRepo ): Response
     {
         $ticket = $ticketRepo->find($id);
         $sensorArray = [];
         $ticketDates = $ticket->getDates();
 
+        $totalTrafoGroups = count($acRepo->countTrafoGroups($ticket->getAnlage()));
+        $trafoArray = [];
+        for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++){
+            $acGroup = $acRepo->findByAnlageTfdrafoNr($ticket->getAnlage(), $trafoGroup);
+            dump($acGroup);
+        }
+        dd("hey");
         $anlage = $ticket->getAnlage();
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
@@ -893,9 +901,10 @@ class TicketController extends BaseController
         ]);
     }
     #[Route(path: '/notification/edit/{id}', name: 'app_ticket_notification_edit')]
-    public function changeNotificationStatus($id, TicketRepository $ticketRepo, Request $request, PiiCryptoService $encryptService, MessageService $messageService, EntityManagerInterface $em) :Response{
+    public function changeNotificationStatus($id, TicketRepository $ticketRepo, Request $request, PiiCryptoService $encryptService, MessageService $messageService, EntityManagerInterface $em, AcGroupsRepository $acRepo) :Response{
         $ticketId = $encryptService->unHashData($id);
         $ticket = $ticketRepo->findOneBy(['securityToken' => $ticketId]);
+
         $form = $this->createForm(NotificationEditFormType::class, null);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()){
