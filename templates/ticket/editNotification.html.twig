@@ -1,0 +1,54 @@
+{% extends 'non_logged_base.html.twig' %}
+{% block styles %}
+{% endblock %}
+{% block javascripts %}
+{% endblock %}
+
+{% block title %}
+{% endblock %}
+
+{% block body %}
+    <div style="horiz-align: center" class="off-canvas-content" data-off-canvas-content>
+        <main class="grid-container fluid" style="padding-top: 1rem">
+            <div class="cell">
+                <div style="horiz-align: center" class="grid-x grid-margin-y" >
+
+                    {% if answered %}
+                        Your reply has been submitted, thanks.
+                    {% else %}
+                        {% if (ticket != null) %}
+                            {{ form_start(notificationEditForm) }}
+                            <br>Information about the problem:
+                            <br>
+                            <br> Ticket Id: {{ ticket.Id }}
+                            <br>
+                            <br> Plant name: {{ ticket.anlage.anlName }}
+                            <br>
+                            <br> Plant located in {{ ticket.anlage.anlStrasse }}, {{ ticket.anlage.anlPlz }}  {{ ticket.anlage.anlOrt }} ({{ ticket.anlage.anlGeoLat }}, {{ ticket.anlage.anlGeoLon }})
+                            <br>
+                            <br> Affected inverters: {{ ticket.inverterName }}
+                                {% if ticket.freeText != '' %}
+                                    <br>
+                                    <br> {{ ticket.freeText }}
+                                {% endif %}
+                            <br>
+                            <br> Error type: {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}{{ errcat|trans }}
+                            <br>
+                            <br> {{ form_widget(notificationEditForm.answers) }}
+                            <br>
+                            <br> Answer Message:
+                            <br> {{ form_widget(notificationEditForm.freeText) }}
+                            <br>
+                            <br> {{ form_widget(notificationEditForm.answer) }}
+
+                            {{ form_end(notificationEditForm) }}
+
+                        {% else %}
+                            Expired Notification
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+{% endblock %}

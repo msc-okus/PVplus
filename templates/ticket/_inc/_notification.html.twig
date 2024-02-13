@@ -1,16 +1,255 @@
+<style>
+    .btn {
+        background-color: DodgerBlue;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    /* Darker background on mouse-over */
+    .btn:hover {
+        background-color: RoyalBlue;
+    }
+
+    ul, li{
+        list-style: none;
+        padding: 0;
+    }
+
+    .container{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 1rem;
+        background: #fff;
+        padding: 3rem 0;
+    }
+    .wrapper{
+        background: #f2f4f5;
+        width: 455px;
+        padding: 2rem;
+        border-radius: 15px;
+    }
+    h1{
+        font-size: 1.1rem;
+        font-family: sans-serif;
+    }
+    .sessions{
+        margin-top: 2rem;
+        border-radius: 12px;
+        position: relative;
+    }
+
+    li{
+        padding-bottom: 0.5rem;
+        border-left: 1px solid #30b41d;
+        position: relative;
+        padding-left: 20px;
+        margin-left: 10px;
+    }
+    li:last-child{
+        border: 0px;
+        padding-bottom: 0;
+    }
+    li:before{
+        content: '';
+        width: 15px;
+        height: 15px;
+        background: white;
+        border: 1px solid #30b41d;
+        box-shadow: 3px 3px 0px #30b41d;
+        border-radius: 50%;
+        position: absolute;
+        left: -10px;
+        top: 0px;
+    }
+
+    .time{
+        color: #2a2839;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: .9rem;
+    }
+
+    p{
+        color: #4f4f4f;
+        font-family: sans-serif;
+        line-height: 1.5;
+        margin-top:0.4rem;
+        font-size: .9rem;
+    }
+
+    .input-wrapper {
+        margin: 10px 0;
+        position: relative;
+        width: 300px;
+    }
+
+
+    input {
+        font-size: 18px;
+        padding: 10px 10px 10px 5px;
+        display: block;
+        border: none;
+        border-bottom: 1px solid  #0978ee;
+        box-shadow: none;
+        outline: none;
+    }
+
+    label {
+        color: #999;
+        font-size: 18px;
+        font-weight: normal;
+        position: absolute;
+        pointer-events: none;
+        left: 5px;
+        top: 10px;
+        transition: 0.2s ease all;
+    }
+
+
+    input:focus~label,
+    input:valid~label {
+        top: -20px;
+        font-size: 14px;
+
+    }
+
+
+
+    .message_container .message {
+            background: #f2f4f5;
+            width: calc(100% - 20px);
+            max-width: 640px;
+            margin: 0 auto;
+            overflow: hidden;
+            transition: all .5s;
+
+            border-left: 5px solid #df2929;
+            border-right: 5px solid #df2929;
+            border-radius: 15px;
+        }
+    .message_container .title {
+            display: inline-block;
+            padding: .2em 1em;
+            font-weight: bold;
+            letter-spacing: .1em;
+            text-align: center;
+            text-transform: uppercase;
+            color:green;
+        }
+    .message_container p {
+            color: #000;
+            padding: 1em;
+            margin: 0;
+            display: block;
+            line-height: 1.4em;
+            text-align: justify;
+            max-height: 10em;
+        }
+
+
+
+
+    .msa {
+        background: #ccc;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        background: #f2f4f5;
+        width: 455px;
+        height: 250px;
+        border-radius: 15px;
+        overflow-y: scroll;
+    }
+
+
+    .other {
+        align-self: flex-end;
+        background: #ddd;
+        border-radius: 15px;
+        padding: 10px;
+        margin-bottom: 5px;
+    }
+
+    .other i {
+        padding-left: 10px;
+        align-self: flex-end;
+    }
+
+
+    .receiver {
+        background: #fff;
+        border-radius: 15px;
+        padding: 10px;
+        margin-bottom: 5px;
+    }
+
+    }
+
+</style>
+
+
+
+
 <div class="grid-x"  >
     <div class="cell">
-        {% if (notifications|length == 0) %}
         <div>
             <fieldset class="fieldset">
                 <legend>Maintenance notification</legend>
                 <div class="grid-x grid-padding-y grid-padding-x">
-                    <div class="cell small-6">
+                    <div class="cell medium-6">
                         {{ form_start(notificationForm) }}
-                        {{ form_widget(notificationForm.contacted) }}
-                        {{ form_widget(notificationForm.contact) }}
+                            {% if (actualNotification != null)%}
+                                Last contacted Person: {{ actualNotification.contactedPerson.name }}
+                                {% set errcat %}notification.status.{{ actualNotification.status }}{% endset %}
+                                <br> Status:  {{ errcat|trans }}
+                                <br> Notification Date: {{ actualNotification.date |date("d.m.y H:i") }} ({{ timeDiff }} ago)
+                            {% endif %}
+                            <br>{{ form_widget(notificationForm.contacted) }}
+                            <br>Message for the Maintenance Provider:
+                            {{ form_widget(notificationForm.freeText) }}
+
+                            <div class="is-hidden">{{ form_widget(notificationForm.contact) }}</div>
                         {{ form_end(notificationForm) }}
-                        <button class="button small"><a style="color: white" href="/admin/owner/edit/{{ owner.id }}#contacts">Add contact</a></button>
+
+                        <br><button type="button" class="button small "
+                                data-action="click->ticket-edit#contact"  >{% if (actualNotification != null)%}Send to a different Maintenance provider{% else %}Send{% endif %} <i class="fa fa-paper-plane" aria-hidden="true"></i> </button>
+
+                        <button type="button" class="button small "
+                                data-ticket-edit-target="contactButton"
+                                data-action="click->ticket-edit#openContactCreateModal"> Create Contact</button>
+                        <div id="formContactCreate{{ modalId }}">
+                            <div class="reveal text-left small" id="modal-contact-create-{{ modalId }}"
+                                 data-reveal
+                                 data-append-to="div#formContactCreate{{ modalId }}"
+                                 data-multiple-opened="true"
+                                 data-ticket-edit-target="contactModalCreate">
+                                <div class="cell modal-body"
+                                     data-ticket-edit-target="modalContactCreateBody"
+                                     data-action="modal-form#submitForm">
+                                    {{ modalContent|default('Loading...') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cell medium-6">
+                        {% if notifications|length > 0 %}
+                            <div style="text-align: center"> Message Log </div>
+                        <div class="container">
+                                <div class="msa">
+                                    {% for notification in notifications %}
+                                        <div style="text-align: center"> {{ notification.contactedPerson.Name }}</div>
+                                        {% if notification.freeText != '' %}<div class="other"> {{ notification.freeText }} -<i>{{ notification.Date |format_datetime(pattern="yyyy-MM-dd HH:mm") }} </i></div>{% endif %}
+                                        {% if notification.answerFreeText != '' %}<div class="receiver"><i>{{ notification.answerDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i> - {{ notification.answerFreeText }}</div>{% endif %}
+                                        {% if notification.closeFreeText != '' %}<div class="receiver"><i>{{ notification.closeDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i> - {{ notification.closeFreeText }}</div>{% endif %}
+                                    {% endfor %}
+                                </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </fieldset>
@@ -21,9 +260,5 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        {% else %}
-
-            edit contact
-        {% endif %}
     </div>
 </div>

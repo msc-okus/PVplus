@@ -9,17 +9,22 @@
     <row class="welcome">
         <columns>
             <spacer size="35"></spacer>
-            <h1>{{ email.subject }}</h1>
             <spacer size="10"></spacer>
         </columns>
     </row>
     <spacer size="30"></spacer>
+
+    <row>
+        <columns>
+            Hello {{ name }},
+        </columns>
+    </row>
     <row>
         <columns>
             <p>{{ message|raw }}</p>
-
         </columns>
     </row>
+    <spacer size="30"></spacer>
     <row class="footer">
         <columns>
             <p>Your friendly <em>green4net Team</em></p>
@@ -27,11 +32,13 @@
     </row>
     <row class="bottom">
         <columns>
+            <center>
                 <spacer size="20"></spacer>
                 <div>
                     Sent️ from PVplus 4.0
                 </div>
+            </center>
         </columns>
     </row>
-    </container>
+</container>
 {% endapply %}

@@ -1,0 +1,44 @@
+{% extends 'non_logged_base.html.twig' %}
+{% block styles %}
+{% endblock %}
+{% block javascripts %}
+{% endblock %}
+
+{% block title %}
+{% endblock %}
+
+{% block body %}
+                <div class="grid-x grid-margin-y" >
+                    {% if answered %}
+                    Your reply has been submitted, thanks.
+                    {% else %}
+                    {% if (ticket != null) %}
+                    {{ form_start(notificationConfirmForm) }}
+
+                    <br>Information about the problem:
+                    <br>
+                    <br> Ticket Id: {{ ticket.Id }}
+                    <br>
+                    <br> Plant name: {{ ticket.anlage.anlName }}
+                    <br>
+                    <br> Plant located in {{ ticket.anlage.anlStrasse }}, {{ ticket.anlage.anlPlz }}  {{ ticket.anlage.anlOrt }} ({{ ticket.anlage.anlGeoLat }}, {{ ticket.anlage.anlGeoLon }})
+                    <br>
+                    <br> Affected inverters: {{ ticket.inverterName }}
+                    <br>
+                    <br> Error
+                    type: {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}{{ errcat|trans }}
+                    <br>
+
+                    <br>{{ form_widget(notificationConfirmForm.answers) }}
+                    <br> Close Message:
+                    <br> {{ form_widget(notificationConfirmForm.freeText) }}
+
+                    {{ form_end(notificationConfirmForm) }}
+                </div>
+                {% else %}
+                    Expired Notification
+                {% endif %}
+                {% endif %}
+
+
+{% endblock %}

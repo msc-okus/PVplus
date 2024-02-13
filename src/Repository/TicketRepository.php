@@ -68,22 +68,10 @@ class TicketRepository extends ServiceEntityRepository
         return $qb;
     }
 
-    public function findAllPerformanceTicketFAC(Anlage $anlage)
-    {
-        $q = $this->createQueryBuilder('t')
-            ->andWhere('t.anlage = :anlId')
-            ->andWhere('t.begin >= :facStart and t.begin <= :facEnd')
-            ->andWhere('t.alertType >=70 and t.alertType < 80')
-            ->andWhere('t.ignoreTicket = false')
-            ->setParameter('anlId', $anlage->getAnlId())
-            ->setParameter('facStart', $anlage->getEpcReportStart()->format('Y-m-d H:i'))
-            ->setParameter('facEnd', $anlage->getEpcReportEnd()->format('Y-m-d H:i'))
-        ;
-
-        return $q->getQuery()->getResult();
-    }
-
     public function countByProof(){
+        /** @var User $user */
+        $user = $this->security->getUser();
+
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $result = $this->createQueryBuilder('t')
@@ -102,31 +90,32 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     public function countByProofAM(){
+
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
         $result = $this->createQueryBuilder('t')
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.ProofAM = true')
-            ->andWhere('t.ignoreTicket = false');
+            ->andWhere('t.ignoreTicket = false')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
             $result->andWhere('t.internal = false');
             $result->andWhere('a.anlId IN (:plantList)')
                 ->setParameter('plantList', $granted);
         }
-
+        dump($result);
         return $result->getQuery()->getResult()[0][1];
     }
-
     public function countByProofEPC(){
+
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $result = $this->createQueryBuilder('t')
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.needsProofEPC = true')
-            ->andWhere('t.ignoreTicket = false');
-
+            ->andWhere('t.ignoreTicket = false')
+        ;
         if (!$this->security->isGranted('ROLE_G4N')) {
             $result->andWhere('t.internal = false');
             $result->andWhere('a.anlId IN (:plantList)')
@@ -137,22 +126,54 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     public function countByProofG4N(){
+
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $result = $this->createQueryBuilder('t')
             ->innerJoin('t.anlage', 'a')
             ->addSelect('count(t.id)')
             ->andWhere('t.needsProofg4n = true')
-            ->andWhere('t.ignoreTicket = false');
-
+            ->andWhere('t.ignoreTicket = false')
+        ;
         if (!$this->security->isGranted('ROLE_G4N')) {
             $result->andWhere('t.internal = false');
             $result->andWhere('a.anlId IN (:plantList)')
                 ->setParameter('plantList', $granted);
         }
         return $result->getQuery()->getResult()[0][1];
-
     }
+    public function countByProofMaintenance(){
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.notified = true')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $result->andWhere('t.internal = false');
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+    }
+    public function countIgnored(){
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $result = $this->createQueryBuilder('t')
+            ->innerJoin('t.anlage', 'a')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.ignoreTicket = true')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $result->andWhere('t.internal = false');
+            $result->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        return $result->getQuery()->getResult()[0][1];
+    }
+
     /**
      * Build query with all options, including 'has user rights to see'.
      *
@@ -171,13 +192,13 @@ class TicketRepository extends ServiceEntityRepository
      * @param string $sort
      * @param string $direction
      * @param bool $ignore
-     * @param string $ticketName
+     * @param string $TicketName
      * @param int $kpistatus
      * @param string $begin
      * @param string $end
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, int $proofg4n = 0, string $sort = "", string $direction = "", bool $ignore = false, string $ticketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, int $proofg4n = 0, $proofmaintenance = 0, string $sort = "", string $direction = "", bool $ignore = false, string $ticketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -239,6 +260,10 @@ class TicketRepository extends ServiceEntityRepository
         if($proofg4n == 1){
             $qb->andWhere("ticket.needsProofg4n  = 1");
         }
+        if ($proofmaintenance == 1){
+            $qb->andWhere("ticket.notified  = 1");
+        }
+
         if ($kpistatus != 0){
             $qb->andWhere("ticket.kpiStatus = $kpistatus");
         }
@@ -280,7 +305,7 @@ class TicketRepository extends ServiceEntityRepository
                 ->andWhere('t.anlage = :anl')
                 ->andWhere('t.begin >= :begin')
                 ->andWhere('t.begin <= :end')
-                ->andWhere("t.editor = 'ImportSystem'") //Alert system
+                ->andWhere("t.editor = 'Alert system'")
                 ->setParameter('anl', $anlage)
                 ->setParameter('begin', $begin)
                 ->setParameter('end', $end)
@@ -290,7 +315,7 @@ class TicketRepository extends ServiceEntityRepository
             $result = $this->createQueryBuilder('t')
                 ->andWhere('t.anlage = :anl')
                 ->andWhere('t.begin >= :begin')
-                ->andWhere("t.editor = 'ImportSystem'") //Alert system
+                ->andWhere("t.editor = 'Alert system'")
                 ->setParameter('anl', $anlage)
                 ->setParameter('begin', $begin)
                 ->getQuery()
@@ -356,6 +381,7 @@ class TicketRepository extends ServiceEntityRepository
             ->getQuery();
         return $result->getResult();
     }
+
     public function findAllByTime($anlage, $time){
         $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
