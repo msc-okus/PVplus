@@ -243,6 +243,7 @@ class DCCurrentChartService
                   FROM (db_dummysoll a left JOIN (SELECT * FROM ' . $anlage->getDbNameDcSoll() . " WHERE wr_num = '$group') b ON a.stamp = b.stamp) 
                   WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
         $result = $conn->query($sql_strom);
+
         if ($result->rowCount() > 0) {
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
@@ -318,7 +319,7 @@ class DCCurrentChartService
             }
         }
         $conn = null;
-        dump($dataArray);
+
         return $dataArray;
     }
 

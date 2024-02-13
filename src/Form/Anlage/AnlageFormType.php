@@ -76,11 +76,13 @@ class AnlageFormType extends AbstractType
                                         </li>
                                         <li>3: Fall 'Groningen, …' <br>
                                             AC Gruppen = Inverter<br>
-                                            DC Gruppen = SCB Gruppen
+                                            DC Gruppen = SCB Gruppen<br>
+                                            (separate Tabelle für DC IST)
                                         </li>
                                         <li>4: Fall 'Guben, Forst, Subzin …' <br>
                                             AC Gruppen = Inverter<br>
-                                            DC Gruppen = SCBs
+                                            DC Gruppen = SCBs<br>
+                                            (separate Tabelle für DC IST)
                                         </li>
                                     </ul>";
 
@@ -200,6 +202,7 @@ class AnlageFormType extends AbstractType
                 'empty_data' => 'No',
                 'disabled' => !($isDeveloper),
             ])
+            /*
             ->add('useNewDcSchema', ChoiceType::class, [
                 'label' => 'Neues DC Database Schema',
                 'help' => '[useNewDcSchema] <br> (separate Tabelle für DC IST)',
@@ -209,6 +212,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
                 'disabled' => !($isDeveloper || $isAdmin),
             ])
+            */
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
                 'help' => '[configType]<br>' . $tooltipTextPlantType,

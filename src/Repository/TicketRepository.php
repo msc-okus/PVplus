@@ -103,7 +103,7 @@ class TicketRepository extends ServiceEntityRepository
             $result->andWhere('a.anlId IN (:plantList)')
                 ->setParameter('plantList', $granted);
         }
-        dump($result);
+
         return $result->getQuery()->getResult()[0][1];
     }
     public function countByProofEPC(){

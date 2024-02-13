@@ -224,7 +224,6 @@ class DCPowerChartService
                            WHERE $type $queryf
                            ORDER BY unit";
                 }
-                dump($sqlIst);
                 $resultActual = $conn->query($sqlIst);
                 while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
                     $actCurrent = max((float)$rowActual['istCurrent'], 0);
