@@ -63,10 +63,8 @@ export default class extends Controller {
 
     async openTimelineModal(event) {
         this.modalTimelineBodyTarget.innerHTML = 'Loading ...';
-        this.contactModal = new Reveal($(this.timelineModalTarget));
-        this.contactModal.open();
-        console.log(this.timelineUrlValue);
-        console.log(this.timelineUrlValue);
+        this.timelineModal = new Reveal($(this.timelineModalTarget));
+        this.timelineModal.open();
         this.modalTimelineBodyTarget.innerHTML = await $.ajax({
             url: this.timelineUrlValue,
         });
