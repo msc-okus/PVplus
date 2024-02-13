@@ -85,12 +85,16 @@
 
                             <button title="Edit Ticket [{{ ticket.id }}]" class="button action-icon tiny hollow shadow"
                                     data-action="ticket-edit#openModal"
-                                    data-append-to="div#modal-form{{ ticket.id }}"><span class="fa fa-edit"></span></button>
+                                    data-append-to="div#modal-form{{ ticket.id }}">
+                                <span class="fa fa-edit"></span>
+                            </button>
 
-                            {% if (ticket.notificationInfos|length > 0) %}
-                                <button type="button" class="button small action-icon tiny hollow"
+                            {% if (ticket.notificationInfos|length > 0) and is_granted('ROLE_MSA') %}
+                                <button title="show MSA timeline" class="button action-icon tiny hollow shadow"
                                         data-ticket-edit-target="timelineButton"
-                                        data-action="click->ticket-edit#openTimelineModal"><span class="fa fa-business-time"></span></button>
+                                        data-action="click->ticket-edit#openTimelineModal">
+                                    <span class="fa fa-business-time"></span>
+                                </button>
 
                                 <div id="formTimeline{{ ticket.id }}">
                                     <div class="reveal text-left small" id="modal-timeline-{{ ticket.id }}"
