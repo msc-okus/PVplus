@@ -40,7 +40,6 @@ export default class extends Controller {
         var response = await $.ajax({
             url: '/ticket/proofCount',
         });
-        console.log(response['countProofByMaintenance']);
         (this.proofepcTarget).innerText = response['countProofByEPC'];
         (this.prooftamTarget).innerText = response['countProofByTAM'];
         (this.proofg4nTarget).innerText = response['countProofByG4N'];
@@ -119,7 +118,6 @@ export default class extends Controller {
     disableAllToolTips(){
         $("[id*='tooltip']").each(function() {
             $(this).css('display', 'none');
-            //console.log(this);
         });
     }
 }

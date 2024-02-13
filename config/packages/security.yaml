@@ -17,7 +17,7 @@ security:
         # G4N Roles (hierarchical, include all feature roles)
         ROLE_DEV: [ROLE_ADMIN]
         ROLE_ADMIN: [ROLE_G4N, ROLE_ALLOWED_TO_SWITCH, ROLE_API_FULL_USER]
-        ROLE_G4N: [ROLE_OWNER_ADMIN, ROLE_AM, ROLE_BETA, ROLE_TICKET]
+        ROLE_G4N: [ROLE_OWNER_ADMIN, ROLE_AM, ROLE_BETA, ROLE_TICKET, ROLE_MRO]
         # User and Owner Roles (hierarchical)
         ROLE_OWNER_ADMIN: [ROLE_OWNER_FULL, ROLE_OWNER_ADMIN]
         ROLE_OWNER_FULL: [ROLE_OWNER, ROLE_API_FULL_USER]
@@ -30,6 +30,7 @@ security:
         ROLE_AM: []
         ROLE_ANALYSE: []
         ROLE_TICKET: []
+        ROLE_MRO: []
 
     firewalls:
         dev:
