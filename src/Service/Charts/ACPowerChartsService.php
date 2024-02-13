@@ -9,13 +9,14 @@ use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use PDO;
 use App\Service\PdoService;
+use Psr\Cache\InvalidArgumentException;
 
 class ACPowerChartsService
 {
     use G4NTrait;
 
     public function __construct(
-private readonly PdoService $pdoService,
+        private readonly PdoService $pdoService,
         private readonly AnlagenStatusRepository $statusRepository,
         private readonly InvertersRepository $invertersRepo,
         private readonly IrradiationChartService $irradiationChart,
@@ -36,29 +37,36 @@ private readonly PdoService $pdoService,
     public function getAC1(Anlage $anlage, $from, $to, bool $hour = false): array
     {
         $conn = $this->pdoService->getPdoPlant();
-        $formExp = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $form = $hour ? '%y%m%d%' : '%y%m%d%H%i';
-
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+        if ($hour) {
+            $exppart1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $exppart2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $exppart1 = 'a.stamp as stamp, ';
+            $exppart2 = "GROUP by date_format(a.stamp, '$form')";
+        }
         if ($anlage->getHasPPC()) {
-            $sqlExp = 'SELECT a.stamp as stamp, 
+            $sqlExp = "SELECT 
+                        $exppart1 
                         sum(b.ac_exp_power) as soll, 
                         sum(b.ac_exp_power_evu) as soll_evu, 
                         sum(b.ac_exp_power_no_limit) as soll_nolimit,
                         c.p_ac_inv,c.pf_set,c.p_set_gridop_rel,c.p_set_rel,c.p_set_rpc_rel,c.q_set_rel,c.p_set_ctrl_rel,c.p_set_ctrl_rel_mean
                         FROM db_dummysoll a 
-                        LEFT JOIN '.$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp
+                        LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp
                         LEFT JOIN '.$anlage->getDbNamePPC()." c ON a.stamp = c.stamp
-                        WHERE a.stamp >= '$from' AND a.stamp < '$to' 
-                        GROUP by date_format(a.stamp, '$formExp')";
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to'
+                        $exppart2 ";
         } else {
-            $sqlExp = 'SELECT a.stamp as stamp, 
+            $sqlExp = "SELECT 
+                        $exppart1
                         sum(b.ac_exp_power) as soll, 
                         sum(b.ac_exp_power_evu) as soll_evu, 
                         sum(b.ac_exp_power_no_limit) as soll_nolimit
                         FROM db_dummysoll a 
-                        LEFT JOIN '.$anlage->getDbNameDcSoll()." b ON a.stamp = b.stamp                     
-                        WHERE a.stamp >= '$from' AND a.stamp <= '$to' 
-                        GROUP by date_format(a.stamp, '$formExp')";
+                        LEFT JOIN ".$anlage->getDbNameDcSoll()." b ON a.stamp = b.stamp                     
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to' 
+                        $exppart2";
         }
 
         $resExp = $conn->query($sqlExp);
@@ -69,9 +77,7 @@ private readonly PdoService $pdoService,
             $counter = 0;
             $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             while ($rowExp = $resExp->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = $rowExp['stamp']; //self::timeShift($anlage, $rowExp['stamp']);
-                $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
-                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+                $stamp = $rowExp['stamp'];
 
                 $expectedInvOut     = $rowExp['soll'] > 0 ? round($rowExp['soll'], 2) : 0; // neagtive Werte auschließen
                 $expectedEvu        = $rowExp['soll_evu'] == null || $rowExp['soll_evu'] < 0 ? 0 : round($rowExp['soll_evu'], 2);
@@ -79,16 +85,23 @@ private readonly PdoService $pdoService,
                 $expDiffInvOut      = round($expectedInvOut - $expectedInvOut * 10 / 100, 2);   // Minus 10 % Toleranz Invberter Out.
                 $expDiffEvu         = round($expectedEvu - $expectedEvu * 10 / 100, 2);         // Minus 10 % Toleranz Grid (EVU).
 
-                $whereQueryPart1 = $hour ? "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'" : "stamp = '$stampAdjust'";
+
+                if ($hour) {
+                    $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone()-1);
+                    $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+                    $whereQueryPart1 = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
+
+                    $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form')";
+                } else {
+                    $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
+                    $whereQueryPart1 = "stamp = '$stampAdjust'";
+
+                    $sqlEvu = 'SELECT e_z_evu as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
+                }
                 $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
                         WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
 
-                if ($hour) {
-                    $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
-                } else {
-                    $sqlEvu = 'SELECT e_z_evu as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
-                }
-                dump($sqlActual);
+                dump($sqlEvu);
                 $resActual = $conn->query($sqlActual);
                 $resEvu = $conn->query($sqlEvu);
 
@@ -192,25 +205,30 @@ private readonly PdoService $pdoService,
      */
     public function getAC2(Anlage $anlage, $from, $to, int $group, bool $hour = false): array
     {
-        ini_set('memory_limit', '3G');
-        set_time_limit(500);
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
         $nameArray = $this->functions->getNameArray($anlage, 'ac');
         $dataArray['inverterArray'] = $nameArray;
         $acGroups = $anlage->getGroupsAc();
-        $type = '';
         $hour ? $form = '%y%m%d%H' : $form = '%y%m%d%H%i';
 
-        match ($anlage->getConfigType()) {
-            1 => $type .= " group_ac = '$group' AND",
-            default => $type .= " group_dc = '$group' AND",
+        $type = match ($anlage->getConfigType()) {
+            1 => " group_ac = '$group' AND",
+            default => " group_dc = '$group' AND",
         };
-
-        $sqlExpected = 'SELECT a.stamp , sum(b.ac_exp_power) as soll
-                            FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                            WHERE a.stamp > '$from' AND a.stamp <= '$to'
-                            GROUP by date_format(a.stamp, '$form')";
+        if ($hour) {
+            $exppart1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $exppart2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $exppart1 = 'a.stamp as stamp, ';
+            $exppart2 = "GROUP by date_format(a.stamp, '$form')";
+        }
+        $sqlExpected = "SELECT 
+                            $exppart1 
+                            sum(b.ac_exp_power) as soll
+                        FROM (db_dummysoll a left JOIN (SELECT * FROM ".$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
+                        WHERE a.stamp > '$from' AND a.stamp <= '$to'
+                        $exppart2";
 
         $conn = $this->pdoService->getPdoPlant();
         $resultExp = $conn->query($sqlExpected);
@@ -239,15 +257,16 @@ private readonly PdoService $pdoService,
                 $dataArray['chart'][$counter]['date'] = $rowExp['stamp']; //self::timeShift($anlage, $rowExp['stamp']);
                 $counterInv = 1;
                 if ($hour) {
-                    $endStamp = date('Y-m-d H:i', strtotime((string) $stamp) + 3600);
-                    $sqlIst = 'SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur as cosPhi FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp > '$stamp' AND  stamp <= '$endStamp' group by unit ORDER BY unit";
+                    $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone()-1);
+                    $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+                    $sqlIst = 'SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur as cosPhi FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp > '$stampAdjust' AND stamp <= '$stampAdjust2' GROUP BY date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form'), unit ORDER BY unit";
                 } else {
-                    $sqlIst = 'SELECT wr_pac as actPower, wr_cos_phi_korrektur as cosPhi FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp = '$stamp' ORDER BY unit";
+                    $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
+                    $sqlIst = 'SELECT wr_pac as actPower, wr_cos_phi_korrektur as cosPhi FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp = '$stampAdjust' ORDER BY unit";
                 }
                 $resultActual = $conn->query($sqlIst);
                 while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                    $actPower = $rowActual['actPower'];
-                    $actPower = ($actPower > 0) ? $actPower : 0;
+                    $actPower = max((float)$rowActual['actPower'],0);
 
                     if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                         switch ($anlage->getConfigType()) {
@@ -309,11 +328,8 @@ private readonly PdoService $pdoService,
      */
     public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
-        ini_set('memory_limit', '3G');
-        set_time_limit(500);
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-
         $conn = $this->pdoService->getPdoPlant();
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $groupID = 1;
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
@@ -329,10 +345,22 @@ private readonly PdoService $pdoService,
                 $groups = $anlage->getGroupsAc();
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
         }
-
-        $sqlIst = 'SELECT a.stamp, sum(c.wr_pac) as actPower, avg(c.wr_temp) as temp, c.wr_cos_phi_korrektur FROM ( `db_dummysoll` a 
-                 LEFT JOIN (SELECT * FROM '.$anlage->getDbNameIst().' WHERE '.$groupQuery."  ) c ON a.stamp = c.stamp ) WHERE a.stamp 
-                 > '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+        if ($hour) {
+            $part1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $part2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $part1 = 'a.stamp as stamp, ';
+            $part2 = "GROUP by date_format(a.stamp, '$form')";
+        }
+        $sqlIst = "SELECT 
+                        $part1
+                        sum(c.wr_pac) as actPower, 
+                        avg(c.wr_temp) as temp, 
+                        c.wr_cos_phi_korrektur 
+                    FROM ( `db_dummysoll` a 
+                    LEFT JOIN (SELECT * FROM ".$anlage->getDbNameIst().' WHERE '.$groupQuery."  ) c ON a.stamp = c.stamp ) 
+                    WHERE a.stamp > '$from' AND a.stamp <= '$to' 
+                    $part2";
 
         $dataArray['inverterArray'] = $nameArray;
         $resultIst = $conn->query($sqlIst);
@@ -366,25 +394,25 @@ private readonly PdoService $pdoService,
 
             while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowIst['stamp'];
-                $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone() * (-1));
-                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-
                 $dataArray['chart'][$counter]['date'] = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone() * (-1));
-
-                $queryf = $hour ? "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'" : "stamp = '$stampAdjust'";
-                $sqlSoll = "SELECT stamp, sum(ac_exp_power) as soll FROM ".$anlage->getDbNameDcSoll()." WHERE $queryf AND $groupQuery GROUP BY date_format(stamp, '$form')";
+                if ($hour) {
+                    $stampAdjust = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone() - 1);
+                    $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+                    $queryf = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
+                    $groupBy = "GROUP by date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form')";
+                } else {
+                    $stampAdjust = self::timeAjustment($rowIst['stamp'], $anlage->getAnlZeitzone());
+                    $queryf = "stamp = '$stampAdjust'";
+                    $groupBy = "GROUP BY date_format(stamp, '$form')";
+                }
+                $sqlSoll = "SELECT stamp, sum(ac_exp_power) as soll 
+                            FROM ".$anlage->getDbNameDcSoll()." 
+                            WHERE $queryf AND $groupQuery 
+                            $groupBy";
 
                 $result = $conn->query($sqlSoll);
-                if ($hour) {
-                    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                        if ($rowIst['stamp'] == $row['stamp']) {
-                            $row['soll'] == null ? $expected = 0 : $expected = $row['soll'];
-                        }
-                    }
-                } else {
-                    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                        ($row['soll'] == null || $row['soll'] < 0) ? $expected = 0 : $expected = $row['soll'];
-                    }
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    ($row['soll'] == null || $row['soll'] < 0) ? $expected = 0 : $expected = $row['soll'];
                 }
 
                 $dataArray['maxSeries'] = 1;
@@ -435,6 +463,7 @@ private readonly PdoService $pdoService,
      * erzeugt Daten für Gruppen Leistungsunterschiede Diagramm (Group Power Difference)
      * AC - Inverter.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @return array|null AC4
@@ -485,60 +514,46 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für Ist Spannung AC Diagramm nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
-     * @return array
+     * @param int $group
+     * @param bool $hour
+     * @return array|null AC - Actual, Groups
      *               AC - Actual, Groups
      */
     public function getActVoltageGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): ?array
     {
-        ini_set('memory_limit', '3G');
-        set_time_limit(500);
-        if ($hour) {
-            $form = '%y%m%d%H';
-        } else {
-            $form = '%y%m%d%H%i';
-        }
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
             case 1:
                 $acGroups = $anlage->getGroupsDc();
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
-                // Spannung für diesen Zeitraum und diese Gruppe
-                $sql = 'SELECT a.stamp, sum(b.u_ac) as uac_ist, sum(b.u_ac_p1) as u_ac_p1, sum(b.u_ac_p2) as u_ac_p2,  sum(b.u_ac_p3) as u_ac_p3 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP BY  date_format(a.stamp, '$form')";
+                $groupSource = 'group_dc';
                 break;
             default:
                 $acGroups = $anlage->getGroupsAc();
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
-                // Spannung für diesen Zeitraum und diese Gruppe
-                $sql = 'SELECT a.stamp, sum(b.u_ac) as uac_ist, sum(b.u_ac_p1) as u_ac_p1, sum(b.u_ac_p2) as u_ac_p2,  sum(b.u_ac_p3) as u_ac_p3 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP BY  date_format(a.stamp, '$form')";
+                $groupSource = 'group_ac';
         }
-
         if ($hour) {
-            switch ($anlage->getConfigType()) {
-                case 1:
-                    $acGroups = $anlage->getGroupsDc();
-                    $nameArray = $this->functions->getNameArray($anlage, 'dc');
-                    // Spannung für diesen Zeitraum und diese Gruppe
-                    $sql = 'SELECT a.stamp, sum(b.u_ac) as uac_ist, sum(b.u_ac_p1) as u_ac_p1, sum(b.u_ac_p2) as u_ac_p2,  sum(b.u_ac_p3) as u_ac_p3 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by  date_format(a.stamp, '$form')";
-                    break;
-                default:
-                    $acGroups = $anlage->getGroupsAc();
-                    $nameArray = $this->functions->getNameArray($anlage, 'ac');
-                    // Spannung für diesen Zeitraum und diese Gruppe
-                    $sql = 'SELECT a.stamp, sum(b.u_ac) as uac_ist, sum(b.u_ac_p1) as u_ac_p1, sum(b.u_ac_p2) as u_ac_p2,  sum(b.u_ac_p3) as u_ac_p3 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by  date_format(a.stamp, '$form')";
-            }
+            $hourSql1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $hourSql2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $hourSql1 = " a.stamp, ";
+            $hourSql2 = " GROUP BY date_format(a.stamp, '$form') ";
         }
+        $sql = "SELECT 
+                    $hourSql1 
+                    sum(b.u_ac) as uac_ist, 
+                    sum(b.u_ac_p1) as u_ac_p1, 
+                    sum(b.u_ac_p2) as u_ac_p2,  
+                    sum(b.u_ac_p3) as u_ac_p3 
+                FROM (db_dummysoll a left JOIN (SELECT * FROM ".$anlage->getDbNameAcIst()." WHERE $groupSource = '$group') b ON a.stamp = b.stamp) 
+                WHERE a.stamp > '$from' AND a.stamp <= '$to' 
+                $hourSql2";
 
         $dataArray['inverterArray'] = $nameArray;
         $result = $conn->query($sql);
@@ -587,10 +602,12 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für Ist Strom AC Diagramm nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
-     * @return array
+     * @param int $group
+     * @param bool $hour
+     * @return array|null AC - Actual, Groups
      *               AC - Actual, Groups
      */
     public function getActCurrentGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): ?array
@@ -607,35 +624,28 @@ private readonly PdoService $pdoService,
         switch ($anlage->getConfigType()) {
             case 1:
                 $acGroups = $anlage->getGroupsDc();
-                // Strom für diesen Zeitraum und diese Gruppe
-                $sql = 'SELECT a.stamp, sum(b.i_ac) as iac_sum, sum(b.i_ac_p1) as i_ac_p1, sum(b.i_ac_p2) as i_ac_p2,  sum(b.i_ac_p3) as i_ac_p3 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
+                $groupSource = 'group_dc';
                 break;
             default:
                 $acGroups = $anlage->getGroupsAc();
-                // Strom für diesen Zeitraum und diese Gruppe
-                $sql = 'SELECT a.stamp, sum(b.i_ac) as iac_sum, sum(b.i_ac_p1) as i_ac_p1, sum(b.i_ac_p2) as i_ac_p2,  sum(b.i_ac_p3) as i_ac_p3 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
+                $groupSource = 'group_ac';
         }
         if ($hour) {
-            switch ($anlage->getConfigType()) {
-                case 1:
-                    $acGroups = $anlage->getGroupsDc();
-                    // Strom für diesen Zeitraum und diese Gruppe
-                    $sql = 'SELECT a.stamp, sum(b.i_ac) as iac_sum, sum(b.i_ac_p1) as i_ac_p1, sum(b.i_ac_p2) as i_ac_p2,  sum(b.i_ac_p3) as i_ac_p3 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
-                    break;
-                default:
-                    $acGroups = $anlage->getGroupsAc();
-                    // Strom für diesen Zeitraum und diese Gruppe
-                    $sql = 'SELECT a.stamp, sum(b.i_ac) as iac_sum, sum(b.i_ac_p1) as i_ac_p1, sum(b.i_ac_p2) as i_ac_p2,  sum(b.i_ac_p3) as i_ac_p3 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
-            }
+            $hourSql1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $hourSql2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $hourSql1 = " a.stamp, ";
+            $hourSql2 = " GROUP BY date_format(a.stamp, '$form') ";
         }
+        $sql = 'SELECT 
+                   $hourSql1
+                    sum(b.i_ac) as iac_sum, 
+                    sum(b.i_ac_p1) as i_ac_p1, 
+                    sum(b.i_ac_p2) as i_ac_p2,  
+                    sum(b.i_ac_p3) as i_ac_p3 
+                FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE $groupSource = '$group') b ON a.stamp = b.stamp) 
+                WHERE a.stamp > '$from' AND a.stamp <= '$to' 
+                $hourSql2";
 
         $result = $conn->query($sql);
         $counter = 0;
@@ -682,57 +692,42 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für Ist Frequenz AC Diagramm nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
-     * @return array
+     * @param int $group
+     * @param bool $hour
+     * @return array|null AC - Actual, Groups
      *               AC - Actual, Groups
      */
     public function getActFrequncyGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): ?array
     {
-        ini_set('memory_limit', '3G');
-        set_time_limit(500);
-        if ($hour) {
-            $form = '%y%m%d%H';
-        } else {
-            $form = '%y%m%d%H%i';
-        }
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
-        $acGroups = $anlage->getGroupsAc();
-        if ($hour) {
-            switch ($anlage->getConfigType()) {
-                case 1:
-                    $acGroups = $anlage->getGroupsDc();
-                    // Frequenz für diesen Zeitraum und diese Gruppe
-                    $sql = 'SELECT a.stamp, sum(b.frequency) as frequency 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
-                    break;
-                default:
-                    $acGroups = $anlage->getGroupsAc();
-                    // Frequenz für diesen Zeitraum und diese Gruppe
-                    $sql = 'SELECT a.stamp, sum(b.frequency) as frequency 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
-            }
-        } else {
-            switch ($anlage->getConfigType()) {
-                case 1:
-                    $acGroups = $anlage->getGroupsDc();
-                    // Frequenz für diesen Zeitraum und diese Gruppe
-                    $sql = 'SELECT a.stamp, b.frequency as frequency 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
-                    break;
-                default:
-                    $acGroups = $anlage->getGroupsAc();
-                    // Frequenz für diesen Zeitraum und diese Gruppe
-                    $sql = 'SELECT a.stamp, b.frequency as frequency 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
-            }
+        switch ($anlage->getConfigType()) {
+            case 1:
+                $acGroups = $anlage->getGroupsDc();
+                $groupSource = 'group_dc';
+                break;
+            default:
+                $acGroups = $anlage->getGroupsAc();
+                $groupSource = 'group_ac';
         }
+        if ($hour) {
+            $hourSql1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $hourSql2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $hourSql1 = " a.stamp, ";
+            $hourSql2 = " GROUP BY date_format(a.stamp, '$form') ";
+        }
+        $sql = "SELECT 
+                    $hourSql1
+                    sum(b.frequency) as frequency 
+                FROM (db_dummysoll a left JOIN (SELECT * FROM ".$anlage->getDbNameAcIst()." WHERE $groupSource = '$group') b ON a.stamp = b.stamp) 
+                WHERE a.stamp > '$from' AND a.stamp <= '$to' 
+                $hourSql2";
+
         $result = $conn->query($sql);
         $counter = 0;
         $counterInv = 0;
@@ -770,40 +765,41 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für Blindleistung.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param int $group
+     * @param bool $hour
      * @return array
      *               AC - Actual, Groups
      */
     public function getReactivePowerGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
-        ini_set('memory_limit', '3G');
-        set_time_limit(500);
-        if ($hour) {
-            $form = '%y%m%d%H';
-        } else {
-            $form = '%y%m%d%H%i';
-        }
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
-        $acGroups = $anlage->getGroupsAc();
         switch ($anlage->getConfigType()) {
             case 1:
                 $acGroups = $anlage->getGroupsDc();
-                // Blindleistung für diesen Zeitraum und diese Gruppe
-                $sql = 'SELECT a.stamp, sum(b.p_ac_blind) as p_ac_blind 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
+                $groupSource = 'group_dc';
                 break;
             default:
                 $acGroups = $anlage->getGroupsAc();
-                // Blindleistung für diesen Zeitraum und diese Gruppe
-                $sql = 'SELECT a.stamp, sum(b.p_ac_blind) as p_ac_blind 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
+                $groupSource = 'group_ac';
         }
-
+        if ($hour) {
+            $hourSql1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $hourSql2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $hourSql1 = " a.stamp, ";
+            $hourSql2 = " GROUP BY date_format(a.stamp, '$form') ";
+        }
+        $sql = "SELECT 
+                    $hourSql1
+                    sum(b.p_ac_blind) as p_ac_blind 
+                FROM (db_dummysoll a left JOIN (SELECT * FROM ".$anlage->getDbNameAcIst()." WHERE $groupSource = '$group') b ON a.stamp = b.stamp) 
+                WHERE a.stamp > '$from' AND a.stamp <= '$to' 
+                $hourSql2";
         $result = $conn->query($sql);
         $counter = 0;
         $counterInv = 0;
@@ -816,14 +812,12 @@ private readonly PdoService $pdoService,
                 if ($counterInv > $maxInverter) {
                     $maxInverter = $counterInv;
                 }
-                $invGroupIst = $row['inv_group'];
                 $stamp = $row['stamp'];
                 $dataArray['chart'][$counter] = [
                     // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                     'date' => $stamp, //self::timeShift($anlage, $stamp),
                     'reactive_power' => round($row['p_ac_blind'], 2),
                 ];
-
                 ++$counter;
             }
         }
@@ -831,6 +825,7 @@ private readonly PdoService $pdoService,
 
         return $dataArray;
     }
+
     /**
      * Erzeugt die Daten für den Pnom Power Chart auf der AC Seite
      * MS 02/23 update 03/29
@@ -839,6 +834,7 @@ private readonly PdoService $pdoService,
      *
      * @return array
      * Pnom AC Seite
+     * @throws InvalidArgumentException
      */
     public function getNomPowerGroupAC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array {
         ini_set('memory_limit', '3G');
@@ -856,13 +852,12 @@ private readonly PdoService $pdoService,
             case 1:
                 $group = 'group_dc';
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
-                $groupct = count($nameArray);
                 break;
             default:
                 $group = 'group_ac';
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
-                $groupct = count($nameArray);
         }
+        $groupct = count($nameArray);
 
         if ($groupct) {
             if ($sets == null) {
@@ -905,7 +900,7 @@ private readonly PdoService $pdoService,
 
                 if ($powerist != null) {
                     $poweristkwh =  $powerist;
-                   } else {
+                } else {
                     $poweristkwh = 0;
                 }
 
@@ -913,7 +908,7 @@ private readonly PdoService $pdoService,
 
                 if($pnomkwh != 0) {
                   $value_acpnom = round(($poweristkwh / $pnomkwh) * 4,2);
-                 } else {
+                } else {
                   $value_acpnom = 0;
                 }
 

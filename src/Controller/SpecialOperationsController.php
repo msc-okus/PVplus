@@ -88,10 +88,6 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
-
-
-
-
     #[IsGranted('ROLE_G4N')]
     #[Route(path: '/special/operations/loadweatherdata', name: 'load_weatherdata')]
     public function loadUPWeatherData(Request $request, AnlagenRepository $anlagenRepository, WeatherStationRepository $weatherStationRepo, WeatherServiceNew $weatherService, MessageBusInterface $messageBus, LogMessagesService $logMessages,): Response

@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}
-    {{ parent() }}PVSyst Import from csv
+    {{ parent() }}Import Tickets
 {% endblock %}
 
 {% block javascripts %}
@@ -12,7 +12,7 @@
 {% block body %}
     <div class="grid-x">
         <div class="cell">
-            <h1 id="thechange">PV Syst Import (Beta)</h1>
+            <h1 id="thechange">Import Tickets from CSV (Beta)</h1>
         </div>
     </div>
 
@@ -60,7 +60,8 @@
                 }}) }}
             {% else %}
                 {{ form_widget(form.import, {attr: {
-                    disabled: false
+                    disabled: false,
+                    lable: 'import Tickets'
                 }}) }}
             {% endif %}
 

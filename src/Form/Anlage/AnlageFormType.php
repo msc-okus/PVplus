@@ -8,7 +8,6 @@ use App\Entity\WeatherStation;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
-use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -489,8 +488,8 @@ class AnlageFormType extends AbstractType
                 'help' => '[pldAlgorithm]',
             ])
             ->add('hasStrings', SwitchType::class, [
-                'label' => 'Plat has String Data',
-                'help' => '[Yes / No]',
+                'label' => 'Plant has String Data',
+                'help' => '[hasStrings]<br>Yes / No',
             ])
             ->add('hasPPC', SwitchType::class, [
                 'label' => 'Plant has PPC',
@@ -498,15 +497,15 @@ class AnlageFormType extends AbstractType
             ])
             ->add('usePPC', SwitchType::class, [
                 'label' => 'Respect PPC Signal on calc',
-                'help' => 'Power, TheoPower, Irradiation will be excluded if PPC signal is lower 100 [Yes / No]',
+                'help' => '[usePPC]<br>Power, TheoPower, Irradiation will be excluded if PPC signal is lower 100 (Yes / No)',
             ])
             ->add('ignoreNegativEvu', SwitchType::class, [
                 'label' => 'Ignore negative EVU values',
-                'help' => '[Yes / No]',
+                'help' => '[ignoreNegativEvu]<br>(Yes / No)',
             ])
             ->add('hasPannelTemp', SwitchType::class, [
-                'label' => 'Anlage hat Pannel Temperatur',
-                'help' => '[Yes / No]',
+                'label' => 'Plant has Pannel Temperatur',
+                'help' => '[hasPannelTemp]<br>(Yes / No)',
             ])
             // ###############################################
             // ###          FORECAST                      ####
@@ -580,10 +579,10 @@ class AnlageFormType extends AbstractType
                 ],
                 'required' => true,
             ])
-            ->add('dataSourceAM', CKEditorType::class, [
+            ->add('dataSourceAM', TextareaType::class, [
                 'label' => 'Summary DataSources AM Report',
                 'empty_data' => 'Module Inclination: <br>Module Name: <br>Module Type: <br>Module Performance: <br>Number of Modules: <br>Inverter Name: <br>Inverter Type: <br>Number of Inverters:',
-                'config' => ['toolbar' => 'my_toolbar'],
+                #'config' => ['toolbar' => 'my_toolbar'],
             ])
             ->add('retrieveAllData', SwitchType::class, [
                 'label' => 'Use all Data from begining of Working Time',

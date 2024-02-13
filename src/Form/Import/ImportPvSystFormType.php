@@ -59,7 +59,7 @@ class ImportPvSystFormType extends AbstractType
                 'label' => 'PV Syst File (csv)',
                 'constraints' => [
                     new File([
-                        'maxSize' => '5Mi',
+                        'maxSize' => '10Mi',
                         #'extensions' => ['csv','txt'],
                     ]),
                 ],

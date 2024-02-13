@@ -63,7 +63,7 @@ class PVSystDatenRepository extends ServiceEntityRepository
     {
         $q = $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
-            ->andWhere('a.stamp >= :from AND a.stamp < :to')
+            ->andWhere('a.stamp BETWEEN :from AND :to')
             ->andWhere('a.electricityGrid > 0')
             ->setParameter('anlage', $anlage->getAnlId())
             ->setParameter('from', $from)
@@ -74,6 +74,7 @@ class PVSystDatenRepository extends ServiceEntityRepository
         return  $q->getSingleScalarResult();
     }
 
+
     /**
      * @throws NonUniqueResultException
      * @throws NoResultException
@@ -82,7 +83,7 @@ class PVSystDatenRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
-            ->andWhere('a.stamp >= :from AND a.stamp < :to')
+            ->andWhere('a.stamp BETWEEN :from AND :to')
             ->andWhere('a.irrGlobalInc > 0')
             ->setParameter('anlage', $anlage->getAnlId())
             ->setParameter('from', $from)

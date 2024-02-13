@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Anlage;
-use App\Entity\TicketDate;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\ForcastRepository;
@@ -16,9 +15,7 @@ use App\Repository\PVSystDatenRepository;
 use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
-use Doctrine\ORM\NonUniqueResultException;
 use PDO;
-use App\Service\PdoService;
 use DateTime;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -94,11 +91,11 @@ class WeatherFunctionsService
     public function getWeather(WeatherStation $weatherStation, $from, $to, bool $ppc, Anlage $anlage, ?int $inverterID = null): ?array
     {
         return $this->cache->get('getWeather_'.md5($weatherStation->getId().$from.$to.$ppc.$anlage->getAnlId().$inverterID), function(CacheItemInterface $cacheItem) use ($weatherStation, $from, $to, $ppc, $anlage, $inverterID) {
-            $cacheItem->expiresAfter(60);
+            $cacheItem->expiresAfter(30);
             $conn = $this->pdoService->getPdoPlant();
             $weather = [];
             $dbTable = $weatherStation->getDbNameWeather();
-            $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp >= '$from' and stamp < '$to'";
+            $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp > '$from' and stamp <= '$to'";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -124,10 +121,11 @@ class WeatherFunctionsService
             $pNomWest = $anlage->getPowerWest();
 
             // Temperatur Korrektur Daten vorbereiten
-            $tModAvg = 25; //$this->determineTModAvg($anlage, $from, $to);
+            $tModAvg = $anlage->getTempCorrCellTypeAvg() > 0 ? $anlage->getTempCorrCellTypeAvg() : 25;
+            // ??? $this->determineTModAvg($anlage, $from, $to);
             $gamma = $anlage->getTempCorrGamma() / 100;
-            $tempCorrFunctionNREL = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
-            $tempCorrFunctionIEC = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
+            $tempCorrFunctionNREL   = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
+            $tempCorrFunctionIEC    = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
             $degradation = (1 - $anlage->getDegradationPR() / 100) ** $anlage->getBetriebsJahre();
 
             // depending on $department generate correct SQL code to calculate
@@ -166,7 +164,7 @@ class WeatherFunctionsService
                 $sqlTheoPowerPart = "
                 SUM(g_upper * $pNom)  as theo_power_raw,
                 SUM(g_upper * $pNom * $degradation)  as theo_power_raw_deg,
-                SUM(g_upper * $tempCorrFunctionNREL * $pNom ) as theo_power_temp_corr_mnrel,
+                SUM(g_upper * $tempCorrFunctionNREL * $pNom ) as theo_power_temp_corr_nrel,
                 SUM(g_upper * $tempCorrFunctionIEC * $pNom * $degradation) as theo_power_temp_corr_deg_iec,
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
@@ -187,10 +185,10 @@ class WeatherFunctionsService
                     SUM(temp_cell_multi_irr) as temp_cell_multi_irr
                     FROM $dbTable s
                         $sqlPPCpart1
-                    WHERE s.stamp >= '$from' AND s.stamp < '$to'
+                    WHERE s.stamp > '$from' AND s.stamp <= '$to'
                         $sqlPPCpart2;
                  ";
-
+                dump($sql);
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -206,10 +204,18 @@ class WeatherFunctionsService
                         $weather['upperIrr'] = $row['irr_upper'];
                         $weather['lowerIrr'] = $row['irr_lower'];
                     }
-                    $weather['irr0'] = $weather['upperIrr'];
-                    $weather['irr1'] = $weather['upperIrr'];
-                    $weather['irr2'] = $weather['upperIrr'];
-                    $weather['irr3'] = $weather['upperIrr'];
+                    if ($anlage->getIsOstWestAnlage()) {
+                        $weather['irr0'] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        $weather['irr1'] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        $weather['irr2'] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                        $weather['irr3'] = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                    } else {
+                        $weather['irr0'] = $weather['upperIrr'];
+                        $weather['irr1'] = $weather['upperIrr'];
+                        $weather['irr2'] = $weather['upperIrr'];
+                        $weather['irr3'] = $weather['upperIrr'];
+                    }
+
                     $weather['irrEast0'] = $weather['upperIrr'];
                     $weather['irrEast1'] = $weather['upperIrr'];
                     $weather['irrEast2'] = $weather['upperIrr'];
@@ -289,7 +295,9 @@ class WeatherFunctionsService
      * Function to retrieve weighted irradiation
      * definition is optimized for ticket generation, have a look into ducumentation
      *
-     * @return float
+     * @param Anlage $anlage
+     * @param DateTime $stamp
+     * @return float|null
      */
     public function getIrrByStampForTicket(Anlage $anlage, DateTime $stamp): ?float
     {

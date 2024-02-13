@@ -84,6 +84,7 @@ class AnlageConfigFormType extends AbstractType
             ])
 
             ->add('epcReportNote', CKEditorType::class, [
+                'label' => 'Notes attached to the EPC Report',
                 'config' => ['toolbar' => 'my_toolbar'],
                 'attr' => ['rows' => '9'],
                 'empty_data' => '',

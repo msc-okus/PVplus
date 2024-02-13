@@ -562,21 +562,20 @@ class Ticket
     {
         $this->inverter = $inverter;
         if (isset($this->anlage)) {
-
             if ($this->inverter !== "*"){
                 $inverterArray = explode(", ", $this->inverter);
                 $inverterNames = $this->anlage->getInverterFromAnlage()[$inverterArray[0]];
                 for($i = 1; $i < count($inverterArray); $i++){
                     $inverterNames = $inverterNames . ", ". $this->anlage->getInverterFromAnlage()[$inverterArray[$i]];
                 }
-            }
-            else{
+            } else {
                 $inverterNames = "*";
             }
-            if ($inverterNames == null)   $inverterNames = "";
+            if ($inverterNames == null) $inverterNames = "";
             $inverterString = $inverterNames;
+        } else {
+            $inverterString = $this->getInverter();
         }
-        else $inverterString = $this->getInverter();
         switch ($this->getAlertType()) {
             case 10:
                 $this->description = "Data gap in Inverter(s): " . $inverterString;

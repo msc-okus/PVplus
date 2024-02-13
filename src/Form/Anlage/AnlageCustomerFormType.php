@@ -48,7 +48,7 @@ class AnlageCustomerFormType extends AbstractType
             ])
             ->add('epcReportNote', CKEditorType::class, [
                 'config' => ['toolbar' => 'my_toolbar'],
-                'label' => 'Notizen zur Anlage für EPC Report',
+                'label' => 'Notes attached to the EPC Report',
                 'attr' => ['rows' => '9'],
                 'empty_data' => '',
                 'required' => false,

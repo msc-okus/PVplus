@@ -39,56 +39,57 @@ private readonly PdoService $pdoService,
      * @param String $from
      * @param String $to
      * @return array
+     * @throws \JsonException
      */
     public function getIrrData(Anlage $anlage, String $from, String $to): array
     {
+        $conn = $this->pdoService->getPdoPlant();
+        $irrData = [];
+        $sqlIrrFlag = "";
+        if ($conn->query("SHOW COLUMNS from " . $anlage->getDbNameWeather() . " LIKE 'irr_flag';")->rowCount() === 1){ // Zwartowo und Test Zwartowo
+            $sqlIrrFlag = ", b.irr_flag ";
+        }
+        $sqlEinstrahlung = "SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed $sqlIrrFlag FROM (db_dummysoll a left JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND  '$to'";
+        $resultEinstrahlung = $conn->query($sqlEinstrahlung);
 
-            //$cacheItem->expiresAfter(60); // Lifetime of cache Item
-
-            $conn = $this->pdoService->getPdoPlant();
-            $irrData = [];
-            $sqlIrrFlag = "";
-            if ($conn->query("SHOW COLUMNS from " . $anlage->getDbNameWeather() . " LIKE 'irr_flag';")->rowCount() === 1){ // Zwartowo und Test Zwartowo
-                $sqlIrrFlag = ", b.irr_flag ";
-            }
-
-            $sqlEinstrahlung = "SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed $sqlIrrFlag FROM (db_dummysoll a left JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to'";
-            $resultEinstrahlung = $conn->query($sqlEinstrahlung);
-
-            if ($resultEinstrahlung->rowCount() > 0) {
-                while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
-                    $stamp = $row['stamp'];
-                    $irrUpper = $row['g_upper'] === null || $row['g_upper'] === "" ? null : (float)max($row['g_upper'], 0);
-                    $irrLower = $row['g_lower'] === null || $row['g_lower'] === "" ? null : (float)max($row['g_lower'], 0);
-                    $strahlung = null;
-                    if ($anlage->getIsOstWestAnlage()) {
-                        if ($irrUpper !== null && $irrLower !== null) {
-                            $strahlung = ($irrUpper * $anlage->getPowerEast() + $irrLower * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
-                        }
-                    } else {
-                        if ($irrUpper !== null) {
-                            $strahlung = $irrUpper;
-                        }
+        if ($resultEinstrahlung->rowCount() > 0) {
+            while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = $row['stamp'];
+                $irrUpper = $row['g_upper'] === null || $row['g_upper'] === "" ? null : (float)max($row['g_upper'], 0);
+                $irrLower = $row['g_lower'] === null || $row['g_lower'] === "" ? null : (float)max($row['g_lower'], 0);
+                $strahlung = null;
+                if ($anlage->getIsOstWestAnlage()) {
+                    if ($irrUpper !== null && $irrLower !== null) {
+                        $strahlung = ($irrUpper * $anlage->getPowerEast() + $irrLower * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
                     }
-                    $irrData[$stamp]['stamp'] = $stamp;
-                    $irrData[$stamp]['irr'] = $strahlung;
-                    if (isset($row['irr_flag'])) {
-                        $irrData[$stamp]['irr_flag'] = (bool)$row['irr_flag'];
-                    } else {
-                        $irrData[$stamp]['irr_flag'] = true;
+                } else {
+                    if ($irrUpper !== null) {
+                        $strahlung = $irrUpper;
                     }
                 }
+                $irrData[$stamp]['stamp'] = $stamp;
+                $irrData[$stamp]['irr'] = $strahlung;
+                if (isset($row['irr_flag'])) {
+                    $irrData[$stamp]['irr_flag'] = (bool)$row['irr_flag'];
+                } else {
+                    $irrData[$stamp]['irr_flag'] = true;
+                }
             }
-            unset($result);
-            $conn = null;
+        }
+        unset($result);
+        $conn = null;
 
-            return self::correctIrrByTicket($anlage, $from, $to, $irrData);
+        return self::correctIrrByTicket($anlage, $from, $to, $irrData);
     }
 
+    /**
+     * @throws \JsonException
+     */
     private function correctIrrByTicket(Anlage $anlage, string $from, string $to, array $irrData): array
     {
         $startDate = date_create($from);
         $endDate = date_create($to);
+
         // Suche alle Tickets (Ticketdates) die in den Zeitraum fallen
         // Es werden Nur Tickets mit Sensor Bezug gesucht (Performance Tickets mit ID = 71, 72, 73
         $ticketArray = $this->ticketDateRepo->performanceTickets($anlage, $startDate, $endDate);
@@ -109,26 +110,25 @@ private readonly PdoService $pdoService,
                     // Funktionier in der ersten Version nur für Leek und Kampen
                     // es fehlt die Möglichkeit die gemittelte Strahlung, automatisiert aus den Sensoren zu berechnen
                     // ToDo: Sensor Daten müssen zur Wetter DB umgezogen werden, dann Code anpassen
-
                     // Search for sensor (irr) values in ac_ist database
                     $sensorValues = $this->weatherFunctionsService->getSensors($anlage, $tempoStartDate, $tempoEndDate);
                     // ermitteln welche Sensoren excludiert werden sollen
-                    $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
                     foreach ($sensorValues as $date => $sensorValue) {
+                        $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
                         foreach ($anlage->getSensorsInUse() as $sensor) {
                             if (!str_contains($ticket->getSensors(), $sensor->getNameShort())) {
                                 switch ($sensor->getVirtualSensor()) {
                                     case 'irr-hori':
-                                        $mittelwertPyrHoriArray[] = $sensorValue[$sensor->getNameShort()];
+                                        $mittelwertPyrHoriArray[] = (float)$sensorValue[$sensor->getNameShort()];
                                         break;
                                     case 'irr':
-                                        $mittelwertPyroArray[] = $sensorValue[$sensor->getNameShort()];
+                                        $mittelwertPyroArray[] = (float)$sensorValue[$sensor->getNameShort()];
                                         break;
                                     case 'irr-east':
-                                        $mittelwertPyroEastArray[] = $sensorValue[$sensor->getNameShort()];
+                                        $mittelwertPyroEastArray[] = (float)$sensorValue[$sensor->getNameShort()];
                                         break;
                                     case 'irr-west':
-                                        $mittelwertPyroWestArray[] = $sensorValue[$sensor->getNameShort()];
+                                        $mittelwertPyroWestArray[] = (float)$sensorValue[$sensor->getNameShort()];
                                         break;
                                 }
                             }
@@ -169,7 +169,6 @@ private readonly PdoService $pdoService,
                         if ($ticket->getTicket()->isScope(10)) $power1 = $power1 - $row['power'] + $replaceIrr; // Department 1
                         if ($ticket->getTicket()->isScope(20)) $power2 = $power2 - $row['power'] + $replaceIrr; // Department 2
                         if ($ticket->getTicket()->isScope(30)) $power3 = $power3 - $row['power'] + $replaceIrr; // Department 3
-                        #dump("Reduce Energy by: " . $row['power'] . " and replace with: " . $ticket->getValueEnergy());
                     }
                     */
                     break;

@@ -1,0 +1,32 @@
+{% extends 'report/_base_layouts/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Performance Tickets</h3>
+    {% if tickets|length > 0 %}
+        <table class="basetable">
+        <thead>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Identifier</th>
+                <th>Begin</th>
+                <th>End</th>
+                <th>Error Category</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for key,ticket in tickets %}
+            <tr>
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.TicketName }}</td>
+                <td>{{ ticket.begin|date("d.m.y H:i")}}</td>
+                <td>{{ ticket.end|date("d.m.y H:i") }}</td>
+                <td>
+                    {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
+                    {{ errcat|trans }}
+                </td>
+            </tr>
+        {%  endfor %}
+        </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

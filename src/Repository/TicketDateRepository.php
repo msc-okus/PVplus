@@ -228,8 +228,10 @@ class TicketDateRepository extends ServiceEntityRepository
     /**
      * Search for all tiFM Cases (case 5)
      *
+     * @param Anlage $anlage
      * @param $begin
      * @param $end
+     * @param int $department
      * @return mixed
      */
     public function findTiFm(Anlage $anlage, $begin, $end, int $department): mixed
@@ -246,7 +248,6 @@ class TicketDateRepository extends ServiceEntityRepository
         match ($department) {
             1 => $q->andWhere('t.kpiPaDep1 = 20'),
             2 => $q->andWhere('t.kpiPaDep2 = 20'),
-            3 => $q->andWhere('t.kpiPaDep3 = 99'),
             default => $q->andWhere('t.kpiPaDep3 = 99'),
         };;
 

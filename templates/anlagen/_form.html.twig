@@ -128,7 +128,6 @@
 {% endmacro %}
 
 {{ form_start(anlageForm, {'attr': {'novalidate': 'no'}} ) }}
-
     <div class="grid-x">
         <div class="cell">
             <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
@@ -231,17 +230,18 @@
 
                             <fieldset class="fieldset">
                                 <legend>Config</legend>
-                                <div class="grid-x grid-padding-x">
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.useGridMeterDayData) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.hasDc) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.hasStrings) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.hasPPC) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.usePPC) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.hasPannelTemp) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.useCosPhi) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.hasFrequency) }}</div>
-                                    <div class="cell medium-6"> {{ form_row(anlageForm.ignoreNegativEvu) }}</div>
-                                    <div class="cell medium-6"> {{ form_row(anlageForm.isTrackerEow) }}</div>
+                                <div class="grid-x grid-padding-x small-up-1 large-up-2 xlarge-up-3">
+                                    <div class="cell"> {{ form_row(anlageForm.useGridMeterDayData) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasDc) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasStrings) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasPPC) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.usePPC) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.settings.usePpcTicketToReplacePvSyst) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasPannelTemp) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.useCosPhi) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasFrequency) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.ignoreNegativEvu) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.isTrackerEow) }}</div>
                                 </div>
                             </fieldset>
                         </div>
