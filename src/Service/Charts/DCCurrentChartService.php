@@ -233,7 +233,7 @@ class DCCurrentChartService
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
         $nameArray = match ($anlage->getConfigType()) {
-            3, 4 => $this->functions->getNameArray($anlage, 'scb'),
+            1 => $this->functions->getNameArray($anlage, 'dc'),
             default => $this->functions->getNameArray($anlage, 'ac'),
         };
         $dataArray['inverterArray'] = $nameArray;
@@ -318,7 +318,7 @@ class DCCurrentChartService
             }
         }
         $conn = null;
-
+        dump($dataArray);
         return $dataArray;
     }
 

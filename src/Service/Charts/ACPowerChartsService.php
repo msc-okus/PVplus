@@ -411,8 +411,9 @@ class ACPowerChartsService
                             $groupBy";
 
                 $result = $conn->query($sqlSoll);
+                $expected = null;
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                    ($row['soll'] == null || $row['soll'] < 0) ? $expected = 0 : $expected = $row['soll'];
+                    ($row['soll'] == null || $row['soll'] < 0) ? $expected = null : $expected = $row['soll'];
                 }
 
                 $dataArray['maxSeries'] = 1;
@@ -443,7 +444,7 @@ class ACPowerChartsService
                     $dataArray['chart'][$counter]['cosPhi'] = abs((float) $rowIst['wr_cos_phi_korrektur']);
                 }
 
-                $dataArray['chart'][$counter]['expected'] = (float) $expected;
+                $dataArray['chart'][$counter]['expected'] = $expected;
 
                 // add Irradiation
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
