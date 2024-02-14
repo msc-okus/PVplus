@@ -450,4 +450,14 @@ class TicketRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
+    //new Dashboard
+    public  function  findByAnlageId(int $anlageId):array{
+        return $this->createQueryBuilder('t')
+            ->join('t.anlage', 'a')
+            ->where('a.anlId = :anlageId')
+            ->setParameter('anlageId', $anlageId)
+            ->getQuery()
+            ->getResult();
+    }
+
 }
