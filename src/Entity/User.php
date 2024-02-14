@@ -459,7 +459,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
          */
         $owner = $this->getEigners()[0];
         if ($owner->getFeatures()->isManAktive()) {
-            $roles['Message System (MRO)'] = 'ROLE_MSA';
+            $roles['Maintance Repair Order System (MRO)'] = 'ROLE_MRO';
         }
 
         return $roles;

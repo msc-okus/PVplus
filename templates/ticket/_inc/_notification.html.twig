@@ -30,7 +30,7 @@
                     {% if notifications|length > 0 %}
                         <div style="text-align: center">Message Log </div>
                         <div class="container">
-                                <div class="msa">
+                                <div class="mro">
                                     {% for notification in notifications %}
                                         <div style="text-align: center"> {{ notification.contactedPerson.Name }}</div>
                                         {% if notification.freeText != '' %}<div class="other"> {{ notification.freeText }} -<i>{{ notification.Date |format_datetime(pattern="yyyy-MM-dd HH:mm") }} </i></div>{% endif %}
