@@ -88,88 +88,95 @@ export default class extends Controller {
     }
 
     beginPlusTime(){
-        let hour;
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');
         let date = new Date(valueBegin);
-        let date2 = new Date(valueEnd);
-        if (date.getTime() + 900000 < date2.getTime()) {
-            if ($(this.formHourTarget).prop('checked') == true) {
+        let endDate = new Date(valueEnd);
 
-                if (date.getHours() < date2.getHours() - 1){
+        if ($(this.formHourTarget).prop('checked') == true){
+            var addTime = 60;
+        }
+        else {
+            var addTime = 15;
+        }
 
-                    hour = date.getHours() + 1;
-                    var minutes = '15';
-                }
-                else{
-                    hour = date.getHours();
-                    var minutes = '15';
-                }
-            }
-            else {
-                if (date.getMinutes() + 15 == 60) {
-                    hour = date.getHours() + 1;
-                    var minutes = '00';
-                } else {
-                    hour = date.getHours();
-                    var minutes = date.getMinutes() + 15;
-                }
-            }
-            if (date.getMonth() < 9) {
-                var beginMonth = '0'.concat((date.getMonth() + 1).toString());
+        let newDate = new Date(date.getTime() + (addTime * 60000));
+
+        console.log(newDate, date);
+        if (newDate.getTime() < endDate.getTime()) {
+            console.log(endDate);
+            if (newDate.getMonth() < 9) {
+                var beginMonth = '0'.concat((newDate.getMonth() + 1).toString());
             } else {
-                var beginMonth = (date.getMonth() + 1).toString();
+                var beginMonth = (newDate.getMonth() + 1).toString();
             }
-            if (date.getDate() < 10) {
-                var beginDay = '0'.concat(date.getDate().toString());
+            if (newDate.getDate() < 10) {
+                var beginDay = '0'.concat(newDate.getDate().toString());
             } else {
-                var beginDay = date.getDate().toString();
+                var beginDay = newDate.getDate().toString();
             }
-            if (hour < 10) {
-                hour = '0'.concat(hour.toString());
+
+            if (newDate.getHours() < 10) {
+                var hour = '0'.concat(newDate.getHours().toString());
+            } else {
+                var hour = newDate.getHours().toString();
             }
-            let newStringdate = date.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes.toString());
+            if (newDate.getMinutes() < 10) {
+                var minutes = '0'.concat(newDate.getMinutes().toString());
+            } else {
+                var minutes = newDate.getMinutes().toString();
+            }
+
+            let newStringdate = newDate.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes);
+            console.log(newStringdate);
             $(this.formBeginTarget).val(newStringdate);
             $(this.formBeginDateTarget).val(newStringdate);
             if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
-
         }
+
     }
     beginMinusTime(){
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        let date = new Date(valueBegin);
 
-        if (date.getMinutes() - 15 < 0){
-            var hour = date.getHours() -1;
-            var minutes = '45';
+        if ($(this.formHourTarget).prop('checked') == true){
+            var subTime = 60;
         }
         else {
-            var hour = date.getHours();
-            if (date.getMinutes() - 15 == 0) var minutes = '00';
-            else var minutes = date.getMinutes() - 15;
+            var subTime = 15;
         }
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        let date = new Date(valueBegin);
+        let newDate = new Date(date.getTime() - (subTime * 60000));
 
-        if (date.getMonth() < 9) {
-            var beginMonth = '0'.concat((date.getMonth() + 1).toString());
+        if (newDate.getMonth() < 9) {
+            var beginMonth = '0'.concat((newDate.getMonth() + 1).toString());
         }
         else{
-            var beginMonth = (date.getMonth() + 1).toString();
+            var beginMonth = (newDate.getMonth() + 1).toString();
         }
-        if (date.getDate() < 10){
-            var beginDay =  '0'.concat(date.getDate().toString());
+        if (newDate.getDate() < 10){
+            var beginDay =  '0'.concat(newDate.getDate().toString());
         }
         else{
-            var beginDay = date.getDate().toString();
+            var beginDay = newDate.getDate().toString();
         }
 
-        if (hour < 10){
-            var hour =  '0'.concat(hour.toString());
+        if (newDate.getHours() < 10){
+            var hour =  '0'.concat(newDate.getHours().toString());
+        }else{
+            var hour =  newDate.getHours().toString();
+        }
+        if (newDate.getMinutes() < 10){
+            var minutes =  '0'.concat(newDate.getMinutes().toString());
+        }else{
+            var minutes =  newDate.getMinutes().toString();
         }
 
-        let newStringdate = date.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes.toString());
+        let newStringdate = newDate.getFullYear().toString().concat('-', beginMonth, '-',beginDay, 'T', hour, ':', minutes);
         $(this.formBeginTarget).val(newStringdate);
         $(this.formBeginDateTarget).val(newStringdate);
         if ($(this.formHourTarget).prop('checked') == true)this.hourCheck();
+
+
     }
     endPlusTime(){
         const valueEnd = $(this.formEndTarget).prop('value');
@@ -289,8 +296,7 @@ export default class extends Controller {
 
             let beginHourInt = 0;
             if (beginDate.getMinutes() < 15) {
-                if (beginDate.getHours() > 0)beginHourInt = beginDate.getHours() - 1;
-                else beginHourInt = 23;
+               beginHourInt = beginDate.getHours() - 1;
 
             }
             else beginHourInt = beginDate.getHours();
@@ -403,7 +409,6 @@ export default class extends Controller {
             }
             else{
                 $(this.headerReplaceIrrTargets).removeClass('is-hidden');
-                //$(this.headerHourTarget).addClass('is-hidden');
                 $(this.headerEnergyValueTargets).addClass('is-hidden');
                 $(this.headerIrrValueTargets).addClass('is-hidden');
             }
@@ -458,9 +463,9 @@ export default class extends Controller {
         if (cat >= 70 && cat <= 80 ){
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
             });
 
             inverterString = '*';
@@ -579,9 +584,9 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 body.find('input:checkbox[class=js-checkbox]').each(function () {
                     $(this).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                    body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
                 });
                 inverterNameString = '*';
                 inverterString = '*';
@@ -625,9 +630,9 @@ export default class extends Controller {
                 body.find('input:checkbox[class=js-checkbox]').each(function () {
                     $(this).prop('checked', true);
 
-                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                    body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
                 });
                 inverterNameString = '*';
                 inverterString = '*';
@@ -903,8 +908,8 @@ export default class extends Controller {
         let body = $(this.modalBodyTarget);
         let checked = $("#trafo" + trafo).prop('checked');
         body.find('input:checkbox[class=js-checkbox]').each(function (){
-            if ($(this).prop('name') >= first) {
-                if ($(this).prop('name') <= last){
+            if ($(this).prop('id') >= first) {
+                if ($(this).prop('id') <= last){
                     if (checked) $(this).prop('checked', true);
                     else $(this).prop('checked', false);
                 }
@@ -942,9 +947,9 @@ export default class extends Controller {
             });
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
             });
             if (edited == true) {
                 $(this.splitDeployTarget).removeAttr('disabled');
@@ -1186,16 +1191,16 @@ export default class extends Controller {
         body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
             counter ++;
             if (inverterString == '') {
-                inverterString = inverterString + $(this).prop('name');
-                inverterNameString = inverterNameString + $(this).prop('id');
+                inverterString = inverterString + $(this).prop('id');
+                inverterNameString = inverterNameString + $(this).prop('name');
             }
             else {
-                inverterString = inverterString + ', ' + $(this).prop('name');
-                inverterNameString = inverterNameString + ', ' + $(this).prop('id');
+                inverterString = inverterString + ', ' + $(this).prop('id');
+                inverterNameString = inverterNameString + ', ' + $(this).prop('name');
             }
-            body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-            body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
-            body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+            body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+            body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
+            body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
 
         });
         if (counter == body.find('input:checkbox[class=js-checkbox]').length){
