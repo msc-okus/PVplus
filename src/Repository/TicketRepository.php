@@ -68,6 +68,21 @@ class TicketRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    public function findAllPerformanceTicketFAC(Anlage $anlage)
+    {
+        $q = $this->createQueryBuilder('t')
+            ->andWhere('t.anlage = :anlId')
+            ->andWhere('t.begin >= :facStart and t.begin <= :facEnd')
+            ->andWhere('t.alertType >=70 and t.alertType < 80')
+            ->andWhere('t.ignoreTicket = false')
+            ->setParameter('anlId', $anlage->getAnlId())
+            ->setParameter('facStart', $anlage->getEpcReportStart()->format('Y-m-d H:i'))
+            ->setParameter('facEnd', $anlage->getEpcReportEnd()->format('Y-m-d H:i'))
+        ;
+
+        return $q->getQuery()->getResult();
+    }
+
     public function countByProof(){
         /** @var User $user */
         $user = $this->security->getUser();
@@ -192,7 +207,7 @@ class TicketRepository extends ServiceEntityRepository
      * @param string $sort
      * @param string $direction
      * @param bool $ignore
-     * @param string $TicketName
+     * @param string $ticketName
      * @param int $kpistatus
      * @param string $begin
      * @param string $end
