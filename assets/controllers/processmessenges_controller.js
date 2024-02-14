@@ -1,5 +1,4 @@
-import { Controller } from 'stimulus';
-import {color} from "chart.js/helpers";
+import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
 
