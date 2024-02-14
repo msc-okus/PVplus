@@ -185,7 +185,7 @@
         left: 0;
         right: 0;
         height: $navHeight;
-        overflow: hidden;
+        overflow: visible;
         background-color: $g4n-white;
         box-shadow: 0 0 10px 0 rgba(100,100,100,0.75);
 
@@ -197,6 +197,7 @@
             .header-menu {
                 min-width: 150px;
                 a {padding: 0.3rem;}
+                float:right;
             }
             .button-hamburger {
                 font-size: 1.1em;
@@ -216,10 +217,160 @@
                 i {color: $g4n-white; background-color: transparent;}
             }
 
+            .dropbtn {
+                margin-left: 5px;
+                color: #1779ba;
+                position: relative;
+                top: -18px;
+            }
+
+            .dropdownMessages {
+                position: absolute;
+                display: block;
+                right: 170px;
+                top: 27px;
+                z-index: 9999;
+            }
+
+            .dropdown-content {
+                display: block;
+                position: absolute;
+                color:#1779ba;
+                min-width: 500px;
+                background: #f2f4f5;
+                z-index: 2000;
+                right: 15px;
+                top: -500px;
+                opacity: 0;
+                transition: opacity 1s;
+                min-width: 500px;
+                margin: 0 auto;
+                padding: 15px;
+                transition: all .5s;
+                border-left: 5px solid #1779ba;
+                border-right: 5px solid #1779ba;
+                border-radius: 15px;
+            }
+
+            .dropdown-content a:hover {background-color: #ddd; opacity: 1 !important; top: -5px;}
+
+            .dropdownMessages:hover .dropdown-content {z-index: 9999 !important; opacity: 1 !important; top: -5px;}
+
             .background-processes {
                 max-height: $navHeight;
                 overflow: hidden;
                 padding: 5px;
+            }
+
+            .messageProzessReady{
+                color: #1779ba;
+                display: block;
+                background-color: #f2f4f5;
+                padding: 10px 10px 5px 10px;
+                min-width: 400px;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                z-index: 2000;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                top: -500px;
+                #opacity: 1;
+                transition: opacity 2s;
+                padding: 15px;
+                border-left: 5px solid #1779ba;
+                border-right: 5px solid #1779ba;
+                border-radius: 15px;
+                #pdfdownload div a{
+                    margin-top: 7px;
+                }
+            }
+
+
+            .fade {
+                opacity: 0 !important;
+            }
+
+            .nav {
+                display: flex;
+                flex-wrap: wrap;
+                padding-left: 0;
+                margin-bottom: 0;
+                list-style: none;
+            }
+
+            .dropdown-menu-x ul {
+                display: block;
+                margin-block-start: 1em;
+                margin-block-end: 1em;
+                margin-inline-start: 0px;
+                margin-inline-end: 0px;
+                padding-inline-start: 40px;
+            }
+
+            .dropdown-menu-x ul li {
+                display: list-item;
+                text-align: -webkit-match-parent;
+            }
+
+            .messagebuttons{
+                border: none !important;
+                .tabsmessages {
+                    background: none;
+                    border: none;
+                    .is-inactive button {
+                        border-top-left-radius: 4px;
+                        border-top-right-radius: 4px;
+                        margin-right: 2px;
+                        background: #ffffff;
+                        border: 1px solid #b7b7b7;
+                        margin-bottom: -1px;
+                        transition: all 0.5s ease;
+                        display: block;
+                        padding: 0.5rem 1rem 0.5rem 1rem;
+                        font-size: 0.75rem;
+                        line-height: 1;
+                        color: #1779ba;
+                    }
+
+                    .is-active button {
+                        border-top-left-radius: 4px;
+                        border-top-right-radius: 4px;
+                        margin-right: 2px;
+                        border: 1px solid #b7b7b7;
+                        margin-bottom: -1px;
+                        transition: all 0.5s ease;
+                        display: block;
+                        padding: 0.5rem 1rem 0.5rem 1rem;
+                        font-size: 0.75rem;
+                        line-height: 1;
+                        color: #ffffff;
+                        background: #0F5694;
+                    }
+                }
+            }
+
+            .messagescontent{
+                margin-top: 5px;
+                transition: all .5s;
+                font-size: 100%;
+                border-left: 5px solid rgba(100,100,100,0.75);
+                border-right: 5px solid rgba(100,100,100,0.75);
+                border-radius: 15px;
+                .done td{ color: #157539;}
+                .working td{ color: #71A8E2;}
+                .waiting td {color: #be0000;}
+
+            }
+
+            .messagesactionstab {
+                display: none;
+                td a{
+                    margin-top: 7px;
+                }
+            }
+
+            .nomessages {
+                color: #1779ba !important;
             }
         }
         .user-settings-link {
@@ -507,7 +658,7 @@
         ul.tabs {
             background: none;
             border: none;
-            border-bottom: 1px solid #b7b7b7;
+
             .tabs-title {
                 border-top-left-radius: 4px;
                 border-top-right-radius: 4px;
@@ -806,13 +957,12 @@
                 }
             }
         }
-
     }
 
     .message-log{
         font-size: 80%;
         .done td{ color: #157539;}
-        .working td{ color: #fdb500;}
+        .working td{ color: #71A8E2;}
         .waiting td {color: #be0000;}
     }
     footer {

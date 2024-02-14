@@ -112,21 +112,22 @@ class ImportService
                     if($i == 0){
                         $sensors[$date] = $bulkMeaserments[$i]['sensors'][$date];
                         $inverters[$date] = $bulkMeaserments[$i]['inverters'][$date];
+                        $basics[$date] = $bulkMeaserments[$i]['basics'][$date];
                         if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                             $stringBoxes[$date] = $bulkMeaserments[$i]['stringboxes'][$date];
                         }
+                        $basics[$date]["E_Z_EVU"] = $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
+                        $basics[$date]["G_M".$i] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
                     }else{
                         $sensors[$date] = $sensors[$date] + $bulkMeaserments[$i]['sensors'][$date];
                         $inverters[$date] = $inverters[$date] + $bulkMeaserments[$i]['inverters'][$date];
-                        $stringBoxes[$date] = $stringBoxes[$date] + $bulkMeaserments[$i]['stringboxes'][$date];
+                        $basics[$date] = $basics[$date] + $bulkMeaserments[$i]['basics'][$date];
+                        if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
+                            $stringBoxes[$date] = $stringBoxes[$date] + $bulkMeaserments[$i]['stringboxes'][$date];
+                        }
+                        $basics[$date]["E_Z_EVU"] = $basics[$date]["E_Z_EVU"] + $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
+                        $basics[$date]["G_M".$i] = $basics[$date]["G_M".$i] + $bulkMeaserments[$i]['basics'][$date]['G_M0'];
                     }
-                    if($bulkMeaserments[$i]['basics'][$date]['G_M0'] == null){
-                        $basics[$date]["G_M".$i] = 0;
-                    }else{
-                        $basics[$date]["G_M".$i] = $bulkMeaserments[$i]['basics'][$date]['G_M0'];
-                    }
-                    $basics[$date]["E_Z_EVU"] += $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'];
-
                 }
 
             }
@@ -144,12 +145,22 @@ class ImportService
                 if (is_array($basics) && array_key_exists($date, $basics)) {
                     $tempGm = [];
                     for ($i = 0; $i < $numberOfPlants; ++$i) {
-                        $tempGm[] = $basics[$date]["G_M".$i];
+                        if($basics[$date]["G_M".$i] == ''){
+                            $tempGm[] = 0.0;
+                        }else{
+                            $tempGm[] = (float)$basics[$date]["G_M".$i];
+                        }
+
                     }
 
                     //Hier Mittelwert bilden
-                    $irrAnlageArrayGMO ['G_M0'] = $this->mittelwert($tempGm);   //
-                    $eZEvu = $basics[$date]['E_Z_EVU'];
+                    $irrAnlageGMO = $this->mittelwert($tempGm, true);   //
+
+                    if($basics[$date]['E_Z_EVU'] > 0){
+                        (float)$eZEvu = $basics[$date]['E_Z_EVU'];
+                    }else{
+                        (float)$eZEvu = 0.0;
+                    }
                 }
 
                 (int)$length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
@@ -157,7 +168,7 @@ class ImportService
                 if ((is_array($sensors) && array_key_exists($date, $sensors) && $length > 0) || $hasSensorsInBasics == 1) {
                     //if plant use sensors datatable get data from the table
                     if($useSensorsDataTable){
-                        $result = self::getSensorsDataFromVcom((array)$anlageSensors->toArray(), (int)$length, (array)$sensors, (array)$basics, $stamp, $date, (string)$irrAnlageArrayGMO);
+                        $result = self::getSensorsDataFromVcom((array)$anlageSensors->toArray(), (int)$length, (array)$sensors, (array)$basics, $stamp, $date, (string)$irrAnlageGMO);
                         //built array for sensordata
                         for ($j = 0; $j <= count($result[0])-1; $j++) {
                             $dataSensors[] = $result[0][$j];
@@ -223,6 +234,8 @@ class ImportService
                     'ft_factor' => NULL,
                     'irr_flag' => NULL
                 ];
+
+
 
                 //Import different Types
                 if ($anlage->getSettings()->getImportType() == 'standart') {
@@ -329,9 +342,8 @@ class ImportService
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
                     }
-
                     if(is_array($data_pv_weather) && count($data_pv_weather) > 0){
-                        $tableName = "db__pv_ws_$weatherDbIdent";
+                        $tableName = "db__pv_ws_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                     }
 

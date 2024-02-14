@@ -58,20 +58,20 @@ class LogMessagesRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findSmallList()
+    public function findSmallList($uid)
     {
         if ($this->security->isGranted('ROLE_G4N')) {
             $q = $this->createQueryBuilder('log')
                 ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
-                ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 1))
-                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600 * 1))
+                ->andWhere("log.userId = $uid")
+                ->setParameter('end', date('Y-m-d H:i:s', time() - 14400 * 1))
+                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 14400 * 1))
                 ->orderBy('log.startedAt', 'DESC')
                 ->setMaxResults(4)
                 ->getQuery()
                 ->getResult();
         } else {
             $q = $this->createQueryBuilder('log')
-                ->andWhere("log.function LIKE 'create AM Report%'")
                 ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
                 ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 1))
                 ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600 * 1))
@@ -84,4 +84,48 @@ class LogMessagesRepository extends ServiceEntityRepository
         return $q;
     }
 
+    public function getStatusMessages($uid)
+    {
+        if ($this->security->isGranted('ROLE_G4N')) {
+            $q = $this->createQueryBuilder('log')
+                ->where("log.state = 'done' AND log.isSeen = '0' AND log.progress = '100' AND log.userId = $uid")
+                ->orderBy('log.finishedAt')
+                ->setMaxResults(1);
+            try {
+                return $q->getQuery()->getOneOrNullResult();
+            }
+            catch(\Doctrine\ORM\NoResultException $e) {
+                return 'noMessage';
+            }
+        } else {
+            $q = $this->createQueryBuilder('log')
+                ->where("log.state = 'done' AND log.isSeen = '0' AND log.progress = '100' AND log.userId = $uid")
+                ->orderBy('log.finishedAt')
+                ->setMaxResults(1);
+            try {
+                return $q->getQuery()->getOneOrNullResult();
+            }
+            catch(\Doctrine\ORM\NoResultException $e) {
+                return 'noMessage';
+            }
+        }
+
+        return $q;
+    }
+
+    public function setStatusMessagesIsSeen($id)
+    {
+        $q = $this->createQueryBuilder('log')
+            ->update()
+            ->set('log.isSeen', 1)
+            ->where("log.id = $id");
+        try {
+            return $q->getQuery()->execute();
+        }
+        catch(\Doctrine\ORM\NoResultException $e) {
+            return 'noMessage';
+        }
+
+
+    }
 }

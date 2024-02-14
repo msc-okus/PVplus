@@ -39,14 +39,22 @@
                 <div class="grid-x align-right">
                     <div class="cell medium-5 show-for-medium">
                         {% if is_granted('ROLE_G4N') %}
-                            <div class="background-processes"
-                                {{ stimulus_controller('background-processes', {
-                                    url: path('app_log_background_messages'),
-                                    refreshIntervale: 15000,
-                                }) }}
-                            >
+                            <div class="dropdownMessages">
+                                <div class="dropbtn"><i class="far fa-bell" id="far-fa-bell"></i></div>
+                                <div class="dropdown-content fade" id="dropdown-content"
+                                        {{ stimulus_controller('background-processes', {
+                                            url: path('app_log_background_messages'),
+                                            refreshIntervale: 15000,
+                                        }) }}>
+                                </div>
                             </div>
                         {% endif %}
+                        <div class="processmessenges"
+                            {{ stimulus_controller('processmessenges', {
+                                url: path('app_log_processmessenges'),
+                                refreshIntervale: 15000,
+                            }) }}>
+                        </div>
                     </div>
                     <div class="cell small-1 show-for-medium">&nbsp;</div>
                     <div class="cell small-12 medium-3 large-2">
@@ -69,6 +77,10 @@
                     </div>
                 </div>
             {% endif %}
+        </div>
+        <div class="messageProzessReady fade" id="messageProzessReady">
+            <div id="messagetext"></div>
+            <div id="pdfdownload"></div>
         </div>
     </div>
 </header>

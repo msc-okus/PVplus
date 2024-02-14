@@ -34,11 +34,12 @@ class ToolsController extends BaseController
 
         $output = '';
         // Wenn Calc gelickt wird mache dies:&& $form->get('calc')->isClicked() $form->isSubmitted() &&
-        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
+        if ($form->isSubmitted() && $form->isValid() && $request->getMethod() == 'POST') {
             /* @var ToolsModel $toolsModel */
             $toolsModel = $form->getData();
             $toolsModel->endDate = new \DateTime($toolsModel->endDate->format('Y-m-d 23:59'));
             $anlage = $anlagenRepo->findOneBy(['anlId' => $toolsModel->anlage]);
+            $uid = $this->getUser()->getUserId();
             // Start recalculation
             if ($form->get('function')->getData() != null) {
                 switch ($form->get('function')->getData()) {
@@ -47,7 +48,7 @@ class ToolsController extends BaseController
                         if ($anlage->getAnlBetrieb() !== null) {
                             $job = "Update 'G4N Expected' from " . $toolsModel->startDate->format('Y-m-d H:i') . ' until ' . $toolsModel->endDate->format('Y-m-d H:i');
                             $job .= " - " . $this->getUser()->getname();
-                            $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Expected', $job);
+                            $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Expected', $job, $uid);
                             $message = new CalcExpected($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                             $messageBus->dispatch($message);
                             $output .= 'Command was send to messenger! Will be processed in background.<br>';
@@ -59,7 +60,7 @@ class ToolsController extends BaseController
                         $output = '<h3>PR:</h3>';
                         $job = 'Update PR – from ' . $toolsModel->startDate->format('Y-m-d H:i') . ' until ' . $toolsModel->endDate->format('Y-m-d H:i');
                         $job .= " - " . $this->getUser()->getname();
-                        $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PR', $job);
+                        $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PR', $job, $uid);
                         $message = new CalcPR($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                         $messageBus->dispatch($message);
                         $output .= 'Command was send to messenger! Will be processed in background.<br>';
@@ -68,7 +69,7 @@ class ToolsController extends BaseController
                         $output = '<h3>Availability:</h3>';
                         $job = 'Update Plant Availability – from ' . $toolsModel->startDate->format('Y-m-d H:i') . ' until ' . $toolsModel->endDate->format('Y-m-d H:i');
                         $job .= " - " . $this->getUser()->getname();
-                        $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PA', $job);
+                        $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PA', $job, $uid);
                         $message = new CalcPlantAvailabilityNew($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                         $messageBus->dispatch($message);
                         $output .= 'Command was send to messenger! Will be processed in background.<br>';
@@ -77,7 +78,7 @@ class ToolsController extends BaseController
                         $output = '<h3>Generate Tickets:</h3>';
                         $job = 'Generate Tickets – from ' . $toolsModel->startDate->format('Y-m-d H:i') . ' until ' . $toolsModel->endDate->format('Y-m-d H:i');
                         $job .= " - " . $this->getUser()->getname();
-                        $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'GenerateTickets', $job);
+                        $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'GenerateTickets', $job, $uid);
                         $tickets = $ticketRepo->findForSafeDelete($anlage, $toolsModel->startDate->format('Y-m-d H:i'), $toolsModel->endDate->format('Y-m-d H:i'));
                         foreach ($tickets as $ticket) {
                             $dates = $ticket->getDates();
@@ -95,7 +96,7 @@ class ToolsController extends BaseController
                         $output = '<h3>Load API Data:</h3>';
                         $job = 'Load API Data – from ' . $toolsModel->startDate->format('Y-m-d H:i') . ' until ' . $toolsModel->endDate->format('Y-m-d H:i');
                         $job .= " - " . $this->getUser()->getname();
-                        $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Load API Data', $job);
+                        $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Load API Data', $job, $uid);
                         $message = new LoadAPIData($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                         $messageBus->dispatch($message);
                         $output .= 'Command was send to messenger! Will be processed in background.<br>';
@@ -104,7 +105,7 @@ class ToolsController extends BaseController
                         $output = '<h3>Load INAX Data:</h3>';
                         $job = 'Load INAX Data – from ' . $toolsModel->startDate->format('Y-m-d H:i') . ' until ' . $toolsModel->endDate->format('Y-m-d H:i');
                         $job .= " - " . $this->getUser()->getname();
-                        $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Load INAX Data', $job);
+                        $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Load INAX Data', $job, $uid);
                         $message = new LoadINAXData($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                         $messageBus->dispatch($message);
                         $output .= 'Command was send to messenger! Will be processed in background.<br>';
@@ -116,11 +117,6 @@ class ToolsController extends BaseController
             } else {
                 $output .= 'Please select a function.<br>';
             }
-        }
-
-        // Wenn Close geklickt wird mache dies:
-        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
-            return $this->redirectToRoute('app_dashboard');
         }
 
         return $this->render('tools/index.html.twig', [
