@@ -244,7 +244,6 @@ class WeatherFunctionsService
                 $weather = null;
             }
             $conn = null;
-
             return $weather;
         });
     }

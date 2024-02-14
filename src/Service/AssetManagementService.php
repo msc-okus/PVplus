@@ -79,6 +79,7 @@ class AssetManagementService
         }
         // then we generate our own report and try to persist it
         $output = $this->assetReport($anlage, $reportMonth, $reportYear, $logId);
+
         $data = [
             'Production' => true,
             'ProdCap' => true,
@@ -96,12 +97,12 @@ class AssetManagementService
             'Economics' => true, ];
         $output['data'] = $data;
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+
         $pdf = $this->pdf;
         $reportParts = [];
         $content = $output;
         $this->logMessages->updateEntry($logId, 'working', 95);
         //rendering the header
-
 
         $owner = $anlage->getEigner();
         $tempFileLogo = '';
@@ -583,7 +584,8 @@ class AssetManagementService
 
         $this->em->persist($report);
         $this->em->flush();
-
+        $reportId = $report->getId();
+        $this->logMessages->updateEntryAddReportId($logId, $reportId);
         return $report; //$output;
     }
 
@@ -624,7 +626,6 @@ class AssetManagementService
         // Variables
 
         for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; ++$tempMonth) {
-
             $startDate = new \DateTime($report['reportYear']."-$tempMonth-01 00:00");
             $daysInThisMonth = $startDate->format("t");
             $endDate = new \DateTime($report['reportYear']."-$tempMonth-$daysInThisMonth 23:59");
@@ -633,7 +634,6 @@ class AssetManagementService
             if (is_array($weather)) {
                 $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, $startDate, $endDate);
             }
-
 
             // Strahlungen berechnen – (upper = Ost / lower = West)
             if ($anlage->getIsOstWestAnlage()) {
@@ -651,7 +651,7 @@ class AssetManagementService
 
 
 
-            $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
+        $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
 
 
         $invArray = $anlage->getInverterFromAnlage();
@@ -1150,7 +1150,6 @@ class AssetManagementService
                 $forecast = $expectedPvSyst;
             }
         }
-
         // fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,
@@ -1816,7 +1815,6 @@ class AssetManagementService
             $powerEvu[$report['reportMonth'] - 1] - $forecast[$report['reportMonth'] - 1],
             $var,
         ];
-
 
         $start = $report['reportYear'].'-01-01 00:00';
 
@@ -3661,7 +3659,6 @@ class AssetManagementService
 
         $chart->setOption($option);
         $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 210px; width:26cm; margin-left:80px;']);
-
 
         $chart = new ECharts();
 

@@ -21,6 +21,8 @@ symfony.exe
 /vendor/
 ###< symfony/framework-bundle ###
 
+/assets - Kopie
+
 ###> liip/imagine-bundle ###
 /public/media/cache/
 ###< liip/imagine-bundle ###
@@ -30,6 +32,7 @@ symfony.exe
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 /public/build/
+/public/
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###

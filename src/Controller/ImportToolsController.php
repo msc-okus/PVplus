@@ -46,7 +46,7 @@ class ImportToolsController extends BaseController
      * @throws \Exception
      */
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
-    public function importManuel(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
+    public function importTools(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
     {
 
         //Wenn der Import aus dem Backend angestoßen wird
@@ -55,8 +55,10 @@ class ImportToolsController extends BaseController
 
         $output = '';
         $start = true;
+
         // Wenn Calc gelickt wird mache dies:&& $form->get('calc')->isClicked() $form->isSubmitted() &&
-        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
+        if ($form->isSubmitted() && $form->isValid() && $request->getMethod() == 'POST') {
+
             /* @var ImportToolsModel $importToolsModel */
             $importToolsModel = $form->getData();
             $importToolsModel->endDate = new \DateTime($importToolsModel->endDate->format('Y-m-d 23:59'));
@@ -71,6 +73,7 @@ class ImportToolsController extends BaseController
             if ($importToolsModel->anlage->getHasPPC() != 1 && $importToolsModel->importType == 'api-import-ppc'){
                 $output .= 'This plant has not PPC!<br>';
                 $start = false;
+
             }
             if ($start){
                 if ($form->get('function')->getData() != null) {
@@ -79,7 +82,9 @@ class ImportToolsController extends BaseController
                             $output = '<h3>Import API Data:</h3>';
                             $job = 'Import API Data('.$importToolsModel->importType.') – from ' . $importToolsModel->startDate->format('Y-m-d H:i') . ' until ' . $importToolsModel->endDate->format('Y-m-d H:i');
                             $job .= " - " . $this->getUser()->getname();
-                            $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
+                            $userId = $this->getUser()->getUserId();
+
+                            $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job, $userId);
                             $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId);
                             $messageBus->dispatch($message);
                             $output .= 'Command was send to messenger! Will be processed in background.<br>';
@@ -92,10 +97,6 @@ class ImportToolsController extends BaseController
                     $output .= 'Please select a function.<br>';
                 }
             }
-        }
-        // Wenn Close geklickt wird mache dies:
-        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
-            return $this->redirectToRoute('app_dashboard');
         }
 
         return $this->render('import_tools/index.html.twig', [

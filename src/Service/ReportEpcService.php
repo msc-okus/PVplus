@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use App\Service\LogMessagesService;
 
 class ReportEpcService
 {
@@ -32,7 +33,8 @@ class ReportEpcService
         private readonly FunctionsService $functions,
         private readonly PRCalulationService $PRCalulation,
         private readonly AvailabilityService $availabilityService,
-        private readonly ReportsEpcYieldV2 $epcNew
+        private readonly ReportsEpcYieldV2 $epcNew,
+        private LogMessagesService $logMessages,
     )
     {}
 
@@ -40,7 +42,7 @@ class ReportEpcService
      * @throws ExceptionInterface
      * @throws Exception
      */
-    public function createEpcReport(Anlage $anlage, DateTime $date): string
+    public function createEpcReport(Anlage $anlage, \DateTime $date, ?string $userId = null, ?int $logId = null): string
     {
         $currentDate = date('Y-m-d H-i');
         $pdfFilename = 'EPC Report '.$anlage->getAnlName().' - '.$currentDate.'.pdf';
@@ -99,9 +101,13 @@ class ReportEpcService
                 ->setRawReport($output)
                 ->setContentArray($reportArray)
                 ->setMonth($date->format('n'))
-                ->setYear($date->format('Y'));
+                ->setYear($date->format('Y'))
+                ->setCreatedBy($userId);
             $this->em->persist($reportEntity);
             $this->em->flush();
+
+            $reportId = $reportEntity->getId();
+            $this->logMessages->updateEntryAddReportId($logId, $reportId);
         } else {
             $output = '<h1>Fehler: Es Ist kein Report ausgewählt.</h1>';
         }

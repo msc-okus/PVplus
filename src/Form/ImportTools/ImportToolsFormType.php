@@ -105,14 +105,8 @@ class ImportToolsFormType extends AbstractType
             // ###          STEUERELEMENTE              ####
             // #############################################
 
-            ->add('calc', SubmitType::class, [
-                'label' => 'Start import',
-                'attr' => ['class' => 'primary save'],
-            ])
-            ->add('close', SubmitType::class, [
-                'label' => 'Close (do nothing)',
-                'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
-            ]);
+
+            ;
     }
 
 ##
