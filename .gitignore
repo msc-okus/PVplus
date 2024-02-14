@@ -32,6 +32,7 @@ symfony.exe
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 /public/build/
+/public/build/*
 /public/
 npm-debug.log
 yarn-error.log
