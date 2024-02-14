@@ -18,7 +18,10 @@ framework:
         log: true
         throw: false
 
-    default_locale: de
+    default_locale: en
+
+    annotations:
+        enabled: false
 
 when@test:
     framework:

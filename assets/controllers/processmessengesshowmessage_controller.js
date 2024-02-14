@@ -1,4 +1,4 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import $ from 'jquery';
 export default class extends Controller {
 
@@ -8,29 +8,29 @@ export default class extends Controller {
         prozessid: Number
     }
     connect() {
-        if(this.messageValue != ''){
+        if(this.messageValue !== ''){
             this.showReady();
         }
     }
     showReady() {
-        var messageelem = document.getElementById('messageProzessReady');
-        var messagetext = document.getElementById('messagetext');
-        var pdfdownload = document.getElementById('pdfdownload');
-        var messagebutton = document.getElementById('far-fa-bell');
+        let messageelem = document.getElementById('messageProzessReady');
+        let messagetext = document.getElementById('messagetext');
+        let pdfdownload = document.getElementById('pdfdownload');
+        let messagebutton = document.getElementById('far-fa-bell');
 
-        if(this.messageValue == 'empty'){
+        if (this.messageValue === 'empty'){
             messagebutton.style.color = '#1779ba';
-            return process.exit(1);
-        }else{
+            return; // process.exit(1);
+        } else {
             messagebutton.style.color = '#ff0000';
         }
 
         messageelem.style.display = 'block';
         this.fadeInElement(messageelem);
         messagetext.innerText = this.messageValue;
-        if(this.prozesstypeValue.includes('Report') ){
+        if (this.prozesstypeValue.includes('Report') ){
             pdfdownload.innerHTML = '<div>You can dowanload it here: <a class="hollow button tiny action-icon shadow" href="/reporting/pdf/'+this.prozessidValue+'" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></div>'
-        }else{
+        } else {
             pdfdownload.innerHTML = '';
         }
 
@@ -63,7 +63,7 @@ export default class extends Controller {
         $('.messagebuttons ul li').removeClass('is-active');
         $('.messagebuttons ul li').addClass('is-inactive');
 
-        var tabtoshow = document.getElementById(value);
+        let tabtoshow = document.getElementById(value);
         $('#'+value).attr("style","display:block !important");
         $('#'+value).removeClass('fade');
         $('.messagebuttons ul #li'+value).removeClass('is-inactive');
