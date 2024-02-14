@@ -900,6 +900,22 @@ export default class extends Controller {
             this.modalContactCreateBodyTarget.innerHTML = e.responseText;
         }
     }
+    checkTrafo({ params: { first, last, trafo }}){
+
+        let body = $(this.modalBodyTarget);
+        let checked = $("#trafo" + trafo).prop('checked');
+        body.find('input:checkbox[class=js-checkbox]').each(function (){
+            if ($(this).prop('name') >= first) {
+                if ($(this).prop('name') <= last){
+                    if (checked) $(this).prop('checked', true);
+                    else $(this).prop('checked', false);
+                }
+            }
+        });
+        $(this.switchTarget).prop('checked', false)
+        this.saveCheck();
+    }
+
     checkSelect({ params: { edited }}){
         const cat = $(this.formCategoryTarget).val();
         const valueBegin = $(this.formBeginTarget).prop('value');
@@ -922,6 +938,10 @@ export default class extends Controller {
         let inverterString = '';
         let inverterNameString = '';
         if ($(this.switchTarget).prop('checked')) {
+            
+            body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
+                $(this).prop('checked', true);
+            });
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
                 body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
@@ -934,6 +954,9 @@ export default class extends Controller {
             inverterString = '*';
             inverterNameString = '*';
         } else {
+            body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
+                $(this).prop('checked', false);
+            });
             $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
             });
@@ -1183,7 +1206,7 @@ export default class extends Controller {
         }
 
         let sensorString = '';
-        console.log(inverterString, inverterNameString);
+
 
         body.find('input:checkbox[class=sensor-checkbox]:checked').each(function (){
             if (sensorString == '') {sensorString = sensorString + $(this).prop('name');}

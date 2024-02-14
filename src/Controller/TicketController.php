@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AnlageAcGroups;
 use App\Entity\NotificationInfo;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
@@ -41,12 +42,29 @@ class TicketController extends BaseController
 
     use PVPNameArraysTrait;
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
-    public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions): Response
+    public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions, AcGroupsRepository $acRepo): Response
     {
         if ($request->query->get('anlage') !== null) {
             $anlage = $anlRepo->find($request->query->get('anlage'));
         } else {
             $anlage = null;
+        }
+        if ($anlage != null) {
+            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
+            $trafoArray = [];
+            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
+                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
+                if ($acGroup != []) {
+                    if ($anlage->getConfigType() == 3){
+                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
+                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
+                    }
+                    else {
+                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
+                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+                    }
+                }
+            }
         }
 
         if ($anlage) {
@@ -104,6 +122,7 @@ class TicketController extends BaseController
             $sensorArray[$key]['checked'] = "";
         }
 
+
         return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
             'ticket'        => $ticket,
@@ -111,7 +130,8 @@ class TicketController extends BaseController
             'edited'        => false,
             'invArray'      => $inverterArray,
             'sensorArray'   => $sensorArray,
-            'performanceTicket' => false
+            'performanceTicket' => false,
+            'trafoArray'    => $trafoArray
         ]);
     }
 
@@ -119,17 +139,26 @@ class TicketController extends BaseController
     public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request, functionsService $functions, AcGroupsRepository $acRepo ): Response
     {
         $ticket = $ticketRepo->find($id);
+        $anlage = $ticket->getAnlage();
+
         $sensorArray = [];
         $ticketDates = $ticket->getDates();
-
-        $totalTrafoGroups = count($acRepo->countTrafoGroups($ticket->getAnlage()));
+        $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
         $trafoArray = [];
+
         for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++){
-            $acGroup = $acRepo->findByAnlageTfdrafoNr($ticket->getAnlage(), $trafoGroup);
-            dump($acGroup);
+            $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
+            if ($acGroup != []) {
+                if ($anlage->getConfigType() == 3){
+                    $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
+                    $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
+                }
+                else {
+                    $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
+                    $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+                }
+            }
         }
-        dd("hey");
-        $anlage = $ticket->getAnlage();
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
         $indexSelect = 0;
@@ -285,7 +314,8 @@ class TicketController extends BaseController
             'edited' => true,
             'sensorArray'   => $sensorArray,
             'invArray' => $inverterArray,
-            'performanceTicket' => $performanceTicket
+            'performanceTicket' => $performanceTicket,
+            'trafoArray' => $trafoArray
         ]);
     }
 
@@ -505,7 +535,7 @@ class TicketController extends BaseController
      * @throws InvalidArgumentException
      */
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
-    public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
+    public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, AcGroupsRepository $acRepo): Response
     {
         $page = $request->query->getInt('page', 1);
 
@@ -516,7 +546,23 @@ class TicketController extends BaseController
         $anlage = $ticket->getAnlage();
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
-
+        if ($anlage != null) {
+            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
+            $trafoArray = [];
+            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
+                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
+                if ($acGroup != []) {
+                    if ($anlage->getConfigType() == 3){
+                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
+                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
+                    }
+                    else {
+                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
+                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+                    }
+                }
+            }
+        }
         $indexSelect = 0;
 
         foreach ($nameArray as $key => $value){
@@ -565,7 +611,8 @@ class TicketController extends BaseController
             'page' => $page,
             'invArray' => $inverterArray,
             'sensorArray'   => $sensorArray,
-            'performanceTicket' => false
+            'performanceTicket' => false,
+            'trafoArray' => $trafoArray
         ]);
     }
 
@@ -580,9 +627,28 @@ class TicketController extends BaseController
      * @throws InvalidArgumentException
      */
     #[Route(path: '/ticket/splitbyinverter', name: 'app_ticket_split_inverter')]
-    public function splitByInverter(TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em): Response
+    public function splitByInverter(TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em, AcGroupsRepository $acRepo): Response
     {
         $ticket = $ticketRepo->findOneById($request->query->get('id'));
+        $anlage = $ticket->getAnlage();
+        if ($anlage != null) {
+            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
+            $trafoArray = [];
+            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
+                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
+                if ($acGroup != []) {
+                    if ($anlage->getConfigType() == 3){
+                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
+                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
+                    }
+                    else {
+                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
+                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+                    }
+                }
+            }
+        }
+
         $newTicket = new Ticket();
         $newTicket->setInverter($request->query->get('inverterb'));
         $ticket->setInverter($request->query->get('invertera'));
@@ -644,6 +710,7 @@ class TicketController extends BaseController
             'invArray' => $inverterArray,
             'performanceTicket' => false,
             'sensorArray'   => $sensorArray,
+            'trafoArray' => $trafoArray
         ]);
     }
 
@@ -769,13 +836,30 @@ class TicketController extends BaseController
      * @throws InvalidArgumentException
      */
     #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
-    public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em, functionsService $functions): Response
+    public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em, functionsService $functions, AcGroupsRepository $acRepo): Response
     {
-
         $option = $request->query->get('value');
         $page = $request->query->getInt('page', 1);
         $ticketDate = $ticketDateRepo->findOneById($id);
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
+        $anlage = $ticket->getAnlage();
+        if ($anlage != null) {
+            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
+            $trafoArray = [];
+            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
+                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
+                if ($acGroup != []) {
+                    if ($anlage->getConfigType() == 3){
+                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
+                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
+                    }
+                    else {
+                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
+                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+                    }
+                }
+            }
+        }
         if ($ticket) {
             switch ($option) {
                 case 'Previous':
@@ -859,7 +943,8 @@ class TicketController extends BaseController
             'anlage' => $anlage,
             'dates' => $ticketDates,
             'page' => $page,
-            'invArray' => $inverterArray
+            'invArray' => $inverterArray,
+            'trafoArray' => $trafoArray
         ]);
     }
 
