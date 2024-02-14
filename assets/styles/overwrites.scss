@@ -83,6 +83,14 @@
 
     h5, h6 {font-weight: bold;}
 
+    .horizontal.checkbox-inline {
+        li {
+            display: inline-block;
+            padding-right: 10px;
+        }
+
+    }
+
     //Small and up styles
     .ajax-loader {
         visibility: hidden;
