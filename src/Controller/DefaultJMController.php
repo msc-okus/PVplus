@@ -49,18 +49,8 @@ class DefaultJMController extends AbstractController
     public function teastTicketName(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
     {
         $ticket = $ticketRepo->findOneById("399529 ");
+        dd($ticket->getInverterName());
     }
-    #[Route(path: '/generate/newInverter', name: 'generate_tickets_temp')]
-    public function updateTicketsTemp(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
-    {
-        $tickets = $ticketRepo->findAll();
-        foreach ($tickets as $ticket){
-            $ticket->setInverter($ticket->getInverter());
-            $em->persist($ticket);
-        }
-        $em->flush();
-    }
-
 
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
@@ -91,29 +81,6 @@ class DefaultJMController extends AbstractController
         }
 
         dd("hello world");
-    }
-
-    #[Route(path: '/test/time', name: 'default_time')]
-    public function testTime(AnlagenRepository $anlagenRepository, EignerRepository $er,  EntityManagerInterface $em)
-    {
-        $test1 = new ContactInfo();
-        $test1->setName("Mr Test");
-        $test1->setCompanyName("G4N");
-        $test1->setEmail("test@g4n.de");
-        $test1->setService("It Man");
-        $test1->setPhone("123456789");
-        $test1->setOwner($er->find("1"));
-        $test2 = new ContactInfo();
-        $test2->setName("Mr X");
-        $test2->setCompanyName("G4N");
-        $test2->setEmail("test2@g4n.de");
-        $test2->setService("It Man");
-        $test2->setPhone("987654321");
-        $test2->setOwner($er->find("1"));
-        $em->persist($test1);
-        $em->persist($test2);
-        $em->flush();
-        dd("hello World");
     }
 
 

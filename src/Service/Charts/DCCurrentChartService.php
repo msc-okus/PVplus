@@ -233,7 +233,7 @@ class DCCurrentChartService
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
         $nameArray = match ($anlage->getConfigType()) {
-            3, 4 => $this->functions->getNameArray($anlage, 'scb'),
+            1 => $this->functions->getNameArray($anlage, 'dc'),
             default => $this->functions->getNameArray($anlage, 'ac'),
         };
         $dataArray['inverterArray'] = $nameArray;
@@ -243,8 +243,9 @@ class DCCurrentChartService
                   FROM (db_dummysoll a left JOIN (SELECT * FROM ' . $anlage->getDbNameDcSoll() . " WHERE wr_num = '$group') b ON a.stamp = b.stamp) 
                   WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
         $result = $conn->query($sql_strom);
+
         if ($result->rowCount() > 0) {
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
+            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
             } else {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);

@@ -85,7 +85,6 @@ class ACPowerChartsService
                 $expDiffInvOut      = round($expectedInvOut - $expectedInvOut * 10 / 100, 2);   // Minus 10 % Toleranz Invberter Out.
                 $expDiffEvu         = round($expectedEvu - $expectedEvu * 10 / 100, 2);         // Minus 10 % Toleranz Grid (EVU).
 
-
                 if ($hour) {
                     $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone()-1);
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
@@ -101,7 +100,6 @@ class ACPowerChartsService
                 $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
                         WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
 
-                dump($sqlEvu);
                 $resActual = $conn->query($sqlActual);
                 $resEvu = $conn->query($sqlEvu);
 
@@ -411,8 +409,9 @@ class ACPowerChartsService
                             $groupBy";
 
                 $result = $conn->query($sqlSoll);
+                $expected = null;
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                    ($row['soll'] == null || $row['soll'] < 0) ? $expected = 0 : $expected = $row['soll'];
+                    ($row['soll'] == null || $row['soll'] < 0) ? $expected = null : $expected = $row['soll'];
                 }
 
                 $dataArray['maxSeries'] = 1;
@@ -443,7 +442,7 @@ class ACPowerChartsService
                     $dataArray['chart'][$counter]['cosPhi'] = abs((float) $rowIst['wr_cos_phi_korrektur']);
                 }
 
-                $dataArray['chart'][$counter]['expected'] = (float) $expected;
+                $dataArray['chart'][$counter]['expected'] = $expected;
 
                 // add Irradiation
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {

@@ -9,29 +9,36 @@
     <row class="welcome">
         <columns>
             <spacer size="35"></spacer>
-            <h1>{{ email.subject }}</h1>
             <spacer size="10"></spacer>
         </columns>
     </row>
     <spacer size="30"></spacer>
+
+    <row>
+        <columns>
+            Hello {{ name }},
+        </columns>
+    </row>
     <row>
         <columns>
             <p>{{ message|raw }}</p>
-
         </columns>
     </row>
-    <row class="footer">
+    <spacer size="10"></spacer>
+    <row>
         <columns>
-            <p>Your friendly <em>green4net Team</em></p>
+            <button class="expanded" href="{{ app.request.getSchemeAndHttpHost() }}{{ path('app_ticket_notification_confirm', {id: key}) }}"> Click here to answer </button>
         </columns>
     </row>
     <row class="bottom">
         <columns>
-            <spacer size="20"></spacer>
-            <div>
-                Sent️ from PVplus 4.0
-            </div>
+            <center>
+                <spacer size="20"></spacer>
+                <div>
+                    Sent️ from PVplus 4.0
+                </div>
+            </center>
         </columns>
     </row>
-    </container>
+</container>
 {% endapply %}

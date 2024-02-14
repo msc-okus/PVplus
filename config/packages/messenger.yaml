@@ -45,6 +45,14 @@ framework:
                     delay: 2000
                     max_retries: 0
 
+            expected:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: import
+                retry_strategy:
+                    delay: 2000
+                    max_retries: 0
+
 
             # a transport used consuming messages from an external system
             # messages are not meant to be *sent* to this transport
@@ -55,7 +63,7 @@ framework:
 
         routing:
             # Route your messages to the transports
-            'App\Message\Command\CalcExpected': async
+            'App\Message\Command\CalcExpected': expected
             'App\Message\Command\CalcPR': async
             'App\Message\Command\CalcPlantAvailabilityNew': async
             'App\Message\Command\GenerateTickets': async

@@ -52,12 +52,15 @@ class Eigner
     #[ORM\Column(name: 'ort', type: 'string', length: 100, nullable: true)]
     private ?string $ort = null;
 
+    /** @deprecated  */
     #[ORM\Column(name: 'active', type: 'bigint', nullable: false)]
     private string|int $active = '0';
 
+    /** @deprecated  */
     #[ORM\Column(name: 'editlock', type: 'bigint', nullable: false, options: ['default' => 1])]
     private string $editlock = '1';
 
+    /** @deprecated  */
     #[ORM\Column(name: 'userlock', type: 'bigint', nullable: false)]
     private string $userlock = '0';
 

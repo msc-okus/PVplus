@@ -137,6 +137,7 @@ class AnlageNewFormType extends AbstractType
                 'empty_data' => 'No',
                 'disabled' => !($isDeveloper),
             ])
+            /*
             ->add('useNewDcSchema', ChoiceType::class, [
                 'label' => 'Neues DC Database Schema (separate Tabelle für DC IST)',
                 'help' => '[useNewDcSchema]',
@@ -146,6 +147,7 @@ class AnlageNewFormType extends AbstractType
                 'multiple' => false,
                 'disabled' => !($isDeveloper),
             ])
+            */
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
                 'help' => '[configType]',

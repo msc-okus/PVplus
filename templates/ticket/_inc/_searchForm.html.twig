@@ -48,7 +48,7 @@
                 <input type="text" name="editor" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Editor">
             </div>
             {# we will use this field to recogniye when we are explicitely clicking the search button over jscript #}
-            <div class="cell medium-2" style="margin-top:-17px!important;">
+            <div class="cell medium-1" style="margin-top:-17px!important;">
                 <select name="category" class="no-margin">{# category = alertType (bsp: datagap, inverter power, etc.) #}
                     {{ filter.category.value }}
                     <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
@@ -119,10 +119,20 @@
                             <input type="checkbox" name="ignored" class="input-group-field" value="1">
                         </div>
                         <div class="notifyheaderbadge">
-                            <div class="notifyheaderbadge-number">0</div>
+                            <div class="notifyheaderbadge-number" data-ticket-list-target="ignored">{{ countIgnored }}</div>
                         </div>
                     </div>
                 {% endif %}
+            </div>
+            <div class="cell medium-1 notifyclass" >
+                <div class="notifyheader">
+                    <div class="notifyheader-label">Proof by MRO
+                        <input type="checkbox" name="proofmaintenance" class="input-group-field" value="1">
+                    </div>
+                    <div class="notifyheaderbadge">
+                        <div class="notifyheaderbadge-number" data-ticket-list-target="proofmaintenance">{{ countProofByMaintenance }}</div>
+                    </div>
+                </div>
             </div>
 
             <div class="cell medium-1 text-left" style="margin-top:-17px!important;">

@@ -83,7 +83,7 @@
                                     <div class="cell small-12 medium-4">
                                         {# Split by Inverter stuff #}
                                         <label>&nbsp;</label>
-                                        <button class="button small no-margin hollow expanded {% if (features == null or features.SplitInverter != true) %} is-hidden {% endif%}"
+                                        <button class="button small no-margin hollow expanded {% if (features == null or features.SplitInverter != true or edited != true) %} is-hidden {% endif%}"
                                                 type="button"
                                                 {% if (edited) %}data-toggle="split-dropdown-{{ dropdownId }}"{% else %} disabled{% endif %}{% if (counter <= 1)%} disabled {% endif%}
                                                 data-ticket-edit-target="splitDeploy">Split by Inverter
