@@ -409,7 +409,10 @@ class IrradiationChartService
                 for ($i = 0; $i < count($dataArray); $i++) {
                     if($dataArray[$i]['useToCalc'] && $dataArray[$i]['sensorType'] == 'irr-hori'){
                         $gmPyHori[] = $dataArray[$i]['value'];
+                    }else{
+                        $gmPyHori = [];
                     }
+
                     if($isEastWest){
                         if($dataArray[$i]['useToCalc'] && $dataArray[$i]['sensorType'] == 'irr-west'){
                             $gmPyWest[] = $dataArray[$i]['value'];
