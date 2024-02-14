@@ -1,0 +1,215 @@
+.notification {
+    ul, li {
+        list-style: none;
+        padding: 0;
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #fff;
+        padding: 0;
+    }
+
+    .wrapper {
+        background: #f2f4f5;
+        width: 455px;
+        padding: 2rem;
+        border-radius: 15px;
+    }
+
+    h1 {
+        font-size: 1.1rem;
+        font-family: sans-serif;
+    }
+
+    li {
+        padding-bottom: 0.5rem;
+        border-left: 1px solid #30b41d;
+        position: relative;
+        padding-left: 20px;
+        margin-left: 10px;
+    }
+
+    li:last-child {
+        border: 0px;
+        padding-bottom: 0;
+    }
+
+    li:before {
+        content: '';
+        width: 15px;
+        height: 15px;
+        background: white;
+        border: 1px solid #30b41d;
+        box-shadow: 3px 3px 0 #30b41d;
+        border-radius: 50%;
+        position: absolute;
+        left: -10px;
+        top: 0;
+    }
+
+    .time {
+        color: #2a2839;
+        font-weight: 600;
+        font-size: .9rem;
+    }
+
+    p {
+        color: #4f4f4f;
+        font-family: sans-serif;
+        line-height: 1.5;
+        margin-top: 0.4rem;
+        font-size: .9rem;
+    }
+
+    .input-wrapper {
+        margin: 10px 0;
+        position: relative;
+        width: 300px;
+    }
+
+
+    input {
+        font-size: 18px;
+        padding: 10px 10px 10px 5px;
+        display: block;
+        border: none;
+        border-bottom: 1px solid $g4n-blue;
+        box-shadow: none;
+        outline: none;
+    }
+
+    label {
+        color: #999;
+        font-size: 18px;
+        font-weight: normal;
+        position: absolute;
+        pointer-events: none;
+        left: 5px;
+        top: 10px;
+        transition: 0.2s ease all;
+    }
+
+
+    input:focus ~ label,
+    input:valid ~ label {
+        top: -20px;
+        font-size: 14px;
+
+    }
+
+
+    .message_container {
+        .message {
+            background: #f2f4f5;
+            width: calc(100% - 20px);
+            max-width: 640px;
+            margin: 0 auto;
+            overflow: hidden;
+            transition: all .5s;
+
+            border-left: 5px solid $g4n-red;
+            border-right: 5px solid $g4n-red;
+            border-radius: 15px;
+        }
+
+        .title {
+            display: inline-block;
+            padding: .2em 1em;
+            font-weight: bold;
+            letter-spacing: .1em;
+            text-align: center;
+            text-transform: uppercase;
+            color: green;
+        }
+
+        .p {
+            color: $g4n-black;
+            padding: 1em;
+            margin: 0;
+            display: block;
+            line-height: 1.4em;
+            text-align: justify;
+            max-height: 10em;
+        }
+    }
+
+
+    .msa {
+        border: 1px solid $g4n-dark-gray;
+        padding: 5px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 455px;
+        height: 320px;
+        overflow-y: auto;
+    }
+
+
+    .other {
+        align-self: flex-start;
+        background: $g4n-back-blue;
+        border-radius: 15px;
+        padding: 10px;
+        margin-bottom: 5px;
+        max-width: 90%;
+    }
+
+    .receiver {
+        align-self: flex-end;
+        background: $g4n-gray;
+        border-radius: 15px;
+        padding: 10px;
+        margin-bottom: 5px;
+        max-width: 90%;
+    }
+
+}
+
+.timeline {
+
+    ul {padding-top: 0.5rem;}
+
+    li {
+        padding-bottom: 0.5rem;
+        border-left: 1px solid $g4n-green;
+        position: relative;
+        padding-left: 20px;
+        margin-left: 10px;
+        list-style: none;
+    }
+
+    li:last-child {
+        border: 0;
+        padding-bottom: 0;
+    }
+
+    li:before {
+        content: '';
+        width: 15px;
+        height: 15px;
+        background: white;
+        border: 1px solid $g4n-green;
+        box-shadow: 3px 3px 0 $g4n-green;
+        border-radius: 50%;
+        position: absolute;
+        left: -10px;
+        top: 0;
+    }
+
+    .time {
+        color: $g4n-black;
+        font-weight: 600;
+        font-size: .9rem;
+    }
+
+    p {
+        color: $g4n-blue;
+        line-height: 1.5;
+        margin-top: 0.4rem;
+        font-size: .9rem;
+    }
+}

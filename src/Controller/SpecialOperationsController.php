@@ -88,10 +88,6 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
-
-
-
-
     #[IsGranted('ROLE_G4N')]
     #[Route(path: '/special/operations/loadweatherdata', name: 'load_weatherdata')]
     public function loadUPWeatherData(Request $request, AnlagenRepository $anlagenRepository, WeatherStationRepository $weatherStationRepo, WeatherServiceNew $weatherService, MessageBusInterface $messageBus, LogMessagesService $logMessages,): Response
@@ -100,7 +96,7 @@ class SpecialOperationsController extends AbstractController
         $form->handleRequest($request);
 
         $output = null;
-
+        $uid = $this->getUser()->getUserId();
         // Start individual part
         $headline = '';
 
@@ -122,7 +118,7 @@ class SpecialOperationsController extends AbstractController
             foreach ($anlagen as $anlage) {
                 if ($anlage->getAnlBetrieb() !== null) {
                     $job = "Update 'G4N Expected' from " . $toolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $toolsModel->endDate->format('Y-m-d 00:00');
-                    $logId = $logMessages->writeNewEntry($anlage, 'Expected', $job);
+                    $logId = $logMessages->writeNewEntry($anlage, 'Expected', $job, $uid);
                     $message = new CalcExpected($anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                     $messageBus->dispatch($message);
                     $output .= 'Command was send to messenger! Will be processed in background. Plant: '.$anlage->getAnlName().'<br>';
@@ -154,6 +150,7 @@ class SpecialOperationsController extends AbstractController
         $form = $this->createForm(CalcToolsFormType::class);
         $form->handleRequest($request);
         $output = null;
+        $uid = $this->getUser()->getUserId();
 
         // Start individual part
         $headline = '';
@@ -170,7 +167,7 @@ class SpecialOperationsController extends AbstractController
                         $output = '<h3>Recalculate Plant Availability:</h3>';
                         $job = 'Update Plant Availability – from ' . $toolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $toolsModel->endDate->format('Y-m-d 00:00');
                         $job .= " - " . $this->getUser()->getname();
-                        $logId = $logMessages->writeNewEntry($anlage, 'recalculate PA', $job);
+                        $logId = $logMessages->writeNewEntry($anlage, 'recalculate PA', $job, $uid);
                         $message = new CalcPlantAvailabilityNew($anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                         $messageBus->dispatch($message);
                         $output .= 'Command will be processed in background.<br> If calculation is DONE (green), you can start PA calculation.';

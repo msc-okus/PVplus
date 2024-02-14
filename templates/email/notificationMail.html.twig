@@ -23,19 +23,17 @@
         <columns>
             <p>{{ message|raw }}</p>
         </columns>
-    </row><row>
+    </row>
+    <row>
         <columns>
             <p> Plant located in {{ ticket.anlage.anlStrasse }}, {{ ticket.anlage.anlPlz}}  {{ ticket.anlage.anlOrt }} ({{ ticket.anlage.anlGeoLat }}, {{ ticket.anlage.anlGeoLon }})</p>
             <p> Requested by: {{ tam }}</p>
         </columns>
     </row>
-    <spacer size="30"></spacer>
+    <spacer size="10"></spacer>
     <row>
-        <button class="button action-icon tiny hollow shadow" href="{{ app.request.getSchemeAndHttpHost() }}{{ path('app_ticket_notification_edit', {id: key}) }}"> Click here to answer </button>
-    </row>
-    <row class="footer">
         <columns>
-            <p>Your friendly <em>green4net Team</em></p>
+            <button class="expanded" href="{{ app.request.getSchemeAndHttpHost() }}{{ path('app_ticket_notification_edit', {id: key}) }}"> Click here to answer </button>
         </columns>
     </row>
     <row class="bottom">

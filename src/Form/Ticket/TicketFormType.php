@@ -186,7 +186,7 @@ class TicketFormType extends AbstractType
             ])
             ->add('KpiStatus', ChoiceType::class, [
                 'choices' => self::kpiStatus(),
-                'placeholder' => 'please chose',
+                'placeholder' => 'please choose',
                 'attr' => [
                     'data-ticket-edit-target' => 'formkpiStatus'
                 ],

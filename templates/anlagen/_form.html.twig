@@ -12,18 +12,17 @@
                 </div>
                 <div class="grid-x grid-padding-x">
                     <div class="cell medium-4">{{ form_row(sunshading.mod_tilt) }}</div>
-                    <div class="cell medium-4">{{ form_row(sunshading.mod_height) }}</div>
+                    <div class="cell medium-4">{# { form_row(sunshading.mod_height) }#}</div>
                     <div class="cell medium-4">{{ form_row(sunshading.mod_width) }}</div>
                 </div>
             <div class="grid-x grid-padding-x">
-                <div class="cell medium-4">{{ form_row(sunshading.mod_table_height) }}</div>
-                <div class="cell medium-4">{{ form_row(sunshading.mod_table_distance) }}</div>
-                <div class="cell medium-4">{{ form_row(sunshading.distance_a) }}</div>
-            </div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_table_height) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_table_distance) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.distance_a) }}</div>
+                </div>
                 <div class="grid-x grid-padding-x">
-                    <div class="cell medium-4">{{ form_row(sunshading.distance_b) }}</div>
-                    <div class="cell medium-4">{{ form_row(sunshading.ground_slope) }}</div>
-                    <div class="cell medium-4">{{ form_row(sunshading.modulesDB) }}</div>
+                    <div class="cell medium-6">{{ form_row(sunshading.ground_slope) }}</div>
+                    <div class="cell medium-6">{{ form_row(sunshading.modulesDB) }}</div>
                 </div>
             <fieldset class="fieldset">
                 <div class="grid-x grid-padding-x">
@@ -129,7 +128,6 @@
 {% endmacro %}
 
 {{ form_start(anlageForm, {'attr': {'novalidate': 'no'}} ) }}
-
     <div class="grid-x">
         <div class="cell">
             <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
@@ -193,7 +191,7 @@
                         </div>
                         <div class="grid-x grid-padding-x">
                             <div class="cell medium-3">{{ form_row(anlageForm.anlInputDaily) }}</div>
-                            <div class="cell medium-3">{{ form_row(anlageForm.useNewDcSchema) }}</div>
+                            <div class="cell medium-3"></div>
                             <div class="cell medium-3">{{ form_row(anlageForm.configType) }}</div>
                             <div class="cell medium-3">{{ form_row((anlageForm.pathToImportScript)) }}</div>
                         </div>
@@ -228,26 +226,22 @@
                                     <div class="cell medium-4">{{ form_row(anlageForm.powerWest) }}</div>
                                 </div>
                             </fieldset>
-                            <fieldset class="fieldset">
-                                <legend>Anlage ist Tracker</legend>
-                                <div class="grid-x grid-padding-x">
-                                    <div class="cell medium-12"> {{ form_row(anlageForm.isTrackerEow) }}</div>
-                                </div>
-                            </fieldset>
 
 
                             <fieldset class="fieldset">
                                 <legend>Config</legend>
-                                <div class="grid-x grid-padding-x">
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.useGridMeterDayData) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.hasDc) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.hasStrings) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.hasPPC) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.usePPC) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.hasPannelTemp) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.useCosPhi) }}</div>
-                                    <div class="cell medium-3"> {{ form_row(anlageForm.hasFrequency) }}</div>
-                                    <div class="cell medium-12"> {{ form_row(anlageForm.ignoreNegativEvu) }}</div>
+                                <div class="grid-x grid-padding-x small-up-1 large-up-2 xlarge-up-3">
+                                    <div class="cell"> {{ form_row(anlageForm.useGridMeterDayData) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasDc) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasStrings) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasPPC) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.usePPC) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.settings.usePpcTicketToReplacePvSyst) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasPannelTemp) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.useCosPhi) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.hasFrequency) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.ignoreNegativEvu) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.isTrackerEow) }}</div>
                                 </div>
                             </fieldset>
                         </div>
@@ -340,8 +334,7 @@
                                     <div class="cell medium-4">{{ form_row(anlageForm.lossesForecast) }}</div>
                                     <div class="cell medium-4">{{ form_row(anlageForm.bezMeridan) }}</div>
                                     <div class="cell medium-4">{{ form_row(anlageForm.modNeigung) }}</div>
-                                    <div class="cell medium-4">&nbsp;</div>
-                                 {#    <div class="cell medium-4">{{ form_row(anlageForm.modAzimut) }}</div> #}
+                                    <div class="cell medium-4">{{ form_row(anlageForm.modAzimut) }}</div>
                                     <div class="cell medium-4">{{ form_row(anlageForm.albeto) }}</div>
                                     <div class="cell medium-6">{{ form_row(anlageForm.datFilename) }} </div>
                                     <div class="cell medium-6"><label>your uploaded file</label><h5 id="dat_file">{{ anlage.getDatFilename }}</h5>
@@ -386,22 +379,6 @@
                                                     <div class="grid-x grid-padding-x">
                                                         <div class="cell medium-6">{{ form_row(sunshading.description) }}</div>
                                                     </div>
-                                                        <div class="grid-x grid-padding-x">
-                                                            <div class="cell medium-4">{{ form_row(sunshading.mod_tilt) }}</div>
-                                                            <div class="cell medium-4">{{ form_row(sunshading.mod_height) }}</div>
-                                                            <div class="cell medium-4">{{ form_row(sunshading.mod_width) }}</div>
-                                                        </div>
-                                                        <div class="grid-x grid-padding-x">
-                                                            <div class="cell medium-4">{{ form_row(sunshading.mod_table_height) }}</div>
-                                                            <div class="cell medium-4">{{ form_row(sunshading.mod_table_distance) }}</div>
-                                                            <div class="cell medium-4">{{ form_row(sunshading.distance_a) }}</div>
-                                                        </div>
-                                                        <div class="grid-x grid-padding-x">
-                                                            <div class="cell medium-4">{{ form_row(sunshading.distance_b) }}</div>
-                                                            <div class="cell medium-4">{{ form_row(sunshading.ground_slope) }}</div>
-                                                            <div class="cell medium-4">{{ form_row(sunshading.modulesDB) }}</div>
-                                                        </div>
-                                                     {#
                                                     <div class="grid-x grid-padding-x">
                                                         <div class="cell medium-4">{{ form_row(sunshading.mod_tilt) }}</div>
                                                         <div class="cell medium-4">{{ form_row(sunshading.mod_table_height) }}</div>
@@ -416,8 +393,7 @@
                                                         <div class="cell medium-6">{{ form_row(sunshading.ground_slope) }}</div>
                                                         <div class="cell medium-6">{{ form_row(sunshading.modulesDB) }}</div>
                                                     </div>
-                                                     #}
-                                                        <fieldset class="fieldset">
+                                                    <fieldset class="fieldset">
                                                         <div class="grid-x grid-padding-x">
                                                             <div class="cell medium-6">{{ form_row(sunshading.has_row_shading) }}</div>
                                                             <div class="cell medium-6">{{ form_row(sunshading.mod_alignment) }}</div>

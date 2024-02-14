@@ -726,7 +726,6 @@ class FunctionsService
      * @param AnlageGroupMonths|null $groupMonth
      * @return float
      *
-     * @deprecated
      * no Function to replace at the moment
      * todo : check how we can replace
      */

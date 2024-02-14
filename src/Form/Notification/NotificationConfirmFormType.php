@@ -31,17 +31,19 @@ class NotificationConfirmFormType extends AbstractType
         ];
         $builder->add('answers', ChoiceType::class, [
             'label'     => 'Select an answer',
+            'placeholder' => 'Select an answer',
+            'required'  => true,
             'choices'   => $answers
 
         ])
             ->add('freeText', TextareaType::class,[
-                'label' => 'Free Text',
+                'label' => 'Close Message',
                 'empty_data' => '',
                 'attr' => ['rows' => '9'],
                 'required'   => false,
             ])
             ->add("answer", SubmitType::class,[
-                'label' => 'Answer',
+                'label' => 'Send your answer',
                 'attr' => ['class' => 'primary save'],
             ]);
 

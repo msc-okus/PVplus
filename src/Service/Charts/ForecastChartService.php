@@ -19,7 +19,7 @@ class ForecastChartService
     use G4NTrait;
 
     public function __construct(
-private readonly PdoService $pdoService,
+        private readonly PdoService $pdoService,
         private readonly ForcastRepository $forcastRepo,
         private readonly ForcastDayRepository $forcastDayRepo,
         private readonly InvertersRepository $invertersRepo,

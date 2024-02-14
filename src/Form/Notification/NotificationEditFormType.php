@@ -31,6 +31,8 @@ class NotificationEditFormType extends AbstractType
         ];
         $builder->add('answers', ChoiceType::class, [
             'label'     => 'Select an answer',
+            'placeholder' => 'Select an answer',
+            'required'  => true,
             'choices'   => $answers
 
         ])
@@ -41,7 +43,7 @@ class NotificationEditFormType extends AbstractType
                 'attr' => ['rows' => '9'],
             ])
             ->add("answer", SubmitType::class,[
-                'label' => 'Answer',
+                'label' => 'Send your answer',
                 'attr' => ['class' => 'primary save'],
             ]);
 

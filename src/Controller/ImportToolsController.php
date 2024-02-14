@@ -10,6 +10,7 @@ use App\Helper\G4NTrait;
 use App\Helper\ImportFunctionsTrait;
 use App\Message\Command\ImportData;
 use App\Repository\AnlagenRepository;
+use App\Service\Import\ImportTicketFBExcel;
 use App\Service\Import\PvSystImportService;
 use App\Service\ImportService;
 use App\Service\LogMessagesService;
@@ -45,7 +46,7 @@ class ImportToolsController extends BaseController
      * @throws \Exception
      */
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
-    public function importManuel(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
+    public function importTools(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
     {
 
         //Wenn der Import aus dem Backend angestoßen wird
@@ -54,8 +55,10 @@ class ImportToolsController extends BaseController
 
         $output = '';
         $start = true;
+
         // Wenn Calc gelickt wird mache dies:&& $form->get('calc')->isClicked() $form->isSubmitted() &&
-        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
+        if ($form->isSubmitted() && $form->isValid() && $request->getMethod() == 'POST') {
+
             /* @var ImportToolsModel $importToolsModel */
             $importToolsModel = $form->getData();
             $importToolsModel->endDate = new \DateTime($importToolsModel->endDate->format('Y-m-d 23:59'));
@@ -70,6 +73,7 @@ class ImportToolsController extends BaseController
             if ($importToolsModel->anlage->getHasPPC() != 1 && $importToolsModel->importType == 'api-import-ppc'){
                 $output .= 'This plant has not PPC!<br>';
                 $start = false;
+
             }
             if ($start){
                 if ($form->get('function')->getData() != null) {
@@ -78,7 +82,9 @@ class ImportToolsController extends BaseController
                             $output = '<h3>Import API Data:</h3>';
                             $job = 'Import API Data('.$importToolsModel->importType.') – from ' . $importToolsModel->startDate->format('Y-m-d H:i') . ' until ' . $importToolsModel->endDate->format('Y-m-d H:i');
                             $job .= " - " . $this->getUser()->getname();
-                            $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
+                            $userId = $this->getUser()->getUserId();
+
+                            $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job, $userId);
                             $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $importToolsModel->importType, $logId);
                             $messageBus->dispatch($message);
                             $output .= 'Command was send to messenger! Will be processed in background.<br>';
@@ -91,10 +97,6 @@ class ImportToolsController extends BaseController
                     $output .= 'Please select a function.<br>';
                 }
             }
-        }
-        // Wenn Close geklickt wird mache dies:
-        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
-            return $this->redirectToRoute('app_dashboard');
         }
 
         return $this->render('import_tools/index.html.twig', [
@@ -195,10 +197,11 @@ class ImportToolsController extends BaseController
     public function importEGrid(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, PdoService $pdoService, $uploadsPath): Response
     {
 
-        $form = $this->createForm(ImportEGridFormType::class); // anpassen
+        $form = $this->createForm(ImportEGridFormType::class);
         $form->handleRequest($request);
 
         $output = '';
+        $indexEzevu = $indexStamp = 0;
 
         if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
             $anlageForm = $form['anlage']->getData();
@@ -290,6 +293,63 @@ class ImportToolsController extends BaseController
         }
 
         return $this->render('import/pvSystImport.html.twig', [
+            'form'     => $form,
+            'filename' => $filename,
+            'output'   => $output,
+        ]);
+    }
+
+    /**
+     * Import der FB Excel Liste zur Erstellung von Tickets
+     *
+     * @param Request $request
+     * @param ImportTicketFBExcel $fbExcelImport
+     * @return Response
+     */
+    #[Route(path: '/import/fbexcel', name: 'import_fb_excel')]
+    public function importFbExcel(Request $request, ImportTicketFBExcel $fbExcelImport): Response
+    {
+        $filename = null;
+        $form = $this->createForm(ImportPvSystFormType::class);
+        $form->handleRequest($request);
+
+        $output = '';
+
+        if ($form->isSubmitted() && $form->isValid() && $form->get('preview')->isClicked()) {
+
+            $anlage = $form->getData()->anlage;
+
+            /** @var UploadedFile $uploadedFile */
+            /** @var UploadedFile $file */
+            $uploadedFile = $form['file']->getData();
+            $destination = $this->getParameter('kernel.project_dir') . '/tempfiles';
+            $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $newFilename = Urlizer::urlize($originalFilename) . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
+            $file = $uploadedFile->move($destination, $newFilename);
+            $filename = $file->getPathname();
+            $fileStream = fopen($file->getPathname(), 'r');
+            for ($n = 1; $n <= 20; $n++) {
+                $output .= fgets($fileStream) . '<br>';
+            }
+        }
+
+        if ($form->isSubmitted() && $form->isValid() && $form->get('import')->isClicked()) {
+            $anlage = $form->getData()->anlage;
+            $file = $form['filename']->getData();
+            $fileStream = fopen($file, 'r');
+
+            $output = "Jetzt sollte die Import ROUTINE STARTEN<br>";
+            $output .= $fbExcelImport->import($anlage, $fileStream, $form['separator']->getData() , 'd.m.y H:i'); //, $form['separator']->getData(), $form['dateFormat']->getData());
+
+            unlink($file);
+        }
+
+        // Wenn Close geklickt wird mache dies:
+        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        return $this->render('import/ticketImport.html.twig', [
             'form'     => $form,
             'filename' => $filename,
             'output'   => $output,

@@ -16,6 +16,9 @@ class LogMessages
     #[ORM\Column(type: 'string', length: 50)]
     private string $plant;
 
+    #[ORM\Column(type: 'integer', length: 5)]
+    private string $userId;
+
     #[ORM\Column(type: 'string', length: 50)]
     private string $function;
 
@@ -34,6 +37,12 @@ class LogMessages
     #[ORM\Column(type: 'integer')]
     private int $progress = 0;
 
+    #[ORM\Column(type: 'integer')]
+    private int $isSeen = 0;
+
+    #[ORM\Column(type: 'integer')]
+    private int $prozessId = 0;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -47,6 +56,18 @@ class LogMessages
     public function setPlant(string $plant): self
     {
         $this->plant = $plant;
+
+        return $this;
+    }
+
+    public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(string $userId): self
+    {
+        $this->userId = $userId;
 
         return $this;
     }
@@ -119,6 +140,30 @@ class LogMessages
     public function setProgress(int $progress): self
     {
         $this->progress = $progress;
+
+        return $this;
+    }
+
+    public function getIsSeen(): int
+    {
+        return $this->isSeen;
+    }
+
+    public function setIsSeen(int $isSeen): self
+    {
+        $this->isSeen = $isSeen;
+
+        return $this;
+    }
+
+    public function getProzessId(): int
+    {
+        return $this->prozessId;
+    }
+
+    public function setProzessId(int $prozessID): self
+    {
+        $this->prozessId = $prozessID;
 
         return $this;
     }

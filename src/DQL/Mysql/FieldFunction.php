@@ -7,6 +7,7 @@ namespace App\DQL\Mysql;
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\Lexer;
 use Doctrine\ORM\Query\Parser;
+use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\Query\SqlWalker;
 
 /**
@@ -18,6 +19,9 @@ class FieldFunction extends FunctionNode
 
     private array $values = [];
 
+    /**
+     * @throws QueryException
+     */
     public function parse(Parser $parser): void
     {
         $parser->match(Lexer::T_IDENTIFIER);
@@ -32,7 +36,7 @@ class FieldFunction extends FunctionNode
         $lexer = $parser->getLexer();
 
         while (count($this->values) < 1 ||
-            $lexer->lookahead['type'] != Lexer::T_CLOSE_PARENTHESIS) {
+            $lexer->lookahead->type != Lexer::T_CLOSE_PARENTHESIS) {
             $parser->match(Lexer::T_COMMA);
             $this->values[] = $parser->ArithmeticPrimary();
         }

@@ -24,13 +24,10 @@
             <p>{{ message|raw }}</p>
         </columns>
     </row>
-    <spacer size="30"></spacer>
+    <spacer size="10"></spacer>
     <row>
-        <button class="button action-icon tiny hollow shadow" href="{{ app.request.getSchemeAndHttpHost() }}{{ path('app_ticket_notification_confirm', {id: key}) }}"> Click here to answer </button>
-    </row>
-    <row class="footer">
         <columns>
-            <p>Your friendly <em>green4net Team</em></p>
+            <button class="expanded" href="{{ app.request.getSchemeAndHttpHost() }}{{ path('app_ticket_notification_confirm', {id: key}) }}"> Click here to answer </button>
         </columns>
     </row>
     <row class="bottom">

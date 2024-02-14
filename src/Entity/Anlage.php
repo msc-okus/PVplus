@@ -219,6 +219,7 @@ class Anlage implements \Stringable
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagenPR::class, cascade: ['remove'])]
     private Collection $pr;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $useNewDcSchema = true;
 
@@ -459,7 +460,7 @@ class Anlage implements \Stringable
     private Collection $Inverters;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private string $tempCorrCellTypeAvg = '0';
+    private string $tempCorrCellTypeAvg = '25';
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrGamma = '-0.4';
@@ -1585,13 +1586,23 @@ class Anlage implements \Stringable
 
         return $this;
     }
-
+    /**
+     * @deprecated
+     * use configType === 3 or 4 instead
+     */
     public function getUseNewDcSchema(): ?bool
     {
-        return $this->useNewDcSchema;
+        if ($this->configType === 1 or $this->configType === 2){
+            return false;
+        }
+
+        return true;
     }
 
-    public function setUseNewDcSchema(bool $useNewDcSchema): self
+    /**
+     * @deprecated
+     */
+     public function setUseNewDcSchema(bool $useNewDcSchema): self
     {
         $this->useNewDcSchema = $useNewDcSchema;
 

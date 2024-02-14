@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ parent() }}Import Tickets
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+{% endblock %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1 id="thechange">Import Tickets from CSV (Beta)</h1>
+        </div>
+    </div>
+
+    {{ form_start(form, {'attr': {'novalidate': 'no'}}) }}
+
+    <div class="grid-x grid-margin-x">
+        <div class="cell medium-2">
+            {{ form_row(form.anlage) }}
+        </div>
+        <div class="cell medium-2">
+            {{ form_row(form.file) }}
+        </div>
+    </div>
+
+
+        <div class="grid-x grid-margin-x {% if filename is null%} hidden{% endif %}">
+            <div class="cell medium-2">
+                {{ form_row(form.separator) }}
+            </div>
+            <div class="cell medium-2">
+                {{ form_row(form.dateFormat) }}
+            </div><div class="cell medium-8">
+                {{ form_row(form.filename, {attr: {
+                    value: filename
+                }}) }}
+            </div>
+        </div>
+
+
+    <div class="grid-x grid-margin-x" style="min-height: 50vh;">
+        <div class="cell medium-12">
+            <div class="callout" style="min-height: 50vh; max-height: 70vh; overflow-y: scroll; overflow-x: hidden;">
+                {{ output|raw }}
+            </div>
+        </div>
+    </div>
+
+
+    <div class="grid-x grid-margin-x grid-margin-y">
+        <div class="cell medium-4">
+            {{ form_widget(form.preview) }}
+            {% if filename is null %}
+                {{ form_widget(form.import, {attr: {
+                    disabled: true
+                }}) }}
+            {% else %}
+                {{ form_widget(form.import, {attr: {
+                    disabled: false,
+                    lable: 'import Tickets'
+                }}) }}
+            {% endif %}
+
+            {{ form_widget(form.close) }}
+        </div>
+    </div>
+    {{ form_end(form) }}
+{% endblock %}
