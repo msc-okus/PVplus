@@ -52,8 +52,7 @@ export default class extends Controller {
     toggleElementFade(element) {
         element.classList.toggle('fade');
     }
-
-
+    
     toggletabs(event) {
         event.preventDefault();
         const value = event.target.dataset.value;
