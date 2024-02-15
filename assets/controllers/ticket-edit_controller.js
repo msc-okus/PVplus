@@ -31,7 +31,6 @@ export default class extends Controller {
     connect() {
         useDispatch(this);
     }
-
     async openModal(event) {
         this.modalBodyTarget.innerHTML = 'Loading ...';
         this.modal = new Reveal($(this.modalTarget));
@@ -41,7 +40,7 @@ export default class extends Controller {
                 url: this.formUrlValue,
                 data: {'anlage': $(this.anlageTarget).val()},
             });
-                $(this.saveButtonTarget).attr('disabled', 'disabled');
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
         } else {
             this.modalBodyTarget.innerHTML = await $.ajax({
                 url: this.formUrlValue,
@@ -82,6 +81,7 @@ export default class extends Controller {
         });
     }
 
+
     reasonCheck(){
         let reason = $(this.reasonInputTarget).val();
         $(this.formReasonSelectTarget).val(reason);
@@ -99,21 +99,17 @@ export default class extends Controller {
         else {
             var addTime = 15;
         }
-
         let newDate = new Date(date.getTime() + (addTime * 60000));
-
-        console.log(newDate, date);
         if (newDate.getTime() < endDate.getTime()) {
-            console.log(endDate);
             if (newDate.getMonth() < 9) {
-                var beginMonth = '0'.concat((newDate.getMonth() + 1).toString());
+                var Month = '0'.concat((newDate.getMonth() + 1).toString());
             } else {
-                var beginMonth = (newDate.getMonth() + 1).toString();
+                var Month = (newDate.getMonth() + 1).toString();
             }
             if (newDate.getDate() < 10) {
-                var beginDay = '0'.concat(newDate.getDate().toString());
+                var Day = '0'.concat(newDate.getDate().toString());
             } else {
-                var beginDay = newDate.getDate().toString();
+                var Day = newDate.getDate().toString();
             }
 
             if (newDate.getHours() < 10) {
@@ -126,14 +122,11 @@ export default class extends Controller {
             } else {
                 var minutes = newDate.getMinutes().toString();
             }
-
-            let newStringdate = newDate.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes);
-            console.log(newStringdate);
+            let newStringdate = newDate.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
             $(this.formBeginTarget).val(newStringdate);
             $(this.formBeginDateTarget).val(newStringdate);
             if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
         }
-
     }
     beginMinusTime(){
 
@@ -148,16 +141,16 @@ export default class extends Controller {
         let newDate = new Date(date.getTime() - (subTime * 60000));
 
         if (newDate.getMonth() < 9) {
-            var beginMonth = '0'.concat((newDate.getMonth() + 1).toString());
+            var Month = '0'.concat((newDate.getMonth() + 1).toString());
         }
         else{
-            var beginMonth = (newDate.getMonth() + 1).toString();
+            var Month = (newDate.getMonth() + 1).toString();
         }
         if (newDate.getDate() < 10){
-            var beginDay =  '0'.concat(newDate.getDate().toString());
+            var Day =  '0'.concat(newDate.getDate().toString());
         }
         else{
-            var beginDay = newDate.getDate().toString();
+            var Day = newDate.getDate().toString();
         }
 
         if (newDate.getHours() < 10){
@@ -171,7 +164,7 @@ export default class extends Controller {
             var minutes =  newDate.getMinutes().toString();
         }
 
-        let newStringdate = newDate.getFullYear().toString().concat('-', beginMonth, '-',beginDay, 'T', hour, ':', minutes);
+        let newStringdate = newDate.getFullYear().toString().concat('-', Month, '-',Day, 'T', hour, ':', minutes);
         $(this.formBeginTarget).val(newStringdate);
         $(this.formBeginDateTarget).val(newStringdate);
         if ($(this.formHourTarget).prop('checked') == true)this.hourCheck();
@@ -179,99 +172,88 @@ export default class extends Controller {
 
     }
     endPlusTime(){
-        const valueEnd = $(this.formEndTarget).prop('value');
-        let date = new Date(valueEnd);
-
-        if (date.getMinutes() + 15 == 60){
-            var hour = date.getHours() + 1;
-            var minutes = '00';
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        let date = new Date(valueBegin);
+        if ($(this.formHourTarget).prop('checked') == true){
+            var addTime = 60;
         }
         else {
-            var hour = date.getHours();
-            var minutes = date.getMinutes() + 15;
+            var addTime = 15;
         }
-
-
-
-        if (date.getMonth() < 9) {
-            var beginMonth = '0'.concat((date.getMonth() + 1).toString());
-        }
-        else{
-            var beginMonth = (date.getMonth() + 1).toString();
-        }
-        if (date.getDate() < 10){
-            var beginDay =  '0'.concat(date.getDate().toString());
-        }
-        else{
-            var beginDay = date.getDate().toString();
-        }
-
-        if (hour < 10){
-            var hour =  '0'.concat(hour.toString());
-        }
-
-        let newStringdate = date.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes.toString());
-        $(this.formEndTarget).val(newStringdate);
-        $(this.formEndDateTarget).val(newStringdate);
-        if ($(this.formHourTarget).prop('checked') == true)this.hourCheck();
-    }
-    endMinusTime(){
-        const valueEnd = $(this.formEndTarget).prop('value');
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        let date = new Date(valueEnd);
-        let date2 = new Date(valueBegin);
-
-        if (date.getTime() - 900000 > date2.getTime()) {
-            if ($(this.formHourTarget).prop('checked') == true){
-                if (date.getHours() > date2.getHours() + 1) {
-                    var hour = date.getHours() - 1;
-                    var minutes = '15';
-                }
-                else{
-                    var hour = date.getHours();
-                    var minutes = '15';
-                }
-            }
-            else{
-                if (date.getMinutes() - 15 < 0) {
-                    var hour = date.getHours() - 1;
-                    var minutes = '45';
-                }
-                else {
-                var hour = date.getHours();
-                    if (date.getMinutes() - 15 == 0) var minutes = '00';
-                    else var minutes = date.getMinutes() - 15;
-                }
-            }
-
-
-            if (date.getMonth() < 9) {
-                var beginMonth = '0'.concat((date.getMonth() + 1).toString());
+        let newDate = new Date(date.getTime() + (addTime * 60000));
+        if (newDate.getTime() < endDate.getTime()) {
+            if (newDate.getMonth() < 9) {
+                var Month = '0'.concat((newDate.getMonth() + 1).toString());
             } else {
-                var beginMonth = (date.getMonth() + 1).toString();
+                var Month = (newDate.getMonth() + 1).toString();
             }
-            if (date.getDate() < 10) {
-                var beginDay = '0'.concat(date.getDate().toString());
+            if (newDate.getDate() < 10) {
+                var Day = '0'.concat(newDate.getDate().toString());
             } else {
-                var beginDay = date.getDate().toString();
+                var Day = newDate.getDate().toString();
+            }
+            if (newDate.getHours() < 10) {
+                var hour = '0'.concat(newDate.getHours().toString());
+            } else {
+                var hour = newDate.getHours().toString();
+            }
+            if (newDate.getMinutes() < 10) {
+                var minutes = '0'.concat(newDate.getMinutes().toString());
+            } else {
+                var minutes = newDate.getMinutes().toString();
             }
 
-            if (hour < 10) {
-                var hour = '0'.concat(hour.toString());
-            }
-
-            let newStringdate = date.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes.toString());
+            let newStringdate = newDate.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
+            console.log(newStringdate);
             $(this.formEndTarget).val(newStringdate);
             $(this.formEndDateTarget).val(newStringdate);
-            if ($(this.formHourTarget).prop('checked') == true)this.hourCheck();
+        }
+    }
+    endMinusTime(){
+
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        let beginDate = new Date(valueBegin);
+        if ($(this.formHourTarget).prop('checked') == true){
+            var subTime = 60;
+        }
+        else {
+            var subTime = 15;
+        }
+        const valueEnd = $(this.formEndTarget).prop('value');
+        let date = new Date(valueEnd);
+        let newDate = new Date(date.getTime() - (subTime * 60000));
+        if (newDate.getTime() > beginDate.getTime()) {
+            if (newDate.getMonth() < 9) {
+                var Month = '0'.concat((newDate.getMonth() + 1).toString());
+            } else {
+                var Month = (newDate.getMonth() + 1).toString();
+            }
+            if (newDate.getDate() < 10) {
+                var Day = '0'.concat(newDate.getDate().toString());
+            } else {
+                var Day = newDate.getDate().toString();
+            }
+
+            if (newDate.getHours() < 10) {
+                var hour = '0'.concat(newDate.getHours().toString());
+            } else {
+                var hour = newDate.getHours().toString();
+            }
+            if (newDate.getMinutes() < 10) {
+                var minutes = '0'.concat(newDate.getMinutes().toString());
+            } else {
+                var minutes = newDate.getMinutes().toString();
+            }
+
+            let newStringdate = newDate.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
+            $(this.formEndTarget).val(newStringdate);
+            $(this.formEndDateTarget).val(newStringdate);
         }
     }
     hourCheck(){
 
         if ($(this.formReplaceTarget).prop('checked') == true) $(this.formHourTarget).prop('checked', true)
-        //NEW BEHAVIOUR: if the category is one of the performance ticket, the hour Check must also be respected for the main dates
-        //for that we will check if the category is one of those and if true, we will make ticket date begin/end = mainticket begin/end
-        //after that if hour is checked we will also aply the hour rule to the main ticket date
+
         const cat = $(this.formCategoryTarget).val();
         if (cat >= 70 && cat < 80){
             $(this.formBeginDateTarget).val($(this.formBeginTarget).prop('value'));
@@ -394,7 +376,6 @@ export default class extends Controller {
 
     }
     replaceCheck(){
-
 // this is the change of overlay if the user decides to replace energy with PVSYST in the replace ticket
         let body = $(this.modalBodyTarget);
             if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20);}
