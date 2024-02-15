@@ -32,14 +32,14 @@
                     {% if notifications|length > 0 %}
                         <h5>Notification Log</h5>
                         <div class="container">
-                                <div class="mro">
-                                    {% for notification in notifications %}
-                                        <div>{{ notification.contactedPerson.Name }}</div>
-                                        {% if notification.freeText != '' %}<div class="other"> {{ notification.freeText }} -<i>{{ notification.Date |format_datetime(pattern="yyyy-MM-dd HH:mm") }} </i></div>{% endif %}
-                                        {% if notification.answerFreeText != '' %}<div class="receiver"><i>{{ notification.answerDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i> - {{ notification.answerFreeText }}</div>{% endif %}
-                                        {% if notification.closeFreeText != '' %}<div class="receiver"><i>{{ notification.closeDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i> - {{ notification.closeFreeText }}</div>{% endif %}
-                                    {% endfor %}
-                                </div>
+                            <div class="mro">
+                                {% for notification in notifications %}
+                                    <div>{{ notification.contactedPerson.Name }}</div>
+                                    {% if notification.freeText != '' %}<div class="other"> {{ notification.freeText }} -<i>{{ notification.Date |format_datetime(pattern="yyyy-MM-dd HH:mm") }} </i></div>{% endif %}
+                                    {% if notification.answerFreeText != '' %}<div class="receiver"><i>{{ notification.answerDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i> - {{ notification.answerFreeText }}</div>{% endif %}
+                                    {% if notification.closeFreeText != '' %}<div class="receiver"><i>{{ notification.closeDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i> - {{ notification.closeFreeText }}</div>{% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
                     {% endif %}
                 </div>
