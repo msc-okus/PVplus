@@ -561,7 +561,6 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 55px']
             ])
-             /*
             ->add('modAzimut', TextType::class, [
                 'label' => 'Modul azimut',
                 'help' => '[Modul azimut in degrees for S=180 O=90 W=270 ]',
@@ -569,7 +568,6 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3, 'style' => 'width: 55px']
             ])
-             */
             ->add('albeto', TextType::class, [
                 'label' => 'Albedo',
                 'help' => '[The albedo are 0.15 for grass or 0.3 for roof]',

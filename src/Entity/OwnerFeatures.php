@@ -119,9 +119,9 @@ class OwnerFeatures
         return $this->manAktive;
     }
 
-    public function setManAktive(bool $ManAktive): self
+    public function setManAktive(bool $manActive): self
     {
-        $this->manAktive = $ManAktive;
+        $this->manAktive = $manActive;
 
         return $this;
     }
