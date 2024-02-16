@@ -20,14 +20,23 @@ class AnlageStringAssigmentType extends AbstractType
                 'class' => Anlage::class,
                 'choice_label' => function (Anlage $anlage) use ($anlageWithAssignments) {
                     $lastUploadDate = $anlage->getLastAnlageStringAssigmentUpload();
-                    $dateStr = $lastUploadDate ? $lastUploadDate->format('d-m-Y H:i:s') : ' (never)';
+                    $dateStr = $lastUploadDate ? $lastUploadDate->format('d-m-Y H:i:s') : ' never';
                     $hasAssignments = isset($anlageWithAssignments[$anlage->getAnlId()]);
                     $arrow = $hasAssignments ? '🔵' : '';
-                    return sprintf("%s %s  (%s)  %s", $anlage->getAnlName(),$anlage->getAnlId(), $dateStr, $arrow);
+                    return sprintf("%s (%s) - Last upload: %s  %s", $anlage->getAnlName(),$anlage->getAnlId(), $dateStr, $arrow);
                 },
+                'label' => 'Select Anlage:',
+                'attr' => [
+                    'class' => 'custom-select',
+                ],
 
             ])
-            ->add('file', FileType::class)
+            ->add('file', FileType::class, [
+                'label' => 'Upload File:',
+                'attr' => [
+                    'class' => 'form-control-file',
+                ]
+            ])
         ;
     }
 
