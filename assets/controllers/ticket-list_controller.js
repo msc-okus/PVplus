@@ -4,7 +4,7 @@ import {Reveal} from "foundation-sites";
 import {useDispatch} from "stimulus-use";
 
 export default class extends Controller {
-    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd', 'sort', 'direction', 'proofam', 'proofepc', 'prooftam', 'proofg4n'];
+    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd', 'sort', 'direction', 'proofam', 'proofepc', 'prooftam', 'proofg4n', 'ignored', 'proofmaintenance'];
     static values = {
         urlCreate: String,
         urlSearch: String,
@@ -40,11 +40,12 @@ export default class extends Controller {
         var response = await $.ajax({
             url: '/ticket/proofCount',
         });
-        console.log(response);
-        (this.proofepcTarget).innerText = response['countProofByEPC'];
-        (this.prooftamTarget).innerText = response['countProofByTAM'];
-        (this.proofg4nTarget).innerText = response['countProofByG4N'];
-        (this.proofamTarget).innerText = response['countProofByAM'];
+        this.proofepcTarget.innerText = response['countProofByEPC'];
+        this.prooftamTarget.innerText = response['countProofByTAM'];
+        this.proofg4nTarget.innerText = response['countProofByG4N'];
+        this.proofamTarget.innerText = response['countProofByAM'];
+        this.ignoredTarget.innerText = response['countIgnored'];
+        this.proofmaintenanceTarget.innerText = response['countProofByMaintenance'];
 
         $(document).foundation();
         this.disableAllToolTips()
@@ -117,7 +118,6 @@ export default class extends Controller {
     disableAllToolTips(){
         $("[id*='tooltip']").each(function() {
             $(this).css('display', 'none');
-            //console.log(this);
         });
     }
 }

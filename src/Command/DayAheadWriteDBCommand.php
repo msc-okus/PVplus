@@ -10,6 +10,7 @@
  */
 
 namespace App\Command;
+use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service;
@@ -73,7 +74,7 @@ class DayAheadWriteDBCommand extends Command {
                 $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
                 $input_mer = (integer)$anlage->getBezMeridan();   // Bezugsmeridan Mitteleuropa
                 $input_mn = (integer)$anlage->getModNeigung();    // Modulneigung Grad in radiat deg2rad(45) <----
-                $input_ma = (integer)$anlage->getModAzimut();     // Modul Azimut Grad Wert wenn Ausrichtung nach Süden: 0° nach Südwest: +45° nach Nord: +/-180° nach Osten: -90°
+                //$input_ma = (integer)$anlage->getModAzimut();     // Modul Azimut Grad Wert wenn Ausrichtung nach Süden: 0° nach Südwest: +45° nach Nord: +/-180° nach Osten: -90°
                 $input_ab = (float)$anlage->getAlbeto();          // Albedo 0.15 Gras 0.3 Dac
                 $has_suns_model = (float)$anlage->getHasSunshadingModel(); // Check if has sunshading Model
                 $DbNameForecast = $anlage->getDbNameForecastDayahead(); // The Name of the Database
@@ -96,7 +97,8 @@ class DayAheadWriteDBCommand extends Command {
                 // Wenn Meteo daten vorhanden sind, dann Verarbeite diese.
                 if ((is_countable($meteo_array) ? count($meteo_array) : 0) > 1) {
                     $io->info("Data read ! please wait");
-                    $decarray = $this->dayaheadforecastdekservice->get_DEK_Data($input_gl, $input_mer, $input_gb, $input_mn, $input_ma, $input_ab, $meteo_array, $has_suns_model, $anlageId, 'all');
+
+                    $decarray = $this->dayaheadforecastdekservice->get_DEK_Data($input_gl, $input_mer, $input_gb, $input_mn, $input_ab, $meteo_array, $has_suns_model, $anlageId, 'all');
                     $forcarstarray = $this->aheadForecastMALService->calcforecastout($anlageId, $decarray);
                     $endprz = 0;
 

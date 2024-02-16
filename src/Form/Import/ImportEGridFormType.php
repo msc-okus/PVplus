@@ -56,7 +56,7 @@ class ImportEGridFormType extends AbstractType
                 'label' => 'eGrid File (xlsx)',
                 'constraints' => [
                     new File([
-                        'maxSize' => '5Mi',
+                        'maxSize' => '10Mi',
                         'extensions' => ['xlsx'],
                     ]),
                 ],

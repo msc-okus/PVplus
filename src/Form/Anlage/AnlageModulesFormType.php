@@ -19,30 +19,33 @@ class AnlageModulesFormType extends AbstractType
         $builder
             ->add('type', TextType::class, [
                 'label' => 'Module Type',
+                'empty_data' => '',
+                'attr' => ['style' => 'width: 265px']
             ])
             ->add('producer', TextType::class, [
                 'label' => 'Producer',
                 'empty_data' => '',
+                'attr' => ['style' => 'width: 265px']
             ])
             ->add('power', TextType::class, [
                 'label' => 'Power Wp',
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{6}', 'maxlength' => 6, 'style' => 'width: 165px']
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('tempCoefCurrent', TextType::class, [
                 'label' => 'Temp. Coef. Current',
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 95px']
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('tempCoefVoltage', TextType::class, [
                 'label' => 'Temp. Coef. Voltage',
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 95px']
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('tempCoefPower', TextType::class, [
                 'label' => 'Temp. Coef. Power',
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 95px']
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('degradation', TextType::class, [
                 'label' => 'Module degradation per Year',
@@ -116,7 +119,6 @@ class AnlageModulesFormType extends AbstractType
                 'empty_data' => '0',
                 'attr' => ['maxlength' => 8, 'style' => 'width: 95px']
             ])
-
             ->add('operatorPowerE', TextType::class, [
                 'label' => 'Power E',
                 'empty_data' => '0',
@@ -140,7 +142,7 @@ class AnlageModulesFormType extends AbstractType
             ->add('dimensionWidth', TextType::class, [
                 'label'         => 'Dimension width in mm',
                 'empty_data'    => '0',
-                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 3, 'style' => 'width: 95px']
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 95px']
             ])
             ->add('isBifacial', SwitchType::class, [
                 'label' => 'is a Bifacial Modul',
@@ -151,6 +153,7 @@ class AnlageModulesFormType extends AbstractType
                 'label' => 'an Annotation',
                 'empty_data' => '',
                 'config' => ['toolbar' => 'my_toolbar'],
+                'attr' => ['style' => 'width: 415px']
             ])
 
             ######### Voltage ##########dataSheet_1

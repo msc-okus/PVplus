@@ -14,7 +14,7 @@ class LogMessagesService
     )
     {
     }
-    public function writeNewEntry(Anlage $anlage, string $function, string $job): int
+    public function writeNewEntry(Anlage $anlage, string $function, string $job, int $userId): int
     {
         $log = new LogMessages();
         $log
@@ -23,6 +23,7 @@ class LogMessagesService
             ->setJob($job)
             ->setStartedAt(new \DateTimeImmutable())
             ->setState('waiting')
+            ->setUserId($userId)
         ;
         $this->em->persist($log);
         $this->em->flush();
@@ -41,6 +42,15 @@ class LogMessagesService
             if ($state == 'done') {
                 $log->setFinishedAt(new \DateTimeImmutable());
             }
+            $this->em->flush();
+        }
+    }
+
+    public function updateEntryAddReportId(?int $id, ?int $reportId = null): void
+    {
+        if ($id !== null) {
+            $log = $this->logMessagesRepo->findOneBy(['id' => $id]);
+            $log->setProzessId($reportId);
             $this->em->flush();
         }
     }

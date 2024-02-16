@@ -14,7 +14,6 @@ import '../bootstrap';
 import '../styles/app.scss';
 
 import 'foundation-sites';
-import 'foundation-datepicker';
 
 import  Swal  from 'sweetalert2';
 global.Swal = Swal;
@@ -28,8 +27,8 @@ $('.my-alert-box').closest('[data-alert]').fadeOut(8000);
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    var url = window.location.href;
-    var urlParams = url.split('#')[1];
+    let url = window.location.href;
+    let urlParams = url.split('#')[1];
     if (urlParams === 'chart') {
         const elementchart = document.getElementById('headbar');
         const positionChart = elementchart.getBoundingClientRect();
@@ -37,8 +36,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const positionPlants = elementplants.getBoundingClientRect();
         const height = positionChart.height + positionPlants.height - 80;
         const hightpx = height + "px";
-        setTimeout(function() {window.scrollTo(0, height);},1)
+        setTimeout(function() {window.scrollTo(0, height);},1);
     }
 });
+
+/* for Kebab Menue*/
+
+let kebab = document.querySelector('.kebab'),
+    middle = document.querySelector('.middle'),
+    cross = document.querySelector('.cross'),
+    dropdown = document.querySelector('.dropdown');
+
+if (kebab !== null) {
+    kebab.addEventListener('click', function () {
+        middle.classList.toggle('active');
+        cross.classList.toggle('active');
+        dropdown.classList.toggle('active');
+    });
+}
 
 

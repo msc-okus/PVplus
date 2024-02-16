@@ -146,11 +146,12 @@ class AnlagenController extends BaseController
                     $this->addFlash('warning', 'Field Albeto fail.');
                     $checkfields = false;
                 }
+                /*
                 if ($form->get('modAzimut')->isEmpty()) {
                     $this->addFlash('warning', 'Field Modul Azimut fail.');
                     $checkfields = false;
                 }
-
+                */
                 if ($checkfields === false){
                     return $this->render('anlagen/edit.html.twig', [
                         'anlageForm' => $form,

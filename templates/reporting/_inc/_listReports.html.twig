@@ -3,19 +3,21 @@
         data-action="modal-form:success->report#search submit-confirm:async:submitted->report#search"
 >
     <div data-reload-content-target="content">
-        <table class="table sortable">
+        <table class="table sortable stickyheader">
             <thead>
             <tr>
                 <th>Report ID</th>
                 <th {% if pagination.isSorted('a.anlName') %} class="sorted"{% endif %}>
                     {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName'], {'data-action': 'report#sort'}) }}</th>
+
                 {% if is_granted('ROLE_G4N') %}
                     <th>Owner</th>
-                    <th {% if pagination.isSorted('report.createdAt') %} class="sorted"{% endif %}>
-                        {{ knp_pagination_sortable(pagination, 'created at', ['report.createdAt'], {'data-action': 'report#sort'}) }}</th>
                     <th {% if pagination.isSorted('report.createdBy') %} class="sorted"{% endif %}>
                         {{ knp_pagination_sortable(pagination, 'created by', ['report.createdBy'], {'data-action': 'report#sort'}) }}</th>
                 {% endif %}
+
+                <th {% if pagination.isSorted('report.createdAt') %} class="sorted"{% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'created at', ['report.createdAt'], {'data-action': 'report#sort'}) }}</th>
                 <th {% if pagination.isSorted('report.month') %} class="sorted"{% endif %}>
                     {{ knp_pagination_sortable(pagination, 'Month', ['report.month'], {'data-action': 'report#sort'}) }}</th>
                 <th {% if pagination.isSorted('report.year') %} class="sorted"{% endif %}>
@@ -33,13 +35,16 @@
                     <tr>
                         <td>{{ report.id }}</td>
                         <td>{{ report.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ report.anlage.anlId}}) {% endif %}</td>
+
                         {% if is_granted('ROLE_G4N') %}
                             <td>{{ report.anlage.eigner.firma }}</td>
                         {% endif %}
-                        <td>{{ report.createdAt|date }}</td>
+
                         {% if is_granted('ROLE_G4N') %}
                             <td>{{ report.createdBy }}</td>
                         {% endif %}
+
+                        <td>{{ report.createdAt|date }}</td>
                         <td>{{ report.month }}</td>
                         <td>{{ report.year }}</td>
                         <td>
@@ -70,12 +75,14 @@
                                     {{ visibility }}
                                 "><span class="fa fa-file-pdf"></span></a>
 
-                                {# edit report #}
+                                {# open Report in HTML #}
                                 {% if is_granted('ROLE_G4N') and report.reportType != 'am-report' %}
                                     <a href="{{ path('app_reporting_html', { id: report.id}) }}" target="_blank" title="load html code into new window" class="hollow button tiny action-icon shadow">
                                         <span class="fas fa-code"></span>
                                     </a>
                                 {% endif %}
+
+                                {# edit report #}
                                 {% if is_granted('ROLE_G4N') %}
                                     <button class="hollow button tiny action-icon shadow"
                                        data-action="modal-form#openModal"
@@ -84,16 +91,14 @@
                                 {% endif %}
 
                                 {# delete report #}
-                                {% if is_granted('ROLE_DEV') %}
-                                    <a href="#"
-                                       class="hollow alert button tiny action-icon shadow"
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="#" class="hollow alert button tiny action-icon shadow"
                                        {{ stimulus_controller('submit-confirm', {
                                            title: 'Remove this report?',
                                            confirmButtonText: 'Yes, remove it',
                                            redirectUrl: path('app_reporting_delete', { id: report.id})
                                        }) }}
-                                       data-action="submit-confirm#onSubmit"
-                                    >
+                                       data-action="submit-confirm#onSubmit">
                                         <span class="fa fa-trash-alt"></span>
                                     </a>
                                 {% endif %}

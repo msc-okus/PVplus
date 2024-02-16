@@ -1089,22 +1089,6 @@ and form.selectedChart != 'sollistirranalyse'%}
                 series2.connect = false;
             {% endif %}
 
-            {% if aktAnlage.useCustPRAlgorithm == 'Lelystad' %}
-                let series3 = chart.series.push(new am4charts.LineSeries());
-                series3.name = "{{ content.series3.name }}";
-                series3.ttname = "{{ content.series3.tooltipText }}";
-                series3.dataFields.dateX = "date";
-                series3.dataFields.valueY = "tempCellCorr";
-                series3.tooltipText = "{ttname}: {valueY} [/]";
-                series3.stroke = am4core.color("#950193");
-                series3.fill = "#950193";
-                series3.strokeWidth = 1;
-                series3.sequencedInterpolation = true;
-                series3.defaultState.transitionDuration = 0;
-                series3.tensionX = 0.8;
-                series3.connect = false;
-            {% endif %}
-
             let windSpeed = chart.series.push(new am4charts.LineSeries());
             windSpeed.name = "Wind Speed m/s";
             windSpeed.ttname = "Wind Speed m/s";

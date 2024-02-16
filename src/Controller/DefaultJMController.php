@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\ContactInfo;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use App\Repository\EignerRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketRepository;
 use App\Service\TicketsGeneration\InternalAlertSystemService;
@@ -18,7 +20,7 @@ use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use PDO;
 use Hisune\EchartsPHP\ECharts;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -43,19 +45,19 @@ class DefaultJMController extends AbstractController
 
     }
 
-
+    #[Route(path: '/test/ticketsName', name: 'test_tickets')]
+    public function teastTicketName(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
+    {
+        $ticket = $ticketRepo->findOneById("399529 ");
+        dd($ticket->getInverterName());
+    }
 
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
     {
-        $fromDate = "2023-11-01 00:00";
-        $toDate = "2023-11-16 00:00";
-        $anlagen[] = $anlagenRepository->findIdLike("56")[0];
-        $anlagen[] = $anlagenRepository->findIdLike("233")[0];//faulty included in purpose
-        $anlagen[] = $anlagenRepository->findIdLike("219")[0];
-        $anlagen[] = $anlagenRepository->findIdLike("231")[0];
-        $anlagen[] = $anlagenRepository->findIdLike("182")[0];
-
+        $fromDate = "2024-01-13 00:00";
+        $toDate = "2024-01-15 00:00";
+        $anlagen[] = $anlagenRepository->findIdLike("218")[0];
 
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
@@ -79,19 +81,6 @@ class DefaultJMController extends AbstractController
         }
 
         dd("hello world");
-    }
-
-    #[Route(path: '/test/time', name: 'default_time')]
-    public function testTime(AnlagenRepository $anlagenRepository)
-    {
-        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
-
-        foreach ($anlagen as $anlage){
-            $timeZone = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
-            date_default_timezone_set($timeZone->getName());
-        }
-
-        dd("hello World");
     }
 
 

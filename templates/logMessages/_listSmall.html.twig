@@ -1,9 +1,58 @@
-<table id="background-tasks" class=" message-log">
+<div style="top: 0px; left: 0px;">
+    {% set counter = 0 %}
     {% for log in logs %}
-        <tr class="{{ log.state }}" style="background-color: white;">
-            <td>{{ log.plant }}</td>
-            <td>{{ log.function }}</td>
-            <td>{{ log.state }} ({{ log.progress }}%)</td>
-        </tr>
+        {% if 'Report' in log.function %}
+            {% set counter = 1 %}
+        {% endif %}
     {% endfor %}
-</table>
+
+    <div class="messagebuttons" id="messagebuttons">
+        {% if count > 0 %}
+            <ul class="tabsmessages tabs-animated nav nav-justified  p-3">
+                <li class="is-active" id="limessagestab" data-controller="processmessengesshowmessage">
+                    <button data-action="processmessengesshowmessage#toggletabs" data-value="messagestab">
+                        Messages
+                    </button>
+                </li>
+                {% if counter == 1 %}
+                    <li class="is-inactive" id="limessagesactionstab" data-controller="processmessengesshowmessage">
+                        <button data-action="processmessengesshowmessage#toggletabs" data-value="messagesactionstab">
+                            Downloads
+                        </button>
+                    </li>
+                {% endif %}
+            </ul>
+        {% else %}
+        <div class="nomessages">
+            <span>There are currently no notifications.</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="messagescontent" id="messagestabs">
+        <div class="messagestab" id="messagestab">
+            <table class="message-log">
+                {% for log in logs %}
+                    <tr class="{{ log.state }}" style="background-color: white;">
+                        <td>{{ log.plant }}</td>
+                        <td>{{ log.function }}</td>
+                        <td>{{ log.state }} ({{ log.progress }}%)</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="messagesactionstab fade" id="messagesactionstab">
+            <table class="message-log">
+                {% for log in logs %}
+                    <tr class="{{ log.state }}" style="background-color: white;">
+                        {% if log.state == 'done' and 'Report' in log.function %}
+                            <td>{{ log.plant }}</td>
+                            <td>{{ log.function }}</td>
+                            <td><a class="hollow button tiny action-icon shadow" href="/reporting/pdf/{{ log.prozessId }}" target="_blank"><span style="background-color:#ffffff" class="fa fa-file-pdf"></span></a></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>

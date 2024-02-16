@@ -35,10 +35,10 @@ class APIOpenMeteoService {
     /**
      * Sorting the curl request and build an array with 15 Minutes Data for 3 Days and hourly Data for 7 Days
      */
-    public function make_sortable_data()  {
+    public function make_sortable_data() :array {
         // Um die Genauigkeit zu verbessern werden 10 weitere Standorte im Umkeis mit eingebunden.
         # $coords = $this->getBoundingRadius($this->lat, $this->lon, 5,9); # 5 Coordinaten vom 5/9 KM Radius von Standort
-        $coords = $this->convert([$this->lat, $this->lon], 5, 10); # 10 Coordinaten vom 10 KM Radius von Standort
+        $coords = $this->convert([$this->lat, $this->lon], 5, 10); # 10 Coordinaten vom 5 KM Radius von Standort
         $cn = 1;
 
         // Auslesen der Standorte im Umkeis.
@@ -135,7 +135,7 @@ class APIOpenMeteoService {
         return [$flatCoordinates];
     }
 
-    public function offset($c1, $distance, $bearing) {
+    public function offset($c1, $distance, $bearing) :array {
         $earth_radius = 6371;
         $lat1 = deg2rad($c1[0]);
         $lon1 = deg2rad($c1[1]);

@@ -25,6 +25,9 @@ class AnlageAcGroups
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'acGroups')]
     private ?\App\Entity\Anlage $anlage = null;
 
+    #[ORM\Column(name: 'trafo_nr', type: 'string', length: 20, nullable: true)]
+    private string $trafoNr;
+
     #[ORM\Column(name: 'ac_group_id', type: 'string', length: 20, nullable: false)]
     private string $acGroup;
 
@@ -93,6 +96,18 @@ class AnlageAcGroups
     public function setAnlage(?Anlage $anlage): self
     {
         $this->anlage = $anlage;
+
+        return $this;
+    }
+
+    public function getTrafoNr(): ?string
+    {
+        return $this->trafoNr;
+    }
+
+    public function setTrafoNr(string $trafoNr): self
+    {
+        $this->trafoNr = $trafoNr;
 
         return $this;
     }

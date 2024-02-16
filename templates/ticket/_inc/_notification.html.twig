@@ -1,0 +1,71 @@
+<div class="grid-x grid-padding-y">
+    <div class="cell notification">
+        <fieldset class="fieldset">
+            <legend><h4>Maintenance notification</h4></legend>
+            <div class="grid-x grid-padding-y grid-padding-x">
+                <div class="cell medium-6">
+                    {{ form_start(notificationForm) }}
+                        {% if (actualNotification != null) %}
+                            {% set errcat %} notification.status.{{ actualNotification.status }}{% endset %}
+                            <p>
+                                <b>Last contacted Person:</b> {{ actualNotification.contactedPerson.name }}<br>
+                                <b>Status:</b> {{ errcat|trans }}<br>
+                                <b>Notification Date:</b> {{ actualNotification.date |date("d.m.y H:i") }} ({{ timeDiff }} ago)
+                            </p>
+                        {% endif %}
+                        {{ form_widget(notificationForm.contacted) }}
+                        <br>Message for the Maintenance Provider:
+                        {{ form_widget(notificationForm.freeText) }}
+
+                        <div class="is-hidden">{{ form_widget(notificationForm.contact) }}</div>
+                    {{ form_end(notificationForm) }}
+                    <br>
+                    <button type="button" class="button small "
+                            data-action="click->ticket-edit#contact" >Send notification <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="button small "
+                            data-ticket-edit-target="contactButton"
+                            data-action="click->ticket-edit#openContactCreateModal"> Create New Contact
+                    </button>
+                </div>
+                <div class="cell medium-6">
+                    {% if notifications|length > 0 %}
+                        <h5>Notification Log</h5>
+                        <div class="container">
+                            <div class="mro">
+                                {% for notification in notifications %}
+                                    <div>{{ notification.contactedPerson.Name }}</div>
+                                    {% if notification.freeText != '' %}<div class="other"> {{ notification.freeText }} -<i>{{ notification.Date |format_datetime(pattern="yyyy-MM-dd HH:mm") }} </i></div>{% endif %}
+                                    {% if notification.answerFreeText != '' %}<div class="receiver"><i>{{ notification.answerDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i> - {{ notification.answerFreeText }}</div>{% endif %}
+                                    {% if notification.closeFreeText != '' %}<div class="receiver"><i>{{ notification.closeDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i> - {{ notification.closeFreeText }}</div>{% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </fieldset>
+        <button class="close-button"
+                type="button"
+                data-action="ticket-edit#closeContact"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    {# Modal for new Contact #}
+    <div id="formContactCreate{{ modalId }}">
+        <div class="reveal text-left small" id="modal-contact-create-{{ modalId }}"
+             data-reveal
+             data-append-to="div#formContactCreate{{ modalId }}"
+             data-close-on-click = "false"
+             data-multiple-opened="true"
+             data-ticket-edit-target="contactModalCreate">
+            <div class="cell modal-body"
+                 data-ticket-edit-target="modalContactCreateBody"
+                 data-action="modal-form#submitForm">
+                {{ modalContent|default('Loading...') }}
+            </div>
+        </div>
+    </div>
+</div>

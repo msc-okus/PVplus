@@ -18,12 +18,13 @@ export default class extends Controller {
     }
 
     async openModal(event) {
+        event.preventDefault();
         this.modalBodyTarget.innerHTML = 'Loading ...';
-        console.log('form');
         this.modal = new Reveal($(this.modalTarget));
         this.modal.open();
 
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
+
     }
 
     async submitForm(event) {

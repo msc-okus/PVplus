@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Anlage;
 use App\Entity\AnlageGroupModules;
 use App\Entity\AnlageGroupMonths;
+use App\Entity\AnlageGroups;
 use App\Entity\OpenWeather;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
@@ -14,6 +15,7 @@ use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\OpenWeatherRepository;
+use App\Service\Forecast\SunShadingModelService;
 use App\Service\Functions\IrradiationService;
 use App\Repository\AnlageSunShadingRepository;
 use App\Service\Forecast\ForecastCalcService;
@@ -38,11 +40,10 @@ class ExpectedService
         private readonly OpenWeatherService $openWeather,
         private readonly OpenWeatherRepository $openWeatherRepo,
         private readonly AnlageSunShadingRepository $anlageSunShadingRepository,
+        private readonly SunShadingModelService $sunShadingModelService,
         private readonly ForecastCalcService $forecastCalcService,
         private readonly IrradiationService $irradiationService)
     {
-        $this->anlagesunshadingrepository = $anlageSunShadingRepository;
-        $this->anlageforecastCalcService = $forecastCalcService;
     }
 
     /**
@@ -90,11 +91,12 @@ class ExpectedService
         $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre
         $month = date('m', strtotime((string) $from));
         $has_suns_model = (float)$anlage->getHasSunshadingModel(); // check if has sunshading Model
-        $sshrep = $this->anlagesunshadingrepository->findBy(['anlage' => $anlage->getAnlId()]); // Call the Repository
+        $sshrep = $this->anlageSunShadingRepository->findBy(['anlage' => $anlage->getAnlId()]); // Call the Repository
         $conn = $this->pdoService->getPdoPlant();
         // Lade Wetter (Wetterstation der Anlage) Daten für die angegebene Zeit und Speicher diese in ein Array
         $weatherStations = $this->groupsRepo->findAllWeatherstations($anlage, $anlage->getWeatherStation());
         $sqlWetterDaten = 'SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, temp_pannel AS panel_temp, temp_ambient AS ambient_temp FROM '.$anlage->getDbNameWeather()." WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
+
         $resWeather = $conn->prepare($sqlWetterDaten);
         $resWeather->execute();
         $weatherArray[$anlage->getWeatherStation()->getDatabaseIdent()] = $resWeather->fetchAll(PDO::FETCH_ASSOC);
@@ -117,6 +119,7 @@ class ExpectedService
             $ausrichtung = ($anlage->getIsOstWestAnlage()) ? '90' : '180';
         }
 
+        /** @var AnlageGroups $group  */
         foreach ($anlage->getGroups() as $group) {
             // Monatswerte für diese Gruppe laden
             /** @var AnlageGroupMonths $groupMonth */
@@ -128,8 +131,8 @@ class ExpectedService
 
             foreach ($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
                 $stamp = $weather['stamp'];
-                $doy = date("z", strtotime($stamp)) + 1; // The Day of Year for Sunshadding
-                $hour = date("H", strtotime($stamp)); // The Hour for Sunshadding
+                $doy = (int)date("z", strtotime($stamp)) + 1; // The Day of Year for Sunshadding
+                $hour = (int)date("H", strtotime($stamp)); // The Hour for Sunshadding
                 //
                 $openWeather = false; ### temporäre deaktivierung OpenWeather
                 ###$openWeather = $this->openWeatherRepo->findTimeMatchingOpenWeather($anlage, date_create($stamp));
@@ -161,9 +164,9 @@ class ExpectedService
                     if ($has_suns_model) {
                         // Beginn Shadow Loss
                         if ($tempIrr >= 400) { // Wenn Strahlung größer 500 Wh/m2
-                            $AOIarray = $this->anlageforecastCalcService->getAOI($input_mn, $input_gb, $input_gl, $input_mer, $doy, $hour, $ausrichtung);
+                            $AOIarray = $this->forecastCalcService->getAOI($input_mn, $input_gb, $input_gl, $input_mer, $doy, $hour, $ausrichtung);
                             $AOI = $AOIarray['AOI']; // Das AOI aus dem Calc Service
-                            $faktorRVSued = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
+                            $faktorRVSued = $this->sunShadingModelService->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
                             $shadow_loss = $faktorRVSued['FKR'];  // Shadow loss multiplikation des Verschattungsfaktor.
                         }
                     } else {
@@ -221,7 +224,6 @@ class ExpectedService
                             $limitExpCurrentHlp = $modul->getNumStringsPerUnit() * ($modul->getModuleType()->getMaxImpp() * 1.015); // 1,5% Sicherheitsaufschlag
                             // Voltage
                             $expVoltageDcHlp = $modul->getModuleType()->getExpVoltage($irr) * $modul->getNumModulesPerString();
-
                         }
 
                         // Temperatur Korrektur
@@ -286,7 +288,7 @@ class ExpectedService
                     $loss = $group->getCabelLoss() + $group->getSecureLoss();
 
                     // Verhindert 'diff by zero'
-                    if ($loss != 0) {
+                    if ($loss !== 0) {
                         $expPowerDc = $expPowerDc - $expPowerDc * ($loss / 100);
                         $expCurrentDc = $expCurrentDc - $expCurrentDc * ($loss / 100);
                     }
@@ -326,8 +328,10 @@ class ExpectedService
         }
         return $resultArray;
     }
+
     // MS 07/2023
-    public function calcExpectedforForecast(Anlage $anlage, $decarray, $intervall = 'doy' ): array {
+    public function calcExpectedforForecast(Anlage $anlage, $decarray, $intervall = 'doy' ): bool|array
+    {
         // $aktuellesJahr = date("Y",time());
         // $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre werden nicht berücksichtigt
         $resultArray = [];
@@ -603,7 +607,7 @@ class ExpectedService
     }
 
     // MS 11/2023
-    public function calcExpectedforDayAheadForecast(Anlage $anlage, $decarray): array {
+    public function calcExpectedforDayAheadForecast(Anlage $anlage, $decarray): bool|array {
         // $aktuellesJahr = date("Y",time());
         // $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre werden nicht berücksichtigt
         $resultArray = [];

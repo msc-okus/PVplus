@@ -145,6 +145,18 @@ class Ticket
 
     private ?string $creationLog = null;
 
+    #[ORM\OneToMany(mappedBy: 'Ticket', targetEntity: NotificationInfo::class)]
+    private Collection $notificationInfos;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $inverterName = "";
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $securityToken = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $whenClosed = null;
+
 
     /*
         #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -156,6 +168,8 @@ class Ticket
         $this->dates = new ArrayCollection();
         $this->priority = 10; // Low
         $this->status = 30; // Work in Progress
+
+        $this->notificationInfos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -491,6 +505,116 @@ class Ticket
     public function setCreationLog(?string $creationLog): static
     {
         $this->creationLog = $creationLog;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, NotificationInfo>
+     */
+    public function getNotificationInfos(): Collection
+    {
+        return $this->notificationInfos;
+    }
+
+    public function addNotificationInfo(NotificationInfo $notificationInfo): static
+    {
+        if (!$this->notificationInfos->contains($notificationInfo)) {
+            $this->notificationInfos->add($notificationInfo);
+            $notificationInfo->setTicket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotificationInfo(NotificationInfo $notificationInfo): static
+    {
+        if ($this->notificationInfos->removeElement($notificationInfo)) {
+            // set the owning side to null (unless already changed)
+            if ($notificationInfo->getTicket() === $this) {
+                $notificationInfo->setTicket(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+
+    public function getInverterName(): ?string
+    {
+        return $this->inverterName;
+    }
+
+    public function setInverterName(?string $inverterName): static
+    {
+        $this->inverterName = $inverterName;
+
+        return $this;
+    }
+
+    public function getInverter(): string
+    {
+        return $this->inverter;
+    }
+
+    public function setInverter(string $inverter): self
+    {
+        $this->inverter = $inverter;
+        if (isset($this->anlage)) {
+            if ($this->inverter !== "*"){
+                $inverterArray = explode(", ", $this->inverter);
+                $inverterNames = $this->anlage->getInverterFromAnlage()[$inverterArray[0]];
+                for($i = 1; $i < count($inverterArray); $i++){
+                    $inverterNames = $inverterNames . ", ". $this->anlage->getInverterFromAnlage()[$inverterArray[$i]];
+                }
+            } else {
+                $inverterNames = "*";
+            }
+            if ($inverterNames == null) $inverterNames = "";
+            $inverterString = $inverterNames;
+        } else {
+            $inverterString = $this->getInverter();
+        }
+        switch ($this->getAlertType()) {
+            case 10:
+                $this->description = "Data gap in Inverter(s): " . $inverterString;
+                break;
+            case 20:
+                $this->description = "Power Error in Inverter(s): " .  $inverterString;
+                break;
+            case 30:
+                $this->description = "Grid Error in Inverter(s): " .  $inverterString;
+                break;
+
+            default:
+                $this->description = "Error in inverter: " .  $inverterString;
+        }
+        $this->setInverterName($inverterString);
+
+        return $this;
+    }
+
+    public function getSecurityToken(): ?string
+    {
+        return $this->securityToken;
+    }
+
+    public function setSecurityToken(?string $securityToken): static
+    {
+        $this->securityToken = $securityToken;
+
+        return $this;
+    }
+
+    public function getWhenClosed(): ?\DateTimeInterface
+    {
+        return $this->whenClosed;
+    }
+
+    public function setWhenClosed(?\DateTimeInterface $whenClosed): static
+    {
+        $this->whenClosed = $whenClosed;
 
         return $this;
     }

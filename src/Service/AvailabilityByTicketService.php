@@ -224,6 +224,7 @@ class AvailabilityByTicketService
      * @param int $department
      * @return array
      * @throws InvalidArgumentException
+     * @throws \JsonException
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampDay, TimesConfig $timesConfig, array $inverterPowerDc, int $department = 0): array
     {
@@ -319,8 +320,9 @@ class AvailabilityByTicketService
 
 
             // Handele case5 by ticket
+            $case5Tickets = $this->ticketDateRepo->findTiFm($anlage, $from, $to, $department);
             /** @var TicketDate $case5Ticket */
-            foreach ($this->ticketDateRepo->findTiFm($anlage, $from, $to, $department) as $case5Ticket){
+            foreach ($case5Tickets as $case5Ticket){
                 $c5From = $case5Ticket->getBegin()->getTimestamp();
                 $c5To = $case5Ticket->getEnd()->getTimestamp();
                 $inverters = $this->functions->readInverters($case5Ticket->getInverter(), $anlage);
@@ -364,7 +366,6 @@ class AvailabilityByTicketService
 
             $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
             $theoPowerByPA = 0;
-
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];
                 $strahlung = $einstrahlung['irr'];
@@ -570,7 +571,7 @@ class AvailabilityByTicketService
     {
         return $this->cache->get('getIstData_'.md5($anlage->getAnlId().$from.$to), function(CacheItemInterface $cacheItem) use ($anlage, $from, $to) {
 
-            $cacheItem->expiresAfter(120); // Lifetime of cache Item
+            $cacheItem->expiresAfter(60); // Lifetime of cache Item
 
             $conn = $this->pdoService->getPdoPlant();
             $istData = [];

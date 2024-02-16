@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Anlage;
 use App\Entity\AnlageAcGroups;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -18,17 +19,24 @@ class AcGroupsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AnlageAcGroups::class);
     }
+    public function findByAnlageTrafoNr(Anlage $anlage, int $trafoNr){
+        $result = $this->createQueryBuilder('a')
+            ->andWhere('a.anlage = :anl')
+            ->andWhere('a.trafoNr = :trafoNr')
+            ->setParameter('anl', $anlage)
+            ->setParameter('trafoNr', $trafoNr)
+            ->getQuery();
 
+        return $result->getResult();
+    }
 
-    public function findBySearchTerm($searchTerm)
-    {
-        $qb = $this->createQueryBuilder('g');
+    public function countTrafoGroups(Anlage $anlage){
+        $result = $this->createQueryBuilder('a')
+            ->andWhere('a.anlage = :anl')
+            ->setParameter('anl', $anlage)
+            ->groupBy('a.trafoNr')
+            ->getQuery();
 
-        if (!empty($searchTerm)) {
-            $qb->where('g.acGroupName LIKE :searchTerm')
-                ->setParameter('searchTerm', '%' . $searchTerm . '%');
-        }
-
-        return $qb->getQuery()->getResult();
+        return $result->getResult();
     }
 }

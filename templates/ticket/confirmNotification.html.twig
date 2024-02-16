@@ -1,0 +1,50 @@
+{% extends 'non_logged_base.html.twig' %}
+
+{% block styles %}
+    {{ parent() }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+
+{% block title %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    {% if answered %}
+        <p>Your reply has been submitted, thanks.</p>
+    {% else %}
+        {% if (ticket != null) %}
+            {{ form_start(notificationConfirmForm) }}
+            <fieldset class="fieldset">
+                <legend>Information about the problem</legend>
+
+                <p><b>Ticket Id:</b> {{ ticket.Id }}</p>
+                <p><b>Plant name:</b> {{ ticket.anlage.anlName }}</p>
+                <p><b>Plant located in:</b> <br> {{ ticket.anlage.anlStrasse }}, {{ ticket.anlage.anlPlz }} {{ ticket.anlage.anlOrt }} <br>
+                    <b>Coordinates:</b> Lat {{ ticket.anlage.anlGeoLat }}, Lon {{ ticket.anlage.anlGeoLon }}
+                </p>
+                <p><b>Affected inverters:</b> {{ ticket.inverterName }}</p>
+                {% if ticket.freeText != '' %}
+                    <p>{{ ticket.freeText }}</p>
+                {% endif %}
+                <p><b>Error type:</b> {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}{{ errcat|trans }}</p>
+            </fieldset>
+            <fieldset class="fieldset">
+                <legend>You Answer</legend>
+                <p> {{ form_row(notificationConfirmForm.answers) }}</p>
+                <p> {{ form_row(notificationConfirmForm.freeText) }}</p>
+
+                <p> {{ form_widget(notificationConfirmForm.answer) }}</p>
+
+                {{ form_end(notificationConfirmForm) }}
+            </fieldset>
+
+        {% else %}
+            Expired Notification
+        {% endif %}
+    {% endif %}
+
+{% endblock %}

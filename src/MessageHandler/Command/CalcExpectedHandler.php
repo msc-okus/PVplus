@@ -5,6 +5,7 @@ namespace App\MessageHandler\Command;
 use App\Message\Command\CalcExpected;
 use App\Service\ExpectedService;
 use App\Service\LogMessagesService;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -16,6 +17,9 @@ class CalcExpectedHandler
     {
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function __invoke(CalcExpected $calcExpected): void
     {
         $anlageId = $calcExpected->getAnlageId();

@@ -16,6 +16,7 @@ use App\Repository\TicketRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\Functions\ImageGetterService;
 use App\Service\FunctionsService;
+use App\Service\LogMessagesService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
 use App\Service\ReportService;
@@ -59,7 +60,8 @@ class ReportsMonthlyV2Service
         private readonly PdfService $pdf,
         private readonly TranslatorInterface $translator,
         private readonly AvailabilityByTicketService $availabilityByTicket,
-        private readonly ImageGetterService $imageGetter
+        private readonly ImageGetterService $imageGetter,
+        private LogMessagesService $logMessages,
     )
     {
     }
@@ -75,7 +77,7 @@ class ReportsMonthlyV2Service
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    public function createReportV2(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): string
+    public function createReportV2(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0, ?string $userId = null, ?int $logId = null): string
     {
         $output = '';
         $report['month'] = $reportMonth;
@@ -102,6 +104,8 @@ class ReportsMonthlyV2Service
         $html = $returnArray['html'];
         unset($returnArray);
 
+        $this->logMessages->updateEntry($logId, 'working', 50);
+
         // Store to Database
         $reportEntity = new AnlagenReports();
         $startDate = new \DateTime("$reportYear-$reportMonth-01");
@@ -119,9 +123,13 @@ class ReportsMonthlyV2Service
             ->setYear($startDate->format('Y'))
             ->setRawReport($html)
             ->setContentArray($report)
-            ->setFile($pathToPdf);
+            ->setFile($pathToPdf)
+            ->setCreatedBy($userId);;
         $this->em->persist($reportEntity);
         $this->em->flush();
+
+        $reportId = $reportEntity->getId();
+        $this->logMessages->updateEntryAddReportId($logId, $reportId);
 
         return $html;
     }
@@ -258,7 +266,6 @@ class ReportsMonthlyV2Service
             // Table
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
-
             $dayValues[$i]['datum'] = $day->format('d.m.Y');
             $dayValues[$i]['datum_alt'] = $day->format('d.m');
             foreach($prArray as $key => $value) {

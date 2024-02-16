@@ -17,9 +17,7 @@ export default class extends Controller {
     }
 
     openModal(event) {
-       // console.log('OK');
         event.preventDefault();
-        console.log(event);
 
             Swal.fire({
                     title: "Are you sure?",

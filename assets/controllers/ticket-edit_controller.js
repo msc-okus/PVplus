@@ -4,7 +4,7 @@ import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable',
+    static targets =    ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable',
                         'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton',
                         'splitDeploy','AlertInverter', 'Callout', 'formCategory', 'AlertCategory', 'headerExclude',
                         'headerReplace', 'headerReplacePower', 'headerReplaceIrr', 'headerHour', 'headerEnergyValue',
@@ -13,18 +13,24 @@ export default class extends Controller {
                         'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
                         'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
-                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv'];
+                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'modalContactBody', 'contactButton', 'modalContactCreateBody',
+                        'contactModalCreate', 'modalTimelineBody', 'timelineModal'];
     static values = {
         formUrl: String,
         splitUrl: String,
+        notifyUrl: String,
+        createContactUrl: String,
+        timelineUrl: String
     }
     modal = null;
     splitModal = null;
+    contactModal = null;
+    contactCreateModal = null;
+    timelineModal = null;
 
     connect() {
         useDispatch(this);
     }
-
     async openModal(event) {
         this.modalBodyTarget.innerHTML = 'Loading ...';
         this.modal = new Reveal($(this.modalTarget));
@@ -34,7 +40,7 @@ export default class extends Controller {
                 url: this.formUrlValue,
                 data: {'anlage': $(this.anlageTarget).val()},
             });
-                $(this.saveButtonTarget).attr('disabled', 'disabled');
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
         } else {
             this.modalBodyTarget.innerHTML = await $.ajax({
                 url: this.formUrlValue,
@@ -44,6 +50,37 @@ export default class extends Controller {
 
         $(this.modalBodyTarget).foundation();
     }
+    async openContactModal(event) {
+
+        this.modalContactBodyTarget.innerHTML = 'Loading ...';
+        this.contactModal = new Reveal($(this.contactModalTarget));
+        this.contactModal.open();
+        this.modalContactBodyTarget.innerHTML = await $.ajax({
+            url: this.notifyUrlValue,
+        });
+    }
+
+    async openTimelineModal(event) {
+        this.modalTimelineBodyTarget.innerHTML = 'Loading ...';
+        this.timelineModal = new Reveal($(this.timelineModalTarget));
+        this.timelineModal.open();
+        this.modalTimelineBodyTarget.innerHTML = await $.ajax({
+            url: this.timelineUrlValue,
+        });
+    }
+
+    async openContactCreateModal(event){
+
+        console.log(this.createContactUrlValue);
+        event.preventDefault();
+        this.modalContactCreateBodyTarget.innerHTML = 'Loading ...';
+        this.contactCreateModal = new Reveal($(this.contactModalCreateTarget));
+        this.contactCreateModal.open();
+        this.modalContactCreateBodyTarget.innerHTML = await $.ajax({
+            url: this.createContactUrlValue,
+        });
+    }
+
 
     reasonCheck(){
         let reason = $(this.reasonInputTarget).val();
@@ -51,183 +88,172 @@ export default class extends Controller {
     }
 
     beginPlusTime(){
-        let hour;
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');
         let date = new Date(valueBegin);
-        let date2 = new Date(valueEnd);
-        if (date.getTime() + 900000 < date2.getTime()) {
-            if ($(this.formHourTarget).prop('checked') == true) {
+        let endDate = new Date(valueEnd);
 
-                if (date.getHours() < date2.getHours() - 1){
+        if ($(this.formHourTarget).prop('checked') == true){
+            var addTime = 60;
+        }
+        else {
+            var addTime = 15;
+        }
+        let newDate = new Date(date.getTime() + (addTime * 60000));
+        if (newDate.getTime() < endDate.getTime()) {
+            if (newDate.getMonth() < 9) {
+                var Month = '0'.concat((newDate.getMonth() + 1).toString());
+            } else {
+                var Month = (newDate.getMonth() + 1).toString();
+            }
+            if (newDate.getDate() < 10) {
+                var Day = '0'.concat(newDate.getDate().toString());
+            } else {
+                var Day = newDate.getDate().toString();
+            }
 
-                    hour = date.getHours() + 1;
-                    var minutes = '15';
-                }
-                else{
-                    hour = date.getHours();
-                    var minutes = '15';
-                }
-            }
-            else {
-                if (date.getMinutes() + 15 == 60) {
-                    hour = date.getHours() + 1;
-                    var minutes = '00';
-                } else {
-                    hour = date.getHours();
-                    var minutes = date.getMinutes() + 15;
-                }
-            }
-            if (date.getMonth() < 9) {
-                var beginMonth = '0'.concat((date.getMonth() + 1).toString());
+            if (newDate.getHours() < 10) {
+                var hour = '0'.concat(newDate.getHours().toString());
             } else {
-                var beginMonth = (date.getMonth() + 1).toString();
+                var hour = newDate.getHours().toString();
             }
-            if (date.getDate() < 10) {
-                var beginDay = '0'.concat(date.getDate().toString());
+            if (newDate.getMinutes() < 10) {
+                var minutes = '0'.concat(newDate.getMinutes().toString());
             } else {
-                var beginDay = date.getDate().toString();
+                var minutes = newDate.getMinutes().toString();
             }
-            if (hour < 10) {
-                hour = '0'.concat(hour.toString());
-            }
-            let newStringdate = date.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes.toString());
+            let newStringdate = newDate.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
             $(this.formBeginTarget).val(newStringdate);
             $(this.formBeginDateTarget).val(newStringdate);
             if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
-
         }
     }
     beginMinusTime(){
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        let date = new Date(valueBegin);
 
-        if (date.getMinutes() - 15 < 0){
-            var hour = date.getHours() -1;
-            var minutes = '45';
+        if ($(this.formHourTarget).prop('checked') == true){
+            var subTime = 60;
         }
         else {
-            var hour = date.getHours();
-            if (date.getMinutes() - 15 == 0) var minutes = '00';
-            else var minutes = date.getMinutes() - 15;
+            var subTime = 15;
         }
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        let date = new Date(valueBegin);
+        let newDate = new Date(date.getTime() - (subTime * 60000));
 
-        if (date.getMonth() < 9) {
-            var beginMonth = '0'.concat((date.getMonth() + 1).toString());
+        if (newDate.getMonth() < 9) {
+            var Month = '0'.concat((newDate.getMonth() + 1).toString());
         }
         else{
-            var beginMonth = (date.getMonth() + 1).toString();
+            var Month = (newDate.getMonth() + 1).toString();
         }
-        if (date.getDate() < 10){
-            var beginDay =  '0'.concat(date.getDate().toString());
+        if (newDate.getDate() < 10){
+            var Day =  '0'.concat(newDate.getDate().toString());
         }
         else{
-            var beginDay = date.getDate().toString();
+            var Day = newDate.getDate().toString();
         }
 
-        if (hour < 10){
-            var hour =  '0'.concat(hour.toString());
+        if (newDate.getHours() < 10){
+            var hour =  '0'.concat(newDate.getHours().toString());
+        }else{
+            var hour =  newDate.getHours().toString();
+        }
+        if (newDate.getMinutes() < 10){
+            var minutes =  '0'.concat(newDate.getMinutes().toString());
+        }else{
+            var minutes =  newDate.getMinutes().toString();
         }
 
-        let newStringdate = date.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes.toString());
+        let newStringdate = newDate.getFullYear().toString().concat('-', Month, '-',Day, 'T', hour, ':', minutes);
         $(this.formBeginTarget).val(newStringdate);
         $(this.formBeginDateTarget).val(newStringdate);
         if ($(this.formHourTarget).prop('checked') == true)this.hourCheck();
+
+
     }
     endPlusTime(){
-        const valueEnd = $(this.formEndTarget).prop('value');
-        let date = new Date(valueEnd);
-
-        if (date.getMinutes() + 15 == 60){
-            var hour = date.getHours() + 1;
-            var minutes = '00';
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        let date = new Date(valueBegin);
+        if ($(this.formHourTarget).prop('checked') == true){
+            var addTime = 60;
         }
         else {
-            var hour = date.getHours();
-            var minutes = date.getMinutes() + 15;
+            var addTime = 15;
         }
-
-
-
-        if (date.getMonth() < 9) {
-            var beginMonth = '0'.concat((date.getMonth() + 1).toString());
-        }
-        else{
-            var beginMonth = (date.getMonth() + 1).toString();
-        }
-        if (date.getDate() < 10){
-            var beginDay =  '0'.concat(date.getDate().toString());
-        }
-        else{
-            var beginDay = date.getDate().toString();
-        }
-
-        if (hour < 10){
-            var hour =  '0'.concat(hour.toString());
-        }
-
-        let newStringdate = date.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes.toString());
-        $(this.formEndTarget).val(newStringdate);
-        $(this.formEndDateTarget).val(newStringdate);
-        if ($(this.formHourTarget).prop('checked') == true)this.hourCheck();
-    }
-    endMinusTime(){
-        const valueEnd = $(this.formEndTarget).prop('value');
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        let date = new Date(valueEnd);
-        let date2 = new Date(valueBegin);
-
-        if (date.getTime() - 900000 > date2.getTime()) {
-            if ($(this.formHourTarget).prop('checked') == true){
-                if (date.getHours() > date2.getHours() + 1) {
-                    var hour = date.getHours() - 1;
-                    var minutes = '15';
-                }
-                else{
-                    var hour = date.getHours();
-                    var minutes = '15';
-                }
-            }
-            else{
-                if (date.getMinutes() - 15 < 0) {
-                    var hour = date.getHours() - 1;
-                    var minutes = '45';
-                }
-                else {
-                var hour = date.getHours();
-                    if (date.getMinutes() - 15 == 0) var minutes = '00';
-                    else var minutes = date.getMinutes() - 15;
-                }
-            }
-
-
-            if (date.getMonth() < 9) {
-                var beginMonth = '0'.concat((date.getMonth() + 1).toString());
+        let newDate = new Date(date.getTime() + (addTime * 60000));
+        if (newDate.getTime() < endDate.getTime()) {
+            if (newDate.getMonth() < 9) {
+                var Month = '0'.concat((newDate.getMonth() + 1).toString());
             } else {
-                var beginMonth = (date.getMonth() + 1).toString();
+                var Month = (newDate.getMonth() + 1).toString();
             }
-            if (date.getDate() < 10) {
-                var beginDay = '0'.concat(date.getDate().toString());
+            if (newDate.getDate() < 10) {
+                var Day = '0'.concat(newDate.getDate().toString());
             } else {
-                var beginDay = date.getDate().toString();
+                var Day = newDate.getDate().toString();
+            }
+            if (newDate.getHours() < 10) {
+                var hour = '0'.concat(newDate.getHours().toString());
+            } else {
+                var hour = newDate.getHours().toString();
+            }
+            if (newDate.getMinutes() < 10) {
+                var minutes = '0'.concat(newDate.getMinutes().toString());
+            } else {
+                var minutes = newDate.getMinutes().toString();
             }
 
-            if (hour < 10) {
-                var hour = '0'.concat(hour.toString());
-            }
-
-            let newStringdate = date.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', hour, ':', minutes.toString());
+            let newStringdate = newDate.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
+            console.log(newStringdate);
             $(this.formEndTarget).val(newStringdate);
             $(this.formEndDateTarget).val(newStringdate);
-            if ($(this.formHourTarget).prop('checked') == true)this.hourCheck();
+        }
+    }
+    endMinusTime(){
+
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        let beginDate = new Date(valueBegin);
+        if ($(this.formHourTarget).prop('checked') == true){
+            var subTime = 60;
+        }
+        else {
+            var subTime = 15;
+        }
+        const valueEnd = $(this.formEndTarget).prop('value');
+        let date = new Date(valueEnd);
+        let newDate = new Date(date.getTime() - (subTime * 60000));
+        if (newDate.getTime() > beginDate.getTime()) {
+            if (newDate.getMonth() < 9) {
+                var Month = '0'.concat((newDate.getMonth() + 1).toString());
+            } else {
+                var Month = (newDate.getMonth() + 1).toString();
+            }
+            if (newDate.getDate() < 10) {
+                var Day = '0'.concat(newDate.getDate().toString());
+            } else {
+                var Day = newDate.getDate().toString();
+            }
+
+            if (newDate.getHours() < 10) {
+                var hour = '0'.concat(newDate.getHours().toString());
+            } else {
+                var hour = newDate.getHours().toString();
+            }
+            if (newDate.getMinutes() < 10) {
+                var minutes = '0'.concat(newDate.getMinutes().toString());
+            } else {
+                var minutes = newDate.getMinutes().toString();
+            }
+
+            let newStringdate = newDate.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
+            $(this.formEndTarget).val(newStringdate);
+            $(this.formEndDateTarget).val(newStringdate);
         }
     }
     hourCheck(){
 
         if ($(this.formReplaceTarget).prop('checked') == true) $(this.formHourTarget).prop('checked', true)
-        //NEW BEHAVIOUR: if the category is one of the performance ticket, the hour Check must also be respected for the main dates
-        //for that we will check if the category is one of those and if true, we will make ticket date begin/end = mainticket begin/end
-        //after that if hour is checked we will also aply the hour rule to the main ticket date
+
         const cat = $(this.formCategoryTarget).val();
         if (cat >= 70 && cat < 80){
             $(this.formBeginDateTarget).val($(this.formBeginTarget).prop('value'));
@@ -249,18 +275,18 @@ export default class extends Controller {
             let endDay = '';
             let beginHour = '';
             let endHour = '';
-            if (beginDate.getMonth() < 9) {
-                beginMonth = '0'.concat((beginDate.getMonth() + 1).toString());
+
+            let beginHourInt = 0;
+            if (beginDate.getMinutes() < 15) {
+               beginHourInt = beginDate.getHours() - 1;
+
             }
-            else{
-                 beginMonth = (beginDate.getMonth() + 1).toString();
-            }
-            if (endDate.getMonth() < 9) {
-                 endMonth = '0'.concat((endDate.getMonth() + 1).toString());
-            }
-            else{
-                 endMonth = (endDate.getMonth() + 1).toString();
-            }
+            else beginHourInt = beginDate.getHours();
+
+            let hour = 0;
+            if (endDate.getMinutes() > 15) hour = endDate.getHours() + 1;
+            else hour = endDate.getHours();
+
             if (beginDate.getDate() < 10){
                 beginDay =  '0'.concat(beginDate.getDate().toString());
             }
@@ -273,13 +299,18 @@ export default class extends Controller {
             else{
                 endDay = endDate.getDate().toString();
             }
-            let beginHourInt = 0;
-            if (beginDate.getMinutes() < 15) beginHourInt = beginDate.getHours() - 1;
-            else beginHourInt = beginDate.getHours();
-
-            let hour = 0;
-            if (endDate.getMinutes() > 15) hour = endDate.getHours() + 1;
-            else hour = endDate.getHours();
+            if (beginDate.getMonth() < 9) {
+                beginMonth = '0'.concat((beginDate.getMonth() + 1).toString());
+            }
+            else{
+                beginMonth = (beginDate.getMonth() + 1).toString();
+            }
+            if (endDate.getMonth() < 9) {
+                endMonth = '0'.concat((endDate.getMonth() + 1).toString());
+            }
+            else{
+                endMonth = (endDate.getMonth() + 1).toString();
+            }
 
             if (beginHourInt < 10){
                 beginHour =  '0'.concat(beginHourInt.toString());
@@ -345,7 +376,6 @@ export default class extends Controller {
 
     }
     replaceCheck(){
-
 // this is the change of overlay if the user decides to replace energy with PVSYST in the replace ticket
         let body = $(this.modalBodyTarget);
             if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20);}
@@ -360,7 +390,6 @@ export default class extends Controller {
             }
             else{
                 $(this.headerReplaceIrrTargets).removeClass('is-hidden');
-                //$(this.headerHourTarget).addClass('is-hidden');
                 $(this.headerEnergyValueTargets).addClass('is-hidden');
                 $(this.headerIrrValueTargets).addClass('is-hidden');
             }
@@ -408,25 +437,22 @@ export default class extends Controller {
     checkCategory(){
         const cat = $(this.formCategoryTarget).val();
         var inverterString = '';
+        var inverterNameString = '';
         let body = $(this.modalBodyTarget);
         // in this switch we remove the hidding class to show the fields of the ticket date on demand
 
         if (cat >= 70 && cat <= 80 ){
-
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (inverterString == '') {
-                    inverterString = inverterString + $(this).prop('name');
-                } else {
-                    inverterString = inverterString + ', ' + $(this).prop('name');
-                }
-                body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
             });
 
             inverterString = '*';
+            inverterNameString = '*';
             body.find('#ticket_form_inverter').val(inverterString);
+            body.find('#ticket_form_inverterName').val(inverterNameString);
         }
 
         if (cat >= 72 && cat <= 80 ){
@@ -539,21 +565,14 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 body.find('input:checkbox[class=js-checkbox]').each(function () {
                     $(this).prop('checked', true);
-                    if (inverterString == '')
-                    {
-                        inverterString = inverterString + $(this).prop('name');
-                    }
-                    else
-                    {
-                        inverterString = inverterString + ', ' + $(this).prop('name');
-                    }
-                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                    body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
                 });
-
+                inverterNameString = '*';
                 inverterString = '*';
                 body.find('#ticket_form_inverter').val(inverterString);
+                body.find('#ticket_form_inverterName').val(inverterNameString);
                 $(this.formkpiStatusTargets).removeClass('is-hidden');
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
                 if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(10)};
@@ -591,21 +610,15 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 body.find('input:checkbox[class=js-checkbox]').each(function () {
                     $(this).prop('checked', true);
-                    if (inverterString == '')
-                    {
-                        inverterString = inverterString + $(this).prop('name');
-                    }
-                    else
-                    {
-                        inverterString = inverterString + ', ' + $(this).prop('name');
-                    }
-                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
-                });
 
+                    body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
+                });
+                inverterNameString = '*';
                 inverterString = '*';
                 body.find('#ticket_form_inverter').val(inverterString);
+                body.find('#ticket_form_inverterName').val(inverterNameString);
                 $(this.formkpiStatusTargets).removeClass('is-hidden');
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
@@ -732,6 +745,7 @@ export default class extends Controller {
                 $(this.headerCorrectionTargets).addClass('is-hidden');
                 $(this.headerEvaluationTargets).addClass('is-hidden');
                 $(this.headerAktDep1Targets).addClass('is-hidden');
+                $(this.headerReasonTargets).addClass('is-hidden');
                 $(this.headerAktDep3Targets).addClass('is-hidden');
                 $(this.headerAktDep3Targets).addClass('is-hidden');
                 $(this.headerFormKpiTargets).addClass('is-hidden');
@@ -744,6 +758,7 @@ export default class extends Controller {
                 $(this.fieldEnergyValueTargets).addClass('is-hidden');
                 $(this.fieldIrrValueTargets).addClass('is-hidden');
                 $(this.fieldCorrectionTargets).addClass('is-hidden');
+                $(this.fieldReasonTargets).addClass('is-hidden');
                 $(this.fieldEvaluationTargets).addClass('is-hidden');
                 $(this.fieldAktDep1Targets).addClass('is-hidden');
                 $(this.fieldAktDep2Targets).addClass('is-hidden');
@@ -765,6 +780,7 @@ export default class extends Controller {
                 $(this.headerCorrectionTargets).addClass('is-hidden');
                 $(this.headerEvaluationTargets).addClass('is-hidden');
                 $(this.headerAktDep1Targets).addClass('is-hidden');
+                $(this.headerReasonTargets).addClass('is-hidden');
                 $(this.headerAktDep2Targets).addClass('is-hidden');
                 $(this.headerAktDep3Targets).addClass('is-hidden');
                 $(this.headerFormKpiTargets).addClass('is-hidden');
@@ -781,6 +797,7 @@ export default class extends Controller {
                 $(this.fieldAktDep1Targets).addClass('is-hidden');
                 $(this.fieldAktDep2Targets).addClass('is-hidden');
                 $(this.fieldAktDep3Targets).addClass('is-hidden');
+                $(this.fieldReasonTargets).addClass('is-hidden');
                 $(this.formHourTargets).prop('checked', false);
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
                 $(this.inverterDivTargets).removeClass('is-hidden');
@@ -798,6 +815,19 @@ export default class extends Controller {
         this.modal.destroy();
     }
 
+    closeContact(event) {
+        event.preventDefault();
+        this.contactModal.destroy();
+    }
+    closeContactCreate(event) {
+        event.preventDefault();
+        this.contactCreateModal.destroy();
+    }
+    closeTimeline(event){
+        event.preventDefault();
+        this.timelineModal.destroy();
+    }
+
     async saveTicket(event) {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
@@ -809,18 +839,65 @@ export default class extends Controller {
                 data: $form.serialize(),
             });
 
-            this.dispatch('success');
+            //this.dispatch('success');
             this.modal.destroy();
         } catch(e) {
             this.modalBodyTarget.innerHTML = e.responseText;
         }
 
     }
+    closeNotify(event) {
+        event.preventDefault();
 
+    }
     async reload(event){
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
         this.checkCategory();
         $(document).foundation();
+    }
+    async contact() {
+        const $form = $(this.contactModalTarget).find('form');
+        try {
+            await $.ajax({
+                url: this.notifyUrlValue,
+                method: $form.prop('method'),
+                data: $form.serialize(),
+            });
+            this.contactModal.destroy();
+        } catch (e) {
+            this.modalContactBodyTarget.innerHTML = e.responseText;
+        }
+    }
+    async saveNewContact(){
+        const  $form = $(this.contactModalCreateTarget).find('form');
+        console.log($form);
+        try {
+            await $.ajax({
+                url: this.createContactUrlValue,
+                method: $form.prop('method'),
+                data: $form.serialize(),
+            });
+            this.contactCreateModal.destroy();
+            this.contactModal.destroy();
+            this.openContactModal();
+            }catch(e) {
+            this.modalContactCreateBodyTarget.innerHTML = e.responseText;
+        }
+    }
+    checkTrafo({ params: { first, last, trafo }}){
+
+        let body = $(this.modalBodyTarget);
+        let checked = $("#trafo" + trafo).prop('checked');
+        body.find('input:checkbox[class=js-checkbox]').each(function (){
+            if ($(this).prop('id') >= first) {
+                if ($(this).prop('id') <= last){
+                    if (checked) $(this).prop('checked', true);
+                    else $(this).prop('checked', false);
+                }
+            }
+        });
+        $(this.switchTarget).prop('checked', false)
+        this.saveCheck();
     }
 
     checkSelect({ params: { edited }}){
@@ -843,35 +920,36 @@ export default class extends Controller {
             $(this).find('.js-checkbox-split-b').prop('checked', false);
         });
         let inverterString = '';
-
+        let inverterNameString = '';
         if ($(this.switchTarget).prop('checked')) {
+            
+            body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
+                $(this).prop('checked', true);
+            });
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (inverterString == '')
-                {
-                    inverterString = inverterString + $(this).prop('name');
-                }
-                else
-                {
-                    inverterString = inverterString + ', ' + $(this).prop('name');
-                }
-                body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
             });
             if (edited == true) {
                 $(this.splitDeployTarget).removeAttr('disabled');
             }
             inverterString = '*';
+            inverterNameString = '*';
         } else {
+            body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
+                $(this).prop('checked', false);
+            });
             $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
             });
             $(this.splitDeployTarget).attr('disabled', 'disabled');
             inverterString = '';
+            inverterNameString = '';
         }
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
-
+        body.find('#ticket_form_inverterName').val(inverterNameString);
         if (inverterString == '') {
             $(this.CalloutTarget).removeClass('is-hidden');
             $(this.AlertInverterTarget).removeClass('is-hidden');
@@ -962,34 +1040,6 @@ export default class extends Controller {
             if (timestamp1 % 300000 == 0) {
                 var hour = date.getHours();
                 var minutes = date.getMinutes();
-                /*
-                switch (minutes) {
-                    case 0:
-                    case 5:
-                        minutes = 15;
-                        break;
-                    case 10:
-                    case 15:
-                    case 20:
-                        minutes = 30;
-                        break;
-                    case 25:
-                    case 30:
-                    case 35:
-                        minutes = 45;
-                        break;
-                    case 40:
-                    case 45:
-                    case 50:
-                        hour = hour + 1;
-                        minutes = 0;
-                        break;
-                    case 55:
-                        hour = hour + 1;
-                        minutes = 15;
-                        break;
-                }
-                */
                 switch (minutes) {
 
                     case 5:
@@ -1107,6 +1157,7 @@ export default class extends Controller {
         //getting a string with the inverters so later we can check if there is any or none
 
         let inverterString = '';
+        let inverterNameString = '';
         let body = $(this.modalBodyTarget);
         let counter = 0;
         this.checkCategory()
@@ -1120,15 +1171,22 @@ export default class extends Controller {
         });
         body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
             counter ++;
-            if (inverterString == '') {inverterString = inverterString + $(this).prop('name');}
-            else {inverterString = inverterString + ', ' + $(this).prop('name');}
-            body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-            body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
-            body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+            if (inverterString == '') {
+                inverterString = inverterString + $(this).prop('id');
+                inverterNameString = inverterNameString + $(this).prop('name');
+            }
+            else {
+                inverterString = inverterString + ', ' + $(this).prop('id');
+                inverterNameString = inverterNameString + ', ' + $(this).prop('name');
+            }
+            body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+            body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
+            body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
 
         });
         if (counter == body.find('input:checkbox[class=js-checkbox]').length){
             inverterString = '*';
+            inverterNameString = '*';
         }
 
         let sensorString = '';
@@ -1260,6 +1318,7 @@ export default class extends Controller {
         }
 
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
+        body.find('#ticket_form_inverterName').val(inverterNameString);
         $(this.modalBodyTarget).find('#ticket_form_dates_0_sensors').val(sensorString);
     }
 

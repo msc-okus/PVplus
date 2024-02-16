@@ -79,6 +79,7 @@ class AssetManagementService
         }
         // then we generate our own report and try to persist it
         $output = $this->assetReport($anlage, $reportMonth, $reportYear, $logId);
+
         $data = [
             'Production' => true,
             'ProdCap' => true,
@@ -96,12 +97,12 @@ class AssetManagementService
             'Economics' => true, ];
         $output['data'] = $data;
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+
         $pdf = $this->pdf;
         $reportParts = [];
         $content = $output;
         $this->logMessages->updateEntry($logId, 'working', 95);
         //rendering the header
-
 
         $owner = $anlage->getEigner();
         $tempFileLogo = '';
@@ -146,6 +147,7 @@ class AssetManagementService
             'pr3image' => $anlage->getPrFormular3Image(),
 
         ]);
+
         $html = str_replace('src="//', 'src="https://', $html);
         $reportParts['head'] = $pdf->createPage($html, $fileroute, "head", false);// we will store this later in the entity
 
@@ -582,7 +584,8 @@ class AssetManagementService
 
         $this->em->persist($report);
         $this->em->flush();
-
+        $reportId = $report->getId();
+        $this->logMessages->updateEntryAddReportId($logId, $reportId);
         return $report; //$output;
     }
 
@@ -623,16 +626,14 @@ class AssetManagementService
         // Variables
 
         for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; ++$tempMonth) {
-
             $startDate = new \DateTime($report['reportYear']."-$tempMonth-01 00:00");
             $daysInThisMonth = $startDate->format("t");
-            $endDate = new \DateTime($report['reportYear']."-$tempMonth-$daysInThisMonth 00:00");
+            $endDate = new \DateTime($report['reportYear']."-$tempMonth-$daysInThisMonth 23:59");
 
             $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $startDate->format('Y-m-d H:i:s'), $endDate->format('Y-m-d H:i:s'), true, $anlage);
             if (is_array($weather)) {
                 $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, $startDate, $endDate);
             }
-
 
             // Strahlungen berechnen – (upper = Ost / lower = West)
             if ($anlage->getIsOstWestAnlage()) {
@@ -650,7 +651,7 @@ class AssetManagementService
 
 
 
-            $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
+        $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
 
 
         $invArray = $anlage->getInverterFromAnlage();
@@ -1126,18 +1127,22 @@ class AssetManagementService
             }
             if ($anlage->hasGrid()){
                 (float) $powerEvu[] = $data1_grid_meter['powerEvu'];
+                (float) $powerAct[] = $data1_grid_meter['powerEvu']; // Inv out
             }
             else{
                 (float) $powerEvu[] = $data1_grid_meter['powerAct'];
+                (float) $powerAct[] = $data1_grid_meter['powerAct']; // Inv out
             }
 
-            (float) $powerAct[] = $data1_grid_meter['powerAct']; // Inv out
+
             if ($anlage->getShowEvuDiag()) {
                 (float) $powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
+                (float) $powerExp[] = $data1_grid_meter['powerExpEvu'];
             } else {
                 (float) $powerExpEvu[] = $data1_grid_meter['powerExp'];
+                (float) $powerExp[] = $data1_grid_meter['powerExp'];
             }
-            (float) $powerExp[] = $data1_grid_meter['powerExp'];
+
             (float) $powerExternal[] = $data1_grid_meter['powerEGridExt'];
             $expectedPvSyst[] = $Ertrag_design;
 
@@ -1145,7 +1150,6 @@ class AssetManagementService
                 $forecast = $expectedPvSyst;
             }
         }
-
         // fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,
@@ -1310,7 +1314,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $operations_right_withForecast = $chart->render('operations_right_withForecast', ['style' => 'height: 450px; width: 100%;']);
-                
+
         $degradation = $anlage->getLossesForecast();
         // Cumulative Forecast
         $powerSum[0] = $powerEvu[0];
@@ -1812,7 +1816,6 @@ class AssetManagementService
             $var,
         ];
 
-
         $start = $report['reportYear'].'-01-01 00:00';
 
         $end = $report['reportMonth'] >= '3' ? $report['reportYear'].'-03-31 23:59' : $report['to'];
@@ -1824,6 +1827,8 @@ class AssetManagementService
         }
         if ($powerEvuQ1 > 0 ) {
             $expectedPvSystQ1 = 0;
+
+
             if ($month >= 3) {
                 $expectedPvSystQ1 = $forecast[0] + $forecast[1] + $forecast[2];
             } else {
@@ -1839,8 +1844,8 @@ class AssetManagementService
             ];
         }else{
             $operations_monthly_right_pvsyst_tr2 = [
+                $monthName.' '.$report['reportYear'],
                 $powerEvuQ1,
-                0.0,
                 0.0,
                 0.0,
             ];
@@ -2499,14 +2504,14 @@ class AssetManagementService
 
         if ($anlage->hasPVSYST()){
             $PVSYSTyearExpected = 1;
-            for($index = 0; $index < $month -1; $index++){
+            for($index = 0; $index < $month ; $index++){
                 $PVSYSTyearExpected = $PVSYSTyearExpected + $tbody_a_production['forecast'][$index];
             }
         }
 
         $G4NmonthExpected = $tbody_a_production['powerExp'][$month-1] * ((100 - $anlage->getTotalKpi())/100);
         $G4NyearExpected = 0;
-        for($index = 0; $index < $month ; $index++){
+        for($index = 0; $index <= $month -1; $index++){
             $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExpEvu'][$index] * ((100 - $anlage->getTotalKpi())/100));
         }
         $ActualPower = $powerEvu[$month-1];
@@ -2554,31 +2559,18 @@ class AssetManagementService
             'PPCLosses' => $kwhLossesMonthTable['PPCLosses'],
             'GapLosses' =>  $kwhLossesMonthTable['GapLosses'],
         ];
-        if ($G4NyearExpected > 0) {
-            $percentageTableYear = [
-                'G4NExpected' => 100,
-                'PVSYSExpected' => (int)($PVSYSTyearExpected * 100 / $G4NyearExpected),
-                'forecast' => (int)($forecastSum[$month - 1] * 100 / $G4NyearExpected),
-                'ActualPower' => (int)($ActualPowerYear * 100 / $G4NyearExpected),
-                'SORLosses' => number_format(-($kwhLossesYearTable['SORLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
-                'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
-                'OMCLosses' => number_format(-($kwhLossesYearTable['OMCLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
-                'PPCLosses' => number_format(-($kwhLossesYearTable['PPCLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
-                'GapLosses' => number_format(-($kwhLossesYearTable['GapLosses'] * 100 / $G4NyearExpected), 2, '.', ','),
-            ];
-        }else{
-            $percentageTableYear = [
-                'G4NExpected' => 0,
-                'PVSYSExpected' => 0,
-                'forecast' => 0,
-                'ActualPower' => 0,
-                'SORLosses' => 0,
-                'EFORLosses' => 0,
-                'OMCLosses' => 0,
-                'PPCLosses' => 0,
-                'GapLosses' => 0,
-            ];
-        }
+
+        $percentageTableYear = [
+            'G4NExpected' =>  100 ,
+            'PVSYSExpected' => (int)($PVSYSTyearExpected * 100 / $G4NyearExpected),
+            'forecast' =>  (int)($forecastSum[$month - 1] * 100 / $G4NyearExpected),
+            'ActualPower' => (int)($ActualPowerYear * 100 / $G4NyearExpected),
+            'SORLosses' => number_format(-($kwhLossesYearTable['SORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+            'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+            'OMCLosses' => number_format(-($kwhLossesYearTable['OMCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+            'PPCLosses' => number_format(-($kwhLossesYearTable['PPCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+            'GapLosses' => number_format(-($kwhLossesYearTable['GapLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+        ];
 
         $yearLossesHelpTable = [
             'ExpectedG4N' => $G4NyearExpected,
@@ -3668,7 +3660,6 @@ class AssetManagementService
         $chart->setOption($option);
         $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 210px; width:26cm; margin-left:80px;']);
 
-
         $chart = new ECharts();
 
         $chart->xAxis = [
@@ -3959,8 +3950,7 @@ class AssetManagementService
                 'axisLabel' => [
                     'show' => true,
                     'margin' => '10',
-                    'rotate' => 45,
-                    'fontsize' => '12'
+                    'rotate' => 45
                 ],
                 'splitArea' => [
                     'show' => true,

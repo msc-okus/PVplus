@@ -8,7 +8,6 @@ use App\Entity\WeatherStation;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
-use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -76,11 +75,13 @@ class AnlageFormType extends AbstractType
                                         </li>
                                         <li>3: Fall 'Groningen, …' <br>
                                             AC Gruppen = Inverter<br>
-                                            DC Gruppen = SCB Gruppen
+                                            DC Gruppen = SCB Gruppen<br>
+                                            (separate Tabelle für DC IST)
                                         </li>
                                         <li>4: Fall 'Guben, Forst, Subzin …' <br>
                                             AC Gruppen = Inverter<br>
-                                            DC Gruppen = SCBs
+                                            DC Gruppen = SCBs<br>
+                                            (separate Tabelle für DC IST)
                                         </li>
                                     </ul>";
 
@@ -200,6 +201,7 @@ class AnlageFormType extends AbstractType
                 'empty_data' => 'No',
                 'disabled' => !($isDeveloper),
             ])
+            /*
             ->add('useNewDcSchema', ChoiceType::class, [
                 'label' => 'Neues DC Database Schema',
                 'help' => '[useNewDcSchema] <br> (separate Tabelle für DC IST)',
@@ -209,6 +211,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
                 'disabled' => !($isDeveloper || $isAdmin),
             ])
+            */
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
                 'help' => '[configType]<br>' . $tooltipTextPlantType,
@@ -243,25 +246,28 @@ class AnlageFormType extends AbstractType
             // ###       Plant Data / Configuration       ####
             // ###############################################
             ->add('pnom', TextType::class, [
-                'label' => 'Anlagenleistung [kWp] (für PA Berechnung)',
+                'label' => 'Anlagenleistung (für PA Berechnung) <br>[kWp]',
                 'help' => '[pNom]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('kwPeakPvSyst', TextType::class, [
-                'label' => 'Anlagenleistung PVSYST [kWp]',
+                'label' => 'Anlagenleistung PVSYST <br> [kWp]',
                 'help' => '[kwPeakPvSyst]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('kwPeakPLDCalculation', TextType::class, [
-                'label' => 'Anlagenleistung für PLD Berechnung [kWp]',
+                'label' => 'Anlagenleistung für PLD Berechnung <br> [kWp]',
                 'help' => '[kwPeakPLDCalculation]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('tempCorrCellTypeAvg', TextType::class, [
                 'label' => 't Cell AVG ',
@@ -345,20 +351,23 @@ class AnlageFormType extends AbstractType
                 'choices' => ['No' => '0', 'Yes' => '1'],
                 // 'placeholder'   => 'Please Choose',
                 'empty_data' => 'No',
+                'attr' => ['style' => 'width: 95px']
             ])
             ->add('powerEast', TextType::class, [
-                'label' => 'Pnom [kWp] Osten',
+                'label' => 'Pnom Osten [kWp] ',
                 'help' => '[powerEast]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('powerWest', TextType::class, [
-                'label' => 'Pnom [kWp] Westen',
+                'label' => 'Pnom Westen [kWp] ',
                 'help' => '[powerWest]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
             ])
             ->add('pacDate', null, [
                 'label' => 'PAC Date',
@@ -488,8 +497,8 @@ class AnlageFormType extends AbstractType
                 'help' => '[pldAlgorithm]',
             ])
             ->add('hasStrings', SwitchType::class, [
-                'label' => 'Plat has String Data',
-                'help' => '[Yes / No]',
+                'label' => 'Plant has String Data',
+                'help' => '[hasStrings]<br>Yes / No',
             ])
             ->add('hasPPC', SwitchType::class, [
                 'label' => 'Plant has PPC',
@@ -497,15 +506,15 @@ class AnlageFormType extends AbstractType
             ])
             ->add('usePPC', SwitchType::class, [
                 'label' => 'Respect PPC Signal on calc',
-                'help' => 'Power, TheoPower, Irradiation will be excluded if PPC signal is lower 100 [Yes / No]',
+                'help' => '[usePPC]<br>Power, TheoPower, Irradiation will be excluded if PPC signal is lower 100 (Yes / No)',
             ])
             ->add('ignoreNegativEvu', SwitchType::class, [
                 'label' => 'Ignore negative EVU values',
-                'help' => '[Yes / No]',
+                'help' => '[ignoreNegativEvu]<br>(Yes / No)',
             ])
             ->add('hasPannelTemp', SwitchType::class, [
-                'label' => 'Anlage hat Pannel Temperatur',
-                'help' => '[Yes / No]',
+                'label' => 'Plant has Pannel Temperatur',
+                'help' => '[hasPannelTemp]<br>(Yes / No)',
             ])
             // ###############################################
             // ###          FORECAST                      ####
@@ -551,6 +560,7 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 55px']
             ])
+             /*
             ->add('modAzimut', TextType::class, [
                 'label' => 'Modul azimut',
                 'help' => '[Modul azimut in degrees for S=180 O=90 W=270 ]',
@@ -558,6 +568,7 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3, 'style' => 'width: 55px']
             ])
+             */
             ->add('albeto', TextType::class, [
                 'label' => 'Albedo',
                 'help' => '[The albedo are 0.15 for grass or 0.3 for roof]',
@@ -579,10 +590,10 @@ class AnlageFormType extends AbstractType
                 ],
                 'required' => true,
             ])
-            ->add('dataSourceAM', CKEditorType::class, [
+            ->add('dataSourceAM', TextareaType::class, [
                 'label' => 'Summary DataSources AM Report',
                 'empty_data' => 'Module Inclination: <br>Module Name: <br>Module Type: <br>Module Performance: <br>Number of Modules: <br>Inverter Name: <br>Inverter Type: <br>Number of Inverters:',
-                'config' => ['toolbar' => 'my_toolbar'],
+                #'config' => ['toolbar' => 'my_toolbar'],
             ])
             ->add('retrieveAllData', SwitchType::class, [
                 'label' => 'Use all Data from begining of Working Time',
@@ -605,7 +616,7 @@ class AnlageFormType extends AbstractType
             // ###############################################
             ->add('isTrackerEow', SwitchType::class, [
                 'label' => 'Is a one axis tracker',
-                'help' => 'Is a one axis tracker with east west orientation [Yes / No]',
+                'help' => 'Is a one axis tracker with east west orientation [Yes / No] <bR> Check that Plant is oriented east/west of [NO]',
                 'required' => false,
             ])
             // ###############################################

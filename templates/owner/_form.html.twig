@@ -1,3 +1,18 @@
+{% import _self as formMacros %}
+
+
+
+{% macro addContact(contact) %}
+    <tr>
+        <td>{{ form_widget(contact.Name) }}</td>
+        <td>{{ form_widget(contact.companyName) }}</td>
+        <td>{{ form_widget(contact.Service) }}</td>
+        <td>{{ form_widget(contact.phone) }}</td>
+        <td>{{ form_widget(contact.email) }}</td>
+        <td></td>
+    </tr>
+{% endmacro %}
+
 {{ form_start(ownerForm, {'attr': {'novalidate': 'no'}}) }}
 <div class="grid-x grid-margin-x grid-padding-x">
     <div class="cell">
@@ -7,6 +22,7 @@
                 <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
                 <li class="tabs-title"><a data-tabs-target="features" href="#features">Features</a></li>
             {% endif %}
+             <li class="tabs-title "><a data-tabs-target="contacts" href="#contacts">Contacts</a></li>
         </ul>
 
         {# Basic Infos Owner #}
@@ -76,10 +92,43 @@
                         {{ form_row(ownerForm.features.aktDep3) }}
                         {{ form_row(ownerForm.features.SplitInverter) }}
                         {{ form_row(ownerForm.features.SplitGap) }}
-                        {{ form_row(ownerForm.features.ManAktive) }}
+                        {{ form_row(ownerForm.features.manAktive) }}
                     </fieldset>
                 </div>
             {% endif %}
+            {# Contacts #}
+            <div class="tabs-panel" id="contacts">
+                <fieldset class="fieldset js-contact-wrapper"
+                          data-prototype="{{ formMacros.addContact(ownerForm.ContactInfos.vars.prototype)|e('html_attr') }}"
+                          data-index="{{ ownerForm.ContactInfos|length }}">
+                    <legend>Contacts</legend>
+                    <table id="contact-table">
+                        <thead>
+                        <tr>
+                            <th style="width: 20%; ">Company name</th>
+                            <th style="width: 20%; ">Person name</th>
+                            <th style="width: 20%; ">Service</th>
+                            <th style="width: 20%; ">phone number</th>
+                            <th style="width: 15%; ">email</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for contact in ownerForm.ContactInfos %}
+                            <tr class="js-contact-item">
+                                <td>{{ form_widget(contact.companyName) }}</td>
+                                <td>{{ form_widget(contact.Name) }}</td>
+                                <td>{{ form_widget(contact.Service) }}</td>
+                                <td>{{ form_widget(contact.phone) }}</td>
+                                <td>{{ form_widget(contact.email) }}</td>
+                                <td><a href="#" class="js-remove-contact"><span class="fa fa-minus-circle"></span></a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="button" class="button secondary small js-add-contact"> <span class="fa fa-plus-circle"></span>&nbsp;Add Contact</button>
+                </fieldset>
+            </div>
         </div>
 
     </div>
@@ -94,6 +143,7 @@
         {{ form_widget(ownerForm.close) }}
     </div>
 </div>
+<div class="is-hidden" > {{ form_rest(ownerForm) }}</div>
 {{ form_end(ownerForm) }}
 
 

@@ -45,12 +45,12 @@ class DefaultMREController extends BaseController
     /**
      * @throws NonUniqueResultException
      */
-    #[Route(path: '/mr/expected/{plant}', defaults: ['plant' => 57])]
+    #[Route(path: '/mr/expected/{plant}', defaults: ['plant' => 208])]
     public function updateExpected($plant, ExpectedService $expectedService, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
-        $from = '2023-06-02 13:00'; //date('Y-m-d 00:00');
-        $to = date('Y-m-d 13:59');
+        $from = '2024-01-10 00:00'; //date('Y-m-d 00:00');
+        $to = date('Y-m-d 00:00');
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
@@ -62,12 +62,12 @@ class DefaultMREController extends BaseController
     /**
      * @throws InvalidArgumentException
      */
-    #[Route(path: '/mr/pa/{plant}', defaults: ['plant' => 211])]
+    #[Route(path: '/mr/pa/{plant}', defaults: ['plant' => 108])]
     public function updatePA($plant, AvailabilityByTicketService $availability, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
-        $from = '2023-03-01 00:00'; //date('Y-m-d 00:00');
-        $to =  '2023-09-30 23:59';// date('Y-m-d 13:59');
+        $from   = '2022-02-15 00:00'; //date('Y-m-d 00:00');
+        $to     = '2022-02-16 00:00';// date('Y-m-d 13:59');
         $ergebniss = "";
         for ($stamp = strtotime($from); $stamp <= strtotime($to); $stamp = $stamp + (24 * 3600)) {
             $from = date('Y-m-d 00:00', $stamp);

@@ -2,6 +2,7 @@
 
 namespace App\Service\Import;
 
+use App\Entity\Anlage;
 use App\Entity\AnlagePVSystDaten;
 use App\Repository\PVSystDatenRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,20 +18,21 @@ class PvSystImportService
 
     /**
      * Importiere PV Syst Stunden Daten
-     * @param $anlage
-     * @param $file
-     * @return void
+     * @param Anlage $anlage
+     * @param $fileStream
+     * @param string $separator
+     * @param string $dateFormat
+     * @return string
      */
-    public function import($anlage, $file): string
+    public function import(Anlage $anlage, $fileStream, string $separator = ';', string $dateFormat = "d/m/y h:i"): string
     {
         $output = "";
-        if ($file && $file->getMimeType() === 'text/plain') {
-            $fileStream = fopen($file->getPathname(), 'r');
+        if ($fileStream ) { // && $file->getMimeType() === 'text/plain'
             for ($n = 1; $n <= 10; $n++) {
-                fgetcsv($fileStream, null, ';');
+                fgetcsv($fileStream, null, $separator);
             }
-            $headline = fgetcsv($fileStream, null, ';');
-            $units = fgetcsv($fileStream, null, ';');
+            $headline = fgetcsv($fileStream, null, $separator);
+            $units = fgetcsv($fileStream, null, $separator);
             $keyStamp       = array_search('date', $headline);
             $keyEGrid       = array_search('E_Grid', $headline);
             $keyGlobHor     = array_search('GlobHor', $headline);
@@ -39,16 +41,25 @@ class PvSystImportService
             $keyEGrid       = array_search('E_Grid', $headline);
 
             // leerzeile überspringen
-            $row = fgetcsv($fileStream, null, ';');
+            $row = fgetcsv($fileStream, null, $separator);
             $oldStamp = null;
 
-            while ($row = fgetcsv($fileStream, null, ';')){
+            while ($row = fgetcsv($fileStream, null, $separator)){
                 $timeZone = null; //new \DateTimeZone('UTC');
-                $stamp = date_create_from_format('d/m/y H:i', $row[$keyStamp], $timeZone);
+                $stamp = date_create_from_format($dateFormat, $row[$keyStamp], $timeZone);
+                $stamp->add(new \DateInterval('PT3600S')); // move from UTC to local Time
                 if ($stamp->format('I') == '1') {
-                    $stamp->add(new \DateInterval('PT3600S'));
+                    $stamp->add(new \DateInterval('PT3600S')); // one more hour if we are in DLS
                 }
                 if ($oldStamp !== $stamp->format("Y-m-d H:i")) { // Zum Übersprinegn der doppelten Daten bei der umstellung auf DLS
+
+                    // korrigiere Dezimal Trennung von ',' auf '.'
+                    foreach ($row as $key => $value){
+                        if ($key !== $keyStamp){ // nicht beim Datum anwenden
+                            $row[$key]  = str_replace(',','.', $value);
+                        }
+                    }
+
                     $eGrid = (float)$row[$keyEGrid] > 0 ? $this->correctUnitPower($units[$keyEGrid], $row[$keyEGrid]) : 0;
                     $irrHor = (float)$row[$keyGlobHor] > 0 ? $this->correctUnitIrr($units[$keyGlobHor], $row[$keyGlobHor]) : 0;
                     $irrInc = (float)$row[$keyGlobInc] > 0 ? $this->correctUnitIrr($units[$keyGlobInc], $row[$keyGlobInc]) : 0;
@@ -72,8 +83,6 @@ class PvSystImportService
                     ;
 
                     $output .= $anlage->getAnlId() ." | ".$stamp->format('Y-m-d H:i')." | ".$eGrid."<br>";
-                } else {
-                    #dd($oldStamp, $stamp);
                 }
                 $oldStamp = $stamp->format("Y-m-d H:i");
             }

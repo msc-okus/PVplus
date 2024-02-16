@@ -78,13 +78,46 @@
                         <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('ticket-edit', {
                                 formUrl: path('app_ticket_edit', { id: ticket.id}),
                                 splitUrl: path('app_ticket_split', { id: ticket.id}),
-                                notifyUrl: path('app_ticket_notify', {id: ticket.id})
+                                notifyUrl: path('app_ticket_notify', {id: ticket.id}),
+                                createContactUrl: path('app_ticket_create_contact', {id: ticket.id}),
+                                timelineUrl: path('app_ticket_notification_timeline', {id: ticket.id}),
                             }) }}>
 
                             <button title="Edit Ticket [{{ ticket.id }}]" class="button action-icon tiny hollow shadow"
                                     data-action="ticket-edit#openModal"
-                                    data-append-to="div#modal-form{{ ticket.id }}"><span class="fa fa-edit"></span></button>
+                                    data-append-to="div#modal-form{{ ticket.id }}">
+                                <span class="fa fa-edit"></span>
+                            </button>
+                            {% if (ticket.notificationInfos|length > 0) and (is_granted('ROLE_G4N') or is_granted('ROLE_MRO')) %}
+                                <button title="show MPR timeline" class="button action-icon tiny hollow shadow"
+                                        data-ticket-edit-target="timelineButton"
+                                        data-action="click->ticket-edit#openTimelineModal"
+                                >
+                                    <span class="fa fa-business-time"></span>
+                                </button>
 
+                                <div id="formTimeline{{ ticket.id }}">
+                                    <div class="reveal text-left small" id="modal-timeline-{{ ticket.id }}"
+                                         data-reveal
+                                         data-append-to = "div#formTimeline{{ ticket.id }}"
+                                         data-multiple-opened = "true"
+                                         data-close-on-click = "false"
+                                         data-ticket-edit-target="timelineModal">
+                                        <div class="cell modal-body"
+                                             data-ticket-edit-target="modalTimelineBody"
+                                             data-action="modal-form#submitForm"
+                                        >
+                                             {{ modalContent|default('Loading...') }}
+                                        </div>
+                                        <button
+                                                class="close-button"
+                                                type="button"
+                                                data-action="ticket-edit#closeTimeline">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endif %}
 
                             {{ include('ticket/_inc/_modalTicket.html.twig', {
                                 modalId: ticket.id,
@@ -95,7 +128,7 @@
                         </div>
                     </td>
                     <td>
-                        {% if is_granted('ROLE_DEV') %}
+                        {% if is_granted('ROLE_ADMIN') %}
                             <button title="Remove Ticket [{{ ticket.id }}]" class="hollow alert button action-icon tiny shadow"
                                     {{ stimulus_controller('submit-confirm', {
                                         title: 'Remove this ticket?',
@@ -107,6 +140,7 @@
                             </button>
                         {% endif %}
                     </td>
+
                 </tr>
             {% endfor %}
             </tbody>
