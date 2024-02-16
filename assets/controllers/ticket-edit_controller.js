@@ -160,6 +160,7 @@ export default class extends Controller {
         }
         if (newDate.getMinutes() < 10){
             var minutes =  '0'.concat(newDate.getMinutes().toString());
+            var minutes =  '0'.concat(newDate.getMinutes().toString());
         }else{
             var minutes =  newDate.getMinutes().toString();
         }
@@ -172,8 +173,8 @@ export default class extends Controller {
 
     }
     endPlusTime(){
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        let date = new Date(valueBegin);
+        const valueEnd = $(this.formEndTarget).prop('value');
+        let date = new Date(valueEnd);
         if ($(this.formHourTarget).prop('checked') == true){
             var addTime = 60;
         }
@@ -181,7 +182,8 @@ export default class extends Controller {
             var addTime = 15;
         }
         let newDate = new Date(date.getTime() + (addTime * 60000));
-        if (newDate.getTime() < endDate.getTime()) {
+
+
             if (newDate.getMonth() < 9) {
                 var Month = '0'.concat((newDate.getMonth() + 1).toString());
             } else {
@@ -207,7 +209,7 @@ export default class extends Controller {
             console.log(newStringdate);
             $(this.formEndTarget).val(newStringdate);
             $(this.formEndDateTarget).val(newStringdate);
-        }
+
     }
     endMinusTime(){
 
