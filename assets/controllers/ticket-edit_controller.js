@@ -891,8 +891,8 @@ export default class extends Controller {
         let body = $(this.modalBodyTarget);
         let checked = $("#trafo" + trafo).prop('checked');
         body.find('input:checkbox[class=js-checkbox]').each(function (){
-            if ($(this).prop('id') >= first) {
-                if ($(this).prop('id') <= last){
+            if ($(this).prop('id').substring(2) >= first) {
+                if ($(this).prop('id').substring(2) <= last){
                     if (checked) $(this).prop('checked', true);
                     else $(this).prop('checked', false);
                 }
@@ -1174,11 +1174,11 @@ export default class extends Controller {
         body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
             counter ++;
             if (inverterString == '') {
-                inverterString = inverterString + $(this).prop('id');
+                inverterString = inverterString + $(this).prop('id').substring(2);
                 inverterNameString = inverterNameString + $(this).prop('name');
             }
             else {
-                inverterString = inverterString + ', ' + $(this).prop('id');
+                inverterString = inverterString + ', ' + $(this).prop('id').substring(2);
                 inverterNameString = inverterNameString + ', ' + $(this).prop('name');
             }
             body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
@@ -1186,6 +1186,7 @@ export default class extends Controller {
             body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
 
         });
+        console.log(inverterString);
         if (counter == body.find('input:checkbox[class=js-checkbox]').length){
             inverterString = '*';
             inverterNameString = '*';
@@ -1363,6 +1364,7 @@ export default class extends Controller {
             $(this.splitButtonTarget).removeAttr('disabled');
             $(this.splitAlertTarget).addClass('is-hidden');
         }
+        console.log(inverterStringa, inverterStringb);
     }
     checkInverterSplit2({ params: { id }}){
         let body = $(this.modalBodyTarget);
