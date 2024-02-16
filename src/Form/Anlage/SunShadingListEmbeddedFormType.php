@@ -39,16 +39,14 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'label_html' => true,
                 'required' => true,
             ])
-
-            /*->add('mod_height', TextType::class, [
+            ->add('mod_height', TextType::class, [
                 'label' => 'The module height',
                 'empty_data' => '0',
                 'help' => '[The module height in mm]',
                 'label_html' => true,
-                'attr' => ['maxlength' => 4],
+                'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
-            ])*/
-
+            ])
             ->add('mod_width', TextType::class, [
                 'label' => 'The light width [LW] in mm',
                 'empty_data' => '0',
@@ -61,11 +59,13 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'label' => 'Select the modul',
                 'help' => '[Select the modul of tables]',
                 'placeholder' => 'Please Choose',
+                'empty_data' => '0',
                 'class' => AnlageModulesDB::class,
                 'choice_label' => 'type',
                 'expanded' => false,
                 'multiple' => false,
                 'mapped' => true,
+                'required' => true,
             ])
             ->add('mod_tilt', TextType::class, [
                 'label' => 'The modul tilt [ß] in °',

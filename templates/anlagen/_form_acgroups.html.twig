@@ -7,6 +7,7 @@
     <td>{{ form_widget(acgroup.unitFirst) }}</td>
     <td>{{ form_widget(acgroup.unitLast) }}</td>
     <td>{{ form_widget(acgroup.dcPowerInverter) }}</td>
+    {#
     <td>{{ form_widget(acgroup.weatherStation) }}</td>
     <td>{{ form_widget(acgroup.isEastWestGroup) }}</td>
     <td>{{ form_widget(acgroup.pyro1) }}</td>
@@ -14,6 +15,7 @@
     <td>{{ form_widget(acgroup.powerEast) }}</td>
     <td>{{ form_widget(acgroup.powerWest) }}</td>
     <td>{{ form_widget(acgroup.gewichtungAnlagenPR) }}</td>
+    #}
     <td>{{ form_widget(acgroup.tCellAvg) }}</td>
     <td>{{ form_widget(acgroup.importId) }}</td>
     <td><a href="#" class="js-remove-acgroup"><span class="fa fa-minus-circle"></span></a></td>
@@ -42,21 +44,23 @@
                                 <thead>
                                 <tr>
                                     <th><small>AC Group (ID)</small></th>
+                                    <th><small>Trafo Nr</small></th>
                                     <th><small>Name</small></th>
                                     <th><small>First Unit</small></th>
                                     <th><small>Last Unit</small></th>
                                     <th><small>DC Power for this AC Group</small></th>
                                     <th></th>
-                                    <th><small>Weatherstation</small></th>
+                                   {#  <th><small>Weatherstation</small></th>
                                     <th><small>Is East / West</small></th>
                                     <th><small>Pyra. (East, deafult) 1</small></th>
                                     <th><small>Pyra. (West) 2</small></th>
                                     <th><small>Power East</small></th>
                                     <th><small>Power West</small></th>
                                     <th><small>Gewichtung</small></th>
+                                    #}
                                     <th><small>tCellAvg</small></th>
                                     <th><small>Import ID (VCOM)</small></th>
-                                    <th></th>
+                                    <th><small>Aktion</small></th>
                                 </tr>
 
                                 </thead>
@@ -64,11 +68,13 @@
                                 {% for acgroup in anlageForm.acGroups %}
                                     <tr class="js-acgroup-item">
                                         <td>{{ form_widget(acgroup.acGroup) }}</td>
+                                        <td>{{ form_widget(acgroup.trafoNr) }}</td>
                                         <td>{{ form_widget(acgroup.acGroupName) }}</td>
                                         <td>{{ form_widget(acgroup.unitFirst) }}</td>
                                         <td>{{ form_widget(acgroup.unitLast) }}</td>
                                         <td>{{ form_widget(acgroup.dcPowerInverter) }}</td>
                                         <td>{% if anlage.pnomInverterArray is defined and anlage.pnomInverterArray[loop.index] is defined %}{{ anlage.pnomInverterArray[loop.index] }}{% endif %}</td>
+                                       {#
                                         <td>{{ form_widget(acgroup.weatherStation) }}</td>
                                         <td>{{ form_widget(acgroup.isEastWestGroup) }}</td>
                                         <td>{{ form_widget(acgroup.pyro1) }}</td>
@@ -76,6 +82,7 @@
                                         <td>{{ form_widget(acgroup.powerEast) }}</td>
                                         <td>{{ form_widget(acgroup.powerWest) }}</td>
                                         <td>{{ form_widget(acgroup.gewichtungAnlagenPR) }}</td>
+                                        #}
                                         <td>{{ form_widget(acgroup.tCellAvg) }}</td>
                                         <td>{{ form_widget(acgroup.importId) }}</td>
                                         <td><a href="#" class="js-remove-acgroup"><span class="fa fa-minus-circle"></span></a></td>
