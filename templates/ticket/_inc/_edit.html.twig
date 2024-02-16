@@ -72,8 +72,11 @@
                                                         <label for="check-all" class="">Select All</label>
 
                                                     </div>
-
+                                                </div>
+                                                <hr>
+                                                <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
                                                     {% for trafo in trafoArray %}
+                                                        <div class="cell small-form">
                                                             <input id="trafo{{ loop.index }}"
                                                                     {%  if (ticket.inverterName == '*' ) %} checked {% endif %}
                                                                    class="js-checkbox-trafo"
@@ -82,11 +85,10 @@
                                                                    data-ticket-edit-trafo-param="{{ loop.index }}"
                                                                    data-action="click->ticket-edit#checkTrafo" type="checkbox">
                                                             <label for="trafo{{ loop.index }}">TS {{ loop.index }}</label>
-
+                                                        </div>
                                                     {% endfor %}
-
-
                                                 </div>
+                                                <hr>
                                                 <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-9">
                                                     {% for inverter in invArray %}
                                                         <div class="cell small-form">

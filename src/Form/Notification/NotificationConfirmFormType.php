@@ -46,7 +46,6 @@ class NotificationConfirmFormType extends AbstractType
             'label' => 'Send your answer <i class="fa fa-paper-plane"></i>',
             'label_html' => true,
             'attr' => ['class' => 'primary save'],
-            ''
         ]);
 
     }
