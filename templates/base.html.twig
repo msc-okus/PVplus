@@ -38,17 +38,15 @@
             {% if is_granted('ROLE_USER') %}
                 <div class="grid-x align-right">
                     <div class="cell medium-5 show-for-medium">
-                        {% if is_granted('ROLE_G4N') %}
-                            <div class="dropdownMessages">
-                                <div class="dropbtn"><i class="far fa-bell" id="far-fa-bell"></i></div>
-                                <div class="dropdown-content fade" id="dropdown-content"
-                                        {{ stimulus_controller('background-processes', {
-                                            url: path('app_log_background_messages'),
-                                            refreshIntervale: 15000,
-                                        }) }}>
-                                </div>
+                        <div class="dropdownMessages">
+                            <div class="dropbtn"><i class="far fa-bell" id="far-fa-bell"></i></div>
+                            <div class="dropdown-content fade" id="dropdown-content"
+                                    {{ stimulus_controller('background-processes', {
+                                        url: path('app_log_background_messages'),
+                                        refreshIntervale: 15000,
+                                    }) }}>
                             </div>
-                        {% endif %}
+                        </div>
                         <div class="processmessenges"
                             {{ stimulus_controller('processmessenges', {
                                 url: path('app_log_processmessenges'),
@@ -183,13 +181,7 @@
             </div>
         </div>
     </main>
-    <footer class="grid-container fluid">
-        <div class="grid-x">
-            <div class="cell">
-                <p class="text-center">&copy; 2018 - 2024 Green4Net - All Rights Reserved - PV+ 4.0 v2.3.5 beta</p>
-            </div>
-        </div>
-    </footer>
+    {% include('base_footer.html.twig') %}
 </div>
 </body>
 </html>

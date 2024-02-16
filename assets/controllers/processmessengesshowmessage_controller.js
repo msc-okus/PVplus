@@ -8,7 +8,7 @@ export default class extends Controller {
         prozessid: Number
     }
     connect() {
-        if(this.messageValue !== ''){
+        if(this.messageValue != ''){
             this.showReady();
         }
     }
@@ -18,7 +18,7 @@ export default class extends Controller {
         let pdfdownload = document.getElementById('pdfdownload');
         let messagebutton = document.getElementById('far-fa-bell');
 
-        if (this.messageValue === 'empty'){
+        if (this.messageValue == 'empty'){
             messagebutton.style.color = '#1779ba';
             return; // process.exit(1);
         } else {
@@ -52,7 +52,6 @@ export default class extends Controller {
     toggleElementFade(element) {
         element.classList.toggle('fade');
     }
-
 
     toggletabs(event) {
         event.preventDefault();

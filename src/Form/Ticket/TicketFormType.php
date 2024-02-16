@@ -196,7 +196,8 @@ class TicketFormType extends AbstractType
                 'label' => 'Scope',
                 'choices' => self::scope(),
                 'expanded' => true,
-                'multiple' => true
+                'multiple' => true,
+                'label_attr' => ['class' => 'checkbox-inline']
             ]);
 
 

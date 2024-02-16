@@ -27,7 +27,7 @@
             <button type="button" class="button secondary small" data-action="ticket-edit#closeTicket">Cancel</button>
             <button type="button" class="button small" data-ticket-list-target="saveButton" data-ticket-edit-target="saveButton" data-action="ticket-edit#saveTicket">Save</button>
             {% if (ticket is defined) %}
-                {% if (ticket.anlage.eigner.features.manAktive == true) and (is_granted('ROLE_G4N') or is_granted('ROLE_MSA')) %}
+                {% if (ticket.anlage.eigner.features.manAktive == true) and (is_granted('ROLE_G4N') or is_granted('ROLE_MRO')) %}
                     <button type="button" class="button small "
                             data-ticket-edit-target="contactButton"
                             data-action="click->ticket-edit#openContactModal">Contact Maintenance</button>

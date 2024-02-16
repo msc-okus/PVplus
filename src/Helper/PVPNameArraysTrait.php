@@ -65,14 +65,15 @@ trait PVPNameArraysTrait
     public static function prFormulars(): array
     {
         return [
-            'No Cust PR (EnergyProduced / Theo.Energy)' => 'no',
-            'EnergyProduced / (Theo.Energy * PA)' => 'Veendam',
-            'EnergyProduced / (Theo.Energy * Ft) | NREL' => 'TempCorrNREL',
-            'EnergyProduced / (Theo.Energy * Ft * deg) | IEC' => 'IEC61724-1:2021',
-            'Lelystad (deprecated)' => 'Lelystad',
-            'Ladenburg (not ready)' => 'Ladenburg',
-            'Doellen (not ready)' => 'Doellen',
-            'Groningen (deprecated)' => 'Groningen',
+            'No Cust PR (EnergyProduced / Theo.Energy) | IEC'   => 'no', // IEC61724-1:2021 Kapitel 14.3.1
+            'EnergyProduced / (Theo.Energy * deg)'              => 'IEC_with_deg', // Basis IEC61724-1:2021 Kapitel 14.3.1 + Degradation
+            'EnergyProduced / (Theo.Energy * PA)'               => 'Veendam', // IEC_with_PA // Basis IEC61724-1:2021 Kapitel 14.3.1 + Gewichtet mit PA (PlantAvailability)
+            'EnergyProduced / (Theo.Energy * Ft) | IEC or NREL' => 'TempCorrNREL', //IEC_tempCorr // IEC61724-1:2021 Kapitel 14.3.2 und 14.3.3
+            'EnergyProduced / (Theo.Energy * Ft * deg) | IEC'   => 'IEC61724-1:2021', // IEC_tempCorr_deg // Basis IEC61724-1:2021 Kapitel 14.3.2 und 14.3.3 + degradation
+            'Lelystad (deprecated)'                             => 'Lelystad', // Sonder Lösung mit Berechnung der Cell Temp nach NREL
+            'Ladenburg (not ready)'                             => 'Ladenburg',  // solte eine der esten 5 sein
+            'Doellen (not ready)'                               => 'Doellen', // solte eine der esten 5 sein
+            'Groningen (deprecated)'                            => 'Groningen', // Sonder Lösung
         ];
     }
 

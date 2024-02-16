@@ -40,12 +40,12 @@ export default class extends Controller {
         var response = await $.ajax({
             url: '/ticket/proofCount',
         });
-        (this.proofepcTarget).innerText = response['countProofByEPC'];
-        (this.prooftamTarget).innerText = response['countProofByTAM'];
-        (this.proofg4nTarget).innerText = response['countProofByG4N'];
-        (this.proofamTarget).innerText = response['countProofByAM'];
-        (this.ignoredTarget).innerText = response['countIgnored'];
-        (this.proofmaintenanceTarget).innerText = response['countProofByMaintenance'];
+        this.proofepcTarget.innerText = response['countProofByEPC'];
+        this.prooftamTarget.innerText = response['countProofByTAM'];
+        this.proofg4nTarget.innerText = response['countProofByG4N'];
+        this.proofamTarget.innerText = response['countProofByAM'];
+        this.ignoredTarget.innerText = response['countIgnored'];
+        this.proofmaintenanceTarget.innerText = response['countProofByMaintenance'];
 
         $(document).foundation();
         this.disableAllToolTips()
