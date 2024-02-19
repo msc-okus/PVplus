@@ -160,6 +160,7 @@ export default class extends Controller {
         }
         if (newDate.getMinutes() < 10){
             var minutes =  '0'.concat(newDate.getMinutes().toString());
+            var minutes =  '0'.concat(newDate.getMinutes().toString());
         }else{
             var minutes =  newDate.getMinutes().toString();
         }
@@ -172,8 +173,8 @@ export default class extends Controller {
 
     }
     endPlusTime(){
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        let date = new Date(valueBegin);
+        const valueEnd = $(this.formEndTarget).prop('value');
+        let date = new Date(valueEnd);
         if ($(this.formHourTarget).prop('checked') == true){
             var addTime = 60;
         }
@@ -181,7 +182,8 @@ export default class extends Controller {
             var addTime = 15;
         }
         let newDate = new Date(date.getTime() + (addTime * 60000));
-        if (newDate.getTime() < endDate.getTime()) {
+
+
             if (newDate.getMonth() < 9) {
                 var Month = '0'.concat((newDate.getMonth() + 1).toString());
             } else {
@@ -207,7 +209,7 @@ export default class extends Controller {
             console.log(newStringdate);
             $(this.formEndTarget).val(newStringdate);
             $(this.formEndDateTarget).val(newStringdate);
-        }
+
     }
     endMinusTime(){
 
@@ -889,8 +891,8 @@ export default class extends Controller {
         let body = $(this.modalBodyTarget);
         let checked = $("#trafo" + trafo).prop('checked');
         body.find('input:checkbox[class=js-checkbox]').each(function (){
-            if ($(this).prop('id') >= first) {
-                if ($(this).prop('id') <= last){
+            if ($(this).prop('id').substring(2) >= first) {
+                if ($(this).prop('id').substring(2) <= last){
                     if (checked) $(this).prop('checked', true);
                     else $(this).prop('checked', false);
                 }
@@ -1172,11 +1174,11 @@ export default class extends Controller {
         body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
             counter ++;
             if (inverterString == '') {
-                inverterString = inverterString + $(this).prop('id');
+                inverterString = inverterString + $(this).prop('id').substring(2);
                 inverterNameString = inverterNameString + $(this).prop('name');
             }
             else {
-                inverterString = inverterString + ', ' + $(this).prop('id');
+                inverterString = inverterString + ', ' + $(this).prop('id').substring(2);
                 inverterNameString = inverterNameString + ', ' + $(this).prop('name');
             }
             body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
@@ -1184,6 +1186,7 @@ export default class extends Controller {
             body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
 
         });
+        console.log(inverterString);
         if (counter == body.find('input:checkbox[class=js-checkbox]').length){
             inverterString = '*';
             inverterNameString = '*';
@@ -1361,6 +1364,7 @@ export default class extends Controller {
             $(this.splitButtonTarget).removeAttr('disabled');
             $(this.splitAlertTarget).addClass('is-hidden');
         }
+        console.log(inverterStringa, inverterStringb);
     }
     checkInverterSplit2({ params: { id }}){
         let body = $(this.modalBodyTarget);
