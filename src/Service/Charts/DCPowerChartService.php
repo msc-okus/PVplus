@@ -312,32 +312,14 @@ class DCPowerChartService
         }
 
         if ($group === -1) { // Select all Inverter
+            $dataArray['inverterArray'] = $nameArray;
             $sqlExp = "SELECT 
                           $exppart1
                           sum(b.dc_exp_power) as expected
                        FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM ".$anlage->getDbNameDcSoll().") b ON a.stamp = b.stamp)
                        WHERE a.stamp > '$from' AND a.stamp <= '$to' 
-                       $exppart2";
-
-            if ($anlage->getConfigType() === 3 || $anlage->getConfigType() === 4) {
-                $sql = 'SELECT sum(wr_pdc) as istDc 
-                                    FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameDCIst()." b ON a.stamp = b.stamp)
-                                    WHERE a.stamp > '$from' AND a.stamp <= '$to' 
-                                    GROUP BY date_format(a.stamp, '$form'), b.group_ac ";
-            } else {
-                $sql = 'SELECT sum(wr_pdc) as istDc 
-                                    FROM (db_dummysoll a LEFT JOIN  '.$anlage->getDbNameACIst()." b ON a.stamp = b.stamp)
-                                    WHERE a.stamp > '$from' AND a.stamp <= '$to' 
-                                    GROUP BY date_format(a.stamp, '$form'), group_dc ";
-            }
-
+                       $exppart2;";
             $resultExp = $conn->query($sqlExp);
-            $resultActual = $conn->query($sql);
-
-            $maxInverter = $resultActual->rowCount() / $resultExp->rowCount();
-
-            $dataArray['inverterArray'] = $nameArray;
-
             if ($resultExp->rowCount() > 0) {
                 // add Irradiation
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
@@ -348,7 +330,7 @@ class DCPowerChartService
                 // SOLL Strom für diesen Zeitraum und diese Gruppe
 
                 $dataArray['maxSeries'] = 0;
-                $legend = $groups[$group]['GMIN'] - 1;
+                #$legend = $groups[$group]['GMIN'] - 1;
                 $counter = 0;
 
                 while ($rowExp = $resultExp->fetch(PDO::FETCH_ASSOC)) {
@@ -368,11 +350,10 @@ class DCPowerChartService
                         $groupBy = "";
                     }
                     if ($anlage->getConfigType() === 3 || $anlage->getConfigType() === 4) {
-                        $sql = 'SELECT stamp, sum(wr_pdc) as actPower, avg(wr_temp) as temp FROM ' . $anlage->getDbNameDCIst() . " WHERE $whereQueryPart1 GROUP BY $groupBy group_ac ;";
+                        $sql = 'SELECT stamp, group_ac as `group`, sum(wr_pdc) as actPower, avg(wr_temp) as temp FROM ' . $anlage->getDbNameDCIst() . " WHERE $whereQueryPart1 GROUP BY $groupBy group_ac ;";
                     } else {
-                        $sql = 'SELECT stamp, sum(wr_pdc) as actPower, avg(wr_temp) as temp FROM ' . $anlage->getDbNameAcIst() . " WHERE $whereQueryPart1 GROUP BY $groupBy unit;";
+                        $sql = 'SELECT stamp, unit as `group`, sum(wr_pdc) as actPower, avg(wr_temp) as temp FROM ' . $anlage->getDbNameAcIst() . " WHERE $whereQueryPart1 GROUP BY $groupBy unit;";
                     }
-
 
                     $resultIst = $conn->query($sql);
                     if ($resultIst->rowCount() > 0) {
@@ -382,9 +363,11 @@ class DCPowerChartService
                             ++$counterInv;
                             $sumTemp += (float)$rowIst['temp'];
                             $actPower = $rowIst['actPower'];
+                            $group = $rowIst['group'];
                             if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string)$stamp) < 7200)) {
                                 switch ($anlage->getConfigType()) {
-                                    case 3: // Groningen, Saran
+                                    case 3:
+                                    case 4: // Groningen, Saran
                                         $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
                                         break;
                                     default:
