@@ -13,7 +13,7 @@
 </head>
 <body>
 
-<header id="headbar" class="grid-container fluid" {{ is_granted('IS_IMPERSONATOR') ? 'style="border-top: red solid 5px;"' }}>
+<header id="headbar" class="grid-container fluid">
     <div class="grid-x">
         <div class="cell small-6 medium-3">
             <div class="logo">
@@ -33,13 +33,7 @@
             </div>
         </div>
     </main>
-    <footer class="grid-container fluid">
-        <div class="grid-x">
-            <div class="cell">
-                <p class="text-center">&copy; 2018 - 2023 Green4Net - All Rights Reserved - PV+ 4.0 v2.3.3</p>
-            </div>
-        </div>
-    </footer>
+    {% include('base_footer.html.twig') %}
 </div>
 </body>
 </html>

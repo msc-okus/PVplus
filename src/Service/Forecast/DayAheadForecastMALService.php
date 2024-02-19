@@ -21,7 +21,7 @@ class DayAheadForecastMALService
 
     }
 
-  public function calcforecastout($anlageId,$decarray) {
+  public function calcforecastout($anlageId,$decarray): array {
 
       $conn = $this->pdoService->getPdoPlant();
       $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlageId]);
@@ -96,6 +96,23 @@ class DayAheadForecastMALService
                                   $ex4 = 0.0;
                               } else {
                                   $ex4 = $regression->predict([$irrUpper, $Tcell]);
+                              }
+
+                          } elseif($anlage->getIsOstWestAnlage()) {
+
+                              if ($modulisbif) {
+                                  isset($val['TRACKEROW']['RGESBIF']) ? $irr = round($val['TRACKEROW']['RGESBIF'], 2) : $irr = '0.0';
+                              } else {
+                                  isset($val['TRACKEROW']['RGES']) ? $irr = round($val['TRACKEROW']['RGES'], 2) : $irr = '0.0';
+                              }
+
+                              if ($tip == "60min") { $irr = $irr / 4 ; }
+
+                              $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
+                              if ($irr == 0.0 OR $irr == 0 OR $irr == NULL){
+                                  $ex4 = 0.0;
+                              } else {
+                                  $ex4 = $regression->predict([$irr, $Tcell]);
                               }
 
                           } else {

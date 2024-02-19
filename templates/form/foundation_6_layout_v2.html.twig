@@ -208,7 +208,7 @@
 
 {% block choice_widget_expanded -%}
     {% if '-inline' in label_attr.class|default('') %}
-        <ul class="inline-list">
+        <ul class="menu horizontal">
             {% for child in form %}
                 <li>{{ form_widget(child, {
                         parent_label_class: label_attr.class|default(''),

@@ -17,24 +17,38 @@ class AcGroupsListEmbeddedFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('acGroup')
+            ->add('acGroup',TextType::class,[
+                 'help' => '[The Number of Trafostation]',
+                'empty_data' => '',
+                'attr' => ['maxlength' => 4, 'style' => 'width: 55px'],
+                ])
+            ->add('trafoNr', TextType::class, [
+                'help' => '[The Number of Trafostation]',
+                'empty_data' => '',
+                'attr' => ['maxlength' => 4, 'style' => 'width: 55px'],
+            ])
             ->add('acGroupName', TextType::class, [
                 'help' => '[acGroupName]',
                 'empty_data' => '',
+                'attr' => ['maxlength' => 35, 'style' => 'width: 255px'],
             ])
             ->add('unitFirst', TextType::class, [
                 'help' => '[unitFirst]',
                 'empty_data' => '',
+                'attr' => ['maxlength' => 4, 'style' => 'width: 55px'],
             ])
             ->add('unitLast', TextType::class, [
                 'help' => '[unitLast]',
                 'empty_data' => '',
+                'attr' => ['maxlength' => 4, 'style' => 'width: 55px'],
             ])
             ->add('dcPowerInverter', TextType::class, [
                 'required' => false,
                 'help' => '[dcPowerInverter]',
                 'empty_data' => '0',
+                'attr' => ['maxlength' => 8, 'style' => 'width: 75px'],
             ])
+            /* wird nicht mehr benötigt - MS
             ->add('weatherStation', EntityType::class, [
                 'label' => 'Wetterstation',
                 'help' => '[weatherStation]',
@@ -73,15 +87,18 @@ class AcGroupsListEmbeddedFormType extends AbstractType
                 'help' => '[gewichtungAnlagenPR]',
                 'empty_data' => '',
             ])
+        */
             ->add('tCellAvg', TextType::class, [
                 'required' => false,
                 'help' => '[tCellAvg]',
                 'empty_data' => '',
+                'attr' => ['maxlength' => 6, 'style' => 'width: 75px'],
             ])
             ->add('importId', TextType::class, [
                 'required' => false,
                 'help' => '[importId]',
                 'empty_data' => '',
+                'attr' => ['maxlength' => 18, 'style' => 'width: 175px'],
             ])
         ;
     }

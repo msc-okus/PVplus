@@ -2,11 +2,12 @@
 /**
  * MS 11/23
  * DEK Service zur Erstellung der Gesamtstrahlung in der Modulebene anhand
- * Wetterdaten aus der API OpenMeteo.com
- *
+ * Wetterdaten aus der API von OpenMeteo.com
+ * MS 01/24 Erweitert für Tracker
  */
 namespace App\Service\Forecast;
 
+use App\Entity\Anlage;
 use App\Repository\AnlagenRepository;
 use App\Repository\AnlageSunShadingRepository;
 use App\Repository\AnlageModulesDBRepository;
@@ -25,24 +26,28 @@ class DayAheadForecastDEKService {
 
     public function __construct(AnlageModulesDBRepository $anlageModulesDBRepository,ForecastCalcService $forecastCalcService,SunShadingModelService $shadingModelService,AnlagenRepository $anlagenRepository,AnlageSunShadingRepository $anlageSunShadingRepository) {
         $this->shadingmodelservice = $shadingModelService;
-        $this->anlagenreository = $anlagenRepository;
+        $this->anlagenrepository = $anlagenRepository;
         $this->anlagesunshadingrepository = $anlageSunShadingRepository;
         $this->forecastCalcService = $forecastCalcService;
         $this->anlagenmodulesdbrepository = $anlageModulesDBRepository;
       }
 
-    public function get_DEK_Data($input_gl,$input_mer,$input_gb,$input_mn,$input_ma,$input_ab,$datfile,$has_suns_model,$anlageId,$doy) {
-        // Predefine Vars
+    public function get_DEK_Data($input_gl,$input_mer,$input_gb,$input_mn,$input_ab,$datfile,$has_suns_model,$anlageId,$doy) :array {
+        // Predefine the Vars
+        /**
+         * @var Anlage $anlage
+         */
+        $anlage = $this->anlagenrepository->findOneBy(['anlId' => $anlageId]);
         $sshrep = $this->anlagesunshadingrepository->findBy(['anlage' => $anlageId]);
-        // Muss noch geändert werden in eine verknüpfung zur tabelle modules to Anlage die zur MudulesDB geht
+        // ToDo Muss noch geändert werden in eine verknüpfung zur tabelle modules to Anlage die zur MudulesDB zeigt
         $modrep = $this->anlagenmodulesdbrepository->findBy(['id' => '1']);
         $valueofdayandhour = [];
-        $faktorRVSued = $faktorRVOst = $faktorRVWest = 1;
-        $RGES = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGES_UPPER =  $RGES_LOWER = $RGESBIF = 0;
-        // Durchläuft das Array $datfile['hourly'] a Stündlich von Api der Open Meteo es gibt noch ['minute'] a 15 Minute
+        $faktorRVSued = $faktorRVOst = $faktorRVWest = $faktorRVTR = 1;
+        $RGES = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGES_UPPER =  $RGES_LOWER = $RGESBIF = $TR_RGES = $TR_RGESBIF = 0;
         $nowDay = strtotime(date('Y-m-d 00:00',time()));
         $next2Day = strtotime("+3 day", $nowDay);
         $cnd = 0;
+        // Durchläuft das Array $datfile von der Open Meteo API # ['hourly'] a Stündlich # ['minute'] a 15 Minuten
         foreach ($datfile as $key => $value) {
             $dataDay = strtotime($key);
             foreach ($value as $keyin => $valuein ) {
@@ -51,20 +56,19 @@ class DayAheadForecastDEKService {
                         if ($keyin == 'minute') {
                             $stampday = date('Y-m-d-H-i-z', strtotime((string)$sqlstamp));
                             [$year, $month, $day, $hour, $minute, $dayofyear] = explode("-", $stampday);
-
                             $ts = $sqlstamp;
                             $d = $dayofyear + 1;
                             $h = $hour;
                             $m = $minute;
                             $GHI2=$DNI2=$DHI=$GHI=$FF=$TMP = 0;
                             foreach ($valueout as $dam) {
-                                $TMP += $dam['tmp'] / 11;
-                                $FF += $dam['wds'] / 11;
-                                $GHI += $dam['swi'] / 11; # shortwave_radiation = $value['ghi'] + $value['dhi'];
-                                $DHI += $dam['dhi'] / 11; # diffuse_radiation
+                                $TMP += $dam['tmp'] / 10;
+                                $FF += $dam['wds'] / 10;
+                                $GHI += $dam['swi'] / 10; # shortwave_radiation = $value['ghi'] + $value['dhi'];
+                                $DHI += $dam['dhi'] / 10; # diffuse_radiation
                                 # $DNI = $value['dni']; # direct_normal_radiation
-                                $DNI2 += $dam['dni'] / 11; # direct_normal_radiation
-                                $GHI2 += $dam['ghi'] / 11; # direct_radiation
+                                $DNI2 += $dam['dni'] / 10; # direct_normal_radiation
+                                $GHI2 += $dam['ghi'] / 10; # direct_radiation
                             }
                             $instep = '15min';
                         }
@@ -80,24 +84,52 @@ class DayAheadForecastDEKService {
                             $m = $minute;
                             $GHI2=$DNI2=$DHI=$GHI=$FF=$TMP = 0;
                             foreach ($valueout as $dah) {
-                                $TMP += $dah['tmp'] / 11;
-                                $FF += $dah['wds'] / 11;
-                                $GHI += $dah['swi'] / 11; # shortwave_radiation = $value['ghi'] + $value['dhi'];
-                                $DHI += $dah['dhi'] / 11; # diffuse_radiation
+                                $TMP += $dah['tmp'] / 10;
+                                $FF += $dah['wds'] / 10;
+                                $GHI += $dah['swi'] / 10; # shortwave_radiation = $value['ghi'] + $value['dhi'];
+                                $DHI += $dah['dhi'] / 10; # diffuse_radiation
                                 # $DNI = $value['dni']; # direct_normal_radiation
-                                $DNI2 += $dah['dni'] / 11; # direct_normal_radiation
-                                $GHI2 += $dah['ghi'] / 11; # direct_radiation
+                                $DNI2 += $dah['dni'] / 10; # direct_normal_radiation
+                                $GHI2 += $dah['ghi'] / 10; # direct_radiation
                             }
                             $instep = '60min';
                         }
                     }
 
-                 #   echo " $sqlstamp  $TMP $FF $GHI $DHI $DNI2 $GHI2 \n";
+                    // Berechnung der Senkrechtstrahlung auf der Normal EBENE
+                    if ($DNI2 > $GHI) {
+                        $GDIR = $DNI2 - $DHI; // $GHI - $DHI / /Daten aus Meteo GHI - DHI
+                    } else {
+                        $GDIR = $GHI - $DHI  ; // $GHI - $DHI / /Daten aus Meteo GHI - DHI
+                    }
 
-                    $AZW = ["180", "90", "270"]; // Berechung aller Modul Azimut winkel Süd / Ost / West
+                    //Start Tracker OW Nachführung Berechnung
+                    $TR_AOIarray = $this->forecastCalcService->getDataforAOIbyTracker($input_mn, $input_gb, $input_gl, $input_mer, $d, $h, $anlage);
+                    $TR_MA = $TR_AOIarray['MA']; // Das Modul Azimut der Wert wird berechnet auf stundenbasis.
+                    $TR_MN = $TR_AOIarray['MN']; // Die berechnete Modulneigung als Tracker per Stunde
+                    $TR_SA = $TR_AOIarray['SA'];
+                    $TR_SZ = $TR_AOIarray['SZ']; // Zenitwinkel der Sonne
+
+                    $TR_AOI = acos(cos($TR_SZ) * cos(deg2rad($TR_MN)) + sin($TR_SZ) * sin(deg2rad($TR_MN)) * cos($TR_SA - deg2rad($TR_MA))); // Einfallwinkel Strahlung auf Modul
+                    $TR_IAM = 1 - 0.05 * (1 / cos($TR_AOI) - 1); //  Reflexionsverlust der Einstrahlung
+
+                    // Berechnung der prozentualen Anteile der Strahlung
+                    ($GDIR > 1) ? $TR_GDIRPRZ = round(($GDIR / $GHI) * 100, 0) : $TR_GDIRPRZ = 0; // in Prozent Tracker
+                    $TR_SAGD = round(rad2deg($TR_SA), 0); // SA in Grad
+                    $TR_DIFFSAMA = $TR_MA - $TR_SAGD;             // Differenz SA -SA
+
+                    $TR_CSZ = sin($TR_SZ);
+                    $TR_DNI = $GDIR / $TR_CSZ; // Berechnung der Senkrechtstrahlung
+
+                    $TR_DIRpoa = $TR_DNI * cos($TR_AOI) * $TR_IAM; // Direktstrahlung in Modulebene
+                    $TR_DIFpoa = $DHI * ((1 + cos(deg2rad($TR_MN))) / 2) + $GHI2 * (0.012 * $TR_SZ - 0.04) * ((1 - cos(deg2rad($TR_MN))) / 2); // Diffusstrahlung in Modulebene
+                    $TR_REFpoa = $GHI2 * $input_ab * ((1 - cos(deg2rad($TR_MN))) / 2); // Reflektierende Strahlung
+                    // Ende Tracker OW Nachführung
+                    // Berechung aller Modul Azimut winkel Süd / Ost / West stationäre PV Anlagen
+                    $AZW = ["180", "90", "270"];
                     foreach ($AZW as $winkel) {
                         $gendoy = str_pad($d, 2, "0", STR_PAD_LEFT); // Zerro Number display 01 instead of 1 - 9
-                        // Hole den Einfallwinkel Strahlung auf Modulebene, Sonnenazimut SA, der Zenitwinkel der Sonne in RAD, die Sonnenhöhe in RAD
+                        // Hole den Einfallwinkel der Strahlung auf Modulebene, Sonnenazimut SA, der Zenitwinkel der Sonne in RAD, die Sonnenhöhe in RAD
                         $AOIarray = $this->forecastCalcService->getAOI($input_mn, $input_gb, $input_gl, $input_mer, $d, $h, $winkel);
                         $AOI = $AOIarray['AOI'];
                         $SA = $AOIarray['SA'];
@@ -106,23 +138,13 @@ class DayAheadForecastDEKService {
                         $SHGD = rad2deg($SH); // Sonnenhöhe in Grad
                         // Berechnung vom prozentualen Anteil der Strahlung
 
-                        // Berechnung der Senkrechtstrahlung auf der Normal EBENE
-                        if ($DNI2 > $GHI) {
-                            $GDIR = $DNI2 - $DHI; // $GHI - $DHI / /Daten aus Meteo GHI - DHI
-                           } else {
-                            $GDIR = $GHI - $DHI  ; // $GHI - $DHI / /Daten aus Meteo GHI - DHI
-                        }
-                            ($GDIR > 1) ? $GDIRPRZ = round(($GDIR / $GHI) * 100, 0) : $GDIRPRZ = 0; // in Prozent
-                            $IAM = 1 - 0.05 * (1 / cos($AOI) - 1); //  Reflexionsverlust der Einstrahlung
-                            $SAGD = round(rad2deg($SA), 0); // SA in Grad
-                            $DIFFSAMA = $winkel - $SAGD;           // Differenz von SA - SA
-                            $CSZ = sin($SZ);
+                        ($GDIR > 1) ? $GDIRPRZ = round(($GDIR / $GHI) * 100, 0) : $GDIRPRZ = 0; // in Prozent
+                        $IAM = 1 - 0.05 * (1 / cos($AOI) - 1);   //  Reflexionsverlust der Einstrahlung
+                        $SAGD = round(rad2deg($SA), 0); // SA in Grad
+                        $DIFFSAMA = $winkel - $SAGD;             // Differenz von SA - SA
+                        $CSZ = sin($SZ);
 
-                        if ($DNI2 > $GHI) {
-                            $DNI = $GDIR / $CSZ;
-                           } else {
-                            $DNI =  $GDIR / $CSZ;
-                        }
+                        $DNI = $GDIR / $CSZ;
 
                         $DIRpoa = $DNI * cos($AOI) * $IAM;     // Direktstrahlung auf der Modulebene --
                         $DIFpoa = $DHI * ((1 + cos(deg2rad($input_mn))) / 2) + $GHI2 * (0.012 * $SZ - 0.04) * ((1 - cos(deg2rad($input_mn))) / 2); // Diffusstrahlung in Modulebene
@@ -131,6 +153,11 @@ class DayAheadForecastDEKService {
                         $RGES33 = round($DIRpoa + $DIFpoa + $REFpoa, 3);
 
                         if ($DIFpoa > 0) {
+
+                            // Tracker
+                            $TR_RGES = round($TR_DIRpoa + $TR_DIFpoa + $TR_REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour
+                            $TR_BACPOA = round(($TR_DIFpoa * $input_ab / $TR_DIFpoa) * $BF, 3); // Die Rueckseitenstrahlung in W/m2 per Hour
+                            $TR_RGESBIF = round($TR_DIRpoa + $TR_DIFpoa + $TR_REFpoa + $TR_BACPOA, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour für Bifacial Module
 
                             switch ($winkel) {
                                 case 180:
@@ -180,8 +207,36 @@ class DayAheadForecastDEKService {
                        }
 
                     }
-                    $valueofdayandhour[$gendoy][$h][$m] = ['DOY' => $gendoy, 'HR' => $h, 'MIN' => $m, 'TIP' => $instep, 'TS' => $ts, 'TMP' => $TMP, 'FF' => $FF, 'GDIR' => $GDIR, 'RVF' => ['SUED' => $faktorRVSued, 'OST' => $faktorRVOst, 'WEST' => $faktorRVWest], "SUED" => ['RGES' => $RGES, 'RGESBIF' => $RGESBIF], "OSTWEST" => ['RGES_UPPER' => $RGES_UPPER, 'RGES_LOWER' => $RGES_LOWER, 'RGESBIF_UPPER' => $RGESBIF_UPPER, 'RGESBIF_LOWER' => $RGESBIF_LOWER]];
-                    $RGES_LOWER = $RGES_UPPER = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGESBIF = $RGES = 0;
+
+                    $valueofdayandhour[$gendoy][$h][$m] =
+                        [
+                            'DOY' => $gendoy,
+                            'HR' => $h,
+                            'MIN' => $m,
+                            'TIP' => $instep,
+                            'TS' => $ts,
+                            'TMP' => $TMP,
+                            'FF' => $FF,
+                            'GDIR' => $GDIR,
+                            'RVF' => [
+                                'SUED' => $faktorRVSued,
+                                'OST' => $faktorRVOst,
+                                'WEST' => $faktorRVWest,
+                                'TRACKEROW' => $faktorRVTR],
+                            "SUED" => [
+                                'RGES' => $RGES,
+                                'RGESBIF' => $RGESBIF],
+                            "OSTWEST" => [
+                                'RGES_UPPER' => $RGES_UPPER,
+                                'RGES_LOWER' => $RGES_LOWER,
+                                'RGESBIF_UPPER' => $RGESBIF_UPPER,
+                                'RGESBIF_LOWER' => $RGESBIF_LOWER],
+                            "TRACKEROW" => [
+                            'RGES' => $TR_RGES,
+                            'RGESBIF' => $TR_RGESBIF],
+                        ];
+
+                    $RGES_LOWER = $RGES_UPPER = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGESBIF = $RGES = $TR_RGES = $TR_RGESBIF = 0;
                 }
 
             }
@@ -197,7 +252,7 @@ class DayAheadForecastDEKService {
         } else {
             return false;
         }
-    // End funktion get_DEK_Data()
+      // End funktion get_DEK_Data()
     }
 
 }

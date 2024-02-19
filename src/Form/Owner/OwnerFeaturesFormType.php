@@ -38,7 +38,7 @@ class OwnerFeaturesFormType extends AbstractType
                 'label'     => 'Split by Time',
                 'help'      => '[SplitGap]<br>Ticket feature - Split ticket by time'
             ])
-            ->add('ManAktive', SwitchType::class, [
+            ->add('manAktive', SwitchType::class, [
                 'label'     => 'Aktivate Maintenance Contact',
                 'help'      => '[ManAktive]<br>Aktivate the maintenance contact function [on/off] ',
             ])

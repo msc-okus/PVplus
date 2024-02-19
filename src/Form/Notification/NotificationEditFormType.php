@@ -36,16 +36,17 @@ class NotificationEditFormType extends AbstractType
             'choices'   => $answers
 
         ])
-            ->add('freeText', TextareaType::class,[
-                'label' => 'Free Text',
-                'required'   => false,
-                'empty_data' => '',
-                'attr' => ['rows' => '9'],
-            ])
-            ->add("answer", SubmitType::class,[
-                'label' => 'Send your answer',
-                'attr' => ['class' => 'primary save'],
-            ]);
+        ->add('freeText', TextareaType::class,[
+            'label' => 'Your message',
+            'required'   => false,
+            'empty_data' => '',
+            'attr' => ['rows' => '9'],
+        ])
+        ->add("answer", SubmitType::class,[
+            'label' => 'Send your answer <i class="fa fa-paper-plane"></i>',
+            'label_html' => true,
+            'attr' => ['class' => 'primary save'],
+        ]);
 
     }
 }

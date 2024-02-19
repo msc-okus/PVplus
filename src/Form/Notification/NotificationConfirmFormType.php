@@ -36,16 +36,17 @@ class NotificationConfirmFormType extends AbstractType
             'choices'   => $answers
 
         ])
-            ->add('freeText', TextareaType::class,[
-                'label' => 'Close Message',
-                'empty_data' => '',
-                'attr' => ['rows' => '9'],
-                'required'   => false,
-            ])
-            ->add("answer", SubmitType::class,[
-                'label' => 'Send your answer',
-                'attr' => ['class' => 'primary save'],
-            ]);
+        ->add('freeText', TextareaType::class,[
+            'label' => 'Close Message',
+            'empty_data' => '',
+            'attr' => ['rows' => '9'],
+            'required'   => false,
+        ])
+        ->add("answer", SubmitType::class,[
+            'label' => 'Send your answer <i class="fa fa-paper-plane"></i>',
+            'label_html' => true,
+            'attr' => ['class' => 'primary save'],
+        ]);
 
     }
 }
