@@ -662,7 +662,20 @@ class AnlagenAdminController extends BaseController
                               PRIMARY KEY (`db_id`) USING BTREE,
                               UNIQUE KEY `unique_stamp_sensor` (`stamp`,`id_sensor`) USING BTREE,
                               KEY `stamp` (`stamp`) USING BTREE
-                            ) ENGINE=InnoDB AUTO_INCREMENT=43021 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=DYNAMIC;";
+                            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=DYNAMIC;";
+
+    $databaseDivisonStringTable = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNameDivisionsStringTable()." (
+                                  `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
+                                  `anl_id` int(11) NOT NULL,
+                                  `stamp` timestamp NOT NULL DEFAULT current_timestamp(),
+                                  `wr_group` int(11) NOT NULL,
+                                  `group_ac` int(11) NOT NULL,
+                                  `wr_num` int(11) NOT NULL,
+                                  `channel` varchar(20) NOT NULL,
+                                  `I_value` varchar(20) DEFAULT NULL,
+                                  `U_value` varchar(20) DEFAULT NULL,
+                                  PRIMARY KEY (`db_id`)
+                                ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
         $databaseSections = "CREATE TABLE IF NOT EXISTS `pvp_data`.`db__pv_section_".$anlage->getAnlIntnr()."BX107` (
                               `id` BIGINT(11) NOT NULL AUTO_INCREMENT,
@@ -681,6 +694,8 @@ class AnlagenAdminController extends BaseController
                             ";
 
         $conn = $this->pdoService->getPdoPlant();
+
+
         $conn->exec($databaseAcIst);
         $conn->exec($databaseDcIst);
         // $conn->exec($databaseAcSoll);
@@ -690,6 +705,12 @@ class AnlagenAdminController extends BaseController
         $conn->exec($databaseDcSoll);
         $conn->exec($databasePPC);
         $conn->exec($databaseSensorData);
+
+        //for Divison Tables
+        unset($conn);
+        $conn = $this->pdoService->getPdoStringBoxes();
+        $conn->exec($databaseDivisonStringTable);
+
         if (false) $conn->exec($databaseSections);
         $conn = null;
 
