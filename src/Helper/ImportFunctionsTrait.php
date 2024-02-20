@@ -454,7 +454,7 @@ trait ImportFunctionsTrait
 
     }
 
-    //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu um sie dann in pv_sensors_data_... zu speichern
+    //Ordnet die Werte aus der V-Com-Response den Sensoren zu um sie dann in pv_sensors_data_... zu speichern(aktuell auch noch in die alten ws Tabellen)
 
     /**
      * @param array $anlageSensors
@@ -465,7 +465,7 @@ trait ImportFunctionsTrait
      * @param $gMo
      * @return array
      */
-    function getSensorsDataFromVcom(array $anlageSensors, int $length, array $sensors, array $basics, $stamp, $date, string $gMo): array
+    function getSensorsDataFromVcomResponse(array $anlageSensors, int $length, array $sensors, array $basics, $stamp, $date, string $gMo): array
     {
         $gmx = 0;
         for ($i = 0; $i < $length; $i++) {
@@ -507,7 +507,6 @@ trait ImportFunctionsTrait
         $result[] = $data_sensors;
         return $result;
     }
-
 
     //Prüft welche Anlagen für den Import via Symfony freigeschaltet sind
     /**
@@ -678,7 +677,6 @@ trait ImportFunctionsTrait
     }
 
     //importiert die Daten für Anlegen ohne Stringboxes
-
     /**
      * @param array $inverters
      * @param string $date
@@ -802,8 +800,7 @@ trait ImportFunctionsTrait
         return $result;
     }
 
-    //importiert die Daten für Anlegen ohne Stringboxes
-
+    //importiert die Daten für PPC
     /**
      * @param $anlagePpcs
      * @param array $ppcs
