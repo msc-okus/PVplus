@@ -483,9 +483,19 @@ trait ImportFunctionsTrait
                 $sensorId = $anlageSensors[$i]->getId();
                 if($anlageSensors[$i]->getName() != 'G_MX'){
                     if($anlageSensors[$i]->getIsFromBasics() == 1){
-                        $value = max($basics[$date][$anlageSensors[$i]->getNameShort()], 0);
+                        $sensortype = $anlageSensors[$i]->getType();
+                        if($sensortype == 'temperature'){
+                            $value = $basics[$date][$anlageSensors[$i]->getNameShort()];
+                        }else{
+                            $value = max($basics[$date][$anlageSensors[$i]->getNameShort()], 0);
+                        }
                     }else{
-                        $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                        $sensortype = $anlageSensors[$i]->getType();
+                        if($sensortype == 'temperature'){
+                            $value = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
+                        }else{
+                            $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                        }
                     }
                 }else{
                     $value = $basics[$date]['G_M'.$gmx];
