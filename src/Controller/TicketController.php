@@ -1042,18 +1042,20 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/list/getinverterarray/{id}', name: 'app_tlist_get_inverter_array')]
-    public function getInverterArray($id, AnlagenRepository $anlRepo):array
+    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo):array
     {
-        $anlage = $anlRepo->findOneBy(['id' => $id]);
+
+        $anlage = $anlRepo->findOneBy(['anlId' => $id]);
         $trafoArray = [];
         $inverterArray = [];
         if ($anlage != null){
-            $trafoArray = $this->getTrafoArray();
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
             $nameArray = $anlage->getInverterFromAnlage();
             foreach ($nameArray as $key => $value){
                 $inverterArray[$key]["inv"] = $value;
             }
         }
+
         return [
             'trafoArray'    => $trafoArray,
             'inverterArray' => $inverterArray,

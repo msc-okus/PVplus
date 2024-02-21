@@ -120,8 +120,11 @@ export default class extends Controller {
             $(this).css('display', 'none');
         });
     }
-    selectAnlage(){
-        console.log($(this.anlageselectTarget).value);
-
+    async selectAnlage(){
+        let id= $(this.anlageselectTarget).val();
+        var response = await $.ajax({
+            url: '/list/getinverterarray/' + id,
+        });
+        console.log(response);
     }
 }
