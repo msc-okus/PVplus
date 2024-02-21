@@ -149,8 +149,8 @@ class AnlageFormType extends AbstractType
                 'required' => false,
             ])
             ->add('customPlantId', TextType::class, [
-                'label' => 'Identifier to select Plant via API (e.g. VCOM)',
-                'help' => '[customPlantId]',
+                'label' => 'Identifier/s to select Plant via API (e.g. VCOM can be more then one seperatet with ,)',
+                'help' => '[customPlantId/s you can add one or more VCOM-Ids like ABC2X,CDE3F]',
                 'empty_data' => '',
                 'required' => false,
                 'disabled' => !$isG4NUser,

@@ -64,7 +64,7 @@
                                     }) }}
                                     ><a href=""><i class="far fa-clock"></i>&nbsp;<span id="uhr" data-servertime-target="content" ></span></a></li>
                                     {% if is_granted('IS_IMPERSONATOR') %}
-                                        <li><a class="dropdown-item" href="{{ path('app_dashboard', {'_switch_user': '_exit'}) }}"><i class="fas fa-random"></i> Exit Impersonation </a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_admin_user_list', {'_switch_user': '_exit'}) }}"><i class="fas fa-random"></i> Exit Impersonation </a></li>
                                     {% else %}
                                         <li><a href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt"></i> Logout </a></li>
                                     {% endif %}

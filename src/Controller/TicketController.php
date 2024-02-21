@@ -8,7 +8,6 @@ use App\Entity\Ticket;
 use App\Entity\ticketDate;
 use App\Form\Notification\NotificationConfirmFormType;
 use App\Form\Notification\NotificationEditFormType;
-use App\Form\Owner\NotificationFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AcGroupsRepository;
@@ -436,12 +435,12 @@ class TicketController extends BaseController
     {
         $ticket = $ticketRepo->findOneById($id);
         $notifications = $ticket->getNotificationInfos();
+        $actualNotification = "";
         $timeDiff = null;
         if (!$notifications->isEmpty()){
             $actualNotification = $notifications->last();
             $actualTime = new DateTime();
             $timeDiff = $actualNotification->getDate()->diff($actualTime)->format("%d days %h hours");
-
         }
         $eigner = $ticket->getAnlage()->getEigner();
         $form = $this->createForm(\App\Form\Notification\NotificationFormType::class, null, ['eigner' => $eigner]);
@@ -449,7 +448,7 @@ class TicketController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             $ticket->setNotified(true);
             $contact = $contactRepo->findBy(["id" => $form->getData()['contacted']])[0];
-            $key = uniqid($ticket->getId);
+            $key = uniqid($ticket->getId());
             $notification = new NotificationInfo();
             $notification->setTicket($ticket);
             $notification->setStatus(10);
@@ -496,7 +495,6 @@ class TicketController extends BaseController
         ]);
     }
 
-
     /**
      * Split Tickets by Time
      *
@@ -505,6 +503,7 @@ class TicketController extends BaseController
      * @param TicketRepository $ticketRepo
      * @param Request $request
      * @param EntityManagerInterface $em
+     * @param AcGroupsRepository $acRepo
      * @return Response
      * @throws InvalidArgumentException
      */
@@ -583,6 +582,7 @@ class TicketController extends BaseController
      * @param TicketDateRepository $ticketDateRepo
      * @param Request $request
      * @param EntityManagerInterface $em
+     * @param AcGroupsRepository $acRepo
      * @return Response
      * @throws InvalidArgumentException
      */
@@ -660,7 +660,18 @@ class TicketController extends BaseController
         ]);
     }
 
-
+    /**
+     * Delete hole Ticket
+     *
+     * @param $id
+     * @param TicketRepository $ticketRepo
+     * @param PaginatorInterface $paginator
+     * @param Request $request
+     * @param AnlagenRepository $anlagenRepo
+     * @param EntityManagerInterface $em
+     * @param RequestStack $requestStack
+     * @return Response
+     */
     #[Route(path: '/ticket/deleteTicket/{id}', name: 'app_ticket_deleteticket')]
     public function deleteTicket($id, TicketRepository $ticketRepo,  PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $em, RequestStack $requestStack): Response
     {
@@ -779,6 +790,16 @@ class TicketController extends BaseController
     }
 
     /**
+     * Delete Intervall
+     *
+     * @param $id
+     * @param TicketRepository $ticketRepo
+     * @param TicketDateRepository $ticketDateRepo
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @param FunctionsService $functions
+     * @param AcGroupsRepository $acRepo
+     * @return Response
      * @throws InvalidArgumentException
      */
     #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
@@ -917,6 +938,17 @@ class TicketController extends BaseController
             'answered' => false,
         ]);
     }
+
+    /**
+     * @param $id
+     * @param TicketRepository $ticketRepo
+     * @param Request $request
+     * @param PiiCryptoService $encryptService
+     * @param MessageService $messageService
+     * @param EntityManagerInterface $em
+     * @param AcGroupsRepository $acRepo
+     * @return Response
+     */
     #[Route(path: '/notification/edit/{id}', name: 'app_ticket_notification_edit')]
     public function changeNotificationStatus($id, TicketRepository $ticketRepo, Request $request, PiiCryptoService $encryptService, MessageService $messageService, EntityManagerInterface $em, AcGroupsRepository $acRepo) :Response{
         $ticketId = $encryptService->unHashData($id);
@@ -972,7 +1004,12 @@ class TicketController extends BaseController
 
     }
 
-
+    /**
+     * @param TicketRepository $ticketRepo
+     * @param EntityManagerInterface $em
+     * @return Response
+     * @throws \JsonException
+     */
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods: ['GET', 'POST'])]
     public function join(TicketRepository $ticketRepo, EntityManagerInterface $em): Response
     {
@@ -1014,7 +1051,41 @@ class TicketController extends BaseController
         ]);
     }
 
-    public function findNextDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
+    /**
+     * @param $id
+     * @param TicketRepository $ticketRepo
+     * @return Response
+     */
+    #[Route(path: '/notification/timeline/{id}', name: 'app_ticket_notification_timeline')]
+    public function getTimeline($id, TicketRepository $ticketRepo): Response
+    {
+        $ticket = $ticketRepo->findOneBy(['id' => $id]);
+        $notifications = $ticket->getNotificationInfos();
+        if (!$notifications->isEmpty()){
+            $beginDate = $notifications->first()->getDate();
+            if ($ticket->getStatus() == 90){
+                $endTime = $ticket->getWhenClosed();
+            }
+            else{
+                $endTime = new DateTime('now');
+            }
+            $timeDiff = $beginDate->diff($endTime)->format("%d days %h hours %i minutes");
+        }
+
+        return $this->render('/ticket/_inc/_timeline.html.twig', [
+            'ticket' => $ticket,
+            'notifications' => $notifications,
+            'timeElapsed' => $timeDiff,
+        ]);
+    }
+
+    /**
+     * @param $stamp
+     * @param $ticket
+     * @param $ticketDateRepo
+     * @return TicketDate|null
+     */
+    private function findNextDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
     {
         $ticketDate = null; // = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
 
@@ -1028,6 +1099,13 @@ class TicketController extends BaseController
         return $ticketDate;
     }
 
+
+    /**
+     * @param $stamp
+     * @param $ticket
+     * @param $ticketDateRepo
+     * @return TicketDate|null
+     */
     private function findPreviousDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
     {
         $ticketDate = null; //$ticketDateRepo->findOneByEndTicket($stamp, $ticket); we cannot do this because if there is a gap between the intervals we will not be able to find the next interval to link with
@@ -1102,5 +1180,6 @@ class TicketController extends BaseController
         }
         return $trafoArray;
     }
+
 
 }

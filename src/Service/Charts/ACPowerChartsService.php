@@ -636,13 +636,13 @@ class ACPowerChartsService
             $hourSql1 = " a.stamp, ";
             $hourSql2 = " GROUP BY date_format(a.stamp, '$form') ";
         }
-        $sql = 'SELECT 
+        $sql = "SELECT 
                    $hourSql1
                     sum(b.i_ac) as iac_sum, 
                     sum(b.i_ac_p1) as i_ac_p1, 
                     sum(b.i_ac_p2) as i_ac_p2,  
                     sum(b.i_ac_p3) as i_ac_p3 
-                FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE $groupSource = '$group') b ON a.stamp = b.stamp) 
+                FROM (db_dummysoll a left JOIN (SELECT * FROM ".$anlage->getDbNameAcIst()." WHERE $groupSource = '$group') b ON a.stamp = b.stamp) 
                 WHERE a.stamp > '$from' AND a.stamp <= '$to' 
                 $hourSql2";
 
