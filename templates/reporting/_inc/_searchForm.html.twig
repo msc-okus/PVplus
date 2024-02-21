@@ -109,8 +109,11 @@
                 </div>
             </div>
             <div class="cell medium-12">
-                Run Import in the foreground:
-                <input type="checkbox" name="rpif">
+                {% if is_granted('ROLE_G4N') %}
+                    <label style="display: inline-block;">Run in foreground:
+                        <input type="checkbox" name="rpif" {% if is_granted('ROLE_DEV') %}checked{% endif %}>
+                    </label>
+                {% endif %}
                 <span data-tooltip tabindex="1" title="Create New Report">
                     <button name="new-report" title="Create Report" class="button action-icon tiny hollow shadow" value="yes" disabled data-report-target="deactivable"  data-action="report#create">
                         <span class="fa fa-plus"></span>
