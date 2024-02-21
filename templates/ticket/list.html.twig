@@ -14,6 +14,7 @@
     <div {{ stimulus_controller('ticket-list', {
                 urlCreate: path('app_ticket_create'),
                 urlSearch: path('app_ticket_list', { ajax: 1 }),
+
             }) }}
             id="list"
             data-ticket-list-target="ticketForm"

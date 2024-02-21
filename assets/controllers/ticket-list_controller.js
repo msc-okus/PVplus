@@ -4,7 +4,7 @@ import {Reveal} from "foundation-sites";
 import {useDispatch} from "stimulus-use";
 
 export default class extends Controller {
-    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd', 'sort', 'direction', 'proofam', 'proofepc', 'prooftam', 'proofg4n', 'ignored', 'proofmaintenance'];
+    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd', 'sort', 'direction', 'proofam', 'proofepc', 'prooftam', 'proofg4n', 'ignored', 'proofmaintenance', 'selectInverterButton', 'selectedInverter', 'anlageselect'];
     static values = {
         urlCreate: String,
         urlSearch: String,
@@ -119,5 +119,9 @@ export default class extends Controller {
         $("[id*='tooltip']").each(function() {
             $(this).css('display', 'none');
         });
+    }
+    selectAnlage(){
+        console.log($(this.anlageselectTarget).value);
+
     }
 }

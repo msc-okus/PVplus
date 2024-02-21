@@ -12,9 +12,11 @@
             <div class="cell medium-2"  style="margin-top:-17px!important;">
                 <input type="date" name="end" class="input-group-field" value="{{ end }}" title="Interval End">
             </div>
-            <div class="cell medium-2" style="margin-top:-17px!important;">
-
-                <select name="anlage" class="no-margin">
+            <div class="cell medium-1" style="margin-top:-17px!important;">
+                <select name="anlage" class="no-margin"
+                    data-action="change->ticket-list#selectAnlage"
+                        data-ticket-list-target="anlageselect"
+                >
                     <option value="" disabled selected hidden>Please choose a Plant</option>
                     <option value="" {% if filter.anlagen.value == '' %} selected {% endif %} >Select a Plant</option>
                     {% for anlage in filter.anlagen.array %}
@@ -22,7 +24,21 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="cell medium-2" style="margin-top:-17px!important;">
+            {#
+            <div class="cell medium-1" style="margin-top:-17px!important;">
+                <input readonly type="text" name="inverter" class="input-group-field"
+                       data-ticket-list-target="selectedInverter"value="{{ inverter }}"
+                       placeholder="Inverter">
+            </div>
+            <div class="cell medium-1" style="margin-top:-17px!important;">
+                <button
+                        class="button small no-margin hollow expanded"
+                        type="button"
+                        data-ticket-list-target="selectInverterButton"> Select Inverters
+                </button>
+            </div>
+            #}
+            <div class="cell medium-1" style="margin-top:-17px!important;">
                 <select name="status" class="no-margin">
                     <option value="00"> {% trans %}ticket.status.name{% endtrans %} </option>
                     {% for key, value in filter.status.array %}
@@ -67,9 +83,7 @@
                 </select>
             </div>
 
-            <div class="cell medium-1" style="margin-top:-17px!important;">
-                <input type="text" name="inverter" class="input-group-field" {% if ( is_granted('ROLE_G4N') == false) %} style="display:none;" {% endif %}value="{{ inverter }}" placeholder="Inverter">
-            </div>
+
 
             <div class="cell medium-1 notifyclass">
                 <div class="notifyheader">
