@@ -1137,29 +1137,8 @@ class TicketController extends BaseController
             'inverterArray' => $inverterArray,
         ];
     }
-    #[Route(path: '/notification/timeline/{id}', name: 'app_ticket_notification_timeline')]
-    public function getTimeline($id, TicketRepository $ticketRepo):Response
-    {
-        $ticket = $ticketRepo->findOneBy(['id' => $id]);
-        $notifications = $ticket->getNotificationInfos();
-        if (!$notifications->isEmpty()){
-            $beginDate = $notifications->first()->getDate();
-            if ($ticket->getStatus() == 90){
-                $endTime = $ticket->getWhenClosed();
-            }
-            else{
-                $endTime = new DateTime('now');
-            }
-            $timeDiff = $beginDate->diff($endTime)->format("%d days %h hours %i minutes");
-        }
 
-        return $this->render('/ticket/_inc/_timeline.html.twig', [
-            'ticket' => $ticket,
-            'notifications' => $notifications,
-            'timeElapsed' => $timeDiff,
-        ]);
-    }
-    private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo) :Array{
+    private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo): array{
         $totalTrafoGroups = $acRepo->getAllTrafoNr($anlage);
         $trafoArray = [];
         foreach ($totalTrafoGroups as $trafoGroup) {
@@ -1176,6 +1155,7 @@ class TicketController extends BaseController
                 }
             }
         }
+
         return $trafoArray;
     }
 
