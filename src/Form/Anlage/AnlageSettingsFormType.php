@@ -230,35 +230,36 @@ class AnlageSettingsFormType extends AbstractType
             ###### Import ######
             ->add('symfonyImport', SwitchType::class, [
                 'label'     => 'Import Data with Symphony',
-                'help'      => '[Import Data with Symphony]'
+                'help'      => 'Enable Import Data with Symphony without the old php skript files'
             ])
 
             ->add('useSensorsData', SwitchType::class, [
                 'label'     => 'Import Sensors Data into new Table',
-                'help'      => '[Import Sensors Data into new Table]'
+                'help'      => 'Import Sensors Data into new Table like db__pv_sensors_data_CX...'
             ])
 
             ->add('sensorsInBasics', SwitchType::class, [
                 'label'     => 'This plant have sensors in VCOM/Basics',
-                'help'      => '[sensorsInBasics]<br>This plant have sensors in Vcom/Basics'
+                'help'      => 'This plant have sensors in Vcom/Basics'
             ])
 
             ->add('importType', ChoiceType::class, [
                 'choices'       => self::importTypes(),
                 'placeholder'   => 'please Select',
                 'required'      => false,
+                'help'      => 'Chose the plant have Stringboxes or inverters only'
             ])
 
             ->add('stringboxesUnits', IntegerType::class, [
                 'label' => 'Stringboxes Units',
-                'help' => '[stringboxesUnits]<br>Stringboxes Units (für die Anzahl Schleifen beim Import)',
+                'help' => 'How many Units have a stringbox? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
             ])
 
             ->add('invertersUnits', IntegerType::class, [
                 'label' => 'Inverters Units',
-                'help' => '[invertersUnits]<br>Inverters Units(für die Anzahl Schleifen beim Import)',
+                'help' => 'How many Units have a inverter? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
             ])

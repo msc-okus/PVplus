@@ -10,26 +10,24 @@
                 {% endfor %}
             </select>
         </div>
-        {% if is_granted('ROLE_G4N') or is_granted('ROLE_BETA') %}
-            <div class="cell medium-2">
-                <label for="start-day">Start Day</label>
-                <select id="start-day" name="start-day">
-                    <option value="" disabled selected hidden>Please choose a Start Day</option>
-                    {% for start in 1..31 %}
-                        <option value="{{ start }}" {% if app.request.request.get('start-day') == start %} selected {% endif %}>{{ start }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="cell medium-2">
-                <label for="end-day">End Day</label>
-                <select id="end-day" name="end-day">
-                    <option value="" disabled selected hidden>Please choose a End Day</option>
-                    {% for end in 1..31 %}
-                        <option value="{{ end }}" {% if app.request.request.get('end-day') == end %} selected {% endif %}>{{ end }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        {% endif %}
+        <div class="cell medium-2">
+            <label for="start-day">Start Day</label>
+            <select id="start-day" name="start-day">
+                <option value="" disabled selected hidden>Please choose a Start Day</option>
+                {% for start in 1..31 %}
+                    <option value="{{ start }}" {% if app.request.request.get('start-day') == start %} selected {% endif %}>{{ start }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="cell medium-2">
+            <label for="end-day">End Day</label>
+            <select id="end-day" name="end-day">
+                <option value="" disabled selected hidden>Please choose a End Day</option>
+                {% for end in 1..31 %}
+                    <option value="{{ end }}" {% if app.request.request.get('end-day') == end %} selected {% endif %}>{{ end }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="cell medium-2">
             <label for="month">Month</label>
             <select id="month" name="month">
