@@ -75,7 +75,8 @@
                                                 </div>
                                                 <hr>
                                                 <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
-                                                    {% for trafo in trafoArray %}
+                                                    {% for key in trafoArray|keys %}
+                                                        {% set trafo = trafoArray[key] %}
                                                         <div class="cell small-form">
                                                             <input id="trafo{{ loop.index }}"
                                                                     {%  if (ticket.inverterName == '*' ) %} checked {% endif %}
@@ -84,7 +85,7 @@
                                                                    data-ticket-edit-last-param="{{ trafo.last }}"
                                                                    data-ticket-edit-trafo-param="{{ loop.index }}"
                                                                    data-action="click->ticket-edit#checkTrafo" type="checkbox">
-                                                            <label for="trafo{{ loop.index }}">TS {{ loop.index }}</label>
+                                                            <label for="trafo{{ loop.index }}">TS {{ key }}</label>
                                                         </div>
                                                     {% endfor %}
                                                 </div>

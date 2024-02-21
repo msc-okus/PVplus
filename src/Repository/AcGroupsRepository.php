@@ -19,7 +19,7 @@ class AcGroupsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AnlageAcGroups::class);
     }
-    public function findByAnlageTrafoNr(Anlage $anlage, int $trafoNr){
+    public function findByAnlageTrafoNr(Anlage $anlage,  $trafoNr){
         $result = $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anl')
             ->andWhere('a.trafoNr = :trafoNr')
@@ -30,7 +30,9 @@ class AcGroupsRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
-    public function countTrafoGroups(Anlage $anlage){
+
+
+    public function getAllTrafoNr(Anlage $anlage){
         $result = $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anl')
             ->setParameter('anl', $anlage)
@@ -39,4 +41,5 @@ class AcGroupsRepository extends ServiceEntityRepository
 
         return $result->getResult();
     }
+
 }

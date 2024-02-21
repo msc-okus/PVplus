@@ -66,6 +66,7 @@ class GenerateTicketsCommand extends Command
             }
 
             foreach ($anlagen as $anlage) {
+
                 try {
                     $tickets = $this->ticketRepo->findForSafeDelete($anlage, $optionFrom, $optionTo);
                     foreach ($tickets as $ticket) {
@@ -76,6 +77,7 @@ class GenerateTicketsCommand extends Command
                         $this->em->remove($ticket);
                     }
                     $this->em->flush();
+
                     $time = time();
                     $time = $time - ($time % 900);
                     if ($optionFrom) {
@@ -101,6 +103,7 @@ class GenerateTicketsCommand extends Command
                     }
 
                     for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+                        dump(date('Y-m-d H:i:00', $stamp));
                         $this->alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
                         if ($counter % 4 == 0) {
                             $io->progressAdvance();
@@ -108,10 +111,12 @@ class GenerateTicketsCommand extends Command
                         --$counter;
                     }
                     $io->comment($anlage->getAnlName());
+
                     }catch(Exception $e){
 
 
                     }
+
                 }
 
             $io->progressFinish();

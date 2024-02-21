@@ -2,10 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\AnlageAcGroups;
+use App\Entity\Anlage;
 use App\Entity\NotificationInfo;
 use App\Entity\Ticket;
-use App\Entity\TicketDate;
+use App\Entity\ticketDate;
 use App\Form\Notification\NotificationConfirmFormType;
 use App\Form\Notification\NotificationEditFormType;
 use App\Form\Owner\NotificationFormType;
@@ -19,8 +19,8 @@ use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
 use App\Service\MessageService;
 use App\Service\PiiCryptoService;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use DoctrineExtensions\Query\Mysql\Date;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,7 +29,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use DateTime;
 
 class TicketController extends BaseController
 {
@@ -50,21 +49,7 @@ class TicketController extends BaseController
             $anlage = null;
         }
         if ($anlage != null) {
-            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
-            $trafoArray = [];
-            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
-                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
-                if ($acGroup != []) {
-                    if ($anlage->getConfigType() == 3){
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                    }
-                    else {
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
-                    }
-                }
-            }
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
 
         if ($anlage) {
@@ -143,21 +128,8 @@ class TicketController extends BaseController
 
         $sensorArray = [];
         $ticketDates = $ticket->getDates();
-        $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
-        $trafoArray = [];
-
-        for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++){
-            $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
-            if ($acGroup != []) {
-                if ($anlage->getConfigType() == 3){
-                    $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
-                    $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                }
-                else {
-                    $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
-                    $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
-                }
-            }
+        if ($anlage != null) {
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
@@ -549,21 +521,7 @@ class TicketController extends BaseController
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
         if ($anlage != null) {
-            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
-            $trafoArray = [];
-            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
-                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
-                if ($acGroup != []) {
-                    if ($anlage->getConfigType() == 3){
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                    }
-                    else {
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
-                    }
-                }
-            }
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
         $indexSelect = 0;
 
@@ -634,21 +592,7 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->findOneById($request->query->get('id'));
         $anlage = $ticket->getAnlage();
         if ($anlage != null) {
-            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
-            $trafoArray = [];
-            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
-                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
-                if ($acGroup != []) {
-                    if ($anlage->getConfigType() == 3){
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                    }
-                    else {
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
-                    }
-                }
-            }
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
 
         $newTicket = new Ticket();
@@ -846,21 +790,7 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
         $anlage = $ticket->getAnlage();
         if ($anlage != null) {
-            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
-            $trafoArray = [];
-            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
-                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
-                if ($acGroup != []) {
-                    if ($anlage->getConfigType() == 3){
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                    }
-                    else {
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
-                    }
-                }
-            }
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
         if ($ticket) {
             switch ($option) {
@@ -1080,7 +1010,7 @@ class TicketController extends BaseController
         }
 
         return $this->render('/ticket/join.html.twig', [
-            'text' => 'estamos aqui',
+            'text' => 'text',
         ]);
     }
 
@@ -1098,7 +1028,7 @@ class TicketController extends BaseController
         return $ticketDate;
     }
 
-    public function findPreviousDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
+    private function findPreviousDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
     {
         $ticketDate = null; //$ticketDateRepo->findOneByEndTicket($stamp, $ticket); we cannot do this because if there is a gap between the intervals we will not be able to find the next interval to link with
         $found = false;
@@ -1110,8 +1040,27 @@ class TicketController extends BaseController
 
         return $ticketDate;
     }
+
+    #[Route(path: '/list/getinverterarray/{id}', name: 'app_tlist_get_inverter_array')]
+    public function getInverterArray($id, AnlagenRepository $anlRepo):array
+    {
+        $anlage = $anlRepo->findOneBy(['id' => $id]);
+        $trafoArray = [];
+        $inverterArray = [];
+        if ($anlage != null){
+            $trafoArray = $this->getTrafoArray();
+            $nameArray = $anlage->getInverterFromAnlage();
+            foreach ($nameArray as $key => $value){
+                $inverterArray[$key]["inv"] = $value;
+            }
+        }
+        return [
+            'trafoArray'    => $trafoArray,
+            'inverterArray' => $inverterArray,
+        ];
+    }
     #[Route(path: '/notification/timeline/{id}', name: 'app_ticket_notification_timeline')]
-    public function getTimeline($id, TicketRepository $ticketRepo)
+    public function getTimeline($id, TicketRepository $ticketRepo):Response
     {
         $ticket = $ticketRepo->findOneBy(['id' => $id]);
         $notifications = $ticket->getNotificationInfos();
@@ -1131,6 +1080,25 @@ class TicketController extends BaseController
             'notifications' => $notifications,
             'timeElapsed' => $timeDiff,
         ]);
+    }
+    private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo) :Array{
+        $totalTrafoGroups = $acRepo->getAllTrafoNr($anlage);
+        $trafoArray = [];
+        foreach ($totalTrafoGroups as $trafoGroup) {
+            $trafoGroupNr = $trafoGroup->getTrafoNr();
+            $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroupNr);
+            if ($acGroup != []) {
+                if ($anlage->getConfigType() == 3){
+                    $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getAcGroup();
+                    $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
+                }
+                else {
+                    $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getUnitFirst();
+                    $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+                }
+            }
+        }
+        return $trafoArray;
     }
 
 }
