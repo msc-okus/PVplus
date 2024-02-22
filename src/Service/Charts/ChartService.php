@@ -527,6 +527,7 @@ class ChartService
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
                     $resultArray['SeriesNameArray'] = json_encode($dataArray['SeriesNameArray']);
                     break;
+                    //xxxxx
                 case 'dcpnomcurr':
                     $dataArray = $this->currentChart->getNomCurrentGroupDC($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);

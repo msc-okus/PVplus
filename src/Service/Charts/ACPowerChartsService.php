@@ -835,6 +835,7 @@ class ACPowerChartsService
      * Pnom AC Seite
      * @throws InvalidArgumentException
      */
+    ///yyyy
     public function getNomPowerGroupAC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array {
         ini_set('memory_limit', '3G');
         set_time_limit(500);

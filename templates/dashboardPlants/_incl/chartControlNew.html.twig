@@ -417,6 +417,34 @@
                     </div>
                 </div>
                 <div id="slider-range"></div>
+        <div id="modal-form409676" data-controller="ticket-edit" data-ticket-edit-form-url-value="/ticket/edit/409676" data-ticket-edit-split-url-value="/ticket/split/409676" data-ticket-edit-notify-url-value="/ticket/notify/409676" data-ticket-edit-create-contact-url-value="/ticket/contact/create/409676" data-ticket-edit-timeline-url-value="/notification/timeline/409676">
+
+            <button title="Edit Ticket [409676]" class="button action-icon tiny hollow shadow" data-action="ticket-edit#openModal" data-append-to="div#modal-form409676">
+                <span class="fa fa-edit"></span>
+            </button>
+
+
+            <div class="reveal-overlay">
+                <div class="reveal text-left large" id="modal409676" data-multiple-opened="true" data-v-offset="10" data-ticket-edit-target="modal" data-reveal="er5rp1-reveal" data-close-on-click="false" data-append-to="div#modal-form409676" xmlns="http://www.w3.org/1999/html" role="dialog" aria-hidden="true" data-yeti-box="modal409676" data-resize="modal409676">
+                    <h1>Edit Ticket - 409676</h1>
+                    <div class="grid-x grid-padding-y">
+                        <div class="cell modal-body" data-ticket-edit-target="modalBody" data-action="modal-form#submitForm">
+                            Loading...
+                        </div>
+                    </div>
+
+                    <div class="grid-x">
+                        <div class="cell text-right">
+                            <button class="close-button" type="button" data-action="ticket-edit#closeTicket">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                            <button type="button" class="button secondary small" data-action="ticket-edit#closeTicket">Cancel</button>
+                            <button type="button" class="button small" data-ticket-list-target="saveButton" data-ticket-edit-target="saveButton" data-action="ticket-edit#saveTicket">Save</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% else %}
                 <input type="hidden" id="sview" name="selectedSet" value="0">
             {% endif %}
