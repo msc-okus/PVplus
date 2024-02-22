@@ -25,17 +25,25 @@
                 </select>
             </div>
 
-            <div class="cell medium-1" style="margin-top:-17px!important;">
+            <div class="cell medium-1 is-hidden" style="margin-top:-17px!important;">
                 <input readonly type="text" name="inverter" class="input-group-field"
+                       id="inverterSearch"
                        data-ticket-list-target="selectedInverter"value="{{ inverter }}"
                        placeholder="Inverter">
             </div>
-            <div class="cell medium-1" style="margin-top:-17px!important;">
-                <button
-                        class="button small no-margin hollow expanded"
-                        type="button"
-                        data-ticket-list-target="selectInverterButton"> Select Inverters
+            <div class="cell medium-2" style="margin-top:-17px!important;">
+                <button class="button small no-margin hollow expanded" type="button"
+                        data-ticket-list-target="InverterSearchButton"
+                        data-toggle="inverter-dropdown-search"
+                        disabled>Select Inverters
                 </button>
+                <div class="dropdown-pane shadow" id="inverter-dropdown-search"
+                     data-dropdown data-auto-focus="true" data-alignment="center"
+                     data-close-on-click="true"
+                     data-ticket-list-target="InverterSearchDropdown">
+
+                    work in progress
+                </div>
             </div>
 
             <div class="cell medium-1" style="margin-top:-17px!important;">

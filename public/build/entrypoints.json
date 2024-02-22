@@ -2,146 +2,117 @@
   "entrypoints": {
     "app": {
       "js": [
-        "/build/755.5bb44775.js",
-        "/build/560.b1eb6894.js",
-        "/build/533.3019d603.js",
-        "/build/app.f4969ace.js"
+        "/build/vendors-node_modules_jquery_dist_jquery_js.js",
+        "/build/vendors-node_modules_foundation-sites_dist_js_foundation_esm_js.js",
+        "/build/vendors-node_modules_core-js_modules_es_array_push_js.js",
+        "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-c22f01.js",
+        "/build/app.js"
       ],
       "css": [
-        "/build/533.da23c90d.css",
-        "/build/app.1a7e69c8.css"
+        "/build/vendors-node_modules_symfony_stimulus-bridge_dist_index_js-node_modules_symfony_ux-chartjs_di-c22f01.css",
+        "/build/app.css"
       ]
     },
     "login": {
       "js": [
-        "/build/526.46b86021.js",
-        "/build/281.00ec3172.js",
-        "/build/login.369e4628.js"
+        "/build/vendors-node_modules_jquery_dist_jquery_js.js",
+        "/build/vendors-node_modules_foundation-sites_dist_js_foundation_esm_js.js",
+        "/build/login.js"
       ]
     },
     "dashboard": {
       "js": [
-        "/build/526.46b86021.js",
-        "/build/dashboard.63620092.js"
+        "/build/vendors-node_modules_jquery_dist_jquery_js.js",
+        "/build/vendors-node_modules_foundation-datepicker_js_foundation-datepicker_min_js.js",
+        "/build/dashboard.js"
       ]
     },
     "reports_list": {
       "js": [
-        "/build/526.46b86021.js",
-        "/build/917.9d32689e.js",
-        "/build/reports_list.150e0c64.js"
+        "/build/vendors-node_modules_jquery_dist_jquery_js.js",
+        "/build/vendors-node_modules_autocomplete_js_dist_autocomplete_jquery_js.js",
+        "/build/reports_list.js"
       ],
       "css": [
-        "/build/reports_list.cde866c9.css"
+        "/build/reports_list.css"
       ]
     },
     "tickets_list": {
       "js": [
-        "/build/526.46b86021.js",
-        "/build/917.9d32689e.js",
-        "/build/560.b1eb6894.js",
-        "/build/tickets_list.f4810a8f.js"
+        "/build/vendors-node_modules_jquery_dist_jquery_js.js",
+        "/build/vendors-node_modules_autocomplete_js_dist_autocomplete_jquery_js.js",
+        "/build/vendors-node_modules_core-js_modules_es_array_push_js.js",
+        "/build/tickets_list.js"
       ],
       "css": [
-        "/build/tickets_list.cde866c9.css"
+        "/build/tickets_list.css"
       ]
     },
     "ticket_edit": {
       "js": [
-        "/build/526.46b86021.js",
-        "/build/917.9d32689e.js",
-        "/build/ticket_edit.23adc519.js"
+        "/build/vendors-node_modules_jquery_dist_jquery_js.js",
+        "/build/vendors-node_modules_autocomplete_js_dist_autocomplete_jquery_js.js",
+        "/build/ticket_edit.js"
       ],
       "css": [
-        "/build/ticket_edit.cde866c9.css"
+        "/build/ticket_edit.css"
       ]
     },
     "plants_list": {
       "js": [
-        "/build/plants_list.31d6cfe0.js"
+        "/build/plants_list.js"
       ]
     },
     "plant_edit": {
       "js": [
-        "/build/526.46b86021.js",
-        "/build/plant_edit.92313ae4.js"
+        "/build/vendors-node_modules_jquery_dist_jquery_js.js",
+        "/build/plant_edit.js"
       ]
     },
     "users_list": {
       "js": [
-        "/build/users_list.31d6cfe0.js"
+        "/build/users_list.js"
       ]
     },
     "user_edit": {
       "js": [
-        "/build/526.46b86021.js",
-        "/build/user_edit.17898df5.js"
+        "/build/vendors-node_modules_jquery_dist_jquery_js.js",
+        "/build/user_edit.js"
       ]
     },
     "download": {
       "js": [
-        "/build/755.5bb44775.js",
-        "/build/637.2959e34b.js",
-        "/build/407.b8093fa7.js",
-        "/build/download.321b14cd.js"
+        "/build/vendors-node_modules_jquery_dist_jquery_js.js",
+        "/build/vendors-node_modules_jszip_dist_jszip_min_js-node_modules_datatables_net-buttons-zf_css_butto-448dcb.js",
+        "/build/vendors-node_modules_pdfmake_build_pdfmake_js-node_modules_pdfmake_build_vfs_fonts_js.js",
+        "/build/download.js"
       ],
       "css": [
-        "/build/637.caa2a7cc.css",
-        "/build/633.31d6cfe0.css"
+        "/build/vendors-node_modules_jszip_dist_jszip_min_js-node_modules_datatables_net-buttons-zf_css_butto-448dcb.css",
+        "/build/assets_styles_special_export_scss.css"
       ]
     },
     "tools": {
       "js": [
-        "/build/tools.31d6cfe0.js"
+        "/build/tools.js"
       ]
     },
     "special_export": {
       "js": [
-        "/build/755.5bb44775.js",
-        "/build/637.2959e34b.js",
-        "/build/special_export.87ef5ced.js"
+        "/build/vendors-node_modules_jquery_dist_jquery_js.js",
+        "/build/vendors-node_modules_jszip_dist_jszip_min_js-node_modules_datatables_net-buttons-zf_css_butto-448dcb.js",
+        "/build/special_export.js"
       ],
       "css": [
-        "/build/637.caa2a7cc.css",
-        "/build/633.31d6cfe0.css"
+        "/build/vendors-node_modules_jszip_dist_jszip_min_js-node_modules_datatables_net-buttons-zf_css_butto-448dcb.css",
+        "/build/assets_styles_special_export_scss.css"
       ]
     },
     "eigner": {
       "js": [
-        "/build/526.46b86021.js",
-        "/build/eigner.92f8009c.js"
+        "/build/vendors-node_modules_jquery_dist_jquery_js.js",
+        "/build/eigner.js"
       ]
     }
-  },
-  "integrity": {
-    "/build/755.5bb44775.js": "sha384-fBcoTu71rcTXVTvAzq6rnaDQVnwPa9N6Yxl8WqXNUM1J0FEFPpmGgwwW1dlPu4Y/",
-    "/build/560.b1eb6894.js": "sha384-7Lqy5DNk0aHMnGz6AfLH2xE2F0C1KsLsrTK4y9dun+3pYzmx1I1gFj0CSfbWRKM3",
-    "/build/533.3019d603.js": "sha384-a3/Ov8k2XbjbRgb7SL1lTaawcKFCCBxNgrDAjwfr1x3U0yVRCkkncw4Nx+gaMO3q",
-    "/build/app.f4969ace.js": "sha384-fLKgMz3WtcxQZxCTgIfv3RLoJOzRF7UDfyMZEIRwKu3IU+sf/M0t/FnO9PQo1Ao3",
-    "/build/533.da23c90d.css": "sha384-PxljplM8wbRq0qBZhm5Er1UBcbEJq6/A4NWznMymB38wS5F3XoywtRbyzigXSBfn",
-    "/build/app.1a7e69c8.css": "sha384-Mjdf5b4VRK4e1YG8ZRscxy1s189BhZtLeNl/naZ5ddrcQeqAM+J3Kmg5RYjY8a2g",
-    "/build/526.46b86021.js": "sha384-wFp6AexibcoaZ39tWn9BNHESrmQbKo1mjuM10EkPKQz8QSU4CcQ3Uu+NoCTlcHoF",
-    "/build/281.00ec3172.js": "sha384-+MysnF7XW6HCxvddOu4oZxgewHyZwUHpf+gPkSXPGHU5fakSrgHqos8HixNsy05M",
-    "/build/login.369e4628.js": "sha384-gnDrfOJJwdd2iOGpSopLQVdqcE+57B9u3GSBuVxbL5RkWqHioWR/n1s7WMGRsOoU",
-    "/build/dashboard.63620092.js": "sha384-OzwuLRIioTRuc6uWvVSGUDlBhHdgeaY+K35twO9znWzCMjO6BSqsXr9bKdLDzL8h",
-    "/build/917.9d32689e.js": "sha384-hVYvOrzzMPtJVCQwZGoC/icqYY/2pVswVxygtfXYDsR/XBNoipQqrIxR9PE6RSPC",
-    "/build/reports_list.150e0c64.js": "sha384-j19PmJqlEsywlNnN90ztSBIMzUj1udBY1ZxOSlwkfDujE5/nQk97BrIua0jROMxk",
-    "/build/reports_list.cde866c9.css": "sha384-q7VlZFzJUvR3KpoAi09nFsJxNHECJo1J3UHYUGBXVgCgy5FZH259V6ZozGOSn/CC",
-    "/build/tickets_list.f4810a8f.js": "sha384-kLPlcgzbkZ0g5AcPDhgsIw3Gp1QvwPpr7a195ZqXmY8BgwbxsQKwijUleWh0KLbs",
-    "/build/tickets_list.cde866c9.css": "sha384-q7VlZFzJUvR3KpoAi09nFsJxNHECJo1J3UHYUGBXVgCgy5FZH259V6ZozGOSn/CC",
-    "/build/ticket_edit.23adc519.js": "sha384-va3XgN7y66PMzXmkR/1Sme8mwzN44VACp9yx4cT4nqJOnO4kIUxlajrEIwDfYs38",
-    "/build/ticket_edit.cde866c9.css": "sha384-q7VlZFzJUvR3KpoAi09nFsJxNHECJo1J3UHYUGBXVgCgy5FZH259V6ZozGOSn/CC",
-    "/build/plants_list.31d6cfe0.js": "sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb",
-    "/build/plant_edit.92313ae4.js": "sha384-RuntfWqyeHHUIl3O/hM53oeJ4YyNZq71eSu5u2aaCwj9RN0B8ATFmbPMFEGBSgHl",
-    "/build/users_list.31d6cfe0.js": "sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb",
-    "/build/user_edit.17898df5.js": "sha384-mXYJ52ozaCHfSIsTNvujJg8BLZe9RXIz5dopTV0nKqFyxEQVBywkpGoWWptKCIbA",
-    "/build/637.2959e34b.js": "sha384-qmjSGkORyTpr8g87RtqDyMyxZ2Otq/A7rE9ou/VTlV70mWAPx13W5nCFYI3f3Xnt",
-    "/build/407.b8093fa7.js": "sha384-8SD/IpkWj9701JJpVUj9OwwQfgI+CcQEWr9p7MorCE2p+ShJSmIsfu4E345NQn7Q",
-    "/build/download.321b14cd.js": "sha384-f1la33Y/rvwXCyHaa8XAyTTKTLbHIwO9vaTp/SIE1JiDZ2CRoxpnoSTZyOofKkfw",
-    "/build/637.caa2a7cc.css": "sha384-/oR7f7oSaSV9vIdGmUFMIIOgx1uE/qB98HsHn3DnYQxFXRoiGKR7dLYugxFIonhI",
-    "/build/633.31d6cfe0.css": "sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb",
-    "/build/tools.31d6cfe0.js": "sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb",
-    "/build/special_export.87ef5ced.js": "sha384-k5fBz7PSo7wrn4WvSSAgghx4tJq9rKGur7vqmXhIoIlnlxhsDaEZgwIFFOqSWUBi",
-    "/build/eigner.92f8009c.js": "sha384-QenwhJJvS6VFkilz/XZ0HINcyLHqjbIMphdKgltVNNG0KoF4kAPxrrZWGzl227/F"
   }
 }

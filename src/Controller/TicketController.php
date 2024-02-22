@@ -1120,7 +1120,7 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/list/getinverterarray/{id}', name: 'app_tlist_get_inverter_array')]
-    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo):array
+    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo):Response
     {
 
         $anlage = $anlRepo->findOneBy(['anlId' => $id]);
@@ -1134,33 +1134,12 @@ class TicketController extends BaseController
             }
         }
 
-        return [
+        return $this->render('/ticket/_inc/_inverter_dropdown.html.twig', [
             'trafoArray'    => $trafoArray,
-            'inverterArray' => $inverterArray,
-        ];
-    }
-    #[Route(path: '/notification/timeline/{id}', name: 'app_ticket_notification_timeline')]
-    public function getTimeline($id, TicketRepository $ticketRepo):Response
-    {
-        $ticket = $ticketRepo->findOneBy(['id' => $id]);
-        $notifications = $ticket->getNotificationInfos();
-        if (!$notifications->isEmpty()){
-            $beginDate = $notifications->first()->getDate();
-            if ($ticket->getStatus() == 90){
-                $endTime = $ticket->getWhenClosed();
-            }
-            else{
-                $endTime = new DateTime('now');
-            }
-            $timeDiff = $beginDate->diff($endTime)->format("%d days %h hours %i minutes");
-        }
-
-        return $this->render('/ticket/_inc/_timeline.html.twig', [
-            'ticket' => $ticket,
-            'notifications' => $notifications,
-            'timeElapsed' => $timeDiff,
+            'invArray' => $inverterArray,
         ]);
     }
+
     private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo) :Array{
         $totalTrafoGroups = $acRepo->getAllTrafoNr($anlage);
         $trafoArray = [];
