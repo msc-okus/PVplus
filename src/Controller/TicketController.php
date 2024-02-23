@@ -1144,16 +1144,18 @@ class TicketController extends BaseController
         $totalTrafoGroups = $acRepo->getAllTrafoNr($anlage);
         $trafoArray = [];
         foreach ($totalTrafoGroups as $trafoGroup) {
-            $trafoGroupNr = $trafoGroup->getTrafoNr();
-            $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroupNr);
-            if ($acGroup != []) {
-                if ($anlage->getConfigType() == 3){
-                    $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getAcGroup();
-                    $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                }
-                else {
-                    $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getUnitFirst();
-                    $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+            if ($trafoGroup->getTrafoNr() !== null){
+                $trafoGroupNr = $trafoGroup->getTrafoNr();
+                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroupNr);
+                if ($acGroup != []) {
+                    if ($anlage->getConfigType() == 3){
+                        $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getAcGroup();
+                        $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
+                    }
+                    else {
+                        $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getUnitFirst();
+                        $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+                    }
                 }
             }
         }

@@ -241,9 +241,10 @@ class TicketRepository extends ServiceEntityRepository
         }
         if ($inverter != '') {
             $invArray = explode(", ", $inverter);
+            foreach ($invArray as $inverterId) {
+                $qb->andWhere("ticket.inverter LIKE '$inverterId,%' or ticket.inverter LIKE '% $inverterId,%' or ticket.inverter = '$inverterId' or ticket.inverter LIKE '%, $inverterId' or ticket.inverter = '*'");
+            }
 
-            foreach ($invArray as $inverterId)
-                $qb->andWhere("ticket.inverter LIKE '$inverterId,%' or ticket.inverter LIKE '% $inverterId,%' or ticket.inverter = '$inverterId' or ticket.inverter LIKE '%, $inverterId'");
         }
         if ((int) $prio > 0) {
             $qb->andWhere("ticket.priority = $prio");

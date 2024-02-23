@@ -123,7 +123,7 @@ export default class extends Controller {
     async selectAnlage(){
         let id= $(this.anlageselectTarget).val();
         if (id !=  '') {
-            console.log(  $(this.InverterSearchDropdownTarget));
+
             $(this.InverterSearchButtonTarget).removeAttr('disabled');
                 this.InverterSearchDropdownTarget.innerHTML = await $.ajax({
                 url: '/list/getinverterarray/' + id,
