@@ -201,4 +201,16 @@ class DashboardPlantsController extends BaseController
             'hour' => $hour,
         ]);
     }
+
+    /**
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
+    #[Route(path: '/dashboard/plants/{eignerId}/{anlageId}/selectinvertersx', name: 'app_dashboard_plant_selectinvertersx')]
+    public function selectInverters($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService): Response
+    {
+        return $this->render('dashboardPlants/_incl/chart/selectinverters.html.twig', [
+
+        ]);
+    }
 }
