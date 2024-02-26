@@ -4203,6 +4203,7 @@ class AssetManagementService
         ];
         $chart->setOption($option);
         $waterfallDiagram = $chart->render('waterfall', ['style' => 'height: 450px; width:28cm;']);
+        // HERE WE RECOVER THE MAINTENANCE AND PR TICKETS
 
         // end Chart Losses compared cummulated
         $output = [
