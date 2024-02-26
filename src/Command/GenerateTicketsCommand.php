@@ -116,9 +116,7 @@ class GenerateTicketsCommand extends Command
                     }
                     $io->comment($anlage->getAnlName());
 
-                    }catch(Exception $e){
-
-
+                    } catch(Exception $e){
                     }
 
                 }

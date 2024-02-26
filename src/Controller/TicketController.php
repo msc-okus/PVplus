@@ -1139,7 +1139,6 @@ class TicketController extends BaseController
             'invArray' => $inverterArray,
         ]);
     }
-
     private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo) :Array{
         $totalTrafoGroups = $acRepo->getAllTrafoNr($anlage);
         $trafoArray = [];
