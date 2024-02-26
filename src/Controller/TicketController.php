@@ -1159,6 +1159,7 @@ class TicketController extends BaseController
                 }
             }
         }
+
         return $trafoArray;
     }
 
