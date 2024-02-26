@@ -26,7 +26,7 @@ class AnlageAcGroups
     private ?\App\Entity\Anlage $anlage = null;
 
     #[ORM\Column(name: 'trafo_nr', type: 'string', length: 20, nullable: true)]
-    private string $trafoNr;
+    private ?string $trafoNr = null;
 
     #[ORM\Column(name: 'ac_group_id', type: 'string', length: 20, nullable: false)]
     private string $acGroup;
@@ -103,6 +103,7 @@ class AnlageAcGroups
     public function getTrafoNr(): ?string
     {
         return $this->trafoNr;
+
     }
 
     public function setTrafoNr(string $trafoNr): self
