@@ -1,1 +1,44 @@
-Alles Banane {{ guy }}?
+<div class="cell small-12 medium-4">
+    {# Select inverter stuff #}
+    <label>&nbsp;</label>
+
+        {% if (invArray != null) %}
+            <div class="grid-x">
+                <div class="cell small-form">
+                    <h3>Inverter List</h3>
+                    <input id="check-all" type="checkbox"
+                           data-action="click->ticket-edit#checkSelect"
+                           data-ticket-edit-target="switch">
+                    <label for="check-all" class="">Select All</label>
+                </div>
+            </div>
+            <hr>
+            <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
+                {% for key in trafoArray|keys %}
+                    {% set trafo = trafoArray[key] %}
+                    <div class="cell small-form">
+                        <input id="trafo{{ loop.index }}"
+                                {# %  if (ticket.inverterName == '*' ) %} checked {% endif %#}
+                               class="js-checkbox-trafo" type="checkbox">
+                        <label for="trafo{{ loop.index }}">TS {{ key }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+            <hr>
+            <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-9">
+                {% for inverter in invArray %}
+                    <div class="cell small-form">
+                        <input id="I-{{ loop.index }}" type="checkbox"
+                               class="js-checkbox"
+                               name="{{ inverter['inv'] }}" {{ inverter['select'] }}
+                               data-action="click->ticket-edit#saveCheck">
+                        <label for="I-{{ loop.index }}"
+                               class="">{{ inverter['inv'] }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            No Inverters found to select
+        {% endif %}
+
+</div>

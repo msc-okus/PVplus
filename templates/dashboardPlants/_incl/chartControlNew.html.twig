@@ -421,10 +421,8 @@
             <div id="select-inverters">
                 <div class="selectInverters">
                     <div class="dropbtn"><i class="far fa-bell" id="far-fa-bell"></i></div>
-                    <div class="selectInvertersContent fade" id="dselectInvertersContent">
-                        {% set guy = 'King Kong' %}
-
-                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {guy:guy} only %}
+                    <div class="selectInvertersContent fade" id="selectInvertersContent">
+                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, trafoArray:trafoArray, edited:edited} only %}
                     </div>
                 </div>
             </div>

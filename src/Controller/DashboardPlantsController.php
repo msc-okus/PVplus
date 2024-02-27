@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Anlage;
 use App\Entity\User;
 use App\Helper\G4NTrait;
+use App\Repository\AcGroupsRepository;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityService;
 use App\Service\Charts\ChartService;
@@ -21,7 +22,7 @@ class DashboardPlantsController extends BaseController
 {
     use G4NTrait;
     #[Route(path: '/api/plants/{eignerId}/{anlageId}/{analyse}', name: 'api_dashboard_plant_analsyse', methods: ['GET','POST'])]
-    public function analysePlantAPI($eignerId, $anlageId, $analyse, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, HeatmapChartService $heatmapChartService,): Response
+    public function analysePlantAPI($eignerId, $anlageId, $analyse, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, HeatmapChartService $heatmapChartService): Response
     {
         $form = [];
 
@@ -84,7 +85,7 @@ class DashboardPlantsController extends BaseController
      * @throws InvalidArgumentException
      */
     #[Route(path: '/dashboard/plants/{eignerId}/{anlageId}', name: 'app_dashboard_plant')]
-    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService): Response
+    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService, AcGroupsRepository $acRepo): Response
     {
         $hour = '';
         $form = [];
@@ -191,6 +192,21 @@ class DashboardPlantsController extends BaseController
             $content = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
         }
 
+        if($aktAnlage){
+            $nameArray = $aktAnlage->getInverterFromAnlage();
+            $trafoArray = $this->getTrafoArray($aktAnlage, $acRepo);
+        }
+
+        $inverterArray = [];
+
+        // I loop over the array with the real names and the array of selected inverters
+        // of the inverter to create a 2-dimension array with the real name and the inverters that are selected
+        //In this case there will  be none selected
+        foreach ($nameArray as $key => $value){
+            $inverterArray[$key]["inv"] = $value;
+            $inverterArray[$key]["select"] = "";
+        }
+
         $isInTimeRange = self::isInTimeRange();
         return $this->render('dashboardPlants/plantsShow.html.twig', [
             'anlagen' => $anlagen,
@@ -199,6 +215,30 @@ class DashboardPlantsController extends BaseController
             'content' => $content,
             'isInTimeRange' => $isInTimeRange,
             'hour' => $hour,
+            'invArray'      => $inverterArray,
+            'trafoArray' => $trafoArray,
+            'edited' => true,
         ]);
+    }
+
+    private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo): array{
+        $totalTrafoGroups = $acRepo->getAllTrafoNr($anlage);
+        $trafoArray = [];
+        foreach ($totalTrafoGroups as $trafoGroup) {
+            $trafoGroupNr = $trafoGroup->getTrafoNr();
+            $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroupNr);
+            if ($acGroup != []) {
+                if ($anlage->getConfigType() == 3){
+                    $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getAcGroup();
+                    $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
+                }
+                else {
+                    $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getUnitFirst();
+                    $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+                }
+            }
+        }
+
+        return $trafoArray;
     }
 }
