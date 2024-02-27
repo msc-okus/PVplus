@@ -93,6 +93,7 @@ class LiveReportingController extends AbstractController
                 if (!$anlage->getSettings()->isDisableDep3()) $availabilityByTicket->checkAvailability($anlage, $day, 3);
             }
         }
+
         if ($submittedNew) {
             $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
             $output['days'] = $reportsMonthly->buildTable2($anlage, $startDate, $endDate);

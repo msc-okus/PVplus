@@ -48,7 +48,9 @@ class ChartService
         private readonly SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
         private readonly SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
         private readonly SollIstHeatmapChartService $sollistheatmapChartService,
-        private readonly AvailabilityByTicketService $availabilityByTicket)
+        private readonly AvailabilityByTicketService $availabilityByTicket,
+        private readonly AvailabilityChartService $availabilityChart
+    )
     {
     }
 
@@ -462,8 +464,13 @@ class ChartService
                     $resultArray['status'] = $this->statusRepository->findStatusAnlageDate($anlage, $from, $to);
                     break;
                 case 'availability':
-                    $dataArray = self::getPlantAvailability($anlage, new DateTime($from), new DateTime($to));
+                    $dataArray = $this->availabilityChart->getPlantAvailability($anlage, new DateTime($from), new DateTime($to));
                     $resultArray['headline'] = 'Show availability';
+                    $resultArray['availability'] = $dataArray['availability'];
+                    break;
+                case 'availability_intervall':
+                    $dataArray = $this->availabilityChart->getPlantAvailabilityByIntervall($anlage, new DateTime($from), new DateTime($to));
+                    $resultArray['headline'] = 'Show availability by intervall';
                     $resultArray['availability'] = $dataArray['availability'];
                     break;
                 case 'pvsyst':
@@ -585,31 +592,7 @@ class ChartService
     }
     // ##########################################
 
-    /**
-     * @param Anlage $anlage
-     * @param DateTime $from
-     * @param DateTime $to
-     * @return array
-     * @return array
-     */
-    private function getPlantAvailability(Anlage $anlage, DateTime $from, DateTime $to): array
-    {
-        $dataArray = [];
-        $dataArray['availability'] = $this->availabilityRepository->findAvailabilityAnlageDate($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
-        foreach ($dataArray['availability'] as $key => $value) {
-            $dataArray['availability'][$key]['invAPart10'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case10'], 'case2' => $value['case20'], 'case3' => $value['case30'], 'case5' => $value['case50'], 'control' => $value['control0']],0);
-            $dataArray['availability'][$key]['invAPart11'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case11'], 'case2' => $value['case21'], 'case3' => $value['case31'], 'case5' => $value['case51'], 'control' => $value['control1']],1);
-            $dataArray['availability'][$key]['invAPart12'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case12'], 'case2' => $value['case22'], 'case3' => $value['case32'], 'case5' => $value['case52'], 'control' => $value['control2']],2);
-            $dataArray['availability'][$key]['invAPart13'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case13'], 'case2' => $value['case23'], 'case3' => $value['case33'], 'case5' => $value['case53'], 'control' => $value['control3']],3);
 
-            $dataArray['availability'][$key]['invA0'] = $dataArray['availability'][$key]['invAPart10'] * $dataArray['availability'][$key]['invAPart20'];
-            $dataArray['availability'][$key]['invA1'] = $dataArray['availability'][$key]['invAPart11'] * $dataArray['availability'][$key]['invAPart21'];
-            $dataArray['availability'][$key]['invA2'] = $dataArray['availability'][$key]['invAPart12'] * $dataArray['availability'][$key]['invAPart22'];
-            $dataArray['availability'][$key]['invA3'] = $dataArray['availability'][$key]['invAPart13'] * $dataArray['availability'][$key]['invAPart23'];
-        }
-
-        return $dataArray;
-    }
 
     /**
      * erzeugt Daten für Inverter Performance Diagramm (DC vs AC Leistung der Inverter)

@@ -1,0 +1,30 @@
+<div class="grid-x">
+    <div class="cell medium-9">
+        <div>
+
+            <table id="statusTable" style="width: 100%;" data-show-hide-availabillity-target ="table1">
+                <thead>
+                <tr>
+                    <th>Stamp</th>
+                    <th>PA 0</th>
+                    <th>PA 1</th>
+                    <th>PA 2</th>
+                    <th>PA 3</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for stati in content.availability %}
+                    <tr>
+                        <td>{{ stati.stamp|date("Y-m-d H:i") }} </td>
+                        <td>{{ stati.pa0|number_format(4, ',', '.') }}</td>
+                        <td>{{ stati.pa1|number_format(4, ',', '.') }}</td>
+                        <td>{{ stati.pa2|number_format(4, ',', '.') }}</td>
+                        <td>{{ stati.pa3|number_format(4, ',', '.') }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
