@@ -572,7 +572,7 @@ class PRCalulationService
     {
         $result = [];
         // PR für einen Tag (wenn $endDate = null) oder für beliebigen Zeitraum (auch für Rumpfmonate in epc Berichten) berechnen
-        $localStartDate = $startDate->format('Y-m-d 00:00');
+        $localStartDate = $startDate->format('Y-m-d 00:15');
         if ($endDate === null) {
             $localEndDateObj = clone ($startDate);
         } else {
@@ -599,13 +599,14 @@ class PRCalulationService
 
         // Wetter Daten ermitteln MIT Berücksichtigung des PPC Signals
         $weatherWithPpc = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
+
         if (is_array($weatherWithPpc)) {
-            $weatherWithPpc = $this->sensorService->correctSensorsByTicket($anlage, $weatherWithPpc, date_create($localStartDate), date_create($localEndDate));
+            $weatherWithPpc = $this->sensorService->correctSensorsByTicket($anlage, $weatherWithPpc, date_create($localStartDate), date_create($localEndDate), $pa0, $pa1, $pa2, $pa3);
         }
         // Wetter Daten ermitteln OHNE Berücksichtigung des PPC Signals
         $weatherNoPpc = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, false, $anlage);
         if (is_array($weatherNoPpc)) {
-            $weatherNoPpc = $this->sensorService->correctSensorsByTicket($anlage, $weatherNoPpc, date_create($localStartDate), date_create($localEndDate));
+            $weatherNoPpc = $this->sensorService->correctSensorsByTicket($anlage, $weatherNoPpc, date_create($localStartDate), date_create($localEndDate), $pa0, $pa1, $pa2, $pa3);
         }
         if ($anlage->getUsePPC()){
             $weather = $weatherWithPpc;
@@ -696,7 +697,6 @@ class PRCalulationService
         } else {
             $result['prDep1Act'] = $result['prDep1Evu'] = $result['prDep1Exp'] = $result['prDep1EGridExt'] = 0;
         }
-
         // Departemet 2 (EPC)
         $result['powerTheoDep2'] = match($anlage->getPrFormular2()) {
             'Lelystad'          => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
@@ -715,8 +715,8 @@ class PRCalulationService
             default             => $anlage->getPnom() * $irrNoPpc0    // all others calc by Pnom and Irr.
         };
         if ($result['powerTheoDep2'] !== null) {
-            $result['prDep2Act'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerActDep2'], $result['powerTheoDep2'], $pa2); //(($power['powerAct'] / $tempTheoPower) * 100;
-            $result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerEvuDep2'], $result['powerTheoDep2'], $pa2); //($power['powerEvu'] / $tempTheoPower) * 100;
+            $result['prDep2Act'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerActDep2'], $result['powerTheoDep2'], $pa2);
+            $result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerEvuDep2'], $result['powerTheoDep2'], $pa2);
             $result['prDep2Exp'] = $result['prDep0Exp']; //$this->calcPrBySelectedAlgorithm($anlage, 2, $irrNoPpc0, $result['powerExp'], $result['powerTheoDep2NoPpc'], $pa2); //(($result['powerExp'] / $tempTheoPower) * 100;
             $result['prDep2EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr2, $result['powerEGridExt'], $result['powerTheoDep2'], $pa2); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
         } else {

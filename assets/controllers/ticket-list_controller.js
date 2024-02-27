@@ -4,7 +4,7 @@ import {Reveal} from "foundation-sites";
 import {useDispatch} from "stimulus-use";
 
 export default class extends Controller {
-    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd', 'sort', 'direction', 'proofam', 'proofepc', 'prooftam', 'proofg4n', 'ignored', 'proofmaintenance', 'selectInverterButton', 'selectedInverter', 'anlageselect'];
+    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd', 'sort', 'direction', 'proofam', 'proofepc', 'prooftam', 'proofg4n', 'ignored', 'proofmaintenance', 'selectedInverter', 'anlageselect', 'InverterSearchDropdown', 'InverterSearchButton', 'switch'];
     static values = {
         urlCreate: String,
         urlSearch: String,
@@ -121,8 +121,76 @@ export default class extends Controller {
             $(this).css('display', 'none');
         });
     }
-    selectAnlage(){
-        console.log($(this.anlageselectTarget).value);
+    async selectAnlage(){
+        let id= $(this.anlageselectTarget).val();
+        if (id !=  '') {
 
+            $(this.InverterSearchButtonTarget).removeAttr('disabled');
+                this.InverterSearchDropdownTarget.innerHTML = await $.ajax({
+                url: '/list/getinverterarray/' + id,
+            });
+        }
+        else{
+            $(this.InverterSearchButtonTarget).attr('disabled', 'disabled');
+        }
+    }
+    checkTrafo({ params: { first, last, trafo }}){
+        let body = $(this.InverterSearchDropdownTarget);
+        let checked = $("#trafo" + trafo).prop('checked');
+        body.find('input:checkbox[class=js-checkbox]').each(function (){
+            console.log($(this).prop('id').substring(2), first, last);
+            if ($(this).prop('id').substring(2) >= first) {
+                if ($(this).prop('id').substring(2) <= last){
+                    if (checked) $(this).prop('checked', true);
+                    else $(this).prop('checked', false);
+                }
+            }
+        });
+        $(this.switchTarget).prop('checked', false)
+        this.setInverter()
+    }
+    setInverter(){
+        let inverterString = '';
+        let body = $(this.InverterSearchDropdownTarget);
+        let counter = 0;
+        body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
+            counter ++;
+            if (inverterString == '') {
+                inverterString = inverterString + $(this).prop('id').substring(2);
+            }
+            else {
+                inverterString = inverterString + ', ' + $(this).prop('id').substring(2);
+
+            }
+        });
+        console.log(inverterString);
+        if (counter == body.find('input:checkbox[class=js-checkbox]').length){
+            inverterString = '*';
+        }
+        $('#inverterSearch').val(inverterString);
+    }
+    selectAll(){
+        let inverterString = '';
+        let body = $(this.InverterSearchDropdownTarget);
+        if ($(this.switchTarget).prop('checked')) {
+            body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
+                $(this).prop('checked', true);
+            });
+            body.find('input:checkbox[class=js-checkbox]').each(function () {
+                $(this).prop('checked', true);
+            });
+            inverterString = '*';
+        } else {
+            body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
+                $(this).prop('checked', false);
+            });
+            body.find('input:checkbox[class=js-checkbox]').each(function(){
+                $(this).prop('checked', false);
+            });
+
+            inverterString = '';
+
+        }
+        $('#inverterSearch').val(inverterString);
     }
 }

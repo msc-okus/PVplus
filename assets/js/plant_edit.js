@@ -219,20 +219,20 @@ $wrapper_pvsyst.on('click', '.js-add-pvsyst', function(e) {
     $('#pvsyst-values>tbody').append(newForm);
 });
 
-// _monthly-yield
-let $wrapper_yield = $('.js-_monthly-yield-wrapper');
-$wrapper_yield.on('click', '.js-remove-_monthly-yield', function(e) {
+// monthly-yield
+let $wrapper_yield = $('.js-monthly-yield-wrapper');
+$wrapper_yield.on('click', '.js-remove-monthly-yield', function(e) {
     e.preventDefault();
-    $(this).closest('.js-_monthly-yield-item')
+    $(this).closest('.js-monthly-yield-item')
         .remove();
 });
-$wrapper_yield.on('click', '.js-add-_monthly-yield', function(e) {
+$wrapper_yield.on('click', '.js-add-monthly-yield', function(e) {
     e.preventDefault();
     let prototype = $wrapper_yield.data('prototype');
     let index = $wrapper_yield.data('index');
     let newForm = prototype.replace(/__name__/g, index);
     $wrapper_yield.data('index', index + 1);
-    $('#_monthly-yield-values>tbody').append(newForm);
+    $('#monthly-yield-values>tbody').append(newForm);
 });
 
 // Economics

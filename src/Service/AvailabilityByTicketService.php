@@ -266,6 +266,7 @@ class AvailabilityByTicketService
 
             // suche commIssu Tickets und schreibe diese in Array $commIssuArray[inverter][stamp] = true|false
             $commIssus = $this->ticketDateRepo->findCommIssu($anlage, $from, $to, $department);
+
             /** @var TicketDate $commIssu */
             foreach ($commIssus as $commIssu) {
                 $c5From = $commIssu->getBegin()->getTimestamp();
@@ -280,7 +281,6 @@ class AvailabilityByTicketService
                 }
             }
             unset($commIssus);
-
 
             // suche Performance Tickets die die PA beeinflussen (alertType = 72)
             $perfTicketsSkips  = $this->ticketDateRepo->findPerformanceTicketWithPA($anlage, $from, $to, $department, 0); // behaviour = Skip for PA and Replace outage with TiFM for PA
@@ -416,6 +416,7 @@ class AvailabilityByTicketService
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);
                             $commIssu       = isset($commIssuArray[$inverter][$stamp])          && !$case5; // ignoriere Communication eroros wenn case5 (tiFM) gesetzt ist
+                            if ($department == 2 && $inverter == 18) dump($stamp,$commIssu);
                             $skipTi         = isset($skipTiAndTitheoArray[$inverter][$stamp])   && $skipTiAndTitheoArray[$inverter][$stamp] === true;
                             $skipTiTheo     = isset($skipTiAndTitheoArray[$inverter][$stamp])   && $skipTiAndTitheoArray[$inverter][$stamp] === true;
                             $outageAsTiFm   = isset($skipTiOnlyArray[$inverter][$stamp])        && $skipTiOnlyArray[$inverter][$stamp]      === true; // Replace outage with TiFM for PA

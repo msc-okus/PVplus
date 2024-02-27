@@ -1120,38 +1120,42 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/list/getinverterarray/{id}', name: 'app_tlist_get_inverter_array')]
-    public function getInverterArray($id, AnlagenRepository $anlRepo):array
+    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo):Response
     {
-        $anlage = $anlRepo->findOneBy(['id' => $id]);
+
+        $anlage = $anlRepo->findOneBy(['anlId' => $id]);
         $trafoArray = [];
         $inverterArray = [];
         if ($anlage != null){
-            $trafoArray = $this->getTrafoArray();
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
             $nameArray = $anlage->getInverterFromAnlage();
             foreach ($nameArray as $key => $value){
                 $inverterArray[$key]["inv"] = $value;
             }
         }
-        return [
+
+        return $this->render('/ticket/_inc/_inverter_dropdown.html.twig', [
             'trafoArray'    => $trafoArray,
-            'inverterArray' => $inverterArray,
-        ];
+            'invArray' => $inverterArray,
+        ]);
     }
 
-    private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo): array{
+    private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo) :Array{
         $totalTrafoGroups = $acRepo->getAllTrafoNr($anlage);
         $trafoArray = [];
         foreach ($totalTrafoGroups as $trafoGroup) {
-            $trafoGroupNr = $trafoGroup->getTrafoNr();
-            $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroupNr);
-            if ($acGroup != []) {
-                if ($anlage->getConfigType() == 3){
-                    $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getAcGroup();
-                    $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                }
-                else {
-                    $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getUnitFirst();
-                    $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+            if ($trafoGroup->getTrafoNr() !== null){
+                $trafoGroupNr = $trafoGroup->getTrafoNr();
+                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroupNr);
+                if ($acGroup != []) {
+                    if ($anlage->getConfigType() == 3){
+                        $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getAcGroup();
+                        $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
+                    }
+                    else {
+                        $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getUnitFirst();
+                        $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+                    }
                 }
             }
         }
