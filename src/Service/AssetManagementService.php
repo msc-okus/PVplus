@@ -9,10 +9,12 @@ use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
 use App\Repository\EconomicVarValuesRepository;
+use App\Repository\NotificationInfoRepository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\ForcastDayRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
+use App\Repository\TicketRepository;
 use App\Service\Functions\SensorService;
 use App\Service\Reports\ReportsMonthlyV2Service;
 use Doctrine\Instantiator\Exception\ExceptionInterface;
@@ -57,8 +59,10 @@ class AssetManagementService
         private Filesystem $fileSystemFtp,
         private Filesystem $filesystem,
         private AnlageFileRepository $RepositoryUpload,
+        private TicketRepository $ticketRepo,
+        private NotificationInfoRepository $notificationRepo,
         private readonly Security $security,
-    )
+        )
     {
         $this->conn = $this->pdoService->getPdoPlant();
     }
@@ -624,6 +628,22 @@ class AssetManagementService
     public function buildAssetReport(Anlage $anlage, array $report, ?int $logId = null): array
     {
         // Variables
+        $begin = $report['reportYear'].'-01-'.'01 00:00:00';
+        $lastDayOfMonth = date('t', strtotime($begin));
+        $end = $report['reportYear'].'-'.$report['reportMonth'].'-'.$lastDayOfMonth.' 23:55:00';
+        $maintenanceTicketTable = [];
+        $kpiTicketTable = [];
+        $maintenanceTicketArray = $this->ticketRepo->findAllMaintenanceAnlage($anlage, $begin, $end);
+        $index = 0;
+        foreach ($maintenanceTicketArray as $maintenanceTicket){
+            $maintenanceTicketTable[$index]['id'] = $maintenanceTicket->getId();
+            $notifications = $this->notificationRepo->findOneBy(['ticket' => $maintenanceTicket->getId()]);
+            dd($notifications);
+            $maintenanceTicketTable[$index]['end'] = $maintenanceTicket->getWhenClosed();
+            $index++;
+        }
+
+        $kpiTicketArray = $this->ticketRepo->findAllKpiAnlage($anlage, $begin, $end);
 
         for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; ++$tempMonth) {
             $startDate = new \DateTime($report['reportYear']."-$tempMonth-01 00:00");
@@ -2317,9 +2337,7 @@ class AssetManagementService
         $dataGaps   = (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-01-01', $endate, $anlage, "20")[0][1];
         $totalErrors = $SOFErrors + $EFORErrors + $OMCErrors + $dataGaps;
         // here we calculate the ammount of quarters to calculate the relative percentages
-        $begin = $report['reportYear'].'-01-'.'01 00:00:00';
-        $lastDayOfMonth = date('t', strtotime($begin));
-        $end = $report['reportYear'].'-'.$report['reportMonth'].'-'.$lastDayOfMonth.' 23:55:00';
+
         $sqlw = 'SELECT count(db_id) as quarters
                     FROM  '.$anlage->getDbNameWeather()."  
                     WHERE stamp BETWEEN '$begin' AND '$end' AND (g_lower + g_upper)/2 > '".$anlage->getThreshold2PA()."'";// hay que cambiar aqui para que la radiacion sea mayor que un valor
@@ -4204,7 +4222,7 @@ class AssetManagementService
         $chart->setOption($option);
         $waterfallDiagram = $chart->render('waterfall', ['style' => 'height: 450px; width:28cm;']);
         // HERE WE RECOVER THE MAINTENANCE AND PR TICKETS
-
+        dd($this->ticketRepo->findAllMaintenanceAnlage($anlage, $begin, $end));
         // end Chart Losses compared cummulated
         $output = [
             'plantId' => $plantId,

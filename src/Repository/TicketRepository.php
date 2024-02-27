@@ -318,6 +318,36 @@ class TicketRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    public function findAllMaintenanceAnlage(Anlage $anlage, $begin, $end){
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.end <= :end')
+            ->andWhere('t.notified = true')
+            ->andWhere('t.status =  90')
+            ->setParameter('anl', $anlage)
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->getQuery()
+        ;
+
+        return $result->getResult();
+    }
+    public function findAllKpiAnlage(Anlage $anlage, $begin, $end){
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.end <= :end')
+            ->andWhere('t.alertType >= 70')
+            ->andWhere('t.alertType <  80')
+            ->setParameter('anl', $anlage)
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->getQuery()
+        ;
+
+        return $result->getResult();
+    }
     public function findForSafeDelete($anlage, $begin, $end = null)
     {
         if ($end != null)
