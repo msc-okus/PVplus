@@ -188,7 +188,6 @@ class WeatherFunctionsService
                     WHERE s.stamp > '$from' AND s.stamp <= '$to'
                         $sqlPPCpart2;
                  ";
-
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -244,6 +243,7 @@ class WeatherFunctionsService
                 $weather = null;
             }
             $conn = null;
+
             return $weather;
         });
     }

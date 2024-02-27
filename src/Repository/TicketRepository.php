@@ -205,6 +205,7 @@ class TicketRepository extends ServiceEntityRepository
      * @param int $proofepc
      * @param int $proofam
      * @param int $proofg4n
+     * @param int $proofmaintenance
      * @param string $sort
      * @param string $direction
      * @param bool $ignore
@@ -297,23 +298,21 @@ class TicketRepository extends ServiceEntityRepository
             $qb->andWhere("ticket.ignoreTicket = false");
         }
 
-        if ($sort !== "") $qb->addOrderBy($sort, $direction);
-        $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
-        if ($begin != "" && $end == ""){
-
+        if ($begin != "" && $end == ""){ // only begin is set
             $qb->andWhere("ticket.begin LIKE '$begin%'");
-        }
-        else if ($begin == "" && $end != ""){
+        } elseif ($begin == "" && $end != ""){ // only end is set
             $qb->andWhere("ticket.begin LIKE '$end%'");
-        }
-        else{
+        } else {
             if ($begin != "" ){
-                $qb->andWhere("ticket.end > '$begin'");
+                $qb->andWhere("ticket.end >= '$begin'");
             }
             if ($end != ""){
-                $qb->andWhere("ticket.end < '$end'");
+                $qb->andWhere("ticket.end <= '$end'");
             }
         }
+
+        if ($sort !== "") $qb->addOrderBy($sort, $direction);
+        $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
 
         return $qb;
     }

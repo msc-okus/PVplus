@@ -38,7 +38,11 @@
             <tbody>
             {% for ticket in pagination %}
                 <tr>
-                    <td>{{ ticket.id }}{% if ticket.createdBy == 'AlertSystem' %} •{% endif %}</td>
+                    <td>
+                        <span {% if ticket.ignoreTicket %}style="text-decoration: line-through;"{% endif %}>
+                            {{ ticket.id }}{% if ticket.createdBy == 'AlertSystem' %} •{% endif %}
+                        </span>
+                    </td>
                     <td>
                         {% if (ticket.alertType >= 70 and ticket.alertType < 80) %}
                             {% if (ticket.kpiStatus == 10) %} {# Activ #}
@@ -47,7 +51,6 @@
                                 <span style="color: red;font-size: 20px">●</span>
                             {% endif %}
                         {% endif %}
-
                     </td>
                     <td>{{ ticket.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ ticket.anlage.anlId }}) {% endif %}</td>
                     {% set maxCharId = 10 %}
@@ -66,8 +69,10 @@
                     <td>{{ ticket.end|date("d.m.y H:i") }}</td>
                     <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}{# {% if is_granted('ROLE_DEV') %}<small>{{ ticket.createdAt|date("d.m.y H:i") }}</small>{% endif %} #}</td>
                     <td>
-                        {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
-                        {{ errcat|trans }}{% if is_granted('ROLE_DEV') %}<small> {{ ticket.alertType }}</small>{% endif %}
+                        <span {% if ticket.ignoreTicket %}style="text-decoration: line-through;"{% endif %}>
+                            {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
+                            {{ errcat|trans }}{% if is_granted('ROLE_DEV') %}<small> {{ ticket.alertType }}</small>{% endif %}
+                        </span>
                     </td>
                     {% set maxCharInverter = 16 %}
                     <td {% if ticket.getInverterName|length > maxCharInverter %}data-tooltip data-click-open="false" title="{{ ticket.getInverterName }}"{% endif %}><span>{{ ticket.getInverterName|u.truncate(maxCharInverter, ' ...', false) }}</span></td>
