@@ -31,22 +31,21 @@ export default class extends Controller {
     async update(event) {
         event.preventDefault();
         const $searchListform = $(this.searchBarTarget).find('form');
-        var serializedData = $searchListform.serialize();
+        let serializedData = $searchListform.serialize();
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
             method: $searchListform.prop('method'),
             data: serializedData,
         });
-        var response = await $.ajax({
+        const response = await $.ajax({
             url: '/ticket/proofCount',
         });
-        this.proofepcTarget.innerText = response['countProofByEPC'];
-        this.prooftamTarget.innerText = response['countProofByTAM'];
-        this.proofg4nTarget.innerText = response['countProofByG4N'];
-        this.proofamTarget.innerText = response['countProofByAM'];
-        this.ignoredTarget.innerText = response['countIgnored'];
-        this.proofmaintenanceTarget.innerText = response['countProofByMaintenance'];
-
+        this.proofepcTarget.innerText = response['counts']['proofByEPC'];
+        this.prooftamTarget.innerText = response['counts']['proofByTam'];
+        this.proofg4nTarget.innerText = response['counts']['proofByG4N'];
+        this.proofamTarget.innerText = response['counts']['proofByAM'];
+        this.ignoredTarget.innerText = response['counts']['ignored'];
+        this.proofmaintenanceTarget.innerText = response['counts']['proofByMaintenance'];
         $(document).foundation();
         this.disableAllToolTips()
     }

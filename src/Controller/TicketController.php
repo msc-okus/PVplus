@@ -459,6 +459,7 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/proofCount', name: 'app_ticket_proof_count', methods: ['GET', 'POST'])]
     public function getProofCount(TicketRepository $ticketRepo):Response
     {
+        #dd("Yea");
         return new JsonResponse([
             'counts'        => $this->getCountOfTickets($ticketRepo)
         ]);
