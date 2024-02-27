@@ -418,33 +418,16 @@
                 </div>
                 <div id="slider-range"></div>
         <div data-controller="request">
-            <div id="select-inverters" data-controller="select-inverters" data-select-inverters-form-url-value="/dashboard/plants/10004/104/selectinvertersx">
-                <button type="button" class="button small "
-                        data-ticket-edit-target="contactButton"
-                        data-action="click->select-inverters#openModal" data-append-to="div#select-inverters">Select Inverters</button>
+            <div id="select-inverters">
+                <div class="selectInverters">
+                    <div class="dropbtn"><i class="far fa-bell" id="far-fa-bell"></i></div>
+                    <div class="selectInvertersContent fade" id="dselectInvertersContent">
+                        {% set guy = 'King Kong' %}
 
-                <div class="reveal-overlay"><div class="reveal text-left large" id="modal409689" data-multiple-opened="true" data-v-offset="10" data-select-inverters-target="modal" data-reveal="jtkj5m-reveal" data-close-on-click="false" data-append-to="div#select-inverters" xmlns="http://www.w3.org/1999/html" role="dialog" aria-hidden="true" data-yeti-box="modal409689" data-resize="modal409689">
-                        <h1>Select your Inverters</h1>
-                        <div class="grid-x grid-padding-y">
-                            <div class="cell modal-body" data-select-inverters-target="modalBody" data-action="modal-form#submitForm">
-                                Loading...
-                            </div>
-                        </div>
-
-                        <div class="grid-x">
-                            <div class="cell text-right">
-                                <button class="close-button" type="button" data-action="select-inverters#closeModal">
-                                    <span aria-hidden="true">×</span>
-                                </button>
-                                <button type="button" class="button secondary small" data-action="select-inverters#closeModal">Cancel</button>
-                                <button type="button" class="button small" data-ticket-list-target="saveButton" data-select-inverters-target="saveButton" data-action="select-inverters#saveTicket">Save</button>
-
-                            </div>
-                        </div>
-
-
-                    </div></div></div>
-        </div>
+                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {guy:guy} only %}
+                    </div>
+                </div>
+            </div>
             {% else %}
                 <input type="hidden" id="sview" name="selectedSet" value="0">
             {% endif %}

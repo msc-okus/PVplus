@@ -108,7 +108,9 @@ class ImportService
         curl_close($curl);
         $data_pv_ist = [];
         $data_pv_dcist = [];
-
+        echo '<pre>';
+        print_r($bulkMeaserments[0]['sensors']['2024-02-14T13:00:00-06:00']['511822']);
+        echo '</pre>';
         //beginn collect all Data from all Plants
         if (count($bulkMeaserments) > 0) {
             for ($i = 0; $i < count($bulkMeaserments); ++$i) {
@@ -172,7 +174,6 @@ class ImportService
 
                 //beginn get Sensors Data
                 (int)$length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
-
                 if ((is_array($sensors) && array_key_exists($date, $sensors) && $length > 0) || $hasSensorsInBasics == 1) {
                     //if plant is use sensors datatable get data for the table
                     if($useSensorsDataTable){

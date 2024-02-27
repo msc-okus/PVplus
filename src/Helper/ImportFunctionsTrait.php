@@ -471,7 +471,7 @@ trait ImportFunctionsTrait
         for ($i = 0; $i < $length; $i++) {
             $start = 0;
             $end = 0;
-
+            
             if ($anlageSensors[$i]->getStartDateSensor() != null) {
                 $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
             }
@@ -514,6 +514,7 @@ trait ImportFunctionsTrait
             }
 
         }
+
         $result[] = $data_sensors;
         return $result;
     }

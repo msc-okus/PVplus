@@ -952,6 +952,33 @@
                 a.chart-label {text-decoration: none; cursor: pointer;}
             }
 
+            .selectInverters{
+                z-index: 2000;
+                position: relative;
+            }
+            .selectInvertersContent{
+                color: #1779ba;
+                display: block;
+                background-color: #f2f4f5;
+                padding: 10px 10px 5px 10px;
+                min-width: 400px;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                z-index: 8000;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                top: -1500px;
+                opacity: 0;
+                transition: opacity 2s;
+                padding: 15px;
+                border-left: 5px solid #1779ba;
+                border-right: 5px solid #1779ba;
+                border-radius: 15px;
+                #pdfdownload div a{
+                    margin-top: 7px;
+                }
+            }
+            .selectInverters:hover .selectInvertersContent {z-index: 9999 !important; opacity: 1 !important; top: 10px;}
         }
 
         #ticket-edit{
