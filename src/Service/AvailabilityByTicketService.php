@@ -443,11 +443,12 @@ class AvailabilityByTicketService
                             // Case 2 (second part of ti - means case1 + case2 = ti)
                             if ($anlage->getTreatingDataGapsAsOutage()) {
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
-                                            ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || ($powerAc === null && $commIssu === true)) && $case5 === false && $case6 === false && $skipTi === false);
-                                // Änderung am 27. Feb 24 '$powerAc > $powerThersholdkWh' ersetzt durch '($powerAc > $powerThersholdkWh || $powerAc === null)'
+                                            ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null ) && $case5 === false && $case6 === false && $skipTi === false);
+                                // Änderung am 27. Feb 24 '$powerAc > $powerThersholdkWh' ersetzt durch '($powerAc > $powerThersholdkWh || $powerAc === null)' | MRE // && $commIssu === true)
                             } else {
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === false && $skipTi === false) ||
                                             ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
+                                // Änderung am 27. Feb 24 '$commIssu === false' (vorher === true) | MRE
                             }
                             if ($hitCase2) {
                                 $case2 = true;
@@ -461,8 +462,6 @@ class AvailabilityByTicketService
                                     $availabilityPlantByStamp['case2'] -= $case3Helper[$inverter] / 15;
                                 }
                                 $case3Helper[$inverter] = 0;
-                            } else {
-                                if ($department == 2) dump($powerAc);
                             }
                             // Case 3
                             if ($conditionIrrCase2 && ($powerAc <= $powerThersholdkWh && $powerAc !== null) && !$commIssu) { // ohne case5

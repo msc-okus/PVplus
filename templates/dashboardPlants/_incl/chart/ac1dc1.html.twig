@@ -166,12 +166,12 @@
                 series5.connect = false;
             {% endif %}
 
-            {% if aktAnlage.useCustPRAlgorithm == 'Lelystad' and is_granted('ROLE_G4N') %} {# theoretische Leitung (theoPower) mit TempKorrektur nach NREL #}
+            {% if (aktAnlage.anlId == '237') or is_granted('ROLE_G4N') %} {# theoretische Leitung (theoPower) mit TempKorrektur nach NREL  #}
                 let theoPower = chart.series.push(new am4charts.LineSeries());
-                theoPower.name = "theoPower nach NREL {{ (content.theoPowerSum)|number_format(0, ',', '.') }} kWh";
+                theoPower.name = "Theoretical Power {{ (content.theoPowerSum)|number_format(0, ',', '.') }} kWh";
                 theoPower.dataFields.dateX = "date";
                 theoPower.dataFields.valueY = "theoPower";
-                theoPower.tooltipText = "theoPower: {valueY} kWh [/]";
+                theoPower.tooltipText = "Theoretical Power: {valueY} kWh [/]";
                 theoPower.fill = am4core.color("#808080");
                 theoPower.stroke = am4core.color("#808080");
                 theoPower.strokeWidth = 1;

@@ -53,20 +53,31 @@ class AvailabilityChartService
                     b.pa0 as pa0,
                     b.pa1 as pa1,
                     b.pa2 as pa2,
-                    b.pa3 as pa3
-                    FROM (db_dummysoll a LEFT JOIN ".$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
-                    WHERE a.stamp > '".$from->format('Y-m-d H:i')."' and a.stamp <= '".$to->format('Y-m-d H:i')."'";
+                    b.pa3 as pa3,
+                    b.g_lower as g_lower, 
+                    b.g_upper as g_upper 
+                FROM (db_dummysoll a LEFT JOIN ".$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
+                WHERE a.stamp > '".$from->format('Y-m-d H:i')."' and a.stamp <= '".$to->format('Y-m-d H:i')."'";
         $res = $conn->query($sql);
-        dump($sql);
         if ($res->rowCount() > 0) {
             $rows = $res->fetchAll(PDO::FETCH_ASSOC);
             foreach ($rows as $row) {
+                if ($anlage->getIsOstWestAnlage()) {
+                    $irr = (((float)$row['g_upper'] * $anlage->getPowerEast() + (float)$row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()));
+                } else {
+                    $irr = (float)$row['g_upper'];
+                }
                 $dataArray['availability'][] = [
                     'stamp'  => $row['stamp'],
-                    'pa0'   => (float)$row['pa0'] * 1,
-                    'pa1'   => (float)$row['pa1'] * 1,
-                    'pa2'   => (float)$row['pa2'] * 1,
-                    'pa3'   => (float)$row['pa3'] * 1
+                    'pa0'   => (float)$row['pa0'],
+                    'pa1'   => (float)$row['pa1'],
+                    'pa2'   => (float)$row['pa2'],
+                    'pa3'   => (float)$row['pa3'],
+                    'irr'   => $irr,
+                    'theoP_pa0' => $irr * $anlage->getPnom() * (float)$row['pa0'] / 4000,
+                    'theoP_pa1' => $irr * $anlage->getPnom() * (float)$row['pa1'] / 4000,
+                    'theoP_pa2' => $irr * $anlage->getPnom() * (float)$row['pa2'] / 4000,
+                    'theoP_pa3' => $irr * $anlage->getPnom() * (float)$row['pa3'] / 4000,
                 ];
             }
         }
