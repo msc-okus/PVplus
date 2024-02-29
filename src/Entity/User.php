@@ -71,7 +71,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
        // 'Owner'             => 'ROLE_OWNER',
     ];
 
-    // ROLES for Features will be triggert by the getter 'getRolesArrayByFeature()'
+    final public const ARRAY_OF_FUNCTIONS_BY_ROLE = [
+        'Asset Management'  => 'ROLE_AM',
+        'Analyse'           => 'ROLE_ANALYSE',
+        'Ticket User'       => 'ROLE_TICKET',
+        'Maintance Repair Order System (MRO)' => 'ROLE_MRO',
+    ];
 
     #[Groups(['user:read'])]
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
