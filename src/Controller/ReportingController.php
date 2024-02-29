@@ -356,6 +356,7 @@ class ReportingController extends AbstractController
                         $data = $form->getData();
                         $files = $report->getPdfParts();
 
+
                         $pdf = new Fpdi();
                         // this is the header and we will always want to include it
 
@@ -464,6 +465,14 @@ class ReportingController extends AbstractController
                             }
                             if ($data['waterfallProd'] && $files['waterfallProd']){
                                 $pageCount = $pdf->setSourceFile($fileSystemFtp->readStream($files['waterfallProd']));
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['maintenanceTicketTable'] && $files['maintenanceTicketTable']){
+                                $pageCount = $pdf->setSourceFile($fileSystemFtp->readStream($files['maintenanceTicketTable']));
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);
