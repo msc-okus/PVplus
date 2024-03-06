@@ -840,8 +840,7 @@ export default class extends Controller {
                 method: $form.prop('method'),
                 data: $form.serialize(),
             });
-
-            //this.dispatch('success');
+            this.dispatch('success');
             this.modal.destroy();
         } catch(e) {
             this.modalBodyTarget.innerHTML = e.responseText;

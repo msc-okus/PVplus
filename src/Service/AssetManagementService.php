@@ -62,7 +62,7 @@ class AssetManagementService
         private AnlageFileRepository        $RepositoryUpload,
         private TicketRepository            $ticketRepo,
         private NotificationInfoRepository  $notificationRepo,
-        private                             readonly Security $security,
+        private readonly Security           $security,
     )
     {
         $this->conn = $this->pdoService->getPdoPlant();
@@ -464,25 +464,43 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $reportParts['AvailabilityYearOverview'] = $pdf->createPage($html, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
+        if ($content['maintenanceTicketTable']) {
+            $html = $this->twig->render('report/asset_report_maintenance_ticket.html.twig', [
+                'anlage' => $anlage,
+                'report' => $report,
+                'month' => $reportMonth,
+                'monthName' => $output['month'],
+                'year' => $reportYear,
+                'logoImage' => $tempFileLogo,
+                'dataCfArray' => $content['dataCfArray'],
+                'reportmonth' => $content['reportmonth'],
+                'monthArray' => $content['monthArray'],
+                //until here all the parameters must be used in all the renders
+                'maintenanceTicketTable' => $content['maintenanceTicketTable'],
+                'maintenanceUnclosedTicketTable' => $content['maintenanceUnclosedTicketTable']
+            ]);
 
-        $html = $this->twig->render('report/asset_report_maintenance_ticket.html.twig', [
-            'anlage' => $anlage,
-            'report' => $report,
-            'month' => $reportMonth,
-            'monthName' => $output['month'],
-            'year' => $reportYear,
-            'logoImage' => $tempFileLogo,
-            'dataCfArray' => $content['dataCfArray'],
-            'reportmonth' => $content['reportmonth'],
-            'monthArray' => $content['monthArray'],
-            //until here all the parameters must be used in all the renders
-            'maintenanceTicketTable' => $content[ 'maintenanceTicketTable'],
-            'kpiTicketTable' => $content['kpiTicketTable'],
+            $html = str_replace('src="//', 'src="https://', $html);
+            $reportParts['maintenanceTicketTable'] = $pdf->createPage($html, $fileroute, "maintenanceTicketTable", false);// we will store this later in the entity
+        }
+        if ($content['kpiTicketTable'] != []) {
+            $html = $this->twig->render('report/asset_report_kpi_summary.html.twig', [
+                'anlage' => $anlage,
+                'report' => $report,
+                'month' => $reportMonth,
+                'monthName' => $output['month'],
+                'year' => $reportYear,
+                'logoImage' => $tempFileLogo,
+                'dataCfArray' => $content['dataCfArray'],
+                'reportmonth' => $content['reportmonth'],
+                'monthArray' => $content['monthArray'],
+                //until here all the parameters must be used in all the renders
+                'kpiTicketTable' => $content['kpiTicketTable'],
 
-        ]);
-        $html = str_replace('src="//', 'src="https://', $html);
-        $reportParts['maintenanceTicketTable'] = $pdf->createPage($html, $fileroute, "maintenanceTicketTable", false);// we will store this later in the entity
-
+            ]);
+            $html = str_replace('src="//', 'src="https://', $html);
+            $reportParts['kpiTicketTable'] = $pdf->createPage($html, $fileroute, "kpiTicketTable", false);// we will store this later in the entity
+        }
         //Availability tickets
         $html = $this->twig->render('report/asset_report_part_10.html.twig', [
             'anlage' => $anlage,
@@ -653,23 +671,27 @@ class AssetManagementService
         $maintenanceTicketTable = [];
         $kpiTicketTable = [];
         $maintenanceTicketArray = $this->ticketRepo->findAllMaintenanceAnlage($anlage, $begin, $end);
+
         $index = 0;
         $subindex = 0; //we use 2 index to split the tables in case there are too many tickets
         foreach ($maintenanceTicketArray as $maintenanceTicket) {
             $notification = $this->notificationRepo->findBy(['Ticket' => $maintenanceTicket->getId()])[0];
+            $closingNotification = $this->notificationRepo->findByTicketStatus($maintenanceTicket, 50)[0];
             if ($notification != null) {
+                $firstNotification = $this->notificationRepo->findByTicketContact($maintenanceTicket, $closingNotification->getContactedPerson())[0];
                 $maintenanceTicketTable[$index][$subindex]['id'] = $maintenanceTicket->getId();
                 $maintenanceTicketTable[$index][$subindex]['type'] = $maintenanceTicket->getAlertType();
                 $maintenanceTicketTable[$index][$subindex]['begin'] = $notification->getDate();
+                $maintenanceTicketTable[$index][$subindex]['reparationBegin'] = $firstNotification->getDate();
+                $maintenanceTicketTable[$index][$subindex]['reparationEnd'] = $closingNotification->getCloseDate();
                 $maintenanceTicketTable[$index][$subindex]['end'] = $maintenanceTicket->getWhenClosed();
             }
             if ($subindex < 39) $subindex++;
             else {
-                $index ++;
+                $index++;
                 $subindex = 0;
             }
         }
-
         $kpiTicketArray = $this->ticketRepo->findAllKpiAnlage($anlage, $begin, $end);
         $index = 0;
         $subindex = 0; //we use 2 index to split the tables in case there are too many tickets
@@ -680,7 +702,42 @@ class AssetManagementService
             $kpiTicketTable[$index][$subindex]['end'] = $kpiTicket->getEnd();
             if ($subindex < 39) $subindex++;
             else {
-                $index ++;
+                $index++;
+                $subindex = 0;
+            }
+        }
+
+        $index = 0;
+        $subindex = 0;
+        $unclosedMaintenanceTicket = $this->ticketRepo->findAllUnclosedMaintenanceAnlage($anlage, $begin, $end);
+        $unclosedMaintenanceTicketTable = [];
+        foreach ($unclosedMaintenanceTicket as $unclosedMaintenance){
+            $notification = $this->notificationRepo->findBy(['Ticket' => $unclosedMaintenance->getId()])[0];
+            $closingNotification = $this->notificationRepo->findByTicketStatus($unclosedMaintenance, 50)[0];
+            if ($notification != null) {
+
+                $unclosedMaintenanceTicketTable[$index][$subindex]['id'] = $unclosedMaintenance->getId();
+                $unclosedMaintenanceTicketTable[$index][$subindex]['type'] = $unclosedMaintenance->getAlertType();
+                $unclosedMaintenanceTicketTable[$index][$subindex]['begin'] = $notification->getDate();
+
+                if ($closingNotification != null) {
+                    $firstNotification = $this->notificationRepo->findByTicketContact($unclosedMaintenance, $closingNotification->getContactedPerson())[0];
+                    $unclosedMaintenanceTicketTable[$index][$subindex]['reparationBegin'] = $firstNotification->getDate();
+                    $unclosedMaintenanceTicketTable[$index][$subindex]['reparationEnd'] = $closingNotification->getCloseDate();
+                }
+                else{
+                    $firstNotification = $this->notificationRepo->findByTicketWIP($unclosedMaintenance)[0];
+                    if ($firstNotification != null) $unclosedMaintenanceTicketTable[$index][$subindex]['reparationBegin'] = $firstNotification->getDate();
+                    else $unclosedMaintenanceTicketTable[$index][$subindex]['reparationBegin'] = " - ";
+                    $unclosedMaintenanceTicketTable[$index][$subindex]['reparationEnd'] = " - ";
+                }
+                $unclosedMaintenanceTicketTable[$index][$subindex]['end'] = " - ";
+
+            }
+
+            if ($subindex < 39) $subindex++;
+            else {
+                $index++;
                 $subindex = 0;
             }
         }
@@ -2815,8 +2872,8 @@ class AssetManagementService
                             'exp_current_dc' => $value[$i]['exp_current_dc'],
                             'act_power_dc' => $dcIst[$j]['act_power_dc'],
                             'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                            'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 : 0,
-                            'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 : 0,
+                            'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0 && $value[$i]['exp_current_dc'] != 0) ? (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 : 0,
+                            'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0 && $value[$i]['exp_current_dc'] != 0) ? (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 : 0,
                         ];
                         if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
                             $outTableCurrentsPower[] = $dcExpDcIst;
@@ -2918,7 +2975,7 @@ class AssetManagementService
                                 'exp_current_dc' => $value[$i]['exp_current_dc'],
                                 'act_power_dc' => $dcIst[$j]['act_power_dc'],
                                 'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                                'diff_current_dc' => (($dcIst[$j]['exp_current_dc'] - $value[$i]['act_current_dc']) / $value[$i]['act_current_dc']) * 100,
+                                'diff_current_dc' => ($dcIst[$j]['exp_current_dc'] != 0 && $value[$i]['act_current_dc'] != 0) ? (($dcIst[$j]['exp_current_dc'] - $value[$i]['act_current_dc']) / $value[$i]['act_current_dc']) * 100 : 0,
                                 'diff_power_dc' => 0,
                             ];
                         }
@@ -4339,6 +4396,7 @@ class AssetManagementService
             'pr_rank_graph_20_inv' => $pr_rank_graph_20_inv,
             'maintenanceTicketTable' => $maintenanceTicketTable,
             'kpiTicketTable' => $kpiTicketTable,
+            'maintenanceUnclosedTicketTable' => $unclosedMaintenanceTicketTable,
         ];
         return $output;
     }

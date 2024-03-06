@@ -2,13 +2,14 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Maintenance Tickets summary</h3>
-    <div class="grid-x">
-        <div class="cell">
+
             <table class="asset_report_table_operations_data" >
                 <thead>
                 <tr>
                     <th class="table-center"> Ticket Id</th>
                     <th class="table-center"> Begin</th>
+                    <th class="table-center"> Reparation Begin</th>
+                    <th class="table-center"> Reparation End</th>
                     <th class="table-center"> End</th>
                     <th class="table-center"> Ticket Type</th>
                 </tr>
@@ -18,16 +19,15 @@
                     <tr>
                         <td class="tr_next_columns">{{ table_row.id }}</td>
                         <td class="tr_next_columns">{{ table_row.begin|date("Y-m-d H:i") }}</td>
+                        <td class="tr_next_columns">{{ table_row.reparationBegin|date("Y-m-d H:i") }}</td>
+                        <td class="tr_next_columns">{{ table_row.reparationEnd|date("Y-m-d H:i") }}</td>
                         <td class="tr_next_columns">{{ table_row.end|date("Y-m-d H:i")  }}</td>
                         <td class="tr_next_columns">  {% set errcat %}ticket.error.category.{{ table_row.type }}{% endset %}
-
                             {{ errcat|trans }}</td>
                         </td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
-        </div>
-        </div>
-    </div>
+
 {% endblock %}

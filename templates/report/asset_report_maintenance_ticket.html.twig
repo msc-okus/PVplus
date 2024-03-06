@@ -7,9 +7,8 @@
     {% for table in maintenanceTicketTable %}
         {% include 'report/_asset_mangement_partials/_maintenace_ticket.html.twig'%}
     {% endfor %}
-
-    {% for table in kpiTicketTable %}
-        {% include 'report/_asset_mangement_partials/_kpi_ticket.html.twig'%}
+    {% for table in maintenanceUnclosedTicketTable %}
+        {% include 'report/_asset_mangement_partials/_unclosed_maintenace_ticket.html.twig'%}
     {% endfor %}
 </div>
 {% endblock %}

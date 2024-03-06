@@ -680,6 +680,8 @@ class TicketController extends BaseController
         $countProofByEPC = $ticketRepo->countByProofEPC();
         $countByProofAM = $ticketRepo->countByProofAM();
         $countByProofG4N = $ticketRepo->countByProofG4N();
+        $countIgnore = $ticketRepo->countIgnored();
+        $countproofmaintenance = $ticketRepo->countByProofMaintenance();
 
         $filter = [];
         $session = $requestStack->getSession();
@@ -784,7 +786,9 @@ class TicketController extends BaseController
             'countProofByAM'  => $countByProofAM,
             'countProofByEPC'  => $countProofByEPC,
             'countProofByTAM'  => $countProofByTam,
-            'countProofByG4N'  => $countByProofG4N
+            'countProofByG4N'  => $countByProofG4N,
+            'countIgnored' => $countIgnore,
+            'countProofByMaintenance' => $countproofmaintenance
 
         ]);
     }

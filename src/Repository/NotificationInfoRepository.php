@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\ContactInfo;
 use App\Entity\NotificationInfo;
+use App\Entity\Ticket;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -45,4 +47,35 @@ class NotificationInfoRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+public function findByTicketStatus(Ticket $ticket,  $status){
+            return $this->createQueryBuilder('n')
+                ->andWhere('n.Ticket = :ticket')
+                ->andWhere('n.status = :status')
+                ->setParameter('ticket', $ticket)
+                ->setParameter('status', $status)
+                ->getQuery()
+                ->getResult()
+       ;
+}
+    public function findByTicketContact(Ticket $ticket,  ContactInfo $contactedPerson){
+        return $this->createQueryBuilder('n')
+            ->andWhere('n.Ticket = :ticket')
+            ->andWhere('n.ContactedPerson = :contact')
+            ->setParameter('ticket', $ticket)
+            ->setParameter('contact', $contactedPerson)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+    public function findByTicketWIP(Ticket $ticket){
+        return $this->createQueryBuilder('n')
+            ->andWhere('n.Ticket = :ticket')
+            ->andWhere('n.status = 20')
+            ->setParameter('ticket', $ticket)
+            ->orderBy('n.Date', 'DESC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

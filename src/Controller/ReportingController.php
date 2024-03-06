@@ -479,6 +479,14 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
+                            if ($data['kpiTicketTable'] && $files['kpiTicketTable']){
+                                $pageCount = $pdf->setSourceFile($fileSystemFtp->readStream($files['kpiTicketTable']));
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
                         }
 
                         if ($data['Availability']){
