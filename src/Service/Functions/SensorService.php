@@ -55,15 +55,21 @@ class SensorService
         // berechne ersatz Wert und Addiere zum entsprechenden Wert
         /** @var TicketDate $ticketDate */
         foreach ($ticketArray as $ticketDate){ #loop über query result
+
+            $interval15 = new \DateInterval('PT15M');
             // Start und End Zeitpunkt ermitteln, es sollen keine Daten gesucht werden die auserhalb des Übergebenen Zeitaums liegen.
             // Ticket kann ja schon vor dem Zeitraum gestartet oder danach erst beendet werden
-            $tempoStartDate = clone ($startDate > $ticketDate->getBegin() ? $startDate : $ticketDate->getBegin());
-            $tempoEndDate = clone ($endDate < $ticketDate->getEnd() ? $endDate : $ticketDate->getEnd());
+            $tempStartDate = clone ($startDate > $ticketDate->getBegin() ? $startDate : $ticketDate->getBegin());
+            $tempEndDate = clone ($endDate < $ticketDate->getEnd() ? $endDate : $ticketDate->getEnd());
+            // Wenn ticket länger als $endDate geht dann 15 minuten aufschlagen um den letzten Wert (end ticket ist Wert an der ANlage wieder geht) mit in die Kalkulation einzubinden
+            if ($ticketDate->getEnd() > $tempEndDate) {
+                $tempEndDate->add($interval15);
+                dump( $tempEndDate);
+            }
             // erzeuge Time mit 15 Minuten versatz nach hinten -> wenn wir nach wetter Daten suchen wird eine Datums suche > und <= genutzt,
-            // bei Tickets muss aber <= und < genutzt werden oder das datum muss um ein 1 quater (15minuten) nach hinten verschoben werden
-            $tempStartDateMinus15 = clone $tempoStartDate;
-            $tempEndDateMinus15 = clone $tempoEndDate;
-            $interval15 = new \DateInterval('PT15M');
+            // bei Tickets muss aber >= und < genutzt werden oder das datum muss um ein 1 quater (15minuten) nach hinten verschoben werden
+            $tempStartDateMinus15 = clone $tempStartDate;
+            $tempEndDateMinus15 = clone $tempEndDate;
             $tempStartDateMinus15->sub($interval15);
             $tempEndDateMinus15->sub($interval15);
 
@@ -76,7 +82,7 @@ class SensorService
 
                     // Search for sensor (irr) values in ac_ist database
                     $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
-                    $sensorArrays = $this->weatherFunctionsService->getSensors($anlage, $tempoStartDate, $tempoEndDate);
+                    $sensorArrays = $this->weatherFunctionsService->getSensors($anlage, $tempStartDate, $tempEndDate);
 
                     #dd($tempWeatherArray, $sensorArrays);
 
@@ -139,16 +145,15 @@ class SensorService
 
                 // Replace Sensors
                 case '71':
-                    $oldWeather = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempoStartDate->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
-                    $replaceArray = $this->replaceValuesTicketRepo->getSum($anlage, $tempoStartDate, $tempEndDateMinus15); // End date muss 15 minuten früher, da end date Ticket erstes Intervall das wieder geht
-                    #dump($oldWeather, $replaceArray, $sensorData);
+                    $oldWeather = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
+                    $replaceArray = $this->replaceValuesTicketRepo->getSum($anlage, $tempStartDate, $tempEndDateMinus15); // End date muss 15 minuten früher, da end date Ticket erstes Intervall das wieder geht
                     $sensorData = $this->corrIrr($oldWeather, $replaceArray, $sensorData, $ticketDate);
-                    #dump($sensorData);
                     break;
 
                 // Exclude from PR/Energy (exclude Irr and TheoPower)
                 case '72':
-                    $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempoEndDate->format('Y-m-d H:i'), false, $anlage);
+                    $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
+                    dump($tempStartDateMinus15, $tempEndDate);
                     #dump($sensorData, $tempWeatherArray);
                     // korrigiere Modul Irradiation
                     $sensorData['irr0'] = $sensorData['upperIrr'];
@@ -184,16 +189,16 @@ class SensorService
                 case '73':
                     // wenn replace Enery with PVSyst und replace Irradiation
                     if ($ticketDate->isReplaceEnergy() && $ticketDate->isReplaceIrr()) {
-                        if ($tempoStartDate->format('i') == '00') {
-                            $hour = (int)$tempoStartDate->format('H') - 1;
-                            $tempoStartDate = date_create($tempoStartDate->format("Y-m-d $hour:15"));
-                            $tempoEndDate = date_create($tempoEndDate->format("Y-m-d H:00"));
+                        if ($tempStartDate->format('i') == '00') {
+                            $hour = (int)$tempStartDate->format('H') - 1;
+                            $tempStartDate = date_create($tempStartDate->format("Y-m-d $hour:15"));
+                            $tempEndDate = date_create($tempEndDate->format("Y-m-d H:00"));
                         } else {
-                            $tempoStartDate = date_create($tempoStartDate->format('Y-m-d H:15'));
-                            $hour = (int)$tempoStartDate->format('H') + 1;
+                            $tempStartDate = date_create($tempStartDate->format('Y-m-d H:15'));
+                            $hour = (int)$tempStartDate->format('H') + 1;
                         }
-                        $pvSystStartDate = date_create($tempoStartDate->format("Y-m-d $hour:00"));
-                        $pvSystEndDate = date_create($tempoEndDate->format("Y-m-d H:00"));
+                        $pvSystStartDate = date_create($tempStartDate->format("Y-m-d $hour:00"));
+                        $pvSystEndDate = date_create($tempEndDate->format("Y-m-d H:00"));
 
                         $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
                         $replaceArray = $this->getPvSystIrr($anlage, $pvSystStartDate, $pvSystEndDate);

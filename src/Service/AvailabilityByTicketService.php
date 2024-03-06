@@ -443,12 +443,12 @@ class AvailabilityByTicketService
                             // Case 2 (second part of ti - means case1 + case2 = ti)
                             if ($anlage->getTreatingDataGapsAsOutage()) {
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
-                                            ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null ) && $case5 === false && $case6 === false && $skipTi === false);
+                                            ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh) && $case5 === false && $case6 === false && $skipTi === false);
                                 // Änderung am 27. Feb 24 '$powerAc > $powerThersholdkWh' ersetzt durch '($powerAc > $powerThersholdkWh || $powerAc === null)' | MRE // && $commIssu === true)
                             } else {
-                                $hitCase2 = ($conditionIrrCase2 && $commIssu === false && $skipTi === false) ||
+                                $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                             ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
-                                // Änderung am 27. Feb 24 '$commIssu === false' (vorher === true) | MRE
+
                             }
                             if ($hitCase2) {
                                 $case2 = true;
