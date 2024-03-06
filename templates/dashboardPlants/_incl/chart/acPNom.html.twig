@@ -72,9 +72,9 @@
         }
 
         let datax = {{ content.SeriesNameArray|raw }};
-
-        for (let i = {{ content.minSeries|raw }}; i <= {{ content.maxSeries|raw }}; i++) {
-            let xname = datax[i];
+        let x = {{ content.invNames|length }};
+        for (let i = 0; i <= 4; i++) {
+            let xname = {{ content.invNames }}[i];
             addSeries(xname,xname);
         }
 

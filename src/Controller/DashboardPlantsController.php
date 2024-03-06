@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Service\FunctionsService;
 
 class DashboardPlantsController extends BaseController
 {
@@ -85,7 +86,7 @@ class DashboardPlantsController extends BaseController
      * @throws InvalidArgumentException
      */
     #[Route(path: '/dashboard/plants/{eignerId}/{anlageId}', name: 'app_dashboard_plant')]
-    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService, AcGroupsRepository $acRepo): Response
+    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService, AcGroupsRepository $acRepo, FunctionsService $functions=null): Response
     {
         $hour = '';
         $form = [];
@@ -133,6 +134,7 @@ class DashboardPlantsController extends BaseController
             $form['optionDayAheadView']  = $request->request->get('optionDayAheadView');
             $form['optionDayAheadViewDay']  = $request->request->get('optionDayAheadViewDay');
             $form['hour']               = $request->request->get('hour');
+
             if ($form['selectedChart'] == 'sollistirranalyse'   && !$form['optionIrrVal']) $form['optionIrrVal'] = 400;
             if ($form['selectedChart'] == 'pr_and_av'           && $form['optionDate'] < 7) $form['optionDate'] = 7;
 
@@ -188,13 +190,20 @@ class DashboardPlantsController extends BaseController
 
         $content = null;
         $hour = $request->get('hour') == 'on';
+        if($aktAnlage){
+            switch ($aktAnlage->getConfigType()) {
+                case 1:
+                    $nameArray = $functions->getNameArray($aktAnlage, 'dc');
+                    break;
+                default:
+                    $nameArray = $functions->getNameArray($aktAnlage, 'ac');
+
+            }
+            $trafoArray = $this->getTrafoArray($aktAnlage, $acRepo);
+        }
+        unset($functions);
         if ($aktAnlage) {
             $content = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
-        }
-
-        if($aktAnlage){
-            $nameArray = $aktAnlage->getInverterFromAnlage();
-            $trafoArray = $this->getTrafoArray($aktAnlage, $acRepo);
         }
 
         $inverterArray = [];

@@ -236,32 +236,14 @@
 
     <script>
         // The range slider config and functions
-        $(function () {
-            $("#slider-range").slider({
-                    range: true,
-                    min: 1,
-                    max: {% if content.sumSeries|raw %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
-                values: {% if form.selectedSet %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
-                slide: function (event, ui) {
-                $("#sview").val("" + ui.values[0] + "-" + ui.values[1] + "");
-                $("#sviewhidden").val("[" + ui.values[0] + "," + ui.values[1] + "]");
-            },
-            change: function (event, ui) {
-                if ((ui.values[1] - ui.values[0]) > 100) {
-                    alert("The selected range is greater than 100, which can lead to delays in the view!");
-                }
-                $("#sendrange").css("background-color", "#e6e6e6");
-            }
-        });
-            $("#sview").val("" + $("#slider-range").slider("values", 0) + "-" + $("#slider-range").slider("values", 1) + "");
-            $("#sviewhidden").val("[" + $("#slider-range").slider("values", 0) + "," + $("#slider-range").slider("values", 1) + "]");
-            $("#goshare").click(function () {
-                $("#mysubmit").val('yes');
-                $("#chart-control").delay(100).submit();
-            });
-        });
+
+            $("#sview").val(form.selectedSet);
+            $("#sviewhidden").val(form.selectedSet);
+
+
     </script>
 {% endif %}
+
 
 {% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showDCPnomCurr,showACPnom,showHeatmap ,showTempHeatmap ,showSollIstAnalyse,showSollIstTempAnalyse,showSollIstIrrAnalyse,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
     currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive, voltageDc1, voltageDcString %}
@@ -399,27 +381,22 @@
             or form.selectedChart == 'acpnom' %}
             {% if grlengthmax %}
                 <div class="grid-x grid-padding-x" style="height:40px;">
-                    <div class="cell medium-5 large-5 xlarge-5"><label for="amount">INV Range:</label></div>
+                    <div class="cell">INV Range:</div>
                     <div class="cell medium-4 large-4 xlarge-4">
-                        <input type="text" id="sview" readonly
-                               style="border:0; background-color: #701b1b00 ; box-shadow: inset 0 0 0 rgba(10, 10, 10, 0.1);font-weight:bold;">
                         <input type="hidden" id="sviewhidden" name="selectedSet" value="0">
                         <input type="hidden" name="selectedSetfrom" value="{{ form.selectedSet }}">
                     </div>
 
-                    <div class="cell medium-3 large-3 xlarge-3">
-                        <label id="goshare" class="button" title="Submit the range"
-                               style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
-                            <div type="text" id="sendrange" style="display: block">
-                                <i class="fa fa fa-expand"></i>
-                            </div>
-                        </label>
-                    </div>
                 </div>
-                <div id="slider-range"></div>
+
         <div data-controller="request">
             <div id="select-inverters">
                 <div class="selectInverters">
+                    {{ content.minSeries|raw }}
+                    for (let i = {{ content.minSeries|raw }}; i <= {{ content.maxSeries|raw }}; i++) {
+                    let xname = datax[i];
+
+                    }
                     <div class="dropbtn"><i class="far fa-bell" id="far-fa-bell"></i></div>
                     <div class="selectInvertersContent fade" id="selectInvertersContent">
                         {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, trafoArray:trafoArray, edited:edited} only %}

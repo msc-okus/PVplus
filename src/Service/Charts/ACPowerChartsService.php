@@ -852,12 +852,17 @@ class ACPowerChartsService
             case 1:
                 $group = 'group_dc';
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                $idArray = $this->functions->getIdArray($anlage, 'dc');
                 break;
             default:
                 $group = 'group_ac';
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                $idArray = $this->functions->getIdArray($anlage, 'ac');
         }
+
         $groupct = count($nameArray);
+
+        $res = explode(',', (string) $sets);
 
         if ($groupct) {
             if ($sets == null) {
@@ -866,20 +871,33 @@ class ACPowerChartsService
                 $max = (($max > 50) ? '50' : $max);
                 $sqladd = "AND $group BETWEEN '$min' AND '$max'";
               } else {
-                $res = explode(',', (string) $sets);
-                $min = (int)ltrim($res[0], "[");
-                $max = (int)rtrim($res[1], "]");
-                if ($max > $groupct) $max = $groupct;
-                if ($groupct <= $min) $min = 1;
-                $sqladd = "AND $group BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '5' : $max) . "";
+                $temp = '';
+                $invIdArray = [];
+                $invNameArray = [];
+                for ($i = 0; $i < count($nameArray); ++$i) {
+
+                    if(str_contains($sets, $nameArray[$i+1])){
+                        $invId = $i+1;
+                        $temp = $temp.$group." = ".$invId." OR ";
+                        $invIdArray[] =  $idArray[$i+1];
+                        $invNameArray[] =  $nameArray[$i+1];
+
+                    }
+                }
+
+                $temp = substr($temp, 0, -4);
+                $sqladd = "AND ($temp) ";
+
             }
         } else {
             $min = 1;$max = 5;
             $sqladd = "AND $group BETWEEN '$min' AND ' $max'";
         }
+
+
         // the array for range slider min max
-        $dataArray['minSeries'] = $min;
-        $dataArray['maxSeries'] = $max;
+        $dataArray['invNames'] = $invNameArray;
+        $dataArray['invIds'] = $invIdArray;
         $dataArray['sumSeries'] = $groupct;
         // build the Sql Query
         $sql = "SELECT c.stamp as ts, c.wr_idc as istCurrent ,c.wr_pac as istPower, c.$group as inv FROM
@@ -887,8 +905,11 @@ class ACPowerChartsService
                  > '$from' AND c.stamp <= '$to' 
                  $sqladd
                  GROUP BY c.stamp,c.$group ORDER BY NULL";
+
+
         // process the Query result
         $resultActual = $conn->query($sql);
+
         $dataArray['SeriesNameArray'] = $nameArray;
         if ($resultActual->rowCount() > 0) {
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
