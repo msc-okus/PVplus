@@ -863,7 +863,7 @@ class ACPowerChartsService
         $groupct = count($nameArray);
 
         $res = explode(',', (string) $sets);
-
+        $invNameArray = ['INV 01.01'];
         if ($groupct) {
             if ($sets == null) {
                 $min = 1;
@@ -872,15 +872,13 @@ class ACPowerChartsService
                 $sqladd = "AND $group BETWEEN '$min' AND '$max'";
               } else {
                 $temp = '';
-                $invIdArray = [];
-                $invNameArray = [];
                 for ($i = 0; $i < count($nameArray); ++$i) {
 
                     if(str_contains($sets, $nameArray[$i+1])){
                         $invId = $i+1;
                         $temp = $temp.$group." = ".$invId." OR ";
-                        $invIdArray[] =  $idArray[$i+1];
-                        $invNameArray[] =  $nameArray[$i+1];
+                        $invIdArray[$i+1] =  $idArray[$i+1];
+                        $invNameArray[$i+1] =  $nameArray[$i+1];
 
                     }
                 }
@@ -894,11 +892,11 @@ class ACPowerChartsService
             $sqladd = "AND $group BETWEEN '$min' AND ' $max'";
         }
 
-
         // the array for range slider min max
         $dataArray['invNames'] = $invNameArray;
         $dataArray['invIds'] = $invIdArray;
         $dataArray['sumSeries'] = $groupct;
+
         // build the Sql Query
         $sql = "SELECT c.stamp as ts, c.wr_idc as istCurrent ,c.wr_pac as istPower, c.$group as inv FROM
                  " . $anlage->getDbNameACIst() . " c WHERE c.stamp 

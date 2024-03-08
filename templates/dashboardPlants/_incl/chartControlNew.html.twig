@@ -240,7 +240,24 @@
             $("#sview").val(form.selectedSet);
             $("#sviewhidden").val(form.selectedSet);
 
-
+                slide: function (event, ui) {
+                $("#sview").val("1,7");
+                $("#sviewhidden").val("1,7");
+            },
+            change: function (event, ui) {
+                if ((7 - 1) > 100) {
+                    alert("The selected range is greater than 100, which can lead to delays in the view!");
+                }
+                $("#sendrange").css("background-color", "#e6e6e6");
+            }
+        });
+            $("#sview").val("1,7");
+            $("#sviewhidden").val("1,7");
+            $("#goshare").click(function () {
+                $("#mysubmit").val('yes');
+                $("#chart-control").delay(100).submit();
+            });
+        });
     </script>
 {% endif %}
 
@@ -392,11 +409,6 @@
         <div data-controller="request">
             <div id="select-inverters">
                 <div class="selectInverters">
-                    {{ content.minSeries|raw }}
-                    for (let i = {{ content.minSeries|raw }}; i <= {{ content.maxSeries|raw }}; i++) {
-                    let xname = datax[i];
-
-                    }
                     <div class="dropbtn"><i class="far fa-bell" id="far-fa-bell"></i></div>
                     <div class="selectInvertersContent fade" id="selectInvertersContent">
                         {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, trafoArray:trafoArray, edited:edited} only %}

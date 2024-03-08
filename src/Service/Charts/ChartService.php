@@ -525,6 +525,9 @@ class ChartService
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
                     $resultArray['minSeries'] = $dataArray['minSeries'];
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
+                    $resultArray['countSelectedInverters'] = count($dataArray['invNames']);
+                    $resultArray['invNames'] = json_encode($dataArray['invNames']);
+                    $resultArray['invIds'] = json_encode($dataArray['invIds']);
                     $resultArray['SeriesNameArray'] = json_encode($dataArray['SeriesNameArray']);
                     break;
                     //xxxxx

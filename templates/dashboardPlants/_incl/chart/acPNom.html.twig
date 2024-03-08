@@ -71,11 +71,15 @@
             return series;
         }
 
-        let datax = {{ content.SeriesNameArray|raw }};
-        let x = {{ content.invNames|length }};
-        for (let i = 0; i <= 4; i++) {
-            let xname = {{ content.invNames }}[i];
-            addSeries(xname,xname);
+        let datax = {{ content.invNames|raw }};
+        let x = {{ content.countSelectedInverters }};
+
+        for (let i = 1; i = x; i++) {
+            let xname = datax[i];
+
+
+                addSeries(xname,xname);
+        
         }
 
         // Export for series
