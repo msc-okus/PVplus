@@ -24,7 +24,7 @@ class IrradiationService
     use G4NTrait;
 
     public function __construct(
-private readonly PdoService $pdoService,
+        private readonly PdoService $pdoService,
         private readonly TicketRepository $ticketRepo,
         private readonly TicketDateRepository $ticketDateRepo,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
@@ -83,6 +83,8 @@ private readonly PdoService $pdoService,
     }
 
     /**
+     * Correct Irradiation by Ticket for PA Calculation
+     *
      * @throws \JsonException
      */
     private function correctIrrByTicket(Anlage $anlage, string $from, string $to, array $irrData): array
@@ -267,6 +269,7 @@ private readonly PdoService $pdoService,
     /**
      * Calculation of temprature of cell (Tcell) according to NREL
      *
+     * @param Anlage $anlage
      * @param float|null $windSpeed
      * @param float|null $airTemp
      * @param float|null $gPOA

@@ -17,8 +17,7 @@ class IrradiationChartService
         private readonly FunctionsService $functions,
         private readonly InvertersRepository $invertersRep,
         private readonly PdoService $pdoService,
-    )
-    {
+    ) {
     }
 
     /**
@@ -251,10 +250,12 @@ class IrradiationChartService
     /**
      * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wird.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param bool $hour
      * @return array
-     * @throws \Exception
+     * @throws \JsonException
      */
     public function getIrradiationPlant(Anlage $anlage, $from, $to, bool $hour): array
     {
