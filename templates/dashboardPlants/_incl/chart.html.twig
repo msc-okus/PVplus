@@ -2,7 +2,7 @@
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import pvSystTable as pvSystTable %}
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import gridTable as gridTable %}
 
-{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' and form.selectedChart != 'grid' and form.selectedChart != 'sollistirranalyse'%}
+{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'availability_intervall' and form.selectedChart != 'pvsyst' and form.selectedChart != 'grid' and form.selectedChart != 'sollistirranalyse'%}
     <div id="amchart-holder"></div>
 {% endif %}
 
@@ -1348,6 +1348,10 @@
     <h3>{{ content.headline }} - {{ aktAnlage.anlName }}</h3>
     <h4>from: {{ form.from|date("Y-m-d") }} to: {{ form.to|date("Y-m-d") }}</h4>
     {% include 'dashboardPlants/_incl/chart/availabillityNew.html.twig' %}
+{% elseif form.selectedChart == 'availability_intervall' %}
+    <h3>{{ content.headline }} - {{ aktAnlage.anlName }}</h3>
+    <h4>from: {{ form.from|date("Y-m-d") }} to: {{ form.to|date("Y-m-d") }}</h4>
+    {% include 'dashboardPlants/_incl/chart/availabillityIntervall.html.twig' %}
 {% elseif form.selectedChart == 'pvsyst' %}
     {{ pvSystTable(content.pvSysts) }}
 {% elseif form.selectedChart == 'grid' %}

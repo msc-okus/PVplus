@@ -3,11 +3,11 @@
     <div class="grid-x">
         <div class="cell small-form" >
             <h3>Inverter List</h3>
-            <input  id="check-all" type="checkbox"
+            <input  id="search-check-all" type="checkbox"
                     data-ticket-list-target="switch"
                     data-action="click->ticket-list#selectAll">
 
-            <label for="check-all" class="">Select All</label>
+            <label for="search-check-all" class="">Select All</label>
         </div>
     </div>
     <hr>
@@ -15,13 +15,13 @@
         {% for key in trafoArray|keys %}
             {% set trafo = trafoArray[key] %}
             <div class="cell small-form">
-                <input id="trafo{{ loop.index }}"
+                <input id="search-trafo{{ loop.index }}"
                        class="js-checkbox-trafo"
                        data-ticket-list-first-param="{{ trafo.first }}"
                        data-ticket-list-last-param="{{ trafo.last }}"
                        data-ticket-list-trafo-param="{{ loop.index }}"
                        data-action="click->ticket-list#checkTrafo" type="checkbox">
-                <label for="trafo{{ loop.index }}">TS {{ key }}</label>
+                <label for="search-trafo{{ loop.index }}">TS {{ key }}</label>
             </div>
         {% endfor %}
     </div>
@@ -29,11 +29,11 @@
     <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-9">
         {% for inverter in invArray %}
             <div class="cell small-form">
-                <input id="I-{{ loop.index }}" type="checkbox"
+                <input id="search-I-{{ loop.index }}" type="checkbox"
                        class="js-checkbox"
                        name="{{ inverter['inv'] }}"
                        data-action="click->ticket-list#setInverter">
-                <label for="I-{{ loop.index }}"
+                <label for="search-I-{{ loop.index }}"
                        class="">{{ inverter['inv'] }}</label>
             </div>
         {% endfor %}

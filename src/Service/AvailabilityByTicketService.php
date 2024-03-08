@@ -416,12 +416,12 @@ class AvailabilityByTicketService
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);
                             $commIssu       = isset($commIssuArray[$inverter][$stamp])          && !$case5; // ignoriere Communication eroros wenn case5 (tiFM) gesetzt ist
-                            if ($department == 2 && $inverter == 18) dump($stamp,$commIssu);
+              #if ($department == 2 && $commIssu === true) dump($stamp);
                             $skipTi         = isset($skipTiAndTitheoArray[$inverter][$stamp])   && $skipTiAndTitheoArray[$inverter][$stamp] === true;
                             $skipTiTheo     = isset($skipTiAndTitheoArray[$inverter][$stamp])   && $skipTiAndTitheoArray[$inverter][$stamp] === true;
                             $outageAsTiFm   = isset($skipTiOnlyArray[$inverter][$stamp])        && $skipTiOnlyArray[$inverter][$stamp]      === true; // Replace outage with TiFM for PA
 
-                            // Case 0 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
+                            // Case 0 (Datenlücken Inverter Daten oder keine Datenlücken für Strahlung)
                             if ($powerAc === null && $case5 === false) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
                                 $case0 = true;
                                 ++$availability[$inverter]['case0'];
@@ -443,10 +443,12 @@ class AvailabilityByTicketService
                             // Case 2 (second part of ti - means case1 + case2 = ti)
                             if ($anlage->getTreatingDataGapsAsOutage()) {
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
-                                            ($conditionIrrCase2 && $powerAc > $powerThersholdkWh && $case5 === false && $case6 === false && $skipTi === false);
+                                            ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh) && $case5 === false && $case6 === false && $skipTi === false);
+                                // Änderung am 27. Feb 24 '$powerAc > $powerThersholdkWh' ersetzt durch '($powerAc > $powerThersholdkWh || $powerAc === null)' | MRE // && $commIssu === true)
                             } else {
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                             ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
+
                             }
                             if ($hitCase2) {
                                 $case2 = true;

@@ -19,7 +19,7 @@ export default class extends Controller {
     async search(event) {
         event.preventDefault();
         const $searchListform = $(this.searchBarTarget).find('form');
-        var serializedData = $searchListform.serialize().concat("&page=1");
+        let serializedData = $searchListform.serialize().concat("&page=1");
         const $queryParams = $(event.currentTarget).data("query-value");
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
@@ -29,25 +29,25 @@ export default class extends Controller {
         $(document).foundation();
         this.disableAllToolTips()
     }
+
     async update(event) {
         event.preventDefault();
         const $searchListform = $(this.searchBarTarget).find('form');
-        var serializedData = $searchListform.serialize();
+        let serializedData = $searchListform.serialize();
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
             method: $searchListform.prop('method'),
             data: serializedData,
         });
-        var response = await $.ajax({
+        const response = await $.ajax({
             url: '/ticket/proofCount',
         });
-        this.proofepcTarget.innerText = response['countProofByEPC'];
-        this.prooftamTarget.innerText = response['countProofByTAM'];
-        this.proofg4nTarget.innerText = response['countProofByG4N'];
-        this.proofamTarget.innerText = response['countProofByAM'];
-        this.ignoredTarget.innerText = response['countIgnored'];
-        this.proofmaintenanceTarget.innerText = response['countProofByMaintenance'];
-
+        this.proofepcTarget.innerText = response['counts']['proofByEPC'];
+        this.prooftamTarget.innerText = response['counts']['proofByTam'];
+        this.proofg4nTarget.innerText = response['counts']['proofByG4N'];
+        this.proofamTarget.innerText = response['counts']['proofByAM'];
+        this.ignoredTarget.innerText = response['counts']['ignored'];
+        this.proofmaintenanceTarget.innerText = response['counts']['proofByMaintenance'];
         $(document).foundation();
         this.disableAllToolTips()
     }
@@ -71,7 +71,6 @@ export default class extends Controller {
         else {$(this.directionTarget).val('ASC');}
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
-
         });
         $(document).foundation();
         this.disableAllToolTips()
@@ -85,8 +84,7 @@ export default class extends Controller {
         event.preventDefault();
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
-
-                    });
+        });
         $(document).foundation();
         this.disableAllToolTips()
     }
@@ -98,7 +96,6 @@ export default class extends Controller {
         else {$(this.directionTarget).val('ASC');}
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
-
         });
         $(document).foundation();
     }
@@ -110,7 +107,6 @@ export default class extends Controller {
         else {$(this.directionTarget).val('ASC');}
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
-
         });
         $(document).foundation();
         this.disableAllToolTips()
@@ -124,23 +120,20 @@ export default class extends Controller {
     async selectAnlage(){
         let id= $(this.anlageselectTarget).val();
         if (id !=  '') {
-
             $(this.InverterSearchButtonTarget).removeAttr('disabled');
                 this.InverterSearchDropdownTarget.innerHTML = await $.ajax({
                 url: '/list/getinverterarray/' + id,
             });
-        }
-        else{
+        } else {
             $(this.InverterSearchButtonTarget).attr('disabled', 'disabled');
         }
     }
     checkTrafo({ params: { first, last, trafo }}){
         let body = $(this.InverterSearchDropdownTarget);
-        let checked = $("#trafo" + trafo).prop('checked');
+        let checked = $("#search-trafo" + trafo).prop('checked');
         body.find('input:checkbox[class=js-checkbox]').each(function (){
-            console.log($(this).prop('id').substring(2), first, last);
-            if ($(this).prop('id').substring(2) >= first) {
-                if ($(this).prop('id').substring(2) <= last){
+            if ($(this).prop('id').substring(9) >= first) {
+                if ($(this).prop('id').substring(9) <= last){
                     if (checked) $(this).prop('checked', true);
                     else $(this).prop('checked', false);
                 }
@@ -156,14 +149,11 @@ export default class extends Controller {
         body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
             counter ++;
             if (inverterString == '') {
-                inverterString = inverterString + $(this).prop('id').substring(2);
-            }
-            else {
-                inverterString = inverterString + ', ' + $(this).prop('id').substring(2);
-
+                inverterString = inverterString + $(this).prop('id').substring(9);
+            } else {
+                inverterString = inverterString + ', ' + $(this).prop('id').substring(9);
             }
         });
-        console.log(inverterString);
         if (counter == body.find('input:checkbox[class=js-checkbox]').length){
             inverterString = '*';
         }
@@ -187,9 +177,7 @@ export default class extends Controller {
             body.find('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
             });
-
             inverterString = '';
-
         }
         $('#inverterSearch').val(inverterString);
     }

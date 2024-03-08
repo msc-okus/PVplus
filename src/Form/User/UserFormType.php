@@ -66,7 +66,7 @@ class UserFormType extends AbstractType
 
 
        if ($this->security->isGranted('ROLE_G4N')){
-           $choicesRolesArray = [...User::ARRAY_OF_G4N_ROLES, ...User::ARRAY_OF_ROLES_USER, ...$user->getRolesArrayByFeature()];
+           $choicesRolesArray = [...User::ARRAY_OF_G4N_ROLES, ...User::ARRAY_OF_ROLES_USER, ...User::ARRAY_OF_FUNCTIONS_BY_ROLE];
        } else {
            $choicesRolesArray = [...User::ARRAY_OF_ROLES_USER, ...$user->getRolesArrayByFeature()];
        }

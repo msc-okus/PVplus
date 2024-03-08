@@ -72,7 +72,6 @@ export default class extends Controller {
 
     async openContactCreateModal(event){
 
-        console.log(this.createContactUrlValue);
         event.preventDefault();
         this.modalContactCreateBodyTarget.innerHTML = 'Loading ...';
         this.contactCreateModal = new Reveal($(this.contactModalCreateTarget));
@@ -207,7 +206,6 @@ export default class extends Controller {
             }
 
             let newStringdate = newDate.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
-            console.log(newStringdate);
             $(this.formEndTarget).val(newStringdate);
             $(this.formEndDateTarget).val(newStringdate);
 
@@ -835,19 +833,16 @@ export default class extends Controller {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
         try {
-
             await $.ajax({
                 url: this.formUrlValue,
                 method: $form.prop('method'),
                 data: $form.serialize(),
             });
-
-            //this.dispatch('success');
+            this.dispatch('success');
             this.modal.destroy();
         } catch(e) {
             this.modalBodyTarget.innerHTML = e.responseText;
         }
-
     }
     closeNotify(event) {
         event.preventDefault();
@@ -873,7 +868,6 @@ export default class extends Controller {
     }
     async saveNewContact(){
         const  $form = $(this.contactModalCreateTarget).find('form');
-        console.log($form);
         try {
             await $.ajax({
                 url: this.createContactUrlValue,
@@ -1187,7 +1181,6 @@ export default class extends Controller {
             body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
 
         });
-        console.log(inverterString);
         if (counter == body.find('input:checkbox[class=js-checkbox]').length){
             inverterString = '*';
             inverterNameString = '*';
@@ -1365,7 +1358,6 @@ export default class extends Controller {
             $(this.splitButtonTarget).removeAttr('disabled');
             $(this.splitAlertTarget).addClass('is-hidden');
         }
-        console.log(inverterStringa, inverterStringb);
     }
     checkInverterSplit2({ params: { id }}){
         let body = $(this.modalBodyTarget);
