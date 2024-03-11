@@ -32,7 +32,7 @@
         valueAxis.title.text = "[[kW/kWp]]";
 
         // Create series
-        function addSeries(xname,id) {
+        function addSeries(xname) {
             var series = chart.series.push(new am4charts.LineSeries());
 
             series.dataFields.dateX = "date";
@@ -61,7 +61,7 @@
                 var data = [];
                 for(var i = 0; i < source.length; i++) {
                     var row = source[i];
-                    if (row.xinv == id) {
+                    if (row.xinv == xname) {
                         data.push(row);
                     }
                 }
@@ -72,9 +72,11 @@
         }
 
         let datax = {{ content.invNames|raw }};
-        let x = {{ content.countSelectedInverters }};
 
-alert (x+' / '.datax[x]);
+        for (let i = 1; i <= {{ content.countSelectedInverters }}; i++) {
+
+            addSeries(datax[i]);
+        }
 
         // Export for series
         chart.exporting.menu = new am4core.ExportMenu();
@@ -116,7 +118,7 @@ alert (x+' / '.datax[x]);
         })
 
         chart.legend.itemContainers.template.events.on("out", function(event) {
-           processOut(event.target.dataItem.dataContext);
+            processOut(event.target.dataItem.dataContext);
         })
 
         chart.legend.labels.template.textDecoration = "none";

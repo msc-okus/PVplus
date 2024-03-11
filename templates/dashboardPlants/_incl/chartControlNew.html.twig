@@ -237,12 +237,12 @@
     <script>
         // The range slider config and functions
 
-            $("#sview").val(form.selectedSet);
-            $("#sviewhidden").val(form.selectedSet);
+            $("#invids").val(form.selectedSet);
+            $("#invnames").val(form.selectedSet);
 
                 slide: function (event, ui) {
-                $("#sview").val("1,7");
-                $("#sviewhidden").val("1,7");
+                $("#invids").val("1,7");
+                $("#invnames").val("1,7");
             },
             change: function (event, ui) {
                 if ((7 - 1) > 100) {
@@ -251,8 +251,8 @@
                 $("#sendrange").css("background-color", "#e6e6e6");
             }
         });
-            $("#sview").val("1,7");
-            $("#sviewhidden").val("1,7");
+            $("#invids").val("1,7");
+            $("#invnames").val("1,7");
             $("#goshare").click(function () {
                 $("#mysubmit").val('yes');
                 $("#chart-control").delay(100).submit();
@@ -402,13 +402,10 @@
             or form.selectedChart == 'dcpnomcurr'
             or form.selectedChart == 'acpnom' %}
             {% if grlengthmax %}
-                <div class="grid-x grid-padding-x" style="height:40px;">
+                <div class="hiddeninvs" style="height:40px;">
                     <div class="cell">INV Range:</div>
-                    <div class="cell medium-4 large-4 xlarge-4">
-                        <input type="hidden" id="sviewhidden" name="selectedSet" value="0">
-                        <input type="hidden" name="selectedSetfrom" value="{{ form.selectedSet }}">
-                    </div>
-
+                    <input type="hidden" id="invnames" name="invnames" value="{{ form.invnames }}">
+                    <input type="hidden" id="invids" name="invids" value="{{ form.invids }}">
                 </div>
 
         <div data-controller="request">
@@ -416,12 +413,12 @@
                 <div class="selectInverters">
                     <div class="dropbtn"><i class="far fa-bell" id="far-fa-bell"></i></div>
                     <div class="selectInvertersContent fade" id="selectInvertersContent">
-                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, trafoArray:trafoArray, edited:edited} only %}
+                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited} only %}
                     </div>
                 </div>
             </div>
             {% else %}
-                <input type="hidden" id="sview" name="selectedSet" value="0">
+                <input type="hidden" id="invnames" name="selectedSet" value="0">
             {% endif %}
         {% endif %}
     </div>

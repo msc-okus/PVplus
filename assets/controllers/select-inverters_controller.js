@@ -118,22 +118,29 @@ export default class extends Controller {
     saveInverters(){
 
         let body = $('#inverters');
-        let sview = $('#sview');
-        let sviewhidden = $("#sviewhidden");
+        let invids = $('#invids');
+        let invnames = $("#invnames");
 
         let chekedInverters = '';
-        body.find('input:checkbox[class=js-checkbox]').each(function () {
+        let chekedInverterIds = '';
+        let temp= '';
 
+        console.log(' a b    c d e   f g   '.replaceAll(' ',''));
+
+        body.find('input:checkbox[class=js-checkbox]').each(function () {
             if($(this).prop('checked')){
                 chekedInverters = chekedInverters+$(this).attr('name')+',';
+                temp = $(this).attr('name').replaceAll(' ','')
+                temp = temp.replaceAll('.','_')
+                chekedInverterIds = chekedInverterIds+$("#"+temp).val()+',';
             }
+
         });
-
         chekedInverters = chekedInverters.slice(0, -1);
+        chekedInverterIds = chekedInverterIds.slice(0, -1);
 
-        sview.prop('value', chekedInverters);
-        sviewhidden.prop('value', chekedInverters);
-
+        invnames.prop('value', chekedInverters);
+        invids.prop('value', chekedInverterIds);
 
         $("#mysubmit").val('yes');
         $("#chart-control").delay(100).submit()

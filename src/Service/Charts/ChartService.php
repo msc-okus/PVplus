@@ -526,7 +526,7 @@ class ChartService
                     }
                     break;
                 case 'acpnom':
-                    $dataArray = $this->acCharts->getNomPowerGroupAC($anlage, $from, $to, $form['selectedSet']);
+                    $dataArray = $this->acCharts->getNomPowerGroupAC($anlage, $from, $to, $form['invnames']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'AC Power Inverter normalized';
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -537,7 +537,7 @@ class ChartService
                     $resultArray['invIds'] = json_encode($dataArray['invIds']);
                     $resultArray['SeriesNameArray'] = json_encode($dataArray['SeriesNameArray']);
                     break;
-                    //xxxxx
+
                 case 'dcpnomcurr':
                     $dataArray = $this->currentChart->getNomCurrentGroupDC($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);

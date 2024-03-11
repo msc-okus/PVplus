@@ -864,34 +864,47 @@ class ACPowerChartsService
         $groupct = count($nameArray);
 
         $res = explode(',', (string) $sets);
-        $invNameArray = ['INV 01.01'];
+        $invNameArray = [];
         if ($groupct) {
             if ($sets == null) {
                 $min = 1;
                 $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
-                $max = (($max > 50) ? '50' : $max);
-                $sqladd = "AND $group BETWEEN '$min' AND '$max'";
-              } else {
-                $temp = '';
-                for ($i = 0; $i < count($nameArray); ++$i) {
 
-                    if(str_contains($sets, $nameArray[$i+1])){
+                $temp = '';
+                $j = 1;
+                for ($i = 0; $i < $max; ++$i) {
                         $invId = $i+1;
                         $temp = $temp.$group." = ".$invId." OR ";
                         $invIdArray[$i+1] =  $idArray[$i+1];
                         $invNameArray[$i+1] =  $nameArray[$i+1];
+                }
 
+                $temp = substr($temp, 0, -4);
+                $sqladd = "AND ($temp) ";
+    
+                $max = (($max > 50) ? '50' : $max);
+                $sqladd = "AND $group BETWEEN '$min' AND '$max'";
+              } else {
+                $temp = '';
+                $j = 1;
+                for ($i = 0; $i < count($nameArray); ++$i) {
+                    if(str_contains($sets, $nameArray[$i+1])){
+                        $invId = $i+1;
+                        $temp = $temp.$group." = ".$invId." OR ";
+                        $invIdArray[$i+1] =  $idArray[$i+1];
+                        $invNameArray[$j] =  $nameArray[$i+1];
+                        $j++;
                     }
                 }
 
                 $temp = substr($temp, 0, -4);
                 $sqladd = "AND ($temp) ";
-
             }
         } else {
             $min = 1;$max = 5;
             $sqladd = "AND $group BETWEEN '$min' AND ' $max'";
         }
+
 
         // the array for range slider min max
         $dataArray['invNames'] = $invNameArray;

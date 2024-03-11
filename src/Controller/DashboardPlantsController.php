@@ -126,8 +126,8 @@ class DashboardPlantsController extends BaseController
         if ($request->request->get('mysubmit') === 'yes' || $request->request->get('mysubmit') === 'select') {
             $form['selectedChart']      = $request->request->get('selectedChart');
             $form['selectedGroup']      = $request->request->get('selectedGroup');
-            $form['selectedInverter']   = $request->request->get('selectedInverter');
-            $form['selectedSet']        = $request->request->get('selectedSet');
+            $form['invnames']   = $request->request->get('invnames');
+            $form['invids']        = $request->request->get('invids');
             $form['startDateNew']       = $request->request->get('startDateNew');
             $form['selRange']           = $request->request->get('selRange');
             $form['optionIrrVal']       = $request->request->get('optionIrrVal');
@@ -194,10 +194,11 @@ class DashboardPlantsController extends BaseController
             switch ($aktAnlage->getConfigType()) {
                 case 1:
                     $nameArray = $functions->getNameArray($aktAnlage, 'dc');
+                    $idsArray = $functions->getIdArray($aktAnlage, 'dc');
                     break;
                 default:
                     $nameArray = $functions->getNameArray($aktAnlage, 'ac');
-
+                    $idsArray = $functions->getIdArray($aktAnlage, 'ac');
             }
             $trafoArray = $this->getTrafoArray($aktAnlage, $acRepo);
         }
@@ -206,14 +207,21 @@ class DashboardPlantsController extends BaseController
             $content = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
         }
 
+
         $inverterArray = [];
+        $inverterIdsArray = [];
 
         // I loop over the array with the real names and the array of selected inverters
         // of the inverter to create a 2-dimension array with the real name and the inverters that are selected
         //In this case there will  be none selected
         foreach ($nameArray as $key => $value){
-            $inverterArray[$key]["inv"] = $value;
+            $inverterArray[$key]["invName"] = $value;
             $inverterArray[$key]["select"] = "";
+        }
+
+        foreach ($idsArray as $key => $value){
+            $inverterIdsArray[$key]["invId"] = $value;
+            $inverterIdsArray[$key]["select"] = "";
         }
 
         $isInTimeRange = self::isInTimeRange();
@@ -225,6 +233,7 @@ class DashboardPlantsController extends BaseController
             'isInTimeRange' => $isInTimeRange,
             'hour' => $hour,
             'invArray'      => $inverterArray,
+            "invIdsArray" => $inverterIdsArray,
             'trafoArray' => $trafoArray,
             'edited' => true,
         ]);

@@ -31,12 +31,16 @@
             <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-9">
                 {% for inverter in invArray %}
                     <div class="cell small-form" id="inverters-checkboxes">
+                        {% set temp = inverter['invName']|replace({' ':''}) %}
+                        <input id="{{ temp|replace({'.':'_'}) }}" type="hidden"
+                               class="js-hidden-{{ loop.index }}"
+                               value="{{ invIdsArray[loop.index]['invId'] }}">
                         <input id="I-{{ loop.index }}" type="checkbox"
                                class="js-checkbox"
-                               name="{{ inverter['inv'] }}" {{ inverter['select'] }}
-                               data-action="click->select-inverters#checkSelect" >
+                               name="{{ inverter['invName'] }}" {{ inverter['select'] }}
+                               data-action="click->select-inverters#checkSelect">
                         <label for="I-{{ loop.index }}"
-                               class="">{{ inverter['inv'] }}</label>
+                               class="">{{ inverter['invName'] }}</label>
                     </div>
                 {% endfor %}
             </div>
