@@ -244,7 +244,7 @@
             }
 
             .dropdown-content {
-                display: block;
+                display: none;
                 position: absolute;
                 color:#1779ba;
                 min-width: 500px;
@@ -261,9 +261,9 @@
                 border-radius: 15px;
             }
 
-            .dropdown-content a:hover {background-color: #ddd; opacity: 1 !important; top: -5px;}
+            .dropdown-content a:hover {background-color: #ddd; opacity: 1 !important; top: -5px; display: block;}
 
-            .dropdownMessages:hover .dropdown-content {z-index: 9999 !important; opacity: 1 !important; top: -5px;}
+            .dropdownMessages:hover .dropdown-content {z-index: 9999 !important; opacity: 1 !important; top: -5px; display: block;}
 
             .background-processes {
                 max-height: $navHeight;

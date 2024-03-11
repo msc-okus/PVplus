@@ -27,7 +27,7 @@ class LoadINAXDataHandler
             $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
             $timeCounter += 24 * 3600;
          #  $this->externFileService->($anlageId, date('Y-m-d 00:00', $stamp));
-            $this->externFileService->CallFileServiceINAX($anlageId, date('Y-m-d 00:00', $stamp));
+            $this->externFileService->callFileServiceINAX($anlageId, date('Y-m-d 00:00', $stamp));
         }
         $this->logMessages->updateEntry($logId, 'done', 100);
     }

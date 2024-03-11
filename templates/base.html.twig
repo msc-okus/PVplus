@@ -47,7 +47,7 @@
                                     }) }}>
                             </div>
                         </div>
-                        <div class="processmessenges"
+                        <div class="processmessenges" style="display: none"
                             {{ stimulus_controller('processmessenges', {
                                 url: path('app_log_processmessenges'),
                                 refreshIntervale: 15000,
@@ -76,10 +76,12 @@
                 </div>
             {% endif %}
         </div>
-        <div class="messageProzessReady fade" id="messageProzessReady">
-            <div id="messagetext"></div>
-            <div id="pdfdownload"></div>
-        </div>
+        {% if is_granted('ROLE_USER') %}
+            <div class="messageProzessReady fade" id="messageProzessReady">
+                <div id="messagetext"></div>
+                <div id="pdfdownload"></div>
+            </div>
+        {% endif %}
     </div>
 </header>
 <div class="alert-wrapper">
