@@ -441,9 +441,9 @@ class ChartService
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Air and Panel Temperature [[°C]]';
                         $resultArray['series1']['name'] = 'Air temperature [[°C]]';
-                        $resultArray['series1']['tooltipText'] = '[[°C]]';
+                        $resultArray['series1']['tooltipText'] = 'Air temperature [[°C]]';
                         $resultArray['series2']['name'] = 'Panel temperature [[°C]]';
-                        $resultArray['series2']['tooltipText'] = '[[°C]]';
+                        $resultArray['series2']['tooltipText'] = 'Panel temperature [[°C]]';
                         $resultArray['series3']['name'] = 'Panel temperature corrected [[°C]]';
                         $resultArray['series3']['tooltipText'] = ' [[°C]]';
                     }

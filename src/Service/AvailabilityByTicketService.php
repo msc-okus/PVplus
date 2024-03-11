@@ -411,7 +411,7 @@ class AvailabilityByTicketService
                         $case0 = $case1 = $case2 = $case3 = $case4  = $case5 = $case6 = false;
                         $commIssu = $skipTi = $skipTiTheo = $outageAsTiFm = false;
 
-                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA === 0.0) || ($strahlung === null && $threshold1PA === 0.0)) {//
+                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA < 0) || ($strahlung === null && $threshold1PA < 0)) {//
                             // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);
