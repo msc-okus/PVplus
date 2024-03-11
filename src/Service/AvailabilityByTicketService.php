@@ -361,7 +361,7 @@ class AvailabilityByTicketService
             foreach ($case6Tickets as $case6Ticket){
                 $c6From = $case6Ticket->getBegin()->getTimestamp();
                 $c6To = $case6Ticket->getEnd()->getTimestamp();
-                for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
+                for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c6Stamp < $c6To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($this->functions->readInverters($case6Ticket->getInverter(), $anlage) as $inverter) {
                         $inverter = trim((string) $inverter, ' ');
                         $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;

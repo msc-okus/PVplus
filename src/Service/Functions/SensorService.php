@@ -228,12 +228,12 @@ class SensorService
         $return = $sensorData;
         switch ($ticketDate->getAlertType()) {
             case '73':
-                if ($newWeather['irrModul'] && $newWeather['irrModul'] > 0) {
+                if (is_numeric($newWeather['irrModul'])) {
                     $return['irr1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['irr1'] - $oldWeather['irr1'] + $newWeather['irrModul'] : $sensorData['irr1'];
                     $return['irr2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['irr2'] - $oldWeather['irr2'] + $newWeather['irrModul'] : $sensorData['irr2'];
                     $return['irr3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['irr3'] - $oldWeather['irr3'] + $newWeather['irrModul'] : $sensorData['irr3'];
                 }
-                if ($newWeather['power'] && $newWeather['power'] > 0) {
+                if (is_numeric($newWeather['power'])) {
                     $return['theoPowerPA1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['theoPowerPA1'] - $oldWeather['theoPowerPA1'] + $newWeather['power'] : $sensorData['theoPowerPA1'];
                     $return['theoPowerPA2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['theoPowerPA2'] - $oldWeather['theoPowerPA2'] + $newWeather['power'] : $sensorData['theoPowerPA2'];
                     $return['theoPowerPA3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['theoPowerPA3'] - $oldWeather['theoPowerPA3'] + $newWeather['power'] : $sensorData['theoPowerPA3'];
@@ -242,7 +242,7 @@ class SensorService
 
             default:
                 // korrigiere Horizontal Irradiation
-                if ($newWeather['irrHorizotal'] && $newWeather['irrHorizotal'] > 0) {
+                if (is_numeric($newWeather['irrHorizotal'])) {
                     $return['irrHor0'] =  $return['horizontalIrr']    = $sensorData['horizontalIrr'] - $oldWeather['horizontalIrr'] + $newWeather['irrHorizotal'];
                     #$return['irrHor0']          = $oldWeather['horizontalIrr'];
                     $return['irrHor1']          = $ticketDate->getTicket()->isScope(10) ? $sensorData['horizontalIrr'] : $sensorData['irrHor1'];
