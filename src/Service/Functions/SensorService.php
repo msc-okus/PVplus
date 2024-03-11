@@ -81,7 +81,6 @@ class SensorService
                     // Search for sensor (irr) values in ac_ist database
                     $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
                     $sensorArrays = $this->weatherFunctionsService->getSensors($anlage, $tempStartDate, $tempEndDate);
-                    #dd($tempWeatherArray, $sensorArrays);
                     $sensorSum = [];
                     foreach ($sensorArrays as $sensorArray){
                         foreach ($sensorArray as $key => $sensorVal) {
@@ -135,7 +134,6 @@ class SensorService
                         $replaceArray['theoPowerPA2']   = (($replaceArray['irrModul'] * $anlage->getPnom()) / 4000) * ($pa2 / 100);
                         $replaceArray['theoPowerPA3']   = (($replaceArray['irrModul'] * $anlage->getPnom()) / 4000) * ($pa3 / 100);
                     }
-                    dump($replaceArray);
                     $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
                     break;
 
@@ -213,7 +211,7 @@ class SensorService
             $sensorData['irr2'] = ($sensorData['irrEast2'] + $sensorData['irrWest2']) / 2;#($return['irrEast2'] * $anlage->getPowerEast() + $return['irrWest2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
             $sensorData['irr3'] = ($sensorData['irrEast3'] + $sensorData['irrWest3']) / 2;#($return['irrEast3'] * $anlage->getPowerEast() + $return['irrWest3'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
         }
-       # dd('Stop');
+
         return $sensorData;
     }
 
