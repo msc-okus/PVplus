@@ -81,6 +81,7 @@ class ReportingController extends AbstractController
         $reportType = $request->query->get('report-typ');
         $reportMonth = $request->query->get('month');
         $reportYear = $request->query->get('year');
+        $rpif = $request->query->get('rpif');
         //$local = $request->query->get('local');
         $daysOfMonth = date('t', strtotime("$reportYear-$reportMonth-01"));
         $reportDate = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
@@ -89,30 +90,41 @@ class ReportingController extends AbstractController
         $userId = $this->getUser()->getUserIdentifier();
         $uid = $this->getUser()->getUserId();
 
-
         switch ($reportType) {
             case 'monthly':
-                $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'monthly Report', "create monthly Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
-                $message = new GenerateMonthlyReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
-                $messageBus->dispatch($message);
+                if($rpif){
+                    $report = $reportsMonthly->createReportV2($aktAnlagen[0], $reportMonth, $reportYear);
+                }else{
+                    $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'monthly Report', "create monthly Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
+                    $message = new GenerateMonthlyReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
+                    $messageBus->dispatch($message);
+                }
                 break;
             case 'epc':
-                $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'epc Report', "create epc Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
-                $message = new GenerateEpcReport($aktAnlagen[0]->getAnlId(), $reportDate, $userId, $logId);
-                $messageBus->dispatch($message);
+                if($rpif){
+                    $report = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
+                }else{
+                    $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'epc Report', "create epc Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
+                    $message = new GenerateEpcReport($aktAnlagen[0]->getAnlId(), $reportDate, $userId, $logId);
+                    $messageBus->dispatch($message);
+                }
                 break;
             case 'epc-new-pr':
-                $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'epc new Report', "create epc new Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
-                $message = new GenerateEpcReportPRNew($aktAnlagen[0]->getAnlId(), $reportDate, $userId, $logId);
-                $messageBus->dispatch($message);
+                if($rpif){
+                    $report = $reportEpcNew->createEpcReportNew($aktAnlagen[0], $reportDate);
+                }else{
+                    $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'epc new Report', "create epc new Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
+                    $message = new GenerateEpcReportPRNew($aktAnlagen[0]->getAnlId(), $reportDate, $userId, $logId);
+                    $messageBus->dispatch($message);
+                }
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
-                if ($_ENV['APP_ENV'] === 'dev') {
+                if($rpif){
                     $report = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear, (int)$uid);
                     $em->persist($report);
                     $em->flush();
-                } else if ($_ENV['APP_ENV'] === 'prod'){
+                } else{
                     $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", (int)$uid);
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
                     $messageBus->dispatch($message);

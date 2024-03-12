@@ -137,6 +137,13 @@ class AnlagenAdminController extends BaseController
     }
 
     /**
+     * @param $id
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     * @param AnlagenRepository $anlagenRepository
+     * @param UploaderHelper $uploaderHelper
+     * @return RedirectResponse|Response
+     * @throws FilesystemException
      * @throws NonUniqueResultException
      */
     #[Route(path: '/admin/anlagen/edit/{id}', name: 'app_admin_anlagen_edit')]
@@ -164,12 +171,7 @@ class AnlagenAdminController extends BaseController
                     $this->addFlash('warning', 'Field Albeto fail.');
                     $checkfields = false;
                 }
-                /*
-                if ($form->get('modAzimut')->isEmpty()) {
-                    $this->addFlash('warning', 'Field Modul Azimut fail.');
-                    $checkfields = false;
-                }
-               */
+
                 if ($checkfields === false){
                     return $this->render('anlagen/edit.html.twig', [
                         'anlageForm' => $form,
@@ -211,8 +213,6 @@ class AnlagenAdminController extends BaseController
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
 
-
-
         return $this->render('anlagen/edit.html.twig', [
             'anlageForm' => $form,
             'anlage' => $anlage,
@@ -231,14 +231,16 @@ class AnlagenAdminController extends BaseController
      * @param Filesystem $filesystem
      * @return RedirectResponse|Response
      * @throws FilesystemException
+     * @throws \Exception
      */
     #[Route(path: '/admin/anlagen/editconfig/{id}', name: 'app_admin_anlagen_edit_config')]
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): RedirectResponse|Response
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $repositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): RedirectResponse|Response
     {
-         $upload = new AnlageFile();
-        $anlage = $anlagenRepository->find($id);
-        $imageuploaded = $RepositoryUpload->findOneBy(['path' => $anlage->getPicture()]);
-        if ($imageuploaded != null) {
+        $anlage = $anlagenRepository->findOneByIdAndJoin($id);
+        $upload = new AnlageFile();
+        $tempFile = null;
+        $imageuploaded = $repositoryUpload->findOneBy(['path' => $anlage->getPicture()]);
+        if ($imageuploaded !== null) {
             $isupload = 'yes';
             if ($fileSystemFtp->fileExists($imageuploaded->getPath())) $tempFile = self::makeTempFiles([$fileSystemFtp->read($imageuploaded->getPath())], $filesystem)[0];
             else $isupload = 'no';
@@ -254,9 +256,9 @@ class AnlagenAdminController extends BaseController
             'anlagenId' => $id,
         ]);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $uploadedFile = $form['picture']->getData();
-
             if ($uploadedFile != '') {
                 $isupload = 'yes';
                 $newFile = $uploaderHelper->uploadImageSFTP($uploadedFile, $anlage->getEigner()->getFirma(), $anlage->getAnlName(), 'plant');
@@ -288,14 +290,15 @@ class AnlagenAdminController extends BaseController
             $em->persist($anlage);
             $em->flush();
             if ($form->get('save')->isClicked()) {
-                     $response = $this->render('anlagen/editconfig.html.twig', [
-                        'anlageForm' => $form,
-                        'anlage' => $anlage,
-                        'econames' => $economicVarNames1,
-                        'isupload' => $isupload,
-                        'imageuploadet' => $tempFile,
-                    ]);
+                 $response = $this->render('anlagen/editconfig.html.twig', [
+                    'anlageForm' => $form,
+                    'anlage' => $anlage,
+                    'econames' => $economicVarNames1,
+                    'isupload' => $isupload,
+                    'imageuploadet' => $tempFile,
+                ]);
 
+                return $response;
             }
             if ($form->get('saveclose')->isClicked()) {
                 $this->addFlash('success', $successMessage);
@@ -304,19 +307,23 @@ class AnlagenAdminController extends BaseController
             }
 
         }
+
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
             return $this->redirectToRoute('app_admin_anlagen_list');
-
         }
-        if (!$form->isSubmitted() || !$form->isValid())$response =  $this->render('anlagen/editconfig.html.twig', [
-                'anlageForm' => $form,
-                'anlage' => $anlage,
-                'econames' => $economicVarNames1,
-                'isupload' => $isupload,
-                'imageuploadet' => $tempFile,
+
+        $response = $this->render('anlagen/editconfig.html.twig', [
+            'anlageForm' => $form,
+            'anlage' => $anlage,
+            'econames' => $economicVarNames1,
+            'isupload' => $isupload,
+            'imageuploadet' => $tempFile,
         ]);
+
         return $response;
+
+
     }
 
     /**
@@ -668,7 +675,20 @@ class AnlagenAdminController extends BaseController
                               PRIMARY KEY (`db_id`) USING BTREE,
                               UNIQUE KEY `unique_stamp_sensor` (`stamp`,`id_sensor`) USING BTREE,
                               KEY `stamp` (`stamp`) USING BTREE
-                            ) ENGINE=InnoDB AUTO_INCREMENT=43021 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=DYNAMIC;";
+                            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=DYNAMIC;";
+
+    $databaseDivisonStringTable = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNameDivisionsStringTable()." (
+                                  `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
+                                  `anl_id` int(11) NOT NULL,
+                                  `stamp` timestamp NOT NULL DEFAULT current_timestamp(),
+                                  `wr_group` int(11) NOT NULL,
+                                  `group_ac` int(11) NOT NULL,
+                                  `wr_num` int(11) NOT NULL,
+                                  `channel` varchar(20) NOT NULL,
+                                  `I_value` varchar(20) DEFAULT NULL,
+                                  `U_value` varchar(20) DEFAULT NULL,
+                                  PRIMARY KEY (`db_id`)
+                                ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
         $databaseSections = "CREATE TABLE IF NOT EXISTS `pvp_data`.`db__pv_section_".$anlage->getAnlIntnr()."BX107` (
                               `id` BIGINT(11) NOT NULL AUTO_INCREMENT,
@@ -687,6 +707,8 @@ class AnlagenAdminController extends BaseController
                             ";
 
         $conn = $this->pdoService->getPdoPlant();
+
+
         $conn->exec($databaseAcIst);
         $conn->exec($databaseDcIst);
         // $conn->exec($databaseAcSoll);
@@ -696,6 +718,12 @@ class AnlagenAdminController extends BaseController
         $conn->exec($databaseDcSoll);
         $conn->exec($databasePPC);
         $conn->exec($databaseSensorData);
+
+        //for Divison Tables
+        unset($conn);
+        $conn = $this->pdoService->getPdoStringBoxes();
+        $conn->exec($databaseDivisonStringTable);
+
         if (false) $conn->exec($databaseSections);
         $conn = null;
 

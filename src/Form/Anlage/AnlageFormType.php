@@ -148,8 +148,8 @@ class AnlageFormType extends AbstractType
                 'required' => false,
             ])
             ->add('customPlantId', TextType::class, [
-                'label' => 'Identifier to select Plant via API (e.g. VCOM)',
-                'help' => '[customPlantId]',
+                'label' => 'Identifier/s to select Plant via API (e.g. VCOM can be more then one seperatet with ,)',
+                'help' => '[customPlantId/s you can add one or more VCOM-Ids like ABC2X,CDE3F]',
                 'empty_data' => '',
                 'required' => false,
                 'disabled' => !$isG4NUser,
@@ -560,7 +560,6 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 55px']
             ])
-             /*
             ->add('modAzimut', TextType::class, [
                 'label' => 'Modul azimut',
                 'help' => '[Modul azimut in degrees for S=180 O=90 W=270 ]',
@@ -568,7 +567,6 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
                 'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3, 'style' => 'width: 55px']
             ])
-             */
             ->add('albeto', TextType::class, [
                 'label' => 'Albedo',
                 'help' => '[The albedo are 0.15 for grass or 0.3 for roof]',

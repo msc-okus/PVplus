@@ -20,10 +20,10 @@
             <input type="date" id="end-day" name="end-day" value="{{ endday }}" />
         </div>
         <div class="cell medium-4" style="margin-top: 22px;">
-            <button name="recalc-PA" class="button" value="yes"
-            >Recalculate PA</button>
-            <button name="new-report" class="button" value="yes"
-            >create Report</button>
+            {% if is_granted('ROLE_G4N') or is_granted('ROLE_BETA') %}
+                <button hidden name="recalc-PA" class="button" value="yes" title="Depending on the selected dates, this takes very long.">Recalculate PA</button>
+            {% endif %}
+            <button name="new-report" class="button" value="yes">create Report</button>
         </div>
 
     </div>
