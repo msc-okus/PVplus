@@ -60,15 +60,17 @@ class DayAheadForecastDEKService {
                             $d = $dayofyear + 1;
                             $h = $hour;
                             $m = $minute;
-                            $GHI2=$DNI2=$DHI=$GHI=$FF=$TMP = 0;
+                            $GHI2=$GTI=$DNI2=$DNI=$DHI=$GHI=$FF=$TMP=$SWI = 0;
                             foreach ($valueout as $dam) {
-                                $TMP += $dam['tmp'] / 10;
-                                $FF += $dam['wds'] / 10;
-                                $GHI += $dam['swi'] / 10; # shortwave_radiation = $value['ghi'] + $value['dhi'];
-                                $DHI += $dam['dhi'] / 10; # diffuse_radiation
-                                # $DNI = $value['dni']; # direct_normal_radiation
-                                $DNI2 += $dam['dni'] / 10; # direct_normal_radiation
-                                $GHI2 += $dam['ghi'] / 10; # direct_radiation
+                                $TMP += $dam['tmp'] / 15;
+                                $FF += $dam['wds'] / 15;
+                                $SWI += $dam['swi'] / 15; # Shortware Irradiation
+                                $GTI += $dam['gti'] / 15; # global_tilted_irradiance
+                                $GHI += $dam['swi'] / 15; # shortwave_radiation = $value['ghi'] + $value['dhi'];
+                                $DHI += $dam['dhi'] / 15; # diffuse_radiation
+                                $DNI += $dam['dni'] / 15; # direct_normal_radiation
+                                $DNI2 += $dam['dni'] / 15; # direct_normal_radiation
+                                $GHI2 += $dam['ghi'] / 15; # direct_radiation
                             }
                             $instep = '15min';
                         }
@@ -82,32 +84,29 @@ class DayAheadForecastDEKService {
                             $d = $dayofyear + 1;
                             $h = $hour;
                             $m = $minute;
-                            $GHI2=$DNI2=$DHI=$GHI=$FF=$TMP = 0;
+                            $GHI2=$DNI2=$GTI=$DNI=$DHI=$GHI=$FF=$TMP=$SWI = 0;
                             foreach ($valueout as $dah) {
-                                $TMP += $dah['tmp'] / 10;
-                                $FF += $dah['wds'] / 10;
-                                $GHI += $dah['swi'] / 10; # shortwave_radiation = $value['ghi'] + $value['dhi'];
-                                $DHI += $dah['dhi'] / 10; # diffuse_radiation
-                                # $DNI = $value['dni']; # direct_normal_radiation
-                                $DNI2 += $dah['dni'] / 10; # direct_normal_radiation
-                                $GHI2 += $dah['ghi'] / 10; # direct_radiation
+                                $TMP += $dah['tmp'] / 15;
+                                $FF += $dah['wds'] / 15;
+                                $SWI += $dah['swi'] / 15; # Shortware Irradiation
+                                $GTI += $dah['gti'] / 15; # global_tilted_irradiance
+                                $GHI += $dah['swi'] / 15; # shortwave_radiation = $value['ghi'] + $value['dhi'];
+                                $DHI += $dah['dhi'] / 15; # diffuse_radiation
+                                $DNI += $dah['dni'] / 15; # direct_normal_radiation
+                                $DNI2 += $dah['dni'] / 15; # direct_normal_radiation
+                                $GHI2 += $dah['ghi'] / 15; # direct_radiation
                             }
                             $instep = '60min';
                         }
                     }
 
                     // Berechnung der Senkrechtstrahlung auf der Normal EBENE
-                    if ($DNI2 > $GHI) {
-                        $GDIR = $DNI2 - $DHI; // $GHI - $DHI / /Daten aus Meteo GHI - DHI
-                    } else {
-                        $GDIR = $GHI - $DHI  ; // $GHI - $DHI / /Daten aus Meteo GHI - DHI
-                    }
-
+                    $GDIR = $GHI - $DHI; #$SWI $GHI2; #$GHI - $DHI;
                     //Start Tracker OW Nachführung Berechnung
                     $TR_AOIarray = $this->forecastCalcService->getDataforAOIbyTracker($input_mn, $input_gb, $input_gl, $input_mer, $d, $h, $anlage);
                     $TR_MA = $TR_AOIarray['MA']; // Das Modul Azimut der Wert wird berechnet auf stundenbasis.
                     $TR_MN = $TR_AOIarray['MN']; // Die berechnete Modulneigung als Tracker per Stunde
-                    $TR_SA = $TR_AOIarray['SA'];
+                    $TR_SA = $TR_AOIarray['SA']; //
                     $TR_SZ = $TR_AOIarray['SZ']; // Zenitwinkel der Sonne
 
                     $TR_AOI = acos(cos($TR_SZ) * cos(deg2rad($TR_MN)) + sin($TR_SZ) * sin(deg2rad($TR_MN)) * cos($TR_SA - deg2rad($TR_MA))); // Einfallwinkel Strahlung auf Modul
@@ -144,7 +143,7 @@ class DayAheadForecastDEKService {
                         $DIFFSAMA = $winkel - $SAGD;             // Differenz von SA - SA
                         $CSZ = sin($SZ);
 
-                        $DNI = $GDIR / $CSZ;
+                        $DNI = $GDIR / $CSZ; // Berechnung der Senkrechtstrahlung
 
                         $DIRpoa = $DNI * cos($AOI) * $IAM;     // Direktstrahlung auf der Modulebene --
                         $DIFpoa = $DHI * ((1 + cos(deg2rad($input_mn))) / 2) + $GHI2 * (0.012 * $SZ - 0.04) * ((1 - cos(deg2rad($input_mn))) / 2); // Diffusstrahlung in Modulebene

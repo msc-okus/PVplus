@@ -100,6 +100,7 @@ class DayAheadWriteDBCommand extends Command {
 
                     $decarray = $this->dayaheadforecastdekservice->get_DEK_Data($input_gl, $input_mer, $input_gb, $input_mn, $input_ab, $meteo_array, $has_suns_model, $anlageId, 'all');
                     $forcarstarray = $this->aheadForecastMALService->calcforecastout($anlageId, $decarray);
+                   # dd(print_r($forcarstarray));
                     $endprz = 0;
 
                     foreach ($forcarstarray as $interarray) {

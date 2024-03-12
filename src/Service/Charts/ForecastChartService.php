@@ -137,11 +137,7 @@ private readonly PdoService $pdoService,
 
         /** @var [] AnlageForecast $forecasts */
         $forecasts = $this->forcastRepo->findBy(['anlage' => $anlage]);
-        $counter = 0;
-        $forecastValue = 0;
-        $expectedWeek = 0;
-        $divMinus = 0;
-        $divPlus = 0;
+        $counter = $forecastValue = $expectedWeek = $divMinus = $divPlus = 0;
         foreach ($forecasts as $forecast) {
             $year = date('Y', strtotime((string) $to));
             $stamp = strtotime($year.'W'.str_pad($forecast->getWeek(), 2, '0', STR_PAD_LEFT));
@@ -209,11 +205,7 @@ private readonly PdoService $pdoService,
 
         /** @var [] AnlageForecastDay $forecasts */
         $forecasts = $this->forcastDayRepo->findBy(['anlage' => $anlage]);
-        $counter = 0;
-        $forecastValue = 0;
-        $expectedDay = 0;
-        $divMinus = 0;
-        $divPlus = 0;
+        $counter = $forecastValue = $expectedDay = $divMinus = $divPlus = 0;
         foreach ($forecasts as $count => $forecast) {
             $year = date('Y', strtotime((string) $to));
             $stamp = DateTime::createFromFormat('Y z', $year.' '.$forecast->getDay()-1);
@@ -279,11 +271,7 @@ private readonly PdoService $pdoService,
 
         /** @var [] AnlageForecastDay $forecasts */
         $forecasts = $this->forcastDayRepo->findBy(['anlage' => $anlage]);
-        $counter = 0;
-        $forecastValue = 0;
-        $expectedDay = 0;
-        $divMinus = 0;
-        $divPlus = 0;
+        $counter = $forecastValue = $expectedDay = $divMinus = $divPlus = 0;
 
         foreach ($forecasts as $count => $forecast) {
             $year = date('Y', strtotime((string) $to));
@@ -311,10 +299,10 @@ private readonly PdoService $pdoService,
 
         return $dataArray;
     }
-    // Get the Dayahead Forecast data for Chart
+    // Get the DayAhead Forecast data for Chart
     public function getForecastDayAhead(Anlage $anlage, $from, $view, $days ): array {
         $now = new DateTime('now', new DateTimeZone('Europe/Berlin'));
-
+        // view = 0 = Day | 1 = Hour | 2 = 15 Minute
         switch ($view) {
             case 0 :
                 $form = '%y%m%d';
@@ -323,7 +311,7 @@ private readonly PdoService $pdoService,
             break;
             case 1 :
                 $form = '%y%m%d%H';
-                $dateform = '%Y-%m-%d %H:%i';
+                $dateform = '%Y-%m-%d %H';
                 $datenowhour = $now->format("Y-m-d H:00");
             break;
             case 2 :
@@ -364,10 +352,10 @@ private readonly PdoService $pdoService,
 
         if ($anlage->getUseDayaheadForecast()) {
             $SQL = "SELECT af1.date, af1.hour, af1.minute, af1.fc_pac, af1.irr, af1.temp,  af2.wr_pac FROM 
-                    ( SELECT date_format(stamp, '".$dateform."') AS date, UNIX_TIMESTAMP(date_format(stamp, '%Y-%m-%d %H:%i')) AS unixstp, date_format(stamp, '%H') AS hour, date_format(stamp, '%i') AS minute, sum(fc_pac) AS fc_pac, sum(irr) AS irr, temp AS temp FROM ".$anlage->getDbNameForecastDayahead()." WHERE `stamp` BETWEEN '".$from."' AND '".$enddate."' GROUP BY date_format(stamp, '".$form."')) 
+                    ( SELECT date_format(stamp, '".$dateform."') AS date, UNIX_TIMESTAMP(date_format(stamp, '%Y-%m-%d %H:%i')) AS unixstp, date_format(stamp, '%H') AS hour, date_format(stamp, '%i') AS minute, sum(fc_pac) AS fc_pac, sum(irr) AS irr, temp AS temp FROM ".$anlage->getDbNameForecastDayahead()." WHERE `stamp` >= '".$from."' AND stamp <= '".$enddate."' GROUP BY date_format(stamp, '".$form."')) 
                     AS af1 
                     LEFT JOIN 
-                    ( SELECT date_format(stamp, '".$dateform."') AS date, UNIX_TIMESTAMP(date_format(stamp, '%Y-%m-%d %H:%i')) AS unixstp,date_format(stamp, '%H') AS hour, date_format(stamp, '%i') AS minute, sum(wr_pac) AS wr_pac FROM ".$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '".$from."' AND '".$enddate."' GROUP BY date_format(stamp, '".$form."') )
+                    ( SELECT date_format(stamp, '".$dateform."') AS date, UNIX_TIMESTAMP(date_format(stamp, '%Y-%m-%d %H:%i')) AS unixstp, date_format(stamp, '%H') AS hour, date_format(stamp, '%i') AS minute, sum(wr_pac) AS wr_pac FROM ".$anlage->getDbNameAcIst()." WHERE `stamp` >= '".$from."' AND stamp <= '".$enddate."' GROUP BY date_format(stamp, '".$form."') )
                     AS af2 on (af1.date = af2.date); ";
 
             $result = $conn->prepare($SQL);
@@ -382,9 +370,9 @@ private readonly PdoService $pdoService,
                     $dataArray['chart'][$counter]['color'] = 'am4core.color("#050")';
                     $dataArray['chart'][$counter]['opacity'] = '1';
                 }
-
+                ( ($view == 1) ? $irrvalue = round($value['irr'] / 4,2) : $irrvalue = round($value['irr'],2));
                 $dataArray['chart'][$counter]['minute'] = $value['minute'];
-                $dataArray['chart'][$counter]['irr'] = round($value['irr'],2);
+                $dataArray['chart'][$counter]['irr'] = $irrvalue;
                 $dataArray['chart'][$counter]['temp'] = round($value['temp'],2);
                 $dataArray['chart'][$counter]['forecast'] = round($value['fc_pac'],2);
                 $dataArray['chart'][$counter]['real'] = (is_null($value['wr_pac']) ? '0' : round($value['wr_pac'],2));
