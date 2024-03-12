@@ -2,22 +2,32 @@
 
 namespace App\Controller;
 
+
 use App\Entity\AnlageStringAssignment;
 use App\Form\Anlage\AnlageStringAssigmentType;
 use App\Repository\AnlagenRepository;
-use App\Repository\AnlageStringAssignmentRepository;
 use App\Service\PdoService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use PDO;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Shuchkin\SimpleXLSX;
 use Shuchkin\SimpleXLSXGen;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
+
+
+
 
 class AnlageStringAssignmentController extends AbstractController
 {
@@ -99,127 +109,6 @@ class AnlageStringAssignmentController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/anlage/string/assignment/export/{anlId}', name: 'app_anlage_string_assignment_export')]
-    public function acExport($anlId,AnlageStringAssignmentRepository $anlageStringAssignmentRepository,PdoService $pdo): Response
-    {
-
-
-        $dateX = new DateTime('2023-01-01 05:15:00');
-        $dateY = new DateTime('2023-01-01 10:00:00');
-
-        $assignments = $anlageStringAssignmentRepository->findBy(['anlage' => $anlId]);
-
-        if (empty($assignments)) {
-            $this->addFlash('error', 'No assignments found for the specified Anlage.');
-            return $this->redirectToRoute('app_anlage_string_assignment_list');
-        }
-
-        $header = ['Station Nr', 'Inverter Nr', 'String Nr', 'Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut', 'Panel Type', 'Inverter Type', 'Anlage'];
-
-        $interval = new \DateInterval('PT15M');
-        $periods = new \DatePeriod($dateX, $interval, $dateY->add($interval));
-
-
-        // Construction de la requête SQL pour récupérer toutes les données nécessaires
-        $sql = "
-        SELECT `I_value`, `stamp`, `group_ac`, `wr_num`, `channel`
-        FROM `db__string_pv_CX104`
-        WHERE `stamp` BETWEEN :startDateTime AND :endDateTime
-        AND `group_ac` IN (".implode(",", array_unique(array_map(function($assignment) {
-                return (int) $assignment->getInverterNr();
-            }, $assignments))).")
-        AND `wr_num` IN (".implode(",", array_unique(array_map(function($assignment) {
-                return (int) $assignment->getStringNr();
-            }, $assignments))).")
-        AND `channel` IN (".implode(",", array_unique(array_map(function($assignment) {
-                return (string)((int)$assignment->getChannelNr());
-            }, $assignments))).")
-    ";
-
-
-        // Préparation des paramètres pour la requête SQL
-        $params = [
-            ':startDateTime' => $dateX->format('Y-m-d H:i:s'),
-            ':endDateTime' => $dateY->format('Y-m-d H:i:s'),
-        ];
-
-        // Exécution de la requête SQL
-        $connection = $pdo->getPdoStringBoxes();
-        $stmt = $connection->prepare($sql);
-        $stmt->execute($params);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Organisation des résultats de la requête en fonction de la structure de données souhaitée
-        foreach ($periods as $dt) {
-            $header[] = $dt->format('Y-m-d H:i:s');
-        }
-
-        $data = [$header];
-        foreach ($assignments as $assignment) {
-            $row = [
-                $assignment->getStationNr(),
-                $assignment->getInverterNr(),
-                $assignment->getStringNr(),
-                $assignment->getChannelNr(),
-                $assignment->getStringActive(),
-                $assignment->getChannelCat(),
-                $assignment->getPosition(),
-                $assignment->getTilt(),
-                $assignment->getAzimut(),
-                $assignment->getPanelType(),
-                $assignment->getInverterType(),
-                $anlId
-            ];
-
-            foreach ($periods as $dt) {
-                $found = false;
-                foreach ($results as $result) {
-
-                    if ($result['group_ac'] === (int)$assignment->getInverterNr() &&
-                        $result['wr_num'] === (int)$assignment->getStringNr() &&
-                        (int)$result['channel'] === (int)$assignment->getChannelNr() &&
-                        $result['stamp'] === $dt->format('Y-m-d H:i:s')) {
-                        $row[] = $result['I_value'];
-                        $found = true;
-                        break;
-                    }
-                }
-                if (!$found) {
-                    $row[] = '';
-                }
-            }
-
-            $data[] = $row;
-        }
-
-        $xlsx = SimpleXLSXGen::fromArray($data);
-        $fileName = "ac_groups_{$anlId}.xlsx";
-
-
-        // Instead of using downloadAsString, save the file temporarily
-        $tempFile = tempnam(sys_get_temp_dir(), 'xlsx');
-        $xlsx->saveAs($tempFile); // Save the XLSX file to a temporary file
-
-        // Read the file content
-        $xlsxContent = file_get_contents($tempFile);
-        if ($xlsxContent === false) {
-            throw new \Exception('Failed to read the Excel file');
-        }
-
-        // Prepare the response with the file content
-        $response = new Response($xlsxContent);
-        $disposition = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $fileName
-        );
-        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        $response->headers->set('Content-Disposition', $disposition);
-
-        // Cleanup: Remove the temporary file
-        unlink($tempFile);
-
-        return $response;
-    }
     #[Route(path: '/anlage/string/assignment/anlage/list', name: 'app_anlage_string_assignment_list')]
     public function listExport(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
     {
@@ -247,4 +136,321 @@ class AnlageStringAssignmentController extends AbstractController
             'pagination' => $pagination,
         ]);
     }
+
+    #[Route(path: '/anlage/string/assignment/monthly/export/{anlId}', name: 'app_anlage_string_assignment_monthly_export')]
+    public function acExportMonthly($anlId,PdoService $pdo,Request $request,Security $security): Response
+    {
+
+        $currentUserName = $security->getUser()->getEmail();
+        $year = (int)$request->query->get('year');
+        $month = (int)$request->query->get('month');
+
+
+
+
+        $sql_pvp_base = "
+SELECT 
+    ass.station_nr AS stationNr,
+    ass.inverter_nr AS inverterNr,
+    ass.string_nr AS stringNr,
+    groups.unit_first As unit,
+    ass.channel_nr AS channelNr,
+    ass.string_active AS stringActive,
+    ass.channel_cat AS channelCat,
+    ass.position,
+    ass.tilt,
+    ass.azimut,
+    `mod`.type AS moduleType,
+    ass.inverter_type AS inverterType,
+    `mod`.max_impp AS impp
+FROM 
+    anlage_string_assignment ass
+INNER JOIN 
+    anlage anl ON ass.anlage_id = anl.id
+INNER JOIN 
+    anlage_groups groups ON anl.id = groups.anlage_id
+INNER JOIN 
+    anlage_group_modules gm ON groups.id = gm.anlage_group_id
+INNER JOIN 
+    anlage_modules `mod` ON gm.module_type_id = `mod`.id
+INNER JOIN 
+    anlage_groups_ac acg ON groups.ac_group = acg.ac_group_id AND anl.id = acg.anlage_id
+WHERE 
+    anl.id = :anlId 
+    AND CAST(ass.station_nr AS UNSIGNED) = CAST(acg.trafo_nr AS UNSIGNED)
+    AND CAST(ass.inverter_nr AS UNSIGNED) = groups.ac_group
+    AND (CAST(ass.string_nr AS UNSIGNED) + (CAST(ass.inverter_nr AS UNSIGNED) - 1) * 9) = groups.unit_first
+";
+
+
+
+        $connection_pvp_base = $pdo->getPdoBase();
+        $stmt = $connection_pvp_base->prepare($sql_pvp_base);
+        $stmt->execute([':anlId' => $anlId]); // Corrigé pour utiliser un tableau associatif
+        $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+
+
+
+
+        $dateX = new DateTime("$year-$month-01 00:00:00");
+        $dateY = (clone $dateX)->modify('last day of this month')->setTime(23, 59, 59);
+
+
+
+
+        $sql = "
+       SELECT 
+           `group_ac` AS inverterNr , 
+           `wr_num` AS stringNr, 
+           `channel` AS channelNr, 
+           AVG(`I_value`) AS `average_I_value`
+       FROM `db__string_pv_CX104`
+       WHERE `stamp` BETWEEN :startDateTime AND :endDateTime
+       GROUP BY `group_ac`, `wr_num`, `channel`
+        ";
+
+
+
+        $params = [
+            ':startDateTime' => $dateX->format('Y-m-d H:i:s'),
+            ':endDateTime' => $dateY->format('Y-m-d H:i:s'),
+        ];
+        // Exécution de la requête SQL
+        $connection = $pdo->getPdoStringBoxes();
+        $stmt = $connection->prepare($sql);
+        $stmt->execute($params);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+        // Premièrement, indexez `$results` par une clé combinée unique.
+        $resultsIndex = [];
+        foreach ($results as $result) {
+            $key = "{$result['inverterNr']}-{$result['stringNr']}-{$result['channelNr']}";
+            $resultsIndex[$key] = $result['average_I_value'];
+        }
+
+        // Ensuite, itérez sur `$assignments` pour chercher des correspondances et calculer `avg`.
+        $joinedData = [];
+        foreach ($assignments as $assignment) {
+            $key = "{$assignment['inverterNr']}-{$assignment['unit']}-{$assignment['channelNr']}";
+            if (isset($resultsIndex[$key])) {
+                $impp = (float)$assignment['impp']; // Assurez-vous que `impp` est traité comme un nombre.
+                $average_I_value = (float)$resultsIndex[$key];
+
+                // Vérifiez que `impp` est non nul pour éviter une division par zéro.
+                if ($impp != 0) {
+                    $assignment['avg'] = $average_I_value / $impp;
+                } else {
+                    // Optionnel : Gérer le cas où `impp` est zéro ou invalide.
+                    $assignment['avg'] = null;
+                }
+
+                $joinedData[] = $assignment;
+            }
+
+        }
+
+
+
+        $spreadsheet = new Spreadsheet();
+
+        // Préparer la première feuille avec toutes les données
+        $this->prepareInitialSheet($spreadsheet->getActiveSheet(), $joinedData);
+
+        // Préparation et ajout des feuilles triées
+        $this->prepareAndAddSortedSheets($spreadsheet, $joinedData);
+
+        // Générer et envoyer le fichier Excel
+        return $this->generateAndSendExcelFile($spreadsheet, $anlId,$month,$year,$currentUserName);
+    }
+
+    private function prepareInitialSheet($sheet, $joinedData): void
+    {
+        $header = ['Station Nr', 'Inverter Nr', 'String Nr','unit','Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut','ModuleType', 'InverterType','Impp','AVG'];
+        $sheet->setTitle('Unsorted')->fromArray($header, NULL, 'A1')->getStyle('A1:N1')->getFont()->setBold(true);
+
+        $rowIndex = 2;
+        foreach ($joinedData as $rowData) {
+            $sheet->fromArray($rowData, NULL, "A{$rowIndex}");
+            $rowIndex++;
+        }
+    }
+
+    private function prepareAndAddSortedSheets($spreadsheet, $joinedData): void
+    {
+        $sortOptions = ['channelCat' => 'SortedBy_ChannelCat', 'position' => 'SortedBy_Position', 'tilt' => 'sortedBy_Tilt', 'azimut' => 'SortedBy_Azimut', 'moduleType' => 'SortedBy_moduleType', 'inverterType' => 'SortedBy_InverterType'];
+
+        foreach ($sortOptions as $sortBy => $sheetTitle) {
+            $sortedData = $this->prepareAndSortData($joinedData, $sortBy);
+            $sheet = new Worksheet($spreadsheet, $sheetTitle);
+            $spreadsheet->addSheet($sheet);
+            $this->fillSheetWithData($sheet, $sortedData);
+            $this->colorizePerformanceRows($sheet, count($sortedData) + 1);
+        }
+    }
+
+    private function prepareAndSortData($data, $sortBy): array
+    {
+        $groupedData = array_reduce($data, function ($carry, $item) use ($sortBy) {
+            $carry[$item[$sortBy]][] = $item;
+            return $carry;
+        }, []);
+
+        $sortedData = [];
+        array_walk($groupedData, function ($rows) use (&$sortedData) {
+            usort($rows, function ($a, $b) { return $b['avg'] <=> $a['avg']; });
+            $best = array_slice($rows, 0, 10);
+            $worst = array_slice($rows, -10);
+
+            array_walk($best, function (&$item) { $item['Performance'] = 'Best'; });
+            array_walk($worst, function (&$item) { $item['Performance'] = 'Worst'; });
+
+            $sortedData = array_merge($sortedData, $best, $worst);
+        });
+
+        return $sortedData;
+    }
+
+    private function fillSheetWithData(Worksheet $sheet, array $data): void
+    {
+        $header = ['Station Nr', 'Inverter Nr', 'String Nr', 'Unit', 'Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut', 'ModuleType', 'InverterType', 'Impp', 'AVG', 'Performance'];
+        $sheet->fromArray($header, null, 'A1');
+        $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+
+        $rowIndex = 2;
+        foreach ($data as $rowData) {
+            $sheet->fromArray(array_values($rowData), null, "A{$rowIndex}");
+            $rowIndex++;
+        }
+    }
+
+
+    private function colorizePerformanceRows(Worksheet $sheet, int $rowsCount): void
+    {
+        for ($row = 2; $row <= $rowsCount; $row++) {
+            // Corrigez ici pour accéder à la valeur de la cellule. Assurez-vous d'utiliser le bon index de colonne.
+            $cellValue = $sheet->getCell('O' . $row)->getValue(); // Utilisation de la référence de cellule 'A1', 'O2', etc.
+
+            $styleArray = [
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => [],
+                ],
+            ];
+
+            if ($cellValue === 'Best') {
+                $styleArray['fill']['startColor'] = ['argb' => Color::COLOR_GREEN];
+            } elseif ($cellValue === 'Worst') {
+                $styleArray['fill']['startColor'] = ['argb' => Color::COLOR_RED];
+            }
+
+            if ($cellValue === 'Best' || $cellValue === 'Worst') {
+                $sheet->getStyle("A{$row}:O{$row}")->applyFromArray($styleArray);
+            }
+        }
+    }
+
+
+    private function generateAndSendExcelFile($spreadsheet, $anlId, $month, $year,$currentUserName): Response
+    {
+
+        $writer = new Xlsx($spreadsheet);
+        $currentTimestamp = (new \DateTime())->format('YmdHis');
+        $fileName = "monthly=report_{$anlId}_{$month}_{$year}_{$currentUserName}_{$currentTimestamp}.xlsx";
+        $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
+        $filePath = $publicDirectory . '/' . $fileName;
+
+
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+
+
+        $writer->save($filePath);
+
+
+        $response = new BinaryFileResponse($filePath);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $fileName);
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+        return $response;
+    }
+
+
+    #[Route(path: '/anlage/string/assignment/monthly/export/list/{anlId}', name: 'app_anlage_string_assignment_monthly_export_list')]
+    public function acExportMonthlyList($anlId): Response
+    {
+
+
+
+        $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
+        $files = glob("$publicDirectory/*_{$anlId}_*.xlsx");
+
+        // Préparer les données pour les afficher dans la table
+        $fileList = [];
+        foreach ($files as $file) {
+            $fileName = basename($file);
+            $fileInfo = pathinfo($file);
+            $fileNameParts = explode('_', $fileInfo['filename']);
+            $fileList[] = [
+                'fileName' => $fileName,
+                'shortFileName'=>$fileNameParts[0].$fileNameParts[1].$fileNameParts[2].$fileNameParts[3],
+                'anlId' => $fileNameParts[1],
+                'currentUserName' => $fileNameParts[4],
+                'month' => $fileNameParts[2],
+                'year' => $fileNameParts[3],
+                'currentTimestamp' => date('m-d-Y H:i:s', strtotime($fileNameParts[5]))
+            ];
+        }
+
+
+        return $this->render('anlage_string_assignment/export_list.html.twig', [
+            'fileList' => $fileList,
+        ]);
+    }
+
+    #[Route('/anlage/string/assignment/monthly/export/download/{fileName}', name: 'app_anlage_string_assignment_monthly_export_download_file')]
+    public function downloadFile($fileName): Response
+    {
+        $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
+        $filePath = $publicDirectory . '/' . urldecode($fileName);
+
+
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException('File not found');
+        }
+
+        $response = new BinaryFileResponse($filePath);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT);
+
+        return $response;
+    }
+
+
+    #[Route('/anlage/string/assignment/monthly/export/delete/{fileName}', name: 'app_anlage_string_assignment_monthly_export_delete_file')]
+    public function deleteFile($fileName): Response
+    {
+        $decodeFilename=urldecode($fileName);
+        $anlId=explode('_', $decodeFilename)[1];
+
+        $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
+        $filePath = $publicDirectory . '/' . $decodeFilename;
+
+
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException('File not found');
+        }
+
+        if (unlink($filePath)) {
+            return $this->redirectToRoute('app_anlage_string_assignment_monthly_export_list',['anlId'=>$anlId]);
+        }
+
+        return new Response('Failed to delete the file', Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+
+
 }
+

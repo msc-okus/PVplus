@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="grid-container">
+        <h1>Liste des exports</h1>
+        <table class="hover">
+            <thead>
+            <tr>
+                <th>FileName</th>
+                <th>Plant Id</th>
+                <th>Create by</th>
+                <th>Month</th>
+                <th>Year</th>
+                <th>Created at</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if fileList is empty %}
+                <tr>
+                    <td colspan="7">Aucun fichier disponible.</td>
+                </tr>
+            {% else %}
+                {% for file in fileList %}
+                    <tr>
+                        <td>{{ file.shortFileName }}</td>
+                        <td>{{ file.anlId }}</td>
+                        <td>{{ file.currentUserName }}</td>
+                        <td>{{ file.month }}</td>
+                        <td>{{ file.year }}</td>
+                        <td>{{ file.currentTimestamp }}</td>
+                        <td>
+                            <a href="{{ path('app_anlage_string_assignment_monthly_export_download_file', { fileName: file.fileName|url_encode }) }}">Download</a>
+                            <a href="{{ path('app_anlage_string_assignment_monthly_export_delete_file', { fileName: file.fileName|url_encode }) }}">delete</a>
+
+
+
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block title %}
+
+{% endblock %}
+

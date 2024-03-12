@@ -484,4 +484,10 @@ class AnlagenRepository extends ServiceEntityRepository
         return $qb->orderBy('eigner.firma', 'ASC')
             ->addOrderBy('a.anlName', 'ASC');
     }
+
+
+
+
+
+
 }
