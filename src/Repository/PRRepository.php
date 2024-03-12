@@ -40,7 +40,6 @@ class PRRepository extends ServiceEntityRepository
 
     public function findPrAnlageDate($anlage, $from, $to)
     {
-        dump($from, $to);
         return $this->createQueryBuilder('pr')
             ->andWhere('pr.anlage = :anlage')
             ->andWhere('pr.stamp >= :from AND pr.stamp < :to')

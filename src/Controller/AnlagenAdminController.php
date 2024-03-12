@@ -233,7 +233,6 @@ class AnlagenAdminController extends BaseController
     public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $repositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->findOneByIdAndJoin($id);
-        #dd($anlage);
         $upload = new AnlageFile();
         $tempFile = null;
         $imageuploaded = $repositoryUpload->findOneBy(['path' => $anlage->getPicture()]);

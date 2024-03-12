@@ -123,9 +123,8 @@ class WeatherFunctionsService
             // Temperatur Korrektur Daten vorbereiten
             $tModAvg = $anlage->getTempCorrCellTypeAvg() > 0 ? $anlage->getTempCorrCellTypeAvg() : 25;
             // ??? $this->determineTModAvg($anlage, $from, $to);
-            $gamma = $anlage->getTempCorrGamma() / 100;
-            $tempCorrFunctionNREL   = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
-            $tempCorrFunctionIEC    = "(1 + ($gamma) * (temp_pannel - $tModAvg))";
+            $gamma = $anlage->getTempCorrGamma();
+            $tempCorrFunctionIEC    = "(1 - ( (($tModAvg - temp_pannel) * ($gamma)) / 100))";
             $degradation = (1 - $anlage->getDegradationPR() / 100) ** $anlage->getBetriebsJahre();
 
             // depending on $department generate correct SQL code to calculate
@@ -135,7 +134,7 @@ class WeatherFunctionsService
                     $sqlTheoPowerPart = "
                         SUM(g_upper * $pNomEast + g_lower * $pNomWest)  as theo_power_raw,
                         SUM(g_upper * $pNomEast * $degradation + g_lower * $pNomWest * $degradation)  as theo_power_raw_deg,
-                        SUM(g_upper * $tempCorrFunctionNREL * $pNomEast + g_lower * $tempCorrFunctionNREL * $pNomWest) as theo_power_temp_corr_nrel,
+                        SUM(g_upper * $tempCorrFunctionIEC * $pNomEast + g_lower * $tempCorrFunctionIEC * $pNomWest) as theo_power_temp_corr_iec,
                         SUM(g_upper * $tempCorrFunctionIEC * $pNomEast + g_lower * $tempCorrFunctionIEC * $pNomWest * $degradation) as theo_power_temp_corr_deg_iec,
                         SUM(g_upper * $pNomEast * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) + 
                         SUM(g_lower * $pNomWest * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
@@ -151,7 +150,7 @@ class WeatherFunctionsService
                     $sqlTheoPowerPart = "
                         SUM(((g_upper + g_lower) / 2) * $pNom)  as theo_power_raw,
                         SUM(((g_upper + g_lower) / 2) * $pNom * $degradation)  as theo_power_raw_deg,
-                        SUM(((g_upper + g_lower) / 2) * $tempCorrFunctionNREL * $pNom) as theo_power_temp_corr_nrel,
+                        SUM(((g_upper + g_lower) / 2) * $tempCorrFunctionIEC * $pNom) as theo_power_temp_corr_iec,
                         SUM(((g_upper + g_lower) / 2) * $tempCorrFunctionIEC * $pNom * $degradation) as theo_power_temp_corr_deg_iec,
                         SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
                         SUM(((g_upper + g_lower) / 2) * $pNom * IF(((g_upper + g_lower) / 2) > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
@@ -164,7 +163,7 @@ class WeatherFunctionsService
                 $sqlTheoPowerPart = "
                 SUM(g_upper * $pNom)  as theo_power_raw,
                 SUM(g_upper * $pNom * $degradation)  as theo_power_raw_deg,
-                SUM(g_upper * $tempCorrFunctionNREL * $pNom ) as theo_power_temp_corr_nrel,
+                SUM(g_upper * $tempCorrFunctionIEC * $pNom ) as theo_power_temp_corr_iec,
                 SUM(g_upper * $tempCorrFunctionIEC * $pNom * $degradation) as theo_power_temp_corr_deg_iec,
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA3() . ", pa3, 1)) as theo_power_pa3,
                 SUM(g_upper * $pNom * IF(g_upper > " . $anlage->getThreshold2PA2() . ", pa2, 1)) as theo_power_pa2,
@@ -235,7 +234,8 @@ class WeatherFunctionsService
                     $weather['theoPowerPA3'] = $row['theo_power_pa3'] / 1000 / 4;
                     $weather['theoPower'] = $row['theo_power_raw'] / 1000 / 4;
                     $weather['theoPowerDeg'] = $row['theo_power_raw_deg'] / 1000 / 4;
-                    $weather['theoPowerTempCorr_NREL'] = $row['theo_power_temp_corr_nrel'] / 1000 / 4;
+                    $weather['theoPowerTempCorr_NREL'] = $row['theo_power_temp_corr_iec'] / 1000 / 4;
+                    $weather['theoPowerTempCorr_IEC'] = $row['theo_power_temp_corr_iec'] / 1000 / 4;
                     $weather['theoPowerTempCorDeg_IEC'] = $row['theo_power_temp_corr_deg_iec'] / 1000 / 4;
                 }
                 unset($res);

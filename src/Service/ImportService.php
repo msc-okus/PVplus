@@ -166,12 +166,13 @@ class ImportService
                     if($basics[$date]['E_Z_EVU'] > 0){
                         (float)$eZEvu = $basics[$date]['E_Z_EVU'];
                     }else{
-                        (float)$eZEvu = 0.0;
+                        $eZEvu = 0.0;
                     }
                 }
 
                 //beginn get Sensors Data
-                (int)$length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
+                $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
+
                 if ((is_array($sensors) && array_key_exists($date, $sensors) && $length > 0) || $hasSensorsInBasics == 1) {
                     //if plant is use sensors datatable get data for the table
                     if($useSensorsDataTable){
@@ -192,17 +193,11 @@ class ImportService
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
                     $irrLower = $checkSensors[0]['irrLower'];
                     $irrUpper = $checkSensors[0]['irrUpper'];
-
                     $tempPanel = $checkSensors[1]['tempPanel'];
-
                     $tempAmbient = $checkSensors[1]['tempAmbient'];
-
                     $tempAnlageArray = $checkSensors[1]['anlageTemp'];
-
                     $wSEwd = $checkSensors[1]['windDirection'];
-
                     $windSpeed = $checkSensors[1]['windSpeed'];
-
                     $windAnlageArray = $checkSensors[1]['anlageWind'];
                 }
                 /*if plant use not sensors datatable store data into the weather table

@@ -38,7 +38,6 @@ class DashboardPlantsController extends BaseController
             if ($this->isGranted('ROLE_G4N')) {
                 $anlagen = $anlagenRepository->findByEignerActive($eignerId, $anlageId);
             } else {
-                /* @var User $user */
                 $user = $this->getUser();
                 $granted = $user->getGrantedArray();
                 $anlagen = $anlagenRepository->findGrantedActive($eignerId, $anlageId, $granted);

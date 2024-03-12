@@ -361,7 +361,7 @@ class AvailabilityByTicketService
             foreach ($case6Tickets as $case6Ticket){
                 $c6From = $case6Ticket->getBegin()->getTimestamp();
                 $c6To = $case6Ticket->getEnd()->getTimestamp();
-                for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
+                for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c6Stamp < $c6To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($this->functions->readInverters($case6Ticket->getInverter(), $anlage) as $inverter) {
                         $inverter = trim((string) $inverter, ' ');
                         $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
@@ -411,12 +411,11 @@ class AvailabilityByTicketService
                         $case0 = $case1 = $case2 = $case3 = $case4  = $case5 = $case6 = false;
                         $commIssu = $skipTi = $skipTiTheo = $outageAsTiFm = false;
 
-                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA === 0.0) || ($strahlung === null && $threshold1PA === 0.0)) {//
+                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA < 0) || ($strahlung === null && $threshold1PA < 0)) {//
                             // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);
                             $commIssu       = isset($commIssuArray[$inverter][$stamp])          && !$case5; // ignoriere Communication eroros wenn case5 (tiFM) gesetzt ist
-              #if ($department == 2 && $commIssu === true) dump($stamp);
                             $skipTi         = isset($skipTiAndTitheoArray[$inverter][$stamp])   && $skipTiAndTitheoArray[$inverter][$stamp] === true;
                             $skipTiTheo     = isset($skipTiAndTitheoArray[$inverter][$stamp])   && $skipTiAndTitheoArray[$inverter][$stamp] === true;
                             $outageAsTiFm   = isset($skipTiOnlyArray[$inverter][$stamp])        && $skipTiOnlyArray[$inverter][$stamp]      === true; // Replace outage with TiFM for PA
