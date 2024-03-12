@@ -685,6 +685,9 @@ class AssetManagementService
                 $maintenanceTicketTable[$index][$subindex]['reparationBegin'] = $firstNotification->getDate();
                 $maintenanceTicketTable[$index][$subindex]['reparationEnd'] = $closingNotification->getCloseDate();
                 $maintenanceTicketTable[$index][$subindex]['end'] = $maintenanceTicket->getWhenClosed();
+
+                $maintenanceTicketTable[$index][$subindex]['notificationTimeDiff'] = $notification->getDate()->diff($maintenanceTicket->getWhenClosed())->format("%d days %h hours %i minutes");
+                $maintenanceTicketTable[$index][$subindex]['reparationTimeDiff'] = $firstNotification->getDate()->diff($closingNotification->getCloseDate())->format("%d days %h hours %i minutes");
             }
             if ($subindex < 39) $subindex++;
             else {
@@ -692,6 +695,7 @@ class AssetManagementService
                 $subindex = 0;
             }
         }
+        dd($maintenanceTicketTable);
         $kpiTicketArray = $this->ticketRepo->findAllKpiAnlage($anlage, $begin, $end);
         $index = 0;
         $subindex = 0; //we use 2 index to split the tables in case there are too many tickets

@@ -456,13 +456,14 @@ class TicketController extends BaseController
             $notification->setWhoNotified($this->getUser());
             $notification->setDate(new DateTime('now'));
             $notification->setFreeText($form->getData()['freeText']);
+            $notification->setPriority($form->getData()['priority']);
             $ticket->setSecurityToken($key);
             $ticket->addNotificationInfo($notification);
             $em->persist($notification);
             $em->persist($ticket);
             $em->flush();
-            $message = "Maintenance is needed in ". $ticket->getAnlage()->getAnlName().". Please click the button bellow to respond. <br> Message from TAM: <br>".$form->getData()['freeText'];
-            $messageService->sendMessageToMaintenance(  $this->translator->trans("ticket.error.category.".$ticket->getAlertType()) . " in ". $ticket->getAnlage()->getAnlName() . "- Ticket: " . $ticket->getId(), $message, $contact->getEmail(), $contact->getName(), $this->getUser()->getname(), false, $ticket);
+            $message = "Maintenance is needed in ". $ticket->getAnlage()->getAnlName().". Please click the button bellow to respond.<br> Priority: ". $this->translator->trans("ticket.priority.".$form->getData()['priority'])."<br> Message from TAM: <br>".$form->getData()['freeText'];
+            $messageService->sendMessageToMaintenance(  $this->translator->trans("ticket.priority.".$form->getData()['priority'])." Priority ".$this->translator->trans("ticket.error.category.".$ticket->getAlertType()) . " in ". $ticket->getAnlage()->getAnlName() . "- Ticket: " . $ticket->getId(), $message, $contact->getEmail(), $contact->getName(), $this->getUser()->getname(), false, $ticket);
         }
 
         return $this->render('ticket/_inc/_notification.html.twig', [

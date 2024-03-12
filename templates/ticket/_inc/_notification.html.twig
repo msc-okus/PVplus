@@ -14,6 +14,8 @@
                             </p>
                         {% endif %}
                         {{ form_widget(notificationForm.contacted) }}
+                        Priority:
+                        {{ form_widget(notificationForm.priority) }}
                         <br>Message for the Maintenance Provider:
                         {{ form_widget(notificationForm.freeText) }}
 
