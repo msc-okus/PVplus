@@ -62,6 +62,9 @@ class NotificationInfo
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $freeText = null;
 
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $priority = null;
+
     public function getWhoNotified(): User
     {
         return $this->whoNotified;
@@ -157,6 +160,18 @@ class NotificationInfo
     public function setFreeText(string $freeText): static
     {
         $this->freeText = $freeText;
+
+        return $this;
+    }
+
+    public function getPriority(): ?string
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(?string $priority): static
+    {
+        $this->priority = $priority;
 
         return $this;
     }
