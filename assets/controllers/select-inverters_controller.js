@@ -3,65 +3,10 @@ import { useDispatch } from 'stimulus-use';
 import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
-
 export default class extends Controller {
-    static targets =    ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable',
-        'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton',
-        'splitDeploy','AlertInverter', 'Callout', 'formCategory', 'AlertCategory', 'headerExclude',
-        'headerReplace', 'headerReplacePower', 'headerReplaceIrr', 'headerHour', 'headerEnergyValue',
-        'headerIrrValue', 'headerCorrection', 'headerEvaluation', 'headerAktDep1', 'headerAktDep2',
-        'headerAktDep3', 'formReplace', 'fieldSensor', 'fieldReplacePower', 'fieldReplaceIrr', 'fieldHour',
-        'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
-        'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
-        'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
-        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'modalContactBody', 'contactButton', 'modalContactCreateBody',
-        'contactModalCreate', 'modalTimelineBody', 'timelineModal'];
-
-    static values = {
-        formUrl: String,
-    }
-    modal = null;
-    splitModal = null;
-    contactModal = null;
-    contactCreateModal = null;
-    timelineModal = null;
 
     connect() {
         useDispatch(this);
-    }
-    async openModal(event) {
-
-        this.modalBodyTarget.innerHTML = 'Loading ...';
-        this.modal = new Reveal($(this.modalTarget));
-        this.modal.open();
-        if (this.formUrlValue == '/ticket/edit') {
-            this.modalBodyTarget.innerHTML = await $.ajax({
-                url: this.formUrlValue,
-                data: {'anlage': $(this.anlageTarget).val()},
-            });
-            $(this.saveButtonTarget).attr('disabled', 'disabled');
-        } else {
-            this.modalBodyTarget.innerHTML = await $.ajax({
-                url: this.formUrlValue,
-            });
-        }
-        this.checkCategory();
-
-        $(this.modalBodyTarget).foundation();
-    }
-
-    closeModal(event) {
-        event.preventDefault();
-        this.dispatch('success');
-        this.modal.destroy();
-    }
-
-    toggle(){
-
-        let $button = $(this.deactivableTarget);
-        if ($button.attr('disabled')) {
-            $button.removeAttr('disabled');
-        }
     }
 
     checkTrafo({ params: { first, last, trafo }}){
@@ -87,8 +32,6 @@ export default class extends Controller {
         $(this.switchTarget).prop('checked', false)
 
     }
-
-
 
     selectAll(){
         let body = $('#inverters');

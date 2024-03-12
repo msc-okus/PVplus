@@ -582,6 +582,21 @@
         padding-top: 2rem;
         min-height: calc(100vh - 200px);
 
+        .select-inverters-frame{
+            position: relative;
+            left: 50% !important;
+        }
+
+        .btn-select-inverters {
+            margin-left: 5px;
+            color: #1779ba;
+            position: relative;
+            margin: 15px 0 15px 0;
+            #fa-caret-square-down {
+                font-size: xx-large;
+            }
+        }
+
         .no-margin {
             margin: 0 !important;
         }

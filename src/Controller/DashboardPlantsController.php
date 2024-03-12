@@ -217,11 +217,15 @@ class DashboardPlantsController extends BaseController
         foreach ($nameArray as $key => $value){
             $inverterArray[$key]["invName"] = $value;
             $inverterArray[$key]["select"] = "";
+
+            if(str_contains($form['invnames'], $value)){
+                $inverterArray[$key]["select"] = "checked";
+            }
+
         }
 
         foreach ($idsArray as $key => $value){
             $inverterIdsArray[$key]["invId"] = $value;
-            $inverterIdsArray[$key]["select"] = "";
         }
 
         $isInTimeRange = self::isInTimeRange();
@@ -240,7 +244,7 @@ class DashboardPlantsController extends BaseController
     }
 
     private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo): array{
-        $totalTrafoGroups = $acRepo->getAllTrafoNr($anlage);
+        $totalTrafoGroups = $acRepo->getAllTrafoNrForInverterSelect($anlage);
         $trafoArray = [];
         foreach ($totalTrafoGroups as $trafoGroup) {
             $trafoGroupNr = $trafoGroup->getTrafoNr();
@@ -256,7 +260,6 @@ class DashboardPlantsController extends BaseController
                 }
             }
         }
-
         return $trafoArray;
     }
 }

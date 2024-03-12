@@ -881,7 +881,7 @@ class ACPowerChartsService
 
                 $temp = substr($temp, 0, -4);
                 $sqladd = "AND ($temp) ";
-    
+
                 $max = (($max > 50) ? '50' : $max);
                 $sqladd = "AND $group BETWEEN '$min' AND '$max'";
               } else {
