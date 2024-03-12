@@ -454,7 +454,7 @@ trait ImportFunctionsTrait
 
     }
 
-    //Holt die Werte aus der V-Com-Response und ordnet sie den Sensoren zu um sie dann in pv_sensors_data_... zu speichern
+    //Ordnet die Werte aus der V-Com-Response den Sensoren zu um sie dann in pv_sensors_data_... zu speichern(aktuell auch noch in die alten ws Tabellen)
 
     /**
      * @param array $anlageSensors
@@ -465,11 +465,13 @@ trait ImportFunctionsTrait
      * @param $gMo
      * @return array
      */
-    function getSensorsDataFromVcom(array $anlageSensors, int $length, array $sensors, array $basics, $stamp, $date, $gMo): array
+    function getSensorsDataFromVcomResponse(array $anlageSensors, int $length, array $sensors, array $basics, $stamp, $date, string $gMo): array
     {
+        $gmx = 0;
         for ($i = 0; $i < $length; $i++) {
             $start = 0;
             $end = 0;
+
             if ($anlageSensors[$i]->getStartDateSensor() != null) {
                 $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
             }
@@ -479,10 +481,25 @@ trait ImportFunctionsTrait
             $now = strtotime((string) $date);
             if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                 $sensorId = $anlageSensors[$i]->getId();
-                if($anlageSensors[$i]->getIsFromBasics() == 1){
-                    $value = max($basics[$date][$anlageSensors[$i]->getNameShort()], 0);
+                if($anlageSensors[$i]->getName() != 'G_MX'){
+                    if($anlageSensors[$i]->getIsFromBasics() == 1){
+                        $sensortype = $anlageSensors[$i]->getType();
+                        if($sensortype == 'temperature'){
+                            $value = $basics[$date][$anlageSensors[$i]->getNameShort()];
+                        }else{
+                            $value = max($basics[$date][$anlageSensors[$i]->getNameShort()], 0);
+                        }
+                    }else{
+                        $sensortype = $anlageSensors[$i]->getType();
+                        if($sensortype == 'temperature'){
+                            $value = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
+                        }else{
+                            $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                        }
+                    }
                 }else{
-                    $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                    $value = $basics[$date]['G_M'.$gmx];
+                    $gmx++;
                 }
             }
 
@@ -500,7 +517,6 @@ trait ImportFunctionsTrait
         $result[] = $data_sensors;
         return $result;
     }
-
 
     //Prüft welche Anlagen für den Import via Symfony freigeschaltet sind
     /**
@@ -628,8 +644,8 @@ trait ImportFunctionsTrait
                 #echo "$date / $scbNo / $key".' / '.$stringBoxesTime[$scbNo][$key]." / $currentDcSCB".'<br>';
             }
             $voltageDc = $stringBoxesTime[$scbNo]['U_DC'];
-            $powerDc = $currentDcSCB * $voltageDc / 1000 / 4; // Umrechnung von W auf kW/h
-
+            #$powerDc = $currentDcSCB * $voltageDc / 1000 / 4; // Umrechnung von W auf kW/h
+            $powerDc = $stringBoxesTime[$scbNo]['P_DC'] / 1000 / 4; // Umrechnung von W auf kW/h
 
             $dcCurrentMpp = json_encode($dcCurrentMppArray, JSON_THROW_ON_ERROR);
             $dcVoltageMpp = "{}";
@@ -650,8 +666,6 @@ trait ImportFunctionsTrait
 
             for ($n = 1; $n <= $stringBoxUnits; $n++) {
                 $key = "I$n";
-
-                #echo "$date / $scbNo / $key".' / '.$stringBoxesTime[$scbNo][$key]." / $currentDcSCB".'<br>';
                 $data_db_string_pv[] = [
                     'anl_id' => $plantId,
                     'stamp' => $stamp,
@@ -673,7 +687,6 @@ trait ImportFunctionsTrait
     }
 
     //importiert die Daten für Anlegen ohne Stringboxes
-
     /**
      * @param array $inverters
      * @param string $date
@@ -797,8 +810,7 @@ trait ImportFunctionsTrait
         return $result;
     }
 
-    //importiert die Daten für Anlegen ohne Stringboxes
-
+    //importiert die Daten für PPC
     /**
      * @param $anlagePpcs
      * @param array $ppcs

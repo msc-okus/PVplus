@@ -30,7 +30,7 @@ class ExternFileService
     )
     { }
 
-    public function CallFileServiceAPI(Anlage|int $anlage, string $day): string
+    public function callFileServiceAPI(Anlage|int $anlage, string $day): string
     {
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
@@ -51,7 +51,7 @@ class ExternFileService
 
         return $output;
     }
-    public function CallFileServiceINAX(Anlage|int $anlage, string $day): string
+    public function callFileServiceINAX(Anlage|int $anlage, string $day): string
     {
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);

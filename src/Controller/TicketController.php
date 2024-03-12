@@ -2,13 +2,12 @@
 
 namespace App\Controller;
 
-use App\Entity\AnlageAcGroups;
+use App\Entity\Anlage;
 use App\Entity\NotificationInfo;
 use App\Entity\Ticket;
-use App\Entity\TicketDate;
+use App\Entity\ticketDate;
 use App\Form\Notification\NotificationConfirmFormType;
 use App\Form\Notification\NotificationEditFormType;
-use App\Form\Owner\NotificationFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AcGroupsRepository;
@@ -19,8 +18,8 @@ use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
 use App\Service\MessageService;
 use App\Service\PiiCryptoService;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use DoctrineExtensions\Query\Mysql\Date;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,7 +28,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use DateTime;
 
 class TicketController extends BaseController
 {
@@ -41,6 +39,10 @@ class TicketController extends BaseController
     }
 
     use PVPNameArraysTrait;
+
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
     public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions, AcGroupsRepository $acRepo): Response
     {
@@ -50,21 +52,7 @@ class TicketController extends BaseController
             $anlage = null;
         }
         if ($anlage != null) {
-            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
-            $trafoArray = [];
-            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
-                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
-                if ($acGroup != []) {
-                    if ($anlage->getConfigType() == 3){
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                    }
-                    else {
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
-                    }
-                }
-            }
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
 
         if ($anlage) {
@@ -96,10 +84,9 @@ class TicketController extends BaseController
                 $date->copyTicket($ticket);
             }
             $em->persist($ticket);
-
             $em->flush();
 
-            return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
+            return new Response(null, Response::HTTP_NO_CONTENT);
 
         } elseif ($form->isSubmitted() && !$form->isValid()) {
             $anlage = $form->getData()->getAnlage();
@@ -122,7 +109,6 @@ class TicketController extends BaseController
             $sensorArray[$key]['checked'] = "";
         }
 
-
         return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
             'ticket'        => $ticket,
@@ -143,21 +129,8 @@ class TicketController extends BaseController
 
         $sensorArray = [];
         $ticketDates = $ticket->getDates();
-        $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
-        $trafoArray = [];
-
-        for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++){
-            $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
-            if ($acGroup != []) {
-                if ($anlage->getConfigType() == 3){
-                    $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
-                    $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                }
-                else {
-                    $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
-                    $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
-                }
-            }
+        if ($anlage != null) {
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
@@ -170,8 +143,7 @@ class TicketController extends BaseController
                 $inverterArray[$index]["inv"] = $value;
                 $inverterArray[$index]["select"] = "checked";
             }
-        }
-        else {
+        } else {
             for ($index = 1; $index <= sizeof($nameArray); $index++){
                 $value = $nameArray[$index];
                 $inverterArray[$index]["inv"] = $value;
@@ -191,8 +163,6 @@ class TicketController extends BaseController
         $page = $request->query->getInt('page', 1);
 
         $form->handleRequest($request);
-
-
         if ($form->isSubmitted() && $form->isValid()) {
             $request->attributes->set('page', $page);
             /** @var Ticket $ticket */
@@ -216,11 +186,8 @@ class TicketController extends BaseController
 
             if (count($ticketDates) > 0) { // cambiar aqui para que si el primer y ultimo date estan fuera del ticket se expande el ticket
                 $found = false;
-
                 while(!$found){
-
                     $firstTicketDate = $ticketDates->first();
-
                     if ($firstTicketDate->getEnd() < $ticket->getBegin()) $ticket->removeDate($firstTicketDate);
                     elseif ($firstTicketDate->getEnd() == $ticket->getBegin()){
                         $ticket->removeDate($firstTicketDate);
@@ -322,24 +289,13 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/list', name: 'app_ticket_list')]
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo): Response
     {
-
-        //here we will count the number of different "proof by tickets"
-        $countProofByTam = $ticketRepo->countByProof();
-        $countProofByEPC = $ticketRepo->countByProofEPC();
-        $countByProofAM = $ticketRepo->countByProofAM();
-        $countByProofG4N = $ticketRepo->countByProofG4N();
-        $countByProofMaintenance = $ticketRepo->countByProofMaintenance();
-        $countIgnored = $ticketRepo->countIgnored();
         $filter = [];
         $session = $request->getSession();
         $pageSession = $session->get('page');
         $page = $request->query->getInt('page');
 
-
-        if ($request->query->get('filtering') == 'filtered')
-        {
+        if ($request->query->get('filtering') == 'filtered') {
             $request->query->set('filtering', 'non-filtered');
-
         } // we do this to reset the page if the user uses the filter
 
         if ($page == 0) {
@@ -409,7 +365,7 @@ class TicketController extends BaseController
         if ($request->query->get('ajax') || $request->isXmlHttpRequest()) {
             return $this->render('ticket/_inc/_listTickets.html.twig', [
                 'pagination'    => $pagination,
-                'anlagen'       => $anlagenRepo->findAllActiveAndAllowed(),
+                'anlagen'       => $anlagenRepo->findAllActiveAndAllowed()
             ]);
 
         }
@@ -428,12 +384,7 @@ class TicketController extends BaseController
             'direction'     => $direction,
             'begin'         => $begin,
             'end'           => $end,
-            'countProofByAM'  => $countByProofAM,
-            'countProofByEPC'  => $countProofByEPC,
-            'countProofByTAM'  => $countProofByTam,
-            'countProofByG4N'  => $countByProofG4N,
-            'countIgnored'     => $countIgnored,
-            'countProofByMaintenance' => $countByProofMaintenance
+            'counts'        => $this->getCountOfTickets($ticketRepo)
         ]);
     }
 
@@ -464,12 +415,12 @@ class TicketController extends BaseController
     {
         $ticket = $ticketRepo->findOneById($id);
         $notifications = $ticket->getNotificationInfos();
+        $actualNotification = "";
         $timeDiff = null;
         if (!$notifications->isEmpty()){
             $actualNotification = $notifications->last();
             $actualTime = new DateTime();
             $timeDiff = $actualNotification->getDate()->diff($actualTime)->format("%d days %h hours");
-
         }
         $eigner = $ticket->getAnlage()->getEigner();
         $form = $this->createForm(\App\Form\Notification\NotificationFormType::class, null, ['eigner' => $eigner]);
@@ -477,7 +428,7 @@ class TicketController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             $ticket->setNotified(true);
             $contact = $contactRepo->findBy(["id" => $form->getData()['contacted']])[0];
-            $key = uniqid($ticket->getId);
+            $key = uniqid($ticket->getId());
             $notification = new NotificationInfo();
             $notification->setTicket($ticket);
             $notification->setStatus(10);
@@ -508,22 +459,10 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/proofCount', name: 'app_ticket_proof_count', methods: ['GET', 'POST'])]
     public function getProofCount(TicketRepository $ticketRepo):Response
     {
-        $countProofByTam = $ticketRepo->countByProof();
-        $countProofByEPC = $ticketRepo->countByProofEPC();
-        $countByProofAM = $ticketRepo->countByProofAM();
-        $countByProofG4N = $ticketRepo->countByProofG4N();
-        $countIgnored = $ticketRepo->countIgnored();
-        $countByProofMaintenance = $ticketRepo->countByProofMaintenance();
         return new JsonResponse([
-            'countProofByAM'  => $countByProofAM,
-            'countProofByEPC'  => $countProofByEPC,
-            'countProofByTAM'  => $countProofByTam,
-            'countProofByG4N'  => $countByProofG4N,
-            'countIgnored'     => $countIgnored,
-            'countProofByMaintenance' => $countByProofMaintenance
+            'counts'        => $this->getCountOfTickets($ticketRepo)
         ]);
     }
-
 
     /**
      * Split Tickets by Time
@@ -533,6 +472,7 @@ class TicketController extends BaseController
      * @param TicketRepository $ticketRepo
      * @param Request $request
      * @param EntityManagerInterface $em
+     * @param AcGroupsRepository $acRepo
      * @return Response
      * @throws InvalidArgumentException
      */
@@ -549,21 +489,7 @@ class TicketController extends BaseController
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
         if ($anlage != null) {
-            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
-            $trafoArray = [];
-            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
-                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
-                if ($acGroup != []) {
-                    if ($anlage->getConfigType() == 3){
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                    }
-                    else {
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
-                    }
-                }
-            }
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
         $indexSelect = 0;
 
@@ -625,6 +551,7 @@ class TicketController extends BaseController
      * @param TicketDateRepository $ticketDateRepo
      * @param Request $request
      * @param EntityManagerInterface $em
+     * @param AcGroupsRepository $acRepo
      * @return Response
      * @throws InvalidArgumentException
      */
@@ -634,21 +561,7 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->findOneById($request->query->get('id'));
         $anlage = $ticket->getAnlage();
         if ($anlage != null) {
-            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
-            $trafoArray = [];
-            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
-                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
-                if ($acGroup != []) {
-                    if ($anlage->getConfigType() == 3){
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                    }
-                    else {
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
-                    }
-                }
-            }
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
 
         $newTicket = new Ticket();
@@ -717,15 +630,21 @@ class TicketController extends BaseController
     }
 
 
+    /**
+     * Delete hole Ticket
+     *
+     * @param $id
+     * @param TicketRepository $ticketRepo
+     * @param PaginatorInterface $paginator
+     * @param Request $request
+     * @param AnlagenRepository $anlagenRepo
+     * @param EntityManagerInterface $em
+     * @param RequestStack $requestStack
+     * @return Response
+     */
     #[Route(path: '/ticket/deleteTicket/{id}', name: 'app_ticket_deleteticket')]
     public function deleteTicket($id, TicketRepository $ticketRepo,  PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $em, RequestStack $requestStack): Response
     {
-        //here we will count the number of different "proof by tickets"
-        $countProofByTam = $ticketRepo->countByProof();
-        $countProofByEPC = $ticketRepo->countByProofEPC();
-        $countByProofAM = $ticketRepo->countByProofAM();
-        $countByProofG4N = $ticketRepo->countByProofG4N();
-
         $filter = [];
         $session = $requestStack->getSession();
         $pageSession = $session->get('page');
@@ -736,7 +655,6 @@ class TicketController extends BaseController
             $em->remove($ticket);
             $em->flush();
         }
-
 
         if ($request->query->get('filtering') == 'filtered')
         {
@@ -797,7 +715,6 @@ class TicketController extends BaseController
 
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $proofg4n, $proofmaintenance, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
-
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
         $pagination->setParam('sort', $sort);
         $pagination->setParam('direction', $direction);
@@ -809,8 +726,6 @@ class TicketController extends BaseController
             $pagination->setParam('direction', $direction);
         }
         $session->set('page', "$page");
-
-
 
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
@@ -826,15 +741,21 @@ class TicketController extends BaseController
             'direction'     => $direction,
             'begin'         => $begin,
             'end'           => $end,
-            'countProofByAM'  => $countByProofAM,
-            'countProofByEPC'  => $countProofByEPC,
-            'countProofByTAM'  => $countProofByTam,
-            'countProofByG4N'  => $countByProofG4N
-
+            'counts'        => $this->getCountOfTickets($ticketRepo),
         ]);
     }
 
     /**
+     * Delete Intervall
+     *
+     * @param $id
+     * @param TicketRepository $ticketRepo
+     * @param TicketDateRepository $ticketDateRepo
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @param FunctionsService $functions
+     * @param AcGroupsRepository $acRepo
+     * @return Response
      * @throws InvalidArgumentException
      */
     #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
@@ -846,21 +767,7 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
         $anlage = $ticket->getAnlage();
         if ($anlage != null) {
-            $totalTrafoGroups = count($acRepo->countTrafoGroups($anlage));
-            $trafoArray = [];
-            for ($trafoGroup = 1; $trafoGroup <= $totalTrafoGroups; $trafoGroup++) {
-                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroup);
-                if ($acGroup != []) {
-                    if ($anlage->getConfigType() == 3){
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getAcGroup();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
-                    }
-                    else {
-                        $trafoArray[$trafoGroup]['first'] = $acGroup[0]->getUnitFirst();
-                        $trafoArray[$trafoGroup]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
-                    }
-                }
-            }
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
         if ($ticket) {
             switch ($option) {
@@ -887,22 +794,16 @@ class TicketController extends BaseController
             $ticketDates = $ticket->getDates();
             if ($ticketDates->isEmpty()) {
                 $ticketDates = null;
-            }
-            else{
-
+            } else {
                 if ($ticketDates->last()->getEnd() < $ticket->getEnd()) {
                     $ticket->setEnd($ticketDates->last()->getEnd());
-
                 }
                 if ($ticketDates->first()->getBegin() > $ticket->getBegin()) {
                     $ticket->setBegin($ticketDates->first()->getBegin());
-
                 }
             }
             $em->persist($ticket);
             $em->flush();
-
-
 
             return new Response(null, Response::HTTP_NO_CONTENT);
         }
@@ -926,9 +827,7 @@ class TicketController extends BaseController
         $ticketDates = $ticket->getDates();
         if ($ticketDates->isEmpty()) {
             $ticketDates = null;
-        }
-        else{
-
+        } else {
             if ($ticketDates->last()->getEnd() < $ticket->getEnd()) {
                 $ticket->setEnd($ticketDates->last()->getEnd());
             }
@@ -987,6 +886,17 @@ class TicketController extends BaseController
             'answered' => false,
         ]);
     }
+
+    /**
+     * @param $id
+     * @param TicketRepository $ticketRepo
+     * @param Request $request
+     * @param PiiCryptoService $encryptService
+     * @param MessageService $messageService
+     * @param EntityManagerInterface $em
+     * @param AcGroupsRepository $acRepo
+     * @return Response
+     */
     #[Route(path: '/notification/edit/{id}', name: 'app_ticket_notification_edit')]
     public function changeNotificationStatus($id, TicketRepository $ticketRepo, Request $request, PiiCryptoService $encryptService, MessageService $messageService, EntityManagerInterface $em, AcGroupsRepository $acRepo) :Response{
         $ticketId = $encryptService->unHashData($id);
@@ -1042,7 +952,12 @@ class TicketController extends BaseController
 
     }
 
-
+    /**
+     * @param TicketRepository $ticketRepo
+     * @param EntityManagerInterface $em
+     * @return Response
+     * @throws \JsonException
+     */
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods: ['GET', 'POST'])]
     public function join(TicketRepository $ticketRepo, EntityManagerInterface $em): Response
     {
@@ -1080,38 +995,17 @@ class TicketController extends BaseController
         }
 
         return $this->render('/ticket/join.html.twig', [
-            'text' => 'estamos aqui',
+            'text' => 'text',
         ]);
     }
 
-    public function findNextDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
-    {
-        $ticketDate = null; // = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
-
-        $found = false;
-        while (($found !== true) && (strtotime((string) $stamp) < $ticket->getEnd()->getTimestamp())) {
-            $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
-            if ($ticketDate) $found = true;
-            else  $stamp = date('Y-m-d H:i', strtotime((string) $stamp) + 900);
-        }
-
-        return $ticketDate;
-    }
-
-    public function findPreviousDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
-    {
-        $ticketDate = null; //$ticketDateRepo->findOneByEndTicket($stamp, $ticket); we cannot do this because if there is a gap between the intervals we will not be able to find the next interval to link with
-        $found = false;
-        while (($found !== true) && (strtotime((string) $stamp) > $ticket->getBegin()->getTimestamp())) {
-            $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
-            if ($ticketDate) $found = true;
-            else  $stamp = date('Y-m-d H:i', strtotime((string) $stamp) - 900);
-        }
-
-        return $ticketDate;
-    }
+    /**
+     * @param $id
+     * @param TicketRepository $ticketRepo
+     * @return Response
+     */
     #[Route(path: '/notification/timeline/{id}', name: 'app_ticket_notification_timeline')]
-    public function getTimeline($id, TicketRepository $ticketRepo)
+    public function getTimeline($id, TicketRepository $ticketRepo): Response
     {
         $ticket = $ticketRepo->findOneBy(['id' => $id]);
         $notifications = $ticket->getNotificationInfos();
@@ -1133,4 +1027,113 @@ class TicketController extends BaseController
         ]);
     }
 
+    /**
+     * @param $stamp
+     * @param $ticket
+     * @param $ticketDateRepo
+     * @return TicketDate|null
+     */
+    private function findNextDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
+    {
+        $ticketDate = null; // = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
+
+        $found = false;
+        while (($found !== true) && (strtotime((string) $stamp) < $ticket->getEnd()->getTimestamp())) {
+            $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
+            if ($ticketDate) $found = true;
+            else  $stamp = date('Y-m-d H:i', strtotime((string) $stamp) + 900);
+        }
+
+        return $ticketDate;
+    }
+
+
+    /**
+     * @param $stamp
+     * @param $ticket
+     * @param $ticketDateRepo
+     * @return TicketDate|null
+     */
+    private function findPreviousDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
+    {
+        $ticketDate = null; //$ticketDateRepo->findOneByEndTicket($stamp, $ticket); we cannot do this because if there is a gap between the intervals we will not be able to find the next interval to link with
+        $found = false;
+        while (($found !== true) && (strtotime((string) $stamp) > $ticket->getBegin()->getTimestamp())) {
+            $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
+            if ($ticketDate) $found = true;
+            else  $stamp = date('Y-m-d H:i', strtotime((string) $stamp) - 900);
+        }
+
+        return $ticketDate;
+    }
+
+    #[Route(path: '/list/getinverterarray/{id}', name: 'app_tlist_get_inverter_array')]
+    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo):Response
+    {
+
+        $anlage = $anlRepo->findOneBy(['anlId' => $id]);
+        $trafoArray = [];
+        $inverterArray = [];
+        if ($anlage != null){
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
+            $nameArray = $anlage->getInverterFromAnlage();
+            foreach ($nameArray as $key => $value){
+                $inverterArray[$key]["inv"] = $value;
+            }
+        }
+
+        return $this->render('/ticket/_inc/_inverter_dropdown.html.twig', [
+            'trafoArray'    => $trafoArray,
+            'invArray' => $inverterArray,
+        ]);
+    }
+
+    private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo): array
+    {
+        $totalTrafoGroups = $acRepo->getAllTrafoNr($anlage);
+        $trafoArray = [];
+        foreach ($totalTrafoGroups as $trafoGroup) {
+            if ($trafoGroup->getTrafoNr() !== null){
+                $trafoGroupNr = $trafoGroup->getTrafoNr();
+                $acGroup = $acRepo->findByAnlageTrafoNr($anlage, $trafoGroupNr);
+                if ($acGroup != []) {
+                    if ($anlage->getConfigType() == 3){
+                        $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getAcGroup();
+                        $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getAcGroup();
+                    }
+                    else {
+                        $trafoArray[$trafoGroupNr]['first'] = $acGroup[0]->getUnitFirst();
+                        $trafoArray[$trafoGroupNr]['last'] = $acGroup[sizeof($acGroup) - 1]->getUnitLast();
+                    }
+                }
+            }
+        }
+
+        return $trafoArray;
+    }
+
+    /**
+     * Counts diffrent stats of Tickets and gives back an array with the diffrent numbers.<br>
+     * <br>
+     * $counts['proofByTam']<br>
+     * $counts['proofByEPC']<br>
+     * $counts['proofByAM']<br>
+     * $counts['proofByG4N']<br>
+     * $counts['proofByMaintenance']<br>
+     * $counts['ignored']<br>
+     *
+     * @param TicketRepository $ticketRepo
+     * @return array
+     */
+    private function getCountOfTickets(TicketRepository $ticketRepo): array
+    {
+        $counts['proofByTam'] = $ticketRepo->countByProof();
+        $counts['proofByEPC'] = $ticketRepo->countByProofEPC();
+        $counts['proofByAM'] = $ticketRepo->countByProofAM();
+        $counts['proofByG4N'] = $ticketRepo->countByProofG4N();
+        $counts['proofByMaintenance'] = $ticketRepo->countByProofMaintenance();
+        $counts['ignored'] = $ticketRepo->countIgnored();
+
+        return $counts;
+    }
 }

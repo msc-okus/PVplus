@@ -6,6 +6,7 @@ use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\LogMessagesService;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -20,6 +21,7 @@ class CalcPlantAvailabilityNewHandler
 
     /**
      * @throws \Exception
+     * @throws InvalidArgumentException
      */
     public function __invoke(CalcPlantAvailabilityNew $calc): void
     {

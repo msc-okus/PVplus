@@ -63,41 +63,42 @@
                                             {% if (invArray != null) %}
                                                 <div class="grid-x">
                                                     <div class="cell small-form">
-                                                        <h3>Inverter List</h3>
+                                                        <h3>Inverter List <small>(click outside the 'pane' to accept selection and close 'pane')</small></h3>
                                                         <input id="check-all" type="checkbox"
                                                                {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %}
                                                                {%  if (ticket.inverterName == '*' ) %} checked {% endif %}
                                                                data-action="click->ticket-edit#checkSelect"
-                                                               data-ticket-edit-target="switch">
+                                                               data-ticket-edit-target="switch"/>
                                                         <label for="check-all" class="">Select All</label>
-
                                                     </div>
                                                 </div>
-                                                <hr>
-                                                <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
-                                                    {% for trafo in trafoArray %}
-                                                        <div class="cell small-form">
-                                                            <input id="trafo{{ loop.index }}"
-                                                                    {%  if (ticket.inverterName == '*' ) %} checked {% endif %}
-                                                                   class="js-checkbox-trafo"
-                                                                   data-ticket-edit-first-param="{{ trafo.first }}"
-                                                                   data-ticket-edit-last-param="{{ trafo.last }}"
-                                                                   data-ticket-edit-trafo-param="{{ loop.index }}"
-                                                                   data-action="click->ticket-edit#checkTrafo" type="checkbox">
-                                                            <label for="trafo{{ loop.index }}">TS {{ loop.index }}</label>
-                                                        </div>
-                                                    {% endfor %}
-                                                </div>
+                                                {% if trafoArray != null %}
+                                                    <hr>
+                                                    <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
+                                                        {% for key in trafoArray|keys %}
+                                                            {% set trafo = trafoArray[key] %}
+                                                            <div class="cell small-form">
+                                                                <input id="trafo{{ loop.index }}"
+                                                                        {%  if (ticket.inverterName == '*' ) %} checked {% endif %}
+                                                                       class="js-checkbox-trafo"
+                                                                       data-ticket-edit-first-param="{{ trafo.first }}"
+                                                                       data-ticket-edit-last-param="{{ trafo.last }}"
+                                                                       data-ticket-edit-trafo-param="{{ loop.index }}"
+                                                                       data-action="click->ticket-edit#checkTrafo" type="checkbox"/>
+                                                                <label for="trafo{{ loop.index }}">TS {{ key }}</label>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
                                                 <hr>
                                                 <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-9">
                                                     {% for inverter in invArray %}
                                                         <div class="cell small-form">
-                                                            <input id="{{ loop.index }}" type="checkbox"
+                                                            <input id="I-{{ loop.index }}" type="checkbox"
                                                                    class="js-checkbox"
                                                                    name="{{ inverter['inv'] }}" {{ inverter['select'] }} {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %}
-                                                                   data-action="click->ticket-edit#saveCheck">
-                                                            <label for="{{ inverter['inv'] }}"
-                                                                   class="">{{ inverter['inv'] }}</label>
+                                                                   data-action="click->ticket-edit#saveCheck"/>
+                                                            <label for="I-{{ loop.index }}" class="">{{ inverter['inv'] }}</label>
                                                         </div>
                                                     {% endfor %}
                                                 </div>
@@ -138,24 +139,24 @@
                                                     {% for inverter in invArray %}
                                                         {% if (inverter['select'] == "checked") %}
                                                             <div class="cell js-div-split-a small-form"
-                                                                 id="div-split-{{ loop.index }}a">
-                                                                <input id="split-{{ loop.index }}a" type="checkbox"
+                                                                 id="div-split-I-{{ loop.index }}a">
+                                                                <input id="split-I-{{ loop.index }}a" type="checkbox"
                                                                        class="js-checkbox-split-a"
                                                                        name="{{ loop.index }}" {{ inverter['select'] }}
-                                                                       data-ticket-edit-id-param="{{ loop.index }}"
-                                                                       data-action="click->ticket-edit#checkInverterSplit1">
-                                                                <label for="split-{{ loop.index }}a"
+                                                                       data-ticket-edit-id-param="I-{{ loop.index }}"
+                                                                       data-action="click->ticket-edit#checkInverterSplit1"/>
+                                                                <label for="split-I-{{ loop.index }}a"
                                                                        class="">{{ inverter['inv'] }}</label>
                                                             </div>
                                                         {% else %}
                                                             <div class="cell js-div-split-a is-hidden small-form"
-                                                                 id="div-split-{{ loop.index }}a">
-                                                                <input id="split-{{ loop.index }}a" type="checkbox"
+                                                                 id="div-split-I-{{ loop.index }}a">
+                                                                <input id="split-I-{{ loop.index }}a" type="checkbox"
                                                                        class="js-checkbox-split-a"
                                                                        name="{{ loop.index }}" {{ inverter['select'] }}
-                                                                       data-ticket-edit-id-param="{{ loop.index }}"
-                                                                       data-action="click->ticket-edit#checkInverterSplit1">
-                                                                <label for="split-{{ loop.index }}a"
+                                                                       data-ticket-edit-id-param="I-{{ loop.index }}"
+                                                                       data-action="click->ticket-edit#checkInverterSplit1"/>
+                                                                <label for="split-I-{{ loop.index }}a"
                                                                        class="">{{ inverter['inv'] }}</label>
                                                             </div>
                                                         {% endif %}
@@ -167,25 +168,23 @@
                                                     {% for inverter in invArray %}
                                                         {% if (inverter['select'] == "checked") %}
                                                             <div class="cell js-div-split-b small-form"
-                                                                 id="div-split-{{ loop.index }}b">
-                                                                <input id="split-{{ loop.index }}b" type="checkbox"
+                                                                 id="div-split-I-{{ loop.index }}b">
+                                                                <input id="split-I-{{ loop.index }}b" type="checkbox"
                                                                        class="js-checkbox-split-b"
                                                                        name="{{ loop.index }}"
-                                                                       data-ticket-edit-id-param="{{ loop.index }}"
-                                                                       data-action="click->ticket-edit#checkInverterSplit2">
-                                                                <label for="split-{{ loop.index }}b"
-                                                                       class="">{{ inverter['inv'] }}</label>
+                                                                       data-ticket-edit-id-param="I-{{ loop.index }}"
+                                                                       data-action="click->ticket-edit#checkInverterSplit2"/>
+                                                                <label for="split-I-{{ loop.index }}b" class="">{{ inverter['inv'] }}</label>
                                                             </div>
                                                         {% else %}
                                                             <div class="cell js-div-split-b is-hidden small-form"
-                                                                 id="div-split-{{ loop.index }}b">
-                                                                <input id="split-{{ loop.index }}b" type="checkbox"
+                                                                 id="div-split-I-{{ loop.index }}b">
+                                                                <input id="split-I-{{ loop.index }}b" type="checkbox"
                                                                        class="js-checkbox-split-b"
                                                                        name="{{ loop.index }}"
-                                                                       data-ticket-edit-id-param="{{ loop.index }}"
-                                                                       data-action="click->ticket-edit#checkInverterSplit2">
-                                                                <label for="split-{{ loop.index }}b"
-                                                                       class="">{{ inverter['inv'] }}</label>
+                                                                       data-ticket-edit-id-param="I-{{ loop.index }}"
+                                                                       data-action="click->ticket-edit#checkInverterSplit2"/>
+                                                                <label for="split-I-{{ loop.index }}b" class="">{{ inverter['inv'] }}</label>
                                                             </div>
                                                         {% endif %}
                                                     {% endfor %}
@@ -244,10 +243,10 @@
                                 {{ form_row(ticketForm.needsProofEPC) }}
                             </div>
                             <div class="cell small-6 medium-1">
-                                {{ form_row(ticketForm.needsProofg4n) }}
+                                {{ form_row(ticketForm.ProofAM) }}
                             </div>
                             <div class="cell small-6 medium-1">
-                                {{ form_row(ticketForm.ProofAM) }}
+                                {{ form_row(ticketForm.needsProofg4n) }}
                             </div>
 
                             <div data-ticket-edit-target="headerFormKpi" class="cell small-6 medium-1">

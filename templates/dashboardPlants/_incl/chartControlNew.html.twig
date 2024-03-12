@@ -278,8 +278,13 @@
                 data-toggle="tooltip" name="selectedChart">
             <optgroup label="Analysis">
                 {% if aktAnlage.settings.chartAnalyse1 or is_granted('ROLE_ADMIN') %}
-                    <option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show
-                        Availability [%]
+                    <option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>
+                        Show Availability [%]
+                    </option>
+                {% endif %}
+                {% if is_granted('ROLE_DEV') %}
+                    <option value="availability_intervall" {% if form.selectedChart == 'availability_intervall' %}selected{% endif %}>
+                        Show Availability by Intervall
                     </option>
                 {% endif %}
                 {% if aktAnlage.settings.chartAnalyse2 and is_granted('ROLE_ADMIN') %}

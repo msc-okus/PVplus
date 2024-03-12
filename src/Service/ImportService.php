@@ -38,12 +38,14 @@ class ImportService
      */
     public function prepareForImport(Anlage|int $anlage, $start, $end, string $importType = ""): void
     {
+        //beginn collect params from plant
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
         $plantId = $anlage->getAnlId();
         $vcomId = $anlage->getCustomPlantId();
 
+        //get all vcom ids in plant
         $arrayVcomIds = explode(',', $vcomId);
 
         $conn = $this->doctrine->getConnection();
@@ -55,6 +57,7 @@ class ImportService
         $groups = $anlage->getGroups();
         $systemKey = $anlage->getCustomPlantId();
 
+        #check if the plant use Stringboxes
         if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
             $acGroups = $anlage->getAcGroups()->toArray();
 
@@ -84,6 +87,8 @@ class ImportService
         $mcToken = $owner->getSettings()->getMcToken();
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
+        //end collect params from plans
+
         $bulkMeaserments = [];
 
         //get the Data from vcom
@@ -96,6 +101,7 @@ class ImportService
         $stringBoxes = [];
         $numberOfPlants = count($arrayVcomIds);
 
+        //get the Data from VCOM for all Plants are configured in the current plant
         for ($i = 0; $i < $numberOfPlants; ++$i) {
             $bulkMeaserments[$i] = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $arrayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
         }
@@ -103,11 +109,10 @@ class ImportService
         $data_pv_ist = [];
         $data_pv_dcist = [];
 
+        //beginn collect all Data from all Plants
         if (count($bulkMeaserments) > 0) {
-
             for ($i = 0; $i < count($bulkMeaserments); ++$i) {
                 for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
-                    #$stamp = date('Y-m-d H:i', $timestamp);
                     $date = date('c', $timestamp);
                     if($i == 0){
                         $sensors[$date] = $bulkMeaserments[$i]['sensors'][$date];
@@ -131,10 +136,12 @@ class ImportService
                 }
 
             }
+            //end collect all Data from all Plants
 
-            //die Sensoren aus der Anlagenkonfiguration
+            //get all Sensors from Plant
             $anlageSensors = $anlage->getSensors();
 
+            //beginn sort and seperate Data for writing into database
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
                 $stamp = date('Y-m-d H:i', $timestamp);
                 $date = date('c', $timestamp);
@@ -159,16 +166,17 @@ class ImportService
                     if($basics[$date]['E_Z_EVU'] > 0){
                         (float)$eZEvu = $basics[$date]['E_Z_EVU'];
                     }else{
-                        (float)$eZEvu = 0.0;
+                        $eZEvu = 0.0;
                     }
                 }
 
-                (int)$length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
+                //beginn get Sensors Data
+                $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
 
                 if ((is_array($sensors) && array_key_exists($date, $sensors) && $length > 0) || $hasSensorsInBasics == 1) {
-                    //if plant use sensors datatable get data from the table
+                    //if plant is use sensors datatable get data for the table
                     if($useSensorsDataTable){
-                        $result = self::getSensorsDataFromVcom((array)$anlageSensors->toArray(), (int)$length, (array)$sensors, (array)$basics, $stamp, $date, (string)$irrAnlageGMO);
+                        $result = self::getSensorsDataFromVcomResponse((array)$anlageSensors->toArray(), (int)$length, (array)$sensors, (array)$basics, $stamp, $date, (string)$irrAnlageGMO);
                         //built array for sensordata
                         for ($j = 0; $j <= count($result[0])-1; $j++) {
                             $dataSensors[] = $result[0][$j];
@@ -178,27 +186,24 @@ class ImportService
                 }
 
                 $checkSensors = [];
-                // the old way
+
                 if($length > 0){
                     $checkSensors = self::checkSensors($anlageSensors->toArray(), (int)$length, (bool)$isEastWest, (array)$sensors, (array)$basics, $date);
                     $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
                     $irrLower = $checkSensors[0]['irrLower'];
                     $irrUpper = $checkSensors[0]['irrUpper'];
-
                     $tempPanel = $checkSensors[1]['tempPanel'];
-
                     $tempAmbient = $checkSensors[1]['tempAmbient'];
-
                     $tempAnlageArray = $checkSensors[1]['anlageTemp'];
-
                     $wSEwd = $checkSensors[1]['windDirection'];
-
                     $windSpeed = $checkSensors[1]['windSpeed'];
-
                     $windAnlageArray = $checkSensors[1]['anlageWind'];
                 }
-                //if plant use not sensors datatable stoe data into the weather table
+                /*if plant use not sensors datatable store data into the weather table
+                Diese Abfrage ist aktuell nicht wirklich relevant da in beiden Fällen das gleich geschieht.
+                TODO: die entsprechenden Skripte wie berechnung expected anpassen(Daten kommen aus db__pv_sensors_data_...)
+                */
                 if(!$useSensorsDataTable){
                     $irrAnlage = json_encode($irrAnlageArray, JSON_THROW_ON_ERROR);
                     $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
@@ -235,13 +240,15 @@ class ImportService
                     'irr_flag' => NULL
                 ];
 
+                //end get Sensors Data
 
-
-                //Import different Types
+                //beginn Import different Types(plant have stringboxes or not)
+                //Inverters only
                 if ($anlage->getSettings()->getImportType() == 'standart') {
-                    //Anzahl der Units in eines Inverters
+                    //Anzahl der Units eines Inverters
                     $invertersUnits = $anlage->getSettings()->getInvertersUnits();
 
+                    //get Data from Inverters
                     $result = self::loadData($inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $invertersUnits);
 
                     //built array for pvist
@@ -249,16 +256,17 @@ class ImportService
                     for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_pv_ist[] = $result[0][$j];
                     }
-
                     unset($result);
                 }
 
+                //with Stringboxes
                 if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                     $stringBoxesTime = $stringBoxes[$date];
 
-                    //Anzahl der Units in einer Stringbox
+                    //Anzahl der Units einer Stringbox
                     $stringBoxUnits = $anlage->getSettings()->getStringboxesUnits();
 
+                    //get Data from Inverters and Stringboxes
                     $result = self::loadDataWithStringboxes($stringBoxesTime, $acGroupsCleaned, $inverters, $date, $plantId, $stamp, $eZEvu, $irrAnlage, $tempAnlage, $windAnlage, $groups, $stringBoxUnits);
 
                     //built array for pvist
@@ -273,7 +281,7 @@ class ImportService
                         $data_pv_dcist[] = $result[1][$j];
                     }
 
-                    //built array for pvist_dc
+                    //built array for stringBoxUnits
                     $sizeResult = count($result[2]) - 1;
                     for ($j = 0; $j <= $sizeResult; $j++) {
                         $data_db_string_pv[] = $result[2][$j];
@@ -281,8 +289,9 @@ class ImportService
 
                     unset($result);
                 }
+                //end Import different Types(plant have stringboxes or not)
 
-                //Anlage hat PPc
+                //beginn Anlage hat PPC
                 if ($anlage->getHasPPC()) {
                     $ppcs = $bulkMeaserments['ppcs'];
 
@@ -298,14 +307,15 @@ class ImportService
                     }
                     unset($result);
                 }
+                //end Anlage hat PPC
             }
 
-            //write Data in the tables
+            //beginn get Database Connections
             $DBDataConnection = $this->pdoService->getPdoPlant();
             $DBStbConnection = $this->pdoService->getPdoStringBoxes();
+            //end get Database Connections
 
-
-
+            //beginn write Data in the tables
             switch ($importType) {
                 case 'api-import-weather':
                     if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0) {
@@ -366,9 +376,8 @@ class ImportService
                     }
                     break;
             }
+            //end write Data in the tables
         }
-
-
     }
 
 }

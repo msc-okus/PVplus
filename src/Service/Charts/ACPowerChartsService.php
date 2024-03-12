@@ -108,10 +108,10 @@ class ACPowerChartsService
                     $cosPhi = abs((float) $rowActual['cosPhi']);
                     $acIst = $rowActual['acIst'];
                     $acIst > 0 ? $actout = round($acIst, 2) : $actout = 0; // neagtive Werte auschließen
-                    $theoPower = $rowActual['theoPower'];
+                    #$theoPower = 0;//$rowActual['theoPower'];
                     $cosPhiSum += $cosPhi * $acIst;
                     $actSum += $actout;
-                    $theoPowerSum += $theoPower;
+                    #$theoPowerSum += $theoPower;
                 } else {
                     $cosPhi = $actout = $theoPower = null;
                 }
@@ -120,7 +120,8 @@ class ACPowerChartsService
                     if ($rowEvu['eZEvu'] == ""){
                         $eZEvu = null;
                     } else {
-                        $eZEvu = max($rowEvu['eZEvu'], 0);
+                        dump($rowEvu['eZEvu']);
+                        $eZEvu = max((float)$rowEvu['eZEvu'], 0);
                     }
 
                     $evuSum += $eZEvu;
@@ -156,7 +157,6 @@ class ACPowerChartsService
                     if ($anlage->getShowCosPhiPowerDiag()) {
                         $dataArray['chart'][$counter]['cosPhi'] = $cosPhi * $actout;
                     }
-                    $dataArray['chart'][$counter]['theoPower'] = $theoPower;
                     if ($anlage->getShowCosPhiDiag()) {
                         $dataArray['chart'][$counter]['cosPhi'] = $cosPhi * 100;
                     }
@@ -168,12 +168,14 @@ class ACPowerChartsService
                         $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] * $anlage->getPowerEast() + $dataArrayIrradiation['chart'][$counter]['val2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
                     } else {
                         if ($anlage->getShowOnlyUpperIrr() || !$anlage->getWeatherStation()->getHasLower()) {
-                            $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
+                            $dataArray['chart'][$counter]['irradiation'] = (float)$dataArrayIrradiation['chart'][$counter]['val1'];
                         } else {
                             $dataArray['chart'][$counter]['irradiation'] = self::mittelwert([$dataArrayIrradiation['chart'][$counter]['val1'], $dataArrayIrradiation['chart'][$counter]['val2']]);
                                 //($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
                         }
                     }
+                    $dataArray['chart'][$counter]['theoPower'] = $dataArray['chart'][$counter]['irradiation'] * $anlage->getPnom() / 4000;
+                    $theoPowerSum += $dataArray['chart'][$counter]['theoPower'];
                     $irrSum += $hour ? $dataArray['chart'][$counter]['irradiation'] : $dataArray['chart'][$counter]['irradiation'] / 4;
                 }
                 ++$counter;
@@ -636,13 +638,13 @@ class ACPowerChartsService
             $hourSql1 = " a.stamp, ";
             $hourSql2 = " GROUP BY date_format(a.stamp, '$form') ";
         }
-        $sql = 'SELECT 
+        $sql = "SELECT 
                    $hourSql1
                     sum(b.i_ac) as iac_sum, 
                     sum(b.i_ac_p1) as i_ac_p1, 
                     sum(b.i_ac_p2) as i_ac_p2,  
                     sum(b.i_ac_p3) as i_ac_p3 
-                FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameAcIst()." WHERE $groupSource = '$group') b ON a.stamp = b.stamp) 
+                FROM (db_dummysoll a left JOIN (SELECT * FROM ".$anlage->getDbNameAcIst()." WHERE $groupSource = '$group') b ON a.stamp = b.stamp) 
                 WHERE a.stamp > '$from' AND a.stamp <= '$to' 
                 $hourSql2";
 

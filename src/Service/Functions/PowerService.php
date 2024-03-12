@@ -408,7 +408,7 @@ private readonly PdoService $pdoService,
                         if ($ticketDate->getTicket()->isScope(20)) $power2 -= $row['power']; // Department 2
                         if ($ticketDate->getTicket()->isScope(30)) $power3 -= $row['power']; // Department 3
                     break;
-                    case '50':
+                    case '50': // PPC Ticket
                     case '73': // replace Energy (by PV Syst or by G4N Exp or by given value)
                         // replace Energy ermitteln, abhänig von den eingegebenen Werten (Settings) des Tickets
                         if ($ticketDate->isReplaceEnergy() || $ppcTicket ){
@@ -420,10 +420,9 @@ private readonly PdoService $pdoService,
                         } else {
                             // erstezen durch den eingebenen Wert
                             $replaceEnery = (float)$ticketDate->getValueEnergy();
-                            $debug = true;
                         }
-                        // Nur wenn $replaceEnergy einen numerischen Wert hat wird auch die Verechnung gestart
-                        if (is_numeric($replaceEnery)) {
+                        // Nur wenn $replaceEnergy und $row['power'] einen numerischen Wert hat wird auch die Verechnung gestart
+                        if (is_numeric($replaceEnery) && is_numeric($row['power'])) {
                             // ermittelten Wert von der gesamt Enerie abziehen und durch $replaceEnergy ersetzen
                             if ($ticketDate->getTicket()->isScope(10)) $power1 = $power1 - $row['power'] + $replaceEnery; // Department 1
                             if ($ticketDate->getTicket()->isScope(20) || $ppcTicket) $power2 = $power2 - $row['power'] + $replaceEnery; // Department 2
@@ -446,6 +445,7 @@ private readonly PdoService $pdoService,
     {
         try {
             $power = $this->pvSystDatenRepo->sumGridByDateRange($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
+            if ($power === null) $power = 0;
         } catch (NoResultException|NonUniqueResultException $e) {
             $power = null;
         }

@@ -71,7 +71,6 @@ export default class extends Controller {
 
     async openContactCreateModal(event){
 
-        console.log(this.createContactUrlValue);
         event.preventDefault();
         this.modalContactCreateBodyTarget.innerHTML = 'Loading ...';
         this.contactCreateModal = new Reveal($(this.contactModalCreateTarget));
@@ -160,6 +159,7 @@ export default class extends Controller {
         }
         if (newDate.getMinutes() < 10){
             var minutes =  '0'.concat(newDate.getMinutes().toString());
+            var minutes =  '0'.concat(newDate.getMinutes().toString());
         }else{
             var minutes =  newDate.getMinutes().toString();
         }
@@ -172,8 +172,8 @@ export default class extends Controller {
 
     }
     endPlusTime(){
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        let date = new Date(valueBegin);
+        const valueEnd = $(this.formEndTarget).prop('value');
+        let date = new Date(valueEnd);
         if ($(this.formHourTarget).prop('checked') == true){
             var addTime = 60;
         }
@@ -181,7 +181,8 @@ export default class extends Controller {
             var addTime = 15;
         }
         let newDate = new Date(date.getTime() + (addTime * 60000));
-        if (newDate.getTime() < endDate.getTime()) {
+
+
             if (newDate.getMonth() < 9) {
                 var Month = '0'.concat((newDate.getMonth() + 1).toString());
             } else {
@@ -204,10 +205,9 @@ export default class extends Controller {
             }
 
             let newStringdate = newDate.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
-            console.log(newStringdate);
             $(this.formEndTarget).val(newStringdate);
             $(this.formEndDateTarget).val(newStringdate);
-        }
+
     }
     endMinusTime(){
 
@@ -832,19 +832,16 @@ export default class extends Controller {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
         try {
-
             await $.ajax({
                 url: this.formUrlValue,
                 method: $form.prop('method'),
                 data: $form.serialize(),
             });
-
-            //this.dispatch('success');
+            this.dispatch('success');
             this.modal.destroy();
         } catch(e) {
             this.modalBodyTarget.innerHTML = e.responseText;
         }
-
     }
     closeNotify(event) {
         event.preventDefault();
@@ -870,7 +867,6 @@ export default class extends Controller {
     }
     async saveNewContact(){
         const  $form = $(this.contactModalCreateTarget).find('form');
-        console.log($form);
         try {
             await $.ajax({
                 url: this.createContactUrlValue,
@@ -889,8 +885,8 @@ export default class extends Controller {
         let body = $(this.modalBodyTarget);
         let checked = $("#trafo" + trafo).prop('checked');
         body.find('input:checkbox[class=js-checkbox]').each(function (){
-            if ($(this).prop('id') >= first) {
-                if ($(this).prop('id') <= last){
+            if ($(this).prop('id').substring(2) >= first) {
+                if ($(this).prop('id').substring(2) <= last){
                     if (checked) $(this).prop('checked', true);
                     else $(this).prop('checked', false);
                 }
@@ -1172,11 +1168,11 @@ export default class extends Controller {
         body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
             counter ++;
             if (inverterString == '') {
-                inverterString = inverterString + $(this).prop('id');
+                inverterString = inverterString + $(this).prop('id').substring(2);
                 inverterNameString = inverterNameString + $(this).prop('name');
             }
             else {
-                inverterString = inverterString + ', ' + $(this).prop('id');
+                inverterString = inverterString + ', ' + $(this).prop('id').substring(2);
                 inverterNameString = inverterNameString + ', ' + $(this).prop('name');
             }
             body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
