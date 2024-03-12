@@ -224,6 +224,7 @@ class AvailabilityByTicketService
      * @param int $department
      * @return array
      * @throws InvalidArgumentException
+     * @throws \JsonException
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampDay, TimesConfig $timesConfig, array $inverterPowerDc, int $department = 0): array
     {
@@ -265,6 +266,7 @@ class AvailabilityByTicketService
 
             // suche commIssu Tickets und schreibe diese in Array $commIssuArray[inverter][stamp] = true|false
             $commIssus = $this->ticketDateRepo->findCommIssu($anlage, $from, $to, $department);
+
             /** @var TicketDate $commIssu */
             foreach ($commIssus as $commIssu) {
                 $c5From = $commIssu->getBegin()->getTimestamp();
@@ -279,7 +281,6 @@ class AvailabilityByTicketService
                 }
             }
             unset($commIssus);
-
 
             // suche Performance Tickets die die PA beeinflussen (alertType = 72)
             $perfTicketsSkips  = $this->ticketDateRepo->findPerformanceTicketWithPA($anlage, $from, $to, $department, 0); // behaviour = Skip for PA and Replace outage with TiFM for PA
@@ -322,8 +323,9 @@ class AvailabilityByTicketService
 
 
             // Handele case5 by ticket
+            $case5Tickets = $this->ticketDateRepo->findTiFm($anlage, $from, $to, $department);
             /** @var TicketDate $case5Ticket */
-            foreach ($this->ticketDateRepo->findTiFm($anlage, $from, $to, $department) as $case5Ticket){
+            foreach ($case5Tickets as $case5Ticket){
                 $c5From = $case5Ticket->getBegin()->getTimestamp();
                 $c5To = $case5Ticket->getEnd()->getTimestamp();
                 $inverters = $this->functions->readInverters($case5Ticket->getInverter(), $anlage);
@@ -359,7 +361,7 @@ class AvailabilityByTicketService
             foreach ($case6Tickets as $case6Ticket){
                 $c6From = $case6Ticket->getBegin()->getTimestamp();
                 $c6To = $case6Ticket->getEnd()->getTimestamp();
-                for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
+                for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c6Stamp < $c6To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($this->functions->readInverters($case6Ticket->getInverter(), $anlage) as $inverter) {
                         $inverter = trim((string) $inverter, ' ');
                         $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
@@ -370,7 +372,6 @@ class AvailabilityByTicketService
 
             $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
             $theoPowerByPA = 0;
-
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];
                 $strahlung = $einstrahlung['irr'];
@@ -410,7 +411,7 @@ class AvailabilityByTicketService
                         $case0 = $case1 = $case2 = $case3 = $case4  = $case5 = $case6 = false;
                         $commIssu = $skipTi = $skipTiTheo = $outageAsTiFm = false;
 
-                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA === 0.0) || ($strahlung === null && $threshold1PA === 0.0)) {//
+                        if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA < 0) || ($strahlung === null && $threshold1PA < 0)) {//
                             // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);
@@ -419,7 +420,7 @@ class AvailabilityByTicketService
                             $skipTiTheo     = isset($skipTiAndTitheoArray[$inverter][$stamp])   && $skipTiAndTitheoArray[$inverter][$stamp] === true;
                             $outageAsTiFm   = isset($skipTiOnlyArray[$inverter][$stamp])        && $skipTiOnlyArray[$inverter][$stamp]      === true; // Replace outage with TiFM for PA
 
-                            // Case 0 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
+                            // Case 0 (Datenlücken Inverter Daten oder keine Datenlücken für Strahlung)
                             if ($powerAc === null && $case5 === false) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
                                 $case0 = true;
                                 ++$availability[$inverter]['case0'];
@@ -441,10 +442,12 @@ class AvailabilityByTicketService
                             // Case 2 (second part of ti - means case1 + case2 = ti)
                             if ($anlage->getTreatingDataGapsAsOutage()) {
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
-                                            ($conditionIrrCase2 && $powerAc > $powerThersholdkWh && $case5 === false && $case6 === false && $skipTi === false);
+                                            ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh) && $case5 === false && $case6 === false && $skipTi === false);
+                                // Änderung am 27. Feb 24 '$powerAc > $powerThersholdkWh' ersetzt durch '($powerAc > $powerThersholdkWh || $powerAc === null)' | MRE // && $commIssu === true)
                             } else {
                                 $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                             ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
+
                             }
                             if ($hitCase2) {
                                 $case2 = true;
@@ -576,7 +579,7 @@ class AvailabilityByTicketService
     {
         return $this->cache->get('getIstData_'.md5($anlage->getAnlId().$from.$to), function(CacheItemInterface $cacheItem) use ($anlage, $from, $to) {
 
-            $cacheItem->expiresAfter(120); // Lifetime of cache Item
+            $cacheItem->expiresAfter(60); // Lifetime of cache Item
 
             $conn = $this->pdoService->getPdoPlant();
             $istData = [];

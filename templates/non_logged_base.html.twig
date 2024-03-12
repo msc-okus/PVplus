@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PVplus 4.0 - {% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block styles %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+</head>
+<body>
+
+<header id="headbar" class="grid-container fluid">
+    <div class="grid-x">
+        <div class="cell small-6 medium-3">
+            <div class="logo">
+                <img src="{{ asset('images/green4net.svg') }}" alt="green4net GmbH" title="green4net GmbH" height="70" width="200">
+            </div>
+        </div>
+    </div>
+</header>
+<div id="offCanvas" class="off-canvas position-leftis-closed" data-transition="overlap" data-off-canvas>
+    <nav></nav>
+</div>
+<div class="off-canvas-content" data-off-canvas-content>
+    <main class="grid-container fluid" style="padding-top: 1rem">
+        <div class="grid-x grid-margin-x grid-padding-x">
+            <div class="cell medium-10">
+                {% block body %}{% endblock %}
+            </div>
+        </div>
+    </main>
+    {% include('base_footer.html.twig') %}
+</div>
+</body>
+</html>
+

@@ -2,7 +2,7 @@
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import pvSystTable as pvSystTable %}
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import gridTable as gridTable %}
 
-{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' and form.selectedChart != 'grid' and form.selectedChart != 'sollistirranalyse'%}
+{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'availability_intervall' and form.selectedChart != 'pvsyst' and form.selectedChart != 'grid' and form.selectedChart != 'sollistirranalyse'%}
     <div id="amchart-holder"></div>
 {% endif %}
 
@@ -1088,22 +1088,6 @@
                 series2.connect = false;
             {% endif %}
 
-            {% if aktAnlage.useCustPRAlgorithm == 'Lelystad' %}
-                let series3 = chart.series.push(new am4charts.LineSeries());
-                series3.name = "{{ content.series3.name }}";
-                series3.ttname = "{{ content.series3.tooltipText }}";
-                series3.dataFields.dateX = "date";
-                series3.dataFields.valueY = "tempCellCorr";
-                series3.tooltipText = "{ttname}: {valueY} [/]";
-                series3.stroke = am4core.color("#950193");
-                series3.fill = "#950193";
-                series3.strokeWidth = 1;
-                series3.sequencedInterpolation = true;
-                series3.defaultState.transitionDuration = 0;
-                series3.tensionX = 0.8;
-                series3.connect = false;
-            {% endif %}
-
             let windSpeed = chart.series.push(new am4charts.LineSeries());
             windSpeed.name = "Wind Speed m/s";
             windSpeed.ttname = "Wind Speed m/s";
@@ -1364,6 +1348,10 @@
     <h3>{{ content.headline }} - {{ aktAnlage.anlName }}</h3>
     <h4>from: {{ form.from|date("Y-m-d") }} to: {{ form.to|date("Y-m-d") }}</h4>
     {% include 'dashboardPlants/_incl/chart/availabillityNew.html.twig' %}
+{% elseif form.selectedChart == 'availability_intervall' %}
+    <h3>{{ content.headline }} - {{ aktAnlage.anlName }}</h3>
+    <h4>from: {{ form.from|date("Y-m-d") }} to: {{ form.to|date("Y-m-d") }}</h4>
+    {% include 'dashboardPlants/_incl/chart/availabillityIntervall.html.twig' %}
 {% elseif form.selectedChart == 'pvsyst' %}
     {{ pvSystTable(content.pvSysts) }}
 {% elseif form.selectedChart == 'grid' %}

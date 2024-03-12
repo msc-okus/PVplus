@@ -16,7 +16,7 @@ class VoltageChartService
     use G4NTrait;
 
     public function __construct(
-private readonly PdoService $pdoService,
+        private readonly PdoService $pdoService,
         private readonly Security $security,
         private readonly AnlagenStatusRepository $statusRepository,
         private readonly InvertersRepository $invertersRepo,
@@ -28,10 +28,12 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Spannung Diagram Diagramm, eine Linie je Inverter gruppiert nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
      * @return array
-     * @throws \Exception
      */
     public function getVoltage1(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {

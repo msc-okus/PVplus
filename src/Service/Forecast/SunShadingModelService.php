@@ -23,10 +23,11 @@ class SunShadingModelService {
  * Berechnung der Verschattungsverluste durch Reihenverschattung
  * MS 10/23 Co. TL - Guidelines: Verschattungsverluste.docx
 */
-    public function genSSM_Data($shdata,$aoi):array {
+    public function genSSM_Data($shdata,$aoi): array
+    {
         // Verarbeiten der Daten aus dem Objekt
         $out = array();
-        // ToDo - Muss alles noch überarbeitet und getestet werden
+
         if ($shdata) {
             foreach ($shdata as $shdaten) {
                 $M = round($shdaten->getModTableHeight() / 1000,2); // Tischhöhe in der Neigungsebene [M]
@@ -41,7 +42,7 @@ class SunShadingModelService {
                 $modlongpage = round($shdaten->getModLongPage() / 1000,2); // Masse des Modules Lange Seite
                 $modshortpage = round($shdaten->getModShortPage() / 1000,2); //Masse des Modules kurze Seite
                 $modrowtables = $shdaten->getModRowTables(); // Anzahl der Module auf dem Tisch
-                // ToDo - The ModulesDB
+                // The ModulesDB
                 ### $modulesdb = $shdaten->getModulesDB();  // Modul Datenbank
                 $anlagenID = $shdaten->getAnlageId(); // Anzahl der Module auf dem Tisch
             }
@@ -66,7 +67,7 @@ class SunShadingModelService {
             $L = round(sin(deg2rad($a)) * $RT,3); // Verschattungsfreie Strecke
             $S = ($L >= $M ?  0 : round($M - $L,3)); // Verschattete Strecke in Meter
 
-            // Berechnung der Verschattung auf dem Modultisch, wenn Reihenabschattung gesetzt ist.
+            // Berechnung der Verschattung auf dem Modultisch
             if ($hasrowshading == 1) {
                 $TH = ($modalignment == 0 ? $modrowtables * $modlongpage : $modrowtables * $modshortpage); // Tischhöhe [M] bei Portrait od. Landscape
                 $TAV_PZ = round(( $S / $TH ) * 100,2); // Verschattung gesamter Tisch in Prozent - TAV
@@ -135,7 +136,7 @@ class SunShadingModelService {
                             break;
                         case 8:
                             $MRV = ($modalignment == 0 ? ($S - (7 * $modlongpage)) / $modlongpage : ($S - (7 * $modshortpage)) / $modshortpage);
-                            if ($modalignment == 0) {
+                            if ($hasrowshading == 1) {
                                 ($S > (7 * $modlongpage) ? $MRV_PZ = round(($MRV > 7 ? $MRV = 100 : $MRV * 100), 2) : $MRV_PZ = 0);
                             } else {
                                 ($S > (7 * $modshortpage) ? $MRV_PZ = round(($MRV > 7 ? $MRV = 100 : $MRV * 100), 2) : $MRV_PZ = 0);
@@ -173,7 +174,7 @@ class SunShadingModelService {
 
         if ($shdata) {
             foreach ($shdata as $shdaten) {
-                $modalignment = $shdaten->getModAlignment(); // Modul Ausrichtung - 0 = Portrait | 1 = Landscape
+                $modalignment = $shdaten->getModAlignment(); // Modul Aurichtung - 0 = Portrait | 1 = Landscape
             }
         }
 

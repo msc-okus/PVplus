@@ -1,4 +1,12 @@
 .ticket {
+    .dropdown-pane {
+        padding: 0.4rem;
+        hr {
+            margin: 0.5rem auto;
+            max-width: 100%;
+        }
+    }
+
     .label {
         display: block;
         font-weight: 600;

@@ -41,7 +41,7 @@ class LiveReportingController extends AbstractController
 
         // Start individual part
         /** @var Anlage $anlage */
-        $headline = 'Monats Bericht (Testumgebung)';
+
         $anlagen = $anlagenRepository->findAllActiveAndAllowed();
 
         if ($submitted && $anlageId !== null) {
@@ -50,7 +50,7 @@ class LiveReportingController extends AbstractController
         }
 
         return $this->render('live_reporting/reportMonthlyNew.html.twig', [
-            'headline' => $headline,
+            'headline' => 'Monthly Report',
             'anlagen' => $anlagen,
             'anlage' => $anlage,
             'report' => $output,
@@ -80,7 +80,6 @@ class LiveReportingController extends AbstractController
 
         // Start individual part
         /** @var Anlage $anlage */
-        $headline = 'Report – individual date, but only monthly values.';
         $anlagen = $anlagenRepository->findAllActiveAndAllowed();
 
         if ($submittedPA) {
@@ -94,20 +93,21 @@ class LiveReportingController extends AbstractController
                 if (!$anlage->getSettings()->isDisableDep3()) $availabilityByTicket->checkAvailability($anlage, $day, 3);
             }
         }
+
         if ($submittedNew) {
             $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
             $output['days'] = $reportsMonthly->buildTable2($anlage, $startDate, $endDate);
         }
 
         return $this->render('live_reporting/reportIndividualNew.html.twig', [
-            'headline' => $headline,
-            'message'  => '',
-            'startday' => $startDate->format('Y-m-d'),
-            'endday' => $endDate->format('Y-m-d'),
-            'anlagen' => $anlagen,
-            'anlage' => $anlage,
-            'report' => $output,
-            'status' => $anlageId,
+            'headline'  => 'Report – individual date, but only monthly values.',
+            'message'   => '',
+            'startday'  => $startDate->format('Y-m-d'),
+            'endday'    => $endDate->format('Y-m-d'),
+            'anlagen'   => $anlagen,
+            'anlage'    => $anlage,
+            'report'    => $output,
+            'status'    => $anlageId,
         ]);
 
     }

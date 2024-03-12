@@ -14,19 +14,22 @@
     <div {{ stimulus_controller('ticket-list', {
                 urlCreate: path('app_ticket_create'),
                 urlSearch: path('app_ticket_list', { ajax: 1 }),
+
             }) }}
             id="list"
             data-ticket-list-target="ticketForm"
             class="ticket"
     >
     <div {{ stimulus_controller('request') }}>
-         <div data-ticket-list-target="searchBar" class="ticketsearchbar" >
-            <div class="grid-x grid-margin-x align-top" >
-            {% include 'ticket/_inc/_searchForm.html.twig' %}
+        <div data-action="ticket-edit:success->ticket-list#update submit-confirm:async:submitted->ticket-list#update">
+             <div data-ticket-list-target="searchBar" class="ticketsearchbar" >
+                <div class="grid-x grid-margin-x align-top" >
+                    {% include 'ticket/_inc/_searchForm.html.twig' %}
+                </div>
             </div>
-        </div>
-        <div data-ticket-list-target="list" >
-            {% include 'ticket/_inc/_listTickets.html.twig' %}
+            <div data-ticket-list-target="list" >
+                {% include 'ticket/_inc/_listTickets.html.twig' %}
+            </div>
         </div>
     </div>
     </div>

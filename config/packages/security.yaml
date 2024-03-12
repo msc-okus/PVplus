@@ -17,7 +17,7 @@ security:
         # G4N Roles (hierarchical, include all feature roles)
         ROLE_DEV: [ROLE_ADMIN]
         ROLE_ADMIN: [ROLE_G4N, ROLE_ALLOWED_TO_SWITCH, ROLE_API_FULL_USER]
-        ROLE_G4N: [ROLE_OWNER_ADMIN, ROLE_AM, ROLE_BETA, ROLE_TICKET]
+        ROLE_G4N: [ROLE_OWNER_ADMIN, ROLE_AM, ROLE_BETA, ROLE_TICKET, ROLE_MRO]
         # User and Owner Roles (hierarchical)
         ROLE_OWNER_ADMIN: [ROLE_OWNER_FULL, ROLE_OWNER_ADMIN]
         ROLE_OWNER_FULL: [ROLE_OWNER, ROLE_API_FULL_USER]
@@ -30,6 +30,7 @@ security:
         ROLE_AM: []
         ROLE_ANALYSE: []
         ROLE_TICKET: []
+        ROLE_MRO: []
 
     firewalls:
         dev:
@@ -60,11 +61,13 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/notification, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS} #, ips: [127.0.0.1, 116.202.252.113, 2a01:4f8:d0a:74ce::2, 2003:a:110f:f400:541d:51b9:68d9:1244, 128.204.133.182, 208.67.222.222, 84.152.231.253, 87.140.79.244] }
         - { path: ^/import/manuel, roles: PUBLIC_ACCESS }
         - { path: ^/import/cron, roles: PUBLIC_ACCESS, ips: [127.0.0.1, 116.202.252.113, 2a01:4f8:d0a:74ce::2, 2003:a:110f:f400:541d:51b9:68d9:1244, 128.204.133.182, 208.67.222.222, 84.152.231.253, 87.140.79.244]}
         - { path: ^/, roles: ROLE_USER }
         - { path: ^/, roles: ROLE_USER }
+
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^, roles: ROLE_USER }
         # - { path: ^/profile, roles: ROLE_USER }

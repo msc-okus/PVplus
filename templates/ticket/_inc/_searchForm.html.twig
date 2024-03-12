@@ -12,9 +12,11 @@
             <div class="cell medium-2"  style="margin-top:-17px!important;">
                 <input type="date" name="end" class="input-group-field" value="{{ end }}" title="Interval End">
             </div>
-            <div class="cell medium-2" style="margin-top:-17px!important;">
-
-                <select name="anlage" class="no-margin">
+            <div class="cell medium-1" style="margin-top:-17px!important;">
+                <select name="anlage" class="no-margin"
+                    data-action="change->ticket-list#selectAnlage"
+                        data-ticket-list-target="anlageselect"
+                >
                     <option value="" disabled selected hidden>Please choose a Plant</option>
                     <option value="" {% if filter.anlagen.value == '' %} selected {% endif %} >Select a Plant</option>
                     {% for anlage in filter.anlagen.array %}
@@ -22,7 +24,28 @@
                     {% endfor %}
                 </select>
             </div>
+
+            <div class="cell medium-1 is-hidden" style="margin-top:-17px!important;">
+                <input readonly type="text" name="inverter" class="input-group-field"
+                       id="inverterSearch"
+                       data-ticket-list-target="selectedInverter"value="{{ inverter }}"
+                       placeholder="Inverter">
+            </div>
             <div class="cell medium-2" style="margin-top:-17px!important;">
+                <button class="button small no-margin hollow expanded" type="button"
+                        data-ticket-list-target="InverterSearchButton"
+                        data-toggle="inverter-dropdown-search"
+                        disabled>Select Inverters
+                </button>
+                <div class="dropdown-pane shadow" id="inverter-dropdown-search"
+                     data-dropdown data-auto-focus="true" data-alignment="center"
+                     data-close-on-click="true"
+                     data-ticket-list-target="InverterSearchDropdown">
+                    Loading...
+                </div>
+            </div>
+
+            <div class="cell medium-1" style="margin-top:-17px!important;">
                 <select name="status" class="no-margin">
                     <option value="00"> {% trans %}ticket.status.name{% endtrans %} </option>
                     {% for key, value in filter.status.array %}
@@ -48,7 +71,7 @@
                 <input type="text" name="editor" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Editor">
             </div>
             {# we will use this field to recogniye when we are explicitely clicking the search button over jscript #}
-            <div class="cell medium-2" style="margin-top:-17px!important;">
+            <div class="cell medium-1" style="margin-top:-17px!important;">
                 <select name="category" class="no-margin">{# category = alertType (bsp: datagap, inverter power, etc.) #}
                     {{ filter.category.value }}
                     <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
@@ -67,9 +90,7 @@
                 </select>
             </div>
 
-            <div class="cell medium-1" style="margin-top:-17px!important;">
-                <input type="text" name="inverter" class="input-group-field" {% if ( is_granted('ROLE_G4N') == false) %} style="display:none;" {% endif %}value="{{ inverter }}" placeholder="Inverter">
-            </div>
+
 
             <div class="cell medium-1 notifyclass">
                 <div class="notifyheader">
@@ -77,7 +98,7 @@
                         <input type="checkbox" name="prooftam" class="input-group-field" value="1">
                     </div>
                     <div class="notifyheaderbadge">
-                        <div class="notifyheaderbadge-number"  data-ticket-list-target="prooftam">{{ countProofByTAM }}</div>
+                        <div class="notifyheaderbadge-number"  data-ticket-list-target="prooftam">{{ counts.proofByTam }}</div>
                     </div>
                 </div>
             </div>
@@ -87,7 +108,7 @@
                         <input type="checkbox" name="proofepc" class="input-group-field" value="1">
                     </div>
                     <div class="notifyheaderbadge">
-                        <div class="notifyheaderbadge-number" data-ticket-list-target="proofepc">{{ countProofByEPC }}</div>
+                        <div class="notifyheaderbadge-number" data-ticket-list-target="proofepc">{{ counts.proofByEPC }}</div>
                     </div>
                 </div>
             </div>
@@ -97,7 +118,7 @@
                         <input type="checkbox" name="proofam" class="input-group-field" value="1">
                     </div>
                     <div class="notifyheaderbadge">
-                        <div class="notifyheaderbadge-number" data-ticket-list-target="proofam">{{ countProofByAM }}</div>
+                        <div class="notifyheaderbadge-number" data-ticket-list-target="proofam">{{ counts.proofByAM }}</div>
                     </div>
                 </div>
             </div>
@@ -107,22 +128,31 @@
                         <input type="checkbox" name="proofg4n" class="input-group-field" value="1">
                     </div>
                     <div class="notifyheaderbadge">
-                        <div class="notifyheaderbadge-number" data-ticket-list-target="proofg4n">{{ countProofByG4N }}</div>
+                        <div class="notifyheaderbadge-number" data-ticket-list-target="proofg4n">{{ counts.proofByG4N }}</div>
                     </div>
                 </div>
             </div>
 
-            <div class="cell medium-1 notifyclass" >
-                {% if (is_granted('ROLE_G4N') ) %}
-                    <div class="notifyheader">
-                        <div class="notifyheader-label">Ignored Tickets
-                            <input type="checkbox" name="ignored" class="input-group-field" value="1">
-                        </div>
-                        <div class="notifyheaderbadge">
-                            <div class="notifyheaderbadge-number">0</div>
-                        </div>
+            <div {% if (not is_granted('ROLE_G4N') ) %} hidden {% endif %} class="cell medium-1 notifyclass" >
+                <div class="notifyheader">
+                    <div class="notifyheader-label">Ignored Tickets
+                        <input type="checkbox" name="ignored" class="input-group-field" value="1">
                     </div>
-                {% endif %}
+                    <div class="notifyheaderbadge">
+                        <div class="notifyheaderbadge-number" data-ticket-list-target="ignored">{{ counts.ignored }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div {% if (not is_granted('ROLE_G4N') and not is_granted('ROLE_MRO')) %} hidden {% endif %} class="cell medium-1 notifyclass" >
+                <div class="notifyheader">
+                    <div class="notifyheader-label">Proof by MRO
+                        <input type="checkbox" name="proofmaintenance" class="input-group-field" value="1">
+                    </div>
+                    <div class="notifyheaderbadge">
+                        <div class="notifyheaderbadge-number" data-ticket-list-target="proofmaintenance">{{ counts.proofByMaintenance }}</div>
+                    </div>
+                </div>
             </div>
 
             <div class="cell medium-1 text-left" style="margin-top:-17px!important;">

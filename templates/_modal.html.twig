@@ -2,12 +2,12 @@
      data-multiple-opened="true"
      data-v-offset = "{{ dataVOffset|default('auto') }}"
      data-modal-form-target="modal"
+     data-close-on-click="false"
      data-reveal
      data-append-to="div#modal-form{{ modalId }}"
 >
     <h1>{{ modalTitel|default('Titel') }} - {{ modalId }}</h1>
     <div class="grid-x grid-padding-y">
-
         <div
             class="cell modal-body"
             data-modal-form-target="modalBody"

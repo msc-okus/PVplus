@@ -7,7 +7,6 @@ use App\Entity\Eigner;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
-use Carbon\Doctrine\DateTimeType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -138,6 +137,7 @@ class AnlageNewFormType extends AbstractType
                 'empty_data' => 'No',
                 'disabled' => !($isDeveloper),
             ])
+            /*
             ->add('useNewDcSchema', ChoiceType::class, [
                 'label' => 'Neues DC Database Schema (separate Tabelle für DC IST)',
                 'help' => '[useNewDcSchema]',
@@ -147,6 +147,7 @@ class AnlageNewFormType extends AbstractType
                 'multiple' => false,
                 'disabled' => !($isDeveloper),
             ])
+            */
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
                 'help' => '[configType]',

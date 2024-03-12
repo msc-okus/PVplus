@@ -363,9 +363,9 @@ private readonly PdoService $pdoService,
             // Ticket kann ja schon vor dem Zeitraum gestartet oder danach erst beendet werden
             $tempoStartDate = $startDate > $ticketDate->getBegin()  ? $startDate    : $ticketDate->getBegin();
             $tempoEndDate   = $endDate < $ticketDate->getEnd()      ? $endDate      : $ticketDate->getEnd();
-            $ppcTicket = $ticketDate->getTicket()->getAlertType() == '50';
+            $ppcTicket = $ticketDate->getTicket()->getAlertType() == '50' && $anlage->getSettings()->usePpcTicketToReplacePvSyst() === true;
             if ($ticketDate->getTicket()->getAlertType() == '73' || $ppcTicket){
-                // Mainipuliere STart und Endzeit des Tickets auf Stunden Werte
+                // Manipuliere Start und Endzeit des Tickets auf Stunden Werte
                 // PVSyst Daten liegen nur als Stunden Werte vor, somit muss auch der Auschluss der Messdaten auf Stunden Daten erfolgen.
                 // PVSyst Zeitstemmpel ist immer am Anfang des Intervalls (12:00 sind die Daten >= 12:00 bis < 13:00)
                 // Daraus folgt das Daten von PVSyst 12:00 Uhr unseren Daten >= 12:15 bis <= 13:00 entsprechen, da bei uns der Zeitstempel immer das Ende des Intervalls kennzeichnet
@@ -373,29 +373,26 @@ private readonly PdoService $pdoService,
                     $hour = (int)$tempoStartDate->format('H') - 1;
                     $tempoStartDate = date_create($tempoStartDate->format("Y-m-d $hour:15"));
                     $tempoEndDate = date_create($tempoEndDate->format("Y-m-d H:00"));
-                    $pvSystStartDate = date_create($tempoStartDate->format("Y-m-d $hour:00"));
-                    $pvSystEndDate = date_create($tempoEndDate->format("Y-m-d H:00"));
                 } else {
                     $tempoStartDate = date_create($tempoStartDate->format('Y-m-d H:15'));
                     $hour = (int)$tempoStartDate->format('H') + 1;
-                    $tempoEndDate = date_create($tempoStartDate->format("Y-m-d $hour:00"));
-                    $pvSystStartDate = date_create($tempoStartDate->format("Y-m-d H:00"));
-                    $pvSystEndDate = date_create($tempoStartDate->format("Y-m-d $hour:00"));
                 }
+                $pvSystStartDate = date_create($tempoStartDate->format("Y-m-d $hour:00"));
+                $pvSystEndDate = date_create($tempoEndDate->format("Y-m-d H:00"));
             }
             // Suche und summiere Werte in AC Ist Tabelle
             switch ($source) {
                 case 'act': // nutze die Inverter ausgangsdaten
                     $sql = 'SELECT sum(wr_pac) as power FROM '.$anlage->getDbNameAcIst()." 
-                            WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp <= '" . $tempoEndDate->format('Y-m-d H:i') . "' AND wr_pac > 0";
+                            WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' AND wr_pac > 0";
                     break;
                 default: // Nutze den in e_z_evu gespeicherten Wert
                     if ($anlage->isIgnoreNegativEvu()) {
                         $sql = 'SELECT sum(e_z_evu) as power FROM ' . $anlage->getDbNameAcIst() . " 
-                        WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp <= '" . $tempoEndDate->format('Y-m-d H:i') . "' AND e_z_evu >= 0 GROUP BY unit LIMIT 1";
+                        WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' AND e_z_evu >= 0 GROUP BY unit LIMIT 1";
                     } else {
                         $sql = 'SELECT sum(e_z_evu) as power FROM ' . $anlage->getDbNameAcIst() . " 
-                        WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp <= '" . $tempoEndDate->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
+                        WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
                     }
                     break;
             }
@@ -411,22 +408,21 @@ private readonly PdoService $pdoService,
                         if ($ticketDate->getTicket()->isScope(20)) $power2 -= $row['power']; // Department 2
                         if ($ticketDate->getTicket()->isScope(30)) $power3 -= $row['power']; // Department 3
                     break;
-                    case '50':
+                    case '50': // PPC Ticket
                     case '73': // replace Energy (by PV Syst or by G4N Exp or by given value)
                         // replace Energy ermitteln, abhänig von den eingegebenen Werten (Settings) des Tickets
-                        if ($ticketDate->isReplaceEnergy() || $ppcTicket ){ //workaround für PPC Tickets TODO: erstezen durch bessere Lösung
+                        if ($ticketDate->isReplaceEnergy() || $ppcTicket ){
                             // Ersetzen durch PVSyst
                             $replaceEnery = $this->getPvSystEnergy($anlage, $pvSystStartDate, $pvSystEndDate);
-                            #dump($replaceEnery, $row['power']);
                         } elseif ($ticketDate->isReplaceEnergyG4N()) {
                             // erstezen durch G4N Expected
                             $replaceEnery = $this->getG4NExpEnergy($anlage, $tempoStartDate, $tempoEndDate);
                         } else {
                             // erstezen durch den eingebenen Wert
-                            $replaceEnery = $ticketDate->getValueEnergy();
+                            $replaceEnery = (float)$ticketDate->getValueEnergy();
                         }
-                        // Nur wenn $replaceEnergy einen numerischen Wert hat wird auch die Verechnung gestart
-                        if ($replaceEnery !== null and is_numeric($replaceEnery)) {
+                        // Nur wenn $replaceEnergy und $row['power'] einen numerischen Wert hat wird auch die Verechnung gestart
+                        if (is_numeric($replaceEnery) && is_numeric($row['power'])) {
                             // ermittelten Wert von der gesamt Enerie abziehen und durch $replaceEnergy ersetzen
                             if ($ticketDate->getTicket()->isScope(10)) $power1 = $power1 - $row['power'] + $replaceEnery; // Department 1
                             if ($ticketDate->getTicket()->isScope(20) || $ppcTicket) $power2 = $power2 - $row['power'] + $replaceEnery; // Department 2
@@ -449,6 +445,7 @@ private readonly PdoService $pdoService,
     {
         try {
             $power = $this->pvSystDatenRepo->sumGridByDateRange($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
+            if ($power === null) $power = 0;
         } catch (NoResultException|NonUniqueResultException $e) {
             $power = null;
         }
@@ -459,7 +456,7 @@ private readonly PdoService $pdoService,
     {
         $conn = $this->pdoService->getPdoPlant();
         $sql = 'SELECT sum(ac_exp_power) as power FROM ' . $anlage->getDBNameSoll() . " 
-                        WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp < '" . $to->format('Y-m-d H:i') . "'";
+                        WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp <= '" . $to->format('Y-m-d H:i') . "'";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);

@@ -7,6 +7,8 @@ use App\Repository\AnlagenRepository;
 use App\Repository\TicketRepository;
 use App\Service\TicketsGeneration\AlertSystemService;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
+use DateTime;
+use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Cache\InvalidArgumentException;
@@ -66,6 +68,7 @@ class GenerateTicketsCommand extends Command
             }
 
             foreach ($anlagen as $anlage) {
+
                 try {
                     $tickets = $this->ticketRepo->findForSafeDelete($anlage, $optionFrom, $optionTo);
                     foreach ($tickets as $ticket) {
@@ -76,6 +79,7 @@ class GenerateTicketsCommand extends Command
                         $this->em->remove($ticket);
                     }
                     $this->em->flush();
+
                     $time = time();
                     $time = $time - ($time % 900);
                     if ($optionFrom) {
@@ -101,17 +105,22 @@ class GenerateTicketsCommand extends Command
                     }
 
                     for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                        $this->alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
+                        $offsetServer = new DateTimeZone("Europe/Luxembourg");
+                        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
+                        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+                        $this->alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp + $totalOffset));
                         if ($counter % 4 == 0) {
                             $io->progressAdvance();
                         }
                         --$counter;
                     }
                     $io->comment($anlage->getAnlName());
+
                     }catch(Exception $e){
 
 
                     }
+
                 }
 
             $io->progressFinish();

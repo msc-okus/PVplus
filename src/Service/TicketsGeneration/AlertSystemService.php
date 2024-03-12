@@ -21,6 +21,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 use App\Service\PdoService;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use phpDocumentor\Reflection\Types\Boolean;
 define('EFOR', '10');
 define('SOR', '20');
@@ -32,6 +33,9 @@ define('GRID_ERROR', 30);
 define('WEATHER_STATION_ERROR', 40);
 define('EXTERNAL_CONTROL', 50); // Regelung vom Direktvermarketr oder Netztbetreiber
 define('POWER_DIFF', 60);
+
+#[Deprecated]
+/** @deprecated  */
 class AlertSystemService
 {
     use G4NTrait;

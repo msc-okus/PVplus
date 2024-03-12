@@ -26,13 +26,13 @@ class OwnerFeatures
     private ?bool $aktDep3 = true;
 
     #[ORM\Column(nullable: true, options: ['default' => '0'])]
-    private ?bool $SplitInverter = false;
+    private ?bool $splitInverter = false;
 
     #[ORM\Column(nullable: true, options: ['default' => '0'])]
-    private ?bool $ManAktive = false;
+    private ?bool $manAktive = false;
 
     #[ORM\Column(nullable: true, options: ['default' => '0'])]
-    private ?bool $SplitGap = false;
+    private ?bool $splitGap = false;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $simulatorName = "Simulation";
@@ -92,36 +92,36 @@ class OwnerFeatures
 
     public function isSplitInverter(): ?bool
     {
-        return $this->SplitInverter;
+        return $this->splitInverter;
     }
 
     public function setSplitInverter(bool $SplitInverter): self
     {
-        $this->SplitInverter = $SplitInverter;
+        $this->splitInverter = $SplitInverter;
 
         return $this;
     }
 
     public function isSplitGap(): ?bool
     {
-        return $this->SplitGap;
+        return $this->splitGap;
     }
 
     public function setSplitGap(bool $SplitGap): self
     {
-        $this->SplitGap = $SplitGap;
+        $this->splitGap = $SplitGap;
 
         return $this;
     }
 
     public function isManAktive(): ?bool
     {
-        return $this->ManAktive;
+        return $this->manAktive;
     }
 
-    public function setManAktive(bool $ManAktive): self
+    public function setManAktive(bool $manActive): self
     {
-        $this->ManAktive = $ManAktive;
+        $this->manAktive = $manActive;
 
         return $this;
     }

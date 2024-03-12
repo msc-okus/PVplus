@@ -33,7 +33,7 @@ Encore
     .addEntry('download', './assets/js/download.js')
     .addEntry('tools', './assets/js/tools.js')
     .addEntry('special_export', './assets/js/special_export.js')
-    .addEntry('Eigner', './assets/js/Eigner.js')
+    .addEntry('eigner', './assets/js/eigner.js')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

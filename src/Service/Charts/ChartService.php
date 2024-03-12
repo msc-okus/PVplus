@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Charts;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
@@ -12,26 +12,14 @@ use App\Repository\GridMeterDayRepository;
 use App\Repository\InvertersRepository;
 use App\Repository\PRRepository;
 use App\Repository\PVSystDatenRepository;
-use App\Service\Charts\ACPowerChartsService;
-use App\Service\Charts\DCCurrentChartService;
-use App\Service\Charts\DCPowerChartService;
-use App\Service\Charts\ForecastChartService;
-use App\Service\Charts\HeatmapChartService;
-use App\Service\Charts\IrradiationChartService;
-use App\Service\Charts\SollIstAnalyseChartService;
-use App\Service\Charts\SollIstHeatmapChartService;
-use App\Service\Charts\SollIstTempAnalyseChartService;
-use App\Service\Charts\SollIstIrrAnalyseChartService;
-use App\Service\Charts\TempHeatmapChartService;
-use App\Service\Charts\VoltageChartService;
+use App\Service\AvailabilityByTicketService;
+use App\Service\FunctionsService;
+use App\Service\PdoService;
 use DateTime;
 use Exception;
 use PDO;
-use App\Service\PdoService;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 
 class ChartService
@@ -60,7 +48,9 @@ class ChartService
         private readonly SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
         private readonly SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
         private readonly SollIstHeatmapChartService $sollistheatmapChartService,
-        private readonly AvailabilityByTicketService $availabilityByTicket)
+        private readonly AvailabilityByTicketService $availabilityByTicket,
+        private readonly AvailabilityChartService $availabilityChart
+    )
     {
     }
 
@@ -111,13 +101,8 @@ class ChartService
             $form['selectedGroup'] = -1;
         }
 
-        /*
-        $from = self::timeShift($anlage, $form['from'], true);
-        $to = self::timeShift($anlage, $form['to'], true);
-        */
-
         $from =  $form['from'];
-        $to =  $form['to'];
+        $to =  date('Y-m-d 00:00:00',strtotime($form['to'])+60); //correct $to stamp to 0 oclock next day
 
         if ($anlage) {
             switch ($form['selectedChart']) {
@@ -456,9 +441,9 @@ class ChartService
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Air and Panel Temperature [[°C]]';
                         $resultArray['series1']['name'] = 'Air temperature [[°C]]';
-                        $resultArray['series1']['tooltipText'] = '[[°C]]';
+                        $resultArray['series1']['tooltipText'] = 'Air temperature [[°C]]';
                         $resultArray['series2']['name'] = 'Panel temperature [[°C]]';
-                        $resultArray['series2']['tooltipText'] = '[[°C]]';
+                        $resultArray['series2']['tooltipText'] = 'Panel temperature [[°C]]';
                         $resultArray['series3']['name'] = 'Panel temperature corrected [[°C]]';
                         $resultArray['series3']['tooltipText'] = ' [[°C]]';
                     }
@@ -479,8 +464,13 @@ class ChartService
                     $resultArray['status'] = $this->statusRepository->findStatusAnlageDate($anlage, $from, $to);
                     break;
                 case 'availability':
-                    $dataArray = self::getPlantAvailability($anlage, new DateTime($from), new DateTime($to));
+                    $dataArray = $this->availabilityChart->getPlantAvailability($anlage, new DateTime($from), new DateTime($to));
                     $resultArray['headline'] = 'Show availability';
+                    $resultArray['availability'] = $dataArray['availability'];
+                    break;
+                case 'availability_intervall':
+                    $dataArray = $this->availabilityChart->getPlantAvailabilityByIntervall($anlage, new DateTime($from), new DateTime($to));
+                    $resultArray['headline'] = 'Show availability by intervall';
                     $resultArray['availability'] = $dataArray['availability'];
                     break;
                 case 'pvsyst':
@@ -602,27 +592,7 @@ class ChartService
     }
     // ##########################################
 
-    /**
-     * @throws InvalidArgumentException
-     */
-    private function getPlantAvailability(Anlage $anlage, DateTime $from, DateTime $to): array
-    {
-        $dataArray = [];
-        $dataArray['availability'] = $this->availabilityRepository->findAvailabilityAnlageDate($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
-        foreach ($dataArray['availability'] as $key => $value) {
-            $dataArray['availability'][$key]['invAPart10'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case10'], 'case2' => $value['case20'], 'case3' => $value['case30'], 'case5' => $value['case50'], 'control' => $value['control0']],0);
-            $dataArray['availability'][$key]['invAPart11'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case11'], 'case2' => $value['case21'], 'case3' => $value['case31'], 'case5' => $value['case51'], 'control' => $value['control1']],1);
-            $dataArray['availability'][$key]['invAPart12'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case12'], 'case2' => $value['case22'], 'case3' => $value['case32'], 'case5' => $value['case52'], 'control' => $value['control2']],2);
-            $dataArray['availability'][$key]['invAPart13'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case13'], 'case2' => $value['case23'], 'case3' => $value['case33'], 'case5' => $value['case53'], 'control' => $value['control3']],3);
 
-            $dataArray['availability'][$key]['invA0'] = $dataArray['availability'][$key]['invAPart10'] * $dataArray['availability'][$key]['invAPart20'];
-            $dataArray['availability'][$key]['invA1'] = $dataArray['availability'][$key]['invAPart11'] * $dataArray['availability'][$key]['invAPart21'];
-            $dataArray['availability'][$key]['invA2'] = $dataArray['availability'][$key]['invAPart12'] * $dataArray['availability'][$key]['invAPart22'];
-            $dataArray['availability'][$key]['invA3'] = $dataArray['availability'][$key]['invAPart13'] * $dataArray['availability'][$key]['invAPart23'];
-        }
-
-        return $dataArray;
-    }
 
     /**
      * erzeugt Daten für Inverter Performance Diagramm (DC vs AC Leistung der Inverter)
@@ -679,14 +649,26 @@ class ChartService
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $counter = 0;
-        /*
-        if ($hour) $sql2 = "SELECT a.stamp, sum(b.at_avg) as at_avg, sum(b.pt_avg) as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
-        else $sql2 = "SELECT a.stamp, b.at_avg as at_avg, b.pt_avg as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
-        */
         if ($hour) {
-            $sql2 = 'SELECT a.stamp, avg(b.temp_ambient) as tempAmbient, avg(b.temp_pannel) as tempPannel, avg(b.temp_cell_corr) as tempCellCorr, avg(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = "SELECT 
+                        DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp, 
+                        avg(b.temp_ambient) as tempAmbient, 
+                        avg(b.temp_pannel) as tempPannel, 
+                        avg(b.temp_cell_corr) as tempCellCorr, 
+                        avg(b.wind_speed) as windSpeed 
+                    FROM (db_dummysoll a LEFT JOIN ".$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
+                    WHERE a.stamp > '$from' and a.stamp <= '$to' 
+                    GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
         } else {
-            $sql2 = 'SELECT a.stamp, sum(b.temp_ambient) as tempAmbient, sum(b.temp_pannel) as tempPannel, b.temp_cell_corr as tempCellCorr, sum(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = 'SELECT 
+                        a.stamp, 
+                        sum(b.temp_ambient) as tempAmbient, 
+                        sum(b.temp_pannel) as tempPannel, 
+                        sum(b.temp_cell_corr) as tempCellCorr, 
+                        sum(b.wind_speed) as windSpeed 
+                    FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
+                    WHERE a.stamp > '$from' and a.stamp <= '$to' 
+                    GROUP BY date_format(a.stamp, '$form')";
         }
 
         $res = $conn->query($sql2);
@@ -705,7 +687,6 @@ class ChartService
                 $dataArray['chart'][$counter]['tempCellCorr'] = $tempCellCorr; // Temp cell corrected
                 $dataArray['chart'][$counter]['windSpeed'] = $windSpeed; // Wind Speed
             }
-
             ++$counter;
         }
         $conn = null;

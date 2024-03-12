@@ -7,13 +7,14 @@ use App\Entity\User;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityService;
+use App\Service\Charts\ChartService;
 use App\Service\Charts\HeatmapChartService;
-use App\Service\ChartService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 class DashboardPlantsController extends BaseController
@@ -35,7 +36,6 @@ class DashboardPlantsController extends BaseController
             if ($this->isGranted('ROLE_G4N')) {
                 $anlagen = $anlagenRepository->findByEignerActive($eignerId, $anlageId);
             } else {
-                /* @var User $user */
                 $user = $this->getUser();
                 $granted = $user->getGrantedArray();
                 $anlagen = $anlagenRepository->findGrantedActive($eignerId, $anlageId, $granted);
@@ -80,6 +80,7 @@ class DashboardPlantsController extends BaseController
     }
     /**
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     #[Route(path: '/dashboard/plants/{eignerId}/{anlageId}', name: 'app_dashboard_plant')]
     public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService): Response
@@ -148,6 +149,7 @@ class DashboardPlantsController extends BaseController
                     if ($form['selectedChart'] == 'heatmap'
                         or $form['selectedChart'] == 'tempheatmap'
                         or $form['selectedChart'] == 'sollistheatmap') {
+
                         $form['selRange']  = 'Today';
                         $form['from'] = (new \DateTime())->format('Y-m-d 00:00');
                         $form['to'] = (new \DateTime())->format('Y-m-d 23:59');

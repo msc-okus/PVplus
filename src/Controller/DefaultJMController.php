@@ -3,10 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
-use App\Entity\ContactInfo;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-use App\Repository\EignerRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketRepository;
 use App\Service\TicketsGeneration\InternalAlertSystemService;
@@ -16,15 +14,19 @@ use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
 use App\Service\WeatherServiceNew;
-use DateTime;
-use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
+use JetBrains\PhpStorm\NoReturn;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use PDO;
 use Hisune\EchartsPHP\ECharts;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 #[IsGranted('ROLE_G4N')]
 class DefaultJMController extends AbstractController
@@ -32,40 +34,26 @@ class DefaultJMController extends AbstractController
     use G4NTrait;
 
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private Environment $twig,
-        private PdfService $pdf,
-        private FunctionsService $functions,
-        private PRCalulationService $PRCalulation,
-        private ReportsRepository $reportRepo,
+        private readonly Environment $twig,
+        private readonly PdfService $pdf,
+        private readonly FunctionsService $functions,
+        private readonly PRCalulationService $PRCalulation,
+        private readonly ReportsRepository $reportRepo,
     )
     {
 
     }
 
+    #[NoReturn]
     #[Route(path: '/test/ticketsName', name: 'test_tickets')]
     public function teastTicketName(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
     {
         $ticket = $ticketRepo->findOneById("399529 ");
         dd($ticket->getInverterName());
     }
-    #[Route(path: '/generate/newInverter', name: 'generate_tickets_temp')]
-    public function updateTicketsTemp(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
-    {
-        $tickets = $ticketRepo->findAll();
-        foreach ($tickets as $ticket){
-            $ticket->setInverter($ticket->getInverter());
-            $em->persist($ticket);
-        }
-        $em->flush();
-        dd("done");
-    }
-
 
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
-    public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
+    public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2): void
     {
         $fromDate = "2024-01-13 00:00";
         $toDate = "2024-01-15 00:00";
@@ -85,8 +73,6 @@ class DefaultJMController extends AbstractController
                 }
                 $em->flush();
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-
-
                     $alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
                 }
             } catch(\Exception $e){}
@@ -95,30 +81,8 @@ class DefaultJMController extends AbstractController
         dd("hello world");
     }
 
-    #[Route(path: '/test/time', name: 'default_time')]
-    public function testTime(AnlagenRepository $anlagenRepository, EignerRepository $er,  EntityManagerInterface $em)
-    {
-        $test1 = new ContactInfo();
-        $test1->setName("Mr Test");
-        $test1->setCompanyName("G4N");
-        $test1->setEmail("test@g4n.de");
-        $test1->setService("It Man");
-        $test1->setPhone("123456789");
-        $test1->setOwner($er->find("1"));
-        $test2 = new ContactInfo();
-        $test2->setName("Mr X");
-        $test2->setCompanyName("G4N");
-        $test2->setEmail("test2@g4n.de");
-        $test2->setService("It Man");
-        $test2->setPhone("987654321");
-        $test2->setOwner($er->find("1"));
-        $em->persist($test1);
-        $em->persist($test2);
-        $em->flush();
-        dd("hello World");
-    }
 
-
+    #[NoReturn]
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)
     {
@@ -131,8 +95,15 @@ class DefaultJMController extends AbstractController
         dd("hello World");
     }
 
+    /**
+     * @throws SyntaxError
+     * @throws InvalidArgumentException
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
     #[Route(path: '/test/pdf', name: 'default_pdf')]
-    public function testpdf(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am){
+    public function testpdf(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): void
+    {
         $anlage = $ar->findIdLike("110")[0];
         $invArray = $anlage->getInverterFromAnlage();
         $efficiencyArray= $this->calcPRInvArrayDayly($anlage, "01", "2023");
@@ -253,9 +224,9 @@ class DefaultJMController extends AbstractController
     }
 
     #[Route(path: '/test/pdfw', name: 'default_waterfall_pdf')]
-    public function testpdfwaterfall(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): \Symfony\Component\HttpFoundation\Response{
+    public function testpdfwaterfall(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am): Response
+    {
         $anlage = $ar->findIdLike("57")[0];
-
 
         $expected = 9000;
         $dccablelosses = -(int)($expected * (0.5/100));
@@ -405,6 +376,7 @@ class DefaultJMController extends AbstractController
         $output['avg'][$inverter ] = round($efficiencySum / $efficiencyCount, 2); //we make the last average outside of the loop
         return $output;
     }
+    #[NoReturn]
     #[Route(path: '/test/sftp', name: 'default_sftp_test')]
     public function sftpTest($fileSystemFtp, AnlagenRepository $ar, EntityManagerInterface $em){
         $anlage = $ar->findIdLike(54);

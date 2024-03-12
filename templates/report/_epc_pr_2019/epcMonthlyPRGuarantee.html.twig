@@ -15,4 +15,7 @@
     {% include('report/_epc_pr_2019/_overview.html.twig') %}
     {% include('report/_epc_pr_2019/_table.html.twig') %}
     {% include('report/_epc_pr_2019/_legend.html.twig') %}
+    {% if tickets|length > 0 %}
+        {% include('report/_base_layouts/_tickets.html.twig') %}
+    {% endif %}
 {% endblock %}

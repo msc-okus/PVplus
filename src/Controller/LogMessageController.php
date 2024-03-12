@@ -7,6 +7,7 @@ use App\Repository\LogMessagesRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+
 class LogMessageController extends BaseController
 {
     use G4NTrait;
@@ -24,10 +25,14 @@ class LogMessageController extends BaseController
     #[Route(path: '/log/messages/list-small', name: 'app_log_background_messages')]
     public function listBackgroundProcesses(LogMessagesRepository $logMessagesRepo): Response
     {
-        $logMessages = $logMessagesRepo->findSmallList();
+        $user = $this->getUser();
+        $uid = $user->getUserId();
+        $logMessages = $logMessagesRepo->findSmallList($uid);
+
 
         return $this->render('logMessages/_listSmall.html.twig', [
             'logs' => $logMessages,
+            'count' => count($logMessages),
         ]);
     }
 }

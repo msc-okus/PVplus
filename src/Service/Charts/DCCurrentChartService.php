@@ -16,7 +16,7 @@ class DCCurrentChartService
     use G4NTrait;
 
     public function __construct(
-private readonly PdoService $pdoService,
+        private readonly PdoService $pdoService,
         private readonly AnlagenStatusRepository $statusRepository,
         private readonly InvertersRepository     $invertersRepo,
         private readonly IrradiationChartService $irradiationChart,
@@ -25,35 +25,37 @@ private readonly PdoService $pdoService,
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
      * @return array
      * @throws \Exception
      */
     public function getCurr1(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = $this->pdoService->getPdoPlant();
-        $acGroups = $anlage->getGroupsAc();
         $dataArray = [];
-        switch ($anlage->getConfigType()) {
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-                // z.B. Gronningen
-                $groupQuery = "group_ac = '$group' ";
-                $nameArray = $this->functions->getNameArray($anlage, 'dc');
-                break;
-            default:
-                $groupQuery = "group_dc = '$group' ";
-                $nameArray = $this->functions->getNameArray($anlage, 'dc');
-        }
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+        $acGroups = $anlage->getGroupsAc();
+        $groupQuery = "group_ac = '$group' ";
+        $nameArray = $this->functions->getNameArray($anlage, 'dc');
         $dataArray['inverterArray'] = $nameArray;
+        if ($hour) {
+            $exppart1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
+            $exppart2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
+        } else {
+            $exppart1 = 'a.stamp as stamp, ';
+            $exppart2 = "GROUP by date_format(a.stamp, '$form')";
+        }
         // SOLL Strom für diesen Zeitraum und diese Gruppe
-        $sqlExp = 'SELECT a.stamp as stamp, sum(b.dc_exp_current) as expected
-                   FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM ' . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp)
-                   WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+        $sqlExp = "SELECT 
+                     $exppart1
+                     sum(b.dc_exp_current) as expected
+                   FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM " . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp)
+                   WHERE a.stamp > '$from' AND a.stamp <= '$to' 
+                   $exppart2";
         
         $result = $conn->query($sqlExp);
         $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
@@ -68,35 +70,42 @@ private readonly PdoService $pdoService,
             $counter = 0;
             foreach ($expectedResult as $rowSoll) {
                 $stamp = $rowSoll['stamp'];
-                $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
-                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = $stamp; //self::timeShift($anlage, $stamp);
-                $dataArray['chart'][$counter]['expectedUR'] = $rowSoll['expected'];
+                #$dataArray['chart'][$counter]['expectedUR'] = $rowSoll['expected'];
 
-                if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stampAdjust) && self::getCetTime() - strtotime($stampAdjust) < 7200))) {
-                    switch ($anlage->getConfigType()) {
-                        case 1:
-                        case 2:
-                            $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] > 0 ? $rowSoll['expected'] / $invertersInGroup : 0;
-                            $dataArray['chart'][$counter]['expected'] = $hour ? $dataArray['chart'][$counter]['expected'] / 4 : $dataArray['chart'][$counter]['expected'];
-                            break;
-                        default:
-                            $dataArray['chart'][$counter]['expected'] = $hour ? $rowSoll['expected'] / $invertersInGroup / 4 : $rowSoll['expected'] / $invertersInGroup;
+                if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200))) {
+                    if ($rowSoll['expected'] > 0) {
+                        switch ($anlage->getConfigType()) {
+                            case 1:
+                            case 2:
+                                $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] / $invertersInGroup;
+                                $dataArray['chart'][$counter]['expected'] = $hour ? $dataArray['chart'][$counter]['expected'] / 4 : $dataArray['chart'][$counter]['expected'];
+                                break;
+                            default:
+                                $dataArray['chart'][$counter]['expected'] = $hour ? $rowSoll['expected'] / $invertersInGroup / 4 : $rowSoll['expected'] / $invertersInGroup;
+                        }
+                        $dataArray['chart'][$counter]['expected'] = round($dataArray['chart'][$counter]['expected'], 2);
                     }
-                    $dataArray['chart'][$counter]['expected'] = round($dataArray['chart'][$counter]['expected'], 2);
                 }
 
                 if ($hour) {
+                    $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone() - 1);
+                    $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                     $wherePart1 = "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'";
                 } else {
+                    $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                     $wherePart1 = "stamp = '$stampAdjust' ";
                 }
                 switch ($anlage->getConfigType()) {
                     case 1:
                     case 2:
-                        $sql = 'SELECT sum(wr_idc) as istCurrent, group_dc as dc_num FROM ' . $anlage->getDbNameACIst() . ' WHERE ' . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
+                        $sql = 'SELECT 
+                                    sum(wr_idc) as istCurrent, 
+                                    group_dc as dc_num 
+                                FROM ' . $anlage->getDbNameACIst() . ' 
+                                WHERE ' . $wherePart1 . " AND $groupQuery 
+                                GROUP BY date_format(stamp, '$form'), group_dc;";
                         break;
                     case 3:
                         $sql = 'SELECT sum(wr_idc) as istCurrent, wr_num as dc_num FROM ' . $anlage->getDbNameDCIst() . ' WHERE ' . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
@@ -138,11 +147,13 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Strom Diagram Diagramm, eine Linie je Gruppe.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $set
+     * @param bool $hour
      * @return array
      *
-     * @throws \Exception
      */
     public function getCurr2(Anlage $anlage, $from, $to, int $set = 1, bool $hour = false): array
     {
@@ -152,7 +163,7 @@ private readonly PdoService $pdoService,
         $dataArray = [];
 
         // Strom für diesen Zeitraum und diese Gruppe
-        $sql_time = "SELECT stamp FROM db_dummysoll WHERE stamp BETWEEN '$from' AND '$to' GROUP BY date_format(stamp, '$form')";
+        $sql_time = "SELECT stamp FROM db_dummysoll WHERE stamp > '$from' AND stamp <= '$to' GROUP BY date_format(stamp, '$form')";
         $result = $conn->query($sql_time);
         if ($result->rowCount() > 0) {
             $counter = 0;
@@ -169,9 +180,9 @@ private readonly PdoService $pdoService,
                         // ACHTUNG Strom und Spannungswerte werden im Moment (Sep2020) immer in der AC TAbelle gespeichert, auch wenn neues 'DC IST Schema' genutzt wird.
                         if ($hour) {
                             if ($anlage->getUseNewDcSchema()) {
-                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameDCIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND wr_group = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
+                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameDCIst() . " WHERE stamp > '$stampAdjust' AND stamp =< '$stampAdjust2' AND wr_group = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
                             } else {
-                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameACIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  AND group_dc = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
+                                $sql = 'SELECT sum(wr_idc) as istCurrent FROM ' . $anlage->getDbNameACIst() . " WHERE stamp > '$stampAdjust' AND stamp =< '$stampAdjust2'  AND group_dc = '$dcGroupKey' GROUP BY date_format(stamp, '$form')";
                             }
                         } else {
                             if ($anlage->getUseNewDcSchema()) {
@@ -182,8 +193,8 @@ private readonly PdoService $pdoService,
                         }
                         $resultIst = $conn->query($sql);
 
-                        if ($resultIst->num_rows > 0) {
-                            $rowIst = $resultIst->fetch_assoc();
+                        if ($resultIst->rowCount() > 0) {
+                            $rowIst = $resultIst->fetch(PDO::FETCH_ASSOC);
                             $currentIst = round($rowIst['istCurrent'], 2);
                             if (!($currentIst == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime((string) $stamp) < 7200)) {
                                 $dataArray['chart'][$counter]["val$gruppenProSet"] = $currentIst;
@@ -205,8 +216,11 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Strom Diagram Diagramm, eine Linie je Inverter gruppiert nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
      * @return array
      *
      * @throws \Exception
@@ -219,7 +233,7 @@ private readonly PdoService $pdoService,
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
         $nameArray = match ($anlage->getConfigType()) {
-            3, 4 => $this->functions->getNameArray($anlage, 'scb'),
+            1 => $this->functions->getNameArray($anlage, 'dc'),
             default => $this->functions->getNameArray($anlage, 'ac'),
         };
         $dataArray['inverterArray'] = $nameArray;
@@ -227,10 +241,11 @@ private readonly PdoService $pdoService,
         // Strom für diesen Zeitraum und diesen Inverter
         $sql_strom = 'SELECT a.stamp as stamp, b.soll_imppwr as sollCurrent 
                   FROM (db_dummysoll a left JOIN (SELECT * FROM ' . $anlage->getDbNameDcSoll() . " WHERE wr_num = '$group') b ON a.stamp = b.stamp) 
-                  WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY date_format(a.stamp, '$form')";
+                  WHERE a.stamp > '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
         $result = $conn->query($sql_strom);
+
         if ($result->rowCount() > 0) {
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
+            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
             } else {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
@@ -311,12 +326,14 @@ private readonly PdoService $pdoService,
     /**
      * Erzeugt Daten für das DC Strom Diagram, eine Linie je MPP gruppiert nach Inverter.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param int|null $inverter
+     * @param bool $hour
      * @return bool|array // dc_current_mpp
      *                    // dc_current_mpp
-     * @throws \Exception
+     * @throws \JsonException
      */
     public function getCurr4(Anlage $anlage, $from, $to, ?int $inverter = 1, bool $hour = false): bool|array
     {
@@ -376,32 +393,39 @@ private readonly PdoService $pdoService,
             return false;
         }
     }
+
     /**
      * Erzeugt die Daten für den Pnom Power Chart auf der DC Seite
      * MS 02/23 update 03/29
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param string|null $sets
+     * @param int $group
+     * @param bool $hour
      * @return array
      * Pnom DC Seite
+     *
+     * DC
      */
-    public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array
+    public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, ?string $sets = '0', int $group = 1, bool $hour = false): array
     {
         $conn = $this->pdoService->getPdoPlant();
-        $dataArray = [];
-        $nameArray = [];
-        $group = 1;
-        $g = 1;
+        $dataArray = $nameArray = [];
         $counter = 0;
-        $counterInv = 0;
+
+        /*
+         * ToDo: Macht das Sinn ? Mann kann dan nicht mehrer Tage auswählen
+         *
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
         $zenith = 90 + 50 / 60;
         $current_date = strtotime(str_replace("T", "", (string) $from));
-        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-
+        $sunInfo = date_sun_info($current_date, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
+        $sunset = $sunInfo['sunset'];
+        $sunrise = $sunInfo['sunrise'];
         $from = date('Y-m-d H:00', $sunrise - 3600);
         $to = date('Y-m-d H:00', $sunset + 5400);
+        */
 
         $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
         $to = self::timeAjustment($to, 1);
@@ -446,29 +470,26 @@ private readonly PdoService $pdoService,
         //
         if ($anlage->getUseNewDcSchema()) {
             $sql = "SELECT stamp as ts, wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameDCIst() . " WHERE 
-                        stamp BETWEEN '$from' AND '$to' 
+                        stamp > '$from' AND stamp <= '$to' 
                         $sqladd
                         GROUP BY stamp, $groupdc ORDER BY NULL";
         } else {
             $sql = "SELECT stamp as ts, wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameACIst() . " WHERE 
-                        stamp BETWEEN '$from' AND '$to' 
+                        stamp > '$from' AND stamp <= '$to' 
                         $sqladd
                         GROUP BY stamp, $groupdc ORDER BY NULL";
         }
-
         $resultIst = $conn->query($sql);
 
-        foreach ($dcGroups as $group) {
-            $nameArray[$g] = $group['GroupName'];
-            $g++;
+        foreach ($dcGroups as $key => $group) {
+            $nameArray[$key] = $group['GroupName'];
         }
 
         if ($resultIst->rowCount() > 0) {
-
             while ($rowCurrIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowCurrIst['ts'];
                 $dataArray['chart'][$counter]['date'] = $stamp;
-                (($rowCurrIst['istCurrent']) ? $currentIst = round($rowCurrIst['istCurrent'], 2) : $currentIst = 0);
+                $currentIst = $rowCurrIst['istCurrent'] ? round($rowCurrIst['istCurrent'], 2) : 0;
                 $currentGroupName = $dcGroups[$rowCurrIst['inv']]['GroupName'];
                 $currentImpp = $mImpp[$rowCurrIst['inv'] - 1]; // the array beginn at zero
                 $value_dcpnom = $currentImpp > 0 ? round(($currentIst / $currentImpp), 2) : 0;
@@ -476,7 +497,6 @@ private readonly PdoService $pdoService,
                 $dataArray['chart'][$counter]['pnomdc'] = $value_dcpnom;
                 ++$counter;
             }
-
         }
         // the array for range slider min max
         $dataArray['minSeries'] = $min;

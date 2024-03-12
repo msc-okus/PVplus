@@ -71,24 +71,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
        // 'Owner'             => 'ROLE_OWNER',
     ];
 
-    final public const ARRAY_OF_ROLES = [
-        'Developer'         => 'ROLE_DEV',
-        'Admin'             => 'ROLE_ADMIN',
-        'Green4Net User'    => 'ROLE_G4N',
-        'API (full)'        => 'ROLE_API_FULL_USER',
-        'API '              => 'ROLE_API_USER',
-        'Beta Tester'       => 'ROLE_BETA',
-        'Owner (admin)'     => 'ROLE_OWNER_ADMIN',
-        'Owner (full)'      => 'ROLE_OWNER_FULL',
-        'Owner'             => 'ROLE_OWNER',
-        'Asset Management'   => 'ROLE_AM',
-        'Analyse'           => 'ROLE_ANALYSE',
-    ];
-
     final public const ARRAY_OF_FUNCTIONS_BY_ROLE = [
         'Asset Management'  => 'ROLE_AM',
         'Analyse'           => 'ROLE_ANALYSE',
         'Ticket User'       => 'ROLE_TICKET',
+        'Maintance Repair Order System (MRO)' => 'ROLE_MRO',
     ];
 
     #[Groups(['user:read'])]
@@ -463,5 +450,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function getRolesArrayByFeature(): array
+    {
+        $roles = [
+            'Asset Management'      => 'ROLE_AM',
+            'Analyse'               => 'ROLE_ANALYSE',
+            'Ticket User'           => 'ROLE_TICKET'
+        ];
+        /**
+         * @var Eigner $owner
+         */
+        $owner = $this->getEigners()[0];
+        if ($owner->getFeatures()->isManAktive()) {
+            $roles['Maintance Repair Order System (MRO)'] = 'ROLE_MRO';
+        }
+
+        return $roles;
     }
 }

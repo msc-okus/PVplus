@@ -41,7 +41,7 @@
                 singleDatePicker: false,
                 linkedCalendars: true,
                     {% endif %}
-                 {% endif %}
+                    {% endif %}
                 ranges: {
                     {% if  form.selectedChart == 'heatmap'
                         or form.selectedChart == 'tempheatmap'
@@ -238,21 +238,21 @@
         // The range slider config and functions
         $(function () {
             $("#slider-range").slider({
-                range: true,
-                min: 1,
-                max: {% if content.sumSeries|raw %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
+                    range: true,
+                    min: 1,
+                    max: {% if content.sumSeries|raw %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
                 values: {% if form.selectedSet %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
                 slide: function (event, ui) {
-                    $("#sview").val("" + ui.values[0] + "-" + ui.values[1] + "");
-                    $("#sviewhidden").val("[" + ui.values[0] + "," + ui.values[1] + "]");
-                },
-                change: function (event, ui) {
-                    if ((ui.values[1] - ui.values[0]) > 100) {
-                        alert("The selected range is greater than 100, which can lead to delays in the view!");
-                    }
-                    $("#sendrange").css("background-color", "#e6e6e6");
+                $("#sview").val("" + ui.values[0] + "-" + ui.values[1] + "");
+                $("#sviewhidden").val("[" + ui.values[0] + "," + ui.values[1] + "]");
+            },
+            change: function (event, ui) {
+                if ((ui.values[1] - ui.values[0]) > 100) {
+                    alert("The selected range is greater than 100, which can lead to delays in the view!");
                 }
-            });
+                $("#sendrange").css("background-color", "#e6e6e6");
+            }
+        });
             $("#sview").val("" + $("#slider-range").slider("values", 0) + "-" + $("#slider-range").slider("values", 1) + "");
             $("#sviewhidden").val("[" + $("#slider-range").slider("values", 0) + "," + $("#slider-range").slider("values", 1) + "]");
             $("#goshare").click(function () {
@@ -278,11 +278,16 @@
                 data-toggle="tooltip" name="selectedChart">
             <optgroup label="Analysis">
                 {% if aktAnlage.settings.chartAnalyse1 or is_granted('ROLE_ADMIN') %}
-                    <option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show
-                        Availability [%]
+                    <option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>
+                        Show Availability [%]
                     </option>
                 {% endif %}
-                {% if aktAnlage.settings.chartAnalyse2 or is_granted('ROLE_ADMIN') %}
+                {% if is_granted('ROLE_DEV') %}
+                    <option value="availability_intervall" {% if form.selectedChart == 'availability_intervall' %}selected{% endif %}>
+                        Show Availability by Intervall
+                    </option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAnalyse2 and is_granted('ROLE_ADMIN') %}
                     <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
                 {% endif %}
                 {% if aktAnlage.settings.chartAnalyse3 %}
@@ -507,7 +512,7 @@
                     <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="2"
                            {% if form.optionDayAheadViewDay == 2 %}checked="checked"{% endif %}> 2 Days
                 </label>
-          </div>
+            </div>
 
         </div>
     {% endif %}
@@ -527,6 +532,7 @@
         and (form.selectedChart != 'sollisttempanalyse')
         and (form.selectedChart != 'sollistheatmap')
         and (form.selectedChart != 'grid') %}
+        {% if is_granted('ROLE_G4N') %}
         <div class="cell medium-1 large-1 xlarge-1">
             <div class="switch tiny align-center-middle">
                 <label class="" style="line-height: 1;"><small>Interval min.</small></label>
@@ -539,5 +545,6 @@
                 </label>
             </div>
         </div>
+        {% endif %}
     {% endif %}
 </div>

@@ -36,8 +36,9 @@ class AssetManagementController extends BaseController
     {
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
         $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
-        $baseurl = $request->getSchemeAndHttpHost();
+        $baseurl = 'https://g4npvplus.de';
         $plantId = $output['plantId'];
+        echo 'TEST';
 
         $result = $this->render('report/assetreport.html.twig', [
             'baseurl' => $baseurl,

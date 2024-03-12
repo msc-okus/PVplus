@@ -30,7 +30,7 @@ class ReportEpcPRNewService
     {
     }
 
-    public function createEpcReportNew(Anlage $anlage, DateTime $date): string
+    public function createEpcReportNew(Anlage $anlage, DateTime $date, ?string $userId = null, ?int $logId = null): string
     {
         $output = "";
         $reportArray = [];
@@ -53,10 +53,13 @@ class ReportEpcPRNewService
             ->setRawReport('')
             ->setContentArray($reportArray)
             ->setMonth($date->format('n'))
-            ->setYear($date->format('Y'));
+            ->setYear($date->format('Y'))
+            ->setCreatedBy($userId);;
         $this->em->persist($reportEntity);
         $this->em->flush();
 
+        $reportId = $reportEntity->getId();
+        $this->logMessages->updateEntryAddReportId($logId, $reportId);
         return $output;
     }
 

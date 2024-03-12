@@ -74,21 +74,12 @@ class ToolsFormType extends AbstractType
                 'choices' => $choiceFunction,
                 'placeholder' => 'please Choose ...',
                 'mapped' => false,
-                'required' => true,
+                'required' => true
             ])
 
-            // #############################################
-            // ###          STEUERELEMENTE              ####
-            // #############################################
+        ;
 
-            ->add('calc', SubmitType::class, [
-                'label' => 'Start calculation',
-                'attr' => ['class' => 'primary save'],
-            ])
-            ->add('close', SubmitType::class, [
-                'label' => 'Close (do nothing)',
-                'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
-            ]);
+
     }
 
 ##
