@@ -450,7 +450,7 @@
         border-spacing: 0;
     }
 
-   .stickyheader th {
+    .stickyheader th {
         position: sticky;
         top: 7.1em;
         background-color: #F9F8F8;
@@ -458,7 +458,7 @@
         border-top: 2px solid #71A8E2;
         border-right: #eee 0 solid;
         z-index: 100;
-   }
+    }
 
     .notifyclass {
         position: relative;
@@ -467,17 +467,17 @@
     .notifyheader {
         display: inline-block;
         font-size: 80px; // Icon Size
-      //  width: 1em;
+        //  width: 1em;
         height: 0.4em;
         letter-spacing: 0;
         position: relative;
-      //  border-radius: 20%;
-      //  background: linear-gradient(45deg, #fabbfd, #00b7b5);
-      //  box-shadow: 0 0 40px rgba(#000, 0.15);
+        //  border-radius: 20%;
+        //  background: linear-gradient(45deg, #fabbfd, #00b7b5);
+        //  box-shadow: 0 0 40px rgba(#000, 0.15);
 
         &-label {
             font-size: 11px;
-           // position: absolute;
+            // position: absolute;
             top: 100%;
             left: 0;
             right: 0;
@@ -491,10 +491,10 @@
         color: white;
         font-family: sans-serif;
         font-size: 18px;
-       // letter-spacing: -1px;
+        // letter-spacing: -1px;
         position: absolute;
         bottom: 100%;
-       // right: 0;
+        // right: 0;
         min-width: 1em;
         padding-left: 0.2em;
         padding-right: 0.2em;
@@ -525,7 +525,7 @@
         border-spacing: 0;
     }
 
-   .stickyheader th {
+    .stickyheader th {
         position: sticky;
         top: 7.1em;
         background-color: #F9F8F8;
@@ -533,7 +533,7 @@
         border-top: 2px solid #71A8E2;
         border-right: #eee 0px solid;
         z-index: 100;
-   }
+    }
 
     table {
         &#background-tasks {
@@ -586,14 +586,18 @@
 
         .select-inverters-frame{
             position: relative;
-            left: 50% !important;
+            margin-left: 10px;
+            .hiddeninvs{
+                display: none;
+            }
+            .cell{
+                float: left;
+            }
         }
 
         .btn-select-inverters {
             margin-left: 5px;
             color: #1779ba;
-            position: relative;
-            margin: 15px 0 15px 0;
             #fa-caret-square-down {
                 font-size: xx-large;
             }
@@ -727,7 +731,7 @@
         }
 
         .js-pa-0{
-                display: block;
+            display: block;
         }
 
         .js-pa-1{
@@ -874,7 +878,7 @@
                 }
 
                 .input-group-label {
-                   // height: 2.25rem;
+                    // height: 2.25rem;
 
                 }
                 .button-group > .button {
