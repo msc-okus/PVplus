@@ -248,6 +248,28 @@ class WeatherFunctionsService
         });
     }
 
+    public function getIntervallPA(Anlage $anlage, DateTime $from, DateTime $to): array
+    {
+        $result = [];
+        $conn = $this->pdoService->getPdoPlant();
+        $dbTable = $anlage->getWeatherStation()->getDbNameWeather();
+        $sql = "SELECT stamp, pa0, pa1, pa2, pa3 FROM $dbTable WHERE stamp > '".$from->format('Y-m-d H:i')."' and stamp <= '".$to->format('Y-m-d H:i')."'";
+        $res = $conn->query($sql);
+        if ($res->rowCount() > 0) {
+            $rows = $res->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                $result[$row['stamp']] = [
+                    'pa0'   => (float)$row['pa0'],
+                    'pa1'   => (float)$row['pa1'],
+                    'pa2'   => (float)$row['pa2'],
+                    'pa3'   => (float)$row['pa3'],
+                ];
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * @throws InvalidArgumentException
      */

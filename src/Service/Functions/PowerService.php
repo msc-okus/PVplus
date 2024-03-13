@@ -382,7 +382,7 @@ private readonly PdoService $pdoService,
             }
             // Suche und summiere Werte in AC Ist Tabelle
             switch ($source) {
-                case 'act': // nutze die Inverter ausgangsdaten
+                case 'act': // nutze die Inverter Ausgangsdaten
                     $sql = 'SELECT sum(wr_pac) as power FROM '.$anlage->getDbNameAcIst()." 
                             WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' AND wr_pac > 0";
                     break;
