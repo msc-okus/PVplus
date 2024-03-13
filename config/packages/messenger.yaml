@@ -45,6 +45,14 @@ framework:
                     delay: 2000
                     max_retries: 0
 
+            asa:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: asa
+                retry_strategy:
+                    delay: 2000
+                    max_retries: 0
+
             expected:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
@@ -73,3 +81,4 @@ framework:
             'App\Message\Command\LoadAPIData': async
             'App\Message\Command\LoadINAXData': async
             'App\Message\Command\ImportData': import
+            'App\Message\Command\AnlageStringAssignment': asa

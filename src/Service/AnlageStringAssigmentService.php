@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Service\LogMessagesService;
 use DateTime;
 use PDO;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -17,52 +18,52 @@ class AnlageStringAssigmentService
 {
 
 
-    public function __construct(private PdoService $pdo)
+    public function __construct(
+        private PdoService $pdo,
+        private readonly LogMessagesService $logMessages)
     {
-
-
-
     }
-    public function exportMontly($anlId,$year,$month,$currentUserName, $publicDirectory):Response{
-
+    public function exportMontly($anlId,$year,$month,$currentUserName, $publicDirectory,$logId):Response{
+        $this->logMessages->updateEntry($logId, 'working', 5);
         $sql_pvp_base = "
-SELECT 
-    ass.station_nr AS stationNr,
-    ass.inverter_nr AS inverterNr,
-    ass.string_nr AS stringNr,
-    groups.unit_first As unit,
-    ass.channel_nr AS channelNr,
-    ass.string_active AS stringActive,
-    ass.channel_cat AS channelCat,
-    ass.position,
-    ass.tilt,
-    ass.azimut,
-    `mod`.type AS moduleType,
-    ass.inverter_type AS inverterType,
-    `mod`.max_impp AS impp
-FROM 
-    anlage_string_assignment ass
-INNER JOIN 
-    anlage anl ON ass.anlage_id = anl.id
-INNER JOIN 
-    anlage_groups groups ON anl.id = groups.anlage_id
-INNER JOIN 
-    anlage_group_modules gm ON groups.id = gm.anlage_group_id
-INNER JOIN 
-    anlage_modules `mod` ON gm.module_type_id = `mod`.id
-INNER JOIN 
-    anlage_groups_ac acg ON groups.ac_group = acg.ac_group_id AND anl.id = acg.anlage_id
-WHERE 
-    anl.id = :anlId 
-    AND CAST(ass.station_nr AS UNSIGNED) = CAST(acg.trafo_nr AS UNSIGNED)
-    AND CAST(ass.inverter_nr AS UNSIGNED) = groups.ac_group
-    AND (CAST(ass.string_nr AS UNSIGNED) + (CAST(ass.inverter_nr AS UNSIGNED) - 1) * 9) = groups.unit_first
-";
+                        SELECT 
+                            ass.station_nr AS stationNr,
+                            ass.inverter_nr AS inverterNr,
+                            ass.string_nr AS stringNr,
+                            groups.unit_first As unit,
+                            ass.channel_nr AS channelNr,
+                            ass.string_active AS stringActive,
+                            ass.channel_cat AS channelCat,
+                            ass.position,
+                            ass.tilt,
+                            ass.azimut,
+                            `mod`.type AS moduleType,
+                            ass.inverter_type AS inverterType,
+                            `mod`.max_impp AS impp
+                        FROM 
+                            anlage_string_assignment ass
+                        INNER JOIN 
+                            anlage anl ON ass.anlage_id = anl.id
+                        INNER JOIN 
+                            anlage_groups groups ON anl.id = groups.anlage_id
+                        INNER JOIN 
+                            anlage_group_modules gm ON groups.id = gm.anlage_group_id
+                        INNER JOIN 
+                            anlage_modules `mod` ON gm.module_type_id = `mod`.id
+                        INNER JOIN 
+                            anlage_groups_ac acg ON groups.ac_group = acg.ac_group_id AND anl.id = acg.anlage_id
+                        WHERE 
+                            anl.id = :anlId 
+                            AND CAST(ass.station_nr AS UNSIGNED) = CAST(acg.trafo_nr AS UNSIGNED)
+                            AND CAST(ass.inverter_nr AS UNSIGNED) = groups.ac_group
+                            AND (CAST(ass.string_nr AS UNSIGNED) + (CAST(ass.inverter_nr AS UNSIGNED) - 1) * 9) = groups.unit_first
+                        ";
+
         $connection_pvp_base = $this->pdo->getPdoBase();
         $stmt = $connection_pvp_base->prepare($sql_pvp_base);
         $stmt->execute([':anlId' => $anlId]); // Corrigé pour utiliser un tableau associatif
         $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+        $this->logMessages->updateEntry($logId, 'working', 30);
 
         $dateX = new DateTime("$year-$month-01 00:00:00");
         $dateY = (clone $dateX)->modify('last day of this month')->setTime(23, 59, 59);
@@ -78,7 +79,7 @@ WHERE
        GROUP BY `group_ac`, `wr_num`, `channel`
         ";
 
-
+        $this->logMessages->updateEntry($logId, 'working', 500);
 
         $params = [
             ':startDateTime' => $dateX->format('Y-m-d H:i:s'),
@@ -90,14 +91,12 @@ WHERE
         $stmt->execute($params);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-
         $resultsIndex = [];
         foreach ($results as $result) {
             $key = "{$result['inverterNr']}-{$result['stringNr']}-{$result['channelNr']}";
             $resultsIndex[$key] = $result['average_I_value'];
         }
-
+        $this->logMessages->updateEntry($logId, 'working', 66);
 
         $joinedData = [];
         foreach ($assignments as $assignment) {
@@ -118,15 +117,13 @@ WHERE
             }
 
         }
+        $this->logMessages->updateEntry($logId, 'working', 90);
 
         $spreadsheet = new Spreadsheet();
 
-
         $this->prepareInitialSheet($spreadsheet->getActiveSheet(), $joinedData);
 
-
         $this->prepareAndAddSortedSheets($spreadsheet, $joinedData);
-
 
       return  $this->generateAndSendExcelFile($spreadsheet, $anlId,$month,$year,$currentUserName, $publicDirectory);
     }

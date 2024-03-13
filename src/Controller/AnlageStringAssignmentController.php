@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Form\Model\ToolsModel;
 
-use App\Entity\AnlageStringAssignment;
 use App\Form\Anlage\AnlageStringAssigmentType;
+
+use App\Message\Command\AnlageStringAssignment;
 use App\Repository\AnlagenRepository;
 use App\Service\AnlageStringAssigmentService;
 use App\Service\PdoService;
@@ -24,8 +26,9 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Shuchkin\SimpleXLSX;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
-
+use App\Service\LogMessagesService;
 
 
 
@@ -138,18 +141,27 @@ class AnlageStringAssignmentController extends AbstractController
     }
 
     #[Route(path: '/anlage/string/assignment/monthly/export/{anlId}', name: 'app_anlage_string_assignment_monthly_export')]
-    public function acExportMonthly($anlId,AnlageStringAssigmentService $anlageStringAssigment,Request $request,Security $security): Response
+    public function acExportMonthly($anlId,AnlageStringAssigmentService $anlageStringAssigment,Request $request,Security $security, LogMessagesService $logMessages, MessageBusInterface $messageBus, AnlagenRepository $anlagenRepo): Response
     {
-
+        $anlage = $anlagenRepo->findOneBy(['anlId' => $anlId]);
+        $anlageId = $anlage->getAnlagenId();
         $currentUserName = $security->getUser()->getEmail();
         $year = (int)$request->query->get('year');
         $month = (int)$request->query->get('month');
         $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
+        $uid = $this->getUser()->getUserId();
 
+        $output = '<h3>Load Excel Data:</h3>';
+        $job = 'Excel file is  generating for ' . $month . $year;
+        $job .= " - " . $this->getUser()->getname();
+        $logId = $logMessages->writeNewEntry($anlage, 'AnlageStringAssignment', $job, $uid);
 
-      return $anlageStringAssigment->exportMontly($anlId,$year,$month,$currentUserName,$publicDirectory);
+        $message = new AnlageStringAssignment((int)$anlageId,$year,$month,$currentUserName,$publicDirectory,$logId);
+        $messageBus->dispatch($message);
+        $output .= 'Command was send to messenger! Will be processed in background.<br>';
+      #return $anlageStringAssigment->exportMontly($anlId,$year,$month,$currentUserName,$publicDirectory);
 
-
+        return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
     }
 
 
