@@ -35,6 +35,7 @@ class DefaultMREController extends BaseController
     #[Route(path: '/mr/status')]
     public function updateStatus(CheckSystemStatusService $checkSystemStatus): Response
     {
+
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
             'availabilitys' => '',
