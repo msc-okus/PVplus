@@ -382,7 +382,7 @@ private readonly PdoService $pdoService,
             }
             // Suche und summiere Werte in AC Ist Tabelle
             switch ($source) {
-                case 'act': // nutze die Inverter ausgangsdaten
+                case 'act': // nutze die Inverter Ausgangsdaten
                     $sql = 'SELECT sum(wr_pac) as power FROM '.$anlage->getDbNameAcIst()." 
                             WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' AND wr_pac > 0";
                     break;
@@ -411,6 +411,10 @@ private readonly PdoService $pdoService,
                     case '50': // PPC Ticket
                     case '73': // replace Energy (by PV Syst or by G4N Exp or by given value)
                         // replace Energy ermitteln, abhänig von den eingegebenen Werten (Settings) des Tickets
+
+                        $ticketId = 408304;
+                        if ($ticketDate->getTicket()->getId() == $ticketId) dump($sql);
+
                         if ($ticketDate->isReplaceEnergy() || $ppcTicket ){
                             // Ersetzen durch PVSyst
                             $replaceEnery = $this->getPvSystEnergy($anlage, $pvSystStartDate, $pvSystEndDate);
