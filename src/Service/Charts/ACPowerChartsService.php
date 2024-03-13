@@ -120,10 +120,8 @@ class ACPowerChartsService
                     if ($rowEvu['eZEvu'] == ""){
                         $eZEvu = null;
                     } else {
-                        dump($rowEvu['eZEvu']);
                         $eZEvu = max((float)$rowEvu['eZEvu'], 0);
                     }
-
                     $evuSum += $eZEvu;
                 } else {
                     $eZEvu = null;

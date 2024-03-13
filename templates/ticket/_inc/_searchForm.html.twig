@@ -133,7 +133,7 @@
                 </div>
             </div>
 
-            <div {% if (not is_granted('ROLE_G4N') ) %} hidden {% endif %} class="cell medium-1 notifyclass" >
+            <div {% if (not is_granted('ROLE_G4N') ) %}  {% endif %} class="cell medium-1 notifyclass" >
                 <div class="notifyheader">
                     <div class="notifyheader-label">Ignored Tickets
                         <input type="checkbox" name="ignored" class="input-group-field" value="1">

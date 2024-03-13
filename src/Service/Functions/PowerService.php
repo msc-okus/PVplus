@@ -411,10 +411,6 @@ private readonly PdoService $pdoService,
                     case '50': // PPC Ticket
                     case '73': // replace Energy (by PV Syst or by G4N Exp or by given value)
                         // replace Energy ermitteln, abhänig von den eingegebenen Werten (Settings) des Tickets
-
-                        $ticketId = 408304;
-                        if ($ticketDate->getTicket()->getId() == $ticketId) dump($sql);
-
                         if ($ticketDate->isReplaceEnergy() || $ppcTicket ){
                             // Ersetzen durch PVSyst
                             $replaceEnery = $this->getPvSystEnergy($anlage, $pvSystStartDate, $pvSystEndDate);
