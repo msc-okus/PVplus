@@ -2,12 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\AnlagenReports;
 use App\Form\Model\ToolsModel;
 
 use App\Form\Anlage\AnlageStringAssigmentType;
 
 use App\Message\Command\AnlageStringAssignment;
 use App\Repository\AnlagenRepository;
+use App\Repository\ReportsRepository;
 use App\Service\AnlageStringAssigmentService;
 use App\Service\PdoService;
 use DateTime;
@@ -131,8 +133,8 @@ class AnlageStringAssignmentController extends AbstractController
         $queryBuilder = $anlagenRepository->getWithSearchQueryBuilder($q);
         $pagination = $paginator->paginate(
             $queryBuilder, /* query NOT result */
-            $request->query->getInt('page', 1), /* page number */
-            25                                         /* limit per page */
+            $request->query->getInt('page', 1),
+            25
         );
 
         return $this->render('anlage_string_assignment/list.html.twig', [
@@ -141,7 +143,7 @@ class AnlageStringAssignmentController extends AbstractController
     }
 
     #[Route(path: '/anlage/string/assignment/monthly/export/{anlId}', name: 'app_anlage_string_assignment_monthly_export')]
-    public function acExportMonthly($anlId,AnlageStringAssigmentService $anlageStringAssigment,Request $request,Security $security, LogMessagesService $logMessages, MessageBusInterface $messageBus, AnlagenRepository $anlagenRepo): Response
+    public function acExportMonthly($anlId,Request $request,Security $security, AnlageStringAssigmentService $anlageStringAssigmentService,LogMessagesService $logMessages, MessageBusInterface $messageBus, AnlagenRepository $anlagenRepo): Response
     {
         $anlage = $anlagenRepo->findOneBy(['anlId' => $anlId]);
         $anlageId = $anlage->getAnlagenId();
@@ -151,15 +153,13 @@ class AnlageStringAssignmentController extends AbstractController
         $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
         $uid = $this->getUser()->getUserId();
 
-        $output = '<h3>Load Excel Data:</h3>';
         $job = 'Excel file is  generating for ' . $month . $year;
         $job .= " - " . $this->getUser()->getname();
         $logId = $logMessages->writeNewEntry($anlage, 'AnlageStringAssignment', $job, $uid);
 
         $message = new AnlageStringAssignment((int)$anlageId,$year,$month,$currentUserName,$publicDirectory,$logId);
         $messageBus->dispatch($message);
-        $output .= 'Command was send to messenger! Will be processed in background.<br>';
-      #return $anlageStringAssigment->exportMontly($anlId,$year,$month,$currentUserName,$publicDirectory);
+
 
         return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
     }
@@ -167,32 +167,17 @@ class AnlageStringAssignmentController extends AbstractController
 
 
     #[Route(path: '/anlage/string/assignment/monthly/export/list/{anlId}', name: 'app_anlage_string_assignment_monthly_export_list')]
-    public function acExportMonthlyList($anlId): Response
+    public function acExportMonthlyList($anlId,ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepository): Response
     {
 
-        $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
-        $files = glob("$publicDirectory/*_{$anlId}_*.xlsx");
 
-        // Préparer les données pour les afficher dans la table
-        $fileList = [];
-        foreach ($files as $file) {
-            $fileName = basename($file);
-            $fileInfo = pathinfo($file);
-            $fileNameParts = explode('_', $fileInfo['filename']);
-            $fileList[] = [
-                'fileName' => $fileName,
-                'shortFileName'=>$fileNameParts[0].$fileNameParts[1].$fileNameParts[2].$fileNameParts[3],
-                'anlId' => $fileNameParts[1],
-                'currentUserName' => $fileNameParts[4],
-                'month' => $fileNameParts[2],
-                'year' => $fileNameParts[3],
-                'currentTimestamp' => date('m-d-Y H:i:s', strtotime($fileNameParts[5]))
-            ];
-        }
+        $anlage = $anlagenRepository->findOneBy(['anlId' => $anlId]);
+        $reportType='string-analyse';
+        $reports= $reportsRepository->findBy(['reportType'=>$reportType,'anlage' => $anlage,]);
 
 
         return $this->render('anlage_string_assignment/export_list.html.twig', [
-            'fileList' => $fileList,
+            'reports' => $reports
         ]);
     }
 
@@ -214,22 +199,37 @@ class AnlageStringAssignmentController extends AbstractController
     }
 
 
-    #[Route('/anlage/string/assignment/monthly/export/delete/{fileName}', name: 'app_anlage_string_assignment_monthly_export_delete_file')]
-    public function deleteFile($fileName): Response
+    #[Route('/anlage/string/assignment/monthly/export/delete/{fileName}/{id}', name: 'app_anlage_string_assignment_monthly_export_delete_file')]
+    public function deleteFile( $fileName, $id,EntityManagerInterface $entityManager): Response
     {
-        $decodeFilename=urldecode($fileName);
-        $anlId=explode('_', $decodeFilename)[1];
+        $decodeFilename = urldecode($fileName);
+
+
+        $anlagenReportRepository = $entityManager->getRepository(AnlagenReports::class);
+
+
+        $anlagenReport = $anlagenReportRepository->find($id);
+
+        if (!$anlagenReport) {
+            throw $this->createNotFoundException('AnlagenReport not found');
+        }
+
 
         $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
         $filePath = $publicDirectory . '/' . $decodeFilename;
-
 
         if (!file_exists($filePath)) {
             throw $this->createNotFoundException('File not found');
         }
 
         if (unlink($filePath)) {
-            return $this->redirectToRoute('app_anlage_string_assignment_monthly_export_list',['anlId'=>$anlId]);
+
+            $entityManager->remove($anlagenReport);
+            $entityManager->flush();
+
+
+            $anlId = explode('_', $decodeFilename)[1];
+            return $this->redirectToRoute('app_anlage_string_assignment_monthly_export_list', ['anlId' => $anlId]);
         }
 
         return new Response('Failed to delete the file', Response::HTTP_INTERNAL_SERVER_ERROR);

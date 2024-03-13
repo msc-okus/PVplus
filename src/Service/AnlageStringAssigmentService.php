@@ -2,17 +2,20 @@
 
 namespace App\Service;
 
-use App\Service\LogMessagesService;
+
+use App\Entity\AnlagenReports;
+use App\Repository\AnlagenRepository;
+use App\Repository\EignerRepository;
 use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
+use League\Flysystem\Filesystem;
 use PDO;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+
 
 class AnlageStringAssigmentService
 {
@@ -20,13 +23,17 @@ class AnlageStringAssigmentService
 
     public function __construct(
         private PdoService $pdo,
-        private readonly LogMessagesService $logMessages)
+        private readonly LogMessagesService $logMessages,
+        private EntityManagerInterface $entityManager,
+        private AnlagenRepository $anlagenRepository,
+        private EignerRepository $eignerRepository
+    )
     {
     }
-    public function exportMontly($anlId,$year,$month,$currentUserName, $publicDirectory,$logId):Response{
-        $this->logMessages->updateEntry($logId, 'working', 5);
+    public function exportMontly($anlId,$year,$month,$currentUserName, $publicDirectory,$logId){
+       $this->logMessages->updateEntry($logId, 'working', 5);
         $sql_pvp_base = "
-                        SELECT 
+                        SELECT
                             ass.station_nr AS stationNr,
                             ass.inverter_nr AS inverterNr,
                             ass.string_nr AS stringNr,
@@ -40,20 +47,20 @@ class AnlageStringAssigmentService
                             `mod`.type AS moduleType,
                             ass.inverter_type AS inverterType,
                             `mod`.max_impp AS impp
-                        FROM 
+                        FROM
                             anlage_string_assignment ass
-                        INNER JOIN 
+                        INNER JOIN
                             anlage anl ON ass.anlage_id = anl.id
-                        INNER JOIN 
+                        INNER JOIN
                             anlage_groups groups ON anl.id = groups.anlage_id
-                        INNER JOIN 
+                        INNER JOIN
                             anlage_group_modules gm ON groups.id = gm.anlage_group_id
-                        INNER JOIN 
+                        INNER JOIN
                             anlage_modules `mod` ON gm.module_type_id = `mod`.id
-                        INNER JOIN 
+                        INNER JOIN
                             anlage_groups_ac acg ON groups.ac_group = acg.ac_group_id AND anl.id = acg.anlage_id
-                        WHERE 
-                            anl.id = :anlId 
+                        WHERE
+                            anl.id = :anlId
                             AND CAST(ass.station_nr AS UNSIGNED) = CAST(acg.trafo_nr AS UNSIGNED)
                             AND CAST(ass.inverter_nr AS UNSIGNED) = groups.ac_group
                             AND (CAST(ass.string_nr AS UNSIGNED) + (CAST(ass.inverter_nr AS UNSIGNED) - 1) * 9) = groups.unit_first
@@ -63,23 +70,24 @@ class AnlageStringAssigmentService
         $stmt = $connection_pvp_base->prepare($sql_pvp_base);
         $stmt->execute([':anlId' => $anlId]); // Corrigé pour utiliser un tableau associatif
         $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         $this->logMessages->updateEntry($logId, 'working', 30);
 
         $dateX = new DateTime("$year-$month-01 00:00:00");
         $dateY = (clone $dateX)->modify('last day of this month')->setTime(23, 59, 59);
 
         $sql = "
-       SELECT 
-           `group_ac` AS inverterNr , 
-           `wr_num` AS stringNr, 
-           `channel` AS channelNr, 
+       SELECT
+           `group_ac` AS inverterNr ,
+           `wr_num` AS stringNr,
+           `channel` AS channelNr,
            AVG(`I_value`) AS `average_I_value`
        FROM `db__string_pv_CX104`
        WHERE `stamp` BETWEEN :startDateTime AND :endDateTime
        GROUP BY `group_ac`, `wr_num`, `channel`
         ";
 
-        $this->logMessages->updateEntry($logId, 'working', 500);
+
 
         $params = [
             ':startDateTime' => $dateX->format('Y-m-d H:i:s'),
@@ -91,12 +99,14 @@ class AnlageStringAssigmentService
         $stmt->execute($params);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
+
         $resultsIndex = [];
         foreach ($results as $result) {
             $key = "{$result['inverterNr']}-{$result['stringNr']}-{$result['channelNr']}";
             $resultsIndex[$key] = $result['average_I_value'];
         }
-        $this->logMessages->updateEntry($logId, 'working', 66);
+        $this->logMessages->updateEntry($logId, 'working', 80);
 
         $joinedData = [];
         foreach ($assignments as $assignment) {
@@ -125,7 +135,7 @@ class AnlageStringAssigmentService
 
         $this->prepareAndAddSortedSheets($spreadsheet, $joinedData);
 
-      return  $this->generateAndSendExcelFile($spreadsheet, $anlId,$month,$year,$currentUserName, $publicDirectory);
+      $this->generateAndSaveExcelFile($spreadsheet, $anlId,$month,$year,$currentUserName, $publicDirectory);
     }
 
     private function prepareInitialSheet($sheet, $joinedData): void
@@ -215,7 +225,7 @@ class AnlageStringAssigmentService
     }
 
 
-    private function generateAndSendExcelFile($spreadsheet, $anlId, $month, $year,$currentUserName,$publicDirectory):Response
+    private function generateAndSaveExcelFile($spreadsheet, $anlId, $month, $year,$currentUserName,$publicDirectory)
     {
 
         $writer = new Xlsx($spreadsheet);
@@ -224,18 +234,27 @@ class AnlageStringAssigmentService
         $filePath = $publicDirectory . '/' . $fileName;
 
 
+        $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlId]);
+        $anlagenReport= new AnlagenReports();
+        $anlagenReport->setAnlage($anlage);
+        $anlagenReport->setEigner($anlage->getEigner());
+        $anlagenReport->setReportType('string-analyse');
+        $anlagenReport->setMonth($month);
+        $anlagenReport->setYear($year);
+        $anlagenReport->setFile($fileName);
+        $anlagenReport->setStartDate(new \DateTime());
+        $anlagenReport->setEndDate(new \DateTime());
+        $anlagenReport->setRawReport('');
+        $anlagenReport->setCreatedBy($currentUserName);
+
+
         if (file_exists($filePath)) {
             unlink($filePath);
         }
+       $writer->save($filePath);
 
-
-        $writer->save($filePath);
-
-        $response = new BinaryFileResponse($filePath);
-        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $fileName);
-        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-
-        return $response;
+        $this->entityManager->persist($anlagenReport);
+        $this->entityManager->flush();
 
     }
 }

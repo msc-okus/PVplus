@@ -2,47 +2,66 @@
 
 {% block body %}
 
-    <div class="grid-container">
+
         <h1>Liste des exports</h1>
-        <table class="hover">
+    <div>
+        <table class="table">
             <thead>
             <tr>
-                <th>FileName</th>
-                <th>Plant Id</th>
-                <th>Create by</th>
-                <th>Month</th>
-                <th>Year</th>
-                <th>Created at</th>
+                <th>Report ID</th>
+                <th > Plant</th>
+
+                <th>Owner</th>
+                <th>created by</th>
+
+
+                <th >created at</th>
+                <th >Month</th>
+                <th >Year</th>
+                <th >Report Type</th>
+                <th >Status </th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-            {% if fileList is empty %}
+            {% if reports is empty %}
                 <tr>
-                    <td colspan="7">Aucun fichier disponible.</td>
+                    <td colspan="10">No file available</td>
                 </tr>
             {% else %}
-                {% for file in fileList %}
+                {% for report in reports %}
                     <tr>
-                        <td>{{ file.shortFileName }}</td>
-                        <td>{{ file.anlId }}</td>
-                        <td>{{ file.currentUserName }}</td>
-                        <td>{{ file.month }}</td>
-                        <td>{{ file.year }}</td>
-                        <td>{{ file.currentTimestamp }}</td>
+                        <td>{{ report.id }}</td>
+                        <td>{{ report.anlage.anlName }}  ({{ report.anlage.anlId}}) </td>
+                        <td>{{ report.anlage.eigner.firma }}</td>
+                        <td>{{ report.createdBy }}</td>
+                        <td>{{ report.createdAt|date }}</td>
+                        <td>{{ report.month }}</td>
+                        <td>{{ report.year }}</td>
                         <td>
-                            <a href="{{ path('app_anlage_string_assignment_monthly_export_download_file', { fileName: file.fileName|url_encode }) }}">Download</a>
-                            <a href="{{ path('app_anlage_string_assignment_monthly_export_delete_file', { fileName: file.fileName|url_encode }) }}">delete</a>
+                            {{ report.reportType }}
+                        </td>
+                        <td>final</td>
+                        <td class="text-right">
+                            <div >
+                                <a href="{{ path('app_anlage_string_assignment_monthly_export_download_file', { fileName: report.file|url_encode }) }}" class="hollow button tiny action-icon shadow" target="_blank">
+                                    <span class="fa fa-file-export"></span>
+                                </a>
 
+                                <a href="{{ path('app_anlage_string_assignment_monthly_export_delete_file', { fileName: report.file|url_encode, id: report.id }) }}" class="hollow alert button tiny action-icon shadow">
+                                    <span class="fa fa-trash-alt"></span>
+                                </a>
 
-
+                            </div>
                         </td>
                     </tr>
+
                 {% endfor %}
             {% endif %}
             </tbody>
         </table>
     </div>
+
 {% endblock %}
 
 {% block title %}
