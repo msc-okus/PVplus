@@ -85,7 +85,17 @@
                 {{ form_row(anlageForm.settings.epxCalculationByCurrent) }}
             </fieldset>
         </div>
-        <div class="cell medium-9">
+        <div class="cell medium-3">
+            <fieldset class="fieldset" data-equalizer-watch>
+                <legend>Analysis</legend>
+                {{ form_row(anlageForm.settings.activateAnalysis) }}
+                <div class="grid-x small-up-1 medium-up-2" style="margin-left: 10px;">
+                    <div class="cell">{{ form_row(anlageForm.settings.stringAnalysis) }}</div>
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="cell medium-6">
             <fieldset class="fieldset" data-equalizer-watch>
                 <legend>Configuration Backend (deprecated)</legend>
                 <div class="grid-x grid-padding-x small-up-1 medium-up-2 large-up-3">

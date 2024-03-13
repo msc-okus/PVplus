@@ -13,10 +13,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'pvp:generateWeatherTicket',
+    name: 'pvp:GenerateWeatherTicket',
     description: 'Add a short description for your command',
 )]
-class PvpGenerateWeatherTicketCommand extends Command
+class GenerateWeatherTicketCommand extends Command
 {
     public function __construct(
         private AnlagenRepository $anlagenRepository,

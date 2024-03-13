@@ -298,12 +298,6 @@ class TicketController extends BaseController
     {
 
         //here we will count the number of different "proof by tickets"
-        $countProofByTam = $ticketRepo->countByProof();
-        $countProofByEPC = $ticketRepo->countByProofEPC();
-        $countByProofAM = $ticketRepo->countByProofAM();
-        $countByProofG4N = $ticketRepo->countByProofG4N();
-        $countByProofMaintenance = $ticketRepo->countByProofMaintenance();
-        $countIgnored = $ticketRepo->countIgnored();
         $filter = [];
         $session = $request->getSession();
         $pageSession = $session->get('page');
@@ -400,12 +394,7 @@ class TicketController extends BaseController
             'direction' => $direction,
             'begin' => $begin,
             'end' => $end,
-            'countProofByAM' => $countByProofAM,
-            'countProofByEPC' => $countProofByEPC,
-            'countProofByTAM' => $countProofByTam,
-            'countProofByG4N' => $countByProofG4N,
-            'countIgnored' => $countIgnored,
-            'countProofByMaintenance' => $countByProofMaintenance
+            'counts' => $this->getCountOfTickets($ticketRepo),
         ]);
     }
 
@@ -677,14 +666,6 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/deleteTicket/{id}', name: 'app_ticket_deleteticket')]
     public function deleteTicket($id, TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $em, RequestStack $requestStack): Response
     {
-        //here we will count the number of different "proof by tickets"
-        $countProofByTam = $ticketRepo->countByProof();
-        $countProofByEPC = $ticketRepo->countByProofEPC();
-        $countByProofAM = $ticketRepo->countByProofAM();
-        $countByProofG4N = $ticketRepo->countByProofG4N();
-        $countIgnore = $ticketRepo->countIgnored();
-        $countproofmaintenance = $ticketRepo->countByProofMaintenance();
-
         $filter = [];
         $session = $requestStack->getSession();
         $pageSession = $session->get('page');
@@ -783,12 +764,6 @@ class TicketController extends BaseController
             'direction' => $direction,
             'begin' => $begin,
             'end' => $end,
-            'countProofByAM' => $countByProofAM,
-            'countProofByEPC' => $countProofByEPC,
-            'countProofByTAM' => $countProofByTam,
-            'countProofByG4N' => $countByProofG4N,
-            'countIgnored' => $countIgnore,
-            'countProofByMaintenance' => $countproofmaintenance,
             'counts' => $this->getCountOfTickets($ticketRepo),
         ]);
     }
@@ -1119,7 +1094,7 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/list/getinverterarray/{id}', name: 'app_tlist_get_inverter_array')]
-    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): Response
+    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): array
     {
 
         $anlage = $anlRepo->findOneBy(['anlId' => $id]);
@@ -1183,6 +1158,6 @@ class TicketController extends BaseController
         $counts['proofByG4N'] = $ticketRepo->countByProofG4N();
         $counts['proofByMaintenance'] = $ticketRepo->countByProofMaintenance();
         $counts['ignored'] = $ticketRepo->countIgnored();
-
+        return $counts;
     }
 }
