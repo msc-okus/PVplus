@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+
+        <h1>Liste des exports</h1>
+    <div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Report ID</th>
+                <th > Plant</th>
+
+                <th>Owner</th>
+                <th>created by</th>
+
+
+                <th >created at</th>
+                <th >Month</th>
+                <th >Year</th>
+                <th >Report Type</th>
+                <th >Status </th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if reports is empty %}
+                <tr>
+                    <td colspan="10">No file available</td>
+                </tr>
+            {% else %}
+                {% for report in reports %}
+                    <tr>
+                        <td>{{ report.id }}</td>
+                        <td>{{ report.anlage.anlName }}  ({{ report.anlage.anlId}}) </td>
+                        <td>{{ report.anlage.eigner.firma }}</td>
+                        <td>{{ report.createdBy }}</td>
+                        <td>{{ report.createdAt|date }}</td>
+                        <td>{{ report.month }}</td>
+                        <td>{{ report.year }}</td>
+                        <td>
+                            {{ report.reportType }}
+                        </td>
+                        <td>final</td>
+                        <td class="text-right">
+                            <div >
+                                <a href="{{ path('app_anlage_string_assignment_monthly_export_download_file', { fileName: report.file|url_encode }) }}" class="hollow button tiny action-icon shadow" target="_blank">
+                                    <span class="fa fa-file-export"></span>
+                                </a>
+
+                                <a href="{{ path('app_anlage_string_assignment_monthly_export_delete_file', { fileName: report.file|url_encode, id: report.id }) }}" class="hollow alert button tiny action-icon shadow">
+                                    <span class="fa fa-trash-alt"></span>
+                                </a>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block title %}
+
+{% endblock %}
+

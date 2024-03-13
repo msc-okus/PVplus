@@ -61,7 +61,7 @@ class PVSystDatenRepository extends ServiceEntityRepository
      */
     public function sumGridByDateRange(Anlage $anlage, $from, $to): float|bool|int|string|null
     {
-        $q = $this->createQueryBuilder('a')
+        return $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
             ->andWhere('a.stamp BETWEEN :from AND :to')
             ->andWhere('a.electricityGrid > 0')
@@ -69,9 +69,8 @@ class PVSystDatenRepository extends ServiceEntityRepository
             ->setParameter('from', $from)
             ->setParameter('to', $to)
             ->select('SUM(a.electricityGrid) AS eGrid')
-            ->getQuery();
-
-        return  $q->getSingleScalarResult();
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
 

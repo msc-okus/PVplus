@@ -1,0 +1,190 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/macros.library.html.twig' as macrolibrary %}
+
+{% block title %}list plants{% endblock %}
+
+{% block body %}
+    <h1>List Plants</h1>
+    {{ macrolibrary.searchbox(app.request.query.get('qp'), 'qp') }}
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Plant id</th>
+            <th>Name</th>
+            <th>Project No</th>
+            {% if is_granted('ROLE_G4N') %}
+                <th>Eigner</th>
+            {% endif %}
+            {% if is_granted('ROLE _G4N') %}
+                <th>Database ident</th>
+                <th>Main weather ident</th>
+                <th>Owner activ</th>
+                <th>Hiden</th>
+                <th></th>
+                <th class="text-center"><small>Custom Plant ID</small></th>
+            {% else %}
+                <th>City</th>
+            {% endif %}
+            <th style="text-align: right;">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for plant in pagination %}
+            <tr>
+                <td>{{ plant.anlId }}</td>
+                <td>{{ plant.anlName }}</td>
+                <td>{{ plant.projektNr }}</td>
+                {% if is_granted('ROLE_G4N') %}
+                    <td>{{ plant.eigner.firma }}</td>
+                {% endif %}
+                {% if is_granted('ROLE_G4N') %}
+                    <td>{{ plant.anlIntnr }}</td>
+                    <td>{% if (plant.weatherStation) %}{{ plant.weatherStation.databaseIdent }}{% endif %}</td>
+                    <td>{{ plant.anlView }}</td>
+                    <td>{{ plant.anlHidePlant }}</td>
+                    <td>{{ plant.epcReportType }}</td>
+                    <td class="text-center"><small>{{ plant.customPlantId }}</small></td>
+                {% else %}
+                    <td>{{ plant.anlPlz }} {{ plant.anlOrt }}</td>
+                {% endif %}
+                <td style="text-align: right;">
+                    {% if is_granted('ROLE_G4N') %}
+                        <a href="#" class="hollow button action-icon shadow no-margin" onclick="showConfirmationModal('{{ plant.anlId }}')">
+                            <span class="fa fa-file-excel" title="Generate new Report"></span> Generate
+                        </a>
+
+                        <a href="{{ path('app_anlage_string_assignment_monthly_export_list', { anlId: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-file-excel" title="List of Generated Reports"></span> List</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ knp_pagination_render(pagination) }}
+
+    <div id="modalMask" class="modal-mask"></div>
+
+    <div id="confirmationModal" class="reveal">
+        <div class="reveal-overlay" onclick="closeConfirmationModal()"></div>
+        <div class="reveal-wrapper">
+            <div class="reveal-dialog">
+                <h2>Choose  Month and Year</h2>
+                <div id="errorMessage" style="display: none; color: red;"></div>
+
+                <form id="generateForm" >
+                    <label for="month">Month:</label>
+                    <input type="number" id="month" name="month" min="1" max="12" required>
+                    <label for="year">Year:</label>
+                    <input type="number" id="year" name="year" min="2020"  required>
+                    <button type="submit" class="button">Generate</button>
+                    <button type="button" class="button secondary" onclick="closeConfirmationModal()">Cancel</button>
+                </form>
+                <button class="close-button" onclick="closeConfirmationModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        function showConfirmationModal(anlId) {
+            var confirmationModal = document.getElementById('confirmationModal');
+            var modalMask = document.getElementById('modalMask');
+
+            confirmationModal.classList.add('is-visible');
+            modalMask.style.display = 'block';
+
+            var generateForm = document.getElementById('generateForm');
+            generateForm.action = "{{ path('app_anlage_string_assignment_monthly_export', { anlId: 'ANL_ID' }) }}".replace('ANL_ID', anlId);
+
+            var currentDate = new Date();
+            var currentYear = currentDate.getFullYear();
+            var currentMonth = currentDate.getMonth() + 1;
+
+
+            var monthInput = document.getElementById('month');
+            var yearInput = document.getElementById('year');
+
+
+            yearInput.setAttribute('max', currentYear.toString());
+
+
+            var errorMessage = document.getElementById('errorMessage');
+
+
+            generateForm.onsubmit = function() {
+                var selectedMonth = parseInt(monthInput.value);
+                var selectedYear = parseInt(yearInput.value);
+
+                if (selectedYear < 2020 || selectedYear > currentYear || (selectedYear === currentYear && selectedMonth >= currentMonth)) {
+                    errorMessage.textContent = `Please select a valid date between 2020 and ${currentMonth}/${currentYear}. You have selected ${selectedMonth}/${selectedYear}.`;
+                    errorMessage.style.display = 'block';
+                    return false;
+                } else {
+                    var confirmationModal = document.getElementById('confirmationModal');
+                    var modalMask = document.getElementById('modalMask');
+                    generateForm = document.getElementById('generateForm');
+                    errorMessage = document.getElementById('errorMessage');
+
+                    confirmationModal.classList.remove('is-visible');
+                    modalMask.style.display = 'none';
+
+                    errorMessage.textContent='';
+                    errorMessage.style.display = 'none';
+                    return true;
+                }
+            };
+        }
+
+
+        function closeConfirmationModal() {
+            var confirmationModal = document.getElementById('confirmationModal');
+            var modalMask = document.getElementById('modalMask');
+            var generateForm = document.getElementById('generateForm');
+            var errorMessage = document.getElementById('errorMessage');
+
+            confirmationModal.classList.remove('is-visible');
+            modalMask.style.display = 'none';
+
+            generateForm.reset();
+            errorMessage.textContent='';
+            errorMessage.style.display = 'none';
+        }
+    </script>
+
+
+{% endblock %}
+
+{% block styles %}
+    {{ parent() }}
+    <style>
+
+        .modal-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+        }
+
+        #confirmationModal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 10000;
+            display: none;
+        }
+
+    </style>
+{% endblock %}

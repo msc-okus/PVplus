@@ -2,9 +2,7 @@
 
 namespace App\Form\Owner;
 
-use App\Entity\ContactInfo;
 use App\Entity\Eigner;
-use App\Form\Anlage\EpcLegendListEmbeddedFormType;
 use App\Form\Anlage\ModulesListEmbeddedFormType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -106,16 +104,6 @@ class OwnerFormType extends AbstractType
             ->add('settings', OwnerSettingsFormType::class, [
                 'label' => 'Settings',
             ])
-            // #############################################
-            // ###              Contacts                ####
-            // #############################################
-            ->add('ContactInfos', CollectionType::class, [
-                'entry_type' => OwnerContactFormType::class,
-                'allow_add' => true,
-                'allow_delete' => true,
-                'delete_empty' => true,
-                'by_reference' => false,
-            ])
 
             // #############################################
             // ###          STEUERELEMENTE              ####
@@ -142,4 +130,3 @@ class OwnerFormType extends AbstractType
         ]);
     }
 }
-

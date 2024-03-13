@@ -66,4 +66,5 @@ class AnlageAcGroupsFormType extends AbstractType
         ]);
         $resolver->setAllowedTypes('anlagenId', 'string');
     }
+
 }

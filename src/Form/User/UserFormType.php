@@ -17,7 +17,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 
 
 class UserFormType extends AbstractType
@@ -79,18 +78,15 @@ class UserFormType extends AbstractType
                 'required' => true,
                 'attr' => ['placeholder' => 'Benutzername'],
             ])
-
             ->add('newPlainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'invalid_message' => 'The password fields must match.',
-                'options' => array('attr' => array('class' => 'password-field')),
                 'first_options' => ['label' => 'Password'],
                 'second_options' => ['label' => 'Repeat Password'],
                 'required' => true,
                 'mapped' => false,
                 'attr' => ['autocomplete'=>'new-password'],
             ])
-
             ->add('email', EmailType::class, [
                 'label' => 'eMail address',
                 'empty_data' => '',

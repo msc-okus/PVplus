@@ -216,6 +216,7 @@ class ImportToolsController extends BaseController
                         if ($key === 0) {
                             $data_fields = $row;
                             $indexStamp = array_search('stamp', $data_fields);
+                            if ($indexStamp === false) $indexStamp  = array_search('Stamp', $data_fields);
                             $indexEzevu = array_search('e_z_evu', $data_fields);
                             if ($indexEzevu === false) $indexEzevu  = array_search('eGridValue', $data_fields);
                         } else {
