@@ -187,8 +187,6 @@ class NewDashboardPlantsController extends BaseController
 
         $isInTimeRange = self::isInTimeRange();
 
-        dump($request->request->all(),[$mysubmit,$selectedChart,$selectedGroup,$selectedInverter,$selectedSet,$to,$from,$req_h,$optionDate,$optionIrrVal,$selRange,$startDateNew],$form);
-
         return $this->render('newDashboardPlants/plantsShow.html.twig', [
             'aktAnlage' => $aktAnlage,
             'form' => $form,

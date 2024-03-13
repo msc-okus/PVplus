@@ -233,7 +233,6 @@ class ReportingController extends AbstractController
             $em->remove($report);
             $em->flush();
         }
-
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 

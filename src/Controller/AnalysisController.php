@@ -4,11 +4,13 @@ namespace App\Controller;
 
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class AnalysisController extends AbstractController
 {
@@ -76,4 +78,17 @@ class AnalysisController extends AbstractController
             'anlage'     => $anlage,
         ]);
     }
+    #[Route(path: '/analysis/delete/{id}', name: 'app_analysis_delete')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function delete($id, ReportsRepository $reportsRepository, EntityManagerInterface $em): Response
+    {
+        $report = $reportsRepository->find($id);
+        if ($report) {
+            $em->remove($report);
+            $em->flush();
+        }
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
 }
