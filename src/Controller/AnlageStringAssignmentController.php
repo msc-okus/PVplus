@@ -3,24 +3,19 @@
 namespace App\Controller;
 
 use App\Entity\AnlagenReports;
-use App\Form\Model\ToolsModel;
+use App\Entity\AnlageStringAssignment;
+
 
 use App\Form\Anlage\AnlageStringAssigmentType;
 
-use App\Message\Command\AnlageStringAssignment;
+
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Service\AnlageStringAssigmentService;
-use App\Service\PdoService;
-use DateTime;
+
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use PDO;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\Color;
+
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -157,13 +152,12 @@ class AnlageStringAssignmentController extends AbstractController
         $job .= " - " . $this->getUser()->getname();
         $logId = $logMessages->writeNewEntry($anlage, 'AnlageStringAssignment', $job, $uid);
 
-        $message = new AnlageStringAssignment((int)$anlageId,$year,$month,$currentUserName,$publicDirectory,$logId);
+        $message = new \App\Message\Command\AnlageStringAssignment((int)$anlageId,$year,$month,$currentUserName,$publicDirectory,$logId);
         $messageBus->dispatch($message);
 
 
         return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
     }
-
 
 
     #[Route(path: '/anlage/string/assignment/monthly/export/list/{anlId}', name: 'app_anlage_string_assignment_monthly_export_list')]
