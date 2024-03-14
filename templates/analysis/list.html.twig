@@ -16,12 +16,10 @@
 
 {% block body %}
     <div {{ stimulus_controller('analysis', {
-        urlCreate: path('app_analysis_create'),
+        urlCreate: path('app_analysis_upload'),
         urlSearch: path('app_analysis_search'),
     }) }}>
-        <form>
-            {% include 'analysis/_inc/_searchForm.html.twig' %}
-        </form>
+        {% include 'analysis/_inc/_searchForm.html.twig' %}
         {% include 'analysis/_inc/_listReports.html.twig' %}
     </div>
 {% endblock %}

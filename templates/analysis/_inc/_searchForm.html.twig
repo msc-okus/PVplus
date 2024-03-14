@@ -1,38 +1,86 @@
 <div class="grid-x align-middle ticketsearchbar">
-    <div class="cell medium-5" id="search-form" data-analysis-target="searchForm">
+    <div class="cell" id="search-form" data-analysis-target="searchForm">
+
+        {% for message in app.flashes('success') %}
+            <div class="callout success" data-closable>
+                {{ message }}
+                <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="callout alert" data-closable>
+                {{ message }}
+                <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+
         <h4>Search Report:</h4>
         <div class="grid-x grid-padding-x">
+            <div class="medium-6">
+            <form>
+                <div class="grid-x grid-padding-x">
+                <div class="cell medium-4">
+                    <input type="text" name="anlage" class="input-group-field js-autocomplete-plant"
+                           value="{{ anlage }}" placeholder="Search plants">
+                </div>
+                <div class="cell medium-3">
+                    <select name="searchmonth">
+                        <option value="" {% if month == '' %} selected {% endif %}>Select Month</option>
+                        {% for i in range (1, 12) %}
+                            <option value="{{ i }}" {% if month == i %} selected {% endif %}>   {{ "%02d"|format(i) }}    </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-            <div class="cell medium-4" >
-                <input type="text" name="anlage" class="input-group-field js-autocomplete-plant" value="{{ anlage }}" placeholder="Search plants">
-            </div>
-            <div class="cell medium-4">
-                <select name="searchmonth">
-                    <option value=""   {% if month == '' %}   selected {% endif %}>Select Month</option>
-                    {% for i in range (1, 12) %}
-                        <option value="{{ i }}"  {% if month == i %}  selected {% endif %}>   {{ "%02d"|format(i)}}    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="cell medium-4">
-                <select name="searchyear">
-                    <option value=""  {% if searchyear == '' %}  selected {% endif %}>Select Year </option>
-                    {% set isyear = 'now' | date('Y')  %}
-                    {% for year in range (2020, isyear) %}
-                        <option value="{{ year }}"  {% if searchyear == year %}  selected {% endif %}>  {{ year }} </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="cell medium-12">
-                <div class="input-group-button" >
+                <div class="cell medium-3">
+                    <select name="searchyear">
+                        <option value="" {% if searchyear == '' %} selected {% endif %}>Select Year</option>
+                        {% set isyear = 'now' | date('Y') %}
+                        {% for year in range (2020, isyear) %}
+                            <option value="{{ year }}" {% if searchyear == year %} selected {% endif %}>  {{ year }} </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="cell medium-2">
+                    <div class="input-group-button">
                 <span data-tooltip tabindex="1" title="Search Report">
-                 <button type="submit" title="Search Report" name="search" class="button action-icon tiny hollow shadow" value="yes" data-action="analysis#search">
+                 <button type="submit" title="Search Report" name="search" class="button action-icon tiny hollow shadow"
+                         value="yes" data-action="click->analysis#search">
                     <span class="fa fa-search"></span>
                  </button>
                 </span>
+                    </div>
                 </div>
+                </div>
+            </form>
             </div>
+
+            <div class="cell medium-6" data-analysis-target="creationForm">
+{#
+                {{ form_start(form, {'attr': {'class': 'form-upload'}}) }}
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-4">
+                            {{ form_widget(form.anlage) }}
+
+                    </div>
+                    <div class="cell medium-4">
+                        {{ form_widget(form.file) }}
+
+                    </div>
+                    <div class="cell medium-4">
+                        <button style="horiz-align: center" class="button action-icon tiny hollow shadow" data-action="click->analysis#create">Import</button>
+                    </div>
+                </div>
+                {{ form_end(form) }}
+                #}
+            </div>
+
+
         </div>
     </div>
 </div>

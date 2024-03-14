@@ -33,9 +33,6 @@ class AnlageStringAssigmentType extends AbstractType
             ])
             ->add('file', FileType::class, [
                 'label' => 'Upload File:',
-                'attr' => [
-                    'class' => 'form-control-file',
-                ]
             ])
         ;
     }

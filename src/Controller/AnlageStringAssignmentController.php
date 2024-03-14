@@ -32,7 +32,7 @@ use App\Service\LogMessagesService;
 class AnlageStringAssignmentController extends AbstractController
 {
     #[Route('/anlage/string/assignment/upload', name: 'app_anlage_string_assignment_upload')]
-    public function index(Request $request,EntityManagerInterface $entityManager): Response
+    public function upload(Request $request,EntityManagerInterface $entityManager): Response
     {
 
         $assignments = $entityManager->getRepository(AnlageStringAssignment::class)->findAll();
@@ -163,8 +163,6 @@ class AnlageStringAssignmentController extends AbstractController
     #[Route(path: '/anlage/string/assignment/monthly/export/list/{anlId}', name: 'app_anlage_string_assignment_monthly_export_list')]
     public function acExportMonthlyList($anlId,ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepository): Response
     {
-
-
         $anlage = $anlagenRepository->findOneBy(['anlId' => $anlId]);
         $reportType='string-analyse';
         $reports= $reportsRepository->findBy(['reportType'=>$reportType,'anlage' => $anlage,]);
@@ -197,13 +195,8 @@ class AnlageStringAssignmentController extends AbstractController
     public function deleteFile( $fileName, $id,EntityManagerInterface $entityManager): Response
     {
         $decodeFilename = urldecode($fileName);
-
-
         $anlagenReportRepository = $entityManager->getRepository(AnlagenReports::class);
-
-
         $anlagenReport = $anlagenReportRepository->find($id);
-
         if (!$anlagenReport) {
             throw $this->createNotFoundException('AnlagenReport not found');
         }
@@ -217,19 +210,13 @@ class AnlageStringAssignmentController extends AbstractController
         }
 
         if (unlink($filePath)) {
-
             $entityManager->remove($anlagenReport);
             $entityManager->flush();
-
-
             $anlId = explode('_', $decodeFilename)[1];
             return $this->redirectToRoute('app_anlage_string_assignment_monthly_export_list', ['anlId' => $anlId]);
         }
-
         return new Response('Failed to delete the file', Response::HTTP_INTERNAL_SERVER_ERROR);
     }
-
-
 
 }
 

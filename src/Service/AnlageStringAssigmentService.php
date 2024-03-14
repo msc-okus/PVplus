@@ -31,7 +31,7 @@ class AnlageStringAssigmentService
     {
     }
     public function exportMontly($anlId,$year,$month,$currentUserName, $publicDirectory,$logId){
-       $this->logMessages->updateEntry($logId, 'working', 5);
+       //$this->logMessages->updateEntry($logId, 'working', 5);
         $sql_pvp_base = "
                         SELECT
                             ass.station_nr AS stationNr,
@@ -71,7 +71,7 @@ class AnlageStringAssigmentService
         $stmt->execute([':anlId' => $anlId]); // Corrigé pour utiliser un tableau associatif
         $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $this->logMessages->updateEntry($logId, 'working', 30);
+        //$this->logMessages->updateEntry($logId, 'working', 30);
 
         $dateX = new DateTime("$year-$month-01 00:00:00");
         $dateY = (clone $dateX)->modify('last day of this month')->setTime(23, 59, 59);
@@ -106,7 +106,7 @@ class AnlageStringAssigmentService
             $key = "{$result['inverterNr']}-{$result['stringNr']}-{$result['channelNr']}";
             $resultsIndex[$key] = $result['average_I_value'];
         }
-        $this->logMessages->updateEntry($logId, 'working', 80);
+        //$this->logMessages->updateEntry($logId, 'working', 80);
 
         $joinedData = [];
         foreach ($assignments as $assignment) {
@@ -127,7 +127,7 @@ class AnlageStringAssigmentService
             }
 
         }
-        $this->logMessages->updateEntry($logId, 'working', 90);
+        //$this->logMessages->updateEntry($logId, 'working', 90);
 
         $spreadsheet = new Spreadsheet();
 
