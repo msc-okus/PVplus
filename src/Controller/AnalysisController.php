@@ -25,7 +25,7 @@ class AnalysisController extends AbstractController
 
         $searchyear = date('Y');
         $searchstatus = $searchtype = $searchmonth = $anlage = '';
-        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
+        $queryBuilder = $reportsRepository->getWithSearchQueryBuilderAnalysis($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
 
         $pagination = $paginator->paginate(
             $queryBuilder,
@@ -63,7 +63,7 @@ class AnalysisController extends AbstractController
         $searchyear = $request->query->get('searchyear');
         $page = $request->query->getInt('page', 1);
 
-        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
+        $queryBuilder = $reportsRepository->getWithSearchQueryBuilderAnalysis($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
         $pagination = $paginator->paginate(
             $queryBuilder,
             $page,

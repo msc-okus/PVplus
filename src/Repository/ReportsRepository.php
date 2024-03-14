@@ -44,6 +44,44 @@ class ReportsRepository extends ServiceEntityRepository
         ;
     }
 
+    public function getWithSearchQueryBuilderAnalysis(?string $term = '', ?string $searchstatus = '', ?string $searchtype = '', ?string $searchmonth = '', ?string $searchyear = ''): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('report')
+            ->innerJoin('report.anlage', 'a')
+            ->innerJoin('report.eigner', 'e')
+            ->addSelect('a')
+            ->addSelect('e')
+        ;
+
+        // Wenn Benutzer kein G4N Rolle hat
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            /** @var User $user */
+            $user = $this->security->getUser();
+            $granted =  $this->anlageRepo->findAllActiveAndAllowed();
+
+            $qb->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+            // schließe Archiv und falsche Reports aus
+            // muss noch via Backend auswählbar gemacht werden
+        }
+
+        if ($searchstatus != '') {
+            $qb->andWhere("report.reportStatus = $searchstatus");
+        }
+
+            $qb->andWhere("report.reportType like '%Analysis-$searchtype%'");
+
+        if ($searchmonth != '') {
+            $qb->andWhere("report.month = $searchmonth");
+        }
+        if ($searchyear != '') {
+            $qb->andWhere("report.year = $searchyear");
+        }
+        if ($term != '') {
+            $qb->andWhere(" a.anlName LIKE '$term' ");
+        }
+        return $qb;
+    }
     public function getWithSearchQueryBuilder(?string $term = '', ?string $searchstatus = '', ?string $searchtype = '', ?string $searchmonth = '', ?string $searchyear = ''): QueryBuilder
     {
         $qb = $this->createQueryBuilder('report')
