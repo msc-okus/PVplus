@@ -80,17 +80,21 @@ class SensorService
                     $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
                     $sensorArrays = $this->weatherFunctionsService->getSensors($anlage, $tempStartDate, $tempEndDate);
                     $intervallPAs = $this->weatherFunctionsService->getIntervallPA($anlage, $tempStartDateMinus15, $tempEndDateMinus15);
-                    $sensorSum = [];
 
+                    /* deprecated
+                    $sensorSum = [];
                     foreach ($sensorArrays as $sensorArray){
                         foreach ($sensorArray as $key => $sensorVal) {
                             if(!key_exists($key,$sensorSum)) $sensorSum[$key] = 0;
                             $sensorSum[$key] += $sensorVal;
                         }
                     }
+                    */
+
                     // ermitteln welche Sensoren excludiert werden sollen
                     $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
                     $sensorsInUse = $anlage->getSensorsInUse();
+
                     foreach($sensorArrays as $stamp => $sensorArray) {
                         $countIrrHori = $countIrr = $countIrrEast = $countIrrWest = 0;
                         foreach ($sensorsInUse as $sensor) {
@@ -128,6 +132,7 @@ class SensorService
                     $replaceArray['irrWest']        = array_sum($mittelwertPyroWestArray);//self::mittelwert($mittelwertPyroWestArray);
 
 
+
                     // Theoretische Leistung berechnen unter berücksichtigung des PA
                     foreach ($intervallPAs as $stamp => $intervallPA) {
                         // fallback Werte falls PA nicht berechnet
@@ -151,8 +156,10 @@ class SensorService
                     $replaceArray['theoPowerPA1'] = $replaceArray['theoPowerPA1'] / 4000;
                     $replaceArray['theoPowerPA2'] = $replaceArray['theoPowerPA2'] / 4000;
                     $replaceArray['theoPowerPA3'] = $replaceArray['theoPowerPA3'] / 4000;
-
+                    if ($ticketDate->getTicket()->getId() == 399539) dump($sensorData, $tempWeatherArray, $replaceArray, );
                     $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
+
+                    if ($ticketDate->getTicket()->getId() == 399539) dump($sensorData);
                     break;
 
                 // Replace Sensors
