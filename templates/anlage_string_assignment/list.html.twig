@@ -48,13 +48,13 @@
                     <td>{{ plant.anlPlz }} {{ plant.anlOrt }}</td>
                 {% endif %}
                 <td style="text-align: right;">
-                    {% if is_granted('ROLE_G4N') %}
+
                         <a href="#" class="hollow button action-icon shadow no-margin" onclick="showConfirmationModal('{{ plant.anlId }}')">
                             <span class="fa fa-file-excel" title="Generate new Report"></span> Generate
                         </a>
 
                         <a href="{{ path('app_anlage_string_assignment_monthly_export_list', { anlId: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-file-excel" title="List of Generated Reports"></span> List</a>
-                    {% endif %}
+
                 </td>
             </tr>
         {% endfor %}

@@ -150,4 +150,32 @@ class ReportsRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+
+    public function getWithSearchQueryBuilderAnlageString(?int $anlId = -1, ?string $searchmonth = '', ?string $searchyear = ''): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('report')
+            ->innerJoin('report.anlage', 'a')
+            ->innerJoin('report.eigner', 'e')
+            ->addSelect('a')
+            ->addSelect('e')
+        ;
+
+
+
+        $qb->andWhere("report.reportType = 'string-analyse'");
+
+        if ($anlId != -1) {
+            $qb->andWhere("a.anlId = $anlId");
+        }
+
+        if ($searchmonth != '') {
+            $qb->andWhere("report.month = $searchmonth");
+        }
+        if ($searchyear != '') {
+            $qb->andWhere("report.year = $searchyear");
+        }
+
+        return $qb;
+    }
 }

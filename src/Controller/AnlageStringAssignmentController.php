@@ -6,9 +6,12 @@ use App\Entity\AnlagenReports;
 use App\Entity\AnlageStringAssignment;
 
 
+use App\Entity\Eigner;
+use App\Form\Anlage\AnlageStringAssigmentCreateType;
 use App\Form\Anlage\AnlageStringAssigmentType;
 
 
+use App\Form\Anlage\AnlageStringAssigmentUploadType;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Service\AnlageStringAssigmentService;
@@ -114,26 +117,131 @@ class AnlageStringAssignmentController extends AbstractController
     {
 
 
-        $q = $request->query->get('qp');
+        $grantedPlantList = $this->getUser()->getGrantedArray();
+        $eigners = [];
+        /** @var Eigner $eigner */
+        foreach ($this->getUser()->getEigners()->toArray() as $eigner) {
+            $eigners[] = $eigner->getId();
+        }
+        $q = $request->query->get('q');
         if ($request->query->get('search') == 'yes' && $q == '') {
-            $request->getSession()->set('qp', '');
+            $request->getSession()->set('q', '');
         }
         if ($q) {
-            $request->getSession()->set('qp', $q);
+            $request->getSession()->set('q', $q);
         }
-        if ($q == '' && $request->getSession()->get('qp') != '') {
-            $q = $request->getSession()->get('qp');
-            $request->query->set('qp', $q);
+        if ($q == '' && $request->getSession()->get('q') != '') {
+            $q = $request->getSession()->get('q');
+            $request->query->set('q', $q);
         }
-        $queryBuilder = $anlagenRepository->getWithSearchQueryBuilder($q);
-        $pagination = $paginator->paginate(
-            $queryBuilder, /* query NOT result */
-            $request->query->getInt('page', 1),
-            25
-        );
+        $queryBuilder = $anlagenRepository->getWithSearchQueryBuilderOwner($q, $eigners, $grantedPlantList);
+        $pagination = $paginator->paginate($queryBuilder, $request->query->getInt('page', 1), 25);
+
 
         return $this->render('anlage_string_assignment/list.html.twig', [
             'pagination' => $pagination,
+        ]);
+    }
+
+    #[Route(path: '/anlage/string/assignment/anlage/list2', name: 'app_anlage_string_assignment_list2')]
+    public function listExport2(Request $request, EntityManagerInterface $entityManager,PaginatorInterface $paginator, AnlagenRepository $anlagenRepository,ReportsRepository $reportsRepository): Response
+    {
+
+
+        $grantedPlantList = $this->getUser()->getGrantedArray();
+        $eigners = [];
+        /** @var Eigner $eigner */
+        foreach ($this->getUser()->getEigners()->toArray() as $eigner) {
+            $eigners[] = $eigner->getId();
+        }
+
+        $assignments = $entityManager->getRepository(AnlageStringAssignment::class)->findAll();
+
+
+        $anlageWithAssignments = [];
+        foreach ($assignments as $assignment) {
+            $anlageWithAssignments[$assignment->getAnlage()->getAnlId()] = true;
+        }
+        $anlagen = $anlagenRepository->getOwner($eigners, $grantedPlantList)->getQuery()->getResult();
+
+        $anlagenChoicesUpload=[];
+        $anlagenChoicesGenerate=[];
+        foreach ($anlagen as $anlage) {
+
+            $lastUploadDate = $anlage->getLastAnlageStringAssigmentUpload();
+            $dateStr = $lastUploadDate ? $lastUploadDate->format('d-m-Y H:i:s') : ' never';
+            $hasAssignments = isset($anlageWithAssignments[$anlage->getAnlId()]);
+           if($hasAssignments){
+               $arrow =  '🔵' ;
+               $anlagenChoicesGenerate[$anlage->getAnlName()] = $anlage;
+           }else{
+               $arrow =  '';
+           }
+
+            $x= sprintf("%s (%s) - Last upload: %s  %s", $anlage->getAnlName(),$anlage->getAnlId(), $dateStr, $arrow);
+            $anlagenChoicesUpload[$x] = $anlage;
+
+        }
+
+
+        $createForm = $this->createForm(AnlageStringAssigmentCreateType::class, null, [
+            'anlagen_choices' => $anlagenChoicesGenerate,
+        ]);
+
+        $createForm->handleRequest($request);
+        if ($createForm->isSubmitted() && $createForm->isValid()) {
+
+            $data = $createForm->getData();
+
+           dd($data);
+        }
+
+        $uploadForm = $this->createForm(AnlageStringAssigmentUploadType::class, null, [
+            'anlagen_choices' => $anlagenChoicesUpload,
+        ]);
+        $uploadForm->handleRequest($request);
+        if ($uploadForm->isSubmitted() && $uploadForm->isValid()) {
+
+            $data = $uploadForm->getData();
+
+            dd($data);
+        }
+
+
+        if($request->isXmlHttpRequest()){
+            $searchPlant = (int)$request->request->get('searchplant');
+            $searchMonth = $request->request->get('searchmonth');
+            $searchYear = $request->request->get('searchyear');
+
+
+            $queryBuilder= $reportsRepository->getWithSearchQueryBuilderAnlageString($searchPlant,$searchMonth,$searchYear);
+
+            $reports = $paginator->paginate(
+                $queryBuilder,
+                $request->query->getInt('page', 1),
+                20
+            );
+
+            return $this->render('anlage_string_assignment/tab_report.html.twig', [
+                'reports'=> $reports
+            ]);
+        }
+
+
+
+        $queryBuilder= $reportsRepository->getWithSearchQueryBuilderAnlageString();
+
+        $reports = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            20
+        );
+
+        return $this->render('anlage_string_assignment/list_report.html.twig', [
+            'createForm' => $createForm->createView(),
+            'uploadForm' => $uploadForm->createView(),
+            'reports'=> $reports,
+            'anlagen'=> $anlagen
         ]);
     }
 
