@@ -23,7 +23,7 @@ class AnlageStringAssignmentHandler
      */
     public function __invoke(AnlageStringAssignment $anlageStringAssigment): void
     {
-        $anlageId = $anlageStringAssigment->getAnlageId();
+        $anlageId = $anlageStringAssigment->getAnlId();
         $logId = $anlageStringAssigment->getlogId();
         $year = $anlageStringAssigment->getYear();
         $month = $anlageStringAssigment->getMonth();

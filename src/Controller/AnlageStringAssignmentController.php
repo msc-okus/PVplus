@@ -34,86 +34,86 @@ use App\Service\LogMessagesService;
 
 class AnlageStringAssignmentController extends AbstractController
 {
-    #[Route('/anlage/string/assignment/upload', name: 'app_anlage_string_assignment_upload')]
-    public function upload(Request $request,EntityManagerInterface $entityManager): Response
-    {
+//    #[Route('/anlage/string/assignment/upload', name: 'app_anlage_string_assignment_upload')]
+//    public function upload(Request $request,EntityManagerInterface $entityManager): Response
+//    {
+//
+//        $assignments = $entityManager->getRepository(AnlageStringAssignment::class)->findAll();
+//
+//
+//        $anlageWithAssignments = [];
+//        foreach ($assignments as $assignment) {
+//            $anlageWithAssignments[$assignment->getAnlage()->getAnlId()] = true;
+//        }
+//
+//        $form = $this->createForm(AnlageStringAssigmentType::class,null, [
+//            'anlageWithAssignments' => $anlageWithAssignments,
+//        ]);
+//        $form->handleRequest($request);
+//
+//        if ($form->isSubmitted() && $form->isValid()) {
+//            $file = $form['file']->getData();
+//            $anlage = $form['anlage']->getData();
+//
+//
+//
+//            if ($anlage) {
+//                $existingAssignments = $entityManager->getRepository(AnlageStringAssignment::class)->findBy(['anlage' => $anlage]);
+//                foreach ($existingAssignments as $assignment) {
+//                    $entityManager->remove($assignment);
+//                }
+//                $entityManager->flush();
+//
+//                $anlage->setLastAnlageStringAssigmentUpload(new \DateTime());
+//                $entityManager->persist($anlage);
+//                $entityManager->flush();
+//            }
+//
+//            if ($file) {
+//                $xlsx = SimpleXLSX::parse($file->getRealPath());
+//                if ($xlsx) {
+//                    $firstRow = true;
+//                    foreach ($xlsx->rows() as $row) {
+//
+//                        if ($firstRow) {
+//                            $firstRow = false;
+//                            continue;
+//                        }
+//                        $assignment = new AnlageStringAssignment();
+//                        $assignment->setStationNr($row[0]);
+//                        $assignment->setInverterNr($row[1]);
+//                        $assignment->setStringNr($row[2]);
+//                        $assignment->setChannelNr($row[3]);
+//                        $assignment->setStringActive($row[4]);
+//                        $assignment->setChannelCat($row[5]);
+//                        $assignment->setPosition($row[6]);
+//                        $assignment->setTilt($row[7]);
+//                        $assignment->setAzimut($row[8]);
+//                        $assignment->setPanelType($row[9]);
+//                        $assignment->setInverterType($row[10]);
+//                        $assignment->setAnlage($anlage);
+//                        $entityManager->persist($assignment);
+//                    }
+//                    $entityManager->flush();
+//
+//                    $this->addFlash('success', 'Success');
+//                    return $this->redirectToRoute('app_anlage_string_assignment_upload');
+//
+//                }
+//
+//                $this->addFlash('error', 'Error');
+//            }
+//        }
+//
+//
+//
+//        return $this->render('anlage_string_assignment/index.html.twig', [
+//            'form' => $form->createView(),
+//        ]);
+//    }
 
-        $assignments = $entityManager->getRepository(AnlageStringAssignment::class)->findAll();
-
-
-        $anlageWithAssignments = [];
-        foreach ($assignments as $assignment) {
-            $anlageWithAssignments[$assignment->getAnlage()->getAnlId()] = true;
-        }
-
-        $form = $this->createForm(AnlageStringAssigmentType::class,null, [
-            'anlageWithAssignments' => $anlageWithAssignments,
-        ]);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $file = $form['file']->getData();
-            $anlage = $form['anlage']->getData();
-
-
-
-            if ($anlage) {
-                $existingAssignments = $entityManager->getRepository(AnlageStringAssignment::class)->findBy(['anlage' => $anlage]);
-                foreach ($existingAssignments as $assignment) {
-                    $entityManager->remove($assignment);
-                }
-                $entityManager->flush();
-
-                $anlage->setLastAnlageStringAssigmentUpload(new \DateTime());
-                $entityManager->persist($anlage);
-                $entityManager->flush();
-            }
-
-            if ($file) {
-                $xlsx = SimpleXLSX::parse($file->getRealPath());
-                if ($xlsx) {
-                    $firstRow = true;
-                    foreach ($xlsx->rows() as $row) {
-
-                        if ($firstRow) {
-                            $firstRow = false;
-                            continue;
-                        }
-                        $assignment = new AnlageStringAssignment();
-                        $assignment->setStationNr($row[0]);
-                        $assignment->setInverterNr($row[1]);
-                        $assignment->setStringNr($row[2]);
-                        $assignment->setChannelNr($row[3]);
-                        $assignment->setStringActive($row[4]);
-                        $assignment->setChannelCat($row[5]);
-                        $assignment->setPosition($row[6]);
-                        $assignment->setTilt($row[7]);
-                        $assignment->setAzimut($row[8]);
-                        $assignment->setPanelType($row[9]);
-                        $assignment->setInverterType($row[10]);
-                        $assignment->setAnlage($anlage);
-                        $entityManager->persist($assignment);
-                    }
-                    $entityManager->flush();
-
-                    $this->addFlash('success', 'Success');
-                    return $this->redirectToRoute('app_anlage_string_assignment_upload');
-
-                }
-
-                $this->addFlash('error', 'Error');
-            }
-        }
-
-
-
-        return $this->render('anlage_string_assignment/index.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[Route(path: '/anlage/string/assignment/anlage/list', name: 'app_anlage_string_assignment_list')]
-    public function listExport(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
+    #[Route(path: '/anlage/string/assignment/anlage/list2', name: 'app_anlage_string_assignment_list2')]
+    public function listExport2(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
     {
 
 
@@ -134,7 +134,7 @@ class AnlageStringAssignmentController extends AbstractController
             $q = $request->getSession()->get('q');
             $request->query->set('q', $q);
         }
-        $queryBuilder = $anlagenRepository->getWithSearchQueryBuilderOwner($q, $eigners, $grantedPlantList);
+        $queryBuilder = $anlagenRepository->getOwner( $eigners, $grantedPlantList);
         $pagination = $paginator->paginate($queryBuilder, $request->query->getInt('page', 1), 25);
 
 
@@ -143,8 +143,8 @@ class AnlageStringAssignmentController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/anlage/string/assignment/anlage/list2', name: 'app_anlage_string_assignment_list2')]
-    public function listExport2(Request $request, EntityManagerInterface $entityManager,PaginatorInterface $paginator, AnlagenRepository $anlagenRepository,ReportsRepository $reportsRepository): Response
+    #[Route(path: '/anlage/string/assignment/anlage/list', name: 'app_anlage_string_assignment_list')]
+    public function listExport(Request $request, EntityManagerInterface $entityManager,PaginatorInterface $paginator,AnlageStringAssigmentService $anlageStringAssigmentService, AnlagenRepository $anlagenRepository,ReportsRepository $reportsRepository,Security $security,LogMessagesService $logMessages, MessageBusInterface $messageBus): Response
     {
 
 
@@ -191,21 +191,87 @@ class AnlageStringAssignmentController extends AbstractController
         $createForm->handleRequest($request);
         if ($createForm->isSubmitted() && $createForm->isValid()) {
 
-            $data = $createForm->getData();
 
-           dd($data);
+
+            $anlage = $createForm['anlage']->getData();
+            $anlageId = $anlage->getAnlagenId();
+            $currentUserName = $security->getUser()->getEmail();
+            $month = $createForm['month']->getData();
+            $year = $createForm['year']->getData();
+            $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
+            $uid = $this->getUser()->getUserId();
+
+            $job = 'Excel file is  generating for ' . $month . $year;
+            $job .= " - " . $this->getUser()->getname();
+            $logId = $logMessages->writeNewEntry($anlage, 'AnlageStringAssignment', $job, $uid);
+
+
+            $message = new \App\Message\Command\AnlageStringAssignment((int)$anlageId,(int)$year,(int)$month,$currentUserName,$publicDirectory,$logId);
+            $messageBus->dispatch($message);
+
+
+            return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
         }
 
         $uploadForm = $this->createForm(AnlageStringAssigmentUploadType::class, null, [
             'anlagen_choices' => $anlagenChoicesUpload,
         ]);
         $uploadForm->handleRequest($request);
+
+
         if ($uploadForm->isSubmitted() && $uploadForm->isValid()) {
+                $file = $uploadForm['file']->getData();
+                $anlage = $uploadForm['anlage']->getData();
 
-            $data = $uploadForm->getData();
 
-            dd($data);
-        }
+
+                if ($anlage) {
+                    $existingAssignments = $entityManager->getRepository(AnlageStringAssignment::class)->findBy(['anlage' => $anlage]);
+                    foreach ($existingAssignments as $assignment) {
+                        $entityManager->remove($assignment);
+                    }
+                    $entityManager->flush();
+
+                    $anlage->setLastAnlageStringAssigmentUpload(new \DateTime());
+                    $entityManager->persist($anlage);
+                    $entityManager->flush();
+                }
+
+                if ($file) {
+                    $xlsx = SimpleXLSX::parse($file->getRealPath());
+                    if ($xlsx) {
+                        $firstRow = true;
+                        foreach ($xlsx->rows() as $row) {
+
+                            if ($firstRow) {
+                                $firstRow = false;
+                                continue;
+                            }
+                            $assignment = new AnlageStringAssignment();
+                            $assignment->setStationNr($row[0]);
+                            $assignment->setInverterNr($row[1]);
+                            $assignment->setStringNr($row[2]);
+                            $assignment->setChannelNr($row[3]);
+                            $assignment->setStringActive($row[4]);
+                            $assignment->setChannelCat($row[5]);
+                            $assignment->setPosition($row[6]);
+                            $assignment->setTilt($row[7]);
+                            $assignment->setAzimut($row[8]);
+                            $assignment->setPanelType($row[9]);
+                            $assignment->setInverterType($row[10]);
+                            $assignment->setAnlage($anlage);
+                            $entityManager->persist($assignment);
+                        }
+                        $entityManager->flush();
+
+
+                        return $this->redirectToRoute('app_anlage_string_assignment_list');
+
+                    }
+
+                }
+            }
+
 
 
         if($request->isXmlHttpRequest()){
@@ -321,7 +387,7 @@ class AnlageStringAssignmentController extends AbstractController
             $entityManager->remove($anlagenReport);
             $entityManager->flush();
             $anlId = explode('_', $decodeFilename)[1];
-            return $this->redirectToRoute('app_anlage_string_assignment_monthly_export_list', ['anlId' => $anlId]);
+            return $this->redirectToRoute('app_anlage_string_assignment_list',);
         }
         return new Response('Failed to delete the file', Response::HTTP_INTERNAL_SERVER_ERROR);
     }

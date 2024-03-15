@@ -13,11 +13,11 @@ class AnlageStringAssignment
         private readonly int $month,
         private readonly string $currentUserName,
         private readonly string $publicDirectory,
-        private readonly int $logId,)
+        private readonly int $logId)
     {
     }
 
-    public function getAnlageId(): int
+    public function getAnlId(): int
     {
         return $this->anlageId;
     }
