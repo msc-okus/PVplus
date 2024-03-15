@@ -1,5 +1,5 @@
 
-    <div class="cell " data-anlagestring-target="tab">
+    <div class="cell "  data-anlagestring-target="list">
                 <table class="table" >
                     <thead  style="border-bottom: 1px solid red;">
                     <tr>
@@ -52,7 +52,7 @@
                     {% endif %}
                     </tbody>
                 </table>
-        {{ knp_pagination_render(reports) }}
+        {{ knp_pagination_render(reports, false, {}, {'controllerNameStimulus': 'anlagestring'}) }}
     </div>
 
 

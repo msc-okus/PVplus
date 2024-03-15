@@ -49,42 +49,45 @@
             </div>
         </div>
     </div>
-        <div class="grid-x " data-controller="anlagestring" style="padding-top: 20px;">
+        <div class="grid-x " style="padding-top: 20px;" {{ stimulus_controller('anlagestring', {
+            urlSearch: path('app_anlage_string_assignment_list_search'),
+        }) }}>
            <div class="cell"><h4>Search Report </h4></div>
-            <div class="grid-x grid-padding-x" style="padding-bottom: 10px;">
+            <div class="grid-x grid-padding-x" style="padding-bottom: 10px;" id="search-form" data-anlagestring-target="searchForm">
                 <div class="cell " >
-                    <form   >
+                    <form  >
                         <div class="grid-x grid-padding-x">
                             <div class="cell auto">
-                                <select name="searchplant">
-                                    <option value="-1" >Select Plant</option>
+                                <select name="anlage">
+                                    <option value=""  {% if anlage == "" %} selected {% endif %} >Select Plant</option>
                                     {% for i in anlagen %}
-                                        <option value="{{ i.anlId }}">   {{ i.anlName}}    </option>
+                                        <option value="{{ i.anlId }}" {% if anlage == i.anlId %} selected {% endif %}>   {{ i.anlName}}    </option>
                                     {% endfor %}
                                 </select>
                             </div>
                             <div class="cell auto">
                                 <select name="searchmonth">
-                                    <option value="" >Select Month</option>
+                                    <option value="" {% if month == '' %} selected {% endif %} >Select Month</option>
                                     {% for i in range (1, 12) %}
-                                        <option value="{{ i }}" >   {{ "%02d"|format(i) }}    </option>
+                                        <option value="{{ i }}" {% if month == i %} selected {% endif %}>   {{ "%02d"|format(i) }}    </option>
                                     {% endfor %}
                                 </select>
                             </div>
 
                             <div class="cell auto">
                                 <select name="searchyear">
-                                    <option value="" >Select Year</option>
+                                    <option value="" {% if searchyear == '' %} selected {% endif %} >Select Year</option>
                                     {% set isyear = 'now' | date('Y') %}
                                     {% for year in range (2020, isyear) %}
-                                        <option value="{{ year }}" >  {{ year }} </option>
+                                        <option value="{{ year }}"{% if searchyear == year %} selected {% endif %}>  {{ year }} </option>
                                     {% endfor %}
                                 </select>
                             </div>
                             <div class="cell medium-2">
                                 <div class="input-group-button">
                 <span data-tooltip tabindex="1" title="Search Report">
-                 <button type="submit" title="Search Report" name="search" class="button action-icon tiny hollow shadow">
+                <button type="submit" title="Search Report" name="search" class="button action-icon tiny hollow shadow"
+                        value="yes" data-action="click->anlagestring#search">
                     <span class="fa fa-search"></span>
                  </button>
                 </span>

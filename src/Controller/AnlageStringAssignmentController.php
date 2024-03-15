@@ -34,114 +34,6 @@ use App\Service\LogMessagesService;
 
 class AnlageStringAssignmentController extends AbstractController
 {
-//    #[Route('/anlage/string/assignment/upload', name: 'app_anlage_string_assignment_upload')]
-//    public function upload(Request $request,EntityManagerInterface $entityManager): Response
-//    {
-//
-//        $assignments = $entityManager->getRepository(AnlageStringAssignment::class)->findAll();
-//
-//
-//        $anlageWithAssignments = [];
-//        foreach ($assignments as $assignment) {
-//            $anlageWithAssignments[$assignment->getAnlage()->getAnlId()] = true;
-//        }
-//
-//        $form = $this->createForm(AnlageStringAssigmentType::class,null, [
-//            'anlageWithAssignments' => $anlageWithAssignments,
-//        ]);
-//        $form->handleRequest($request);
-//
-//        if ($form->isSubmitted() && $form->isValid()) {
-//            $file = $form['file']->getData();
-//            $anlage = $form['anlage']->getData();
-//
-//
-//
-//            if ($anlage) {
-//                $existingAssignments = $entityManager->getRepository(AnlageStringAssignment::class)->findBy(['anlage' => $anlage]);
-//                foreach ($existingAssignments as $assignment) {
-//                    $entityManager->remove($assignment);
-//                }
-//                $entityManager->flush();
-//
-//                $anlage->setLastAnlageStringAssigmentUpload(new \DateTime());
-//                $entityManager->persist($anlage);
-//                $entityManager->flush();
-//            }
-//
-//            if ($file) {
-//                $xlsx = SimpleXLSX::parse($file->getRealPath());
-//                if ($xlsx) {
-//                    $firstRow = true;
-//                    foreach ($xlsx->rows() as $row) {
-//
-//                        if ($firstRow) {
-//                            $firstRow = false;
-//                            continue;
-//                        }
-//                        $assignment = new AnlageStringAssignment();
-//                        $assignment->setStationNr($row[0]);
-//                        $assignment->setInverterNr($row[1]);
-//                        $assignment->setStringNr($row[2]);
-//                        $assignment->setChannelNr($row[3]);
-//                        $assignment->setStringActive($row[4]);
-//                        $assignment->setChannelCat($row[5]);
-//                        $assignment->setPosition($row[6]);
-//                        $assignment->setTilt($row[7]);
-//                        $assignment->setAzimut($row[8]);
-//                        $assignment->setPanelType($row[9]);
-//                        $assignment->setInverterType($row[10]);
-//                        $assignment->setAnlage($anlage);
-//                        $entityManager->persist($assignment);
-//                    }
-//                    $entityManager->flush();
-//
-//                    $this->addFlash('success', 'Success');
-//                    return $this->redirectToRoute('app_anlage_string_assignment_upload');
-//
-//                }
-//
-//                $this->addFlash('error', 'Error');
-//            }
-//        }
-//
-//
-//
-//        return $this->render('anlage_string_assignment/index.html.twig', [
-//            'form' => $form->createView(),
-//        ]);
-//    }
-
-    #[Route(path: '/anlage/string/assignment/anlage/list2', name: 'app_anlage_string_assignment_list2')]
-    public function listExport2(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
-    {
-
-
-        $grantedPlantList = $this->getUser()->getGrantedArray();
-        $eigners = [];
-        /** @var Eigner $eigner */
-        foreach ($this->getUser()->getEigners()->toArray() as $eigner) {
-            $eigners[] = $eigner->getId();
-        }
-        $q = $request->query->get('q');
-        if ($request->query->get('search') == 'yes' && $q == '') {
-            $request->getSession()->set('q', '');
-        }
-        if ($q) {
-            $request->getSession()->set('q', $q);
-        }
-        if ($q == '' && $request->getSession()->get('q') != '') {
-            $q = $request->getSession()->get('q');
-            $request->query->set('q', $q);
-        }
-        $queryBuilder = $anlagenRepository->getOwner( $eigners, $grantedPlantList);
-        $pagination = $paginator->paginate($queryBuilder, $request->query->getInt('page', 1), 25);
-
-
-        return $this->render('anlage_string_assignment/list.html.twig', [
-            'pagination' => $pagination,
-        ]);
-    }
 
     #[Route(path: '/anlage/string/assignment/anlage/list', name: 'app_anlage_string_assignment_list')]
     public function listExport(Request $request, EntityManagerInterface $entityManager,PaginatorInterface $paginator,AnlageStringAssigmentService $anlageStringAssigmentService, AnlagenRepository $anlagenRepository,ReportsRepository $reportsRepository,Security $security,LogMessagesService $logMessages, MessageBusInterface $messageBus): Response
@@ -273,29 +165,11 @@ class AnlageStringAssignmentController extends AbstractController
             }
 
 
-
-        if($request->isXmlHttpRequest()){
-            $searchPlant = (int)$request->request->get('searchplant');
-            $searchMonth = $request->request->get('searchmonth');
-            $searchYear = $request->request->get('searchyear');
-
-
-            $queryBuilder= $reportsRepository->getWithSearchQueryBuilderAnlageString($searchPlant,$searchMonth,$searchYear);
-
-            $reports = $paginator->paginate(
-                $queryBuilder,
-                $request->query->getInt('page', 1),
-                20
-            );
-
-            return $this->render('anlage_string_assignment/tab_report.html.twig', [
-                'reports'=> $reports
-            ]);
-        }
+        $searchyear = $searchmonth =   $anlage = '';
 
 
 
-        $queryBuilder= $reportsRepository->getWithSearchQueryBuilderAnlageString();
+        $queryBuilder= $reportsRepository->getWithSearchQueryBuilderAnlageString($anlage, $searchmonth, $searchyear);
 
         $reports = $paginator->paginate(
             $queryBuilder,
@@ -303,47 +177,46 @@ class AnlageStringAssignmentController extends AbstractController
             20
         );
 
+        if ($request->query->get('ajax') || $request->isXmlHttpRequest()) {
+            return $this->render('anlage_string_assignment/tab_report.html.twig', [
+                'reports' => $reports,
+                'searchyear' => $searchyear,
+                'month'      => $searchmonth,
+                'anlage'     => $anlage,
+            ]);
+        }
+
         return $this->render('anlage_string_assignment/list_report.html.twig', [
             'createForm' => $createForm->createView(),
             'uploadForm' => $uploadForm->createView(),
             'reports'=> $reports,
-            'anlagen'=> $anlagen
+            'searchyear' => $searchyear,
+            'month'      => $searchmonth,
+            'anlage'     => $anlage,
+            'anlagen'     => $anlagen,
         ]);
     }
 
-    #[Route(path: '/anlage/string/assignment/monthly/export/{anlId}', name: 'app_anlage_string_assignment_monthly_export')]
-    public function acExportMonthly($anlId,Request $request,Security $security, AnlageStringAssigmentService $anlageStringAssigmentService,LogMessagesService $logMessages, MessageBusInterface $messageBus, AnlagenRepository $anlagenRepo): Response
+    #[Route(path: '/anlage/string/assignment/anlage/list/search', name: 'app_anlage_string_assignment_list_search', methods: ['GET', 'POST'])]
+    public function search(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository): Response
     {
-        $anlage = $anlagenRepo->findOneBy(['anlId' => $anlId]);
-        $anlageId = $anlage->getAnlagenId();
-        $currentUserName = $security->getUser()->getEmail();
-        $year = (int)$request->query->get('year');
-        $month = (int)$request->query->get('month');
-        $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
-        $uid = $this->getUser()->getUserId();
+        $anlage = $request->query->get('searchplant');
+        $searchmonth = $request->query->get('searchmonth');
+        $searchyear = $request->query->get('searchyear');
+        $page = $request->query->getInt('page', 1);
 
-        $job = 'Excel file is  generating for ' . $month . $year;
-        $job .= " - " . $this->getUser()->getname();
-        $logId = $logMessages->writeNewEntry($anlage, 'AnlageStringAssignment', $job, $uid);
+        $queryBuilder = $reportsRepository->getWithSearchQueryBuilderAnlageString($anlage, $searchmonth, $searchyear);
 
-        $message = new \App\Message\Command\AnlageStringAssignment((int)$anlageId,$year,$month,$currentUserName,$publicDirectory,$logId);
-        $messageBus->dispatch($message);
-
-
-        return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
-    }
-
-
-    #[Route(path: '/anlage/string/assignment/monthly/export/list/{anlId}', name: 'app_anlage_string_assignment_monthly_export_list')]
-    public function acExportMonthlyList($anlId,ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepository): Response
-    {
-        $anlage = $anlagenRepository->findOneBy(['anlId' => $anlId]);
-        $reportType='string-analyse';
-        $reports= $reportsRepository->findBy(['reportType'=>$reportType,'anlage' => $anlage,]);
-
-
-        return $this->render('anlage_string_assignment/export_list.html.twig', [
-            'reports' => $reports
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $page,
+            20
+        );
+        return $this->render('anlage_string_assignment/tab_report.html.twig', [
+            'reports' => $pagination,
+            'searchyear' => $searchyear,
+            'month'      => $searchmonth,
+            'anlage'     => $anlage,
         ]);
     }
 
