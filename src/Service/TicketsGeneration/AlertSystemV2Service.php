@@ -13,14 +13,11 @@ use App\Service\FunctionsService;
 use App\Service\MessageService;
 use App\Service\WeatherFunctionsService;
 use App\Service\WeatherServiceNew;
-use DateTimeZone;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
 use App\Service\PdoService;
 use Psr\Cache\InvalidArgumentException;
 
-;
 
 class AlertSystemV2Service
 {
