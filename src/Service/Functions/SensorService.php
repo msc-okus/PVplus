@@ -156,10 +156,8 @@ class SensorService
                     $replaceArray['theoPowerPA1'] = $replaceArray['theoPowerPA1'] / 4000;
                     $replaceArray['theoPowerPA2'] = $replaceArray['theoPowerPA2'] / 4000;
                     $replaceArray['theoPowerPA3'] = $replaceArray['theoPowerPA3'] / 4000;
-                    if ($ticketDate->getTicket()->getId() == 399539) dump($sensorData, $tempWeatherArray, $replaceArray, );
-                    $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
 
-                    if ($ticketDate->getTicket()->getId() == 399539) dump($sensorData);
+                    $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
                     break;
 
                 // Replace Sensors
