@@ -2,10 +2,15 @@ import { Controller } from '@hotwired/stimulus';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['list', 'searchForm'];
+    static targets = ['list', 'searchForm','uploadForm','modal'];
     static values = {
         urlSearch: String,
     }
+
+    connect() {
+        this.uploadFormTarget.addEventListener('submit', this.handleFormSubmit.bind(this));
+    }
+
     async search(event){
         event.preventDefault();
         const $searchReportform = $(this.searchFormTarget).find('form');
@@ -16,4 +21,11 @@ export default class extends Controller {
         });
         $(document).foundation();
     }
+
+    async handleFormSubmit(event) {
+        this.modalTarget.style.display='block';
+        }
+
+
+
 }

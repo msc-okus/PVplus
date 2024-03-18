@@ -36,11 +36,11 @@
                                 <td>final</td>
                                 <td class="text-right">
                                     <div >
-                                        <a href="{{ path('app_anlage_string_assignment_monthly_export_download_file', { fileName: report.file|url_encode }) }}" class="hollow button tiny action-icon shadow" target="_blank">
+                                        <a href="{{ path('app_analysis_download_file', { fileName: report.file|url_encode }) }}" class="hollow button tiny action-icon shadow" target="_blank">
                                             <span class="fa fa-file-export"></span>
                                         </a>
 
-                                        <a href="{{ path('app_anlage_string_assignment_monthly_export_delete_file', { fileName: report.file|url_encode, id: report.id }) }}" class="hollow alert button tiny action-icon shadow">
+                                        <a href="{{ path('app_analysis_delete_file', { fileName: report.file|url_encode, id: report.id }) }}" class="hollow alert button tiny action-icon shadow">
                                             <span class="fa fa-trash-alt"></span>
                                         </a>
 

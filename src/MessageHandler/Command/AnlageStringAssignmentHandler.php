@@ -32,7 +32,7 @@ class AnlageStringAssignmentHandler
 
 
         $this->logMessages->updateEntry((int)$logId, 'working');
-        $timeCounter = 0;
+
 
         $this->anlageStringAssigmentService->exportMontly($anlageId,$year,$month,$currentUserName,$publicDirectory,$logId);
         $this->logMessages->updateEntry($logId, 'done', 100);

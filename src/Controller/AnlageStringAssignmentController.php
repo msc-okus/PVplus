@@ -19,6 +19,7 @@ use App\Service\AnlageStringAssigmentService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 
+use League\Flysystem\Filesystem;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +27,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Shuchkin\SimpleXLSX;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\LogMessagesService;
@@ -35,7 +37,7 @@ use App\Service\LogMessagesService;
 class AnlageStringAssignmentController extends AbstractController
 {
 
-    #[Route(path: '/anlage/string/assignment/anlage/list', name: 'app_anlage_string_assignment_list')]
+    #[Route(path: '/analysis/list', name: 'app_analysis_list')]
     public function listExport(Request $request, EntityManagerInterface $entityManager,PaginatorInterface $paginator,AnlageStringAssigmentService $anlageStringAssigmentService, AnlagenRepository $anlagenRepository,ReportsRepository $reportsRepository,Security $security,LogMessagesService $logMessages, MessageBusInterface $messageBus): Response
     {
 
@@ -90,7 +92,7 @@ class AnlageStringAssignmentController extends AbstractController
             $currentUserName = $security->getUser()->getEmail();
             $month = $createForm['month']->getData();
             $year = $createForm['year']->getData();
-            $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
+            $publicDirectory = './excel/anlagestring/';
             $uid = $this->getUser()->getUserId();
 
             $job = 'Excel file is  generating for ' . $month . $year;
@@ -157,7 +159,7 @@ class AnlageStringAssignmentController extends AbstractController
                         $entityManager->flush();
 
 
-                        return $this->redirectToRoute('app_anlage_string_assignment_list');
+                        return $this->redirectToRoute('app_analysis_list');
 
                     }
 
@@ -197,10 +199,10 @@ class AnlageStringAssignmentController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/anlage/string/assignment/anlage/list/search', name: 'app_anlage_string_assignment_list_search', methods: ['GET', 'POST'])]
+    #[Route(path: '/analysis/list/search', name: 'app_analysis_list_search', methods: ['GET', 'POST'])]
     public function search(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository): Response
     {
-        $anlage = $request->query->get('searchplant');
+        $anlage = $request->query->get('anlage');
         $searchmonth = $request->query->get('searchmonth');
         $searchyear = $request->query->get('searchyear');
         $page = $request->query->getInt('page', 1);
@@ -220,27 +222,40 @@ class AnlageStringAssignmentController extends AbstractController
         ]);
     }
 
-    #[Route('/anlage/string/assignment/monthly/export/download/{fileName}', name: 'app_anlage_string_assignment_monthly_export_download_file')]
-    public function downloadFile($fileName): Response
+
+
+    #[Route('/analysis/download/{fileName}', name: 'app_analysis_download_file')]
+    public function downloadFile($fileName,Filesystem $fileSystemFtp): Response
     {
-        $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
-        $filePath = $publicDirectory . '/' . urldecode($fileName);
+        $publicDirectory='./excel/anlagestring/';
+        $filePath = $publicDirectory . urldecode($fileName);
 
 
-        if (!file_exists($filePath)) {
+        if (!$fileSystemFtp->fileExists($filePath)) {
             throw $this->createNotFoundException('File not found');
         }
 
-        $response = new BinaryFileResponse($filePath);
-        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT);
+        // Get the contents of the file from the FTP filesystem
+        $fileStream = $fileSystemFtp->readStream($filePath);
+
+        // Create a StreamedResponse to output the file contents
+        $response = new StreamedResponse(function () use ($fileStream) {
+            fpassthru($fileStream);
+            fclose($fileStream);
+        });
+
+        // Set the response headers for file download
+        $response->headers->set('Content-Type', 'application/octet-stream');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . basename($filePath) . '"');
 
         return $response;
     }
 
 
-    #[Route('/anlage/string/assignment/monthly/export/delete/{fileName}/{id}', name: 'app_anlage_string_assignment_monthly_export_delete_file')]
-    public function deleteFile( $fileName, $id,EntityManagerInterface $entityManager): Response
+    #[Route('/analysis/{fileName}/{id}', name: 'app_analysis_delete_file')]
+    public function deleteFile( $fileName, $id,EntityManagerInterface $entityManager,Filesystem $fileSystemFtp): Response
     {
+
         $decodeFilename = urldecode($fileName);
         $anlagenReportRepository = $entityManager->getRepository(AnlagenReports::class);
         $anlagenReport = $anlagenReportRepository->find($id);
@@ -249,20 +264,19 @@ class AnlageStringAssignmentController extends AbstractController
         }
 
 
-        $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
-        $filePath = $publicDirectory . '/' . $decodeFilename;
+        $publicDirectory = './excel/anlagestring/';
+        $filePath = $publicDirectory . $decodeFilename;
 
-        if (!file_exists($filePath)) {
+        if (!$fileSystemFtp->fileExists($filePath)) {
             throw $this->createNotFoundException('File not found');
         }
 
-        if (unlink($filePath)) {
+            $fileSystemFtp->delete($decodeFilename);
             $entityManager->remove($anlagenReport);
             $entityManager->flush();
-            $anlId = explode('_', $decodeFilename)[1];
-            return $this->redirectToRoute('app_anlage_string_assignment_list',);
-        }
-        return new Response('Failed to delete the file', Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->redirectToRoute('app_analysis_list',);
+
+
     }
 
 }

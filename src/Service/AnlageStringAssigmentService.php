@@ -26,6 +26,7 @@ class AnlageStringAssigmentService
         private readonly LogMessagesService $logMessages,
         private EntityManagerInterface $entityManager,
         private AnlagenRepository $anlagenRepository,
+        private readonly Filesystem $fileSystemFtp
 
     )
     {
@@ -230,8 +231,8 @@ class AnlageStringAssigmentService
 
         $writer = new Xlsx($spreadsheet);
         $currentTimestamp = (new \DateTime())->format('YmdHis');
-        $fileName = "monthly=report_{$anlId}_{$month}_{$year}_{$currentUserName}_{$currentTimestamp}.xlsx";
-        $filePath = $publicDirectory . '/' . $fileName;
+        $fileName = "{$month}_{$year}_{$currentTimestamp}.xlsx";
+        $filepath = $publicDirectory . $fileName ;
 
 
         $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlId]);
@@ -248,10 +249,14 @@ class AnlageStringAssigmentService
         $anlagenReport->setCreatedBy($currentUserName);
 
 
-        if (file_exists($filePath)) {
-            unlink($filePath);
-        }
-       $writer->save($filePath);
+
+        $tempStream = fopen('php://temp', 'r+');
+        $writer->save($tempStream);
+        rewind($tempStream);
+        $this->fileSystemFtp->writeStream($filepath, $tempStream);
+
+        // Close the temporary stream
+        fclose($tempStream);
 
         $this->entityManager->persist($anlagenReport);
         $this->entityManager->flush();
