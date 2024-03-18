@@ -484,4 +484,54 @@ class AnlagenRepository extends ServiceEntityRepository
         return $qb->orderBy('eigner.firma', 'ASC')
             ->addOrderBy('a.anlName', 'ASC');
     }
+
+    public function getOwner(array $eigners = [], array $grantedPlantList = []): QueryBuilder
+    {
+
+
+
+
+
+
+        if ($this->security->isGranted('ROLE_G4N')) {
+            $qb = $this->createQueryBuilder('a')
+                ->innerJoin('a.eigner', 'eigner')
+                ->addSelect('eigner')
+                ->leftJoin('a.economicVarNames', 'varName')
+                ->leftJoin('a.economicVarValues', 'ecoValu')
+                ->leftJoin('a.settings', 'settings')
+                ->addSelect('varName')
+                ->addSelect('ecoValu')
+                ->addSelect('settings')
+                ->addOrderBy('a.anlName', 'ASC');
+            return $qb;
+        }
+
+
+
+        $qb = $this->createQueryBuilder('a')
+            ->andWhere('a.eignerId IN (:eigners) ')
+            ->andWhere('a.anlId IN (:grantedPlantList)')
+            ->setParameter('eigners', $eigners)
+            ->setParameter('grantedPlantList', $grantedPlantList)
+            ->innerJoin('a.eigner', 'eigner')
+            ->addSelect('eigner')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings')
+            ->addOrderBy('a.anlName', 'ASC');
+
+
+
+
+        return $qb;
+    }
+
+
+
+
+
 }

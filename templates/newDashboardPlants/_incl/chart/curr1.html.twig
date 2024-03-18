@@ -1,0 +1,103 @@
+<script>
+    am4core.ready(function() {
+        // Create chart instance
+            am4core.useTheme(am4themes_animated);
+
+        let chart = am4core.create("amchart-holder", am4charts.XYChart);
+        chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+
+        let title = chart.titles.create();
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
+        title.fontSize = 18;
+        title.marginBottom = 30;
+
+        chart.data = {{ content.data|raw }};
+        chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+        chart.numberFormatter.intlLocales = "de-DE";
+        chart.numberFormatter.numberFormat = {
+            "style": "decimal",
+            "minimumFractionDigits": 0
+        };
+
+        // Legend
+        chart.legend = new am4charts.Legend();
+        chart.legend.useDefaultMarker = false;
+
+        // Create axes
+        let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxis.title.text = "{{ content.seriesx.tooltipText }}";
+
+        let valueAxisIrr = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxisIrr.title.text = "Irradiation [[W/m²]]";
+        valueAxisIrr.renderer.opposite = true;
+        valueAxisIrr.renderer.ticks.template.disabled = true;
+        valueAxisIrr.renderer.grid.template.disabled = true;
+        valueAxisIrr.extraMax = 0.1;
+
+
+        // Expected series
+        let seriesE = chart.series.push(new am4charts.LineSeries());
+        seriesE.name = "Expected DC"
+        seriesE.dataFields.dateX = "date";
+        seriesE.dataFields.valueY = "expected";
+        seriesE.tooltipText = "Expected DC: {valueY} [[A]] [/]";
+        seriesE.stroke = am4core.color("#fdd400");
+        seriesE.fill = am4core.color("#fdd400");
+        seriesE.strokeWidth = 1;
+        seriesE.tensionX = 0.8;
+
+        let units = JSON.parse('{{ content.inverterArray | raw  }}');
+
+        // Create series
+        function addSeries(seriesId) {
+            // Create series Actual
+            let series = new am4charts.LineSeries();
+            let newSeriesId = seriesId;
+            series.dataFields.dateX = "date";
+            series.dataFields.valueY = units[newSeriesId];
+            series.name = units[newSeriesId];
+            series.tooltipText = units[newSeriesId] + ": {valueY} [[A]] [/]";
+            series.strokeWidth = 1;
+            series.sequencedInterpolation = false;
+            series.defaultState.transitionDuration = 0;
+            series.tensionX = 0.8;
+            series = chart.series.push(series);
+        }
+
+        for (let i = {{ content.minSeries }}; i <= {{ content.maxSeries }}; i++) {
+            addSeries(i);
+        }
+        let seriesIrr = chart.series.push(new am4charts.LineSeries());
+        seriesIrr.dataFields.dateX = "date";
+        seriesIrr.dataFields.valueY = "irradiation";
+        seriesIrr.name = "Irradiation [[W/m²]]";
+        seriesIrr.tooltipText = "Irradiation : {valueY} [[W/m²]] [/]";
+        seriesIrr.fill = am4core.color("#95018e");
+        seriesIrr.stroke = am4core.color("#95018e");
+        seriesIrr.strokeWidth = 1;
+        //series5Irr.defaultState.transitionDuration = 0;
+        seriesIrr.tensionX = 0.8;
+        seriesIrr.hidden = true;
+        seriesIrr.yAxis = valueAxisIrr;
+        seriesIrr.connect = false;
+
+        chart.cursor = new am4charts.XYCursor();
+        chart.cursor.xAxis = dateAxis;
+        chart.exporting.menu = new am4core.ExportMenu();
+        chart.scrollbarX = new am4core.Scrollbar();
+        chart.scrollbarX.marginBottom = "20"
+        chart.scrollbarY = new am4core.Scrollbar();
+        chart.scrollbarY.marginLeft = "20";
+        chart.exporting.menu.items[0].label = "Download";
+        chart.exporting.formatOptions.getKey("json").disabled = true;
+        chart.exporting.formatOptions.getKey("html").disabled = true;
+        chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+        chart.exporting.formatOptions.getKey("print").disabled = true;
+        chart.exporting.formatOptions.getKey("pdf").disabled = true;
+        chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}to {{ form.to|date("Y-m-d") }})";
+
+
+    }); // end am4core.ready()
+</script>

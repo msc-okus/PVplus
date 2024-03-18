@@ -7,6 +7,7 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketRepository;
+use App\Service\AnlageStringAssigmentService;
 use App\Service\TicketsGeneration\InternalAlertSystemService;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use App\Service\AssetManagementService;
@@ -52,6 +53,13 @@ class DefaultJMController extends AbstractController
         dd($ticket->getInverterName());
     }
 
+    #[NoReturn]
+    #[Route(path: '/test/stringImport', name: 'test_string')]
+    public function stringImport(AnlageStringAssigmentService $stringService){
+        $publicDirectory = $this->getParameter('kernel.project_dir') . "/public/download/anlageString";
+        $stringService->exportMontly("104", "2023","07", "jose", $publicDirectory, "404");
+        dd("hey");
+    }
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2): void
     {

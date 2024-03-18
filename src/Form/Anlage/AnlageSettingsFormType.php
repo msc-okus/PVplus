@@ -264,6 +264,13 @@ class AnlageSettingsFormType extends AbstractType
                 'required' => false,
             ])
 
+            ###### Analysis ######
+            ->add('activateAnalysis', SwitchType::class, [
+                'label'     => 'Enable the Analysis tools for this plant',
+            ])
+            ->add('stringAnalysis', SwitchType::class, [
+                'label'     => 'Enable String Analysis ',
+            ])
         ;
     }
 

@@ -1,0 +1,14 @@
+{% extends 'report/assetreport.base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+<div class="container">
+    {% for table in maintenanceTicketTable %}
+        {% include 'report/_asset_mangement_partials/_maintenace_ticket.html.twig'%}
+    {% endfor %}
+    {% for table in maintenanceUnclosedTicketTable %}
+        {% include 'report/_asset_mangement_partials/_unclosed_maintenace_ticket.html.twig'%}
+    {% endfor %}
+</div>
+{% endblock %}

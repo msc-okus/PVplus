@@ -278,6 +278,51 @@ class TicketRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    public function findAllMaintenanceAnlage(Anlage $anlage, $begin, $end){
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.end <= :end')
+            ->andWhere('t.notified = true')
+            ->andWhere('t.status =  90')
+            ->setParameter('anl', $anlage)
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->getQuery()
+        ;
+
+        return $result->getResult();
+    }
+    public function findAllUnclosedMaintenanceAnlage(Anlage $anlage, $begin, $end){
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.end <= :end')
+            ->andWhere('t.notified = true')
+            ->andWhere('t.status !=  90')
+            ->setParameter('anl', $anlage)
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->getQuery()
+        ;
+
+        return $result->getResult();
+    }
+    public function findAllKpiAnlage(Anlage $anlage, $begin, $end){
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.end <= :end')
+            ->andWhere('t.alertType >= 70')
+            ->andWhere('t.alertType <  80')
+            ->setParameter('anl', $anlage)
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->getQuery()
+        ;
+
+        return $result->getResult();
+    }
     public function findForSafeDelete($anlage, $begin, $end = null)
     {
         if ($end != null)
@@ -466,6 +511,16 @@ class TicketRepository extends ServiceEntityRepository
             ->getQuery();
 
         return $result->getResult();
+    }
+
+    //new Dashboard
+    public  function  findByAnlageId(int $anlageId):array{
+        return $this->createQueryBuilder('t')
+            ->join('t.anlage', 'a')
+            ->where('a.anlId = :anlageId')
+            ->setParameter('anlageId', $anlageId)
+            ->getQuery()
+            ->getResult();
     }
 
 }
