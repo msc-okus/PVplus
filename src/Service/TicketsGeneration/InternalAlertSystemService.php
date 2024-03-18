@@ -3,9 +3,7 @@
 namespace App\Service\TicketsGeneration;
 
 use App\Entity\Anlage;
-use App\Entity\Status;
 use App\Entity\Ticket;
-use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
@@ -15,13 +13,7 @@ use App\Service\MessageService;
 use App\Service\PdoService;
 use App\Service\WeatherFunctionsService;
 use App\Service\WeatherServiceNew;
-use DateTimeZone;
-use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use JetBrains\PhpStorm\ArrayShape;
-use PDO;
-use phpDocumentor\Reflection\Types\Boolean;
 use Psr\Cache\InvalidArgumentException;
 
 class InternalAlertSystemService
@@ -29,16 +21,16 @@ class InternalAlertSystemService
     use G4NTrait;
     private $ticketArray;
     public function __construct(
-        private AnlagenRepository       $anlagenRepository,
-        private WeatherServiceNew       $weather,
-        private WeatherFunctionsService $weatherFunctions,
-        private AnlagenRepository       $AnlRepo,
-        private EntityManagerInterface  $em,
-        private MessageService          $mailservice,
-        private FunctionsService        $functions,
-        private StatusRepository        $statusRepo,
-        private TicketRepository        $ticketRepo,
-        private PdoService              $pdo
+        private readonly AnlagenRepository       $anlagenRepository,
+        private readonly WeatherServiceNew       $weather,
+        private readonly WeatherFunctionsService $weatherFunctions,
+        private readonly AnlagenRepository       $AnlRepo,
+        private readonly EntityManagerInterface  $em,
+        private readonly MessageService          $mailservice,
+        private readonly FunctionsService        $functions,
+        private readonly StatusRepository        $statusRepo,
+        private readonly TicketRepository        $ticketRepo,
+        private readonly PdoService              $pdo
     ){
     }
 
@@ -52,13 +44,14 @@ class InternalAlertSystemService
      * @param Anlage $anlage
      * @param string $time
      * @return string
+     * @throws InvalidArgumentException
      */
     public function checkSystem(Anlage $anlage, string $time): string
     {
         $timeStamp = strtotime($time);
 
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', $timeStamp));
-        $time = G4NTrait::timeAjustment($timeStamp, -2);
+        $time = self::timeAjustment($timeStamp, -2);
         if (($time > $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
                 $plant_status = self::RetrievePlant($anlage, date('Y-m-d H:i:00', strtotime($time)));
                 if ($plant_status['countIrr'] == true) $this->generateTickets(91, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");

@@ -313,15 +313,4 @@ trait TicketTrait
         $this->kpiPaDep3 = $kpiPaDep3;
         return $this;
     }
-
-    public function getInverter(): string
-    {
-        return $this->inverter;
-    }
-
-    public function setInverter(string $inverter): void
-    {
-        $this->inverter = $inverter;
-    }
-
 }

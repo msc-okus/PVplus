@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Status;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,6 +20,9 @@ class StatusRepository extends ServiceEntityRepository
         parent::__construct($registry, Status::class);
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function findOneByanlageDate($anlage, $date, $isWeather)
     {
         return $this->createQueryBuilder('s')
@@ -33,6 +37,9 @@ class StatusRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function findLastOfDay($anlage, $yesterday, $today, $isWeather)
     {
         return $this->createQueryBuilder('s')
@@ -50,32 +57,5 @@ class StatusRepository extends ServiceEntityRepository
             ->getOneOrNullResult()
         ;
     }
-    // /**
-    //  * @return Status[] Returns an array of Status objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Status
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
