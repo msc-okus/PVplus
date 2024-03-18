@@ -252,13 +252,20 @@ class AnlageStringAssignmentController extends AbstractController
     }
 
 
-    #[Route('/analysis/{fileName}/{id}', name: 'app_analysis_delete_file')]
-    public function deleteFile( $fileName, $id,EntityManagerInterface $entityManager,Filesystem $fileSystemFtp): Response
+    #[Route('/analysis/delete', name: 'app_analysis_delete_file')]
+    public function deleteFile( EntityManagerInterface $entityManager,Filesystem $fileSystemFtp,Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository): Response
     {
+
+        $reportId=  $request->query->get('reportId');
+        $fileName=  $request->query->get('filename');
+        $anlage = $request->query->get('anlage');
+        $searchmonth = $request->query->get('searchmonth');
+        $searchyear = $request->query->get('searchyear');
+
 
         $decodeFilename = urldecode($fileName);
         $anlagenReportRepository = $entityManager->getRepository(AnlagenReports::class);
-        $anlagenReport = $anlagenReportRepository->find($id);
+        $anlagenReport = $anlagenReportRepository->find($reportId);
         if (!$anlagenReport) {
             throw $this->createNotFoundException('AnlagenReport not found');
         }
@@ -274,7 +281,24 @@ class AnlageStringAssignmentController extends AbstractController
             $fileSystemFtp->delete($decodeFilename);
             $entityManager->remove($anlagenReport);
             $entityManager->flush();
-            return $this->redirectToRoute('app_analysis_list',);
+
+
+        $queryBuilder = $reportsRepository->getWithSearchQueryBuilderAnlageString($anlage, $searchmonth, $searchyear);
+        $page = $request->query->getInt('page', 1);
+
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $page,
+            20
+        );
+        return $this->render('anlage_string_assignment/tab_report.html.twig', [
+            'reports' => $pagination,
+            'searchyear' => $searchyear,
+            'month'      => $searchmonth,
+            'anlage'     => $anlage,
+        ]);
+
+
 
 
     }

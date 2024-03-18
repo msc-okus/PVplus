@@ -6,6 +6,7 @@
 {% block body %}
     <div {{ stimulus_controller('anlagestring', {
         urlSearch: path('app_analysis_list_search'),
+        urlDelete: path('app_analysis_delete_file')
     }) }}>
         <div data-anlagestring-target="modal" style="display: none;position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, 0.5);z-index: 999;">
             <div style="margin: 20% auto;">

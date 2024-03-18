@@ -40,9 +40,9 @@
                                             <span class="fa fa-file-export"></span>
                                         </a>
 
-                                        <a href="{{ path('app_analysis_delete_file', { fileName: report.file|url_encode, id: report.id }) }}" class="hollow alert button tiny action-icon shadow">
+                                        <button  data-action="click->anlagestring#delete"  data-anlagestring-fileName="{{ report.file|url_encode }}" data-anlagestring-reportid="{{ report.id }}" class="hollow alert button tiny action-icon shadow">
                                             <span class="fa fa-trash-alt"></span>
-                                        </a>
+                                        </button>
 
                                     </div>
                                 </td>
