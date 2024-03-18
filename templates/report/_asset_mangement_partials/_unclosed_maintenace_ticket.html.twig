@@ -1,0 +1,49 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Unclosed Maintenance Tickets summary</h3>
+
+    <table class="asset_report_table_operations_data" >
+        <thead>
+        <tr>
+            <th class="table-center"> Ticket Id</th>
+            <th class="table-center"> Begin</th>
+            <th class="table-center"> Reparation Begin</th>
+            <th class="table-center"> Reparation End</th>
+            <th class="table-center"> End</th>
+            <th class="table-center"> Ticket Type</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for table_row in table %}
+            <tr>
+                <td class="tr_next_columns">{{ table_row.id }}</td>
+                {% if (table_row.begin != " - ") %}
+                    <td class="tr_next_columns">{{ table_row.begin|date("Y-m-d H:i") }}</td>
+                {% else %}
+                    <td class="tr_next_columns">{{ table_row.begin }}</td>
+                {% endif %}
+                {% if (table_row.reparationBegin != " - ") %}
+                    <td class="tr_next_columns">{{ table_row.reparationBegin|date("Y-m-d H:i") }}</td>
+                {% else %}
+                    <td class="tr_next_columns">{{ table_row.reparationBegin }}</td>
+                {% endif %}
+                {% if (table_row.reparationEnd != " - ") %}
+                    <td class="tr_next_columns">{{ table_row.reparationEnd|date("Y-m-d H:i") }}</td>
+                {% else %}
+                    <td class="tr_next_columns">{{ table_row.reparationEnd }}</td>
+                {% endif %}
+                {% if (table_row.end != " - ") %}
+                    <td class="tr_next_columns">{{ table_row.end|date("Y-m-d H:i")  }}</td>
+                {% else %}
+                    <td class="tr_next_columns">{{ table_row.end  }}</td>
+                {% endif %}
+                <td class="tr_next_columns">  {% set errcat %}ticket.error.category.{{ table_row.type }}{% endset %}
+                    {{ errcat|trans }}</td>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

@@ -23,10 +23,7 @@ class TimesConfigRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param Anlage $anlage
-     * @param $type
-     * @param \DateTime $date
-     * @return TimesConfig|null Returns an array of TimesConfig objects
+     * @return TimesConfig Returns an array of TimesConfig objects
      */
     public function findValidConfig(Anlage $anlage, $type, \DateTime $date): TimesConfig|null
     {
