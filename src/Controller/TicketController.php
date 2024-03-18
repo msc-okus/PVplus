@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\Anlage;
 use App\Entity\NotificationInfo;
 use App\Entity\Ticket;
-use App\Entity\ticketDate;
+use App\Entity\TicketDate;
 use App\Form\Notification\NotificationConfirmFormType;
 use App\Form\Notification\NotificationEditFormType;
 use App\Form\Ticket\TicketFormType;
@@ -45,17 +45,18 @@ class TicketController extends BaseController
      * @throws InvalidArgumentException
      */
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
-    public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions, AcGroupsRepository $acRepo): Response
+    public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): Response
     {
+        var_dump($request->query->get('anlage'));
         if ($request->query->get('anlage') !== null) {
             $anlage = $anlRepo->find($request->query->get('anlage'));
         } else {
             $anlage = null;
         }
+
         if ($anlage != null) {
             $trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
-
         if ($anlage) {
             $ticket = new Ticket();
             $ticket->setAnlage($anlage);
@@ -64,6 +65,7 @@ class TicketController extends BaseController
                 ->setEnd(date_create(date('Y-m-d H:i:s', (time() - time() % 900) + 900)))
                 ->setAlertType(0);
             $ticketDate = new TicketDate();
+
             $ticketDate
                 ->setBegin($ticket->getBegin())
                 ->setEnd($ticket->getEnd())
@@ -93,7 +95,6 @@ class TicketController extends BaseController
         } elseif ($form->isSubmitted() && !$form->isValid()) {
             $anlage = $form->getData()->getAnlage();
         }
-
         $nameArray = $anlage->getInverterFromAnlage();
         $inverterArray = [];
         $namesSensors = $anlage->getSensors();
@@ -120,7 +121,7 @@ class TicketController extends BaseController
             'invArray' => $inverterArray,
             'sensorArray' => $sensorArray,
             'performanceTicket' => false,
-            'trafoArray' => $trafoArray
+            'trafoArray'    => $trafoArray,
         ]);
     }
 

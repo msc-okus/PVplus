@@ -27,50 +27,9 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
-    /**
-     * Build query with all options, including 'has user rights to see'
-     * OLD VERSION.
-     *
-     * @deprecated
-     */
-    public function getWithSearchQueryBuilder(?string $status, ?string $editor, ?string $anlage, ?string $id, ?string $prio, ?string $inverter): QueryBuilder
-    {
-        /** @var User $user */
-        $user = $this->security->getUser();
-        $granted = explode(',', $user->getGrantedList());
-
-        $qb = $this->createQueryBuilder('ticket')
-            ->innerJoin('ticket.anlage', 'a')
-            ->addSelect('a')
-        ;
-        if (!$this->security->isGranted('ROLE_G4N')) {
-            $qb
-                ->andWhere('a.anlId IN (:plantList)')
-                ->setParameter('plantList', $granted)
-            ;
-        }
-        if ($status != '' && $status != '00') {
-            $qb->andWhere("ticket.status = $status");
-        }
-        if ($editor != '') {
-            $qb->andWhere("ticket.editor = '$editor'");
-        }
-        if ($anlage != '') {
-            $qb->andWhere("a.anlName LIKE '$anlage'");
-        }
-        if ($id != '') {
-            $qb->andWhere("ticket.id = '$id'");
-        }
-        if ($prio != '' && $prio != '00') {
-            $qb->andWhere("ticket.priority = '$prio'");
-        }
-
-        return $qb;
-    }
 
     public function findAllPerformanceTicketFAC(Anlage $anlage)
     {
-
         $q = $this->createQueryBuilder('t')
             ->andWhere('t.anlage = :anlId')
             ->andWhere('t.begin >= :facStart and t.begin <= :facEnd')
@@ -158,6 +117,7 @@ class TicketRepository extends ServiceEntityRepository
         }
         return $result->getQuery()->getResult()[0][1];
     }
+
     public function countByProofMaintenance(){
         $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
@@ -173,6 +133,7 @@ class TicketRepository extends ServiceEntityRepository
         }
         return $result->getQuery()->getResult()[0][1];
     }
+
     public function countIgnored(){
 
         $granted =  $this->anlRepo->findAllActiveAndAllowed();

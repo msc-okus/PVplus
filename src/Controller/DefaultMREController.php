@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityByTicketService;
@@ -32,9 +33,23 @@ class DefaultMREController extends BaseController
     {
     }
 
+    #[Route(path: '/mr/test')]
+    public function test(): Response
+    {
+        $ticketDate = new TicketDate();
+        dd($ticketDate);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Update Systemstatus',
+            'availabilitys' => '',
+            'output' => $checkSystemStatus->checkSystemStatus(),
+        ]);
+    }
+
     #[Route(path: '/mr/status')]
     public function updateStatus(CheckSystemStatusService $checkSystemStatus): Response
     {
+
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
             'availabilitys' => '',

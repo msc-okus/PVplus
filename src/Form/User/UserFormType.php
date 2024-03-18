@@ -40,7 +40,7 @@ class UserFormType extends AbstractType
         if ($this->security->isGranted('ROLE_G4N')){
             $eigner = null;
         } else {
-            $eigner = $this?->security->getUser()?->getEigners()[0];
+            $eigner = $this->security->getUser()->getEigners()[0];
         }
         //find selected eigner id
         $sel_eigner = $user?->getEigners()[0];
@@ -63,11 +63,10 @@ class UserFormType extends AbstractType
             }
         }
 
-
        if ($this->security->isGranted('ROLE_G4N')){
            $choicesRolesArray = [...User::ARRAY_OF_G4N_ROLES, ...User::ARRAY_OF_ROLES_USER, ...User::ARRAY_OF_FUNCTIONS_BY_ROLE];
        } else {
-           $choicesRolesArray = [...User::ARRAY_OF_ROLES_USER, ...$user->getRolesArrayByFeature()];
+           $choicesRolesArray = [...User::ARRAY_OF_ROLES_USER, ...$this->security->getUser()->getRolesArrayByFeature()];
        }
 
        $singlechoince = [$eigner?->getFirma() => $eigner?->getId()];

@@ -740,7 +740,7 @@ class Anlage implements \Stringable
     }
 
 
-    public function getDatFilename()
+    public function getDatFilename(): ?string
     {
         return $this->datFilename;
     }
