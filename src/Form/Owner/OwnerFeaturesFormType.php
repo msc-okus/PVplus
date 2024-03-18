@@ -32,15 +32,19 @@ class OwnerFeaturesFormType extends AbstractType
             ])
             ->add('SplitInverter', SwitchType::class, [
                 'label'     => 'Split by Inverter',
-                'help'      => '[SplitInverter]<br>Ticket feature - Split ticket by inverter'
+                'help'      => '[SplitInverter]<br>Ticket feature - Split ticket by inverter (on/off)'
             ])
             ->add('SplitGap', SwitchType::class, [
                 'label'     => 'Split by Time',
-                'help'      => '[SplitGap]<br>Ticket feature - Split ticket by time'
+                'help'      => '[SplitGap]<br>Ticket feature - Split ticket by time (on/off)'
             ])
             ->add('manAktive', SwitchType::class, [
                 'label'     => 'Aktivate Maintenance Contact',
-                'help'      => '[ManAktive]<br>Aktivate the maintenance contact function [on/off] ',
+                'help'      => '[ManAktive]<br>Aktivate the maintenance contact function (on/off) ',
+            ])
+            ->add('amStringAnalyseAktive', SwitchType::class, [
+                'label'     => 'AM String Analyse',
+                'help'      => '[amStringAnalyseAktive]<br>Aktivate the Asset Management String Analyse (on/off) ',
             ])
         ;
     }

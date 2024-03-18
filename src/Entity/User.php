@@ -58,13 +58,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     final public const ARRAY_OF_G4N_ROLES = [
-        'Developer'         => 'ROLE_DEV',
-        'Admin'             => 'ROLE_ADMIN',
-        'Green4Net User'    => 'ROLE_G4N',
-        'API (full)'        => 'ROLE_API_FULL_USER',
-        'API '              => 'ROLE_API_USER',
-        'Beta Tester'       => 'ROLE_BETA',
-        'Admin Owner'       => 'ROLE_OWNER_ADMIN',
+        'Developer'             => 'ROLE_DEV',
+        'Admin'                 => 'ROLE_ADMIN',
+        'Green4Net User'        => 'ROLE_G4N',
+        'API (full)'            => 'ROLE_API_FULL_USER',
+        'API '                  => 'ROLE_API_USER',
+        'Beta Tester'           => 'ROLE_BETA',
+        'Admin Owner'           => 'ROLE_OWNER_ADMIN',
+        'AM String Analyse'     => 'ROLE_AM_STRING_ANALYSE',
     ];
     final public const ARRAY_OF_ROLES_USER = [
         'Owner (full)'      => 'ROLE_OWNER_FULL',
@@ -72,10 +73,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     ];
 
     final public const ARRAY_OF_FUNCTIONS_BY_ROLE = [
-        'Asset Management'  => 'ROLE_AM',
-        'Analyse'           => 'ROLE_ANALYSE',
-        'Ticket User'       => 'ROLE_TICKET',
-        'Maintance Repair Order System (MRO)' => 'ROLE_MRO',
+        'Asset Management'                      => 'ROLE_AM',
+        'Analyse'                               => 'ROLE_ANALYSE',
+        'Ticket User'                           => 'ROLE_TICKET',
+        'Maintance Repair Order System (MRO)'   => 'ROLE_MRO',
     ];
 
     #[Groups(['user:read'])]
@@ -463,8 +464,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
          * @var Eigner $owner
          */
         $owner = $this->getEigners()[0];
-        if ($owner->getFeatures()->isManAktive()) {
+        if ($owner->getFeatures()->isMroAktive()) {
             $roles['Maintance Repair Order System (MRO)'] = 'ROLE_MRO';
+        }
+        if ($owner->getFeatures()->isAmStringAnalyseAktive()) {
+            $roles['AM String Analyse'] = 'ROLE_AM_STRING_ANALYSE';
         }
 
         return $roles;

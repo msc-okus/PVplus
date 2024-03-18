@@ -28,6 +28,7 @@ security:
         # Feature Roles (NOT hierarchical)
         ROLE_BETA: []
         ROLE_AM: []
+        ROLE_AM_STRING_ANALYSE: []
         ROLE_ANALYSE: []
         ROLE_TICKET: []
         ROLE_MRO: []
