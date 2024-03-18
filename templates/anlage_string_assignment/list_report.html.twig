@@ -10,10 +10,13 @@
     }) }}>
         <div data-anlagestring-target="modal" style="display: none;position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, 0.5);z-index: 999;">
             <div style="margin: 20% auto;">
-                <img src="/images/loading.gif" width="300" height="300" style="display: block; margin: 0 auto;">
+                <img src="{{ asset('/images/loader.gif') }}" class="img-responsive" alt="loader"  width="300" height="300" style="display: block; margin: 0 auto;">
             </div>
         </div>
         <h1>List Report</h1>
+        <div data-anlagestring-target="popup" style="display: none;justify-content: center;" class="callout primary">
+            <span>The process of generation commenced ...</span>
+        </div>
         <div class="grid-x  " style="padding-top: 20px; padding-bottom: 20px; border-top: 1px solid #5858fc; border-bottom: 1px solid #5858fc;">
             <div class="cell ">
                 <div class="grid-x grid-padding-x">
@@ -33,7 +36,7 @@
                         </div>
                         {{ form_end(uploadForm) }}
                     </div>
-                    <div class="cell small-12 medium-6">
+                    <div class="cell small-12 medium-6" data-anlagestring-target="createForm">
                         <h4>Generate new Report:</h4>
                 {{ form_start(createForm) }}
 
