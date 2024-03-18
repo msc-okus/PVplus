@@ -842,7 +842,8 @@ class ACPowerChartsService
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $pnominverter = $anlage->getPnomInverterArray();
-        $counter = 0;$counterInv = 0;
+        $counter = 0;
+        $counterInv = 0;
 
         // make the difference in time format
         $from = self::timeAjustment($from, $anlage->getAnlZeitzone());

@@ -82,9 +82,6 @@ export default class extends Controller {
         let chekedInverters = '';
         let chekedInverterIds = '';
         let temp= '';
-
-        console.log(' a b    c d e   f g   '.replaceAll(' ',''));
-
         body.find('input:checkbox[class=js-checkbox]').each(function () {
             if($(this).prop('checked')){
                 chekedInverters = chekedInverters+$(this).attr('name')+',';
@@ -92,7 +89,6 @@ export default class extends Controller {
                 temp = temp.replaceAll('.','_')
                 chekedInverterIds = chekedInverterIds+$("#"+temp).val()+',';
             }
-
         });
         chekedInverters = chekedInverters.slice(0, -1);
         chekedInverterIds = chekedInverterIds.slice(0, -1);

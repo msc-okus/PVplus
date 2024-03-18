@@ -539,7 +539,7 @@ class ChartService
                     break;
 
                 case 'dcpnomcurr':
-                    $dataArray = $this->currentChart->getNomCurrentGroupDC($anlage, $from, $to, $form['selectedSet']);
+                    $dataArray = $this->currentChart->getNomCurrentGroupDC($anlage, $from, $to, $form['invnames']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'DC Current Inverter normalized';
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -548,7 +548,7 @@ class ChartService
                     $resultArray['SeriesNameArray'] = json_encode($dataArray['SeriesNameArray']);
                     break;
                 case 'heatmap':
-                    $dataArray = $this->heatmapChartService->getHeatmap($anlage, $from, $to, $form['selectedSet']);
+                    $dataArray = $this->heatmapChartService->getHeatmap($anlage, $from, $to, $form['invnames']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Inverter PR Heatmap [[%]]';
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -556,7 +556,9 @@ class ChartService
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
                     break;
                 case 'tempheatmap':
-                    $dataArray = $this->tempheatmapChartService->getTempHeatmap($anlage, $from, $to, $form['selectedSet']);
+                    $dataArray = $this->tempheatmapChartService->getTempHeatmap($anlage, $from, $to, $form['invnames']);
+                    echo 'efeweasd';
+                    exit;
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Inverter Temperature Heatmap [[°C]]';
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -564,7 +566,7 @@ class ChartService
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
                     break;
                 case 'sollistheatmap':
-                    $dataArray = $this->sollistheatmapChartService->getSollIstHeatmap($anlage, $from, $to, $form['selectedSet']);
+                    $dataArray = $this->sollistheatmapChartService->getSollIstHeatmap($anlage, $from, $to, $form['invnames']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'DC Current Heatmap';
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];

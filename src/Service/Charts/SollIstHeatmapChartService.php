@@ -71,23 +71,46 @@ class SollIstHeatmapChartService
 
         // fix the sql Query with an select statement in the join this is much faster
         if ($anlage->getUseNewDcSchema()) {
-            $nameArray = $this->functions->getNameArray($anlage, 'dc');
-            $groupct = count($anlage->getGroupsDc());
+
+            $group = 'group_ac';
+            $nameArray = $this->functions->getNameArray($anlage, 'ac');
+            $idArray = $this->functions->getIdArray($anlage, 'ac');
+
+            $groupct = count($nameArray);
             if ($groupct) {
                 if ($sets == null) {
                     $min = 1;
                     $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
+
+                    $temp = '';
+                    $j = 1;
+                    for ($i = 0; $i < $max; ++$i) {
+                        $invId = $i+1;
+                        $temp = $temp.$group." = ".$invId." OR ";
+                        $invIdArray[$i+1] =  $idArray[$i+1];
+                        $invNameArray[$i+1] =  $nameArray[$i+1];
+                    }
+
+                    $temp = substr($temp, 0, -4);
+                    $sqladd = "AND ($temp) ";
+
                     $max = (($max > 50) ? '50' : $max);
-                    $sqladd = "AND c.wr_group BETWEEN '$min' AND '$max'";
-                    $sqladb = "AND b.group_dc BETWEEN '$min' AND '$max '";
+                    $sqladd = "AND $group BETWEEN '$min' AND '$max'";
                 } else {
-                    $res = explode(',', $sets);
-                    $min = (int)ltrim($res[0], "[");
-                    $max = (int)rtrim($res[1], "]");
-                    (($max > $groupct) ? $max = $groupct:$max = $max);
-                    (($groupct > $min) ? $min = $min:$min = 1);
-                    $sqladd = "AND c.wr_group BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
-                    $sqladb = "AND b.group_dc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
+                    $temp = '';
+                    $j = 1;
+                    for ($i = 0; $i < count($nameArray); ++$i) {
+                        if(str_contains($sets, $nameArray[$i+1])){
+                            $invId = $i+1;
+                            $temp = $temp.$group." = ".$invId." OR ";
+                            $invIdArray[$i+1] =  $idArray[$i+1];
+                            $invNameArray[$j] =  $nameArray[$i+1];
+                            $j++;
+                        }
+                    }
+
+                    $temp = substr($temp, 0, -4);
+                    $sqladd = "AND ($temp) ";
                 }
             } else {
                 $min = 1;
@@ -118,6 +141,7 @@ class SollIstHeatmapChartService
                 on (as1.ts = as2.ts and as1.inv = as2.grp_dc)";
 
         } else {
+
             $nameArray = $this->functions->getNameArray($anlage, 'dc');
             $groupct = count($anlage->getGroupsDc());
             if ($groupct) {
@@ -165,8 +189,8 @@ class SollIstHeatmapChartService
                 on (as1.ts = as2.ts and as1.inv = as2.group_dc);";
         }
 //
-        $dataArray['minSeries'] = $min;
-        $dataArray['maxSeries'] = $max;
+        $dataArray['invNames'] = $invNameArray;
+        $dataArray['invIds'] = $invIdArray;
         $dataArray['sumSeries'] = $groupct;
 
         $resultActual = $conn->query($sql);
@@ -200,6 +224,7 @@ class SollIstHeatmapChartService
                 $dataArray['chart'][$counter]['istkwh'] =  $poweristkwh ;
                 */
                 ++$counter;
+                ++$counterInv;
             }
             $dataArray['offsetLegend'] = 0;
         }

@@ -452,6 +452,38 @@
                     <input type="hidden" id="invnames" name="selectedSet" value="0">
                 {% endif %}
             {% endif %}
+            <div class="cell medium-1 large-1 xlarge-1">
+                {% if (form.selectedChart != 'availability')
+                    and (form.selectedChart != 'acpnom')
+                    and (form.selectedChart != 'dcpnomcurr')
+                    and (form.selectedChart != 'pr_and_av')
+                    and (form.selectedChart != 'forecast')
+                    and (form.selectedChart != 'forecast_dayahead')
+                    and (form.selectedChart != 'status_log')
+                    and (form.selectedChart != 'pvsyst')
+                    and (form.selectedChart != 'heatmap')
+                    and (form.selectedChart != 'tempheatmap')
+                    and (form.selectedChart != 'sollistanalyse')
+                    and (form.selectedChart != 'sollistirranalyse')
+                    and (form.selectedChart != 'sollisttempanalyse')
+                    and (form.selectedChart != 'sollistheatmap')
+                    and (form.selectedChart != 'grid') %}
+                    {% if is_granted('ROLE_G4N') %}
+                        <div class="test">
+                            <div class="switch tiny align-center-middle">
+                                <label class="" style="line-height: 1;"><small>Interval min.</small></label>
+                                <input class="switch-input js-submit-onchange" id="hour" type="checkbox"
+                                       name="hour" {% if form.hour == true %} checked {% endif %}>
+                                <label class="switch-paddle" for="hour">
+                                    <span class="show-for-sr"></span>
+                                    <span class="switch-active" aria-hidden="true">60</span>
+                                    <span class="switch-inactive" aria-hidden="true">15</span>
+                                </label>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
         </div>
 
 
@@ -509,34 +541,5 @@
         </div>
     {% endif %}
 
-    {% if (form.selectedChart != 'availability')
-        and (form.selectedChart != 'acpnom')
-        and (form.selectedChart != 'dcpnomcurr')
-        and (form.selectedChart != 'pr_and_av')
-        and (form.selectedChart != 'forecast')
-        and (form.selectedChart != 'forecast_dayahead')
-        and (form.selectedChart != 'status_log')
-        and (form.selectedChart != 'pvsyst')
-        and (form.selectedChart != 'heatmap')
-        and (form.selectedChart != 'tempheatmap')
-        and (form.selectedChart != 'sollistanalyse')
-        and (form.selectedChart != 'sollistirranalyse')
-        and (form.selectedChart != 'sollisttempanalyse')
-        and (form.selectedChart != 'sollistheatmap')
-        and (form.selectedChart != 'grid') %}
-        {% if is_granted('ROLE_G4N') %}
-        <div class="cell medium-1 large-1 xlarge-1">
-            <div class="switch tiny align-center-middle">
-                <label class="" style="line-height: 1;"><small>Interval min.</small></label>
-                <input class="switch-input js-submit-onchange" id="hour" type="checkbox"
-                       name="hour" {% if form.hour == true %} checked {% endif %}>
-                <label class="switch-paddle" for="hour">
-                    <span class="show-for-sr"></span>
-                    <span class="switch-active" aria-hidden="true">60</span>
-                    <span class="switch-inactive" aria-hidden="true">15</span>
-                </label>
-            </div>
-        </div>
-        {% endif %}
-    {% endif %}
+
 </div>
