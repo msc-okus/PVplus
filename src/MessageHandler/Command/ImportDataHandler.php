@@ -66,8 +66,8 @@ class ImportDataHandler
             }
             $this->logMessages->updateEntry($logId, 'done',100);
         } else {
-            $this->logMessages->updateEntry($logId, 'working (ext)', 0);
-            $this->externFileService->callImportDataFromApiManuel($path, $importType, $importData->getStartDate()->getTimestamp(), $importData->getEndDate()->getTimestamp(), $logId);
+            $this->logMessages->updateEntry($logId, "preparing", 0);
+            $this->externFileService->callImportDataFromApiManuel($anlage->getPathToImportScript(), $importType, $importData->getStartDate()->getTimestamp(), $importData->getEndDate()->getTimestamp(), $logId);
         }
     }
 }

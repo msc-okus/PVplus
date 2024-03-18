@@ -74,13 +74,14 @@ class SensorService
             switch ($ticketDate->getTicket()->getAlertType()) {
                 // Exclude Sensors
                 case '70':
-                    // Funktioniert in der ersten Version nur für Leek und Kampen
-                    // es fehlt die Möglichkeit die gemittelte Strahlung, automatisiert aus den Sensoren zu berechnen
                     // ToDo: Sensor Daten müssen zur Wetter DB umgezogen werden, dann Code anpassen
 
                     // Search for sensor (irr) values in ac_ist database
                     $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
                     $sensorArrays = $this->weatherFunctionsService->getSensors($anlage, $tempStartDate, $tempEndDate);
+                    $intervallPAs = $this->weatherFunctionsService->getIntervallPA($anlage, $tempStartDateMinus15, $tempEndDateMinus15);
+
+                    /* deprecated
                     $sensorSum = [];
                     foreach ($sensorArrays as $sensorArray){
                         foreach ($sensorArray as $key => $sensorVal) {
@@ -88,52 +89,74 @@ class SensorService
                             $sensorSum[$key] += $sensorVal;
                         }
                     }
+                    */
 
                     // ermitteln welche Sensoren excludiert werden sollen
                     $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
-                    foreach ($anlage->getSensorsInUse() as $sensor) {
-                        if (!str_contains($ticketDate->getSensors(), $sensor->getNameShort())){
-                            switch ($sensor->getVirtualSensor()){
-                                case 'irr-hori':
-                                    $mittelwertPyrHoriArray[] = $sensorSum[$sensor->getNameShort()];
-                                    break;
-                                case 'irr':
-                                    $mittelwertPyroArray[] = $sensorSum[$sensor->getNameShort()];
-                                    break;
-                                case 'irr-east':
-                                    $mittelwertPyroEastArray[] = $sensorSum[$sensor->getNameShort()];
-                                    break;
-                                case 'irr-west':
-                                    $mittelwertPyroWestArray[] = $sensorSum[$sensor->getNameShort()];
-                                    break;
+                    $sensorsInUse = $anlage->getSensorsInUse();
+
+                    foreach($sensorArrays as $stamp => $sensorArray) {
+                        $countIrrHori = $countIrr = $countIrrEast = $countIrrWest = 0;
+                        foreach ($sensorsInUse as $sensor) {
+                            if (!str_contains($ticketDate->getSensors(), $sensor->getNameShort())) {
+                                switch ($sensor->getVirtualSensor()) {
+                                    case 'irr-hori':
+                                        $mittelwertPyrHoriArray[$stamp] += $sensorArray[$sensor->getNameShort()];
+                                        $countIrrHori++;
+                                        break;
+                                    case 'irr':
+                                        $mittelwertPyroArray[$stamp] += $sensorArray[$sensor->getNameShort()];
+                                        $countIrr++;
+                                        break;
+                                    case 'irr-east':
+                                        $mittelwertPyroEastArray[$stamp] += $sensorArray[$sensor->getNameShort()];
+                                        $countIrrEast++;
+                                        break;
+                                    case 'irr-west':
+                                        $mittelwertPyroWestArray[$stamp] += $sensorArray[$sensor->getNameShort()];
+                                        $countIrrWest++;
+                                        break;
+                                }
                             }
                         }
+                        $mittelwertPyrHoriArray[$stamp] = $countIrrHori > 0 ? $mittelwertPyrHoriArray[$stamp] / $countIrrHori : 0;
+                        $mittelwertPyroArray[$stamp] = $countIrr > 0 ? $mittelwertPyroArray[$stamp] / $countIrr : 0;
+                        $mittelwertPyroEastArray[$stamp] = $countIrrEast > 0 ? $mittelwertPyroEastArray[$stamp] / $countIrrEast : 0;
+                        $mittelwertPyroWestArray[$stamp] = $countIrrWest > 0 ? $mittelwertPyroWestArray[$stamp] / $countIrrWest : 0;
                     }
+
                     // erechne neuen Mittelwert aus den Sensoren die genutzt werden sollen
-                    $replaceArray['horizontalIrr']  = self::mittelwert($mittelwertPyrHoriArray);
-                    $replaceArray['irrModul']       = self::mittelwert($mittelwertPyroArray);
-                    $replaceArray['irrEast']        = self::mittelwert($mittelwertPyroEastArray);
-                    $replaceArray['irrWest']        = self::mittelwert($mittelwertPyroWestArray);
+                    $replaceArray['horizontalIrr']  = array_sum($mittelwertPyrHoriArray);//self::mittelwert($mittelwertPyrHoriArray);
+                    $replaceArray['irrModul']       = array_sum($mittelwertPyroArray);//self::mittelwert($mittelwertPyroArray);
+                    $replaceArray['irrEast']        = array_sum($mittelwertPyroEastArray);//self::mittelwert($mittelwertPyroEastArray);
+                    $replaceArray['irrWest']        = array_sum($mittelwertPyroWestArray);//self::mittelwert($mittelwertPyroWestArray);
 
-                    ##########################
-                    ### TODO: Bessere Lösung suchen, da die nicht funktioniert wenn lange Zeiträume ausgeschlossen werden die PA < 100 haben
-                    ##########################
-                    if($anlage->getPrFormular0() != 'Veendam') $pa0 = 1;
-                    if($anlage->getPrFormular1() != 'Veendam') $pa1 = 1;
-                    if($anlage->getPrFormular2() != 'Veendam') $pa2 = 1;
-                    if($anlage->getPrFormular3() != 'Veendam') $pa3 = 1;
 
-                    if ($anlage->getIsOstWestAnlage()){
-                        $replaceArray['theoPowerPA0']   = (($replaceArray['irrEast'] * $anlage->getPowerEast() + $replaceArray['irrWest'] * $anlage->getPowerWest()) / 4000) * ($pa0 / 100);
-                        $replaceArray['theoPowerPA1']   = (($replaceArray['irrEast'] * $anlage->getPowerEast() + $replaceArray['irrWest'] * $anlage->getPowerWest()) / 4000) * ($pa1 / 100);
-                        $replaceArray['theoPowerPA2']   = (($replaceArray['irrEast'] * $anlage->getPowerEast() + $replaceArray['irrWest'] * $anlage->getPowerWest()) / 4000) * ($pa2 / 100);
-                        $replaceArray['theoPowerPA3']   = (($replaceArray['irrEast'] * $anlage->getPowerEast() + $replaceArray['irrWest'] * $anlage->getPowerWest()) / 4000) * ($pa3 / 100);
-                    } else {
-                        $replaceArray['theoPowerPA0']   = (($replaceArray['irrModul'] * $anlage->getPnom()) / 4000) * ($pa0 / 100);
-                        $replaceArray['theoPowerPA1']   = (($replaceArray['irrModul'] * $anlage->getPnom()) / 4000) * ($pa1 / 100);
-                        $replaceArray['theoPowerPA2']   = (($replaceArray['irrModul'] * $anlage->getPnom()) / 4000) * ($pa2 / 100);
-                        $replaceArray['theoPowerPA3']   = (($replaceArray['irrModul'] * $anlage->getPnom()) / 4000) * ($pa3 / 100);
+
+                    // Theoretische Leistung berechnen unter berücksichtigung des PA
+                    foreach ($intervallPAs as $stamp => $intervallPA) {
+                        // fallback Werte falls PA nicht berechnet
+                        if ($anlage->getPrFormular0() != 'Veendam') $intervallPA['pa0'] = 1;
+                        if ($anlage->getPrFormular1() != 'Veendam') $intervallPA['pa1'] = 1;
+                        if ($anlage->getPrFormular2() != 'Veendam') $intervallPA['pa2'] = 1;
+                        if ($anlage->getPrFormular3() != 'Veendam') $intervallPA['pa3'] = 1;
+                        if ($anlage->getIsOstWestAnlage()) {
+                            $replaceArray['theoPowerPA0'] += (($mittelwertPyroEastArray[$stamp] * $anlage->getPowerEast()) + ($mittelwertPyroWestArray[$stamp] * $anlage->getPowerWest()))  * $intervallPA['pa0'];
+                            $replaceArray['theoPowerPA1'] += (($mittelwertPyroEastArray[$stamp] * $anlage->getPowerEast()) + ($mittelwertPyroWestArray[$stamp] * $anlage->getPowerWest()))  * $intervallPA['pa1'];
+                            $replaceArray['theoPowerPA2'] += (($mittelwertPyroEastArray[$stamp] * $anlage->getPowerEast()) + ($mittelwertPyroWestArray[$stamp] * $anlage->getPowerWest()))  * $intervallPA['pa2'];
+                            $replaceArray['theoPowerPA3'] += (($mittelwertPyroEastArray[$stamp] * $anlage->getPowerEast()) + ($mittelwertPyroWestArray[$stamp] * $anlage->getPowerWest()))  * $intervallPA['pa3'];
+                        } else {
+                            $replaceArray['theoPowerPA0'] += $mittelwertPyroArray[$stamp] * $anlage->getPnom() * $intervallPA['pa0'];
+                            $replaceArray['theoPowerPA1'] += $mittelwertPyroArray[$stamp] * $anlage->getPnom() * $intervallPA['pa1'];
+                            $replaceArray['theoPowerPA2'] += $mittelwertPyroArray[$stamp] * $anlage->getPnom() * $intervallPA['pa2'];
+                            $replaceArray['theoPowerPA3'] += $mittelwertPyroArray[$stamp] * $anlage->getPnom() * $intervallPA['pa3'];
+                        }
                     }
+                    $replaceArray['theoPowerPA0'] = $replaceArray['theoPowerPA0'] / 4000;
+                    $replaceArray['theoPowerPA1'] = $replaceArray['theoPowerPA1'] / 4000;
+                    $replaceArray['theoPowerPA2'] = $replaceArray['theoPowerPA2'] / 4000;
+                    $replaceArray['theoPowerPA3'] = $replaceArray['theoPowerPA3'] / 4000;
+
                     $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
                     break;
 
@@ -232,7 +255,16 @@ class SensorService
                     $return['irr1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['irr1'] - $oldWeather['irr1'] + $newWeather['irrModul'] : $sensorData['irr1'];
                     $return['irr2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['irr2'] - $oldWeather['irr2'] + $newWeather['irrModul'] : $sensorData['irr2'];
                     $return['irr3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['irr3'] - $oldWeather['irr3'] + $newWeather['irrModul'] : $sensorData['irr3'];
+
+                    $return['irrEast1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['irrEast1'] - $oldWeather['irr1'] + $newWeather['irrModul'] : $sensorData['irrEast1'];
+                    $return['irrEast2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['irrEast2'] - $oldWeather['irr2'] + $newWeather['irrModul'] : $sensorData['irrEast2'];
+                    $return['irrEast3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['irrEast3'] - $oldWeather['irr3'] + $newWeather['irrModul'] : $sensorData['irrEast3'];
+
+                    $return['irrWest1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['irrWest1'] - $oldWeather['irr1'] + $newWeather['irrModul'] : $sensorData['irrWest1'];
+                    $return['irrWest2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['irrWest2'] - $oldWeather['irr2'] + $newWeather['irrModul'] : $sensorData['irrWest2'];
+                    $return['irrWest3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['irrWest3'] - $oldWeather['irr3'] + $newWeather['irrModul'] : $sensorData['irrWest3'];
                 }
+
                 if (is_numeric($newWeather['power'])) {
                     $return['theoPowerPA1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['theoPowerPA1'] - $oldWeather['theoPowerPA1'] + $newWeather['power'] : $sensorData['theoPowerPA1'];
                     $return['theoPowerPA2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['theoPowerPA2'] - $oldWeather['theoPowerPA2'] + $newWeather['power'] : $sensorData['theoPowerPA2'];

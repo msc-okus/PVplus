@@ -22,17 +22,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 use phpDocumentor\Reflection\Types\Boolean;
+use Psr\Cache\InvalidArgumentException;
 
 class InternalAlertSystemService
 {
     use G4NTrait;
     private $ticketArray;
     public function __construct(
-        private $host,
-        private $userBase,
-        private $passwordBase,
-        private $userPlant,
-        private $passwordPlant,
         private AnlagenRepository       $anlagenRepository,
         private WeatherServiceNew       $weather,
         private WeatherFunctionsService $weatherFunctions,
@@ -42,8 +38,8 @@ class InternalAlertSystemService
         private FunctionsService        $functions,
         private StatusRepository        $statusRepo,
         private TicketRepository        $ticketRepo,
-        private PdoService $pdo)
-    {
+        private PdoService              $pdo
+    ){
     }
 
     public function generateTicketsInterval(Anlage $anlage, string $from, string $to = null): void
@@ -54,11 +50,9 @@ class InternalAlertSystemService
     /**
      * Generate tickets for the given time
      * @param Anlage $anlage
-     * @param string $from
-     * @param string $to
+     * @param string $time
      * @return string
      */
-
     public function checkSystem(Anlage $anlage, string $time): string
     {
         $timeStamp = strtotime($time);
@@ -75,12 +69,12 @@ class InternalAlertSystemService
     }
 
 
-
     /**
      * main function to retrieve plant status for a given time
      * @param Anlage $anlage
      * @param $time
      * @return array
+     * @throws InvalidArgumentException
      */
     private function RetrievePlant(Anlage $anlage, $time): array
     {
@@ -116,15 +110,13 @@ class InternalAlertSystemService
 
     /**
      * Given all the information needed to generate a ticket, the tickets are created and commited to the db (single ticket variant)
-     * @param $errorType
      * @param $errorCategorie
      * @param $anlage
-     * @param $inverter
      * @param $time
      * @param $message
      * @return void
      */
-    private function generateTickets($errorCategorie, $anlage, $time, $message)
+    private function generateTickets($errorCategorie, $anlage, $time, $message): void
     {
         $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
         //this could be the ticket from  the previous quarter or the last ticket from  the previous day
