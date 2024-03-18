@@ -28,14 +28,14 @@ class OwnerSettings extends PiiCryptoService
     #[ORM\Column(length: 20, nullable: true, options: ['default' => 'AM'])]
     private ?string $nameDep3 = 'AM';
 
-    #[ORM\Column(length: 20, nullable: true, options: ['default' => 'O-Skadow'])]
-    private ?string $mcUser = 'O-Skadow';  // mc = Medio Control = VCOM
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $mcUser = null;  // mc = Medio Control = VCOM
 
-    #[ORM\Column(length: 255, nullable: true, options: ['default' => 'Tr3z%2!x$5'])]
-    private ?string $mcPassword = 'Tr3z%2!x$5'; // mc = Medio Control = VCOM
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $mcPassword = null; // mc = Medio Control = VCOM
 
-    #[ORM\Column(length: 100, nullable: true, options: ['default' => '264b63333e951a6c327d627003f6a828'])]
-    private ?string $mcToken = '264b63333e951a6c327d627003f6a828';  // mc = Medio Control = VCOM
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $mcToken = null;  // mc = Medio Control = VCOM
 
     public function getId(): ?int
     {
@@ -114,7 +114,7 @@ class OwnerSettings extends PiiCryptoService
 
     public function setMcPassword(?string $mcPassword): self
     {
-        $this->mcPassword = $this->hashData($mcPassword);
+        $this->mcPassword = is_string($mcPassword) ? $this->hashData($mcPassword) : null;
 
         return $this;
     }

@@ -98,11 +98,15 @@ class Eigner
     #[ORM\OneToOne(mappedBy: 'owner', cascade: ['persist', 'remove'])]
     private ?OwnerSettings $settings = null;
 
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: ContactInfo::class, cascade: ['persist', 'remove'])]
+    private Collection $contactInfos;
+
     public function __construct()
     {
         $this->user = new ArrayCollection();
         $this->anlage = new ArrayCollection();
         $this->anlagenReports = new ArrayCollection();
+        $this->contactInfos = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -271,9 +275,6 @@ class Eigner
         return $this;
     }
 
-    /**
-     * @return Collection|User[]
-     */
     public function getUser(): Collection
     {
         return $this->user;
@@ -309,23 +310,16 @@ class Eigner
         return $this;
     }
 
-    /**
-     * @return Collection|Anlage[]
-     */
     public function getAnlage(): Collection
     {
         return $this->anlage;
     }
-    /**
-     * @return Collection|Anlage[]
-     */
+
     public function getAnlagen(): Collection
     {
         return $this->anlage;
     }
-    /**
-     * @return Collection|Anlage[]
-     */
+
     public function getActiveAnlage(bool $role = false): Collection
     {
         $criteria = EignerRepository::activeAnlagenCriteria($role);
@@ -356,9 +350,6 @@ class Eigner
         return $this;
     }
 
-    /**
-     * @return Collection|AnlagenReports[]
-     */
     public function getAnlagenReports(): Collection
     {
         return $this->anlagenReports;
@@ -481,6 +472,36 @@ class Eigner
         }
 
         $this->settings = $settings;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ContactInfo>
+     */
+    public function getContactInfos(): Collection
+    {
+        return $this->contactInfos;
+    }
+
+    public function addContactInfo(ContactInfo $contactInfo): static
+    {
+        if (!$this->contactInfos->contains($contactInfo)) {
+            $this->contactInfos->add($contactInfo);
+            $contactInfo->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContactInfo(ContactInfo $contactInfo): static
+    {
+        if ($this->contactInfos->removeElement($contactInfo)) {
+            // set the owning side to null (unless already changed)
+            if ($contactInfo->getOwner() === $this) {
+                $contactInfo->setOwner(null);
+            }
+        }
 
         return $this;
     }
