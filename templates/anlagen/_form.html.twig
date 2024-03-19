@@ -854,10 +854,12 @@
             {% endif %}
         </div>
     </div>
+{#
     {% do anlageForm.modules.setRendered() %}
     {% do anlageForm.anlageSunShading.setRendered() %}
     {% do anlageForm.savecreatedb.setRendered() %}
     {% do anlageForm.timesConfigs.setRendered() %}
     {% do anlageForm.anlInputDaily.setRendered() %}
     {% do anlageForm.configType.setRendered() %}
-{{ form_end(anlageForm) }}
+#}
+{{ form_end(anlageForm, {'render_rest': false}) }}

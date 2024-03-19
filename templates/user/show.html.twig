@@ -34,11 +34,10 @@
             {{ form_widget(userForm.close) }}
         </div>
     </div>
-  <div style="visibility: hidden"> {{ form_rest(userForm) }}</div>
     {% do userForm.grantedList.setRendered() %}
     {% do userForm.eignersPlantList.setRendered() %}
     {% do userForm.roles.setRendered() %}
-    {{ form_end(userForm) }}
+    {{ form_end(userForm, {'render_rest': false}) }}
 {% endblock %}
 
 {% block title %}
