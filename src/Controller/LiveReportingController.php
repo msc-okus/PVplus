@@ -56,6 +56,7 @@ class LiveReportingController extends AbstractController
             $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
             $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
         }
+        $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
 
         return $this->render('live_reporting/reportMonthlyNew.html.twig', [
             'headline' => 'Monthly Report',
@@ -64,6 +65,7 @@ class LiveReportingController extends AbstractController
             'report' => $output,
             'status' => $anlageId,
             'datatable' => $table,
+            'tickets'   => $tickets
         ]);
 
     }
@@ -136,9 +138,11 @@ class LiveReportingController extends AbstractController
         /** @var TicketDate $ticket */
         $counter = 1;
         foreach ($tickets as $ticket){
-            $ticketsOverview[$counter]['start'] = $ticket->getBegin()->format("d.m.y H:i");
-            $ticketsOverview[$counter]['end'] = $ticket->getEnd()->format("d.m.y H:i");
-            $ticketsOverview[$counter]['type'] = $this->translator->trans("ticket.error.category.".$ticket->getAlertType());
+            $ticketsOverview[$counter]['id'] = $ticket->getTicket()->getId();
+            $ticketsOverview[$counter]['ticketName'] = $ticket->getTicket()->getTicketName();
+            $ticketsOverview[$counter]['begin'] = $ticket->getBegin();
+            $ticketsOverview[$counter]['end'] = $ticket->getEnd();
+            $ticketsOverview[$counter]['alertType'] = $ticket->getAlertType();
             $ticketsOverview[$counter]['editor'] = $ticket->getTicket()->getEditor();
             ++$counter;
         }
