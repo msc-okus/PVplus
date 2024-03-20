@@ -201,17 +201,6 @@ class AnlageFormType extends AbstractType
                 'empty_data' => 'No',
                 'disabled' => !($isDeveloper),
             ])
-            /*
-            ->add('useNewDcSchema', ChoiceType::class, [
-                'label' => 'Neues DC Database Schema',
-                'help' => '[useNewDcSchema] <br> (separate Tabelle für DC IST)',
-                'choices' => ['Yes' => '1', 'No' => '0'],
-                'empty_data' => '0',
-                'expanded' => false,
-                'multiple' => false,
-                'disabled' => !($isDeveloper || $isAdmin),
-            ])
-            */
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
                 'help' => '[configType]<br>' . $tooltipTextPlantType,
