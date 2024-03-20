@@ -9,22 +9,6 @@
     {% set colspanDep2 = colspanDep2 + 1 %}
     {% set colspanDep3 = colspanDep3 + 1 %}
 {% endif %}
-<<<<<<< HEAD
-<div id="exportModal"   style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:1000; padding:20px; background:white; border:1px solid #ccc; box-shadow:0px 0px 10px rgba(0,0,0,0.5); width:50%;">
-    <h2 class="text-center">Monthly Report</h2>
-    <div class="grid-x grid-padding-x">
-        <div class="cell auto">
-            <input type="text" id="exportFileName" class="input-group-field">
-        </div>
-        <div class="cell shrink">
-            <button id="confirmExport" class="button success">Confirm</button>
-            <button id="cancelExport" class="button alert">Cancel</button>
-        </div>
-    </div>
-
-</div>
-<div id="modalBackdrop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:500;"></div>
-=======
 
 {% if anlage.hasPPC %}
   {% set colspanDep0 = colspanDep0 + 1 %}
@@ -65,7 +49,6 @@
     }
 </style>
 
->>>>>>> 90bf7339206b07731bda4cd253a3c1b31ba26dee
 <table id="special_export" class="basetable monthtable"> {# ID der table ist wichtig für Datatables Script - Export to Excel #}
     {% for day in report.days %}
         {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
@@ -142,7 +125,7 @@
             <td>{{ day["powerEvuDep0"]|number_format(2,',','.') }}</td>
             {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep0EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep0Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
             <td>{{ day["prDep0Act"]|number_format(2,',','.') }}</td>
-            <td class="border-right-2">{{ day["pa0"]|number_format(3,',','.') }}</td>
+            <td class="border-right-2">{% if anlage.anlType == 'masterslave' %}NA{% else %}{{ day["pa0"]|number_format(3,',','.') }}{% endif %}</td>
 
 
             {% if anlage.settings.disableDep1 != true %}
@@ -152,7 +135,7 @@
                 <td>{{ day["powerEvuDep1"]|number_format(2,',','.') }}</td>
                 {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep1EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep1Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
                 <td>{{ day["prDep1Act"]|number_format(2,',','.') }}</td>
-                {% if anlage.settings.enablePADep1 %}<td>{{ day["pa1"]|number_format(3,',','.') }}</td>{% endif %}
+                {% if anlage.settings.enablePADep1 %}<td>{% if anlage.anlType == 'masterslave' %}NA{% else %}{{ day["pa1"]|number_format(3,',','.') }}{% endif %}</td>{% endif %}
             {% endif %}
 
             {% if anlage.settings.disableDep2 != true %}
@@ -162,7 +145,7 @@
                 <td>{{ day["powerEvuDep2"]|number_format(2,',','.') }}</td>
                 {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep2EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep2Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
                 <td>{{ day["prDep2Act"]|number_format(2,',','.') }}</td>
-                {% if anlage.settings.enablePADep2 %}<td>{{ day["pa2"]|number_format(3,',','.') }}</td>{% endif %}
+                {% if anlage.settings.enablePADep2 %}<td>{% if anlage.anlType == 'masterslave' %}NA{% else %}{{ day["pa2"]|number_format(3,',','.') }}{% endif %}</td>{% endif %}
             {% endif %}
 
             {% if anlage.settings.disableDep3 != true %}
@@ -172,13 +155,11 @@
                 <td>{{ day["powerEvuDep3"]|number_format(2,',','.') }}</td>
                 {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep3EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep3Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
                 <td>{{ day["prDep3Act"]|number_format(2,',','.') }}</td>
-                {% if anlage.settings.enablePADep3 %}<td>{{ day["pa3"]|number_format(3,',','.') }}</td>{% endif %}
+                {% if anlage.settings.enablePADep3 %}<td>{% if anlage.anlType == 'masterslave' %}NA{% else %}{{ day["pa3"]|number_format(3,',','.') }}{% endif %}</td>{% endif %}
             {% endif %}
         </tr>
     {% endfor %}
-<<<<<<< HEAD
-    </tbody>
-    <tfoot>
+    {# <tfoot>
     <tr class="left">
         <th class="border-right-2"></th>
         <th class="border-right-2" colspan="{{ 2 }}">Power  {% if anlage.useppc %}(PPC Corr.){% endif %}</th>
@@ -188,8 +169,5 @@
         {% if anlage.settings.disableDep3 != true %}<th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – AM</th>{% endif %}
     </tr>
     </tfoot>
-
+    #}
 </table>
-=======
-</table>
->>>>>>> 90bf7339206b07731bda4cd253a3c1b31ba26dee

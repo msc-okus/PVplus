@@ -14,6 +14,8 @@ use App\Service\ExpectedService;
 use App\Service\PRCalulationService;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,21 +30,27 @@ class DefaultMREController extends BaseController
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly PRCalulationService $prCalulation,
         private readonly AvailabilityByTicketService $availabilityByTicket,
-        private readonly AvailabilityService $availabilityService
-    )
-    {
+        private readonly AvailabilityService $availabilityService,
+        private $kernelProjectDir,
+    ){
     }
 
     #[Route(path: '/mr/test')]
     public function test(): Response
     {
-        $ticketDate = new TicketDate();
-        dd($ticketDate);
+        $currentDir = "/home/g4npvdbi/public_html";
+        dump($this->kernelProjectDir);
+        $process = new Process(["php -dsafe_mode=Off $currentDir/anlagen/goldbeck/SUNROCK_Moerdijk/loadDataFromApi.php"]);
+        $process->run();
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
             'availabilitys' => '',
-            'output' => $checkSystemStatus->checkSystemStatus(),
+            'output' => $process->getOutput(),
         ]);
     }
 
