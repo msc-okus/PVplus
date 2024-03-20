@@ -1054,6 +1054,29 @@ class TicketController extends BaseController
         ]);
     }
 
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    #[Route(path: '/list/getinverterarray/{id}', name: 'app_tlist_get_inverter_array')]
+    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): Response
+    {
+        $anlage = $anlRepo->findOneBy(['anlId' => $id]);
+        $trafoArray = [];
+        $inverterArray = [];
+        if ($anlage != null) {
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
+            $nameArray = $anlage->getInverterFromAnlage();
+            foreach ($nameArray as $key => $value) {
+                $inverterArray[$key]["inv"] = $value;
+            }
+        }
+        return $this->render('/ticket/_inc/_inverter_dropdown.html.twig', [
+            'trafoArray' => $trafoArray,
+            'invArray' => $inverterArray,
+        ]);
+    }
+
     /**
      * @param $stamp
      * @param $ticket
@@ -1094,27 +1117,12 @@ class TicketController extends BaseController
         return $ticketDate;
     }
 
-    #[Route(path: '/list/getinverterarray/{id}', name: 'app_tlist_get_inverter_array')]
-    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): array
-    {
 
-        $anlage = $anlRepo->findOneBy(['anlId' => $id]);
-        $trafoArray = [];
-        $inverterArray = [];
-        if ($anlage != null) {
-            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
-            $nameArray = $anlage->getInverterFromAnlage();
-            foreach ($nameArray as $key => $value) {
-                $inverterArray[$key]["inv"] = $value;
-            }
-        }
-        return [
-            'trafoArray' => $trafoArray,
-            'inverterArray' => $inverterArray,
-        ];
-    }
-
-
+    /**
+     * @param Anlage $anlage
+     * @param AcGroupsRepository $acRepo
+     * @return array
+     */
     private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo): array
     {
         $totalTrafoGroups = $acRepo->getAllTrafoNr($anlage);

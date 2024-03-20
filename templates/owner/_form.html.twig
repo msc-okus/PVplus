@@ -49,6 +49,7 @@
                             {% if is_granted('ROLE_G4N') %}
                                 {{ form_row(ownerForm.active) }}
                                 {{ form_row(ownerForm.language) }}
+                                {{ form_row(ownerForm.operations) }}
                             {% endif %}
 
                             {% if isupload != '' %}

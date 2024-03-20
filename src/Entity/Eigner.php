@@ -101,6 +101,9 @@ class Eigner
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: ContactInfo::class, cascade: ['persist', 'remove'])]
     private Collection $contactInfos;
 
+    #[ORM\Column(nullable: true, options: ['default' => '0'])]
+    private ?bool $operations = false;
+
     public function __construct()
     {
         $this->user = new ArrayCollection();
@@ -504,6 +507,16 @@ class Eigner
         }
 
         return $this;
+    }
+
+    public function getOperations(): ?bool
+    {
+        return $this->operations;
+    }
+
+    public function setOperations(?bool $operations): void
+    {
+        $this->operations = $operations;
     }
 
 

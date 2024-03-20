@@ -3,6 +3,7 @@
 namespace App\Form\Owner;
 
 use App\Entity\Eigner;
+use App\Form\Type\SwitchType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -68,6 +69,9 @@ class OwnerFormType extends AbstractType
                 'choices' => ['EN' => 'EN', 'DE' => 'DE'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 'EN',
+            ])
+            ->add('operations', SwitchType::class,[
+                'label' => 'company is operated by G4N'
             ])
             ->add('imageFile', FileType::class, [
                 'label' => 'Logo',
