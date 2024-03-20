@@ -31,5 +31,12 @@
                 {{ include('report/_monthly/_tableSub.html.twig', {excel: 'true'}) }}
             </div>
         </div>
+        {% if tickets|length > 0 %}
+            <div class="grid-x">
+                <div class="cell">
+                    {% include('report/_base_layouts/_tickets.html.twig') %}
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
 {% endblock %}

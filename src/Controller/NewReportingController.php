@@ -16,9 +16,7 @@ use App\Service\PdfService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\Reports\ReportEpcService;
 use App\Service\Reports\ReportsEpcYieldV2;
-use App\Service\Reports\ReportsMonthlyService;
 use App\Service\Reports\ReportsMonthlyV2Service;
-use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use League\Flysystem\Filesystem;
@@ -34,7 +32,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
@@ -101,7 +99,7 @@ class NewReportingController extends AbstractController
                     $em->persist($report);
                     $em->flush();
                 } else if ($_ENV['APP_ENV'] == 'prod'){
-                    $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
+                    $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", $userId);
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
                     $messageBus->dispatch($message);
                 }
@@ -172,7 +170,7 @@ class NewReportingController extends AbstractController
                     $em->persist($report);
                     $em->flush();
                 } else if ($_ENV['APP_ENV'] == 'prod'){
-                    $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
+                    $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear", $userId);
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
                     $messageBus->dispatch($message);
                 }
@@ -590,6 +588,10 @@ class NewReportingController extends AbstractController
 
     /**
      * @param $id
+     * @param ReportsRepository $reportsRepository
+     * @param Request $request
+     * @param NormalizerInterface $serializer
+     * @param ReportsEpcYieldV2 $epcNewService
      * @return Response
      * @throws ExceptionInterface
      */

@@ -14,6 +14,7 @@
     {% endmacro %}
 
     {{ form_start(userForm, {'attr': {'novalidate': 'no', 'autocomplete': 'off'}}) }}
+
     <div class="grid-x grid-margin-x grid-padding-x">
         <div class="cell small-6 medium-3">
             <fieldset class="fieldset">
@@ -34,10 +35,15 @@
             {{ form_widget(userForm.close) }}
         </div>
     </div>
+    <div style="visibility: hidden"> {{ form_rest(userForm) }}</div>
+    {% do userForm.eigners.setRendered() %}
+    {% do userForm.allPlants.setRendered() %}
+    {% do userForm.singleeigners.setRendered() %}
     {% do userForm.grantedList.setRendered() %}
     {% do userForm.eignersPlantList.setRendered() %}
     {% do userForm.roles.setRendered() %}
-    {{ form_end(userForm, {'render_rest': false}) }}
+
+    {{ form_end(userForm) }}
 {% endblock %}
 
 {% block title %}

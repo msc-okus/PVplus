@@ -40,7 +40,6 @@
 {% endif %}
 <style>
     .monthtable th, .monthtable td {
-
     {% if excel is not defined %}
         font-size: {{ fontsize }}px;
     {% else %}
@@ -129,7 +128,7 @@
 
 
             {% if anlage.settings.disableDep1 != true %}
-                <td class="border-left-2">{{ day["irr1"]|number_format(4,',','.') }}</td>^
+                <td class="border-left-2">{{ day["irr1"]|number_format(4,',','.') }}</td>
                 {% if anlage.hasPPC %}<td>{{ day["irrNoPpc1"]|number_format(4,',','.') }}</td>{% endif %}
                 <td>{{ day["powerTheoDep1"]|number_format(2,',','.') }}</td>
                 <td>{{ day["powerEvuDep1"]|number_format(2,',','.') }}</td>
@@ -159,15 +158,4 @@
             {% endif %}
         </tr>
     {% endfor %}
-    {# <tfoot>
-    <tr class="left">
-        <th class="border-right-2"></th>
-        <th class="border-right-2" colspan="{{ 2 }}">Power  {% if anlage.useppc %}(PPC Corr.){% endif %}</th>
-        <th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – default (OpenBook)</th>
-        {% if anlage.settings.disableDep1 != true %}<th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – O&M</th>{% endif %}
-        {% if anlage.settings.disableDep2 != true %}<th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – EPC</th>{% endif %}
-        {% if anlage.settings.disableDep3 != true %}<th class="border-right-2" colspan="{{ colspan + 7 }}">PR & PA – AM</th>{% endif %}
-    </tr>
-    </tfoot>
-    #}
 </table>
