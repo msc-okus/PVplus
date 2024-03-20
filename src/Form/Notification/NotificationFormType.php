@@ -50,6 +50,12 @@ class NotificationFormType extends AbstractType
            'empty_data' => 10, // Low
            'invalid_message' => 'Please select a Priority.',
         ])
+            /*
+        ->add('identificator', TextType::class, [
+            'label' => 'Identification code',
+            'empty_data' => '',
+        ])
+            */
         ->add("contact", SubmitType::class,[
             'label' => 'Send',
             'attr' => ['class' => 'primary save'],

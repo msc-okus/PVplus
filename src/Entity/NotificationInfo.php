@@ -65,6 +65,9 @@ class NotificationInfo
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $priority = null;
 
+    #[ORM\Column(length: 25, nullable: true)]
+    private ?string $identificator = null;
+
     public function getWhoNotified(): User
     {
         return $this->whoNotified;
@@ -172,6 +175,18 @@ class NotificationInfo
     public function setPriority(?string $priority): static
     {
         $this->priority = $priority;
+
+        return $this;
+    }
+
+    public function getIdentificator(): ?string
+    {
+        return $this->identificator;
+    }
+
+    public function setIdentificator(?string $identificator): static
+    {
+        $this->identificator = $identificator;
 
         return $this;
     }

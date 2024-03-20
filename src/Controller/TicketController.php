@@ -13,6 +13,7 @@ use App\Helper\PVPNameArraysTrait;
 use App\Repository\AcGroupsRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\ContactInfoRepository;
+use App\Repository\NotificationInfoRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
@@ -422,7 +423,7 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/notify/{id}', name: 'app_ticket_notify', methods: ['GET', 'POST'])]
-    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, ContactInfoRepository $contactRepo, MessageService $messageService, PiiCryptoService $encryptService): Response
+    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, ContactInfoRepository $contactRepo, MessageService $messageService, PiiCryptoService $encryptService, NotificationInfoRepository $notificationInfoRepository): Response
     {
         $ticket = $ticketRepo->findOneById($id);
         $notifications = $ticket->getNotificationInfos();
@@ -449,11 +450,22 @@ class TicketController extends BaseController
             $notification->setFreeText($form->getData()['freeText']);
             $ticket->setSecurityToken($key);
             $ticket->addNotificationInfo($notification);
+                //here we are supossed to generate the identificator
+                $idCorrect = false;
+                $generatedId = "";
+                while(!$idCorrect){
+                    $numbers = substr(str_shuffle(str_repeat($x='0123456789', ceil(3/strlen($x)) )),1,3);
+                    $letters = substr(str_shuffle(str_repeat($x='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(5/strlen($x)) )),1,5);
+                    $generatedId = $numbers."-".$letters;
+                    if ($notificationInfoRepository->findOneBy(["identificator" => $generatedId]) != []) $idCorrect = false;
+                    else $idCorrect = true;
+                }
+                $notification->setIdentificator($generatedId);
             $em->persist($notification);
             $em->persist($ticket);
             $em->flush();
-            $message = "Maintenance is needed in " . $ticket->getAnlage()->getAnlName() . ". Please click the button bellow to respond.<br> Priority: " . $this->translator->trans("ticket.priority." . $form->getData()['priority']) . "<br> Message from TAM: <br>" . $form->getData()['freeText'];
-            $messageService->sendMessageToMaintenance($this->translator->trans("ticket.priority." . $form->getData()['priority']) . " Priority " . $this->translator->trans("ticket.error.category." . $ticket->getAlertType()) . " in " . $ticket->getAnlage()->getAnlName() . "- Ticket: " . $ticket->getId(), $message, $contact->getEmail(), $contact->getName(), $this->getUser()->getname(), false, $ticket);
+            $message = "Contact Ticket: Notification: ". $notification->getIdentificator() ."<br> Maintenance is needed in " . $ticket->getAnlage()->getAnlName() . ". Please click the button bellow to respond.<br> Priority: " . $this->translator->trans("ticket.priority." . $form->getData()['priority']) . "<br> Message from TAM: <br>" . $form->getData()['freeText'];
+            $messageService->sendMessageToMaintenance($this->translator->trans("ticket.priority." . $form->getData()['priority']) . " Priority " . $this->translator->trans("ticket.error.category." . $ticket->getAlertType()) . " in " . $ticket->getAnlage()->getAnlName() . " - Ticket: " . $ticket->getId() . " - Notification: ". $notification->getIdentificator(), $message, $contact->getEmail(), $contact->getName(), $this->getUser()->getname(), false, $ticket);
         }
 
         return $this->render('ticket/_inc/_notification.html.twig', [
@@ -891,11 +903,11 @@ class TicketController extends BaseController
             $notification->setCloseFreeText($form->getData()['freeText']);
             if ($form->getData()['answers'] == 50) {
                 $messageService->sendRawMessage("Reparation finished - Ticket: " . $ticket->getId(),
-                    "The maintenance provider has finished the reparation job." . "<br> Maintenance answer: " . $notification->getCloseFreeText(),
+                    "The maintenance provider has finished the reparation job with id: ".$notification->getIdentificator()." <br> Maintenance answer: " . $notification->getCloseFreeText(),
                     $notification->getWhoNotified()->getEmail(), $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(),
                     false);
             } else {
-                $messageService->sendRawMessage("Reparation could not be finished - Ticket: " . $ticket->getId(),
+                $messageService->sendRawMessage("Reparation with id: with id: ".$notification->getIdentificator()." could not be finished - Ticket: " . $ticket->getId(),
                     "There was an unexpected problem and the maintenance provider could not fulfill the reparation request, we recommend contacting someone else for ticket " . $ticket->getId() . ".<br> Maintenance answer: " . $notification->getCloseFreeText(),
                     $notification->getWhoNotified()->getEmail(),
                     $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(),
@@ -931,11 +943,11 @@ class TicketController extends BaseController
     {
         $ticketId = $encryptService->unHashData($id);
         $ticket = $ticketRepo->findOneBy(['securityToken' => $ticketId]);
-
+        $notification = $ticket->getNotificationInfos()->last();
         $form = $this->createForm(NotificationEditFormType::class, null);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $notification = $ticket->getNotificationInfos()->last();
+
             $notification->setStatus($form->getData()['answers']);
             $notification->setAnswerDate(new DateTime('now'));
             $notification->setAnswerFreeText($form->getData()['freeText']);
@@ -946,26 +958,28 @@ class TicketController extends BaseController
                 $notification->setCloseDate(new DateTime('now'));
                 $em->persist($notification);
                 $em->flush();
-                $messageService->sendRawMessage("Request rejected - Ticket: " . $ticket->getId(), "The maintenance provider that was contacted will not be able to fulfill the request, thus we recommend contacting someone else for ticket " . "<br> Maintenance answer: <br>" . $notification->getAnswerFreeText() . $ticket->getId(), $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
+                $messageService->sendRawMessage("Request with id: ".$notification->getIdentificator()." rejected - Ticket: " . $ticket->getId(), "The maintenance provider that was contacted will not be able to fulfill the request, thus we recommend contacting someone else for ticket " . "<br> Maintenance answer: <br>" . $notification->getAnswerFreeText() . $ticket->getId(), $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
                 return $this->render('/ticket/editNotification.html.twig', [
                     'ticket' => $ticket,
+                    'notification' => $notification,
                     'notificationEditForm' => $form,
                     'answered' => true,
                 ]);
             } else {
                 if ($form->getData()['answers'] == 20) {
-                    $messageService->sendRawMessage("Request accepted - Ticket: " . $ticket->getId(), "The maintenance provider accepted the request and will start working as soon as possible. " . "<br> Maintenance answer: <br>" . $notification->getAnswerFreeText(), $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
+                    $messageService->sendRawMessage("Request with id: ".$notification->getIdentificator()." accepted - Ticket: " . $ticket->getId(), "The maintenance provider accepted the request and will start working as soon as possible. " . "<br> Maintenance answer: <br>" . $notification->getAnswerFreeText(), $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
                 } else {
-                    $messageService->sendRawMessage("Request accepted but delayed - Ticket: " . $ticket->getId(), "The maintenance provider that was contacted has accepted the request but will need some extra time to start doing it." . "<br> Maintenance answer: <br>" . $notification->getAnswerFreeText(), $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
+                    $messageService->sendRawMessage("Request with id: ".$notification->getIdentificator()." accepted but delayed - Ticket: " . $ticket->getId(), "The maintenance provider that was contacted has accepted the request but will need some extra time to start doing it." . "<br> Maintenance answer: <br>" . $notification->getAnswerFreeText(), $notification->getWhoNotified()->getEmail(), $notification->getWhoNotified()->getname());
                 }
 
-                $messageService->sendConfirmationMessageToMaintenance("Maintenance confirmation - Ticket: " . $ticket->getId(), "Thanks for accepting the request, please report in the link in the button below when the reparations are ready.", $notification->getContactedPerson()->getEmail(), $notification->getContactedPerson()->getName(), false, $ticket);
+                $messageService->sendConfirmationMessageToMaintenance("Maintenance with id: ".$notification->getIdentificator()." confirmation - Ticket: " . $ticket->getId(), "Thanks for accepting the request, please report in the link in the button below when the reparations are ready.", $notification->getContactedPerson()->getEmail(), $notification->getContactedPerson()->getName(), false, $ticket);
                 $ticket->setStatus(30);
                 $em->persist($notification);
                 $em->persist($ticket);
                 $em->flush();
                 return $this->render('/ticket/editNotification.html.twig', [
                     'ticket' => $ticket,
+                    'notification' => $notification,
                     'notificationEditForm' => $form,
                     'answered' => true,
                 ]);
@@ -974,6 +988,7 @@ class TicketController extends BaseController
 
         return $this->render('/ticket/editNotification.html.twig', [
             'ticket' => $ticket,
+            'notification' => $notification,
             'notificationEditForm' => $form,
             'answered' => false,
         ]);
@@ -1094,8 +1109,8 @@ class TicketController extends BaseController
         return $ticketDate;
     }
 
-    #[Route(path: '/list/getinverterarray/{id}', name: 'app_tlist_get_inverter_array')]
-    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): array
+    #[Route(path: '/list/getinverterarray/{id}', name: 'app_list_get_inverter_array', methods: ['GET', 'POST'])]
+    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): Response
     {
 
         $anlage = $anlRepo->findOneBy(['anlId' => $id]);
@@ -1108,10 +1123,11 @@ class TicketController extends BaseController
                 $inverterArray[$key]["inv"] = $value;
             }
         }
-        return [
+
+        return $this->render('/ticket/_inc/_inverter_dropdown.html.twig',[
             'trafoArray' => $trafoArray,
-            'inverterArray' => $inverterArray,
-        ];
+            'invArray' => $inverterArray,
+        ]);
     }
 
 
