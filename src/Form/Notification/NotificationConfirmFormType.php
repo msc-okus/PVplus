@@ -43,7 +43,7 @@ class NotificationConfirmFormType extends AbstractType
             'required'   => false,
         ])
         ->add("answer", SubmitType::class,[
-            'label' => 'Send your answer <i class="fa fa-paper-plane"></i>',
+            'label' => 'Submit <i class="fa fa-paper-plane"></i>',
             'label_html' => true,
             'attr' => ['class' => 'primary save'],
         ]);

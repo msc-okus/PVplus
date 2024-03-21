@@ -22,18 +22,28 @@
                 <legend>Information about the problem</legend>
                 <p><b>Notification Id: </b>{{ notification.identificator }}</p>
                 <p><b>Status: </b>
-                    {% if () %}
+                    {% if (notification.status == 50) %}
+                        <span style="color: green;font-size: 20px">●</span>
+                    {% elseif(notification.status == 40 or notification.status == 60) %}
+                        <span style="color: red;font-size: 20px">●</span>
+                    {% else %}
+                        <span style="color: orange;font-size: 20px">●</span>
+                    {% endif %}
+
                 </p>
                 <p><b>Ticket Id:</b> {{ ticket.Id }}</p>
                 <p><b>Plant name:</b> {{ ticket.anlage.anlName }}</p>
-                <p><b>Plant located in:</b> <br> {{ ticket.anlage.anlStrasse }}, {{ ticket.anlage.anlPlz }} {{ ticket.anlage.anlOrt }} <br>
-                        <b>Coordinates:</b> Lat {{ ticket.anlage.anlGeoLat }}, Lon {{ ticket.anlage.anlGeoLon }}
+                <p><b>Plant located in:</b> <br> {{ ticket.anlage.anlStrasse }}
+                    , {{ ticket.anlage.anlPlz }} {{ ticket.anlage.anlOrt }} <br>
+                    <b>Coordinates:</b> Lat {{ ticket.anlage.anlGeoLat }}, Lon {{ ticket.anlage.anlGeoLon }}
                 </p>
                 <p><b>Affected inverters:</b> {{ ticket.inverterName }}</p>
                 {% if ticket.freeText != '' %}
                     <p>{{ ticket.freeText }}</p>
                 {% endif %}
-                <p><b>Error type:</b> {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}{{ errcat|trans }}</p>
+                <p><b>Error
+                        type:</b> {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}{{ errcat|trans }}
+                </p>
             </fieldset>
             <fieldset class="fieldset">
                 <legend>You Answer</legend>

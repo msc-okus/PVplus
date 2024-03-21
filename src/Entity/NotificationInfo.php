@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\NotificationInfoRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -67,6 +69,14 @@ class NotificationInfo
 
     #[ORM\Column(length: 25, nullable: true)]
     private ?string $identificator = null;
+
+    #[ORM\OneToMany(mappedBy: 'notificationInfo', targetEntity: NotificationWork::class, orphanRemoval: true)]
+    private Collection $notifcationWorks;
+
+    public function __construct()
+    {
+        $this->notifcationWorks = new ArrayCollection();
+    }
 
     public function getWhoNotified(): User
     {
@@ -187,6 +197,36 @@ class NotificationInfo
     public function setIdentificator(?string $identificator): static
     {
         $this->identificator = $identificator;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, NotificationWork>
+     */
+    public function getNotifcationWorks(): Collection
+    {
+        return $this->notifcationWorks;
+    }
+
+    public function addNotifcationWork(NotificationWork $notifcationWork): static
+    {
+        if (!$this->notifcationWorks->contains($notifcationWork)) {
+            $this->notifcationWorks->add($notifcationWork);
+            $notifcationWork->setNotificationInfo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotifcationWork(NotificationWork $notifcationWork): static
+    {
+        if ($this->notifcationWorks->removeElement($notifcationWork)) {
+            // set the owning side to null (unless already changed)
+            if ($notifcationWork->getNotificationInfo() === $this) {
+                $notifcationWork->setNotificationInfo(null);
+            }
+        }
 
         return $this;
     }

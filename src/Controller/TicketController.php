@@ -894,10 +894,11 @@ class TicketController extends BaseController
     {
         $ticketId = $encryptService->unHashData($id);
         $ticket = $ticketRepo->findOneBy(['securityToken' => $ticketId]);
+        $notification = $ticket->getNotificationInfos()->last();
         $form = $this->createForm(NotificationConfirmFormType::class, null);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $notification = $ticket->getNotificationInfos()->last();
+
             $notification->setCloseDate(new DateTime('now'));
             $notification->setStatus($form->getData()['answers']);
             $notification->setCloseFreeText($form->getData()['freeText']);
@@ -918,11 +919,13 @@ class TicketController extends BaseController
             return $this->render('/ticket/confirmNotification.html.twig', [
                 'ticket' => $ticket,
                 'notificationConfirmForm' => $form,
+                'notification' => $notification,
                 'answered' => true,
             ]);
         }
         return $this->render('/ticket/confirmNotification.html.twig', [
             'ticket' => $ticket,
+            'notification' => $notification,
             'notificationConfirmForm' => $form,
             'answered' => false,
         ]);
