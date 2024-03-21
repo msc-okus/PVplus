@@ -233,32 +233,6 @@
         {% set grlengthmax = 50 %}
         {% set grlengthmin = 1 %}
     {% endif %}
-
-    <script>
-        // The range slider config and functions
-
-            $("#invids").val(form.selectedSet);
-            $("#invnames").val(form.selectedSet);
-
-                slide: function (event, ui) {
-                $("#invids").val("1,7");
-                $("#invnames").val("1,7");
-            },
-            change: function (event, ui) {
-                if ((7 - 1) > 100) {
-                    alert("The selected range is greater than 100, which can lead to delays in the view!");
-                }
-                $("#sendrange").css("background-color", "#e6e6e6");
-            }
-        });
-            $("#invids").val("1,7");
-            $("#invnames").val("1,7");
-            $("#goshare").click(function () {
-                $("#mysubmit").val('yes');
-                $("#chart-control").delay(100).submit();
-            });
-        });
-    </script>
 {% endif %}
 
 
@@ -440,10 +414,27 @@
                         </div>
                         <div data-controller="request">
                             <div class="selectInverters">
-                                <div class="cell"><span>Select Inverters</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
-
+                                {% if clearSelections == 1 %}
+                                    <script>
+                                        $('#invnames').val('');
+                                        $('#invids').val('');
+                                        let body = $('#inverters');
+                                        body.find('input:checkbox[class=js-checkbox]').each(function () {
+                                            $(this).prop("checked", false);
+                                        });
+                                    </script>
+                                {% endif %}
+                                {% if templateForSelection == 'selectstringboxes.html.twig' %}
+                                    <div class="cell"><span>Select Stringboxes</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                {% else %}
+                                    <div class="cell"><span>Select Inverters</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                {% endif %}
                                 <div class="selectInvertersContent" id="selectInvertersContent">
-                                    {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited} only %}
+                                    {% if templateForSelection == 'selectstringboxes.html.twig' %}
+                                        {% include 'dashboardPlants/_incl/chart/selectstringboxes.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited} only %}
+                                    {% else %}
+                                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited} only %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -469,7 +460,7 @@
                     and (form.selectedChart != 'sollistheatmap')
                     and (form.selectedChart != 'grid') %}
                     {% if is_granted('ROLE_G4N') %}
-                        <div class="test">
+                        <div class="switchtyny">
                             <div class="switch tiny align-center-middle">
                                 <label class="" style="line-height: 1;"><small>Interval min.</small></label>
                                 <input class="switch-input js-submit-onchange" id="hour" type="checkbox"
@@ -540,6 +531,5 @@
 
         </div>
     {% endif %}
-
-
+</div>
 </div>

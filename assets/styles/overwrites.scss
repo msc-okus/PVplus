@@ -188,11 +188,6 @@
         &:last-child {border-right: none;}
     }
 
-    .input-group .test{
-        // height: 2.25rem;
-        width: 20% !important;
-    }
-
     $navHeight: 100px;
     header {
         position: fixed;
@@ -882,6 +877,10 @@
                     display: none;
                 }
 
+                .input-group-label {
+                    // height: 2.25rem;
+
+                }
                 .button-group > .button {
                     background-color: $g4n-white;
                     color: #0a0a0a;
@@ -977,7 +976,6 @@
             .selectInverters{
                 z-index: 2000;
                 position: relative;
-                width: 200px !important;
             }
             .selectInvertersContent{
                 color: #1779ba;

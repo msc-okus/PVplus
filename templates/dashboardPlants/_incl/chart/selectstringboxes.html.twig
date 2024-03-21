@@ -5,27 +5,12 @@
         {% if (invArray != null) %}
             <div class="grid-x">
                 <div class="cell small-form">
-                    <h3>Inverter List</h3>
+                    <h3>Stringboxes List</h3>
                     <input class="check-all" id="check-all" type="checkbox"
                            data-action="click->select-inverters#selectAll"
                            data-select-inverters-target="switch">
                     <label for="check-all" class="">Select All</label>
                 </div>
-            </div>
-            <hr>
-            <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-9">
-                {% for key in trafoArray|keys %}
-                    {% set trafo = trafoArray[key] %}
-                    <div class="cell small-form">
-                        <input id="trafo{{ loop.index }}"
-                               class="js-checkbox-trafo"
-                               data-select-inverters-first-param="{{ trafo.first }}"
-                               data-select-inverters-last-param="{{ trafo.last }}"
-                               data-select-inverters-trafo-param="{{ loop.index }}"
-                               data-action="click->select-inverters#checkTrafo" type="checkbox">
-                        <label for="trafo{{ loop.index }}">TS {{ key }}</label>
-                    </div>
-                {% endfor %}
             </div>
             <hr>
             <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-9">

@@ -863,7 +863,6 @@ class ACPowerChartsService
 
         $groupct = count($nameArray);
 
-        $res = explode(',', (string) $sets);
         $invNameArray = [];
         if ($groupct) {
             if ($sets == null) {
@@ -882,8 +881,6 @@ class ACPowerChartsService
                 $temp = substr($temp, 0, -4);
                 $sqladd = "AND ($temp) ";
 
-                $max = (($max > 50) ? '50' : $max);
-                $sqladd = "AND $group BETWEEN '$min' AND '$max'";
               } else {
                 $temp = '';
                 $j = 1;
@@ -899,6 +896,7 @@ class ACPowerChartsService
 
                 $temp = substr($temp, 0, -4);
                 $sqladd = "AND ($temp) ";
+
             }
         } else {
             $min = 1;$max = 5;
@@ -917,7 +915,6 @@ class ACPowerChartsService
                  > '$from' AND c.stamp <= '$to' 
                  $sqladd
                  GROUP BY c.stamp,c.$group ORDER BY NULL";
-
 
         // process the Query result
         $resultActual = $conn->query($sql);

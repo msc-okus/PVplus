@@ -120,6 +120,8 @@ class DashboardPlantsController extends BaseController
             $form['optionDayAheadViewDay'] = 0; #0=6Tage;1=3Tage;2=2Tage;
             $form['hour'] = false;
             $form['selRange'] = $request->request->get('selRange');
+            $form['invnames'] = '';
+            $form['invids'] = '';
         }
 
         if ($request->request->get('mysubmit') === 'yes' || $request->request->get('mysubmit') === 'select') {
@@ -189,18 +191,32 @@ class DashboardPlantsController extends BaseController
 
         $content = null;
         $hour = $request->get('hour') == 'on';
-        if($aktAnlage){
-            switch ($aktAnlage->getConfigType()) {
-                case 1:
-                    $nameArray = $functions->getNameArray($aktAnlage, 'dc');
-                    $idsArray = $functions->getIdArray($aktAnlage, 'dc');
-                    break;
-                default:
-                    $nameArray = $functions->getNameArray($aktAnlage, 'ac');
-                    $idsArray = $functions->getIdArray($aktAnlage, 'ac');
+
+
+        if(($form['selectedChart'] == 'sollistheatmap' || $form['selectedChart'] == 'dcpnomcurr')  && $aktAnlage->getUseNewDcSchema()){
+            $gruopsDc = $aktAnlage->getGroupsDc();
+            for ($i = 1; $i <= count($gruopsDc); ++$i) {
+                $nameArray[$i] = $gruopsDc[$i]['GroupName'];
+                $idsArray[$i] = $i;
             }
-            $trafoArray = $this->getTrafoArray($aktAnlage, $acRepo);
+
+            $templateForSelection = 'selectstringboxes.html.twig';
+        }else{
+            if($aktAnlage){
+                switch ($aktAnlage->getConfigType()) {
+                    case 1:
+                        $nameArray = $functions->getNameArray($aktAnlage, 'dc');
+                        $idsArray = $functions->getIdArray($aktAnlage, 'dc');
+                        break;
+                    default:
+                        $nameArray = $functions->getNameArray($aktAnlage, 'ac');
+                        $idsArray = $functions->getIdArray($aktAnlage, 'ac');
+                }
+                $trafoArray = $this->getTrafoArray($aktAnlage, $acRepo);
+                $templateForSelection = 'selectinverters.html.twig';
+            }
         }
+
         unset($functions);
         if ($aktAnlage) {
             $content = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
@@ -228,6 +244,14 @@ class DashboardPlantsController extends BaseController
         }
 
         $isInTimeRange = self::isInTimeRange();
+        $clearSelections = 0;
+
+        if($_SESSION['selectedChart'] != $form['selectedChart']){
+            $clearSelections = 1;
+        }
+        $_SESSION['selectedChart'] = $form['selectedChart'];
+
+
         return $this->render('dashboardPlants/plantsShow.html.twig', [
             'anlagen' => $anlagen,
             'aktAnlage' => $aktAnlage,
@@ -239,6 +263,8 @@ class DashboardPlantsController extends BaseController
             "invIdsArray" => $inverterIdsArray,
             'trafoArray' => $trafoArray,
             'edited' => true,
+            'templateForSelection' => $templateForSelection,
+            'clearSelections' => $clearSelections
         ]);
     }
 
