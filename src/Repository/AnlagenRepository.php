@@ -288,25 +288,26 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-    public function findAllByEigner($eigner): array
-    {
-        return $this->createQueryBuilder('a')
-            ->andWhere("a.anlHidePlant = 'No'")
-            ->andWhere('a.eignerId = :eigner')
-            ->setParameter('eigner', $eigner)
-            ->leftJoin('a.economicVarNames', 'varName')
-            ->leftJoin('a.economicVarValues', 'ecoValu')
-            ->leftJoin('a.settings', 'settings')
-            ->addSelect('varName')
-            ->addSelect('ecoValu')
-            ->addSelect('settings')
-            ->getQuery()
-            ->getResult();
-    }
+
     public function findAllIDByEigner($eigner): array
     {
         return $this->createQueryBuilder('a')
             ->select('a.anlName','a.anlId','a.country')
+            ->andWhere('a.eignerId = :eigner')
+            ->andWhere("a.anlHidePlant = 'No'")
+            ->andWhere("a.anlView = 'Yes'")
+            ->orderBy('a.country')
+            ->addOrderBy('a.anlName')
+            ->setParameter('eigner', $eigner)
+            ->getQuery()
+            ->getResult();
+    }
+    public function findSymfonyImportByEigner($eigner): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.anlName','a.anlId','a.country')
+            ->leftJoin('plants.settings', 'settings')
+            ->where('settings.symfonyImport = true')
             ->andWhere('a.eignerId = :eigner')
             ->andWhere("a.anlHidePlant = 'No'")
             ->andWhere("a.anlView = 'Yes'")
@@ -363,6 +364,20 @@ class AnlagenRepository extends ServiceEntityRepository
     public function findAllActiveAndAllowed(): array
     {
         $qb = self::querBuilderFindAllActiveAndAllowed();
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Suche alle aktiven Anlagen für die ein Benutzer die Zugriffsrechte hat und die mit Symfony Importiert werden
+     *
+     * @return Anlage[]
+     */
+    public function findAllSymfonyImport(): array
+    {
+        $qb = self::querBuilderFindAllActiveAndAllowed();
+        $qb
+            ->andWhere('settings.symfonyImport = true');
 
         return $qb->getQuery()->getResult();
     }
@@ -484,4 +499,54 @@ class AnlagenRepository extends ServiceEntityRepository
         return $qb->orderBy('eigner.firma', 'ASC')
             ->addOrderBy('a.anlName', 'ASC');
     }
+
+    public function getOwner(array $eigners = [], array $grantedPlantList = []): QueryBuilder
+    {
+
+
+
+
+
+
+        if ($this->security->isGranted('ROLE_G4N')) {
+            $qb = $this->createQueryBuilder('a')
+                ->innerJoin('a.eigner', 'eigner')
+                ->addSelect('eigner')
+                ->leftJoin('a.economicVarNames', 'varName')
+                ->leftJoin('a.economicVarValues', 'ecoValu')
+                ->leftJoin('a.settings', 'settings')
+                ->addSelect('varName')
+                ->addSelect('ecoValu')
+                ->addSelect('settings')
+                ->addOrderBy('a.anlName', 'ASC');
+            return $qb;
+        }
+
+
+
+        $qb = $this->createQueryBuilder('a')
+            ->andWhere('a.eignerId IN (:eigners) ')
+            ->andWhere('a.anlId IN (:grantedPlantList)')
+            ->setParameter('eigners', $eigners)
+            ->setParameter('grantedPlantList', $grantedPlantList)
+            ->innerJoin('a.eigner', 'eigner')
+            ->addSelect('eigner')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings')
+            ->addOrderBy('a.anlName', 'ASC');
+
+
+
+
+        return $qb;
+    }
+
+
+
+
+
 }

@@ -417,8 +417,8 @@
             <input type="checkbox" class="switch-input" id="{{ form.vars.id }}" {{ checked }}>
             {%- set attr = attr|merge({class: (attr.class|default('') ~ ' switch-input')|trim}) -%}
             <label class="switch-paddle" for="{{ form.vars.id }}">
-                <span class="switch-active" aria-hidden="true">Yes</span>
-                <span class="switch-inactive" aria-hidden="true">No</span>
+                <span class="switch-active" aria-hidden="true">On</span>
+                <span class="switch-inactive" aria-hidden="true">Off</span>
             </label>
             {{- form_errors(form) -}}
         </div>

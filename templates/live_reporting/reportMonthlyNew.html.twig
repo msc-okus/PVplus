@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}
-    {{  parent() }}live reporting
+    {{  parent() }}special operations
 {% endblock %}
 
 {% block styles %}
@@ -31,5 +31,14 @@
                 {{ include('report/_monthly/_tableSub.html.twig', {excel: 'true'}) }}
             </div>
         </div>
+        {% if tickets is defined %}
+            {% if tickets|length > 0 %}
+                <div class="grid-x">
+                    <div class="cell">
+                        {% include('report/_base_layouts/_ticketsSub.html.twig') %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
     {% endif %}
 {% endblock %}

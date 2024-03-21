@@ -22,7 +22,6 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
 
-
 class AnlageFormType extends AbstractType
 {
     use G4NTrait;
@@ -30,8 +29,7 @@ class AnlageFormType extends AbstractType
 
     public function __construct(
         private readonly Security $security
-    )
-    {
+    ){
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -202,17 +200,6 @@ class AnlageFormType extends AbstractType
                 'empty_data' => 'No',
                 'disabled' => !($isDeveloper),
             ])
-            /*
-            ->add('useNewDcSchema', ChoiceType::class, [
-                'label' => 'Neues DC Database Schema',
-                'help' => '[useNewDcSchema] <br> (separate Tabelle für DC IST)',
-                'choices' => ['Yes' => '1', 'No' => '0'],
-                'empty_data' => '0',
-                'expanded' => false,
-                'multiple' => false,
-                'disabled' => !($isDeveloper || $isAdmin),
-            ])
-            */
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
                 'help' => '[configType]<br>' . $tooltipTextPlantType,

@@ -1,0 +1,173 @@
+
+<script>
+     am4core.ready(function() {
+        // Create chart instance
+        let chart = am4core.create("amchart-holder", am4charts.XYChart);
+
+        chart.data = {{ content.data|raw }};
+
+        chart.preloader.disabled = false;
+        chart.preloader.transitionDuration = 0;
+        chart.preloader.progress = 5;
+       // chart.scrollbarX = new am4core.Scrollbar();
+       // chart.scrollbarY = new am4core.Scrollbar();
+
+        // Create series
+        //Title
+        let title = chart.titles.create();
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
+        title.fontSize = 16;
+        title.marginBottom = 30;
+
+        //Subtitle
+        let title2 = chart.titles.create();
+        title2.text = "- Irradiation to Inverter Temperature -";
+        title2.dy = 50;
+        title2.fontSize = 12;
+        title2.marginBottom = 10;
+
+        // Create axes
+        let xAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+        let yAxis = chart.yAxes.push(new am4charts.CategoryAxis());
+        xAxis.dataFields.category = "xinv";
+        yAxis.dataFields.category = "ydate";
+        yAxis.renderer.labels.template.fontSize = 10;
+        xAxis.renderer.labels.template.fontSize = 10;
+        xAxis.renderer.grid.template.disabled = true;
+        xAxis.renderer.minGridDistance = 5;
+        xAxis.renderer.inversed = false;
+        yAxis.renderer.grid.template.disabled = true;
+        yAxis.renderer.inversed = true;
+        yAxis.renderer.minGridDistance = 15;
+        xAxis.renderer.labels.template.rotation = -45;
+        xAxis.renderer.labels.template.horizontalCenter = "right";
+        xAxis.renderer.labels.template.verticalCenter = "middle";
+
+        // Create series
+        let series1 = chart.series.push(new am4charts.ColumnSeries());
+        series1.dataFields.categoryX = "xinv";
+        series1.dataFields.categoryY = "ydate";
+        series1.dataFields.value = "value";
+        series1.dataFields.valueI = "irr";
+        series1.sequencedInterpolation = false;
+        series1.defaultState.transitionDuration = 2000;
+        series1.tooltip.label.interactionsEnabled = true;
+        series1.tooltip.background.fill = am4core.color("#31af31");
+        series1.columns.template.width = am4core.percent(100);
+        series1.columns.template.height = am4core.percent(100);
+        series1.showOnInit = false;
+        //series1.columns.template.dx = 10;
+
+        var columnTemplate1 = series1.columns.template;
+        columnTemplate1.strokeWidth = 0;
+        columnTemplate1.strokeOpacity = 2;
+        columnTemplate1.stroke = am4core.color("#ffffff");
+        columnTemplate1.tooltipText = "[bold]Inv: {xinv}[/]\n[bold]Time: {ydate}[/]\n[bold]Irr: {valueI} W/m²[/]\n[bold]Temp: {value.workingValue.formatNumber('#.')} °C[/]";
+        columnTemplate1.width = am4core.percent(100);
+        columnTemplate1.height = am4core.percent(100);
+
+        var cranges = {};
+        cranges.range1 = ['#e5ecff','#d8e9f6','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b'];
+        cranges.range2 = ['#fff5eb','#fee6ce','#fdd0a2','#fdae6b','#fd8d3c','#f16913','#d94801','#a63603','#7f2704'];
+        cranges.range3 = ['#f7fcf5','#e5f5e0','#c7e9c0','#a1d99b','#74c476','#41ab5d','#238b45','#006d2c','#00441b'];
+        cranges.range4 = ['#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d'];
+        cranges.range5 = ['#18d404','#42db30','#64db56','#7fd974','#99d797','#f8a0a0','#f86969','#fa4545','#f80505'];
+        cranges.range6 = ['#E3E3E3','#cdcdcd','#afafaf','#8b8b8b','#828282','#6a6a6a','#5c5c5c','#262626','#010101'];
+        cranges.range7 = ['#6baed6','#4292c6','#9ecae1','#9ecae1','#e5ecff','#ffd9d9','#fdd4d4','#fcabab','#ff9393','#fa7d7d','#f86565','#f84646','#f82222','#fa0404'];
+
+        var ranges = cranges.range7;
+
+        function inRange(x, min, max, cid = 0) {
+            if (((x-min)*(x-max) <= 0)){
+                return ranges[cid];
+            };
+        };
+/*
+         series1.heatRules.push({
+             target:columnTemplate1,
+             property:"fill",
+             min:am4core.color("#ffffff"),
+             max:am4core.color("#de2a01"),
+             minValue: 15,
+             maxValue: 75
+         });
+*/
+
+                series1.columns.template.column.adapter.add("fill", function(fill, target) {
+                     if (target.dataItem) {
+                         if (target.dataItem.value == -1) { return am4core.color("#afafaf") };
+                         if (target.dataItem.value == 0) { return am4core.color("#fffefe") };
+                         if (inRange(target.dataItem.value, 1, 5)) {return am4core.color(inRange(target.dataItem.value, 1, 5, 0))};
+                         if (inRange(target.dataItem.value, 6, 10)) {return am4core.color(inRange(target.dataItem.value, 6, 10, 1))};
+                         if (inRange(target.dataItem.value, 11, 15)) {return am4core.color(inRange(target.dataItem.value, 11, 15, 2))};
+                         if (inRange(target.dataItem.value, 16, 20)) {return am4core.color(inRange(target.dataItem.value, 16, 20, 3))};
+                         if (inRange(target.dataItem.value, 21, 25)) {return am4core.color(inRange(target.dataItem.value, 21, 25, 4))};
+                         if (inRange(target.dataItem.value, 26, 30)) {return am4core.color(inRange(target.dataItem.value, 26, 30, 5))};
+                         if (inRange(target.dataItem.value, 31, 35)) {return am4core.color(inRange(target.dataItem.value, 31, 35, 6))};
+                         if (inRange(target.dataItem.value, 36, 38)) {return am4core.color(inRange(target.dataItem.value, 36, 38, 7))};
+                         if (inRange(target.dataItem.value, 39, 42)) {return am4core.color(inRange(target.dataItem.value, 39, 42, 8))};
+                         if (inRange(target.dataItem.value, 31, 45)) {return am4core.color(inRange(target.dataItem.value, 31, 45, 9))};
+                         if (inRange(target.dataItem.value, 46, 50)) {return am4core.color(inRange(target.dataItem.value, 46, 50, 10))};
+                         if (inRange(target.dataItem.value, 51, 55)) {return am4core.color(inRange(target.dataItem.value, 51, 55, 11))};
+                         if (inRange(target.dataItem.value, 56, 65)) {return am4core.color(inRange(target.dataItem.value, 56, 65, 12))};
+                         if (inRange(target.dataItem.value, 66, 75)) {return am4core.color(inRange(target.dataItem.value, 66, 75, 13))};
+                     }
+                     return fill;
+                 });
+
+        // Build Heatmap Legende
+        let heatLegend = chart.createChild(am4charts.HeatLegend);
+        heatLegend.minColor = am4core.color("#f8ecec");
+        heatLegend.maxColor = am4core.color("#fa0404");
+        heatLegend.minValue = 1;
+        heatLegend.maxValue = 75;
+        heatLegend.series = series1;
+        heatLegend.width = am4core.percent(100);
+        heatLegend.valueAxis.renderer.labels.template.fontSize = 9;
+        heatLegend.valueAxis.renderer.minGridDistance = 60;
+
+        /* Set up heat legend tooltips */
+        series1.columns.template.events.on("over", function(ev) {
+            if (!isNaN(ev.target.dataItem.value)) {
+                heatLegend.valueAxis.showTooltipAt(ev.target.dataItem.value)
+            }
+            else {
+                heatLegend.valueAxis.hideTooltip();
+            }
+        });
+
+        series1.columns.template.events.on("out", function(ev) {
+            heatLegend.valueAxis.hideTooltip();
+        });
+
+        // Export
+        chart.exporting.menu = new am4core.ExportMenu();
+        chart.exporting.menu.items[0].label = "Download";
+
+        //
+        yAxis.min = 0;
+
+        var range1 = yAxis.axisRanges.create();
+        //range1.value = 1000;
+        var range2 = yAxis.axisRanges.create();
+        //range2.value = 2000;
+
+        var image1 = new am4core.Image();
+        var image2 = new am4core.Image();
+        image1.href = "/images/sun.svg";
+        image1.width = 15;
+        image1.horizontalCenter = "middle";
+        image1.verticalCenter = "middle";
+        image1.dx = -55;
+        image1.dy = -1;
+        range1.bullet = image1;
+        image2.href = "/images/moon.svg";
+        image2.width = 15;
+        image2.horizontalCenter = "middle";
+        image2.verticalCenter = "middle";
+        image2.dx = -55;
+        image2.dy = 520;
+        range2.bullet = image2;
+    });
+    // end am4core.ready()
+</script>

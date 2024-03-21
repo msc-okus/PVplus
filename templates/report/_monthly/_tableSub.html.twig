@@ -40,7 +40,6 @@
 {% endif %}
 <style>
     .monthtable th, .monthtable td {
-
     {% if excel is not defined %}
         font-size: {{ fontsize }}px;
     {% else %}
@@ -125,7 +124,7 @@
             <td>{{ day["powerEvuDep0"]|number_format(2,',','.') }}</td>
             {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep0EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep0Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
             <td>{{ day["prDep0Act"]|number_format(2,',','.') }}</td>
-            <td class="border-right-2">{{ day["pa0"]|number_format(3,',','.') }}</td>
+            <td class="border-right-2">{% if anlage.anlType == 'masterslave' %}N/A{% else %}{{ day["pa0"]|number_format(3,',','.') }}{% endif %}</td>
 
 
             {% if anlage.settings.disableDep1 != true %}
@@ -135,7 +134,7 @@
                 <td>{{ day["powerEvuDep1"]|number_format(2,',','.') }}</td>
                 {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep1EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep1Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
                 <td>{{ day["prDep1Act"]|number_format(2,',','.') }}</td>
-                {% if anlage.settings.enablePADep1 %}<td>{{ day["pa1"]|number_format(3,',','.') }}</td>{% endif %}
+                {% if anlage.settings.enablePADep1 %}<td>{% if anlage.anlType == 'masterslave' %}N/A{% else %}{{ day["pa1"]|number_format(3,',','.') }}{% endif %}</td>{% endif %}
             {% endif %}
 
             {% if anlage.settings.disableDep2 != true %}
@@ -145,7 +144,7 @@
                 <td>{{ day["powerEvuDep2"]|number_format(2,',','.') }}</td>
                 {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep2EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep2Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
                 <td>{{ day["prDep2Act"]|number_format(2,',','.') }}</td>
-                {% if anlage.settings.enablePADep2 %}<td>{{ day["pa2"]|number_format(3,',','.') }}</td>{% endif %}
+                {% if anlage.settings.enablePADep2 %}<td>{% if anlage.anlType == 'masterslave' %}N/A{% else %}{{ day["pa2"]|number_format(3,',','.') }}{% endif %}</td>{% endif %}
             {% endif %}
 
             {% if anlage.settings.disableDep3 != true %}
@@ -155,7 +154,7 @@
                 <td>{{ day["powerEvuDep3"]|number_format(2,',','.') }}</td>
                 {% if anlage.showEvuDiag %}<td>{% if anlage.useGridMeterDayData %}{{ day["prDep3EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep3Evu"]|number_format(2,',','.') }}{% endif %}</td>{% endif %}
                 <td>{{ day["prDep3Act"]|number_format(2,',','.') }}</td>
-                {% if anlage.settings.enablePADep3 %}<td>{{ day["pa3"]|number_format(3,',','.') }}</td>{% endif %}
+                {% if anlage.settings.enablePADep3 %}<td>{% if anlage.anlType == 'masterslave' %}N/A{% else %}{{ day["pa3"]|number_format(3,',','.') }}{% endif %}</td>{% endif %}
             {% endif %}
         </tr>
     {% endfor %}

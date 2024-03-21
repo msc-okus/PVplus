@@ -189,6 +189,32 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $usePpcTicketToReplacePvSyst = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $activateAnalysis = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $stringAnalysis = false;
+
+    public function getActivateAnalysis(): ?bool
+    {
+        return $this->activateAnalysis;
+    }
+
+    public function setActivateAnalysis(?bool $activateAnalysis): void
+    {
+        $this->activateAnalysis = $activateAnalysis;
+    }
+
+    public function getStringAnalysis(): ?bool
+    {
+        return $this->stringAnalysis;
+    }
+
+    public function setStringAnalysis(?bool $stringAnalysis): void
+    {
+        $this->stringAnalysis = $stringAnalysis;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

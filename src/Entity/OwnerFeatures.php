@@ -29,7 +29,10 @@ class OwnerFeatures
     private ?bool $splitInverter = false;
 
     #[ORM\Column(nullable: true, options: ['default' => '0'])]
-    private ?bool $manAktive = false;
+    private ?bool $manAktive = false; // MRO ('man' is the wrong wording)
+
+    #[ORM\Column(nullable: true, options: ['default' => '0'])]
+    private ?bool $amStringAnalyseAktive = false;
 
     #[ORM\Column(nullable: true, options: ['default' => '0'])]
     private ?bool $splitGap = false;
@@ -113,17 +116,41 @@ class OwnerFeatures
 
         return $this;
     }
-
+    /** @deprecated  */
     public function isManAktive(): ?bool
     {
         return $this->manAktive;
     }
+    public function isMroAktive(): ?bool
+    {
+        return $this->manAktive;
+    }
 
+    /** @deprecated  */
     public function setManAktive(bool $manActive): self
     {
         $this->manAktive = $manActive;
 
         return $this;
+    }
+    public function setMroAktive(bool $manActive): self
+    {
+        $this->manAktive = $manActive;
+
+        return $this;
+    }
+    public function isAmStringAnalyseAktive(): ?bool
+    {
+        return $this->amStringAnalyseAktive;
+    }
+    public function getAmStringAnalyseAktive(): ?bool
+    {
+        return $this->amStringAnalyseAktive;
+    }
+
+    public function setAmStringAnalyseAktive(?bool $amStringAnalyseAktive): void
+    {
+        $this->amStringAnalyseAktive = $amStringAnalyseAktive;
     }
 
     public function getSimulatorName(): ?string

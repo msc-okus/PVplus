@@ -16,7 +16,7 @@
 {{ form_start(ownerForm, {'attr': {'novalidate': 'no'}}) }}
 <div class="grid-x grid-margin-x grid-padding-x">
     <div class="cell">
-        <ul class="tabs" data-tabs id="example-tabs" data-deep-link="true">
+        <ul class="tabs" data-tabs id="owner-tabs" data-deep-link="true">
             <li class="tabs-title is-active"><a href="#owner1" aria-selected="true">Owner</a></li>
             {% if is_granted('ROLE_G4N') %}
                 <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
@@ -25,8 +25,9 @@
              <li class="tabs-title "><a data-tabs-target="contacts" href="#contacts">Contacts</a></li>
         </ul>
 
-        {# Basic Infos Owner #}
-        <div class="tabs-content" data-tabs-content="example-tabs">
+        <div class="tabs-content" data-tabs-content="owner-tabs">
+
+            {# Basic Infos Owner #}
             <div class="tabs-panel is-active" id="owner1">
                 <div class="grid-x grid-margin-x grid-margin-y">
                     <div class="cell medium-6">
@@ -48,6 +49,7 @@
                             {% if is_granted('ROLE_G4N') %}
                                 {{ form_row(ownerForm.active) }}
                                 {{ form_row(ownerForm.language) }}
+                                {{ form_row(ownerForm.operations) }}
                             {% endif %}
 
                             {% if isupload != '' %}
@@ -93,6 +95,7 @@
                         {{ form_row(ownerForm.features.SplitInverter) }}
                         {{ form_row(ownerForm.features.SplitGap) }}
                         {{ form_row(ownerForm.features.manAktive) }}
+                        {{ form_row(ownerForm.features.amStringAnalyseAktive) }}
                     </fieldset>
                 </div>
             {% endif %}

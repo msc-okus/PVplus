@@ -17,7 +17,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 
 
 class UserFormType extends AbstractType
@@ -41,7 +40,7 @@ class UserFormType extends AbstractType
         if ($this->security->isGranted('ROLE_G4N')){
             $eigner = null;
         } else {
-            $eigner = $this?->security->getUser()?->getEigners()[0];
+            $eigner = $this->security->getUser()->getEigners()[0];
         }
         //find selected eigner id
         $sel_eigner = $user?->getEigners()[0];
@@ -64,11 +63,10 @@ class UserFormType extends AbstractType
             }
         }
 
-
        if ($this->security->isGranted('ROLE_G4N')){
            $choicesRolesArray = [...User::ARRAY_OF_G4N_ROLES, ...User::ARRAY_OF_ROLES_USER, ...User::ARRAY_OF_FUNCTIONS_BY_ROLE];
        } else {
-           $choicesRolesArray = [...User::ARRAY_OF_ROLES_USER, ...$user->getRolesArrayByFeature()];
+           $choicesRolesArray = [...User::ARRAY_OF_ROLES_USER, ...$this->security->getUser()->getRolesArrayByFeature()];
        }
 
        $singlechoince = [$eigner?->getFirma() => $eigner?->getId()];
@@ -79,18 +77,15 @@ class UserFormType extends AbstractType
                 'required' => true,
                 'attr' => ['placeholder' => 'Benutzername'],
             ])
-
             ->add('newPlainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'invalid_message' => 'The password fields must match.',
-                'options' => array('attr' => array('class' => 'password-field')),
                 'first_options' => ['label' => 'Password'],
                 'second_options' => ['label' => 'Repeat Password'],
                 'required' => true,
                 'mapped' => false,
                 'attr' => ['autocomplete'=>'new-password'],
             ])
-
             ->add('email', EmailType::class, [
                 'label' => 'eMail address',
                 'empty_data' => '',

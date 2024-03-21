@@ -4,9 +4,7 @@
 namespace App\Service\TicketsGeneration;
 
 use App\Entity\Anlage;
-use App\Entity\Status;
 use App\Entity\Ticket;
-use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
@@ -16,11 +14,7 @@ use App\Service\MessageService;
 use App\Service\PdoService;
 use App\Service\WeatherFunctionsService;
 use App\Service\WeatherServiceNew;
-use DateTime;
-use DateTimeZone;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 
 class AlertSystemWeatherService
@@ -28,16 +22,16 @@ class AlertSystemWeatherService
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private AnlagenRepository       $anlagenRepository,
-        private WeatherServiceNew       $weather,
-        private WeatherFunctionsService $weatherFunctions,
-        private AnlagenRepository       $AnlRepo,
-        private EntityManagerInterface  $em,
-        private MessageService          $mailservice,
-        private FunctionsService        $functions,
-        private StatusRepository        $statusRepo,
-        private TicketRepository        $ticketRepo)
+        private readonly PdoService                 $pdoService,
+        private readonly AnlagenRepository          $anlagenRepository,
+        private readonly WeatherServiceNew          $weather,
+        private readonly WeatherFunctionsService    $weatherFunctions,
+        private readonly AnlagenRepository          $AnlRepo,
+        private readonly EntityManagerInterface     $em,
+        private readonly MessageService             $mailservice,
+        private readonly FunctionsService           $functions,
+        private readonly StatusRepository           $statusRepo,
+        private readonly TicketRepository           $ticketRepo)
     {
         define('EFOR', '10');
         define('SOR', '20');
@@ -80,17 +74,17 @@ private PdoService $pdoService,
     public function checkWeatherStation(Anlage $anlage, string $time)
     {
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        if ( $anlage->getWeatherStation()->getType() !== 'custom') {
+        //if ($anlage->getWeatherStation()->getType() !== 'custom') {
             if ($time >= $sungap['sunrise'] && $time <=  $sungap['sunset']) {
                 $status_report = $this->WData($anlage, $time);
                 $ticketData = "";
                 if ($status_report['Irradiation']) $ticketData = $ticketData . "Problem with the Irradiation ";
                 if ($status_report['Temperature']) $ticketData = $ticketData . "Problem with the Temperature";
-                if ($status_report['wspeed'] != "") $ticketData = $ticketData . "Problem with the Wind Speed";
+                //if ($status_report['wspeed'] != "") $ticketData = $ticketData . "Problem with the Wind Speed";
                 $this->generateTicket($ticketData, $time, $anlage);
                 unset($status_report);
             }
-        }
+        //}
     }
 
 
@@ -109,7 +103,6 @@ private PdoService $pdoService,
                     WHERE a.stamp = '$time' ";
 
         $resw = $conn->query($sqlw);
-
         if ($resw->rowCount() > 0) {
             $wdata = $resw->fetch(PDO::FETCH_ASSOC);
             if ($wdata['gi'] != null && $wdata['gmod'] != null) {

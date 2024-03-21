@@ -339,6 +339,7 @@ class ReportsMonthlyV2Service
             $localEndDate = new \DateTime("$currentYear-$currentMonth-$endDay 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $localStartDate, $localEndDate);
 
+
             foreach($prArray as $key => $value) {
                 $monthValues[$monthCount][$key] = $value;
             }

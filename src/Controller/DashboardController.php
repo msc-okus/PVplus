@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class DashboardController extends BaseController
 {
@@ -17,8 +18,11 @@ class DashboardController extends BaseController
     {
         /* @var Eigner [] $eigners */
         /* @var Eigner $owners */
+
         if ($this->isGranted('ROLE_G4N')) { // Benutzer ist administrator (sieht alle Eigner mit allen Anlagen)
             $eigners = $eignerRepository->findAllDashboard();
+        } else if ($this->isGranted('ROLE_Operations')) {
+            return $this->redirectToRoute('app_operations');
         } else {
             $eigners = $this->getUser()->getEigners();
             if ($eigners->count() === 1) {
@@ -37,6 +41,21 @@ class DashboardController extends BaseController
         ]);
     }
 
+    #[IsGranted('ROLE_Operations')]
+    #[Route(path: '/operations', name: 'app_operations')]
+    public function operations(EignerRepository $eignerRepository): Response
+    {
+        $owners = [];
+        $eigners = $eignerRepository->findOperations();
+
+        foreach ($eigners as $eigner) {
+            $owners[] = $eigner;
+        }
+
+        return $this->render('dashboardAdmin/eignerShow.html.twig', [
+            'content' => $owners,
+        ]);
+    }
     /**
      * Dashboard für den Eigner (nur Anlagen eines Eigners / standard Seite für Eigner).
      */

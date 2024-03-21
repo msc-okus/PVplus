@@ -59,16 +59,12 @@ class UploaderHelper
     }
 
 
-    /**
-     * @throws FilesystemException
-     */
-    public function uploadImageSFTP(UploadedFile $uploadedFile, $owner, $anlage, string $type): array
+    public function uploadImageSFTP(UploadedFile $uploadedFile, $owner, $anlage,  string $type): array
     {
         $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $mimeType = pathinfo($uploadedFile->getClientMimeType(), PATHINFO_FILENAME);
 
         $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
-        $fileroute = "";
         switch ($type) {
             case 'plant':
                 $fileroute = './images/'.$owner.'/'.$anlage.'/'.self::PLANT_IMAGE.'/';
@@ -80,24 +76,21 @@ class UploaderHelper
                 $fileroute = './images/'.$owner.'/'.$anlage.'/others/';
         }
         $fileroute = str_replace(" ", "_", $fileroute);
-        if ($this->fileSystemFtp->fileExists($fileroute) === false) {
-            $this->fileSystemFtp->createDirectory($fileroute);
-        }
+        if ($this->fileSystemFtp->fileExists($fileroute) === false)$this->fileSystemFtp->createDirectory( $fileroute );
         $this->fileSystemFtp->write(
             $fileroute.$newFilename,
             file_get_contents($uploadedFile->getPathname())
         );
-
-        return [
+        $result = [
             'mimeType' => $mimeType,
             'newFilename' => $newFilename,
             'path' => $fileroute.$newFilename,
         ];
-    }
 
+        return $result;
+    }
     /**
      * @throws \Exception
-     * @throws FilesystemException
      */
     public function uploadArticleReference(File $file): string
     {
