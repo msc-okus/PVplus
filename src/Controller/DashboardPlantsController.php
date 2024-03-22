@@ -192,7 +192,6 @@ class DashboardPlantsController extends BaseController
         $content = null;
         $hour = $request->get('hour') == 'on';
 
-
         if(($form['selectedChart'] == 'sollistheatmap' || $form['selectedChart'] == 'dcpnomcurr')  && $aktAnlage->getUseNewDcSchema()){
             $gruopsDc = $aktAnlage->getGroupsDc();
             for ($i = 1; $i <= count($gruopsDc); ++$i) {

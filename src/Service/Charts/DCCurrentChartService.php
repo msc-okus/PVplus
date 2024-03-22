@@ -56,7 +56,7 @@ class DCCurrentChartService
                    FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM " . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp)
                    WHERE a.stamp > '$from' AND a.stamp <= '$to' 
                    $exppart2";
-        
+
         $result = $conn->query($sqlExp);
         $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
 
@@ -431,12 +431,6 @@ class DCCurrentChartService
         $to = self::timeAjustment($to, 1);
 
         $dcGroups = $anlage->getGroupsDc();
-        $groupct = count($dcGroups);
-
-        $groupdc = match ($anlage->getConfigType()) {
-            3, 4 => 'wr_group',
-            default => 'group_dc',
-        };
 
         /** @var AnlageGroupModules[] $modules */
         foreach ($anlage->getGroups() as $group) {
@@ -448,48 +442,88 @@ class DCCurrentChartService
             $mImpp[] = $mImppTemp;
         }
 
+        switch ($anlage->getConfigType()) {
+            case 3:
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                $idArray = $this->functions->getIdArray($anlage, 'dc');
+                $group = 'wr_group';
+                break;
+            case 4:
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                $idArray = $this->functions->getIdArray($anlage, 'dc');
+                $group = 'wr_group';
+                break;
+            default:
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                $idArray = $this->functions->getIdArray($anlage, 'dc');
+                $group = 'group_dc';
+        }
+
+        $groupct = count($nameArray);
+
+
         if ($groupct) {
-            if ($sets === null) {
+            if ($sets == null) {
                 $min = 1;
                 $max = ($groupct > 100 ? (int)ceil($groupct / 10) : (int)ceil(($groupct + 0.5) / 2));
                 $max = (($max > 50) ? '50' : $max);
-                $sqladd = "AND $groupdc BETWEEN '$min' AND '$max'";
+                $temp = '';
+                for ($i = 0; $i < $max; ++$i) {
+                    $invId = $i+1;
+                    $temp = $temp.$group." = ".$invId." OR ";
+                    $invIdArray[$i+1] =  $idArray[$i+1];
+                    $invNameArray[$i+1] =  $nameArray[$i+1];
+                }
+
+                $temp = substr($temp, 0, -4);
+                $sqladd = "AND ($temp) ";
             } else {
-                $res = explode(',', (string) $sets);
-                $min = (int)ltrim($res[0], "[");
-                $max = (int)rtrim($res[1], "]");
-                $max > $groupct ? $max = $groupct : $max = $max;
-                $groupct > $min ? $min = $min : $min = 1;
-                $sqladd = "AND $groupdc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '5' : $max) . " ";
+                $temp = '';
+                $j = 1;
+                for ($i = 0; $i < count($nameArray); ++$i) {
+                    if(str_contains($sets, $nameArray[$i+1])){
+                        $invId = $i+1;
+                        $temp = $temp.$group." = ".$invId." OR ";
+                        $invIdArray[$i+1] =  $idArray[$i+1];
+                        $invNameArray[$j] =  $nameArray[$i+1];
+                        $j++;
+                    }
+                }
+                $max = count($invNameArray);
+                $temp = substr($temp, 0, -4);
+                $sqladd = "AND ($temp) ";
             }
         } else {
             $min = 1;
             $max = 5;
-            $sqladd = "AND $groupdc BETWEEN '$min' AND ' $max'";
+            $sqladd = "AND $group BETWEEN '$min' AND ' $max'";
         }
         //
         if ($anlage->getUseNewDcSchema()) {
-            $sql = "SELECT stamp as ts, wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameDCIst() . " WHERE 
+            $sql = "SELECT stamp as ts, wr_idc as istCurrent, $group as inv FROM " . $anlage->getDbNameDCIst() . " WHERE 
                         stamp > '$from' AND stamp <= '$to' 
                         $sqladd
-                        GROUP BY stamp, $groupdc ORDER BY NULL";
+                        GROUP BY stamp, $group ORDER BY NULL";
         } else {
-            $sql = "SELECT stamp as ts, wr_idc as istCurrent, $groupdc as inv FROM " . $anlage->getDbNameACIst() . " WHERE 
+            $sql = "SELECT stamp as ts, wr_idc as istCurrent, $group as inv FROM " . $anlage->getDbNameACIst() . " WHERE 
                         stamp > '$from' AND stamp <= '$to' 
                         $sqladd
-                        GROUP BY stamp, $groupdc ORDER BY NULL";
+                        GROUP BY stamp, $group ORDER BY NULL";
         }
+
+
         $resultIst = $conn->query($sql);
 
-        foreach ($dcGroups as $key => $group) {
-            $nameArray[$key] = $group['GroupName'];
-        }
+        $dataArray['invNames'] = $invNameArray;
+        $dataArray['invIds'] = $invIdArray;
+        $dataArray['sumSeries'] = $invNameArray;
 
         if ($resultIst->rowCount() > 0) {
             while ($rowCurrIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowCurrIst['ts'];
                 $dataArray['chart'][$counter]['date'] = $stamp;
                 $currentIst = $rowCurrIst['istCurrent'] ? round($rowCurrIst['istCurrent'], 2) : 0;
+
                 $currentGroupName = $dcGroups[$rowCurrIst['inv']]['GroupName'];
                 $currentImpp = $mImpp[$rowCurrIst['inv'] - 1]; // the array beginn at zero
                 $value_dcpnom = $currentImpp > 0 ? round(($currentIst / $currentImpp), 2) : 0;
@@ -499,12 +533,14 @@ class DCCurrentChartService
             }
         }
         // the array for range slider min max
-        $dataArray['minSeries'] = $min;
+        $dataArray['minSeries'] = 1;
         $dataArray['maxSeries'] = $max;
         $dataArray['sumSeries'] = $groupct;
-        $dataArray['SeriesNameArray'] = $nameArray;
+        $dataArray['SeriesNameArray'] = $invNameArray;
         $dataArray['offsetLegend'] = 0;
         // The generated data Array for the range slider and Chart
+
+
         return $dataArray;
     }
 }

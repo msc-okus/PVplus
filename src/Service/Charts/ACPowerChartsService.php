@@ -870,7 +870,6 @@ class ACPowerChartsService
                 $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
 
                 $temp = '';
-                $j = 1;
                 for ($i = 0; $i < $max; ++$i) {
                         $invId = $i+1;
                         $temp = $temp.$group." = ".$invId." OR ";
@@ -903,8 +902,6 @@ class ACPowerChartsService
             $sqladd = "AND $group BETWEEN '$min' AND ' $max'";
         }
 
-
-        // the array for range slider min max
         $dataArray['invNames'] = $invNameArray;
         $dataArray['invIds'] = $invIdArray;
         $dataArray['sumSeries'] = $groupct;

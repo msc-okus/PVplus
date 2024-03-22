@@ -539,7 +539,7 @@ class ChartService
                     break;
 
                 case 'dcpnomcurr':
-                    $to =  date('Y-m-d 00:00:00',strtotime($form['to']));
+                    #$to =  date('Y-m-d 00:00:00',strtotime($form['to']));
                     $dataArray = $this->currentChart->getNomCurrentGroupDC($anlage, $from, $to, $form['invnames']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'DC Current Inverter normalized';
@@ -558,6 +558,7 @@ class ChartService
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
                     break;
                 case 'tempheatmap':
+                    $to =  date('Y-m-d 00:00:00',strtotime($form['to']));
                     $dataArray = $this->tempheatmapChartService->getTempHeatmap($anlage, $from, $to, $form['invnames']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Inverter Temperature Heatmap [[°C]]';
