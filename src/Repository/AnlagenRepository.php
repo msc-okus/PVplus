@@ -444,6 +444,8 @@ class AnlagenRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param string $query
+     * @param int $limit
      * @return array
      */
     public function findByAllMatching(string $query, int $limit = 100): array
@@ -492,7 +494,7 @@ class AnlagenRepository extends ServiceEntityRepository
             ->addSelect('settings');
 
         if ($term) {
-            $qb->andWhere('a.anlName LIKE :term OR eigner.anlPlz LIKE :term OR eigner.anlOrt LIKE :term OR eigner.firma LIKE :term')
+            $qb->andWhere('a.anlName LIKE :term OR a.anlPlz LIKE :term OR a.anlOrt LIKE :term OR eigner.firma LIKE :term')
                 ->setParameter('term', '%'.$term.'%');
         }
 
@@ -502,11 +504,6 @@ class AnlagenRepository extends ServiceEntityRepository
 
     public function getOwner(array $eigners = [], array $grantedPlantList = []): QueryBuilder
     {
-
-
-
-
-
 
         if ($this->security->isGranted('ROLE_G4N')) {
             $qb = $this->createQueryBuilder('a')
@@ -521,7 +518,6 @@ class AnlagenRepository extends ServiceEntityRepository
                 ->addOrderBy('a.anlName', 'ASC');
             return $qb;
         }
-
 
 
         $qb = $this->createQueryBuilder('a')
@@ -539,14 +535,7 @@ class AnlagenRepository extends ServiceEntityRepository
             ->addSelect('settings')
             ->addOrderBy('a.anlName', 'ASC');
 
-
-
-
         return $qb;
     }
-
-
-
-
 
 }

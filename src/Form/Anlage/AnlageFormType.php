@@ -239,7 +239,7 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
-                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 12]
             ])
             ->add('kwPeakPvSyst', TextType::class, [
                 'label' => 'Anlagenleistung PVSYST <br> [kWp]',
@@ -247,7 +247,7 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
-                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 12]
             ])
             ->add('kwPeakPLDCalculation', TextType::class, [
                 'label' => 'Anlagenleistung für PLD Berechnung <br> [kWp]',
@@ -255,7 +255,7 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
-                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 12]
             ])
             ->add('tempCorrCellTypeAvg', TextType::class, [
                 'label' => 't Cell AVG ',

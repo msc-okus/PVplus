@@ -39,7 +39,7 @@ class LiveReportingController extends AbstractController
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
     public function monthlyReportWithDays(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
-        $output = $table = null;
+        $output = $table = $tickets = null;
         $startDay = $request->request->get('start-day');
         $endDay = $request->request->get('end-day');
         $month = $request->request->get('month');
@@ -55,8 +55,9 @@ class LiveReportingController extends AbstractController
         if ($submitted && $anlageId !== null) {
             $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
             $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
+            $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
         }
-        $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
+
 
         return $this->render('live_reporting/reportMonthlyNew.html.twig', [
             'headline' => 'Monthly Report',
