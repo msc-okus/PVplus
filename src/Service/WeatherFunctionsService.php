@@ -125,7 +125,12 @@ class WeatherFunctionsService
             // ??? $this->determineTModAvg($anlage, $from, $to);
             $gamma = $anlage->getTempCorrGamma();
             $tempCorrFunctionIEC    = "(1 - ( (($tModAvg - temp_pannel) * ($gamma)) / 100))";
-            $degradation = (1 - $anlage->getDegradationPR() / 100) ** $anlage->getBetriebsJahre();
+
+            if($anlage->getAnlBetrieb()) {
+                $degradation = "POW(1-" . ($anlage->getDegradationPR() / 100) . ", CEIL((TO_DAYS(s.stamp)-TO_DAYS('" . $anlage->getAnlBetrieb()->format('Y-m-d') . "'))/365))";
+            } else {
+                $degradation = "1";
+            }
 
             // depending on $department generate correct SQL code to calculate
             if ($anlage->getIsOstWestAnlage()) {

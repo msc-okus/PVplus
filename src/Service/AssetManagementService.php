@@ -695,7 +695,6 @@ class AssetManagementService
                 $subindex = 0;
             }
         }
-        dd($maintenanceTicketTable);
         $kpiTicketArray = $this->ticketRepo->findAllKpiAnlage($anlage, $begin, $end);
         $index = 0;
         $subindex = 0; //we use 2 index to split the tables in case there are too many tickets

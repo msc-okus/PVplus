@@ -470,19 +470,8 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/proofCount', name: 'app_ticket_proof_count', methods: ['GET', 'POST'])]
     public function getProofCount(TicketRepository $ticketRepo): Response
     {
-        $countProofByTam = $ticketRepo->countByProof();
-        $countProofByEPC = $ticketRepo->countByProofEPC();
-        $countByProofAM = $ticketRepo->countByProofAM();
-        $countByProofG4N = $ticketRepo->countByProofG4N();
-        $countIgnored = $ticketRepo->countIgnored();
-        $countByProofMaintenance = $ticketRepo->countByProofMaintenance();
         return new JsonResponse([
-            'countProofByAM' => $countByProofAM,
-            'countProofByEPC' => $countProofByEPC,
-            'countProofByTAM' => $countProofByTam,
-            'countProofByG4N' => $countByProofG4N,
-            'countIgnored' => $countIgnored,
-            'countProofByMaintenance' => $countByProofMaintenance
+            'counts'        => $this->getCountOfTickets($ticketRepo)
         ]);
     }
 

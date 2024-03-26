@@ -849,16 +849,17 @@ class Anlage implements \Stringable
         return $this->anlBetrieb;
     }
 
-    public function getBetriebsJahre(): float
+    public function getBetriebsJahre(?DateTime $date = null): float
     {
+        if (is_null($date)) {
+            $date = new DateTime();
+        }
         if ($this->getAnlBetrieb()) {
-            $interval = $this->getAnlBetrieb()->diff(new DateTime());
-
-            return (int) ($interval->format('%a') / 356) + 1;
+            $interval = $this->getAnlBetrieb()->diff($date);
+            return (int) ($interval->format('%a') / 365) + 1;
         } else {
             return -1;
         }
-
     }
 
     public function setAnlBetrieb(?DateTime $anlBetrieb): self

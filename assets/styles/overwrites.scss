@@ -736,6 +736,9 @@
                 min-height: 320px;
 
                 ul.statusLights {
+                    .has-tip{
+                        color: $g4n-white;
+                    }
                     list-style-type: none; margin: 0;
 
                     li {
@@ -747,8 +750,6 @@
                             &.headline {font-size: 12px;}
                         }
                     }
-
-
                     .label-normal {background-color: $success}
                     .label-warning {background-color: $warning}
                     .label-alert {background-color: $danger}
@@ -757,9 +758,7 @@
         }
 
         #ownerNew{
-
                 ul.statusLights {
-
                     li{
                         margin-right: 2px;
                     }
