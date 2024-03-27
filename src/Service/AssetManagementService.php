@@ -695,7 +695,6 @@ class AssetManagementService
                 $subindex = 0;
             }
         }
-        dd($maintenanceTicketTable);
         $kpiTicketArray = $this->ticketRepo->findAllKpiAnlage($anlage, $begin, $end);
         $index = 0;
         $subindex = 0; //we use 2 index to split the tables in case there are too many tickets
@@ -1401,7 +1400,7 @@ class AssetManagementService
             'visualMap' => 'false',
         ];
         $chart->series = $series;
-        $option = [];
+
         $option = [
             'textStyle' => [
                 'fontFamily' => 'monospace',
@@ -1589,6 +1588,7 @@ class AssetManagementService
         ];
 
         $this->logMessages->updateEntry($logId, 'working', 30);
+        $option = [];
         $chart = new ECharts();
         $chart->xAxis = [
             'type' => 'category',
@@ -2718,6 +2718,7 @@ class AssetManagementService
             $outPa[] = $pa;
             unset($pa);
         }
+
 
         switch ($anlage->getConfigType()) {
             case 1:

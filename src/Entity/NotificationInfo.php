@@ -23,25 +23,9 @@ class NotificationInfo
     #[ORM\Column()]
     private ?\DateTime $closeDate = null;
 
-    public function getAnswerDate(): ?\DateTime
-    {
-        return $this->answerDate;
-    }
+    #[ORM\OneToMany(mappedBy: 'notificationInfo', targetEntity: NotificationWork::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $notificationWorks;
 
-    public function setAnswerDate(?\DateTime $answerDate): void
-    {
-        $this->answerDate = $answerDate;
-    }
-
-    public function getCloseDate(): ?\DateTime
-    {
-        return $this->closeDate;
-    }
-
-    public function setCloseDate(?\DateTime $closeDate): void
-    {
-        $this->closeDate = $closeDate;
-    }
 
     #[ORM\Column]
     private ?int $status = null;
@@ -70,12 +54,39 @@ class NotificationInfo
     #[ORM\Column(length: 25, nullable: true)]
     private ?string $identificator = null;
 
-    #[ORM\OneToMany(mappedBy: 'notificationInfo', targetEntity: NotificationWork::class, orphanRemoval: true)]
-    private Collection $notifcationWorks;
+    public function getNotificationWorks(): Collection
+    {
+        return $this->notificationWorks;
+    }
+
+    public function setNotificationWorks(Collection $notificationWorks): void
+    {
+        $this->notificationWorks = $notificationWorks;
+    }
+
+    public function getAnswerDate(): ?\DateTime
+    {
+        return $this->answerDate;
+    }
+
+    public function setAnswerDate(?\DateTime $answerDate): void
+    {
+        $this->answerDate = $answerDate;
+    }
+
+    public function getCloseDate(): ?\DateTime
+    {
+        return $this->closeDate;
+    }
+
+    public function setCloseDate(?\DateTime $closeDate): void
+    {
+        $this->closeDate = $closeDate;
+    }
 
     public function __construct()
     {
-        $this->notifcationWorks = new ArrayCollection();
+        $this->notificationWorks = new ArrayCollection();
     }
 
     public function getWhoNotified(): User
@@ -201,33 +212,4 @@ class NotificationInfo
         return $this;
     }
 
-    /**
-     * @return Collection<int, NotificationWork>
-     */
-    public function getNotifcationWorks(): Collection
-    {
-        return $this->notifcationWorks;
-    }
-
-    public function addNotifcationWork(NotificationWork $notifcationWork): static
-    {
-        if (!$this->notifcationWorks->contains($notifcationWork)) {
-            $this->notifcationWorks->add($notifcationWork);
-            $notifcationWork->setNotificationInfo($this);
-        }
-
-        return $this;
-    }
-
-    public function removeNotifcationWork(NotificationWork $notifcationWork): static
-    {
-        if ($this->notifcationWorks->removeElement($notifcationWork)) {
-            // set the owning side to null (unless already changed)
-            if ($notifcationWork->getNotificationInfo() === $this) {
-                $notifcationWork->setNotificationInfo(null);
-            }
-        }
-
-        return $this;
-    }
 }

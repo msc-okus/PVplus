@@ -892,42 +892,57 @@ class TicketController extends BaseController
     #[Route(path: '/notification/confirm/{id}', name: 'app_ticket_notification_confirm')]
     public function confirmNotification($id, TicketRepository $ticketRepo, Request $request, PiiCryptoService $encryptService, MessageService $messageService, EntityManagerInterface $em): Response
     {
+
         $ticketId = $encryptService->unHashData($id);
         $ticket = $ticketRepo->findOneBy(['securityToken' => $ticketId]);
         $notification = $ticket->getNotificationInfos()->last();
-        $form = $this->createForm(NotificationConfirmFormType::class, null);
+        $lastWork = $notification->getNotificationWorks()->last();
+
+        $finishedJob = false;
+        if ($lastWork != null){
+            $finishedJob = $lastWork->getType() == "30";
+        }
+
+
+        $form = $this->createForm(NotificationConfirmFormType::class, $notification);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-
-            $notification->setCloseDate(new DateTime('now'));
-            $notification->setStatus($form->getData()['answers']);
-            $notification->setCloseFreeText($form->getData()['freeText']);
-            if ($form->getData()['answers'] == 50) {
-                $messageService->sendRawMessage("Reparation finished - Ticket: " . $ticket->getId(),
-                    "The maintenance provider has finished the reparation job with id: ".$notification->getIdentificator()." <br> Maintenance answer: " . $notification->getCloseFreeText(),
-                    $notification->getWhoNotified()->getEmail(), $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(),
-                    false);
-            } else {
-                $messageService->sendRawMessage("Reparation with id: with id: ".$notification->getIdentificator()." could not be finished - Ticket: " . $ticket->getId(),
-                    "There was an unexpected problem and the maintenance provider could not fulfill the reparation request, we recommend contacting someone else for ticket " . $ticket->getId() . ".<br> Maintenance answer: " . $notification->getCloseFreeText(),
-                    $notification->getWhoNotified()->getEmail(),
-                    $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(),
-                    false);
+            $notification= $form->getData();
+            foreach ($notification->getNotificationWorks() as $notificationWork){
+                $notificationWork->setNotificationInfo($notification);
             }
+
             $em->persist($notification);
             $em->flush();
-            return $this->render('/ticket/confirmNotification.html.twig', [
-                'ticket' => $ticket,
-                'notificationConfirmForm' => $form,
-                'notification' => $notification,
-                'answered' => true,
-            ]);
+            if ($notification->getStatus() != 30) {
+                if ($notification->getStatus() == 50) {
+                    $messageService->sendRawMessage("Reparation finished - Ticket: " . $ticket->getId(),
+                        "The maintenance provider has finished the reparation job with id: " . $notification->getIdentificator() . " <br> Maintenance answer: " . $notification->getCloseFreeText(),
+                        $notification->getWhoNotified()->getEmail(), $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(),
+                        false);
+                } else {
+                    $messageService->sendRawMessage("Reparation with id: with id: " . $notification->getIdentificator() . " could not be finished - Ticket: " . $ticket->getId(),
+                        "There was an unexpected problem and the maintenance provider could not fulfill the reparation request, we recommend contacting someone else for ticket " . $ticket->getId() . ".<br> Maintenance answer: " . $notification->getCloseFreeText(),
+                        $notification->getWhoNotified()->getEmail(),
+                        $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(),
+                        false);
+                }
+
+                return $this->redirectToRoute('app_ticket_notification_confirm', ['id' => $id]);
+            }
+            else{
+
+                return $this->redirectToRoute('app_ticket_notification_confirm', ['id' => $id]);
+
+            }
+
         }
         return $this->render('/ticket/confirmNotification.html.twig', [
             'ticket' => $ticket,
             'notification' => $notification,
             'notificationConfirmForm' => $form,
             'answered' => false,
+            'finishedJob' => $finishedJob,
         ]);
     }
 
