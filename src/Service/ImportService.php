@@ -8,6 +8,7 @@ use App\Helper\ImportFunctionsTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\PVSystDatenRepository;
+use App\Service\WeatherServiceNew;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -27,7 +28,8 @@ class ImportService
         private readonly EntityManagerInterface $em,
         private readonly AvailabilityService $availabilityService,
         private readonly MeteoControlService $meteoControlService,
-        private readonly ManagerRegistry $doctrine
+        private readonly ManagerRegistry $doctrine,
+        private readonly WeatherServiceNew $weatherService,
     )
     {
     }
@@ -100,6 +102,15 @@ class ImportService
         $sensors = [];
         $stringBoxes = [];
         $numberOfPlants = count($arrayVcomIds);
+
+        $from = date('Y-m-d H:i', $start);
+        $to = date('Y-m-d H:i', $end);
+
+        $sunArray = $this->weatherService->getSunrise($anlage, $from);
+        $start = strtotime((string) $sunArray['sunrise']);
+        $sunArray = $this->weatherService->getSunrise($anlage, $to);
+        $end = strtotime((string) $sunArray['sunset']);
+
 
         //get the Data from VCOM for all Plants are configured in the current plant
         for ($i = 0; $i < $numberOfPlants; ++$i) {
