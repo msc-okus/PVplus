@@ -217,6 +217,10 @@ class DashboardPlantsController extends BaseController
         }
 
         unset($functions);
+        if($_SESSION['selectedChart'] != $form['selectedChart']){
+            $clearSelections = 1;
+            $form['invnames'] = '';
+        }
         if ($aktAnlage) {
             $content = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
         }
@@ -228,6 +232,11 @@ class DashboardPlantsController extends BaseController
         // I loop over the array with the real names and the array of selected inverters
         // of the inverter to create a 2-dimension array with the real name and the inverters that are selected
         //In this case there will  be none selected
+
+        if($form['invnames'] == ''){
+            $form['invnames'] = $content['invNames'];
+        }
+
         foreach ($nameArray as $key => $value){
             $inverterArray[$key]["invName"] = $value;
             $inverterArray[$key]["select"] = "";
@@ -245,9 +254,7 @@ class DashboardPlantsController extends BaseController
         $isInTimeRange = self::isInTimeRange();
         $clearSelections = 0;
 
-        if($_SESSION['selectedChart'] != $form['selectedChart']){
-            $clearSelections = 1;
-        }
+
         $_SESSION['selectedChart'] = $form['selectedChart'];
 
 
