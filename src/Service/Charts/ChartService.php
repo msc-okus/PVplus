@@ -300,7 +300,10 @@ class ChartService
                     // Current Charts DC //
                     // Übersicht Strom auf Basis der AC Gruppe
                 case 'dc_current_overview':
-                    $dataArray = $this->currentChart->getCurr1($anlage, $from, $to, $form['selectedGroup'], $hour);
+                    if($form['inverterRadio'] == null){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->currentChart->getCurr1($anlage, $from, $to, $form['inverterRadio'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['minSeries'] = $dataArray['minSeries'];

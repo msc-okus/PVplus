@@ -122,6 +122,7 @@ class DashboardPlantsController extends BaseController
             $form['selRange'] = $request->request->get('selRange');
             $form['invnames'] = '';
             $form['invids'] = '';
+            $form['inverterRadio'] = 1;
         }
 
         if ($request->request->get('mysubmit') === 'yes' || $request->request->get('mysubmit') === 'select') {
@@ -135,6 +136,7 @@ class DashboardPlantsController extends BaseController
             $form['optionDayAheadView']  = $request->request->get('optionDayAheadView');
             $form['optionDayAheadViewDay']  = $request->request->get('optionDayAheadViewDay');
             $form['hour']               = $request->request->get('hour');
+            $form['inverterRadio'] = $request->request->get('inverterRadio');
 
             if ($form['selectedChart'] == 'sollistirranalyse'   && !$form['optionIrrVal']) $form['optionIrrVal'] = 400;
             if ($form['selectedChart'] == 'pr_and_av'           && $form['optionDate'] < 7) $form['optionDate'] = 7;
@@ -191,7 +193,7 @@ class DashboardPlantsController extends BaseController
 
         $content = null;
         $hour = $request->get('hour') == 'on';
-
+        $useRadioButtons = 0;
         if(($form['selectedChart'] == 'sollistheatmap' || $form['selectedChart'] == 'dcpnomcurr')  && $aktAnlage->getUseNewDcSchema()){
             $gruopsDc = $aktAnlage->getGroupsDc();
             for ($i = 1; $i <= count($gruopsDc); ++$i) {
@@ -213,6 +215,12 @@ class DashboardPlantsController extends BaseController
                 }
                 $trafoArray = $this->getTrafoArray($aktAnlage, $acRepo);
                 $templateForSelection = 'selectinverters.html.twig';
+                if($form['selectedChart'] == 'dc_current_overview'){
+                    $useRadioButtons = 1;
+                    if($form['inverterRadio'] == null){
+                        $form['inverterRadio'] = 1;
+                    }
+                }
             }
         }
 
@@ -224,7 +232,6 @@ class DashboardPlantsController extends BaseController
         if ($aktAnlage) {
             $content = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
         }
-
 
         $inverterArray = [];
         $inverterIdsArray = [];
@@ -270,6 +277,7 @@ class DashboardPlantsController extends BaseController
             'trafoArray' => $trafoArray,
             'edited' => true,
             'templateForSelection' => $templateForSelection,
+            'useRadioButtons' => $useRadioButtons,
             'clearSelections' => $clearSelections
         ]);
     }

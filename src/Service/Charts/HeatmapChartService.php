@@ -87,7 +87,6 @@ class HeatmapChartService
 
         $groupct = count($nameArray);
 
-        $res = explode(',', (string) $sets);
         $invNameArray = [];
         if ($groupct) {
             if ($sets == null) {

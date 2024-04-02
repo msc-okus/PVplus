@@ -225,7 +225,7 @@
 </script>
 
 {% if  form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap'
-    or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' %}
+    or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' or form.selectedChart == 'dc_current_overview' %}
     {% if  content.maxSeries|raw %}
         {% set grlengthmax = content.maxSeries|raw %}
         {% set grlengthmin = content.minSeries|raw %}
@@ -405,7 +405,8 @@
                 or form.selectedChart == 'tempheatmap'
                 or form.selectedChart == 'sollistheatmap'
                 or form.selectedChart == 'dcpnomcurr'
-                or form.selectedChart == 'acpnom' %}
+                or form.selectedChart == 'acpnom'
+                or form.selectedChart == 'dc_current_overview'%}
                 {% if grlengthmax %}
                     <div class="select-inverters-frame">
                         <div class="hiddeninvs" style="height:20px;">
@@ -426,6 +427,8 @@
                                 {% endif %}
                                 {% if templateForSelection == 'selectstringboxes.html.twig' %}
                                     <div class="cell"><span>Select Stringboxes</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                {% elseif (useRadioButtons == 1) %}
+                                    <div class="cell"><span>Select Inverter</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
                                 {% else %}
                                     <div class="cell"><span>Select Inverters</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
                                 {% endif %}
@@ -433,7 +436,7 @@
                                     {% if templateForSelection == 'selectstringboxes.html.twig' %}
                                         {% include 'dashboardPlants/_incl/chart/selectstringboxes.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited} only %}
                                     {% else %}
-                                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited} only %}
+                                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited, useRadioButtons:useRadioButtons, form:form} only %}
                                     {% endif %}
                                 </div>
                             </div>
