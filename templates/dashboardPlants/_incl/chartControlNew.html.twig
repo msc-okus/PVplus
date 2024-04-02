@@ -225,7 +225,7 @@
 </script>
 
 {% if  form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap'
-    or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' or form.selectedChart == 'dc_current_overview' %}
+    or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'dc_current_inverter' %}
     {% if  content.maxSeries|raw %}
         {% set grlengthmax = content.maxSeries|raw %}
         {% set grlengthmin = content.minSeries|raw %}
@@ -406,7 +406,9 @@
                 or form.selectedChart == 'sollistheatmap'
                 or form.selectedChart == 'dcpnomcurr'
                 or form.selectedChart == 'acpnom'
-                or form.selectedChart == 'dc_current_overview'%}
+                or form.selectedChart == 'dc_current_overview'
+                or form.selectedChart == 'dc_current_inverter'
+            %}
                 {% if grlengthmax %}
                     <div class="select-inverters-frame">
                         <div class="hiddeninvs" style="height:20px;">

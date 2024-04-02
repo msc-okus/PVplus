@@ -332,10 +332,12 @@ class ChartService
                     }
                     break;
                 case 'dc_current_inverter':
-                    $dataArray = $this->currentChart->getCurr3($anlage, $from, $to, $form['selectedGroup'], $hour);
+
+                    $dataArray = $this->currentChart->getCurr3($anlage, $from, $to, $form['inverterRadio'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                        $resultArray['minSeries'] = 1;
                         $resultArray['headline'] = 'DC Current [[A]]';
                         $resultArray['series1']['name'] = 'Expected ';
                         $resultArray['series1']['tooltipText'] = 'Expected current [[A]]';

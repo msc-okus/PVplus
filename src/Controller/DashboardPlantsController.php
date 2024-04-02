@@ -209,13 +209,17 @@ class DashboardPlantsController extends BaseController
                         $nameArray = $functions->getNameArray($aktAnlage, 'dc');
                         $idsArray = $functions->getIdArray($aktAnlage, 'dc');
                         break;
+                    case 3:
+                        $nameArray = $functions->getNameArray($aktAnlage, 'dc');
+                        $idsArray = $functions->getIdArray($aktAnlage, 'dc');
+                        break;
                     default:
                         $nameArray = $functions->getNameArray($aktAnlage, 'ac');
                         $idsArray = $functions->getIdArray($aktAnlage, 'ac');
                 }
                 $trafoArray = $this->getTrafoArray($aktAnlage, $acRepo);
                 $templateForSelection = 'selectinverters.html.twig';
-                if($form['selectedChart'] == 'dc_current_overview'){
+                if($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'dc_current_inverter'){
                     $useRadioButtons = 1;
                     if($form['inverterRadio'] == null){
                         $form['inverterRadio'] = 1;
@@ -260,7 +264,6 @@ class DashboardPlantsController extends BaseController
 
         $isInTimeRange = self::isInTimeRange();
         $clearSelections = 0;
-
 
         $_SESSION['selectedChart'] = $form['selectedChart'];
 
