@@ -139,7 +139,7 @@ class AnlageAcGroups
 
     public function getUnitFirst(): ?int
     {
-        return $this->unitFirst * 1;
+        return (int)$this->unitFirst;
     }
 
     public function setUnitFirst(string $unitFirst): self
