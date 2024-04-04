@@ -941,7 +941,7 @@ class TicketController extends BaseController
             'ticket' => $ticket,
             'notification' => $notification,
             'notificationConfirmForm' => $form,
-            'answered' => false,
+            'answered' => $notification->getStatus() == 50 or $notification->getStatus() == 60,
             'finishedJob' => $finishedJob,
         ]);
     }
