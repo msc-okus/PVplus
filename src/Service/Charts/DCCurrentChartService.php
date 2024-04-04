@@ -35,6 +35,7 @@ class DCCurrentChartService
      */
     public function getCurr1(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
+
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
@@ -227,6 +228,7 @@ class DCCurrentChartService
      */
     public function getCurr3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
+
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = $this->pdoService->getPdoPlant();
         $dcGroups = $anlage->getGroupsDc();
@@ -236,6 +238,8 @@ class DCCurrentChartService
             1 => $this->functions->getNameArray($anlage, 'ac'),
             default => $this->functions->getNameArray($anlage, 'dc'),
         };
+
+
         $dataArray['inverterArray'] = $nameArray;
 
         // Strom für diesen Zeitraum und diesen Inverter

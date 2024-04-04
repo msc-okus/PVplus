@@ -429,8 +429,12 @@
                                 {% endif %}
                                 {% if templateForSelection == 'selectstringboxes.html.twig' %}
                                     <div class="cell"><span>Select Stringboxes</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
-                                {% elseif (useRadioButtons == 1) %}
+                                {% elseif (useRadioButtons == 1 and templateForSelection == 'selectstringboxes.html.twig') %}
                                     <div class="cell"><span>Select Inverter</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                {% elseif (useRadioButtons == 1 and templateForSelection == 'selectinverters.html.twig' and form.selectedChart == 'dc_current_overviewxxx' and ( configtype == 3 )) %}
+                                    <div class="cell"><span>Select Stringbox</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                {% elseif form.selectedChart == 'dc_current_overview' and configtype == 1 %}
+                                    <div class="cell"><span>Select Trafostation</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
                                 {% else %}
                                     <div class="cell"><span>Select Inverters</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
                                 {% endif %}

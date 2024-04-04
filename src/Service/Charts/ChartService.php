@@ -345,6 +345,7 @@ class ChartService
                         $resultArray['seriesx']['name'] = 'Inverter ';
                         $resultArray['seriesx']['tooltipText'] = '[[A]]';
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
+                        $resultArray['invNames'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
                 case 'dc_current_mpp':

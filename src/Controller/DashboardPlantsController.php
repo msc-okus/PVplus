@@ -194,6 +194,7 @@ class DashboardPlantsController extends BaseController
         $content = null;
         $hour = $request->get('hour') == 'on';
         $useRadioButtons = 0;
+        $configtype = $aktAnlage->getConfigType();
         if(($form['selectedChart'] == 'sollistheatmap' || $form['selectedChart'] == 'dcpnomcurr')  && $aktAnlage->getUseNewDcSchema()){
             $gruopsDc = $aktAnlage->getGroupsDc();
             for ($i = 1; $i <= count($gruopsDc); ++$i) {
@@ -204,7 +205,7 @@ class DashboardPlantsController extends BaseController
             $templateForSelection = 'selectstringboxes.html.twig';
         }else{
             if($aktAnlage){
-                switch ($aktAnlage->getConfigType()) {
+                switch ($configtype) {
                     case 1:
                         $nameArray = $functions->getNameArray($aktAnlage, 'dc');
                         $idsArray = $functions->getIdArray($aktAnlage, 'dc');
@@ -212,19 +213,33 @@ class DashboardPlantsController extends BaseController
                     case 3:
                         $nameArray = $functions->getNameArray($aktAnlage, 'dc');
                         $idsArray = $functions->getIdArray($aktAnlage, 'dc');
+                        if($form['selectedChart'] == 'dc_current_overview'){
+                            $nameArray = $functions->getNameArray($aktAnlage, 'ac');
+                            $idsArray = $functions->getIdArray($aktAnlage, 'ac');
+                        }
                         break;
                     default:
                         $nameArray = $functions->getNameArray($aktAnlage, 'ac');
                         $idsArray = $functions->getIdArray($aktAnlage, 'ac');
                 }
                 $trafoArray = $this->getTrafoArray($aktAnlage, $acRepo);
+
                 $templateForSelection = 'selectinverters.html.twig';
+
                 if($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'dc_current_inverter'){
                     $useRadioButtons = 1;
                     if($form['inverterRadio'] == null){
                         $form['inverterRadio'] = 1;
                     }
                 }
+            }
+        }
+
+        //bei nbestimmten Diagrammen ncha Trafostation selektieren
+        if($configtype == 1 && $form['selectedChart'] == 'dc_current_overview'){
+            unset($nameArray);
+            for ($i = 1; $i <= count($trafoArray); ++$i) {
+                $nameArray[$i] = "TS $i";
             }
         }
 
@@ -281,7 +296,8 @@ class DashboardPlantsController extends BaseController
             'edited' => true,
             'templateForSelection' => $templateForSelection,
             'useRadioButtons' => $useRadioButtons,
-            'clearSelections' => $clearSelections
+            'clearSelections' => $clearSelections,
+            'configtype' => $configtype
         ]);
     }
 
