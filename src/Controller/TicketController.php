@@ -47,7 +47,6 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
     public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): Response
     {
-        var_dump($request->query->get('anlage'));
         if ($request->query->get('anlage') !== null) {
             $anlage = $anlRepo->find($request->query->get('anlage'));
         } else {
@@ -353,7 +352,7 @@ class TicketController extends BaseController
         $filter['priority']['value'] = $prio;
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
-        $filter['category']['array'] = self::listAllErrorCategorie($this->isGranted('ROLE_G4N'));
+        $filter['category']['array'] = self::listAllErrorCategorie($this->isGranted('ROLE_G4N')); //self::errorCategorie(true, true, true, $this->isGranted('ROLE_G4N'));//
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;
@@ -378,7 +377,6 @@ class TicketController extends BaseController
                 'pagination' => $pagination,
                 'anlagen' => $anlagenRepo->findAllActiveAndAllowed()
             ]);
-
         }
         //here we will configure the array of reason suggestions
         return $this->render('ticket/list.html.twig', [
