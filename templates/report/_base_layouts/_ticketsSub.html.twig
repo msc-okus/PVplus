@@ -1,0 +1,28 @@
+<h3 style="color: {{ anlage.eigner.fontColor2 }};">Performance Tickets</h3>
+{% if tickets|length > 0 %}
+    <table class="basetable monthtable">
+    <thead>
+        <tr>
+            <th>Ticket ID</th>
+            <th class="border-left-2">Identifier</th>
+            <th class="border-left-2">Begin</th>
+            <th class="border-left-2">End</th>
+            <th class="border-left-2">Error Category</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for key,ticket in tickets %}
+        <tr>
+            <td>{{ ticket.id }}</td>
+            <td class="border-left-2">{{ ticket.ticketName }}</td>
+            <td class="border-left-2">{{ ticket.begin|date("d.m.y H:i")}}</td>
+            <td class="border-left-2">{{ ticket.end|date("d.m.y H:i") }}</td>
+            <td class="border-left-2">
+                {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
+                {{ errcat|trans }}
+            </td>
+        </tr>
+    {%  endfor %}
+    </tbody>
+    </table>
+{% endif %}

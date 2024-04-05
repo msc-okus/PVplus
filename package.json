@@ -8,6 +8,7 @@
         "@symfony/stimulus-bridge": "^3.2.0",
         "@symfony/stimulus-bundle": "file:vendor/symfony/stimulus-bundle/assets",
         "@symfony/ux-chartjs": "file:vendor/symfony/ux-chartjs/assets",
+        "@symfony/ux-toggle-password": "file:vendor/symfony/ux-toggle-password/assets",
         "@symfony/webpack-encore": "^4.2.0",
         "autocomplete.js": "^0.38.1",
         "bootstrap": "^5.2.3",
@@ -56,7 +57,8 @@
         "stimulus-reveal-controller": "^4.1.0",
         "stimulus-use": "^0.50.0",
         "sweetalert2": "^11.4.8",
-        "tailwindcss-stimulus-components": "^3.0.4"
+        "tailwindcss-stimulus-components": "^3.0.4",
+        "ux-toggle-password": "symfony/ux-toggle-password"
     },
     "browserslist": [
         "> 5%"

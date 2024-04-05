@@ -33,7 +33,7 @@
     }
 
     li:last-child {
-        border: 0px;
+        border: 0;
         padding-bottom: 0;
     }
 
@@ -68,17 +68,6 @@
         margin: 10px 0;
         position: relative;
         width: 300px;
-    }
-
-
-    input {
-        font-size: 18px;
-        padding: 10px 10px 10px 5px;
-        display: block;
-        border: none;
-        border-bottom: 1px solid $g4n-blue;
-        box-shadow: none;
-        outline: none;
     }
 
     label {

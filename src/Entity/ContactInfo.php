@@ -25,7 +25,7 @@ class ContactInfo
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $phone = null;
 
-    #[ORM\ManyToOne(inversedBy: 'ContactInfos')]
+    #[ORM\ManyToOne(inversedBy: 'contactInfos')]
     private ?Eigner $owner = null;
 
     #[ORM\Column(length: 255, nullable: true)]

@@ -53,16 +53,16 @@ class AnlagenController extends BaseController
         foreach ($this->getUser()->getEigners()->toArray() as $eigner) {
             $eigners[] = $eigner->getId();
         }
-        $q = $request->query->get('q');
+        $q = $request->query->get('qp');
         if ($request->query->get('search') == 'yes' && $q == '') {
-            $request->getSession()->set('q', '');
+            $request->getSession()->set('qp', '');
         }
         if ($q) {
-            $request->getSession()->set('q', $q);
+            $request->getSession()->set('qp', $q);
         }
         if ($q == '' && $request->getSession()->get('q') != '') {
             $q = $request->getSession()->get('q');
-            $request->query->set('q', $q);
+            $request->query->set('qp', $q);
         }
         $queryBuilder = $anlagenRepository->getWithSearchQueryBuilderOwner($q, $eigners, $grantedPlantList);
         $pagination = $paginator->paginate($queryBuilder, $request->query->getInt('page', 1), 25);

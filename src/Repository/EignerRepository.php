@@ -21,21 +21,6 @@ class EignerRepository extends ServiceEntityRepository
         parent::__construct($registry, Eigner::class);
     }
 
-    public static function activeAnlagenCriteria($role): Criteria
-    {
-        if ($role === true) {
-            return Criteria::create()
-                ->andWhere(Criteria::expr()->eq('anlHidePlant', 'No'));
-        } else {
-            return Criteria::create()
-                ->andWhere(Criteria::expr()->eq('anlHidePlant', 'No'))
-                ->andWhere(Criteria::expr()->eq('anlView', 'Yes'));
-        }
-    }
-
-    /**
-     * @return Eigner[]
-     */
     public function findAllDashboard(): array
     {
         return $this->createQueryBuilder('eigner')
@@ -49,11 +34,45 @@ class EignerRepository extends ServiceEntityRepository
             ->addSelect('settings')
             ->andWhere('eigner.active = 1')
             ->orderBy('eigner.firma', 'ASC')
-            ->orderBy('anlage.anlName', 'ASC')
+            ->addOrderBy('anlage.anlName', 'ASC')
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
+
     }
+
+    public function findOperations(): array
+    {
+        return $this->createQueryBuilder('eigner')
+            ->innerJoin('eigner.anlage', 'anlage')
+            ->addSelect('anlage')
+            ->leftJoin('anlage.economicVarNames', 'varName')
+            ->leftJoin('anlage.economicVarValues', 'ecoValu')
+            ->leftJoin('anlage.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings')
+            ->andWhere('eigner.active = 1')
+            ->andWhere('eigner.operations = 1')
+            ->orderBy('eigner.firma', 'ASC')
+            ->addOrderBy('anlage.anlName', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+    }
+
+
+    public static function activeAnlagenCriteria($role): Criteria
+    {
+        if ($role === true) {
+            return Criteria::create()
+                ->andWhere(Criteria::expr()->eq('anlHidePlant', 'No'));
+        } else {
+            return Criteria::create()
+                ->andWhere(Criteria::expr()->eq('anlHidePlant', 'No'))
+                ->andWhere(Criteria::expr()->eq('anlView', 'Yes'));
+        }
+    }
+
 
     public function getWithSearchQueryBuilder(?string $term): QueryBuilder
     {

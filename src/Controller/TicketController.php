@@ -482,19 +482,8 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/proofCount', name: 'app_ticket_proof_count', methods: ['GET', 'POST'])]
     public function getProofCount(TicketRepository $ticketRepo): Response
     {
-        $countProofByTam = $ticketRepo->countByProof();
-        $countProofByEPC = $ticketRepo->countByProofEPC();
-        $countByProofAM = $ticketRepo->countByProofAM();
-        $countByProofG4N = $ticketRepo->countByProofG4N();
-        $countIgnored = $ticketRepo->countIgnored();
-        $countByProofMaintenance = $ticketRepo->countByProofMaintenance();
         return new JsonResponse([
-            'countProofByAM' => $countByProofAM,
-            'countProofByEPC' => $countProofByEPC,
-            'countProofByTAM' => $countProofByTam,
-            'countProofByG4N' => $countByProofG4N,
-            'countIgnored' => $countIgnored,
-            'countProofByMaintenance' => $countByProofMaintenance
+            'counts'        => $this->getCountOfTickets($ticketRepo)
         ]);
     }
 
@@ -892,7 +881,6 @@ class TicketController extends BaseController
     #[Route(path: '/notification/confirm/{id}', name: 'app_ticket_notification_confirm')]
     public function confirmNotification($id, TicketRepository $ticketRepo, Request $request, PiiCryptoService $encryptService, MessageService $messageService, EntityManagerInterface $em): Response
     {
-
         $ticketId = $encryptService->unHashData($id);
         $ticket = $ticketRepo->findOneBy(['securityToken' => $ticketId]);
         $notification = $ticket->getNotificationInfos()->last();
@@ -1087,6 +1075,29 @@ class TicketController extends BaseController
         ]);
     }
 
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    #[Route(path: '/list/getinverterarray/{id}', name: 'app_tlist_get_inverter_array')]
+    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): Response
+    {
+        $anlage = $anlRepo->findOneBy(['anlId' => $id]);
+        $trafoArray = [];
+        $inverterArray = [];
+        if ($anlage != null) {
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
+            $nameArray = $anlage->getInverterFromAnlage();
+            foreach ($nameArray as $key => $value) {
+                $inverterArray[$key]["inv"] = $value;
+            }
+        }
+        return $this->render('/ticket/_inc/_inverter_dropdown.html.twig', [
+            'trafoArray' => $trafoArray,
+            'invArray' => $inverterArray,
+        ]);
+    }
+
     /**
      * @param $stamp
      * @param $ticket
@@ -1148,7 +1159,11 @@ class TicketController extends BaseController
         ]);
     }
 
-
+    /**
+     * @param Anlage $anlage
+     * @param AcGroupsRepository $acRepo
+     * @return array
+     */
     private function getTrafoArray(Anlage $anlage, AcGroupsRepository $acRepo): array
     {
         $totalTrafoGroups = $acRepo->getAllTrafoNr($anlage);

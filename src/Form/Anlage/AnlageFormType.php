@@ -29,8 +29,7 @@ class AnlageFormType extends AbstractType
 
     public function __construct(
         private readonly Security $security
-    )
-    {
+    ){
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -92,7 +91,7 @@ class AnlageFormType extends AbstractType
 
             // ##### Plant Location #######
             ->add('eigner', EntityType::class, [
-                'label' => 'Eigner',
+                'label' => 'Owner of the Plant',
                 'help' => '[eigner]',
                 'class' => Eigner::class,
                 'choice_label' => 'firma',
@@ -100,37 +99,37 @@ class AnlageFormType extends AbstractType
                 'disabled' => !($isDeveloper || $isAdmin),
             ])
             ->add('anlName', TextType::class, [
-                'label' => 'Anlagen Name',
-                'help' => '[anlName]',
+                'label' => 'Plant Name',
+                'help' =>  '[anlName]<br>The Name of the Plant',
                 'empty_data' => '',
                 'required' => true,
             ])
             ->add('projektNr', TextType::class, [
-                'label' => 'Projekt Nummer',
-                'help' => '[projektNr]',
+                'label' => 'Project Nummer',
+                'help' => '[projektNr]<br>optional Project No',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlStrasse', TextType::class, [
-                'label' => 'Strasse',
+                'label' => 'Street',
                 'help' => '[anlStrasse]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlPlz', TextType::class, [
-                'label' => 'PLZ',
+                'label' => 'ZIP Code',
                 'help' => '[anlPlz]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlOrt', TextType::class, [
-                'label' => 'Ort',
+                'label' => 'City',
                 'help' => '[anlOrt]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('country', TextType::class, [
-                'label' => 'Land als Kürzel (de, nl, ...)',
+                'label' => 'Shortcut for the country (de, nl, ...)',
                 'help' => '[country]',
                 'empty_data' => '',
                 'required' => false,
@@ -201,17 +200,6 @@ class AnlageFormType extends AbstractType
                 'empty_data' => 'No',
                 'disabled' => !($isDeveloper),
             ])
-            /*
-            ->add('useNewDcSchema', ChoiceType::class, [
-                'label' => 'Neues DC Database Schema',
-                'help' => '[useNewDcSchema] <br> (separate Tabelle für DC IST)',
-                'choices' => ['Yes' => '1', 'No' => '0'],
-                'empty_data' => '0',
-                'expanded' => false,
-                'multiple' => false,
-                'disabled' => !($isDeveloper || $isAdmin),
-            ])
-            */
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
                 'help' => '[configType]<br>' . $tooltipTextPlantType,
@@ -251,7 +239,7 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
-                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 12]
             ])
             ->add('kwPeakPvSyst', TextType::class, [
                 'label' => 'Anlagenleistung PVSYST <br> [kWp]',
@@ -259,7 +247,7 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
-                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 12]
             ])
             ->add('kwPeakPLDCalculation', TextType::class, [
                 'label' => 'Anlagenleistung für PLD Berechnung <br> [kWp]',
@@ -267,7 +255,7 @@ class AnlageFormType extends AbstractType
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
-                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 7, 'style' => 'width: 95px']
+                'attr' => ['pattern' => '[0-9]{7}', 'maxlength' => 12]
             ])
             ->add('tempCorrCellTypeAvg', TextType::class, [
                 'label' => 't Cell AVG ',
@@ -663,22 +651,22 @@ class AnlageFormType extends AbstractType
             ])
             ->add('usePAFlag0', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formula to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('usePAFlag1', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formula to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('usePAFlag2', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formula to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('usePAFlag3', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formula to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('paFormular0', ChoiceType::class, [
-                'label' => 'PA Formula',
+                'label' => 'PA Formular',
                 'help' => '[paFormular0]',
                 'label_html' => true,
                 'choices' => $paFormulars,
@@ -687,7 +675,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('paFormular1', ChoiceType::class, [
-                'label' => 'PA Formula',
+                'label' => 'PA Formular',
                 'help' => '[paFormular1]',
                 'label_html' => true,
                 'choices' => $paFormulars,
@@ -696,7 +684,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('paFormular2', ChoiceType::class, [
-                'label' => 'PA Formula',
+                'label' => 'PA Formular',
                 'help' => '[paFormular2]',
                 'label_html' => true,
                 'choices' => $paFormulars,
@@ -705,7 +693,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('paFormular3', ChoiceType::class, [
-                'label' => 'PA Formula',
+                'label' => 'PA Formular',
                 'help' => '[paFormular3]',
                 'label_html' => true,
                 'choices' => $paFormulars,
@@ -718,7 +706,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[treatingDataGapsAsOutage]',
             ])
             ->add('prFormular0', ChoiceType::class, [
-                'label' => 'PR Formula',
+                'label' => 'PR Formular',
                 'help' => '[paFormular0]',
                 'label_html' => true,
                 'choices' => $prArray,
@@ -727,7 +715,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('prFormular1', ChoiceType::class, [
-                'label' => 'PR Formula',
+                'label' => 'PR Formular',
                 'help' => '[paFormular1]',
                 'label_html' => true,
                 'choices' => $prArray,
@@ -736,7 +724,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('prFormular2', ChoiceType::class, [
-                'label' => 'PR Formula',
+                'label' => 'PR Formular',
                 'help' => '[prFormular2]',
                 'label_html' => true,
                 'choices' => $prArray,
@@ -745,7 +733,7 @@ class AnlageFormType extends AbstractType
                 'multiple' => false,
             ])
             ->add('prFormular3', ChoiceType::class, [
-                'label' => 'PR Formula',
+                'label' => 'PR Formular',
                 'help' => '[prFormular3]',
                 'label_html' => true,
                 'choices' => $prArray,

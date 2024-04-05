@@ -177,7 +177,9 @@ class UserController extends BaseController
         }
     }
 
-    // USER Show zum Anzeigen der eigenen Userverwalltung
+    /**
+     * USER Show zum Anzeigen der eigenen Userverwalltung
+     **/
     #[Route(path: '/admin/user/show/{id}', name: 'app_admin_user_show')]
     public function show($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher): Response
     {
