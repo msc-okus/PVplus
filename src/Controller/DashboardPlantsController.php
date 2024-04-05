@@ -223,7 +223,7 @@ class DashboardPlantsController extends BaseController
                     case 3:
                         $nameArray = $functions->getNameArray($aktAnlage, 'dc');
                         $idsArray = $functions->getIdArray($aktAnlage, 'dc');
-                        if($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'tempheatmap' || $form['selectedChart'] == 'ac_act_group'){
+                        if($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'tempheatmap' || $form['selectedChart'] == 'ac_act_group' || $form['selectedChart'] == 'ac_act_voltage' || $form['selectedChart'] == 'dc_voltage_1'){
                             $nameArray = $functions->getNameArray($aktAnlage, 'ac');
                             $idsArray = $functions->getIdArray($aktAnlage, 'ac');
                         }
@@ -236,7 +236,7 @@ class DashboardPlantsController extends BaseController
 
                 $templateForSelection = 'selectinverters.html.twig';
 
-                if($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'dc_current_inverter' || $form['selectedChart'] == 'ac_act_group' || $form['selectedChart'] == 'ac_act_overview'){
+                if($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'dc_current_inverter' || $form['selectedChart'] == 'ac_act_group' || $form['selectedChart'] == 'ac_act_overview' || $form['selectedChart'] == 'ac_act_voltage' || $form['selectedChart'] == 'dc_voltage_1'){
 
                     $useRadioButtons = 1;
                     if($form['inverterRadio'] < 1){
@@ -247,7 +247,7 @@ class DashboardPlantsController extends BaseController
         }
 
         //bei nbestimmten Diagrammen nach Trafostation selektieren
-        if($configtype == 1 && ($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'ac_act_overview')){
+        if($configtype == 1 && ($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'ac_act_overview' || $form['selectedChart'] == 'dc_voltage_1')){
             unset($nameArray);
             for ($i = 1; $i <= count($trafoArray); ++$i) {
                 $nameArray[$i] = "TS $i";
@@ -296,7 +296,8 @@ class DashboardPlantsController extends BaseController
         $clearSelections = 0;
 
         $_SESSION['selectedChart'] = $form['selectedChart'];
-
+#echo $form['selectedChart'];
+#exit;
 
         return $this->render('dashboardPlants/plantsShow.html.twig', [
             'anlagen' => $anlagen,

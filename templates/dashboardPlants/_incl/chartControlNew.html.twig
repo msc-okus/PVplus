@@ -229,7 +229,9 @@
     or form.selectedChart == 'dc_current_overview'
     or form.selectedChart == 'dc_current_inverter'
     or form.selectedChart == 'ac_act_group'
-    or form.selectedChart == 'ac_act_overview'%}
+    or form.selectedChart == 'ac_act_overview'
+    or form.selectedChart == 'ac_act_voltage'
+    or form.selectedChart == 'dc_voltage_1'%}
     {% if  content.maxSeries|raw %}
         {% set grlengthmax = content.maxSeries|raw %}
         {% set grlengthmin = content.minSeries|raw %}
@@ -414,6 +416,8 @@
                 or form.selectedChart == 'dc_current_inverter'
                 or form.selectedChart == 'ac_act_group'
                 or form.selectedChart == 'ac_act_overview'
+                or form.selectedChart == 'ac_act_voltage'
+                or form.selectedChart == 'dc_voltage_1'
             %}
                 {% if grlengthmax %}
                     <div class="select-inverters-frame">
@@ -439,7 +443,7 @@
                                     <div class="cell"><span>Select Inverter</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
                                 {% elseif (useRadioButtons == 1 and templateForSelection == 'selectstringboxes.html.twig' and form.selectedChart  == 'dc_current_inverter') %}
                                     <div class="cell"><span>Select Stringbox</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
-                                {% elseif (form.selectedChart == 'dc_current_overview' or form.selectedChart == 'ac_act_overview') and configtype == 1 %}
+                                {% elseif (form.selectedChart == 'dc_current_overview' or form.selectedChart == 'ac_act_overview' or form.selectedChart == 'dc_voltage_1') and configtype == 1 %}
                                     <div class="cell"><span>Select Trafostation</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
                                 {% else %}
                                     <div class="cell"><span>Select Inverters</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>

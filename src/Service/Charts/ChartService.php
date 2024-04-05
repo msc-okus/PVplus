@@ -178,7 +178,10 @@ class ChartService
                     }
                     break;
                 case 'ac_act_voltage':
-                    $dataArray = $this->acCharts->getActVoltageGroupAC($anlage, $from, $to, $form['selectedGroup'], $hour);
+                    if($form['inverterRadio'] == ''){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->acCharts->getActVoltageGroupAC($anlage, $from, $to, $form['inverterRadio'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -368,7 +371,10 @@ class ChartService
                     break;
                 // Voltage Charts DC //
                 case 'dc_voltage_1':
-                    $dataArray = $this->voltageChart->getVoltage1($anlage, $from, $to, $form['selectedGroup'], $hour);
+                    if($form['inverterRadio'] == ''){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->voltageChart->getVoltage1($anlage, $from, $to, $form['inverterRadio'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['minSeries'] = $dataArray['minSeries'];
