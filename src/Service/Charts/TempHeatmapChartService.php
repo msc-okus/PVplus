@@ -128,6 +128,7 @@ class TempHeatmapChartService
         $dataArray['invIds'] = $invIdArray;
         $dataArray['sumSeries'] = $groupct;
 
+
         $sql = "SELECT T1.istTemp,T1.".$group.",T1.ts,T2.g_upper
             FROM (SELECT stamp as ts, wr_temp as istTemp, ".$group."  FROM ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' and '$to'  ".$sqladd." GROUP BY ts, ".$group." ORDER BY ".$group." DESC)
             AS T1

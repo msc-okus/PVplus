@@ -236,6 +236,7 @@ class SollIstHeatmapChartService
         $dataArray['invNames'] = $invNameArray;
         $dataArray['invIds'] = $invIdArray;
         $dataArray['sumSeries'] = $groupct;
+        $dataArray['temp'] = $tempb;
 
         $resultActual = $conn->query($sql);
         $dataArray['inverterArray'] = $nameArray;

@@ -194,8 +194,11 @@ class DashboardPlantsController extends BaseController
         $content = null;
         $hour = $request->get('hour') == 'on';
         $useRadioButtons = 0;
-        $configtype = $aktAnlage->getConfigType();
-        if(($form['selectedChart'] == 'sollistheatmap' || $form['selectedChart'] == 'dcpnomcurr')  && $aktAnlage->getUseNewDcSchema()){
+        if($aktAnlage) {
+            $configtype = $aktAnlage->getConfigType();
+        }
+
+        if(($form['selectedChart'] == 'sollistheatmap' || $form['selectedChart'] == 'dcpnomcurr' || $form['selectedChart'] == 'dc_current_inverter')  && $aktAnlage->getUseNewDcSchema()){
             $gruopsDc = $aktAnlage->getGroupsDc();
             for ($i = 1; $i <= count($gruopsDc); ++$i) {
                 $nameArray[$i] = $gruopsDc[$i]['GroupName'];
@@ -203,6 +206,13 @@ class DashboardPlantsController extends BaseController
             }
 
             $templateForSelection = 'selectstringboxes.html.twig';
+
+            if($form['selectedChart'] == 'dc_current_inverter'){
+                $useRadioButtons = 1;
+                if($form['inverterRadio'] == null){
+                    $form['inverterRadio'] = 1;
+                }
+            }
         }else{
             if($aktAnlage){
                 switch ($configtype) {
@@ -213,7 +223,7 @@ class DashboardPlantsController extends BaseController
                     case 3:
                         $nameArray = $functions->getNameArray($aktAnlage, 'dc');
                         $idsArray = $functions->getIdArray($aktAnlage, 'dc');
-                        if($form['selectedChart'] == 'dc_current_overview'){
+                        if($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'tempheatmap' || $form['selectedChart'] == 'ac_act_group'){
                             $nameArray = $functions->getNameArray($aktAnlage, 'ac');
                             $idsArray = $functions->getIdArray($aktAnlage, 'ac');
                         }
@@ -226,17 +236,18 @@ class DashboardPlantsController extends BaseController
 
                 $templateForSelection = 'selectinverters.html.twig';
 
-                if($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'dc_current_inverter'){
+                if($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'dc_current_inverter' || $form['selectedChart'] == 'ac_act_group' || $form['selectedChart'] == 'ac_act_overview'){
+
                     $useRadioButtons = 1;
-                    if($form['inverterRadio'] == null){
+                    if($form['inverterRadio'] < 1){
                         $form['inverterRadio'] = 1;
                     }
                 }
             }
         }
 
-        //bei nbestimmten Diagrammen ncha Trafostation selektieren
-        if($configtype == 1 && $form['selectedChart'] == 'dc_current_overview'){
+        //bei nbestimmten Diagrammen nach Trafostation selektieren
+        if($configtype == 1 && ($form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'ac_act_overview')){
             unset($nameArray);
             for ($i = 1; $i <= count($trafoArray); ++$i) {
                 $nameArray[$i] = "TS $i";
@@ -247,6 +258,7 @@ class DashboardPlantsController extends BaseController
         if($_SESSION['selectedChart'] != $form['selectedChart']){
             $clearSelections = 1;
             $form['invnames'] = '';
+            $form['inverterRadio'] = 1;
         }
         if ($aktAnlage) {
             $content = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
@@ -275,6 +287,9 @@ class DashboardPlantsController extends BaseController
 
         foreach ($idsArray as $key => $value){
             $inverterIdsArray[$key]["invId"] = $value;
+            if(str_contains($content['temp'], $value) && $form['invnames'] == ''){
+                $inverterArray[$key]["select"] = "checked";
+            }
         }
 
         $isInTimeRange = self::isInTimeRange();

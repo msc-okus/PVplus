@@ -128,9 +128,13 @@ class ChartService
                     break;
                     // AC2 //
                 case 'ac_act_overview':
-                    $dataArray = $this->acCharts->getAC2($anlage, $from, $to, $form['selectedGroup'], $hour);
+                    if($form['inverterRadio'] == ''){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->acCharts->getAC2($anlage, $from, $to, $form['inverterRadio'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
+                        $resultArray['minSeries'] = 1;
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
                         $resultArray['headline'] = 'AC Production by Group [[kWh]] – Actual and Expected';
                         $resultArray['series1']['name'] = 'Expected';
@@ -143,10 +147,14 @@ class ChartService
                     break;
                     // AC3 //
                 case 'ac_act_group':
-                    $dataArray = $this->acCharts->getAC3($anlage, $from, $to, $form['selectedGroup'], $hour);
+                    if($form['inverterRadio'] == ''){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->acCharts->getAC3($anlage, $from, $to, $form['inverterRadio'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                        $resultArray['minSeries'] = 1;
                         $resultArray['headline'] = 'AC Production by Group [[kWh]] – Actual and Expected';
                         $resultArray['series1']['name'] = 'Expected';
                         $resultArray['series1']['tooltipText'] = 'Expected ';
@@ -552,6 +560,7 @@ class ChartService
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
                     $resultArray['minSeries'] = $dataArray['minSeries'];
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
+                    $resultArray['temp'] = $dataArray['temp'];
                     $resultArray['SeriesNameArray'] = json_encode($dataArray['SeriesNameArray']);
                     break;
                 case 'heatmap':
@@ -562,6 +571,7 @@ class ChartService
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
                     $resultArray['minSeries'] = $dataArray['minSeries'];
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
+                    $resultArray['temp'] = $dataArray['temp'];
                     break;
                 case 'tempheatmap':
                     $to =  date('Y-m-d 00:00:00',strtotime($form['to']));
@@ -571,6 +581,7 @@ class ChartService
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
                     $resultArray['minSeries'] = $dataArray['minSeries'];
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
+                    $resultArray['invNames'] = json_encode($dataArray['invNames']);
                     break;
                 case 'sollistheatmap':
                     $to =  date('Y-m-d 00:00:00',strtotime($form['to']));
@@ -580,6 +591,7 @@ class ChartService
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
                     $resultArray['minSeries'] = $dataArray['minSeries'];
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
+                    $resultArray['temp'] = $dataArray['temp'];
                     break;
                 case 'sollistanalyse':
                     $dataArray = $this->sollistAnalyseChartService->getSollIstDeviationAnalyse($anlage, $from, $to ,$form['selectedGroup']);

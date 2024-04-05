@@ -468,7 +468,6 @@ class DCCurrentChartService
 
         $groupct = count($nameArray);
 
-
         if ($groupct) {
             if ($sets == null) {
                 $min = 1;
@@ -518,12 +517,12 @@ class DCCurrentChartService
                         GROUP BY stamp, $group ORDER BY NULL";
         }
 
-
         $resultIst = $conn->query($sql);
 
         $dataArray['invNames'] = $invNameArray;
         $dataArray['invIds'] = $invIdArray;
         $dataArray['sumSeries'] = $invNameArray;
+        $dataArray['temp'] = $temp;
 
         if ($resultIst->rowCount() > 0) {
             while ($rowCurrIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {

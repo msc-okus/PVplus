@@ -133,6 +133,7 @@ class HeatmapChartService
         $dataArray['invNames'] = $invNameArray;
         $dataArray['invIds'] = $invIdArray;
         $dataArray['sumSeries'] = $groupct;
+        $dataArray['temp'] = $temp;
 
         //fix the sql Query with an select statement in the join this is much faster
         $sql = "SELECT T1.istPower,T1.$group,T1.ts,T2.g_upper
