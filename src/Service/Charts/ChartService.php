@@ -199,7 +199,10 @@ class ChartService
                     }
                     break;
                 case 'ac_act_current':
-                    $dataArray = $this->acCharts->getActCurrentGroupAC($anlage, $from, $to, $form['selectedGroup'], $hour);
+                    if($form['inverterRadio'] == ''){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->acCharts->getActCurrentGroupAC($anlage, $from, $to, $form['inverterRadio'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -217,7 +220,10 @@ class ChartService
                     }
                     break;
                 case 'ac_act_frequency':
-                    $dataArray = $this->acCharts->getActFrequncyGroupAC($anlage, $from, $to, $form['selectedGroup'], $hour);
+                    if($form['inverterRadio'] == ''){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->acCharts->getActFrequncyGroupAC($anlage, $from, $to, $form['inverterRadio'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -254,9 +260,13 @@ class ChartService
                     }
                     break;
                 case 'dc_act_overview':
-                    $dataArray = $this->dcChart->getDC2($anlage, $from, $to, $form['selectedGroup'], $hour);
+                    if($form['inverterRadio'] == ''){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->dcChart->getDC2($anlage, $from, $to, $form['inverterRadio'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
+                        $resultArray['minSeries'] = 1;
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
                         $resultArray['headline'] = 'DC Production [[kWh]]';
                         $resultArray['series1']['name'] = 'Expected ';
@@ -268,9 +278,13 @@ class ChartService
                     }
                     break;
                 case 'dc_act_group': // [DC 3]
-                    $dataArray = $this->dcChart->getDC3($anlage, $from, $to, $form['selectedGroup'], $hour);
+                    if($form['inverterRadio'] == ''){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->dcChart->getDC3($anlage, $from, $to, $form['inverterRadio'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
+                        $resultArray['minSeries'] = 1;
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
                         $resultArray['headline'] = 'DC Production by Group [[kWh]]';
                         $resultArray['series1']['name'] = 'Expected';
@@ -600,17 +614,26 @@ class ChartService
                     $resultArray['temp'] = $dataArray['temp'];
                     break;
                 case 'sollistanalyse':
-                    $dataArray = $this->sollistAnalyseChartService->getSollIstDeviationAnalyse($anlage, $from, $to ,$form['selectedGroup']);
+                    if($form['inverterRadio'] == ''){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->sollistAnalyseChartService->getSollIstDeviationAnalyse($anlage, $from, $to ,$form['inverterRadio']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'AC differnce between actual and expected power';
                     break;
                 case 'sollisttempanalyse':
-                    $dataArray = $this->sollisttempAnalyseChartService->getSollIstTempDeviationAnalyse($anlage, $from, $to, $form['selectedGroup']);
+                    if($form['inverterRadio'] == ''){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->sollisttempAnalyseChartService->getSollIstTempDeviationAnalyse($anlage, $from, $to, $form['inverterRadio']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Performance Categories vs. Temperatures';
                     break;
                 case 'sollistirranalyse':
-                    $dataArray = $this->sollistirrAnalyseChartService->getSollIstIrrDeviationAnalyse($anlage, $from, $to, $form['selectedGroup'], $form['optionIrrVal']);
+                    if($form['inverterRadio'] == ''){
+                        $form['inverterRadio'] = 1;
+                    }
+                    $dataArray = $this->sollistirrAnalyseChartService->getSollIstIrrDeviationAnalyse($anlage, $from, $to, $form['inverterRadio'], $form['optionIrrVal']);
                     $resultArray['data'] = json_encode($dataArray['0']['chart']);
                     $resultArray['tabel'] = $dataArray['1']['tabel'];
                     $resultArray['headline'] = 'Performance Categories vs. Irradiation';

@@ -592,6 +592,10 @@
             }
             .cell{
                 float: left;
+                .invselector{
+                    width: 150px !important;
+                    float: left;
+                }
             }
         }
 
@@ -987,10 +991,6 @@
                 a.chart-label {text-decoration: none; cursor: pointer;}
             }
 
-            .selectInverters{
-                z-index: 2000;
-                position: relative;
-            }
             .selectInvertersContent{
                 color: #1779ba;
                 display: block;
@@ -1019,6 +1019,7 @@
             }
             .selectInverters:hover .selectInvertersContent {z-index: 9999 !important; opacity: 1 !important; top: 10px;}
         }
+
 
         //--------------------------------------------------
         [id^="chart"][id$="_chart"]{

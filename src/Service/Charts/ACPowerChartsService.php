@@ -866,6 +866,7 @@ class ACPowerChartsService
         $invNameArray = [];
         if ($groupct) {
             if ($sets == null) {
+
                 $min = 1;
                 $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
 

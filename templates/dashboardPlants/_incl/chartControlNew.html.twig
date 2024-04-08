@@ -231,7 +231,14 @@
     or form.selectedChart == 'ac_act_group'
     or form.selectedChart == 'ac_act_overview'
     or form.selectedChart == 'ac_act_voltage'
-    or form.selectedChart == 'dc_voltage_1'%}
+    or form.selectedChart == 'dc_voltage_1'
+    or form.selectedChart == 'ac_act_current'
+    or form.selectedChart == 'ac_act_frequency'
+    or form.selectedChart == 'sollistanalyse'
+    or form.selectedChart == 'sollisttempanalyse'
+    or form.selectedChart == 'sollistirranalyse'
+    or form.selectedChart == 'dc_act_group'
+    or form.selectedChart == 'dc_act_overview'%}
     {% if  content.maxSeries|raw %}
         {% set grlengthmax = content.maxSeries|raw %}
         {% set grlengthmin = content.minSeries|raw %}
@@ -401,7 +408,7 @@
                 <input type="hidden" name="startDateNew" value="true">
             </label>
             <label class="button"
-                   style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
+                   style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px; margin-right: 15px;">
                 <div class="nextday" type="text" style="display: block">
                     <i class="fa fa-angle-right"></i>
                 </div>
@@ -418,6 +425,13 @@
                 or form.selectedChart == 'ac_act_overview'
                 or form.selectedChart == 'ac_act_voltage'
                 or form.selectedChart == 'dc_voltage_1'
+                or form.selectedChart == 'ac_act_current'
+                or form.selectedChart == 'ac_act_frequency'
+                or form.selectedChart == 'sollistanalyse'
+                or form.selectedChart == 'sollisttempanalyse'
+                or form.selectedChart == 'sollistirranalyse'
+                or form.selectedChart == 'dc_act_group'
+                or form.selectedChart == 'dc_act_overview'
             %}
                 {% if grlengthmax %}
                     <div class="select-inverters-frame">
@@ -436,17 +450,17 @@
                                             $(this).prop("checked", false);
                                         });
                                     </script>
-                                {% endif %} {{ form.selectedChart }} {{ templateForSelection }} {{ useRadioButtons }}
+                                {% endif %}
                                 {% if templateForSelection == 'selectstringboxes.html.twig' and (form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'sollistheatmap') %}
-                                    <div class="cell"><span>Select Stringboxes</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
-                                {% elseif (useRadioButtons == 1 and templateForSelection == 'selectinverters.html.twig' and (form.selectedChart == 'dc_current_inverter' or form.selectedChart == 'ac_act_group')) %}
-                                    <div class="cell"><span>Select Inverter</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                    <div class="cell"><span class="invselector">Select Stringboxes</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                {% elseif (useRadioButtons == 1 and templateForSelection == 'selectinverters.html.twig' and (form.selectedChart == 'dc_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'dc_current_inverter' or form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_voltage_1' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse')) %}
+                                    <div class="cell"><span class="invselector">Select Inverter</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
                                 {% elseif (useRadioButtons == 1 and templateForSelection == 'selectstringboxes.html.twig' and form.selectedChart  == 'dc_current_inverter') %}
-                                    <div class="cell"><span>Select Stringbox</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
-                                {% elseif (form.selectedChart == 'dc_current_overview' or form.selectedChart == 'ac_act_overview' or form.selectedChart == 'dc_voltage_1') and configtype == 1 %}
-                                    <div class="cell"><span>Select Trafostation</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                    <div class="cell"><span class="invselector">Select Stringbox</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                {% elseif (form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'ac_act_overview' or form.selectedChart == 'dc_voltage_1') and configtype == 1 %}
+                                    <div class="cell"><span class="invselector">Select Trafostation</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
                                 {% else %}
-                                    <div class="cell"><span>Select Inverters</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                    <div class="cell"><span class="invselector">Select Inverters</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
                                 {% endif %}
                                 <div class="selectInvertersContent" id="selectInvertersContent">
                                     {% if templateForSelection == 'selectstringboxes.html.twig' %}
@@ -461,6 +475,59 @@
                 {% else %}
                     <input type="hidden" id="invnames" name="selectedSet" value="0">
                 {% endif %}
+            {% endif %}
+            {% if form.selectedChart == 'sollistirranalyse' %}
+                <div class="cell medium-4 large-4 xlarge-4">
+                    <div class="small button-group round toggle">
+                        <label class="button js-submit-onchange {% if form.optionIrrVal == 400 %}active{% endif %}">
+                            <input type="radio" name="optionIrrVal" value="400"
+                                   {% if form.optionIrrVal == 400 %}checked="checked"{% endif %}> < 400 W/m²
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionIrrVal == 800 %}active{% endif %}">
+                            <input type="radio" name="optionIrrVal" value="800"
+                                   {% if form.optionIrrVal == 800 %}checked="checked"{% endif %}>400 - 800 W/m²
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionIrrVal == 1000 %}active{% endif %}">
+                            <input type="radio" name="optionIrrVal" value="1000"
+                                   {% if form.optionIrrVal == 1000 %}checked="checked"{% endif %}> > 800 W/m²
+                        </label>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if form.selectedChart == 'forecast_dayahead' %}
+                <div class="cell medium-4 large-4 xlarge-4">
+                    <div class="small button-group round toggle" style="margin-bottom: 0.1rem;">
+                        <label title="Switch View" class="button js-submit-onchange {% if form.optionDayAheadView == 0 %}active{% endif %}">
+                            <input type="radio" name="optionDayAheadView" value="0"
+                                   {% if form.optionDayAheadView == 0 %}checked="checked"{% endif %}> Dashboard
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionDayAheadView == 1 %}active{% endif %}">
+                            <input title="Switch View" type="radio" name="optionDayAheadView" value="1"
+                                   {% if form.optionDayAheadView == 1 %}checked="checked"{% endif %}> Hourly values
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionDayAheadView == 2 %}active{% endif %}">
+                            <input title="Switch View" type="radio" name="optionDayAheadView" value="2"
+                                   {% if form.optionDayAheadView == 2 %}checked="checked"{% endif %}> 15 Minutes
+                        </label>
+                    </div>
+
+                    <div class="small button-group round toggle" style="margin-bottom: 0.1rem;{% if form.optionDayAheadView == 2 %}display:none;{% endif %}">
+                        <label title="Forecast Day View" class="button js-submit-onchange {% if form.optionDayAheadViewDay == 0 %}active{% endif %}">
+                            <input type="radio" name="optionDayAheadViewDay" value="0"
+                                   {% if form.optionDayAheadViewDay == 0 %}checked="checked"{% endif %}> 6 Days
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 1 %}active{% endif %}">
+                            <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="1"
+                                   {% if form.optionDayAheadViewDay == 1 %}checked="checked"{% endif %}> 3 Days
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 2 %}active{% endif %}">
+                            <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="2"
+                                   {% if form.optionDayAheadViewDay == 2 %}checked="checked"{% endif %}> 2 Days
+                        </label>
+                    </div>
+
+                </div>
             {% endif %}
             <div class="cell medium-1 large-1 xlarge-1">
                 {% if (form.selectedChart != 'availability')
@@ -496,59 +563,5 @@
             </div>
         </div>
 
-
-    {% if form.selectedChart == 'sollistirranalyse' %}
-        <div class="cell medium-4 large-4 xlarge-4">
-            <div class="small button-group round toggle">
-                <label class="button js-submit-onchange {% if form.optionIrrVal == 400 %}active{% endif %}">
-                    <input type="radio" name="optionIrrVal" value="400"
-                           {% if form.optionIrrVal == 400 %}checked="checked"{% endif %}> < 400 W/m²
-                </label>
-                <label class="button js-submit-onchange {% if form.optionIrrVal == 800 %}active{% endif %}">
-                    <input type="radio" name="optionIrrVal" value="800"
-                           {% if form.optionIrrVal == 800 %}checked="checked"{% endif %}>400 - 800 W/m²
-                </label>
-                <label class="button js-submit-onchange {% if form.optionIrrVal == 1000 %}active{% endif %}">
-                    <input type="radio" name="optionIrrVal" value="1000"
-                           {% if form.optionIrrVal == 1000 %}checked="checked"{% endif %}> > 800 W/m²
-                </label>
-            </div>
-        </div>
-    {% endif %}
-
-    {% if form.selectedChart == 'forecast_dayahead' %}
-        <div class="cell medium-4 large-4 xlarge-4">
-            <div class="small button-group round toggle" style="margin-bottom: 0.1rem;">
-                <label title="Switch View" class="button js-submit-onchange {% if form.optionDayAheadView == 0 %}active{% endif %}">
-                    <input type="radio" name="optionDayAheadView" value="0"
-                           {% if form.optionDayAheadView == 0 %}checked="checked"{% endif %}> Dashboard
-                </label>
-                <label class="button js-submit-onchange {% if form.optionDayAheadView == 1 %}active{% endif %}">
-                    <input title="Switch View" type="radio" name="optionDayAheadView" value="1"
-                           {% if form.optionDayAheadView == 1 %}checked="checked"{% endif %}> Hourly values
-                </label>
-                <label class="button js-submit-onchange {% if form.optionDayAheadView == 2 %}active{% endif %}">
-                    <input title="Switch View" type="radio" name="optionDayAheadView" value="2"
-                           {% if form.optionDayAheadView == 2 %}checked="checked"{% endif %}> 15 Minutes
-                </label>
-            </div>
-
-            <div class="small button-group round toggle" style="margin-bottom: 0.1rem;{% if form.optionDayAheadView == 2 %}display:none;{% endif %}">
-                <label title="Forecast Day View" class="button js-submit-onchange {% if form.optionDayAheadViewDay == 0 %}active{% endif %}">
-                    <input type="radio" name="optionDayAheadViewDay" value="0"
-                           {% if form.optionDayAheadViewDay == 0 %}checked="checked"{% endif %}> 6 Days
-                </label>
-                <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 1 %}active{% endif %}">
-                    <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="1"
-                           {% if form.optionDayAheadViewDay == 1 %}checked="checked"{% endif %}> 3 Days
-                </label>
-                <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 2 %}active{% endif %}">
-                    <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="2"
-                           {% if form.optionDayAheadViewDay == 2 %}checked="checked"{% endif %}> 2 Days
-                </label>
-            </div>
-
-        </div>
-    {% endif %}
 </div>
 </div>

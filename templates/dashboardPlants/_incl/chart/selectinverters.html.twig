@@ -5,7 +5,11 @@
         {% if (invArray != null) %}
             <div class="grid-x">
                 <div class="cell small-form">
-                    <h3>Inverter List</h3>
+                    {% if form.selectedChart == 'ac_act_overview' %}
+                        <h3>Trafostation List</h3>
+                    {% else %}
+                        <h3>Inverter List</h3>
+                    {% endif %}
                     {% if (useRadioButtons == 0) %}
                         <input class="check-all" id="check-all" type="checkbox"
                                data-action="click->select-inverters#selectAll"
