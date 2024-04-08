@@ -38,19 +38,14 @@ class DefaultMREController extends BaseController
     #[Route(path: '/mr/test')]
     public function test(): Response
     {
-        $currentDir = "/home/g4npvdbi/public_html";
-        dump($this->kernelProjectDir);
-        $process = new Process(["php -dsafe_mode=Off $currentDir/anlagen/goldbeck/SUNROCK_Moerdijk/loadDataFromApi.php"]);
-        $process->run();
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
+        $currentDir = "../..";
+        $process = exec("php -dsafe_mode=Off $currentDir/anlagen/goldbeck/SUNROCK_Moerdijk/loadDataFromApi.php");
+        dump($process);
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
             'availabilitys' => '',
-            'output' => $process->getOutput(),
+            'output' => $process,
         ]);
     }
 
