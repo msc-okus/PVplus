@@ -467,6 +467,7 @@ class ChartService
                     $dataArray = $this->availabilityChart->getPlantAvailability($anlage, new DateTime($from), new DateTime($to));
                     $resultArray['headline'] = 'Show availability';
                     $resultArray['availability'] = $dataArray['availability'];
+                    $resultArray['days'] = $dataArray['days'];
                     break;
                 case 'availability_intervall':
                     $dataArray = $this->availabilityChart->getPlantAvailabilityByIntervall($anlage, new DateTime($from), new DateTime($to));
