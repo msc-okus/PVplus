@@ -177,7 +177,9 @@ class UserController extends BaseController
         }
     }
 
-    // USER Show zum Anzeigen der eigenen Userverwalltung
+    /**
+     * USER Show zum Anzeigen der eigenen Userverwalltung
+     **/
     #[Route(path: '/admin/user/show/{id}', name: 'app_admin_user_show')]
     public function show($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher): Response
     {
@@ -199,11 +201,12 @@ class UserController extends BaseController
             }
 
             if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
-
                 if ($form['newPlainPassword']->getData() != '') {
-                    $user->setPassword($userPasswordHasher->hashPassword($user,$form['newPlainPassword']->getData()));
+                    $user->setPassword($userPasswordHasher->hashPassword(
+                        $user,
+                        $form['newPlainPassword']->getData()
+                    ));
                 }
-
                 $em->persist($user);
                 $em->flush();
                 $this->addFlash('success', 'User saved!');

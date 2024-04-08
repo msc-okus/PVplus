@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('tickets_list') }}
+{% endblock %}
+
+{% block title %}
+    {{ parent() }}tickets
+{% endblock %}
+
+{% block body %}
+    <h1>List Tickets</h1>
+    <div id="anlTicket">
+        <div {{ stimulus_controller('ticket-list', {
+                    urlCreate: path('app_ticket_create'),
+                    urlSearch: path('app_ticket_list', { ajax: 1 }),
+                }) }}
+                id="list"
+                data-ticket-list-target="ticketForm"
+                class="ticket"
+        >
+            <div data-ticket-list-target="list" >
+                {% include 'newTicket/_inc/_listTickets.html.twig' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

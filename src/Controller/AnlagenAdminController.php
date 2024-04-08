@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Form\GroupsAc\AnlageAcGroupsTypeSD;
+use App\Repository\AcGroupsRepository;
 use App\Service\PdoService;
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
@@ -25,6 +27,7 @@ use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use League\Flysystem\FilesystemException;
+use Shuchkin\SimpleXLSXGen;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,6 +40,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+
 
 class AnlagenAdminController extends BaseController
 {
@@ -456,6 +460,7 @@ class AnlagenAdminController extends BaseController
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
 
+
         return $this->render('anlagen/edit_acgroups.html.twig', [
             'anlageForm' => $form,
             'anlage' => $anlage,
@@ -535,6 +540,7 @@ class AnlagenAdminController extends BaseController
 
         return $this->redirectToRoute('app_admin_anlagen_list');
     }
+
 
     /**
      * Erzeugt alle Datenbanken für die Anlage
@@ -724,4 +730,6 @@ class AnlagenAdminController extends BaseController
         return true;
 
     }
+
+
 }

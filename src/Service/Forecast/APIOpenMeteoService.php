@@ -18,7 +18,7 @@ class APIOpenMeteoService {
     }
 
     // Curl ini -- making the reguest
-    public function get_json_data_curl($hdays = 0, $fdays = 0, $lat = 0, $lon = 0) {
+    public function get_json_data_curl($hdays = 0, $fdays = 0, $lat, $lon) {
         // Curl response from Open Meteo
         ($hdays > 0) ? $historydays = "&past_days=$hdays" : $historydays = "";
         ($fdays > 0) ? $forecastdays = "&forecast_days=$fdays" : $forecastdays = "";

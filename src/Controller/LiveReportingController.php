@@ -3,10 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\TicketDate;
 use App\Repository\AnlagenRepository;
+use App\Repository\TicketDateRepository;
 use App\Service\AvailabilityByTicketService;
-use App\Service\Reports\ReportEpcService;
-use App\Service\Reports\ReportsEpcYieldV2;
 use App\Service\Reports\ReportsMonthlyV2Service;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Cache\InvalidArgumentException;
@@ -14,9 +14,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class LiveReportingController extends AbstractController
 {
+    public function __construct(
+        private readonly TicketDateRepository $ticketDateRepo,
+        private readonly TranslatorInterface $translator,
+    )
+    {
+
+    }
     /**
      * Erzeugt einen Monatsreport mit den einzelenen Tagen und einer Monatstotalen
      * Kann auch für einen Auswal einiger Tage eines Moants genutzt werden
@@ -31,7 +39,7 @@ class LiveReportingController extends AbstractController
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
     public function monthlyReportWithDays(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
-        $output = $table = null;
+        $output = $table = $tickets = null;
         $startDay = $request->request->get('start-day');
         $endDay = $request->request->get('end-day');
         $month = $request->request->get('month');
@@ -47,7 +55,9 @@ class LiveReportingController extends AbstractController
         if ($submitted && $anlageId !== null) {
             $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
             $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
+            $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
         }
+
 
         return $this->render('live_reporting/reportMonthlyNew.html.twig', [
             'headline' => 'Monthly Report',
@@ -56,6 +66,7 @@ class LiveReportingController extends AbstractController
             'report' => $output,
             'status' => $anlageId,
             'datatable' => $table,
+            'tickets'   => $tickets
         ]);
 
     }
@@ -112,53 +123,30 @@ class LiveReportingController extends AbstractController
 
     }
 
-    /**
-     * @throws NonUniqueResultException
-     * @throws InvalidArgumentException
-     */
-    #[Route(path: '/livereport/epc', name: 'epc_live_report')]
-    public function epcLiveReport(Request $request, AnlagenRepository $anlagenRepository, ReportEpcService $reportEpc, ReportsEpcYieldV2 $epcYieldV2, AvailabilityByTicketService $availabilityByTicket)
+    private function buildPerformanceTicketsOverview(Anlage $anlage, ?int $startDay = null, ?int $endDay = null, int $month = 0, int $year = 0): array
     {
-        $output = $table = null;
-
-        $anlageId = $request->request->get('anlage-id');
-        $date = new \DateTime("now");
-
-        /** @var Anlage $anlage */
-        $headline = 'Report – individual date, but only monthly values.';
-        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
-
-        if ($request->request->get('new-report') == 'yes' && $anlageId !== "") {
-            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-            // recalculate Availability
-            for ($stamp = $anlage->getEpcReportStart()->getTimestamp(); $stamp <= $anlage->getEpcReportEnd()->getTimestamp(); $stamp += (24 * 3600)) {
-                $day = date_create(date("Y-m-d 12:00", $stamp));
-                $availabilityByTicket->checkAvailability($anlage, $day, 2);
-            }
-
-            switch ($anlage->getEpcReportType()) {
-                case 'prGuarantee' :
-                    $reportArray = $reportEpc->reportPRGuarantee($anlage, $date);
-                    break;
-                case 'yieldGuarantee':
-                    $monthTable = $epcYieldV2->monthTable($anlage, $date);
-                    $reportArray['monthTable'] = $monthTable;
-                    #$reportArray['forcastTable'] = $epcYieldV2->forcastTable($anlage, $monthTable, $date);
-                    break;
-                default:
-                    $error = true;
-                    $reportArray = [];
-                    $report = null;
-            }
+        if ($startDay === null) $startDay = 1;
+        $daysInMonth = (int)date('t', strtotime("$year-$month-01"));
+        if ($endDay  !== null && $endDay < $daysInMonth) {
+            $daysInMonth = $endDay;
         }
+        $from = date_create("$year-$month-$startDay 00:00");
+        $to = date_create("$year-$month-$daysInMonth 23:59");
+        #$tickets = $this->ticketRepo->findBy(['anlage' => $anlage->getAnlId(), 'kpiStatus' => '10', 'alertType' => '72']);
 
-        return $this->render('live_reporting/reportEpc.html.twig', [
-            'headline' => $headline,
-            'message'  => '',
-            'anlagen' => $anlagen,
-            'anlage' => $anlage,
-            'report' => $output,
-            'status' => $anlageId,
-        ]);
+        $tickets = $this->ticketDateRepo->performanceTickets($anlage, $from, $to);
+        $ticketsOverview = [];
+        /** @var TicketDate $ticket */
+        $counter = 1;
+        foreach ($tickets as $ticket){
+            $ticketsOverview[$counter]['id'] = $ticket->getTicket()->getId();
+            $ticketsOverview[$counter]['ticketName'] = $ticket->getTicket()->getTicketName();
+            $ticketsOverview[$counter]['begin'] = $ticket->getBegin();
+            $ticketsOverview[$counter]['end'] = $ticket->getEnd();
+            $ticketsOverview[$counter]['alertType'] = $ticket->getAlertType();
+            $ticketsOverview[$counter]['editor'] = $ticket->getTicket()->getEditor();
+            ++$counter;
+        }
+        return $ticketsOverview;
     }
 }

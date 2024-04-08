@@ -114,7 +114,7 @@ class OwnerSettings extends PiiCryptoService
 
     public function setMcPassword(?string $mcPassword): self
     {
-        $this->mcPassword = $mcPassword ? $this->hashData($mcPassword) : null;
+        $this->mcPassword = is_string($mcPassword) ? $this->hashData($mcPassword) : null;
 
         return $this;
     }

@@ -25,8 +25,8 @@ class ContactInfo
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $phone = null;
 
-    #[ORM\ManyToOne(inversedBy: 'ContactInfos')]
-    private ?Eigner $Owner = null;
+    #[ORM\ManyToOne(inversedBy: 'contactInfos')]
+    private ?Eigner $owner = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $companyName = null;
@@ -86,12 +86,12 @@ class ContactInfo
 
     public function getOwner(): ?Eigner
     {
-        return $this->Owner;
+        return $this->owner;
     }
 
     public function setOwner(?Eigner $Owner): static
     {
-        $this->Owner = $Owner;
+        $this->owner = $Owner;
 
         return $this;
     }

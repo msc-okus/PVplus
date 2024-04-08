@@ -1,0 +1,132 @@
+
+<script>
+     am4core.ready(function() {
+        // Create chart instance
+        let chart = am4core.create("amchart-holder", am4charts.XYChart);
+
+        chart.data = {{ content.data|raw }};
+
+        chart.preloader.disabled = false;
+        chart.preloader.transitionDuration = true;
+        chart.preloader.progress = 1;
+
+        // Title
+        let title = chart.titles.create();
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
+        title.fontSize = 16;
+        title.marginBottom = 30;
+        // Subtitle
+        let title2 = chart.titles.create();
+        title2.text = "- actual power - expected power [[ % ]] -";
+        title2.dy = 50;
+        title2.fontSize = 12;
+        title2.marginBottom = 10;
+
+        // Create 2 Axes
+        let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+         dateAxis.title.text = "Time";
+         valueAxis.title.text = "kWh";
+         dateAxis.markUnitChange = false // Disable Month Name
+         dateAxis.renderer.ticks.template.disabled = true;
+         dateAxis.renderer.axisFills.template.disabled = true;
+         valueAxis.renderer.ticks.template.disabled = true;
+         valueAxis.renderer.axisFills.template.disabled = true;
+         dateAxis.dataFields.category = "time";
+         valueAxis.dataFields.category = "kwh";
+         dateAxis.renderer.grid.template.disabled = true;
+         valueAxis.renderer.grid.template.disabled = true;
+         valueAxis.renderer.labels.template.fontSize = 12;
+         dateAxis.renderer.labels.template.fontSize = 12;
+
+         //  xAxis.renderer.minGridDistance = 5;
+         //  yAxis.renderer.minGridDistance = 5;
+         //  yAxis.renderer.labels.template.rotation = -45;
+         //  xAxis.renderer.labels.template.horizontalCenter = "middle";
+         //  xAxis.renderer.labels.template.verticalCenter = "right";
+
+        // Create Series
+        let series = chart.series.push(new am4charts.LineSeries());
+        series.dataFields.dateX = "time";
+        series.dataFields.valueY = "kwh";
+        series.dataFields.value = "value";
+        series.strokeOpacity = 0;
+        series.sequencedInterpolation = true;
+        //series.tooltip.pointerOrientation = "vertical";
+
+         let bullet = series.bullets.push(new am4core.Circle());
+         bullet.fill = am4core.color("#ff0000");
+         bullet.propertyFields.fill = "color";
+         bullet.strokeOpacity = 0;
+         bullet.strokeWidth = 2;
+         bullet.fillOpacity = 0.5;
+         bullet.stroke = am4core.color("#ffffff");
+         bullet.hiddenState.properties.opacity = 0;
+         bullet.tooltipText = "percent: {value.value} %\nkWh: {valueY.value}";
+
+         let outline = chart.plotContainer.createChild(am4core.Circle);
+         outline.fillOpacity = 0;
+         outline.strokeOpacity = 0.8;
+         outline.stroke = am4core.color("#ff0000");
+         outline.strokeWidth = 2;
+         outline.hide(0);
+
+         let blurFilter = new am4core.BlurFilter();
+         outline.filters.push(blurFilter);
+
+         series.heatRules.push({ target: bullet, min: 3, max: 3, property: "radius" });
+
+         chart.cursor = new am4charts.XYCursor();
+         chart.cursor.behavior = "zoomXY";
+         chart.cursor.snapToSeries = series;
+
+         chart.scrollbarX = new am4core.Scrollbar();
+         chart.scrollbarX.visible = false;
+         chart.scrollbarY = new am4core.Scrollbar();
+
+         chart.dateFormatter.inputDateFormat = "HH:mm";
+         // Export
+         chart.exporting.menu = new am4core.ExportMenu();
+         chart.exporting.menu.items[0].label = "Download";
+         chart.exporting.formatOptions.getKey("json").disabled = true;
+         chart.exporting.formatOptions.getKey("html").disabled = true;
+         chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+         chart.exporting.formatOptions.getKey("print").disabled = true;
+         chart.exporting.formatOptions.getKey("pdf").disabled = true;
+         chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
+
+         // Create Legende
+         var legend = new am4charts.Legend();
+         legend.parent = chart.chartContainer;
+         legend.itemContainers.template.togglable = false;
+         legend.labels.template.Width = 10;
+         legend.labels.template.truncate = true;
+         legend.labels.template.fontSize = 12;
+         legend.useDefaultMarker = true;
+
+         var marker = legend.markers.template.children.getIndex(0);
+         marker.cornerRadius(12, 12, 12, 12);
+         marker.strokeWidth = 0;
+         marker.strokeOpacity = 0;
+         marker.stroke = am4core.color("#ccc");
+
+         legend.data = [{
+             "name": "Deviation between ",
+             "fill": am4core.color("#ffffff")
+         },{
+             "name": "95% and 100 %",
+             "fill": am4core.color("#009900")
+         },  {
+             "name": "90% and 95 %",
+             "fill": am4core.color("#ffff00")
+         },{
+             "name": "0% and 90 %",
+             "fill": am4core.color("#f30000")
+         },{
+             "name": "missing data",
+             "fill": am4core.color("#000000")
+         }];
+
+    });
+    // end am4core.ready()
+</script>

@@ -316,9 +316,14 @@ class TicketDate
         return $this;
     }
 
-    public function getInverter(): string
+    public function getInverterName(): ?string
     {
-        return $this->inverter;
+        return $this->inverterName;
+    }
+
+    public function setInverterName(?string $inverterName): void
+    {
+        $this->inverterName = $inverterName;
     }
 
     public function setInverter(string $inverter): self
@@ -329,23 +334,13 @@ class TicketDate
         } else {
             $inverterString = $this->getInverter();
         }
-        switch ($this->getAlertType()) {
-            case 10:
-                $this->description = "Data gap in Inverter(s): " . $inverterString;
-                break;
-            case 20:
-                $this->description = "Power Error in Inverter(s): " .  $inverterString;
-                break;
-            case 30:
-                $this->description = "Grid Error in Inverter(s): " .  $inverterString;
-                break;
-
-            default:
-                $this->description = "Error in inverter: " .  $inverterString;
-        }
+        $this->description = match ($this->getAlertType()) {
+            10 => "Data gap in Inverter(s): " . $inverterString,
+            20 => "Power Error in Inverter(s): " . $inverterString,
+            30 => "Grid Error in Inverter(s): " . $inverterString,
+            default => "Error in inverter: " . $inverterString,
+        };
         $this->inverterName = $inverterString;
         return $this;
     }
-
-
 }

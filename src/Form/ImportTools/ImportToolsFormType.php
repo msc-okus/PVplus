@@ -34,10 +34,10 @@ class ImportToolsFormType extends AbstractType
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
         if ($this->security->isGranted('ROLE_G4N')) {
-            $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
+            $anlagen = $this->anlagenRepository->findAllSymfonyImport();
         } else {
             $eigner = $this?->security->getUser()?->getEigners()[0];
-            $anlagen = $this->anlagenRepository->findAllIDByEigner($eigner);
+            $anlagen = $this->anlagenRepository->findSymfonyImportByEigner($eigner);
         }
 
         $anlagen_toShow = [];

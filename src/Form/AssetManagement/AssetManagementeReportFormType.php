@@ -248,6 +248,41 @@ class AssetManagementeReportFormType extends AbstractType
                 'disabled' => true,
             ]);
         }
+        if($reportParts['maintenanceTicketTable']) {
+            $builder->add('maintenanceTicketTable', SwitchType::class, [
+                'label' => 'Maintenance Tickets Summary',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ]);
+        }
+        else{
+            $builder->add('maintenanceTicketTable', SwitchType::class, [
+                'label' => 'Maintenance Tickets Summary (Unavailable)',
+                'required' => false,
+                'data' => false,
+                'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
+                'disabled' => true,
+            ]);
+        }
+        if($reportParts['kpiTicketTable']) {
+            $builder->add('kpiTicketTable', SwitchType::class, [
+                'label' => 'kpi Tickets Summary',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ]);
+        }
+        else{
+            $builder->add('kpiTicketTable', SwitchType::class, [
+                'label' => 'kpi Tickets Summary (Unavailable)',
+                'required' => false,
+                'data' => false,
+                'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
+                'disabled' => true,
+            ]);
+        }
+
         if($reportParts['InverterEfficiencyRank']) {
             $builder->add('AvYearlyTicketOverview', SwitchType::class, [
                 'label' => ' Yearly overview',

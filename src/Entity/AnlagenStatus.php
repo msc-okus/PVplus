@@ -9,8 +9,8 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
  * PvpAnlagenStatus.
  */
 #[ORM\Table(name: 'pvp_anlagen_status')]
-#[ORM\Index(name: 'stamp', columns: ['stamp'])]
-#[ORM\Index(name: 'anlage_id', columns: ['anlage_id'])]
+#[ORM\Index(columns: ['stamp'], name: 'stamp')]
+#[ORM\Index(columns: ['anlage_id'], name: 'anlage_id')]
 #[ORM\UniqueConstraint(name: 'unique_key', columns: ['unique_key'])]
 #[ORM\Entity(repositoryClass: \App\Repository\AnlagenStatusRepository::class)]
 class AnlagenStatus implements \Stringable

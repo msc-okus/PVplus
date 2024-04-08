@@ -202,11 +202,15 @@ class TicketRepository extends ServiceEntityRepository
             $qb->andWhere("ticket.id = $id");
         }
         if ($inverter != '') {
+            // Suche nach Invertern mit AND => suche Tickets in denen alle diese Inverter betroffen sind
+            /*
             $invArray = explode(", ", $inverter);
             foreach ($invArray as $inverterId) {
-                $qb->andWhere("ticket.inverter LIKE '$inverterId,%' or ticket.inverter LIKE '% $inverterId,%' or ticket.inverter = '$inverterId' or ticket.inverter LIKE '%, $inverterId' or ticket.inverter = '*'");
+                $qb->andWhere("ticket.inverter = '$inverterId' or ticket.inverter = '*'");
             }
-
+            */
+            // Suche mit OR => suche alle Tickets in denen einer dieser Inverter betroffen ist
+            $qb->andWhere("ticket.inverter IN ($inverter) or ticket.inverter = '*'");
         }
         if ((int) $prio > 0) {
             $qb->andWhere("ticket.priority = $prio");
@@ -221,13 +225,12 @@ class TicketRepository extends ServiceEntityRepository
         if ((int) $category == 7){
             $qb->andWhere("ticket.alertType >= 70");
             $qb->andWhere("ticket.alertType < 80");
-        }  else if ((int) $category == 9){
+        } else if ((int) $category == 9){
             $qb->andWhere("ticket.alertType > 90");
             $qb->andWhere("ticket.alertType < 100");
         } else if ((int) $category > 0) {
             $qb->andWhere("ticket.alertType = $category");
-        }
-        else {
+        } else {
             $qb->andWhere("ticket.alertType < 90 or ticket.alertType >= 100");
         }
         if ($prooftam == 1){
@@ -278,6 +281,51 @@ class TicketRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    public function findAllMaintenanceAnlage(Anlage $anlage, $begin, $end){
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.end <= :end')
+            ->andWhere('t.notified = true')
+            ->andWhere('t.status =  90')
+            ->setParameter('anl', $anlage)
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->getQuery()
+        ;
+
+        return $result->getResult();
+    }
+    public function findAllUnclosedMaintenanceAnlage(Anlage $anlage, $begin, $end){
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.end <= :end')
+            ->andWhere('t.notified = true')
+            ->andWhere('t.status !=  90')
+            ->setParameter('anl', $anlage)
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->getQuery()
+        ;
+
+        return $result->getResult();
+    }
+    public function findAllKpiAnlage(Anlage $anlage, $begin, $end){
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.end <= :end')
+            ->andWhere('t.alertType >= 70')
+            ->andWhere('t.alertType <  80')
+            ->setParameter('anl', $anlage)
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->getQuery()
+        ;
+
+        return $result->getResult();
+    }
     public function findForSafeDelete($anlage, $begin, $end = null)
     {
         if ($end != null)
@@ -466,6 +514,16 @@ class TicketRepository extends ServiceEntityRepository
             ->getQuery();
 
         return $result->getResult();
+    }
+
+    //new Dashboard
+    public  function  findByAnlageId(int $anlageId):array{
+        return $this->createQueryBuilder('t')
+            ->join('t.anlage', 'a')
+            ->where('a.anlId = :anlageId')
+            ->setParameter('anlageId', $anlageId)
+            ->getQuery()
+            ->getResult();
     }
 
 }

@@ -93,6 +93,7 @@ class AnlageGroupsController extends AbstractController
                 $groupsRepository->save($group, true);
             }
 
+
             return $this->redirectToRoute('app_anlage_groups_anlage_index',['anlage'=>$anlage, 'param'=>$form2->getData()['term']]);
 
 

@@ -3,11 +3,7 @@
 namespace App\Form\GroupsAc;
 
 use App\Entity\AnlageAcGroups;
-use App\Entity\WeatherStation;
-use PhpOffice\PhpSpreadsheet\Calculation\TextData\Text;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;

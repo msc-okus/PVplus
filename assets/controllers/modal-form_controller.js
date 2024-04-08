@@ -42,4 +42,6 @@ export default class extends Controller {
             this.modalBodyTarget.innerHTML = e.responseText;
         }
     }
+
+
 }
