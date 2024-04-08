@@ -640,6 +640,7 @@ class AssetManagementService
      */
     public function assetReport($anlage, $month = 0, $year = 0, ?int $logId = null): array
     {
+
         $date = strtotime("$year-$month-01");
         $reportMonth = date('m', $date);
         $reportYear = date('Y', $date);
@@ -714,7 +715,7 @@ class AssetManagementService
         $subindex = 0;
         $unclosedMaintenanceTicket = $this->ticketRepo->findAllUnclosedMaintenanceAnlage($anlage, $begin, $end);
         $unclosedMaintenanceTicketTable = [];
-        foreach ($unclosedMaintenanceTicket as $unclosedMaintenance){
+        foreach ($unclosedMaintenanceTicket as $unclosedMaintenance) {
             $notification = $this->notificationRepo->findBy(['Ticket' => $unclosedMaintenance->getId()])[0];
             $closingNotification = $this->notificationRepo->findByTicketStatus($unclosedMaintenance, 50)[0];
             if ($notification != null) {
@@ -727,8 +728,7 @@ class AssetManagementService
                     $firstNotification = $this->notificationRepo->findByTicketContact($unclosedMaintenance, $closingNotification->getContactedPerson())[0];
                     $unclosedMaintenanceTicketTable[$index][$subindex]['reparationBegin'] = $firstNotification->getDate();
                     $unclosedMaintenanceTicketTable[$index][$subindex]['reparationEnd'] = $closingNotification->getCloseDate();
-                }
-                else{
+                } else {
                     $firstNotification = $this->notificationRepo->findByTicketWIP($unclosedMaintenance)[0];
                     if ($firstNotification != null) $unclosedMaintenanceTicketTable[$index][$subindex]['reparationBegin'] = $firstNotification->getDate();
                     else $unclosedMaintenanceTicketTable[$index][$subindex]['reparationBegin'] = " - ";
@@ -2405,12 +2405,13 @@ class AssetManagementService
             // use acGroups as Inverter
             $inverters = $anlage->getAcGroups()->count();
         }
-        for ($inverter = 1; $inverter <= $inverters; ++$inverter) {
+        for ($inverter = 1; $inverter <= $inverters; $inverter++) {
             $pa = [];
             for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; ++$tempMonth) {
                 $startDate = new \DateTime($report['reportYear'] . "-$tempMonth-01 00:00");
                 $daysInThisMonth = $startDate->format("t");
-                $endDate = new \DateTime($report['reportYear'] . "-$tempMonth-$daysInThisMonth 00:00");
+                $endDate = new \DateTime($report['reportYear'] . "-$tempMonth-$daysInThisMonth 23:59");
+
                 $pa[] = [
                     'form_date' => $tempMonth,
                     'pa' => $this->availability->calcAvailability($anlage, $startDate, $endDate, $inverter, 0),
@@ -2704,11 +2705,12 @@ class AssetManagementService
             // use acGroups as Inverter
             $inverters = $anlage->getAcGroups()->count();
         }
-        for ($inverter = 1; $inverter <= $inverters; ++$inverter) {
+        for ($inverter = 1; $inverter <= $inverters; $inverter++) {
             $pa = [];
-            for ($day = 1; $day <= $daysInReportMonth; ++$day) {
-                $tempFrom = new \DateTime($report['reportYear'] . '-' . $report['reportMonth'] . "-$day 00:00");
-                $tempTo = new \DateTime($report['reportYear'] . '-' . $report['reportMonth'] . "-$day 23:59");
+            for ($day = 1; $day <= $daysInReportMonth; $day++) {
+                $tempFrom = new \DateTime($report['reportYear'] . '-' . $report['reportMonth'] . "-$day");
+                $tempTo = new \DateTime($report['reportYear'] . '-' . $report['reportMonth'] . "-$day");
+                $tempTo = $tempTo->add(new \DateInterval('P1D')); // sicherstellen das das endatum der folgetag 0 Uhr ist
                 $pa[] = [
                     'form_date' => $day,
                     'pa' => $this->availability->calcAvailability($anlage, $tempFrom, $tempTo, $inverter, 0),//TODO: add a parameter to change the dep
@@ -2718,7 +2720,6 @@ class AssetManagementService
             $outPa[] = $pa;
             unset($pa);
         }
-
 
         switch ($anlage->getConfigType()) {
             case 1:

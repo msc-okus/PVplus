@@ -1138,27 +1138,6 @@ class TicketController extends BaseController
         return $ticketDate;
     }
 
-    #[Route(path: '/list/getinverterarray/{id}', name: 'app_list_get_inverter_array', methods: ['GET', 'POST'])]
-    public function getInverterArray($id, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): Response
-    {
-
-        $anlage = $anlRepo->findOneBy(['anlId' => $id]);
-        $trafoArray = [];
-        $inverterArray = [];
-        if ($anlage != null) {
-            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
-            $nameArray = $anlage->getInverterFromAnlage();
-            foreach ($nameArray as $key => $value) {
-                $inverterArray[$key]["inv"] = $value;
-            }
-        }
-
-        return $this->render('/ticket/_inc/_inverter_dropdown.html.twig',[
-            'trafoArray' => $trafoArray,
-            'invArray' => $inverterArray,
-        ]);
-    }
-
     /**
      * @param Anlage $anlage
      * @param AcGroupsRepository $acRepo
