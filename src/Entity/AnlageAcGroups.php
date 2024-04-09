@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Helper\G4NTrait;
 use App\Repository\AcGroupsRepository;
-use App\Repository\GroupsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -23,7 +22,7 @@ class AnlageAcGroups
     private string $id; // DBAL return Type of bigint = string
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'acGroups')]
-    private ?\App\Entity\Anlage $anlage = null;
+    private ?Anlage $anlage = null;
 
     #[ORM\Column(name: 'trafo_nr', type: 'string', length: 20, nullable: true)]
     private ?string $trafoNr = null;

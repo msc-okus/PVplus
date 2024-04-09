@@ -1,6 +1,6 @@
 {% import _self as macros %}
 
-{% macro availabilityTable(availability, aktAnlage) %}
+{% macro availabilityTable(availability, aktAnlage, days) %}
     {% set pa0   = 0 %}
     {% set pa1   = 0 %}
     {% set pa2   = 0 %}
@@ -75,7 +75,7 @@
             {% for stati in availability %}
                 <tr>
                     <td>{{ stati.stamp|date("Y-m-d") }} </td>
-                    <td style="text-align: left;">{{ aktAnlage.inverterFromAnlage[stati.inverter] }} <br> ({{ stati.inverter }})</td>
+                    <td style="text-align: left;">{% if aktAnlage.inverterFromAnlage[stati.inverter] is defined() %}{{ aktAnlage.inverterFromAnlage[stati.inverter] }}{% endif %} <br> ({{ stati.inverter }})</td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">PA.0 (Open Book) </span>
                         {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">PA.1 ({{ aktAnlage.eigner.settings.nameDep1 }})</span>{% endif %}
@@ -138,10 +138,10 @@
                         {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.invAPart13|number_format(2, ',', '.') }}</span>{% endif %}
                     </td>
                     <td class="toggle_visibility_td">
-                        <span class="topline js-pa-0">{{ stati.invA0|number_format(4, ',', '.') }}</span>
-                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.invA1|number_format(4, ',', '.') }}</span>{% endif %}
-                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.invA2|number_format(4, ',', '.') }}</span>{% endif %}
-                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.invA3|number_format(4, ',', '.') }}</span>{% endif %}
+                        <span class="topline js-pa-0">{{ (stati.invA0 / days)|number_format(4, ',', '.') }}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">{{ (stati.invA1 / days)|number_format(4, ',', '.') }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">{{ (stati.invA2 / days)|number_format(4, ',', '.') }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ (stati.invA3 / days)|number_format(4, ',', '.') }}</span>{% endif %}
                     </td>
                 </tr>
                 {% set pa0 = pa0 + stati.invA0 %}
@@ -170,10 +170,10 @@
                 <td>{{ case6 }} / {{ case6 / 4 }}</td>
                 <td>{{ control }} / {{ control / 4 }}</td>
                 <td></td>
-                <td><b>PA 0: </b>{{ pa0|number_format(4, ',', '.') }}<br>
-                    {% if not(aktAnlage.settings.disableDep1) %}<b>PA 1: </b>{{ pa1|number_format(4, ',', '.') }}<br>{% endif %}
-                    {% if not(aktAnlage.settings.disableDep2) %}<b>PA 2: </b>{{ pa2|number_format(4, ',', '.') }}<br>{% endif %}
-                    {% if not(aktAnlage.settings.disableDep3) %}<b>PA 3: </b>{{ pa3|number_format(4, ',', '.') }}{% endif %}
+                <td><b>PA 0: </b>{{ (pa0 / days)|number_format(4, ',', '.') }}<br>
+                    {% if not(aktAnlage.settings.disableDep1) %}<b>PA 1: </b>{{ (pa1 / days)|number_format(4, ',', '.') }}<br>{% endif %}
+                    {% if not(aktAnlage.settings.disableDep2) %}<b>PA 2: </b>{{ (pa2 / days)|number_format(4, ',', '.') }}<br>{% endif %}
+                    {% if not(aktAnlage.settings.disableDep3) %}<b>PA 3: </b>{{ (pa3 / days)|number_format(4, ',', '.') }}{% endif %}
                 </td>
             </tr>
             </tbody>
@@ -185,7 +185,7 @@
 
 <div class="grid-x">
     <div class="cell medium-9">
-        {{ macros.availabilityTable(content.availability, aktAnlage) }}
+        {{ macros.availabilityTable(content.availability, aktAnlage, content.days) }}
     </div>
     <div class="cell medium-3">
         <div class="callout secondary text-left" >
