@@ -221,7 +221,6 @@ class SensorService
                     } elseif ($ticketDate->isReplaceEnergyG4N()) {
                         //ToDo: implement replacement by G4N Expected
                     } else {
-                        dump($sensorData);
                         $replaceValueIrr = $ticketDate->getValueIrr() * 1000;
                         $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
                         if ($replaceValueIrr > 0) {
@@ -241,9 +240,7 @@ class SensorService
                             $sensorData['theoPowerPA1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['theoPowerPA1'] - $tempWeatherArray['theoPowerPA1'] + $theoEnergie : $sensorData['theoPowerPA1'];
                             $sensorData['theoPowerPA2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['theoPowerPA2'] - $tempWeatherArray['theoPowerPA2'] + $theoEnergie : $sensorData['theoPowerPA2'];
                             $sensorData['theoPowerPA3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['theoPowerPA3'] - $tempWeatherArray['theoPowerPA3'] + $theoEnergie : $sensorData['theoPowerPA3'];
-                            dd( $tempWeatherArray, $theoEnergie, $replaceValueIrr, $sensorData);
                         }
-
                     }
                     break;
             }

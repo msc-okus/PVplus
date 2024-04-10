@@ -47,7 +47,7 @@
     <div class="cell small-6 medium-3" >
         <fieldset class="fieldset">
             <legend>List with Plants
-                <span data-tooltip tabindex="1" title="Please assign a plant for this User !"><i class="fa fa-info-circle"></i></span>
+                <span data-tooltip tabindex="1" title="Please assign plants for this User !"><i class="fa fa-info-circle"></i></span>
             </legend>
 
            <div style="width: 100%; height: 70vh; overflow-y: scroll;">
@@ -67,8 +67,10 @@
         {{ form_widget(userForm.save) }}
         {{ form_widget(userForm.saveclose) }}
         {{ form_widget(userForm.close) }}
-        {% if app.request.requesturi != "/admin/user/new" %}
-            <a href="{{ path('app_admin_user_delete', {id: app.request.attributes.get('id')}) }}" onclick="return confirm('WARNING! Are you sure to delete this User?')" class="button alert"><i class="fa fa-trash"></i> Delete User</a>
+        {% if is_granted('ROLE_G4N') %}
+            {% if app.request.requesturi != "/admin/user/new" %}
+                <a href="{{ path('app_admin_user_delete', {id: app.request.attributes.get('id')}) }}" onclick="return confirm('WARNING! Are you sure to delete this User?')" class="button alert"><i class="fa fa-trash"></i> Delete User</a>
+            {% endif %}
         {% endif %}
     </div>
 </div>
