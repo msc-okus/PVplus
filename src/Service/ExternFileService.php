@@ -84,6 +84,6 @@ class ExternFileService
     public function callImportDataFromApiManuel($path, $importType, $from, $to, $logId = ''): void
     {
         $currentDir = $this->kernelProjectDir;
-        exec("php -dsafe_mode=Off $currentDir/../anlagen/$path/loadDataFromApi.php ".$from." ".$to." ".$importType." ".$logId);
+        exec("php -dsafe_mode=Off ../../anlagen/$path/loadDataFromApi.php ".$from." ".$to." ".$importType." ".$logId);
     }
 }
