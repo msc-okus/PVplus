@@ -98,7 +98,9 @@ class ACPowerChartsService
                     $sqlEvu = 'SELECT e_z_evu as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
                 }
                 $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
-                        WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
+                        WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(DATE_SUB(stamp, INTERVAL 61 MINUTE), '$form')";
+
+
 
                 $resActual = $conn->query($sqlActual);
                 $resEvu = $conn->query($sqlEvu);
