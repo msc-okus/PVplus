@@ -5,16 +5,19 @@ namespace App\Service;
 
 use App\Entity\AnlagenReports;
 use App\Repository\AnlagenRepository;
-use App\Repository\EignerRepository;
+use App\Repository\ReportsRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
 use PDO;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Shuchkin\SimpleXLSX;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class AnlageStringAssigmentService
@@ -26,7 +29,8 @@ class AnlageStringAssigmentService
         private readonly LogMessagesService $logMessages,
         private EntityManagerInterface $entityManager,
         private AnlagenRepository $anlagenRepository,
-        private readonly Filesystem $fileSystemFtp
+        private readonly Filesystem $fileSystemFtp,
+        private ReportsRepository $reportsRepository
 
     )
     {
@@ -138,6 +142,8 @@ class AnlageStringAssigmentService
 
       $this->generateAndSaveExcelFile($spreadsheet, $anlId,$month,$year,$currentUserName, $publicDirectory);
     }
+
+
 
     private function prepareInitialSheet($sheet, $joinedData): void
     {
@@ -262,4 +268,66 @@ class AnlageStringAssigmentService
         $this->entityManager->flush();
 
     }
+
+    public function exportAmReport($anlId,$month,$year)
+    {
+        $data = $this->reportsRepository->getOneAnlageString($anlId, $month, $year);
+        if (!$data) {
+            throw new \Exception('Report not found.', Response::HTTP_NOT_FOUND);
+        }
+        $fileName = $data[0]->getFile();
+        $publicDirectory = './excel/anlagestring/';
+        $filePath = $publicDirectory . $fileName;
+
+
+        if (!$this->fileSystemFtp->fileExists($filePath)) {
+            throw new \Exception('File not found.', Response::HTTP_NOT_FOUND);
+        }
+
+        // Lecture du contenu du fichier
+        try {
+            $fileContent = $this->fileSystemFtp->read($filePath);
+        } catch (FilesystemException $e) {
+            throw new \Exception('Unable to read the file content.', Response::HTTP_BAD_REQUEST);
+        }
+
+        // Copie du contenu dans un fichier temporaire
+        $tempFilePath = tempnam(sys_get_temp_dir(), 'xlsx');
+        file_put_contents($tempFilePath, $fileContent);
+
+        $sheetsData = [];
+        // Parsing du fichier Excel à partir du fichier temporaire
+        if ($xlsx = SimpleXLSX::parse($tempFilePath)) {
+
+            $sheetNames = $xlsx->sheetNames();
+            foreach ($sheetNames as $index => $name) {
+                if ($name === 'Unsorted') {
+                    continue;
+                }
+                $sheetData = $xlsx->rows($index);
+
+                // Nettoyage de chaque cellule
+                array_walk_recursive($sheetData, function (&$item) {
+                    if (is_string($item)) {
+                        $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8');
+                    }
+                });
+
+                $sheetsData[$name] = $sheetData;
+
+            }
+            unlink($tempFilePath); // Cleanup temporary file
+
+
+        }
+
+        return $sheetsData;
+    }
+
+
+
+
+
+
+
 }

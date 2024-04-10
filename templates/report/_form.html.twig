@@ -43,6 +43,7 @@
         {{ form_row(assetForm.AvYearlyOverview) }}
         {{ form_row(assetForm.AvInv) }}
     </div>
+    <div style="margin-left: 10px"> {{ form_row(assetForm.StringAssignment) }}</div>
     {% if (anlage.getEconomicVarNames != null) %}
         <div style="margin-left: 10px">{{ form_row(assetForm.Economics) }} </div>
     {% else %}

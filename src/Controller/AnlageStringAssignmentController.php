@@ -16,12 +16,17 @@ use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Service\AnlageStringAssigmentService;
 
+use App\Service\Functions\ImageGetterService;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Knp\Component\Pager\PaginatorInterface;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Shuchkin\SimpleXLSX;
@@ -235,6 +240,7 @@ class AnlageStringAssignmentController extends AbstractController
             throw $this->createNotFoundException('File not found');
         }
 
+        //dd($filePath);
         // Get the contents of the file from the FTP filesystem
         $fileStream = $fileSystemFtp->readStream($filePath);
 
