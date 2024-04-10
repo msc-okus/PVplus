@@ -542,6 +542,14 @@ class ReportingController extends AbstractController
                             }
 
                         }
+                        if ($data['StringAssignment'] && $files['StringAssignment']) {
+                            $pageCount = $pdf->setSourceFile($fileSystemFtp->readStream($files['StringAssignment']));
+                            for ($i = 0; $i < $pageCount; $i++) {
+                                $pdf->AddPage("L");
+                                $tplId = $pdf->importPage($i + 1);
+                                $pdf->useTemplate($tplId);
+                            }
+                        }
                         if ($data['Economics'] && $files['Economic']) {
                             $pageCount = $pdf->setSourceFile($fileSystemFtp->readStream($files['Economic']));
                             for ($i = 0; $i < $pageCount; $i++) {

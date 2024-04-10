@@ -42,4 +42,13 @@ class AcGroupsRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
+
+    public function getAllTrafoNrForInverterSelect(Anlage $anlage){
+        $result = $this->createQueryBuilder('a')
+            ->andWhere('a.anlage = :anl')
+            ->setParameter('anl', $anlage)
+            ->getQuery();
+
+        return $result->getResult();
+    }
 }

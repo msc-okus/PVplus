@@ -87,7 +87,11 @@ class ReportsRepository extends ServiceEntityRepository
             ->innerJoin('report.eigner', 'e')
             ->addSelect('a')
             ->addSelect('e')
+            ->andWhere("report.reportType != :reportType")
+            ->setParameter('reportType', 'string-analyse')
         ;
+
+
 
         // Wenn Benutzer kein G4N Rolle hat
         if (!$this->security->isGranted('ROLE_G4N')) {
@@ -177,5 +181,32 @@ class ReportsRepository extends ServiceEntityRepository
         }
 
         return $qb;
+    }
+
+    public function getOneAnlageString( string $anlId , string $searchmonth , string $searchyear ): array
+    {
+        $qb = $this->createQueryBuilder('report')
+            ->innerJoin('report.anlage', 'a')
+            ->innerJoin('report.eigner', 'e')
+            ->addSelect('a')
+            ->addSelect('e')
+        ;
+
+
+
+        $qb->andWhere("report.reportType = 'string-analyse'");
+
+
+            $qb->andWhere("a.anlId = $anlId");
+
+
+
+            $qb->andWhere("report.month = $searchmonth");
+
+
+            $qb->andWhere("report.year = $searchyear");
+
+
+        return $qb->getQuery()->getResult();
     }
 }
