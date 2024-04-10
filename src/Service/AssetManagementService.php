@@ -63,6 +63,7 @@ class AssetManagementService
         private TicketRepository            $ticketRepo,
         private NotificationInfoRepository  $notificationRepo,
         private readonly Security           $security,
+        private AnlageStringAssigmentService $anlageStringAssigmentService
     )
     {
         $this->conn = $this->pdoService->getPdoPlant();
@@ -84,6 +85,8 @@ class AssetManagementService
         }
         // then we generate our own report and try to persist it
         $output = $this->assetReport($anlage, $reportMonth, $reportYear, $logId);
+        $sheetsData = $this->anlageStringAssigmentService->exportAmReport($anlage->getAnlId(),$reportMonth,$reportYear);
+
 
         $data = [
             'Production' => true,
@@ -174,6 +177,20 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $reportParts['ProductionCapFactor'] = $pdf->createPage($html, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
+
+
+        //String Assignment
+        $html = $this->twig->render('report/string_assigment.html.twig', [
+            'anlage' => $anlage,
+            'month' => $reportMonth,
+            'monthName' => $output['month'],
+            'logoImage' => $tempFileLogo,
+            'year' => $reportYear,
+            'sheetsData' => $sheetsData
+
+        ]);
+        $html = str_replace('src="//', 'src="https://', $html);
+        $reportParts['StringAssignment'] = $pdf->createPage($html, $fileroute, "String Assignment", false);// we will store this later in the entity
 
         // Technical PR and Availability
         $html = $this->twig->render('report/asset_report_technicalPRPA.html.twig', [
@@ -888,7 +905,7 @@ class AssetManagementService
                 $bestTen['name'] = array_slice($inverterPRArray['name'], count($inverterPRArray['name']) - 10, 10);
                 $worseTen['power'] = array_slice($inverterPRArray['power'], 0, 10);
                 $bestTen['power'] = array_slice($inverterPRArray['power'], count($inverterPRArray['power']) - 10, 10);
-                //we calculate the average pr for the value in the middle 
+                //we calculate the average pr for the value in the middle
 
                 $tenArray['name'] = array_merge($worseTen['name'], ["..."]);
                 $tenArray['power'] = array_merge($worseTen['power'], [0]);
@@ -1288,9 +1305,8 @@ class AssetManagementService
         }
         // chart building, skip to line 950
         // begin chart
-        $chart = new ECharts(); // We must use AMCharts
-        $chart->tooltip->show = false;
-        $chart->tooltip->trigger = 'item';
+        // Crée un nouvel objet de graphique (ECharts)
+        $chart = new ECharts(); // Nous devons utiliser AMCharts
 
         $chart->xAxis = [
             'type' => 'category',
@@ -1301,7 +1317,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => array_slice($monthArray, 0, $report['reportMonth']),
+            'data' => array_slice($monthArray, 0, $report['reportMonth']), // Définit les données de l'axe des abscisses
         ];
         $chart->yAxis = [
             'type' => 'value',
@@ -1311,6 +1327,8 @@ class AssetManagementService
             'nameGap' => 80,
             'offset' => -20,
         ];
+
+// Configuration des séries de données
         $series[] = [
             'name' => 'Expected g4n',
             'type' => 'bar',
@@ -1324,8 +1342,10 @@ class AssetManagementService
             'visualMap' => 'false',
         ];
 
+// Attribution des séries au graphique
         $chart->series = $series;
 
+// Configuration générale du graphique
         $option = [
             'textStyle' => [
                 'fontFamily' => 'monospace',
@@ -1356,12 +1376,23 @@ class AssetManagementService
 
         $chart->setOption($option);
 
+// Rendu du graphique avec un identifiant et des styles spécifiés
         $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:700px;']);
-        $series = [];
+        $series = []; // Réinitialisation de la variable des séries
+
+
+
+
+
         $chart = new ECharts(); // We must use AMCharts
         $chart->tooltip->show = false;
         $chart->tooltip->trigger = 'item';
 
+// Configuration de l'infobulle
+        $chart->tooltip->show = false; // Masque l'infobulle
+        $chart->tooltip->trigger = 'item'; // Déclenche l'infobulle sur l'élément
+
+// Configuration de l'axe des abscisses (X)
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -1373,6 +1404,8 @@ class AssetManagementService
             ],
             'data' => $monthArray,
         ];
+
+// Configuration de l'axe des ordonnées (Y)
         $chart->yAxis = [
             'type' => 'value',
             'min' => 0,
@@ -1429,6 +1462,7 @@ class AssetManagementService
             ],
         ];
 
+// Applique les options au graphique
         $chart->setOption($option);
 
         $operations_right_withForecast = $chart->render('operations_right_withForecast', ['style' => 'height: 450px; width: 100%;']);
@@ -4400,6 +4434,7 @@ class AssetManagementService
             'maintenanceTicketTable' => $maintenanceTicketTable,
             'kpiTicketTable' => $kpiTicketTable,
             'maintenanceUnclosedTicketTable' => $unclosedMaintenanceTicketTable,
+
         ];
         return $output;
     }

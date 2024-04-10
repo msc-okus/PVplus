@@ -1,0 +1,40 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+
+    <h2 style="color: #0a62f8">String Assignment Monthly Overview </h2>
+    <h6 style="color: #2370f3">{{ sheetName }}</h6>
+
+    {% set performanceColumnIndex = 14 %}
+
+    <table border="1">
+        <thead>
+        <tr>
+            {% for header in sheetData[0] %}
+                {% if loop.index0 != performanceColumnIndex %}
+                    <th>{{ header }}</th>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in sheetData|slice(1) %}
+            {% set rowStyle = '' %}
+            {% if row[performanceColumnIndex] == 'Best' %}
+                {% set rowStyle = 'background-color: lightgreen;' %}
+            {% elseif row[performanceColumnIndex] == 'Worst' %}
+                {% set rowStyle = 'background-color: lightcoral;' %}
+            {% endif %}
+            <tr style="{{ rowStyle }}">
+                {% for cell in row %}
+                    {% if loop.index0 != performanceColumnIndex %}
+                        <td class="tr_next_columns">{{ cell }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock page %}

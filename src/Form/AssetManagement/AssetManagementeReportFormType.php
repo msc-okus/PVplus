@@ -75,6 +75,23 @@ class AssetManagementeReportFormType extends AbstractType
                 'disabled' => true,
                 ]);
         }
+        if($reportParts['StringAssignment']) {
+            $builder->add('StringAssignment', SwitchType::class, [
+                'label' => 'String Assignment',
+                'required' => false,
+                'data' => true,
+
+            ]);
+        }
+        else{
+            $builder->add('StringAssignment', SwitchType::class, [
+                'label' => 'String Assignment (Unavailable)',
+                'required' => false,
+                'data' => false,
+                'attr' => [ 'read_only' => true],
+                'disabled' => true,
+            ]);
+        }
         if($reportParts['MonthlyProd']) {
             $builder->add('MonthlyProd', SwitchType::class, [
                 'label' => 'Monthly Production',
