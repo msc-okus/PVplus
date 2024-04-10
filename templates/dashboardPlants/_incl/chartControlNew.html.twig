@@ -545,7 +545,6 @@
                     and (form.selectedChart != 'sollisttempanalyse')
                     and (form.selectedChart != 'sollistheatmap')
                     and (form.selectedChart != 'grid') %}
-                    {% if is_granted('ROLE_G4N') %}
                         <div class="switchtyny">
                             <div class="switch tiny align-center-middle">
                                 <label class="" style="line-height: 1;"><small>Interval min.</small></label>
@@ -558,7 +557,6 @@
                                 </label>
                             </div>
                         </div>
-                    {% endif %}
                 {% endif %}
             </div>
         </div>
