@@ -1,0 +1,13 @@
+  _feature/Analisys_Interface[m
+  createPopupForInvertersInCharts[m
+  develop[m
+* [32mfeature/export_saran[m
+  fix_circular_reference[m
+  fix_timezones[m
+  getSensorsFromBasic[m
+  hotfixImport[m
+  multiplePlants[m
+  new_table_for_sensor_data[m
+  optimize_PDO[m
+  prozessesInBackground[m
+  useNewStringboxesDataTable[m
