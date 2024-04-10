@@ -50,12 +50,16 @@
             errorType: ticket.alertType
         }) }}>
             <td>{{ loop.index }} ({{ date.vars.value.intervals }})</td>
-            <td>{{ form_widget(date.begin) }}{# {{ date.vars.value.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }} #}</td>
-            {% if (loop.last) %}
-                <td>{{ form_widget(date.end,{ 'attr':{ 'data-ticket-edit-target':'formEndDate' }}) }}</td>
-            {% else %}
-                <td>{{ form_widget(date.end) }} </td>
-            {% endif %}
+
+
+            <td {% if (loop.last )%} data-ticket-edit-target="lastDateBegin" {% endif %}>{{ form_widget(date.begin) }}</td>
+
+            <td {% if (loop.first )%} data-ticket-edit-target="firstDateEnd" {% endif %}>
+                {% if (loop.last) %}
+                    {{ form_widget(date.end,{ 'attr':{ 'data-ticket-edit-target':'formEndDate' }}) }}
+                {% else %}
+                    {{ form_widget(date.end) }}
+                {% endif %} </td>
             {# Performance Ticket #}
 
             <td class="is-hidden" data-ticket-edit-target="fieldSensor">
@@ -129,7 +133,7 @@
                     >
                         <div>
                             <fieldset class="fieldset">
-                                <legend>Choose which interval you want to extend:</legend>
+                                <legend>Choose which interval you want to extend: </legend>
                                 <select class="select-{{ date.vars.value.id|default(0) }}"
                                         data-ticket-split-id-param="{{ date.vars.value.id|default(0) }}"
                                         data-action="change->ticket-split#delete"
