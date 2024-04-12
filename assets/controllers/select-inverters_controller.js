@@ -69,9 +69,17 @@ export default class extends Controller {
                 $(this).prop('checked', false);
             });
         }
-
     }
 
+    unselectAll(){
+    let body = $('#inverters');
+        body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
+            $(this).prop('checked', false);
+        });
+        body.find('input:checkbox[class=js-checkbox]').each(function () {
+            $(this).prop('checked', false);
+        });
+    }
 
     saveInverters(){
 
