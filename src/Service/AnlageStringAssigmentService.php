@@ -35,7 +35,8 @@ class AnlageStringAssigmentService
     )
     {
     }
-    public function exportMontly($anlId,$year,$month,$currentUserName, $publicDirectory,$logId){
+    public function exportMontly($anlId,$year,$month,$currentUserName, $publicDirectory,$logId): void
+    {
        $this->logMessages->updateEntry($logId, 'working', 5);
         $sql_pvp_base = "
                         SELECT
@@ -147,14 +148,24 @@ class AnlageStringAssigmentService
 
     private function prepareInitialSheet($sheet, $joinedData): void
     {
-        $header = ['Station Nr', 'Inverter Nr', 'String Nr','unit','Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut','ModuleType', 'InverterType','Impp','AVG'];
-        $sheet->setTitle('Unsorted')->fromArray($header, NULL, 'A1')->getStyle('A1:N1')->getFont()->setBold(true);
+        $header = ['Station Nr', 'Inverter Nr', 'String Nr','unit','Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut','ModuleType', 'InverterType','Impp','AVG','Performance'];
+        $sheet->setTitle('Best_Worst_Performer')->fromArray($header, NULL, 'A1')->getStyle('A1:N1')->getFont()->setBold(true);
+
+
+        usort($joinedData,function ($a,$b){return $b['avg'] <=> $a['avg'];});
+        $best = array_slice($joinedData, 0, 10);
+        $worst = array_slice($joinedData, -10);
+        array_walk($best, function (&$item) { $item['Performance'] = 'Best'; });
+        array_walk($worst, function (&$item) { $item['Performance'] = 'Worst'; });
+        $sortedData= array_merge($best, $worst);
 
         $rowIndex = 2;
-        foreach ($joinedData as $rowData) {
+        foreach ($sortedData as $rowData) {
             $sheet->fromArray($rowData, NULL, "A{$rowIndex}");
             $rowIndex++;
         }
+
+        $this->colorizePerformanceRows($sheet, count($sortedData) + 1);
     }
 
     private function prepareAndAddSortedSheets($spreadsheet, $joinedData): void
