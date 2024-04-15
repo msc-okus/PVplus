@@ -88,13 +88,11 @@ export default class extends Controller {
     }
 
     beginPlusTime(){
+        let td = $(this.firstDateEndTarget);
         const valueBegin = $(this.formBeginTarget).prop('value');
-        const valueEnd = $(this.formEndTarget).prop('value');
+        const valueEnd = td.find('input')[0].value;
         let date = new Date(valueBegin);
         let endDate = new Date(valueEnd);
-
-        let td = $(this.firstDateEndTarget);
-        console.log(td.find('input')[0].value, $(this.formEndTarget).prop('value'));
 
         if ($(this.formHourTarget).prop('checked') == true){
             var addTime = 60;
@@ -214,8 +212,8 @@ export default class extends Controller {
 
     }
     endMinusTime(){
-
-        const valueBegin = $(this.formBeginTarget).prop('value');
+        let td = $(this.lastDateBeginTarget);
+        const valueBegin = td.find('input')[0].value;
         let beginDate = new Date(valueBegin);
         if ($(this.formHourTarget).prop('checked') == true){
             var subTime = 60;
