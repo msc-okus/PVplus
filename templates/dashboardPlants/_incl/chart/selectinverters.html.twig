@@ -14,7 +14,10 @@
                         <input class="check-all" id="check-all" type="checkbox"
                                data-action="click->select-inverters#selectAll"
                                data-select-inverters-target="switch">
-                        <label for="check-all" class="">Select All</label>
+                        <label for="check-all">Select All</label>
+
+                        <input type="button" id="clear-all" class="selectTnvertersButton" data-action="click->select-inverters#unselectAll"
+                             data-select-inverters-target="switch" value="Clear All">
                     {% endif %}
                 </div>
             </div>
@@ -68,9 +71,9 @@
                     {% endif %}
                 {% endfor %}
             </div>
-            <button class="button small no-margin hollow expanded" type="button"
-                    data-action="click->select-inverters#saveInverters">Submit your Selection
-            </button>
+            <input type="button" class="selectTnvertersButton"
+                   data-action="click->select-inverters#saveInverters" value="Submit your Selection">
+
         {% else %}
             No Inverters found to select
         {% endif %}
