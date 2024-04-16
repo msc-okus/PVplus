@@ -436,6 +436,7 @@ export default class extends Controller {
         $(this.reasonInputTarget).val(reason);
     }
     checkCategory(){
+
         const cat = $(this.formCategoryTarget).val();
         var inverterString = '';
         var inverterNameString = '';
@@ -460,7 +461,7 @@ export default class extends Controller {
             $(this.scopeTarget).removeClass('is-hidden');
         }
         else  $(this.scopeTarget).addClass('is-hidden');
-
+        console.log(cat);
         switch (cat){
             case '10':
                 $(this.headerExcludeTargets).addClass('is-hidden');
@@ -700,6 +701,7 @@ export default class extends Controller {
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
                 break;
             case '100':
+                console.log("hiding");
                 $(this.headerExcludeTargets).addClass('is-hidden');
                 $(this.headerReplaceTargets).addClass('is-hidden');
                 $(this.headerReplacePowerTargets).addClass('is-hidden');
@@ -728,7 +730,7 @@ export default class extends Controller {
                 $(this.fieldAktDep1Targets).removeClass('is-hidden');
                 $(this.fieldAktDep2Targets).removeClass('is-hidden');
                 $(this.fieldAktDep3Targets).removeClass('is-hidden');
-                $(this.inverterDivTargets).removeClass('is-hidden');
+                $(this.inverterDivTargets).addClass('is-hidden');
 
                 $(this.formHourTargets).prop('checked', false);
                 $(this.formkpiStatusTargets).addClass('is-hidden');
@@ -765,10 +767,11 @@ export default class extends Controller {
                 $(this.fieldAktDep2Targets).addClass('is-hidden');
                 $(this.fieldAktDep3Targets).addClass('is-hidden');
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
-                $(this.inverterDivTargets).removeClass('is-hidden');
+                $(this.inverterDivTargets).addClass('is-hidden');
                 $(this.formHourTarget).prop('checked', false);
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
                 break;
+
             default:
 
                 $(this.headerExcludeTargets).addClass('is-hidden');
