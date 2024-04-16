@@ -35,7 +35,7 @@ class AnlageStringAssigmentService
     )
     {
     }
-    public function exportMontly($anlId,$year,$month,$currentUserName, $publicDirectory,$logId): void
+    public function exportMontly($anlId,$year,$month,$currentUserName, $tableName,$logId): void
     {
        $this->logMessages->updateEntry($logId, 'working', 5);
         $sql_pvp_base = "
@@ -82,13 +82,14 @@ class AnlageStringAssigmentService
         $dateX = new DateTime("$year-$month-01 00:00:00");
         $dateY = (clone $dateX)->modify('last day of this month')->setTime(23, 59, 59);
 
+
         $sql = "
        SELECT
            `group_ac` AS inverterNr ,
            `wr_num` AS stringNr,
            `channel` AS channelNr,
            AVG(`I_value`) AS `average_I_value`
-       FROM `db__string_pv_CX104`
+       FROM `$tableName`
        WHERE `stamp` BETWEEN :startDateTime AND :endDateTime
        GROUP BY `group_ac`, `wr_num`, `channel`
         ";
@@ -141,6 +142,7 @@ class AnlageStringAssigmentService
 
         $this->prepareAndAddSortedSheets($spreadsheet, $joinedData);
 
+        $publicDirectory='./excel/anlagestring/'.$tableName.'/';
       $this->generateAndSaveExcelFile($spreadsheet, $anlId,$month,$year,$currentUserName, $publicDirectory);
     }
 
@@ -243,13 +245,13 @@ class AnlageStringAssigmentService
     }
 
 
-    private function generateAndSaveExcelFile($spreadsheet, $anlId, $month, $year,$currentUserName,$publicDirectory)
+    private function generateAndSaveExcelFile($spreadsheet, $anlId,$month, $year,$currentUserName,$publicDirectory)
     {
 
         $writer = new Xlsx($spreadsheet);
         $currentTimestamp = (new \DateTime())->format('YmdHis');
         $fileName = "{$month}_{$year}_{$currentTimestamp}.xlsx";
-        $filepath = $publicDirectory . $fileName ;
+        $filepath = $publicDirectory .$fileName ;
 
 
         $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlId]);
@@ -259,7 +261,7 @@ class AnlageStringAssigmentService
         $anlagenReport->setReportType('string-analyse');
         $anlagenReport->setMonth($month);
         $anlagenReport->setYear($year);
-        $anlagenReport->setFile($fileName);
+        $anlagenReport->setFile($filepath);
         $anlagenReport->setStartDate(new \DateTime());
         $anlagenReport->setEndDate(new \DateTime());
         $anlagenReport->setRawReport('');
@@ -286,9 +288,9 @@ class AnlageStringAssigmentService
         if (!$data) {
             throw new \Exception('Report not found.', Response::HTTP_NOT_FOUND);
         }
-        $fileName = $data[0]->getFile();
-        $publicDirectory = './excel/anlagestring/';
-        $filePath = $publicDirectory . $fileName;
+
+
+        $filePath = $data[0]->getFile();
 
 
         if (!$this->fileSystemFtp->fileExists($filePath)) {
