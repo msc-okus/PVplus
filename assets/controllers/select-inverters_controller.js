@@ -72,7 +72,7 @@ export default class extends Controller {
     }
 
     unselectAll(){
-    let body = $('#inverters');
+        let body = $('#inverters');
         body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
             $(this).prop('checked', false);
         });
@@ -81,8 +81,15 @@ export default class extends Controller {
         });
     }
 
-    saveInverters(){
+    fadeInElement() {
+        $('#selectInvertersContent').attr("style","z-index: 9999 !important; opacity: 1 !important; top: 10px;");
+    }
 
+    fadeOutElement() {
+        $('#selectInvertersContent').attr("style","z-index: 0 !important; top:-1500px !important;  opacity: 0 !important;");
+    }
+
+    saveInverters(){
         let body = $('#inverters');
         let invids = $('#invids');
         let invnames = $("#invnames");

@@ -600,16 +600,14 @@
             }
         }
 
-        .btn-select-inverters {
-            margin-left: 5px;
-            color: #1779ba;
-            #fa-caret-square-down {
-                font-size: xx-large;
-            }
+        #selectInverters {
+            width: 130px;
         }
 
-        .selectTnvertersButton{
-            font-size: 90%;
+        #clearAll{
+            width: 120px;
+            float: right;
+            margin-right: 20% !important;
         }
 
         .no-margin {
@@ -785,7 +783,6 @@
         }
 
         #ownerNew{
-
                 ul.statusLights {
 
                     li{
@@ -795,7 +792,6 @@
                     .label-warning {background-color: $warning}
                     .label-alert {background-color: $danger}
                 }
-
         }
 
         #plants{
@@ -1021,9 +1017,22 @@
                     font-weight: bold;
                     color: #0a0a0a;
                 }
+                .invSelector{
+                    float:left !important;
+                }
+                .js-checkbox{
+                    margin: 5px 5px 0 0 !important;
+                }
+                .siClose{
+                    float: right;
+                    padding-right: 10px;
+                    font-size: 90%;
+                    color: buttontext;
+                    cursor: pointer;
+                }
             }
-            .selectInverters:hover .selectInvertersContent {z-index: 9999 !important; opacity: 1 !important; top: 10px;}
         }
+
 
 
         //--------------------------------------------------

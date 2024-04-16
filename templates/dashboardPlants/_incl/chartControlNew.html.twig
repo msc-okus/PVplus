@@ -451,22 +451,26 @@
                                         });
                                     </script>
                                 {% endif %}
+                                <div class="cell" data-controller="select-inverters">
                                 {% if templateForSelection == 'selectstringboxes.html.twig' and (form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'sollistheatmap') %}
-                                    <div class="cell"><span class="invselector">Select Stringboxes</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
-                                {% elseif (useRadioButtons == 1 and templateForSelection == 'selectinverters.html.twig' and (form.selectedChart == 'dc_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'dc_current_inverter' or form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_voltage_1' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse')) %}
-                                    <div class="cell"><span class="invselector">Select Inverter</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                    <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Stringboxes</button>
+                                {% elseif (useRadioButtons == 1 and templateForSelection == 'selectinverters.html.twig' and (form.selectedChart == 'dc_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'dc_current_inverter' or form.selectedChart == 'ac_act_group' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'ac_act_frequency' or (configtype == 3 and form.selectedChart == 'dc_current_overview') or (configtype == 3 and form.selectedChart == 'dc_voltage_1'))) %}
+                                    <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Inverter</button>
+                                {% elseif form.selectedChart == 'ac_single' %}
+                                    <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Inverter</button>
                                 {% elseif (useRadioButtons == 1 and templateForSelection == 'selectstringboxes.html.twig' and form.selectedChart  == 'dc_current_inverter') %}
-                                    <div class="cell"><span class="invselector">Select Stringbox</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                    <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Stringbox</button>
                                 {% elseif (form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'ac_act_overview' or form.selectedChart == 'dc_voltage_1') and configtype == 1 %}
-                                    <div class="cell"><span class="invselector">Select Trafostation</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                    <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Trafostation</button>
                                 {% else %}
-                                    <div class="cell"><span class="invselector">Select Inverters</span><span class="btn-select-inverters"><i class="fa fa-caret-square-down" id="fa-caret-square-down"></i></span></div>
+                                        <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Inverters</button>
                                 {% endif %}
+                                </div>
                                 <div class="selectInvertersContent" id="selectInvertersContent">
                                     {% if templateForSelection == 'selectstringboxes.html.twig' %}
-                                        {% include 'dashboardPlants/_incl/chart/selectstringboxes.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited, useRadioButtons:useRadioButtons, form:form} only %}
+                                        {% include 'dashboardPlants/_incl/chart/selectstringboxes.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited, useRadioButtons:useRadioButtons, form:form, configtype:configtype} only %}
                                     {% else %}
-                                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited, useRadioButtons:useRadioButtons, form:form} only %}
+                                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited, useRadioButtons:useRadioButtons, form:form, configtype:configtype} only %}
                                     {% endif %}
                                 </div>
                             </div>
