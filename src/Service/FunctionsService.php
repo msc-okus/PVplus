@@ -1091,7 +1091,7 @@ class FunctionsService
                     $IdArray['dc'][$inverter->getDcGroup()] = $inverter->getDcGroup();
                 }
                 foreach ($this->inverterRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $IdArray['scb'][$inverter->getInvNr()] = $inverter->getInverter();
+                    $IdArray['scb'][$inverter->getInvNr()] = $inverter->getInverterName();
                 }
                 break;
         }

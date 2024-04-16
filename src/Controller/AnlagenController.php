@@ -13,6 +13,7 @@ use App\Repository\EconomicVarNamesRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use League\Flysystem\FilesystemException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -121,6 +122,10 @@ class AnlagenController extends BaseController
     }
 
     //
+
+    /**
+     * @throws FilesystemException
+     */
     #[Route(path: '/anlagen/setting/edit/{id}', name: 'app_anlagen_setting_edit')]
     public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, UploaderHelper $uploaderHelper ): RedirectResponse|Response
     {
@@ -143,7 +148,7 @@ class AnlagenController extends BaseController
                     $checkfields = false;
                 }
                 if ($form->get('albeto')->isEmpty()) {
-                    $this->addFlash('warning', 'Field Albeto fail.');
+                    $this->addFlash('warning', 'Field Albedo fail.');
                     $checkfields = false;
                 }
                 /*
