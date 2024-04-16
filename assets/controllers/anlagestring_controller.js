@@ -8,7 +8,9 @@ export default class extends Controller {
     static values = {
         urlSearch: String,
         urlDelete: String,
-        urlGenerate: String
+        urlGenerate: String,
+        urlDownload: String,
+
     }
 
     connect() {
@@ -63,6 +65,7 @@ export default class extends Controller {
 
 
 
+
     async handleUploadFormSubmit(event) {
         this.modalTarget.style.display='block';
         }
@@ -73,7 +76,7 @@ export default class extends Controller {
            title: 'Generate String Analysis Report',
            text: "The process will start in a few seconds in the background. You'll receive a notification once it's finished.",
            icon: 'info',
-           timer: 5000,
+           timer: 2000,
            timerProgressBar: true,
            didOpen: () => {
                Swal.showLoading();

@@ -94,10 +94,10 @@ class AnlageStringAssignmentController extends AbstractController
 
             $anlage = $createForm['anlage']->getData();
             $anlageId = $anlage->getAnlagenId();
+            $tableName='db__string_pv_'. $anlage->getAnlIntnr();
             $currentUserName = $security->getUser()->getEmail();
             $month = $createForm['month']->getData();
             $year = $createForm['year']->getData();
-            $publicDirectory = './excel/anlagestring/';
             $uid = $this->getUser()->getUserId();
 
             $job = 'Excel file is  generating for ' . $month . $year;
@@ -105,8 +105,9 @@ class AnlageStringAssignmentController extends AbstractController
             $logId = $logMessages->writeNewEntry($anlage, 'AnlageStringAssignment', $job, $uid);
 
 
-            $message = new \App\Message\Command\AnlageStringAssignment((int)$anlageId,(int)$year,(int)$month,$currentUserName,$publicDirectory,$logId);
-            $messageBus->dispatch($message);
+
+           $message = new \App\Message\Command\AnlageStringAssignment((int)$anlageId,(int)$year,(int)$month,$currentUserName,$tableName,$logId);
+          $messageBus->dispatch($message);
 
 
             return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
@@ -232,15 +233,16 @@ class AnlageStringAssignmentController extends AbstractController
     #[Route('/analysis/download/{fileName}', name: 'app_analysis_download_file')]
     public function downloadFile($fileName,Filesystem $fileSystemFtp): Response
     {
-        $publicDirectory='./excel/anlagestring/';
-        $filePath = $publicDirectory . urldecode($fileName);
+
+
+        $filePath = str_replace('-', '/', $fileName);
 
 
         if (!$fileSystemFtp->fileExists($filePath)) {
             throw $this->createNotFoundException('File not found');
         }
 
-        //dd($filePath);
+
         // Get the contents of the file from the FTP filesystem
         $fileStream = $fileSystemFtp->readStream($filePath);
 
@@ -277,10 +279,8 @@ class AnlageStringAssignmentController extends AbstractController
         }
 
 
-        $publicDirectory = './excel/anlagestring/';
-        $filePath = $publicDirectory . $decodeFilename;
 
-        if (!$fileSystemFtp->fileExists($filePath)) {
+        if (!$fileSystemFtp->fileExists($decodeFilename)) {
             throw $this->createNotFoundException('File not found');
         }
 

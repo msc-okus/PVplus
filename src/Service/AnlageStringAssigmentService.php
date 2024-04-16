@@ -35,7 +35,8 @@ class AnlageStringAssigmentService
     )
     {
     }
-    public function exportMontly($anlId,$year,$month,$currentUserName, $publicDirectory,$logId){
+    public function exportMontly($anlId,$year,$month,$currentUserName, $tableName,$logId): void
+    {
        $this->logMessages->updateEntry($logId, 'working', 5);
         $sql_pvp_base = "
                         SELECT
@@ -81,13 +82,14 @@ class AnlageStringAssigmentService
         $dateX = new DateTime("$year-$month-01 00:00:00");
         $dateY = (clone $dateX)->modify('last day of this month')->setTime(23, 59, 59);
 
+
         $sql = "
        SELECT
            `group_ac` AS inverterNr ,
            `wr_num` AS stringNr,
            `channel` AS channelNr,
            AVG(`I_value`) AS `average_I_value`
-       FROM `db__string_pv_CX104`
+       FROM `$tableName`
        WHERE `stamp` BETWEEN :startDateTime AND :endDateTime
        GROUP BY `group_ac`, `wr_num`, `channel`
         ";
@@ -140,6 +142,7 @@ class AnlageStringAssigmentService
 
         $this->prepareAndAddSortedSheets($spreadsheet, $joinedData);
 
+        $publicDirectory='./excel/anlagestring/'.$tableName.'/';
       $this->generateAndSaveExcelFile($spreadsheet, $anlId,$month,$year,$currentUserName, $publicDirectory);
     }
 
@@ -147,14 +150,24 @@ class AnlageStringAssigmentService
 
     private function prepareInitialSheet($sheet, $joinedData): void
     {
-        $header = ['Station Nr', 'Inverter Nr', 'String Nr','unit','Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut','ModuleType', 'InverterType','Impp','AVG'];
-        $sheet->setTitle('Unsorted')->fromArray($header, NULL, 'A1')->getStyle('A1:N1')->getFont()->setBold(true);
+        $header = ['Station Nr', 'Inverter Nr', 'String Nr','unit','Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut','ModuleType', 'InverterType','Impp','AVG','Performance'];
+        $sheet->setTitle('Best_Worst_Performer')->fromArray($header, NULL, 'A1')->getStyle('A1:N1')->getFont()->setBold(true);
+
+
+        usort($joinedData,function ($a,$b){return $b['avg'] <=> $a['avg'];});
+        $best = array_slice($joinedData, 0, 10);
+        $worst = array_slice($joinedData, -10);
+        array_walk($best, function (&$item) { $item['Performance'] = 'Best'; });
+        array_walk($worst, function (&$item) { $item['Performance'] = 'Worst'; });
+        $sortedData= array_merge($best, $worst);
 
         $rowIndex = 2;
-        foreach ($joinedData as $rowData) {
+        foreach ($sortedData as $rowData) {
             $sheet->fromArray($rowData, NULL, "A{$rowIndex}");
             $rowIndex++;
         }
+
+        $this->colorizePerformanceRows($sheet, count($sortedData) + 1);
     }
 
     private function prepareAndAddSortedSheets($spreadsheet, $joinedData): void
@@ -232,13 +245,13 @@ class AnlageStringAssigmentService
     }
 
 
-    private function generateAndSaveExcelFile($spreadsheet, $anlId, $month, $year,$currentUserName,$publicDirectory)
+    private function generateAndSaveExcelFile($spreadsheet, $anlId,$month, $year,$currentUserName,$publicDirectory)
     {
 
         $writer = new Xlsx($spreadsheet);
         $currentTimestamp = (new \DateTime())->format('YmdHis');
         $fileName = "{$month}_{$year}_{$currentTimestamp}.xlsx";
-        $filepath = $publicDirectory . $fileName ;
+        $filepath = $publicDirectory .$fileName ;
 
 
         $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlId]);
@@ -248,7 +261,7 @@ class AnlageStringAssigmentService
         $anlagenReport->setReportType('string-analyse');
         $anlagenReport->setMonth($month);
         $anlagenReport->setYear($year);
-        $anlagenReport->setFile($fileName);
+        $anlagenReport->setFile($filepath);
         $anlagenReport->setStartDate(new \DateTime());
         $anlagenReport->setEndDate(new \DateTime());
         $anlagenReport->setRawReport('');
@@ -275,9 +288,9 @@ class AnlageStringAssigmentService
         if (!$data) {
             throw new \Exception('Report not found.', Response::HTTP_NOT_FOUND);
         }
-        $fileName = $data[0]->getFile();
-        $publicDirectory = './excel/anlagestring/';
-        $filePath = $publicDirectory . $fileName;
+
+
+        $filePath = $data[0]->getFile();
 
 
         if (!$this->fileSystemFtp->fileExists($filePath)) {
