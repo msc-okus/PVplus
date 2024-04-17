@@ -264,6 +264,12 @@ class AnlageConfigFormType extends AbstractType
                 'delete_empty' => true,
                 'by_reference' => false,
             ])
+            ->add('testUpload', CollectionType::class, [
+                'entry_type' => FileType::class,
+                'allow_add'  => true,
+                'by_reference' => false,
+                'mapped'      => false
+            ])
         ;
         if ($this->security->isGranted('ROLE_AM')) {
             $builder
