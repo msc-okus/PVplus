@@ -314,9 +314,7 @@ class AnlageStringAssigmentService
 
             $sheetNames = $xlsx->sheetNames();
             foreach ($sheetNames as $index => $name) {
-                if ($name === 'Unsorted') {
-                    continue;
-                }
+
                 $sheetData = $xlsx->rows($index);
 
                 // Nettoyage de chaque cellule
