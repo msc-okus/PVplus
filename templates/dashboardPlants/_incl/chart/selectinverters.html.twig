@@ -1,20 +1,25 @@
 <div class="cell small-12 medium-4" data-controller="select-inverters"  id="inverters">
     {# Select inverter stuff #}
-    <label>&nbsp;</label>
+    <div class="siClose" data-action="click->select-inverters#fadeOutElement">X</div>
     {% set edited = true %}
         {% if (invArray != null) %}
             <div class="grid-x">
                 <div class="cell small-form">
-                    {% if form.selectedChart == 'ac_act_overview' %}
+                    {% if form.selectedChart == 'ac_act_overview' or (configtype == 1 and form.selectedChart == 'dc_current_overview') or (configtype == 1 and form.selectedChart == 'dc_voltage_1') %}
                         <h3>Trafostation List</h3>
                     {% else %}
                         <h3>Inverter List</h3>
                     {% endif %}
                     {% if (useRadioButtons == 0) %}
-                        <input class="check-all" id="check-all" type="checkbox"
-                               data-action="click->select-inverters#selectAll"
-                               data-select-inverters-target="switch">
-                        <label for="check-all" class="">Select All</label>
+                        <div>
+                            <input class="check-all" id="check-all" type="checkbox"
+                                   data-action="click->select-inverters#selectAll"
+                                   data-select-inverters-target="switch">
+                            <label for="check-all">Select All</label>
+
+                            <button class="button small no-margin hollow expanded" type="button" id="clearAll" data-action="click->select-inverters#unselectAll"
+                                    data-select-inverters-target="switch">Clear All</button>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -36,7 +41,7 @@
                 </div>
             {% endif %}
             <hr>
-            <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-9">
+            <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-8">
                 {% for inverter in invArray %}
                     {% if (useRadioButtons == 0) %}
                         <div class="cell small-form" id="inverters-checkboxes">
@@ -44,16 +49,16 @@
                             <input id="{{ temp|replace({'.':'_'}) }}" type="hidden"
                                    class="js-hidden-{{ loop.index }}"
                                    value="{{ invIdsArray[loop.index]['invId'] }}">
+                            <label for="I-{{ loop.index }}" class="invSelector">{{ inverter['invName'] }}</label>
                             <input id="I-{{ loop.index }}" type="checkbox"
                                    class="js-checkbox"
                                    name="{{ inverter['invName'] }}" {{ inverter['select'] }}
                                    data-action="click->select-inverters#checkSelect">
-                            <label for="I-{{ loop.index }}"
-                                   class="">{{ inverter['invName'] }}</label>
                         </div>
                     {% else %}
                         <div class="cell small-form" id="inverters-checkboxes">
                             {% set temp = inverter['invName']|replace({' ':''}) %}
+                            <label for="I-{{ loop.index }}" class="invSelector">{{ inverter['invName'] }}</label>
                             <input id="I-{{ loop.index }}" type="radio"
                                    class="js-checkbox"
                                    name="inverterRadio"
@@ -62,17 +67,13 @@
                                    {% endif %}
                                    value="{{ invIdsArray[loop.index]['invId'] }}"
                                    data-action="click->select-inverters#checkSelect">
-                            <label for="I-{{ loop.index }}"
-                                   class="">{{ inverter['invName'] }}</label>
                         </div>
                     {% endif %}
                 {% endfor %}
             </div>
-            <button class="button small no-margin hollow expanded" type="button"
-                    data-action="click->select-inverters#saveInverters">Submit your Selection
-            </button>
+            <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#saveInverters"
+                    data-select-inverters-target="switch">Submit your Selection</button>
         {% else %}
             No Inverters found to select
         {% endif %}
-
 </div>
