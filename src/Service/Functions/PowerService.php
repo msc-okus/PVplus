@@ -422,7 +422,7 @@ private readonly PdoService $pdoService,
                             $replaceEnery = (float)$ticketDate->getValueEnergy();
                         }
                         // Nur wenn $replaceEnergy und $row['power'] einen numerischen Wert hat wird auch die Verechnung gestart
-                        if (is_numeric($replaceEnery) && is_numeric($row['power'])) {
+                        if ($replaceEnery > 0 && is_numeric($row['power'])) {
                             // ermittelten Wert von der gesamt Enerie abziehen und durch $replaceEnergy ersetzen
                             if ($ticketDate->getTicket()->isScope(10)) $power1 = $power1 - $row['power'] + $replaceEnery; // Department 1
                             if ($ticketDate->getTicket()->isScope(20) || $ppcTicket) $power2 = $power2 - $row['power'] + $replaceEnery; // Department 2

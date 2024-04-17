@@ -15,6 +15,7 @@ export default class extends Controller {
         this.disableAllToolTips()
     }
 
+
     async search(event) {
         event.preventDefault();
         const $searchListform = $(this.searchBarTarget).find('form');

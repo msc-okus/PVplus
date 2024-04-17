@@ -1059,6 +1059,53 @@ class FunctionsService
         return $nameArray[$type];
     }
 
+    /**
+     * Funktion um in Abhänigkeit von 'configType'  die entsprechenden Ids  der SCB, Gruppen und Inverter zu generieren.
+     */
+    public function getIdArray(Anlage $anlage, string $type = 'ac', bool $startArrayAtOne = true): array
+    {
+        $IdArray['ac'] = [];
+        $IdArray['dc'] = [];
+        $IdArray['scb'] = [];
+        switch ($anlage->getConfigType()) {
+            case 1:
+                // In diesem Fall gibt es keine SCBs
+                foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                    $IdArray['ac'][$inverter->getDcGroup()] = $inverter->getDcGroup();
+                    $IdArray['dc'][$inverter->getDcGroup()] = $inverter->getDcGroup();
+                }
+                break;
+            case 2:
+                // In diesem Fall gibt es keine SCBs
+                foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                    $IdArray['ac'][$inverter->getAcGroup()] = $inverter->getAcGroup();
+                    $IdArray['dc'][$inverter->getAcGroup()] = $inverter->getAcGroup();
+                }
+                break;
+            case 3: // Groningen
+            case 4:
+                foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                    $IdArray['ac'][$inverter->getAcGroup()] = $inverter->getAcGroup();
+                }
+                foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                    $IdArray['dc'][$inverter->getDcGroup()] = $inverter->getDcGroup();
+                }
+                foreach ($this->inverterRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                    $IdArray['scb'][$inverter->getInvNr()] = $inverter->getInverterName();
+                }
+                break;
+        }
+        // we do this to make the array start by 0 when required
+        if (!$startArrayAtOne) {
+            array_unshift($IdArray[$type], '1');
+            array_shift($IdArray[$type]);
+        }
+
+        return $IdArray[$type];
+    }
+
+
+
     public function print2DArrayAsTable(array $content, int $decimal = 2): string
     {
         $_html = '<style>

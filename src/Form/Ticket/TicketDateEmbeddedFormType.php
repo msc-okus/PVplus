@@ -166,7 +166,7 @@ class TicketDateEmbeddedFormType extends AbstractType
                 ->add('valueIrr', TextType::class, [
                     'label'     => 'Value Irradiation',
                     'attr'      => [
-                        'placeholder' => 'value [W/qm]'
+                        'placeholder' => 'value [kWh/m²]'
                     ],
                 ])
 

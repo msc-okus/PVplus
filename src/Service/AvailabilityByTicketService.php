@@ -269,14 +269,14 @@ class AvailabilityByTicketService
 
             /** @var TicketDate $commIssu */
             foreach ($commIssus as $commIssu) {
-                $c5From = $commIssu->getBegin()->getTimestamp();
-                $c5To = $commIssu->getEnd()->getTimestamp();
+                $commIssuFrom = $commIssu->getBegin()->getTimestamp();
+                $commIssuTo = $commIssu->getEnd()->getTimestamp();
                 $inverters = $this->functions->readInverters($commIssu->getInverter(), $anlage);
 
-                for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
+                for ($commIssuStamp = $commIssuFrom; $commIssuStamp < $commIssuTo; $commIssuStamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($inverters as $inverter) {
                         $inverter = trim((string) $inverter, ' ');
-                        $commIssuArray[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
+                        $commIssuArray[$inverter][date('Y-m-d H:i:00', $commIssuStamp)] = true;
                     }
                 }
             }
@@ -326,13 +326,13 @@ class AvailabilityByTicketService
             $case5Tickets = $this->ticketDateRepo->findTiFm($anlage, $from, $to, $department);
             /** @var TicketDate $case5Ticket */
             foreach ($case5Tickets as $case5Ticket){
-                $c5From = $case5Ticket->getBegin()->getTimestamp();
-                $c5To = $case5Ticket->getEnd()->getTimestamp();
+                $case5From = $case5Ticket->getBegin()->getTimestamp();
+                $case5To = $case5Ticket->getEnd()->getTimestamp();
                 $inverters = $this->functions->readInverters($case5Ticket->getInverter(), $anlage);
-                for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
+                for ($case5Stamp = $case5From; $case5Stamp < $case5To; $case5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($inverters as $inverter) {
                         $inverter = trim((string) $inverter, ' ');
-                        $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
+                        $case5Array[$inverter][date('Y-m-d H:i:00', $case5Stamp)] = true;
                     }
                 }
             }
@@ -359,12 +359,12 @@ class AvailabilityByTicketService
             /** @var TicketDate $case6Ticket */
             $case6Tickets = $this->ticketDateRepo->findDataGapOutage($anlage, $from, $to, $department);
             foreach ($case6Tickets as $case6Ticket){
-                $c6From = $case6Ticket->getBegin()->getTimestamp();
-                $c6To = $case6Ticket->getEnd()->getTimestamp();
-                for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c6Stamp < $c6To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
+                $case6From = $case6Ticket->getBegin()->getTimestamp();
+                $case6To = $case6Ticket->getEnd()->getTimestamp();
+                for ($case6Stamp = $case6From; $case6Stamp < $case6To; $case6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c6Stamp < $c6To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     foreach ($this->functions->readInverters($case6Ticket->getInverter(), $anlage) as $inverter) {
                         $inverter = trim((string) $inverter, ' ');
-                        $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
+                        $case6Array[$inverter][date('Y-m-d H:i:00', $case6Stamp)] = true;
                     }
                 }
             }
@@ -415,7 +415,7 @@ class AvailabilityByTicketService
                             // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                             $case5          = isset($case5Array[$inverter][$stamp]);
                             $case6          = isset($case6Array[$inverter][$stamp]);
-                            $commIssu       = isset($commIssuArray[$inverter][$stamp])          && !$case5; // ignoriere Communication eroros wenn case5 (tiFM) gesetzt ist
+                            $commIssu       = isset($commIssuArray[$inverter][$stamp])          && !$case5; // ignoriere Communication errors wenn case5 (tiFM) gesetzt ist
                             $skipTi         = isset($skipTiAndTitheoArray[$inverter][$stamp])   && $skipTiAndTitheoArray[$inverter][$stamp] === true;
                             $skipTiTheo     = isset($skipTiAndTitheoArray[$inverter][$stamp])   && $skipTiAndTitheoArray[$inverter][$stamp] === true;
                             $outageAsTiFm   = isset($skipTiOnlyArray[$inverter][$stamp])        && $skipTiOnlyArray[$inverter][$stamp]      === true; // Replace outage with TiFM for PA
@@ -530,6 +530,7 @@ class AvailabilityByTicketService
      */
     public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null, int $department = 0): float
     {
+
         if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
 
         $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter

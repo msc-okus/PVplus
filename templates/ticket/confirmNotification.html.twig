@@ -3,14 +3,23 @@
 {% block styles %}
     {{ parent() }}
 {% endblock %}
-
 {% block javascripts %}
     {{ parent() }}
+    {{ encore_entry_script_tags('notification_confirm') }}
 {% endblock %}
-
 {% block title %}
     {{ parent() }}
 {% endblock %}
+
+{% import _self as formMacros %}
+
+{% macro addNotificationWork(notificationWork) %}
+    <tr class="js-notificationWork-item">
+        <td>{{ form_widget(notificationWork.type) }}</td>
+        <td>{{ form_widget(notificationWork.begin) }}</td>
+        <td><a href="#" class="js-remove-notificationWork"><span class="fa fa-minus-circle"></span></a></td>
+    </tr>
+{% endmacro %}
 
 {% block body %}
     {% if answered %}
@@ -20,7 +29,17 @@
             {{ form_start(notificationConfirmForm) }}
             <fieldset class="fieldset">
                 <legend>Information about the problem</legend>
+                <p><b>Notification Id: </b>{{ notification.identificator }}</p>
+                <p><b>Status: </b>
+                    {% if (notification.status == 50) %}
+                        <span style="color: green;font-size: 20px">●</span>
+                    {% elseif(notification.status == 40 or notification.status == 60) %}
+                        <span style="color: red;font-size: 20px">●</span>
+                    {% else %}
+                        <span style="color: orange;font-size: 20px">●</span>
+                    {% endif %}
 
+                </p>
                 <p><b>Ticket Id:</b> {{ ticket.Id }}</p>
                 <p><b>Plant name:</b> {{ ticket.anlage.anlName }}</p>
                 <p><b>Plant located in:</b> <br> {{ ticket.anlage.anlStrasse }}, {{ ticket.anlage.anlPlz }} {{ ticket.anlage.anlOrt }} <br>
@@ -32,16 +51,36 @@
                 {% endif %}
                 <p><b>Error type:</b> {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}{{ errcat|trans }}</p>
             </fieldset>
-            <fieldset class="fieldset">
-                <legend>You Answer</legend>
-                <p> {{ form_row(notificationConfirmForm.answers) }}</p>
-                <p> {{ form_row(notificationConfirmForm.freeText) }}</p>
-
-                <p> {{ form_widget(notificationConfirmForm.answer) }}</p>
-
-                {{ form_end(notificationConfirmForm) }}
+            <fieldset class="fieldset js-notificationWork-wrapper"
+                data-prototype="{{  formMacros.addNotificationWork(notificationConfirmForm.notificationWorks.vars.prototype)|e('html_attr') }}"
+                data-index="{{ notificationConfirmForm.notificationWorks | length }}">
+                <table id="notification-work">
+                    <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Time</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for notificationWork in notificationConfirmForm.notificationWorks %}
+                            <tr class="js-notificationWork-item">
+                                <td>{{ form_widget(notificationWork.type) }}</td>
+                                <td>{{ form_widget(notificationWork.begin) }}</td>
+                                <td><a href="#" class="js-remove-notificationWork"><span class="fa fa-minus-circle"></span></a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button type="button" class="button secondary small js-add-notificationWork"> <span class="fa fa-plus-circle"></span>&nbsp;Add Work lapse</button>
             </fieldset>
-
+            <fieldset class="fieldset {% if not (finishedJob) %}is-hidden{% endif %}" >
+                <legend>You Answer</legend>
+                <p> {{ form_row(notificationConfirmForm.status) }}</p>
+                <p> {{ form_row(notificationConfirmForm.closeFreeText) }}</p>
+            </fieldset>
+            <p> {{ form_widget(notificationConfirmForm.answer) }}</p>
+            {{ form_end(notificationConfirmForm) }}
         {% else %}
             Expired Notification
         {% endif %}
