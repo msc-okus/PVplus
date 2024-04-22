@@ -1,8 +1,8 @@
 <form method="post">
-    <div class="grid-x grid-margin-x align-middle">
+    <div class="grid-x grid-margin-x align-middle" data-controller="formdate">
         <div class="cell medium-2">
             <label for="anlage-id">Plant</label>
-            <select id="anlage-id" name="anlage-id">
+            <select id="anlage-id" name="anlage-id" data-action="change->formdate#enableYear">
                 <option value="" disabled selected hidden>Please choose a Plant</option>
                 <option value=""   {% if status == ''   %}   selected {% endif %} > Select a Plant</option>
                 {% for anlage in anlagen %}
@@ -11,26 +11,19 @@
             </select>
         </div>
         <div class="cell medium-2">
-            <label for="start-day">Start Day</label>
-            <select id="start-day" name="start-day">
-                <option value="" disabled selected hidden>Please choose a Start Day</option>
-                {% for start in 1..31 %}
-                    <option value="{{ start }}" {% if app.request.request.get('start-day') == start %} selected {% endif %}>{{ start }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="cell medium-2">
-            <label for="end-day">End Day</label>
-            <select id="end-day" name="end-day">
-                <option value="" disabled selected hidden>Please choose a End Day</option>
-                {% for end in 1..31 %}
-                    <option value="{{ end }}" {% if app.request.request.get('end-day') == end %} selected {% endif %}>{{ end }}</option>
-                {% endfor %}
+            <label for="year">Year</label>
+            <select id="year" name="year" data-action="change->formdate#enableMonth">
+                <option value="" disabled selected hidden>Please choose a Year</option>
+                <option value="2020"{% if app.request.request.get('year') == 2020 %} selected {% endif %}>2020</option>
+                <option value="2021"{% if app.request.request.get('year') == 2021 %} selected {% endif %}>2021</option>
+                <option value="2022"{% if app.request.request.get('year') == 2022 %} selected {% endif %}>2022</option>
+                <option value="2023"{% if app.request.request.get('year') == 2023 %} selected {% endif %}>2023</option>
+                <option value="2024"{% if app.request.request.get('year') == 2024 %} selected {% endif %}>2024</option>
             </select>
         </div>
         <div class="cell medium-2">
             <label for="month">Month</label>
-            <select id="month" name="month">
+            <select id="month" name="month" data-action="change->formdate#changeDate">
                 <option value="" disabled selected hidden>Please choose a Month</option>
                 <option value="1" {% if app.request.request.get('month') == 1 %} selected {% endif %}>01</option>
                 <option value="2" {% if app.request.request.get('month') == 2 %} selected {% endif %}>02</option>
@@ -47,21 +40,26 @@
             </select>
         </div>
         <div class="cell medium-2">
-            <label for="year">Year</label>
-            <select id="year" name="year">
-                <option value="" disabled selected hidden>Please choose a Year</option>
-                <option value="2020"{% if app.request.request.get('year') == 2020 %} selected {% endif %}>2020</option>
-                <option value="2021"{% if app.request.request.get('year') == 2021 %} selected {% endif %}>2021</option>
-                <option value="2022"{% if app.request.request.get('year') == 2022 %} selected {% endif %}>2022</option>
-                <option value="2023"{% if app.request.request.get('year') == 2023 %} selected {% endif %}>2023</option>
-                <option value="2024"{% if app.request.request.get('year') == 2024 %} selected {% endif %}>2024</option>
+            <label for="start-day">Start Day</label>
+            <select id="start-day" name="start-day" data-action="change->formdate#enableEndday">
+                <option value="" disabled selected hidden>Please choose a Start Day</option>
+            </select>
+        </div>
+        <div class="cell medium-2">
+            <label for="end-day">End Day</label>
+            <select id="end-day" name="end-day" data-action="change->formdate#enableSendIt">
+                <option value="" disabled selected hidden>Please choose a End Day</option>
+                {% for end in 1..31 %}
+                    <option value="{{ end }}" {% if app.request.request.get('end-day') == end %} selected {% endif %}>{{ end }}</option>
+                {% endfor %}
             </select>
         </div>
 
+
+
         <div class="cell medium-2" style="margin-top: 22px;">
-            <button name="new-report" class="button" value="yes"
+            <button name="new-report" class="button" id="sendIt" value="yes"
             >Start</button>
         </div>
-
     </div>
 </form>
