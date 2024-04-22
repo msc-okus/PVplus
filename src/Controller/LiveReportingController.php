@@ -54,6 +54,9 @@ class LiveReportingController extends AbstractController
 
         if ($submitted && $anlageId !== null) {
             $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+            if(!$anlage){
+                return $this->redirectToRoute('month_daily_report');
+            }
             $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
             $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
         }

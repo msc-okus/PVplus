@@ -50,6 +50,11 @@ export default class extends Controller {
         $('#sendIt').prop('disabled', false);
     }
 
+    enableButtons(){
+        $('#recalc-PA').prop('disabled', false);
+        $('#new-report').prop('disabled', false);
+    }
+
     changeDate(){
         let byId = (id) => document.getElementById(id);
         let monthSelect = byId("month");
