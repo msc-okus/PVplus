@@ -197,23 +197,24 @@
 
                 <dt>Case 1 (t<sub>i</sub> - part 1)</dt>
                 <dd>irradiation below limit value<br>
-                    <small>G [W/qm] > {{ aktAnlage.threshold1PA }} && G [W/qm] <= {{ aktAnlage.threshold2PA }}</small></dd>
+                    <small><code>G [W/qm] > <b>threshold1</b> && G [W/qm] <= <b>threshold2</b></code></small></dd>
 
                 <dt>Case 2 (t<sub>i</sub> - part 2)</dt>
                 <dd>inverter available under operating conditions<br>
-                    <small>G [W/qm] > {{ aktAnlage.threshold2PA }}</small></dd>
-                <dd><br>(sum from case1 and case 2 are t<sub>i</sub>)</dd>
+                    <small><code>G [W/qm] > <b>threshold2</b></code></small>
+                    <br>(sum from case1 and case 2 are t<sub>i</sub>)
+                </dd>
 
                 <dt>Case 3</dt>
                 <dd>inverter not available under operating conditions<br>
-                    <small>G [W/qm] > {{ aktAnlage.threshold2PA }} && Pac [kWh] <= 0</small></dd>
+                    <small>G [W/qm] > threshold2 && Pac [kWh] <= 0</small></dd>
 
                 <dt>Case 4</dt>
                 <dd>inverter not available because of curtailment<br>
-                    <small>G [W/qm] > {{ aktAnlage.threshold2PA }} && Pac [kWh] > 0 && CosPhi = 0</small></dd>
+                    <small><code>G [W/qm] > <b>threshold2</b> && Pac [kWh] > 0 && CosPhi = 0</code></small></dd>
 
                 <dt>Case 5 (t<sub>iFM</sub>)</dt>
-                <dd>inverter not available because of maintenance<br>
+                <dd>inverter not available because of force majour<br>
                     <small></small></dd>
 
                 <dt>Case 6</dt>
@@ -221,17 +222,23 @@
                     <small></small></dd>
 
                 <dt>Control (t<sub>i,theo</sub>)</dt>
-                <!--<dd>control field case 1 + case 2 + case 5 + case 6<br>-->
-                    <small>G [W/qm] > 0</small></dd>
+                <dd><small><code>G [W/qm] > 0</code></small></dd>
 
                 <dt>Availability cases</dt>
-                <dd> the individual availability of an inverter or group. Full availability: 100%<br>
-                    <!--<small>G [W/qm] > 0</small>--></dd>
+                <dd> the individual availability of an inverter or group.<br>Full availability: 100%</dd>
 
                 <dt>Relative availability in plant</dt>
-                <dd> the relative availability of and inverter or group within the PV plant. Full availability is equal to the ratio of inverter power to total plant power. Total plant availability: the sum of all relative inverter availabilities.  <br>
-                    <!--<small>G [W/qm] > 0</small>--></dd>
+                <dd> the relative availability of and inverter or group within the PV plant. Full availability is equal to the ratio of inverter power to total plant power. Total plant availability: the sum of all relative inverter availabilities.</dd>
 
+                <dt>Definition threshold</dt>
+                <dd>
+                    <small>
+                        OpenBook: threshold1 = {{ aktAnlage.threshold1PA0 }}, threshold2 = {{ aktAnlage.threshold2PA0 }}<br>
+                        {% if not(aktAnlage.settings.disableDep1) %}{{ aktAnlage.eigner.settings.nameDep1 }}: threshold1 = {{ aktAnlage.threshold1PA1 }}, threshold2 = {{ aktAnlage.threshold2PA1 }}<br>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}{{ aktAnlage.eigner.settings.nameDep2 }}: threshold1 = {{ aktAnlage.threshold1PA2 }}, threshold2 = {{ aktAnlage.threshold2PA2 }}<br>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}{{ aktAnlage.eigner.settings.nameDep3 }}: threshold1 = {{ aktAnlage.threshold1PA3 }}, threshold2 = {{ aktAnlage.threshold2PA3 }}{% endif %}
+                    </small>
+                </dd>
             </dl>
         </div>
     </div>
