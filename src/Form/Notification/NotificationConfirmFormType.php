@@ -3,11 +3,15 @@
 
 namespace App\Form\Notification;
 
+use App\Entity\Anlage;
 use App\Entity\ContactInfo;
 use App\Entity\Eigner;
+use App\Entity\NotificationInfo;
 use App\Entity\OwnerFeatures;
+use App\Form\Ticket\TicketDateEmbeddedFormType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -25,28 +29,40 @@ class NotificationConfirmFormType extends AbstractType
     {
 
         $answers=[
+            'Please select an option'                                               => 30,
             'Issue fixed'                                                           => 50,
             'There was an unexpected problem and the problem could not be fixed'    => 60,
 
         ];
-        $builder->add('answers', ChoiceType::class, [
+        $builder->add('status', ChoiceType::class, [
             'label'     => 'Select an answer',
-            'placeholder' => 'Select an answer',
+
             'required'  => true,
-            'choices'   => $answers
+            'choices'   => $answers,
+            'empty_data' => 30
 
         ])
-        ->add('freeText', TextareaType::class,[
+        ->add('closeFreeText', TextareaType::class,[
             'label' => 'Close Message',
             'empty_data' => '',
             'attr' => ['rows' => '9'],
             'required'   => false,
         ])
         ->add("answer", SubmitType::class,[
-            'label' => 'Send your answer <i class="fa fa-paper-plane"></i>',
+            'label' => 'Submit <i class="fa fa-paper-plane"></i>',
             'label_html' => true,
             'attr' => ['class' => 'primary save'],
-        ]);
+        ])
+        ->add('notificationWorks', CollectionType::class, [
+        'entry_type' => NotificationWorkEmbeddedFormType::class,
+        'allow_add' => true, //This should do the trick.
+    ]);
+    }
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => NotificationInfo::class,
 
+        ]);
     }
 }

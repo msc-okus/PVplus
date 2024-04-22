@@ -4,18 +4,7 @@ import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets =    ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable',
-        'anlage', 'saveButton',
-    'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton',
-    'splitDeploy','AlertInverter', 'Callout', 'formCategory', 'AlertCategory', 'headerExclude',
-    'headerReplace', 'headerReplacePower', 'headerReplaceIrr', 'headerHour', 'headerEnergyValue',
-    'headerIrrValue', 'headerCorrection', 'headerEvaluation', 'headerAktDep1', 'headerAktDep2',
-    'headerAktDep3', 'formReplace', 'fieldSensor', 'fieldReplacePower', 'fieldReplaceIrr', 'fieldHour',
-    'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
-    'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
-    'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
-    'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'modalContactBody', 'contactButton', 'modalContactCreateBody',
-    'contactModalCreate', 'modalTimelineBody', 'timelineModal'];
+    static targets =    ['switch'];
 
     static values = {
         formUrl: String,
@@ -69,12 +58,27 @@ export default class extends Controller {
                 $(this).prop('checked', false);
             });
         }
-
     }
 
+    unselectAll(){
+        let body = $('#inverters');
+        body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
+            $(this).prop('checked', false);
+        });
+        body.find('input:checkbox[class=js-checkbox]').each(function () {
+            $(this).prop('checked', false);
+        });
+    }
+
+    fadeInElement() {
+        $('#selectInvertersContent').attr("style","z-index: 9999 !important; opacity: 1 !important; top: 10px;");
+    }
+
+    fadeOutElement() {
+        $('#selectInvertersContent').attr("style","z-index: 0 !important; top:-1500px !important;  opacity: 0 !important;");
+    }
 
     saveInverters(){
-
         let body = $('#inverters');
         let invids = $('#invids');
         let invnames = $("#invnames");

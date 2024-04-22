@@ -67,7 +67,6 @@ class GenerateTicketsCommand extends Command
             }
 
             foreach ($anlagen as $anlage) {
-
                 try {
 
                     $tickets = $this->ticketRepo->findForSafeDelete($anlage, $optionFrom, $optionTo);
