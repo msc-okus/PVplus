@@ -105,9 +105,8 @@ class AnlageStringAssignmentController extends AbstractController
             $logId = $logMessages->writeNewEntry($anlage, 'AnlageStringAssignment', $job, $uid);
 
 
-
            $message = new \App\Message\Command\AnlageStringAssignment((int)$anlageId,(int)$year,(int)$month,$currentUserName,$tableName,$logId);
-          $messageBus->dispatch($message);
+           $messageBus->dispatch($message);
 
 
             return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
