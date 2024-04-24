@@ -76,4 +76,4 @@ framework:
             'App\Message\Command\LoadAPIData': import
             'App\Message\Command\LoadINAXData': import
             'App\Message\Command\ImportData': import
-            'App\Message\Command\AnlageStringAssignment': report
+            'App\Message\Command\AnlageStringAssignment': async
