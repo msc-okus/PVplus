@@ -11,9 +11,9 @@
         <thead>
         <tr>
             {% for header in sheetData[0] %}
-                {% if loop.index0 != performanceColumnIndex %}
+
                     <th>{{ header }}</th>
-                {% endif %}
+
             {% endfor %}
         </tr>
         </thead>
@@ -27,9 +27,9 @@
             {% endif %}
             <tr style="{{ rowStyle }}">
                 {% for cell in row %}
-                    {% if loop.index0 != performanceColumnIndex %}
+
                         <td class="tr_next_columns">{{ cell }}</td>
-                    {% endif %}
+
                 {% endfor %}
             </tr>
         {% endfor %}
