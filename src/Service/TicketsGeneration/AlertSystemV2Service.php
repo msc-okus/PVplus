@@ -277,7 +277,6 @@ class AlertSystemV2Service
         //we get the frequency values
         $voltLimit = 0;
         $conn = $this->pdoService->getPdoPlant();
-
         $powerThreshold = (float) $anlage->getPowerThreshold() / 4;
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
@@ -307,16 +306,12 @@ class AlertSystemV2Service
         } else {
             $return['ppc'] = false;
         }
-
-
             $sqlAct = 'SELECT b.unit as unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac <= $powerThreshold ";
 
             $resp = $conn->query($sqlAct);
             $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
-
-
             $sqlNull = 'SELECT b.unit as unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac is null ";
@@ -374,11 +369,17 @@ class AlertSystemV2Service
             if ($ticketArray != []) {
                 foreach ($ticketArray as $ticketOld) {
                     $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
-                    $result = self::subArrayFromArray($inverter, $ticketOld->getInverterArray());
+                    $result = self::subArrayFromArray($inverter, $ticketOld->getInverterArray()); // this is the most important part of this function
+                    // it is a function that given 2 arrays (actual faulty inverter and previous faulty inverters) will return 3 arrays:
+                    // array of inverters present in the first array but not in the second (those are inverters failing in the previous quarter that now work fine)
+                    // array of inverters present in the second array but not in the first (those are inverters that were working fine in the previous interval but now are faulty)
+                    // the intersection: array of inverters present in both arrays
+                    // for the first array we have to put the in a separated ticket and close it, for the second we have to create a new ticket with them and for the last we have to extend the previous ticket but only with those inverters
+                    // IMPORTANT: if you are not sure about the changes you are going to do in this function please DO NOT DO THEM. This took a lot of thinking and even tho is complex its logic have been working fail-proof for months
                     $inverter = $result['array1'];
                     $intersection = implode(', ', $result['intersection']);
                     $Ticket2Inverters = implode(', ', $result['array2']);
-                    if ($intersection !== ""){
+                    if ($intersection !== ""){ // here we link (in time) and split (per inverter) base on the logic previously mentioned
                         $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
                         $end->getTimestamp();
                         $ticketDate = $ticketOld->getDates()->last();
@@ -414,7 +415,8 @@ class AlertSystemV2Service
             } else {
                 $restInverter = $inverter;
             }
-            if ($restInverter != "" && $this->irr === false) {
+            if ($restInverter != "" && $this->irr === false) { // this is the easy part, here we create a new ticket if there is nothing else to link with, so this is the actual part where new tickets are created
+                //we set the internal values of the ticket based on the type of error and the current state of the system (mostly PPC signals)
                 $ticket = new Ticket();
                 $ticketDate = new TicketDate();
                 $ticketDate->setAnlage($anlage);

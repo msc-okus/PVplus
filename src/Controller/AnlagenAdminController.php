@@ -255,6 +255,12 @@ class AnlagenAdminController extends BaseController
 
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $uploadedFile = $form['picture']->getData();
+            $extraFiles = $form['infoFiles']->getData();
+
+            foreach ($extraFiles as $files){
+                $uploaderHelper->uploadPlantDocumentation($files, $anlage->getEigner()->getFirma(), $anlage);
+            }
+            dd($anlage);
             if ($uploadedFile != '') {
                 $isupload = 'yes';
                 $newFile = $uploaderHelper->uploadImageSFTP($uploadedFile, $anlage->getEigner()->getFirma(), $anlage->getAnlName(), 'plant');
