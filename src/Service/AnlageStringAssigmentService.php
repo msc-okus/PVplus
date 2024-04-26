@@ -184,8 +184,8 @@ class AnlageStringAssigmentService
 
 
 
-        $this->fillSheetWithData($sheet1, $this->reduce($best),'sortBy');
-        $this->fillSheetWithData($sheet2, $this->reduce($worst),'sortBy');
+        $this->fillSheetWithData($sheet1, $this->reduce($best),'Performance Catagory');
+        $this->fillSheetWithData($sheet2, $this->reduce($worst),'Performance Catagory');
     }
 
     private function prepareAndSortData($data, $sortBy): array
@@ -238,14 +238,17 @@ class AnlageStringAssigmentService
 // Re-index array
         return array_values($reduced);
     }
-    private function fillSheetWithData(Worksheet $sheet, array $data,string $col): void
+    private function fillSheetWithData(Worksheet $sheet, array $data, string $col): void
     {
-        $header = ['Station Nr', 'Inverter Nr', 'String Nr', 'Unit', 'Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut', 'ModuleType', 'InverterType', 'Impp', 'AVG', $col];
+        // Add 'Row Number' to the start of the header
+        $header = ['Nr', 'Station Nr', 'Inverter Nr', 'String Nr', 'Unit', 'Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut', 'ModuleType', 'InverterType', 'Impp', 'AVG', $col];
         $sheet->fromArray($header, null, 'A1');
-        $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:P1')->getFont()->setBold(true);
 
         $rowIndex = 2;
         foreach ($data as $rowData) {
+            // Prepend the row number to the row data
+            array_unshift($rowData, $rowIndex - 1);
             $sheet->fromArray(array_values($rowData), null, "A{$rowIndex}");
             $rowIndex++;
         }
