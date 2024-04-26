@@ -138,7 +138,9 @@ class AnlageStringAssigmentService
 
         $spreadsheet = new Spreadsheet();
 
-        $this->prepareInitialSheet($spreadsheet->getActiveSheet(), $joinedData);
+        //remove active Sheet
+        $active=$spreadsheet->getActiveSheetIndex();
+        $spreadsheet->removeSheetByIndex($active);
 
         $this->prepareAndAddSortedSheets($spreadsheet, $joinedData);
 
@@ -148,39 +150,42 @@ class AnlageStringAssigmentService
 
 
 
-    private function prepareInitialSheet($sheet, $joinedData): void
-    {
-        $header = ['Station Nr', 'Inverter Nr', 'String Nr','unit','Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut','ModuleType', 'InverterType','Impp','AVG','Performance'];
-        $sheet->setTitle('Best_Worst_Performer')->fromArray($header, NULL, 'A1')->getStyle('A1:N1')->getFont()->setBold(true);
 
-
-        usort($joinedData,function ($a,$b){return $b['avg'] <=> $a['avg'];});
-        $best = array_slice($joinedData, 0, 10);
-        $worst = array_slice($joinedData, -10);
-        array_walk($best, function (&$item) { $item['Performance'] = 'Best'; });
-        array_walk($worst, function (&$item) { $item['Performance'] = 'Worst'; });
-        $sortedData= array_merge($best, $worst);
-
-        $rowIndex = 2;
-        foreach ($sortedData as $rowData) {
-            $sheet->fromArray($rowData, NULL, "A{$rowIndex}");
-            $rowIndex++;
-        }
-
-        $this->colorizePerformanceRows($sheet, count($sortedData) + 1);
-    }
 
     private function prepareAndAddSortedSheets($spreadsheet, $joinedData): void
     {
         $sortOptions = ['channelCat' => 'SortedBy_ChannelCat', 'position' => 'SortedBy_Position', 'tilt' => 'sortedBy_Tilt', 'azimut' => 'SortedBy_Azimut', 'moduleType' => 'SortedBy_moduleType', 'inverterType' => 'SortedBy_InverterType'];
 
+        $best=[];
+        $worst=[];
+        $sheet1 = new Worksheet($spreadsheet, 'Best_summary_performer');
+        $spreadsheet->addSheet($sheet1);
+
+        $sheet2 = new Worksheet($spreadsheet, 'worst_summary_performer');
+        $spreadsheet->addSheet($sheet2);
+
         foreach ($sortOptions as $sortBy => $sheetTitle) {
-            $sortedData = $this->prepareAndSortData($joinedData, $sortBy);
+            $data=$this->prepareAndSortData($joinedData, $sortBy);
+            foreach ($data['bestData'] as $item) {
+                $item['sortBy'] = $sortBy;
+                $best[] = $item;
+            }
+            foreach ($data['worstData'] as $item) {
+                $item['sortBy'] = $sortBy;
+                $worst[] = $item;
+            }
+
+            $sortedData = $data['sortedData'];
             $sheet = new Worksheet($spreadsheet, $sheetTitle);
             $spreadsheet->addSheet($sheet);
-            $this->fillSheetWithData($sheet, $sortedData);
+            $this->fillSheetWithData($sheet, $sortedData,'Performance');
             $this->colorizePerformanceRows($sheet, count($sortedData) + 1);
         }
+
+
+
+        $this->fillSheetWithData($sheet1, $this->reduce($best),'Performance Catagory');
+        $this->fillSheetWithData($sheet2, $this->reduce($worst),'Performance Catagory');
     }
 
     private function prepareAndSortData($data, $sortBy): array
@@ -191,28 +196,59 @@ class AnlageStringAssigmentService
         }, []);
 
         $sortedData = [];
-        array_walk($groupedData, function ($rows) use (&$sortedData) {
+        $bestData=[];
+        $worstData=[];
+        array_walk($groupedData, function ($rows) use (&$sortedData,&$bestData,&$worstData) {
             usort($rows, function ($a, $b) { return $b['avg'] <=> $a['avg']; });
             $best = array_slice($rows, 0, 10);
             $worst = array_slice($rows, -10);
 
-            array_walk($best, function (&$item) { $item['Performance'] = 'Best'; });
+            $bestData = array_merge($bestData,$best);
+            $worstData =  array_merge($worstData,$worst);
+
+            array_walk($best, function (&$item) {  $item['Performance'] = 'Best'; });
             array_walk($worst, function (&$item) { $item['Performance'] = 'Worst'; });
 
             $sortedData = array_merge($sortedData, $best, $worst);
+
         });
 
-        return $sortedData;
+        return ['sortedData'=>$sortedData, 'bestData'=>$bestData, 'worstData'=>$worstData];
     }
 
-    private function fillSheetWithData(Worksheet $sheet, array $data): void
+    private function reduce(array $a):array{
+        // Reduce the array
+        $reduced = [];
+        foreach ($a as $entry) {
+            // Create a key based on all fields except sortBy
+            $key = json_encode(array_diff_key($entry, ['sortBy' => '']));
+            if (!isset($reduced[$key])) {
+                $reduced[$key] = $entry; // Initialize if not present
+                $reduced[$key]['sortBy'] = [];
+            }
+            // Append current sortBy to the list of sortBys
+            $reduced[$key]['sortBy'][] = $entry['sortBy'];
+        }
+
+// Convert sortBy arrays to comma-separated strings
+        foreach ($reduced as &$item) {
+            $item['sortBy'] = implode(", ", $item['sortBy']);
+        }
+
+// Re-index array
+        return array_values($reduced);
+    }
+    private function fillSheetWithData(Worksheet $sheet, array $data, string $col): void
     {
-        $header = ['Station Nr', 'Inverter Nr', 'String Nr', 'Unit', 'Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut', 'ModuleType', 'InverterType', 'Impp', 'AVG', 'Performance'];
+        // Add 'Row Number' to the start of the header
+        $header = ['Nr', 'Station Nr', 'Inverter Nr', 'String Nr', 'Unit', 'Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut', 'ModuleType', 'InverterType', 'Impp', 'AVG', $col];
         $sheet->fromArray($header, null, 'A1');
-        $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:P1')->getFont()->setBold(true);
 
         $rowIndex = 2;
         foreach ($data as $rowData) {
+            // Prepend the row number to the row data
+            array_unshift($rowData, $rowIndex - 1);
             $sheet->fromArray(array_values($rowData), null, "A{$rowIndex}");
             $rowIndex++;
         }
@@ -314,9 +350,7 @@ class AnlageStringAssigmentService
 
             $sheetNames = $xlsx->sheetNames();
             foreach ($sheetNames as $index => $name) {
-                if ($name === 'Unsorted') {
-                    continue;
-                }
+
                 $sheetData = $xlsx->rows($index);
 
                 // Nettoyage de chaque cellule

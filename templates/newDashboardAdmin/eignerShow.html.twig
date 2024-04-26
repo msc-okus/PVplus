@@ -77,7 +77,7 @@
                                         <td>{{ plant.projektNr }}</td>
                                         <td>{{ plant.anlName }}</td>
                                         <td>{{ owner.firma }}</td>
-                                        <td>{{ plant.getPnom }}</td>
+                                        <td>{{ plant.getPnom|number_format(2, '.', ',') }} Kw</td>
                                         <td><img height='25' width='25' style='margin-top: -9px;' src='/images/flag/flag-{{ plant.country }}.png'  alt="{{ plant.country }}"/></td>
                                         <td>{{ plant.country }}</td>
                                         <td style="justify-items: center">
