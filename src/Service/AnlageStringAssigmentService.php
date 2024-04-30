@@ -320,9 +320,12 @@ class AnlageStringAssigmentService
 
     public function exportAmReport($anlId,$month,$year)
     {
+        $sheetsData = [];
+
         $data = $this->reportsRepository->getOneAnlageString($anlId, $month, $year);
         if (!$data) {
-            throw new \Exception('Report not found.', Response::HTTP_NOT_FOUND);
+            //throw new \Exception('Report not found.', Response::HTTP_NOT_FOUND);
+            return $sheetsData;
         }
 
 
@@ -330,21 +333,23 @@ class AnlageStringAssigmentService
 
 
         if (!$this->fileSystemFtp->fileExists($filePath)) {
-            throw new \Exception('File not found.', Response::HTTP_NOT_FOUND);
+           // throw new \Exception('File not found.', Response::HTTP_NOT_FOUND);
+            return $sheetsData;
         }
 
         // Lecture du contenu du fichier
         try {
             $fileContent = $this->fileSystemFtp->read($filePath);
         } catch (FilesystemException $e) {
-            throw new \Exception('Unable to read the file content.', Response::HTTP_BAD_REQUEST);
+           // throw new \Exception('Unable to read the file content.', Response::HTTP_BAD_REQUEST);
+            return $sheetsData;
         }
 
         // Copie du contenu dans un fichier temporaire
         $tempFilePath = tempnam(sys_get_temp_dir(), 'xlsx');
         file_put_contents($tempFilePath, $fileContent);
 
-        $sheetsData = [];
+
         // Parsing du fichier Excel à partir du fichier temporaire
         if ($xlsx = SimpleXLSX::parse($tempFilePath)) {
 
