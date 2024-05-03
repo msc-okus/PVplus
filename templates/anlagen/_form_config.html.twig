@@ -441,9 +441,23 @@
                     <div class="grid-x grid-margin-x">
                         <fieldset class="fieldset">
                             <table>
-                                {% for file in files %}
+                                <thead>
+                                    <tr>
+                                        <th> Name</th>
+                                        <th> Upload date</th>
+                                        <th> Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for file in files %}
+                                        <tr>
+                                            <td>file.filename</td>
+                                            <td>file.stamp</td>
+                                            <td>file.mimeType</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
 
-                                {% endfor %}
 
                             </table>
                             {{ form_row(anlageForm.infoFiles) }}
