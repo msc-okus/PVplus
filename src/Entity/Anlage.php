@@ -686,6 +686,12 @@ class Anlage implements \Stringable
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $lastAnlageStringAssigmentUpload = null;
 
+    /**
+     * @var Collection<int, AnlageFile>
+     */
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageFile::class, orphanRemoval: true)]
+    private Collection $documents;
+
 
 
     /**
@@ -737,6 +743,7 @@ class Anlage implements \Stringable
         $this->sensors = new ArrayCollection();
         $this->ppcs = new ArrayCollection();
         $this->anlageStringAssignments = new ArrayCollection();
+        $this->documents = new ArrayCollection();
     }
 
 
@@ -873,6 +880,7 @@ class Anlage implements \Stringable
     {
         return $this->anlName;
     }
+
 
     public function setAnlName(string $anlName): self
     {
@@ -4166,6 +4174,36 @@ class Anlage implements \Stringable
     public function setLastAnlageStringAssigmentUpload(?\DateTimeInterface $lastAnlageStringAssigmentUpload): static
     {
         $this->lastAnlageStringAssigmentUpload = $lastAnlageStringAssigmentUpload;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AnlageFile>
+     */
+    public function getDocuments(): Collection
+    {
+        return $this->documents;
+    }
+
+    public function addDocument(AnlageFile $document): static
+    {
+        if (!$this->documents->contains($document)) {
+            $this->documents->add($document);
+            $document->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocument(AnlageFile $document): static
+    {
+        if ($this->documents->removeElement($document)) {
+            // set the owning side to null (unless already changed)
+            if ($document->getAnlage() === $this) {
+                $document->setAnlage(null);
+            }
+        }
 
         return $this;
     }

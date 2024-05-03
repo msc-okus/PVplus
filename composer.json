@@ -72,6 +72,7 @@
         "symfony/stimulus-bundle": "*",
         "symfony/twig-bundle": "6.4.*",
         "symfony/ux-chartjs": "^2.0",
+        "symfony/ux-dropzone": "^2.16",
         "symfony/ux-toggle-password": "^2.16",
         "symfony/validator": "6.4.*",
         "symfony/var-dumper": "6.4.*",

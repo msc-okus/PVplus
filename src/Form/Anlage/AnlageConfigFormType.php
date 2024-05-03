@@ -16,6 +16,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Validator\Constraints\Image;
+use Symfony\UX\Dropzone\Form\DropzoneType;
 
 class AnlageConfigFormType extends AbstractType
 {
@@ -264,6 +265,11 @@ class AnlageConfigFormType extends AbstractType
                 'delete_empty' => true,
                 'by_reference' => false,
             ])
+            ->add('infoFiles', FileType::class, [
+                'multiple' => 'multiple',
+                'mapped'      => false
+            ])
+
         ;
         if ($this->security->isGranted('ROLE_AM')) {
             $builder
