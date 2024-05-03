@@ -11,7 +11,7 @@
         "ext-mysqli": "*",
         "ext-openssl": "*",
         "ext-pdo": "*",
-        "api-platform/core": "^3.0",
+        "api-platform/core": "^3.3",
         "babdev/pagerfanta-bundle": "^4.2.1",
         "beberlei/doctrineextensions": "^1.3",
         "chromeheadlessio/php-client": "^1.3",
