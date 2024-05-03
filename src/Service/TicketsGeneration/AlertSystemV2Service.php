@@ -239,7 +239,7 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-
+            dump($time, $plant_status);
             $anlType = $anlage->getAnlType();
             if ( $plant_status['Irradiation'] == false ) {
                 if ($plant_status['ppc'] != null && $plant_status['ppc']) $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc'], false);
@@ -251,11 +251,11 @@ class AlertSystemV2Service
                 }
                 if ($plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "", ($plant_status['ppc']), false);
             }else {
-                $this->generateTickets('', ticket::DATA_GAP, $anlage, ['*'], $time, "Data Gap set automatically to com. issue because of a gap in the irradiation", $plant_status['ppc'], true);
+                $this->generateTickets('', 100, $anlage, ['*'], $time, "Data Gap set automatically to com. issue because of a gap in the irradiation", $plant_status['ppc'], true);
             }
         }
 
-        $this->em->flush();
+        //$this->em->flush();
 
         return 'success';
     }
@@ -284,7 +284,7 @@ class AlertSystemV2Service
         if ($irradiation !== null && $irradiation < $irrLimit) $this->irr = true; // about irradiation === null, it is better to miss a ticket than to have a false one
         else $this->irr = false;
 
-        if($irradiation === null){
+        if($irradiation === null or $irradiation == 0){
             $return['Irradiation'] = true;
         }
         else{
@@ -543,7 +543,6 @@ class AlertSystemV2Service
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
         }
-        $this->em->flush();
     }
 
     /**

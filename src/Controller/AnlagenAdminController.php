@@ -260,7 +260,6 @@ class AnlagenAdminController extends BaseController
             foreach ($extraFiles as $files){
                 $uploaderHelper->uploadPlantDocumentation($files, $anlage->getEigner()->getFirma(), $anlage);
             }
-            dd($anlage);
             if ($uploadedFile != '') {
                 $isupload = 'yes';
                 $newFile = $uploaderHelper->uploadImageSFTP($uploadedFile, $anlage->getEigner()->getFirma(), $anlage->getAnlName(), 'plant');
@@ -298,6 +297,7 @@ class AnlagenAdminController extends BaseController
                     'econames' => $economicVarNames1,
                     'isupload' => $isupload,
                     'imageuploadet' => $tempFile,
+                    'files'        => $anlage->getAnlageFiles()
                 ]);
 
                 return $response;
@@ -321,6 +321,7 @@ class AnlagenAdminController extends BaseController
             'econames' => $economicVarNames1,
             'isupload' => $isupload,
             'imageuploadet' => $tempFile,
+            'files'        => $anlage->getAnlageFiles()
         ]);
 
         return $response;

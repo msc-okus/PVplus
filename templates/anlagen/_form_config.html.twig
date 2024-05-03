@@ -174,6 +174,7 @@
                 <li class="tabs-title"><a data-tabs-target="legend" href="#legend">Legend Configuration</a></li>
                 <li class="tabs-title"><a data-tabs-target="pvsyst" href="#pvsyst">PVSYST Month Values Design</a></li>
                 <li class="tabs-title"><a data-tabs-target="monthly-yield" href="#monthly-yield">Monthly recalculated Values</a></li>
+                <li class="tabs-title"><a data-tabs-target="media" href="#media">Media Library </a></li>
                 {% if is_granted('ROLE_AM') %}
                     <li class="tabs-title"><a data-tabs-target="economics" href="#economics">Economic Variables </a></li>
                     <li class="tabs-title"><a data-tabs-target="economicsvalues" href="#economicsvalues">Economic Reports </a></li>
@@ -202,7 +203,7 @@
                                     Last Uploaded:<br>
                                     <img class="article-img" src="{{ absolute_url(asset(imageuploadet)) }}" alt="-"><br>
                                 {% endif %}
-                                {{ form_row(anlageForm.infoFiles) }}
+
                             </div>
                         </div>
                         <hr>
@@ -436,6 +437,19 @@
                     </div>
                 </div>
 
+                <div class="tabs-panel" id="media">
+                    <div class="grid-x grid-margin-x">
+                        <fieldset class="fieldset">
+                            <table>
+                                {% for file in files %}
+
+                                {% endfor %}
+
+                            </table>
+                            {{ form_row(anlageForm.infoFiles) }}
+                        </fieldset>
+                    </div>
+                </div>
                 {% if is_granted('ROLE_AM') %}
                     {# Economics Variable Names #}
                     <div class="tabs-panel" id="economics">
