@@ -1,15 +1,21 @@
 import { Controller } from '@hotwired/stimulus';
 import $ from 'jquery';
+import Swal from 'sweetalert2'; // If using ES modules
+
 
 export default class extends Controller {
-    static targets = ['list', 'searchForm','uploadForm','modal','popup','createForm'];
+    static targets = ['list', 'searchForm','uploadForm','modal','createForm'];
     static values = {
         urlSearch: String,
-        urlDelete: String
+        urlDelete: String,
+        urlGenerate: String,
+        urlDownload: String,
+
     }
 
     connect() {
         this.uploadFormTarget.addEventListener('submit', this.handleUploadFormSubmit.bind(this));
+        this.createFormTarget.addEventListener('submit', this.handleCreateFormSubmit.bind(this));
 
 
     }
@@ -59,11 +65,36 @@ export default class extends Controller {
 
 
 
+
     async handleUploadFormSubmit(event) {
         this.modalTarget.style.display='block';
         }
 
+   async handleCreateFormSubmit(event){
+       event.preventDefault();
+       Swal.fire({
+           title: 'Generate String Analysis Report',
+           text: "The process will start in a few seconds in the background. You'll receive a notification once it's finished.",
+           icon: 'info',
+           timer: 2000,
+           timerProgressBar: true,
+           didOpen: () => {
+               Swal.showLoading();
+           },
+       }).then((result) => {
+           // After 3 seconds or when the user clicks the "OK" button, submit the form
+           if (result.dismiss === Swal.DismissReason.timer || result.isConfirmed) {
+               // Fetch the form element
+               const form = this.createFormTarget;
 
+               // Modify the form's action attribute if necessary
+               form.action = this.urlGenerateValue;
+
+               // Submit the form
+               form.submit();
+           }
+       });
+    }
 
 
 }

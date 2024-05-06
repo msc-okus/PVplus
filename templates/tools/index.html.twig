@@ -6,6 +6,7 @@
 
 {% block javascripts %}
     {{ parent() }}
+    {#
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script>
         $(document).ready( function() {
@@ -16,6 +17,7 @@
             });
         });
     </script>
+    #}
 {% endblock %}
 
 {% block body %}
@@ -24,15 +26,14 @@
             <h1 id="thechange">Tools</h1>
             <div class = "titletextflex" id="titletextflex" style="display: none">This action will calculate <span class="titletextflexspan"></span> for selected Plant.</div>
         </div>
-
     </div>
 
     {{ form_start(toolsForm, {'attr':{
         'data-controller':'submit-confirm',
         'data-action':'submit-confirm#onSubmit',
-        'data-submit-confirm-title-value':'This action will make updates for selected Plant. ',
+        'data-submit-confirm-title-value':'This action will make updates for the selected Plant. ',
         'data-submit-confirm-text-value':"Are you sure you want to continue!",
-        'data-submit-confirm-icon-value':'warning',
+
     }}) }}
 
         <div class="grid-x grid-margin-x">
@@ -56,10 +57,10 @@
                     {{ output|raw }}
                 </div>
                 <div class="" style="max-height: 50vh; overflow-y: scroll;"
-                        {{ stimulus_controller('tools-message', {
-                            url: path('app_log_messages_list'),
-                            refreshIntervale: 5000,
-                        }) }}>
+                    {{ stimulus_controller('tools-message', {
+                        url: path('app_log_messages_list'),
+                        refreshIntervale: 5000,
+                    }) }}>
                 </div>
             </div>
         </div>
@@ -68,7 +69,6 @@
             <div class="cell medium-4">
                 <button type="submit" id="tools_form_calc" name="tools_form[calc]" class="primary save button button">Start calculation &nbsp;<i class="fa fa-cogs" aria-hidden="true"></i></button>
             </div>
-
         </div>
     {{ form_end(toolsForm) }}
 

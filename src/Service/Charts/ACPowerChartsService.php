@@ -91,14 +91,16 @@ class ACPowerChartsService
                     $whereQueryPart1 = "stamp > '$stampAdjust' AND stamp <= '$stampAdjust2'";
 
                     $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form')";
+                    $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
+                        WHERE wr_pac >= 0 AND $whereQueryPart1  GROUP by date_format(DATE_SUB(stamp, INTERVAL 15 MINUTE), '$form')";
                 } else {
                     $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
                     $whereQueryPart1 = "stamp = '$stampAdjust'";
 
                     $sqlEvu = 'SELECT e_z_evu as eZEvu FROM '.$anlage->getDbNameIst()." WHERE $whereQueryPart1 and unit = 1 GROUP by date_format(stamp, '$form')";
-                }
-                $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
+                    $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
                         WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
+                }
 
                 $resActual = $conn->query($sqlActual);
                 $resEvu = $conn->query($sqlEvu);
@@ -835,13 +837,15 @@ class ACPowerChartsService
      * Pnom AC Seite
      * @throws InvalidArgumentException
      */
+    ///yyyy
     public function getNomPowerGroupAC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array {
         ini_set('memory_limit', '3G');
         set_time_limit(500);
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $pnominverter = $anlage->getPnomInverterArray();
-        $counter = 0;$counterInv = 0;
+        $counter = 0;
+        $counterInv = 0;
 
         // make the difference in time format
         $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
@@ -851,43 +855,70 @@ class ACPowerChartsService
             case 1:
                 $group = 'group_dc';
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                $idArray = $this->functions->getIdArray($anlage, 'dc');
                 break;
             default:
                 $group = 'group_ac';
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                $idArray = $this->functions->getIdArray($anlage, 'ac');
         }
+
         $groupct = count($nameArray);
 
+        $invNameArray = [];
         if ($groupct) {
             if ($sets == null) {
+
                 $min = 1;
                 $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
-                $max = (($max > 50) ? '50' : $max);
-                $sqladd = "AND $group BETWEEN '$min' AND '$max'";
+
+                $temp = '';
+                for ($i = 0; $i < $max; ++$i) {
+                        $invId = $i+1;
+                        $temp = $temp.$group." = ".$invId." OR ";
+                        $invIdArray[$i+1] =  $idArray[$i+1];
+                        $invNameArray[$i+1] =  $nameArray[$i+1];
+                }
+
+                $temp = substr($temp, 0, -4);
+                $sqladd = "AND ($temp) ";
+
               } else {
-                $res = explode(',', (string) $sets);
-                $min = (int)ltrim($res[0], "[");
-                $max = (int)rtrim($res[1], "]");
-                if ($max > $groupct) $max = $groupct;
-                if ($groupct <= $min) $min = 1;
-                $sqladd = "AND $group BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '5' : $max) . "";
+                $temp = '';
+                $j = 1;
+                for ($i = 0; $i < count($nameArray); ++$i) {
+                    if(str_contains($sets, $nameArray[$i+1])){
+                        $invId = $i+1;
+                        $temp = $temp.$group." = ".$invId." OR ";
+                        $invIdArray[$i+1] =  $idArray[$i+1];
+                        $invNameArray[$j] =  $nameArray[$i+1];
+                        $j++;
+                    }
+                }
+
+                $temp = substr($temp, 0, -4);
+                $sqladd = "AND ($temp) ";
+
             }
         } else {
             $min = 1;$max = 5;
             $sqladd = "AND $group BETWEEN '$min' AND ' $max'";
         }
-        // the array for range slider min max
-        $dataArray['minSeries'] = $min;
-        $dataArray['maxSeries'] = $max;
+
+        $dataArray['invNames'] = $invNameArray;
+        $dataArray['invIds'] = $invIdArray;
         $dataArray['sumSeries'] = $groupct;
+
         // build the Sql Query
         $sql = "SELECT c.stamp as ts, c.wr_idc as istCurrent ,c.wr_pac as istPower, c.$group as inv FROM
                  " . $anlage->getDbNameACIst() . " c WHERE c.stamp 
                  > '$from' AND c.stamp <= '$to' 
                  $sqladd
                  GROUP BY c.stamp,c.$group ORDER BY NULL";
+
         // process the Query result
         $resultActual = $conn->query($sql);
+
         $dataArray['SeriesNameArray'] = $nameArray;
         if ($resultActual->rowCount() > 0) {
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {

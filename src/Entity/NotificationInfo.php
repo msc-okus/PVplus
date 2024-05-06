@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\NotificationInfoRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -21,25 +23,9 @@ class NotificationInfo
     #[ORM\Column()]
     private ?\DateTime $closeDate = null;
 
-    public function getAnswerDate(): ?\DateTime
-    {
-        return $this->answerDate;
-    }
+    #[ORM\OneToMany(mappedBy: 'notificationInfo', targetEntity: NotificationWork::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $notificationWorks;
 
-    public function setAnswerDate(?\DateTime $answerDate): void
-    {
-        $this->answerDate = $answerDate;
-    }
-
-    public function getCloseDate(): ?\DateTime
-    {
-        return $this->closeDate;
-    }
-
-    public function setCloseDate(?\DateTime $closeDate): void
-    {
-        $this->closeDate = $closeDate;
-    }
 
     #[ORM\Column]
     private ?int $status = null;
@@ -64,6 +50,44 @@ class NotificationInfo
 
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $priority = null;
+
+    #[ORM\Column(length: 25, nullable: true)]
+    private ?string $identificator = null;
+
+    public function getNotificationWorks(): Collection
+    {
+        return $this->notificationWorks;
+    }
+
+    public function setNotificationWorks(Collection $notificationWorks): void
+    {
+        $this->notificationWorks = $notificationWorks;
+    }
+
+    public function getAnswerDate(): ?\DateTime
+    {
+        return $this->answerDate;
+    }
+
+    public function setAnswerDate(?\DateTime $answerDate): void
+    {
+        $this->answerDate = $answerDate;
+    }
+
+    public function getCloseDate(): ?\DateTime
+    {
+        return $this->closeDate;
+    }
+
+    public function setCloseDate(?\DateTime $closeDate): void
+    {
+        $this->closeDate = $closeDate;
+    }
+
+    public function __construct()
+    {
+        $this->notificationWorks = new ArrayCollection();
+    }
 
     public function getWhoNotified(): User
     {
@@ -175,4 +199,17 @@ class NotificationInfo
 
         return $this;
     }
+
+    public function getIdentificator(): ?string
+    {
+        return $this->identificator;
+    }
+
+    public function setIdentificator(?string $identificator): static
+    {
+        $this->identificator = $identificator;
+
+        return $this;
+    }
+
 }

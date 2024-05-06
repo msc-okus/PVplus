@@ -2,10 +2,10 @@
 
     {% if form.selectedChart == 'dc_inv_power_diff' or form.selectedChart == 'inverter_performance' or form.selectedChart == 'dc_current_inverter'
         or form.selectedChart == 'ac_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'ac_act_current'
-        or form.selectedChart == 'ac_act_frequency' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'dc_current_overview'
+        or form.selectedChart == 'ac_act_frequency' or form.selectedChart == 'dc_act_group'
     %}
         <select class="form-control js-submit-onchange" title="Select a Group d1" data-toggle="tooltip" name="selectedGroup">
-            {% if form.selectedChart starts with 'acAct' or form.selectedChart == 'dc_voltage_1' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'reactive_power'%}
+            {% if form.selectedChart starts with 'acAct' or form.selectedChart == 'dc_voltage_1' or form.selectedChart == 'reactive_power'%}
 
                 {% if aktAnlage.configType != 1 %}
                     {% for group in aktAnlage.groups%}
@@ -62,6 +62,20 @@
         or form.selectedChart == 'availability' or form.selectedChart == 'pr_and_av'
         or form.selectedChart == 'heatmap'
         or form.selectedChart == 'forecast'
+        or form.selectedChart == 'dc_current_overview'
+        or form.selectedChart == 'ac_act_group'
+        or form.selectedChart == 'ac_act_overview'
+        or form.selectedChart == 'ac_act_voltage'
+        or form.selectedChart == 'ac_act_frequency'
+        or form.selectedChart == 'sollistanalyse'
+        or form.selectedChart == 'sollisttempanalyse'
+        or form.selectedChart == 'sollistirranalyse'
+        or form.selectedChart == 'dc_voltage_1'
+        or form.selectedChart == 'dc_act_group'
+        or form.selectedChart == 'dc_act_overview'
+        or form.selectedChart == 'availability_intervall'
+        or form.selectedChart == 'ac_act_current'
+        or form.selectedChart == 'dc_current_inverter'
         or form.selectedChart == 'forecast_pr'
         or form.selectedChart == 'forecast_dayahead'
         or form.selectedChart == 'acpnom' or form.selectedChart == 'dcpnomcurr'
@@ -111,7 +125,7 @@
             {% if form.selectedGroup > loop.length %} {% set nn = 1 %} {% endif %}
             <option value="{{ selectorB }}" {% if nn == selectorB %}selected{% endif %}>{{ groupB.acGroupName }}</option>
         {% endfor %}
-    {% elseif form.selectedChart == 'dc_current_overview' or form.selectedChart == 'dc_voltage_1' %}
+    {% elseif form.selectedChart == form.selectedChart == 'dc_voltage_1' %}
         {# AC Gruppen anzeigen #}
         {% set selectorC = 0 %}
         {% set nn = form.selectedGroup %}
@@ -148,7 +162,6 @@
 {# configType == 3 #}
 {% macro configType3(form, aktAnlage) %}
     {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act'
-        or form.selectedChart == 'dc_current_overview'
         or form.selectedChart == 'reactive_power'
         or form.selectedChart == 'sollistanalyse'
         or form.selectedChart == 'sollisttempanalyse'
@@ -167,7 +180,7 @@
 
 {# configType == 4 #}
 {% macro configType4(form, aktAnlage) %}
-    {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act' or form.selectedChart == 'dc_current_overview'
+    {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act'
         or form.selectedChart == 'sollistanalyse'
         or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'
         or form.selectedChart == 'reactive_power' or form.selectedChart == 'dc_voltage_mpp'%}

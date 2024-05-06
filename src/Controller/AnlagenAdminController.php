@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use App\Form\GroupsAc\AnlageAcGroupsTypeSD;
-use App\Repository\AcGroupsRepository;
 use App\Service\PdoService;
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
@@ -27,7 +25,6 @@ use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use League\Flysystem\FilesystemException;
-use Shuchkin\SimpleXLSXGen;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,8 +45,7 @@ class AnlagenAdminController extends BaseController
     public function __construct(
         private readonly PdoService $pdoService,
         private readonly Filesystem $fileSystemFtp
-    )
-    {
+    ){
     }
 
     #[Route(path: '/admin/anlagen/new', name: 'app_admin_anlagen_new')]
@@ -634,7 +630,7 @@ class AnlagenAdminController extends BaseController
                   KEY `stamp` (`stamp`)
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
 
-    $databaseMeters = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameMeters()." (
+        $databaseMeters = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameMeters()." (
                   `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                   `anl_id` int(11) NOT NULL,
                   `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -646,7 +642,7 @@ class AnlagenAdminController extends BaseController
                   KEY `stamp` (`stamp`)
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
 
-    $databasePPC = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNamePPC()." (
+        $databasePPC = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNamePPC()." (
                       `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                       `anl_id` bigint(11) NOT NULL,
                       `anl_intnr` varchar(50),
@@ -665,7 +661,7 @@ class AnlagenAdminController extends BaseController
                         KEY `stamp` (`stamp`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
-    $databaseSensorData = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNameSensorsData()." (
+        $databaseSensorData = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNameSensorsData()." (
                               `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                               `date` varchar(50) DEFAULT NULL,
                               `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -677,7 +673,7 @@ class AnlagenAdminController extends BaseController
                               KEY `stamp` (`stamp`) USING BTREE
                             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=DYNAMIC;";
 
-    $databaseDivisonStringTable = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNameDivisionsStringTable()." (
+        $databaseDivisonStringTable = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNameDivisionsStringTable()." (
                                   `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                                   `anl_id` int(11) NOT NULL,
                                   `stamp` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -707,8 +703,6 @@ class AnlagenAdminController extends BaseController
                             ";
 
         $conn = $this->pdoService->getPdoPlant();
-
-
         $conn->exec($databaseAcIst);
         $conn->exec($databaseDcIst);
         // $conn->exec($databaseAcSoll);
@@ -724,12 +718,9 @@ class AnlagenAdminController extends BaseController
         $conn = $this->pdoService->getPdoStringBoxes();
         $conn->exec($databaseDivisonStringTable);
 
-        if (false) $conn->exec($databaseSections);
+        # $conn->exec($databaseSections); // was only used for BavelseBerg
         $conn = null;
 
         return true;
-
     }
-
-
 }

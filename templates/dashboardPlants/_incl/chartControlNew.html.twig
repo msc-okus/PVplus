@@ -225,7 +225,20 @@
 </script>
 
 {% if  form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap'
-    or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' %}
+    or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom'
+    or form.selectedChart == 'dc_current_overview'
+    or form.selectedChart == 'dc_current_inverter'
+    or form.selectedChart == 'ac_act_group'
+    or form.selectedChart == 'ac_act_overview'
+    or form.selectedChart == 'ac_act_voltage'
+    or form.selectedChart == 'dc_voltage_1'
+    or form.selectedChart == 'ac_act_current'
+    or form.selectedChart == 'ac_act_frequency'
+    or form.selectedChart == 'sollistanalyse'
+    or form.selectedChart == 'sollisttempanalyse'
+    or form.selectedChart == 'sollistirranalyse'
+    or form.selectedChart == 'dc_act_group'
+    or form.selectedChart == 'dc_act_overview'%}
     {% if  content.maxSeries|raw %}
         {% set grlengthmax = content.maxSeries|raw %}
         {% set grlengthmin = content.minSeries|raw %}
@@ -233,35 +246,8 @@
         {% set grlengthmax = 50 %}
         {% set grlengthmin = 1 %}
     {% endif %}
-
-    <script>
-        // The range slider config and functions
-        $(function () {
-            $("#slider-range").slider({
-                    range: true,
-                    min: 1,
-                    max: {% if content.sumSeries|raw %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
-                values: {% if form.selectedSet %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
-                slide: function (event, ui) {
-                $("#sview").val("" + ui.values[0] + "-" + ui.values[1] + "");
-                $("#sviewhidden").val("[" + ui.values[0] + "," + ui.values[1] + "]");
-            },
-            change: function (event, ui) {
-                if ((ui.values[1] - ui.values[0]) > 100) {
-                    alert("The selected range is greater than 100, which can lead to delays in the view!");
-                }
-                $("#sendrange").css("background-color", "#e6e6e6");
-            }
-        });
-            $("#sview").val("" + $("#slider-range").slider("values", 0) + "-" + $("#slider-range").slider("values", 1) + "");
-            $("#sviewhidden").val("[" + $("#slider-range").slider("values", 0) + "," + $("#slider-range").slider("values", 1) + "]");
-            $("#goshare").click(function () {
-                $("#mysubmit").val('yes');
-                $("#chart-control").delay(100).submit();
-            });
-        });
-    </script>
 {% endif %}
+
 
 {% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showDCPnomCurr,showACPnom,showHeatmap ,showTempHeatmap ,showSollIstAnalyse,showSollIstTempAnalyse,showSollIstIrrAnalyse,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
     currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive, voltageDc1, voltageDcString %}
@@ -395,39 +381,6 @@
         </select>
     </div>
 
-    <div class="cell medium-4 large-2 xlarge-2">
-        {{ groupMenuNew(form, aktAnlage) }}
-        {% if form.selectedChart == 'heatmap'
-            or form.selectedChart == 'tempheatmap'
-            or form.selectedChart == 'sollistheatmap'
-            or form.selectedChart == 'dcpnomcurr'
-            or form.selectedChart == 'acpnom' %}
-            {% if grlengthmax %}
-                <div class="grid-x grid-padding-x" style="height:40px;">
-                    <div class="cell medium-5 large-5 xlarge-5"><label for="amount">INV Range:</label></div>
-                    <div class="cell medium-4 large-4 xlarge-4">
-                        <input type="text" id="sview" readonly
-                               style="border:0; background-color: #701b1b00 ; box-shadow: inset 0 0 0 rgba(10, 10, 10, 0.1);font-weight:bold;">
-                        <input type="hidden" id="sviewhidden" name="selectedSet" value="0">
-                        <input type="hidden" name="selectedSetfrom" value="{{ form.selectedSet }}">
-                    </div>
-
-                    <div class="cell medium-3 large-3 xlarge-3">
-                        <label id="goshare" class="button" title="Submit the range"
-                               style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
-                            <div type="text" id="sendrange" style="display: block">
-                                <i class="fa fa fa-expand"></i>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-                <div id="slider-range"></div>
-            {% else %}
-                <input type="hidden" id="sview" name="selectedSet" value="0">
-            {% endif %}
-        {% endif %}
-    </div>
-
     {# neues Cahrt Control System #}
 
     <div class="cell medium-2 large-4 xlarge-4">
@@ -455,96 +408,162 @@
                 <input type="hidden" name="startDateNew" value="true">
             </label>
             <label class="button"
-                   style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
+                   style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px; margin-right: 15px;">
                 <div class="nextday" type="text" style="display: block">
                     <i class="fa fa-angle-right"></i>
                 </div>
             </label>
-        </div>
-    </div>
+            {{ groupMenuNew(form, aktAnlage) }}
+            {% if form.selectedChart == 'heatmap'
+                or form.selectedChart == 'tempheatmap'
+                or form.selectedChart == 'sollistheatmap'
+                or form.selectedChart == 'dcpnomcurr'
+                or form.selectedChart == 'acpnom'
+                or form.selectedChart == 'dc_current_overview'
+                or form.selectedChart == 'dc_current_inverter'
+                or form.selectedChart == 'ac_act_group'
+                or form.selectedChart == 'ac_act_overview'
+                or form.selectedChart == 'ac_act_voltage'
+                or form.selectedChart == 'dc_voltage_1'
+                or form.selectedChart == 'ac_act_current'
+                or form.selectedChart == 'ac_act_frequency'
+                or form.selectedChart == 'sollistanalyse'
+                or form.selectedChart == 'sollisttempanalyse'
+                or form.selectedChart == 'sollistirranalyse'
+                or form.selectedChart == 'dc_act_group'
+                or form.selectedChart == 'dc_act_overview'
+            %}
+                {% if grlengthmax %}
+                    <div class="select-inverters-frame">
+                        <div class="hiddeninvs" style="height:20px;">
+                            <input type="hidden" id="invnames" name="invnames" value="{{ form.invnames }}">
+                            <input type="hidden" id="invids" name="invids" value="{{ form.invids }}">
+                        </div>
+                        <div>
+                            <div class="selectInverters">
+                                {% if clearSelections == 1 %}
+                                    <script>
+                                        $('#invnames').val('');
+                                        $('#invids').val('');
+                                        let body = $('#inverters');
+                                        body.find('input:checkbox[class=js-checkbox]').each(function () {
+                                            $(this).prop("checked", false);
+                                        });
+                                    </script>
+                                {% endif %}
+                                <div class="cell" data-controller="select-inverters">
+                                {% if templateForSelection == 'selectstringboxes.html.twig' and (form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'sollistheatmap') %}
+                                    <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Stringboxes</button>
+                                {% elseif (useRadioButtons == 1 and templateForSelection == 'selectinverters.html.twig' and (form.selectedChart == 'dc_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'dc_current_inverter' or form.selectedChart == 'ac_act_group' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'ac_act_frequency' or (configtype == 3 and form.selectedChart == 'dc_current_overview') or (configtype == 3 and form.selectedChart == 'dc_voltage_1'))) %}
+                                    <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Inverter</button>
+                                {% elseif form.selectedChart == 'ac_single' %}
+                                    <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Inverter</button>
+                                {% elseif (useRadioButtons == 1 and templateForSelection == 'selectstringboxes.html.twig' and form.selectedChart  == 'dc_current_inverter') %}
+                                    <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Stringbox</button>
+                                {% elseif (form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'ac_act_overview' or form.selectedChart == 'dc_voltage_1') and configtype == 1 %}
+                                    <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Trafostation</button>
+                                {% else %}
+                                        <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#fadeInElement" id="selectInverters">Select Inverters</button>
+                                {% endif %}
+                                </div>
+                                <div class="selectInvertersContent" id="selectInvertersContent">
+                                    {% if templateForSelection == 'selectstringboxes.html.twig' %}
+                                        {% include 'dashboardPlants/_incl/chart/selectstringboxes.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited, useRadioButtons:useRadioButtons, form:form, configtype:configtype} only %}
+                                    {% else %}
+                                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited, useRadioButtons:useRadioButtons, form:form, configtype:configtype} only %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <input type="hidden" id="invnames" name="selectedSet" value="0">
+                {% endif %}
+            {% endif %}
+            {% if form.selectedChart == 'sollistirranalyse' %}
+                <div class="cell medium-4 large-4 xlarge-4">
+                    <div class="small button-group round toggle">
+                        <label class="button js-submit-onchange {% if form.optionIrrVal == 400 %}active{% endif %}">
+                            <input type="radio" name="optionIrrVal" value="400"
+                                   {% if form.optionIrrVal == 400 %}checked="checked"{% endif %}> < 400 W/m²
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionIrrVal == 800 %}active{% endif %}">
+                            <input type="radio" name="optionIrrVal" value="800"
+                                   {% if form.optionIrrVal == 800 %}checked="checked"{% endif %}>400 - 800 W/m²
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionIrrVal == 1000 %}active{% endif %}">
+                            <input type="radio" name="optionIrrVal" value="1000"
+                                   {% if form.optionIrrVal == 1000 %}checked="checked"{% endif %}> > 800 W/m²
+                        </label>
+                    </div>
+                </div>
+            {% endif %}
 
-    {% if form.selectedChart == 'sollistirranalyse' %}
-        <div class="cell medium-4 large-4 xlarge-4">
-            <div class="small button-group round toggle">
-                <label class="button js-submit-onchange {% if form.optionIrrVal == 400 %}active{% endif %}">
-                    <input type="radio" name="optionIrrVal" value="400"
-                           {% if form.optionIrrVal == 400 %}checked="checked"{% endif %}> < 400 W/m²
-                </label>
-                <label class="button js-submit-onchange {% if form.optionIrrVal == 800 %}active{% endif %}">
-                    <input type="radio" name="optionIrrVal" value="800"
-                           {% if form.optionIrrVal == 800 %}checked="checked"{% endif %}>400 - 800 W/m²
-                </label>
-                <label class="button js-submit-onchange {% if form.optionIrrVal == 1000 %}active{% endif %}">
-                    <input type="radio" name="optionIrrVal" value="1000"
-                           {% if form.optionIrrVal == 1000 %}checked="checked"{% endif %}> > 800 W/m²
-                </label>
+            {% if form.selectedChart == 'forecast_dayahead' %}
+                <div class="cell medium-4 large-4 xlarge-4">
+                    <div class="small button-group round toggle" style="margin-bottom: 0.1rem;">
+                        <label title="Switch View" class="button js-submit-onchange {% if form.optionDayAheadView == 0 %}active{% endif %}">
+                            <input type="radio" name="optionDayAheadView" value="0"
+                                   {% if form.optionDayAheadView == 0 %}checked="checked"{% endif %}> Dashboard
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionDayAheadView == 1 %}active{% endif %}">
+                            <input title="Switch View" type="radio" name="optionDayAheadView" value="1"
+                                   {% if form.optionDayAheadView == 1 %}checked="checked"{% endif %}> Hourly values
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionDayAheadView == 2 %}active{% endif %}">
+                            <input title="Switch View" type="radio" name="optionDayAheadView" value="2"
+                                   {% if form.optionDayAheadView == 2 %}checked="checked"{% endif %}> 15 Minutes
+                        </label>
+                    </div>
+
+                    <div class="small button-group round toggle" style="margin-bottom: 0.1rem;{% if form.optionDayAheadView == 2 %}display:none;{% endif %}">
+                        <label title="Forecast Day View" class="button js-submit-onchange {% if form.optionDayAheadViewDay == 0 %}active{% endif %}">
+                            <input type="radio" name="optionDayAheadViewDay" value="0"
+                                   {% if form.optionDayAheadViewDay == 0 %}checked="checked"{% endif %}> 6 Days
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 1 %}active{% endif %}">
+                            <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="1"
+                                   {% if form.optionDayAheadViewDay == 1 %}checked="checked"{% endif %}> 3 Days
+                        </label>
+                        <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 2 %}active{% endif %}">
+                            <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="2"
+                                   {% if form.optionDayAheadViewDay == 2 %}checked="checked"{% endif %}> 2 Days
+                        </label>
+                    </div>
+
+                </div>
+            {% endif %}
+            <div class="cell medium-1 large-1 xlarge-1">
+                {% if (form.selectedChart != 'availability')
+                    and (form.selectedChart != 'acpnom')
+                    and (form.selectedChart != 'dcpnomcurr')
+                    and (form.selectedChart != 'pr_and_av')
+                    and (form.selectedChart != 'forecast')
+                    and (form.selectedChart != 'forecast_dayahead')
+                    and (form.selectedChart != 'status_log')
+                    and (form.selectedChart != 'pvsyst')
+                    and (form.selectedChart != 'heatmap')
+                    and (form.selectedChart != 'tempheatmap')
+                    and (form.selectedChart != 'sollistanalyse')
+                    and (form.selectedChart != 'sollistirranalyse')
+                    and (form.selectedChart != 'sollisttempanalyse')
+                    and (form.selectedChart != 'sollistheatmap')
+                    and (form.selectedChart != 'grid') %}
+                        <div class="switchtyny">
+                            <div class="switch tiny align-center-middle">
+                                <label class="" style="line-height: 1;"><small>Interval min.</small></label>
+                                <input class="switch-input js-submit-onchange" id="hour" type="checkbox"
+                                       name="hour" {% if form.hour == true %} checked {% endif %}>
+                                <label class="switch-paddle" for="hour">
+                                    <span class="show-for-sr"></span>
+                                    <span class="switch-active" aria-hidden="true">60</span>
+                                    <span class="switch-inactive" aria-hidden="true">15</span>
+                                </label>
+                            </div>
+                        </div>
+                {% endif %}
             </div>
         </div>
-    {% endif %}
 
-    {% if form.selectedChart == 'forecast_dayahead' %}
-        <div class="cell medium-4 large-4 xlarge-4">
-            <div class="small button-group round toggle" style="margin-bottom: 0.1rem;">
-                <label title="Switch View" class="button js-submit-onchange {% if form.optionDayAheadView == 0 %}active{% endif %}">
-                    <input type="radio" name="optionDayAheadView" value="0"
-                           {% if form.optionDayAheadView == 0 %}checked="checked"{% endif %}> Dashboard
-                </label>
-                <label class="button js-submit-onchange {% if form.optionDayAheadView == 1 %}active{% endif %}">
-                    <input title="Switch View" type="radio" name="optionDayAheadView" value="1"
-                           {% if form.optionDayAheadView == 1 %}checked="checked"{% endif %}> Hourly values
-                </label>
-                <label class="button js-submit-onchange {% if form.optionDayAheadView == 2 %}active{% endif %}">
-                    <input title="Switch View" type="radio" name="optionDayAheadView" value="2"
-                           {% if form.optionDayAheadView == 2 %}checked="checked"{% endif %}> 15 Minutes
-                </label>
-            </div>
-
-            <div class="small button-group round toggle" style="margin-bottom: 0.1rem;{% if form.optionDayAheadView == 2 %}display:none;{% endif %}">
-                <label title="Forecast Day View" class="button js-submit-onchange {% if form.optionDayAheadViewDay == 0 %}active{% endif %}">
-                    <input type="radio" name="optionDayAheadViewDay" value="0"
-                           {% if form.optionDayAheadViewDay == 0 %}checked="checked"{% endif %}> 6 Days
-                </label>
-                <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 1 %}active{% endif %}">
-                    <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="1"
-                           {% if form.optionDayAheadViewDay == 1 %}checked="checked"{% endif %}> 3 Days
-                </label>
-                <label class="button js-submit-onchange {% if form.optionDayAheadViewDay == 2 %}active{% endif %}">
-                    <input title="Forecast Day View" type="radio" name="optionDayAheadViewDay" value="2"
-                           {% if form.optionDayAheadViewDay == 2 %}checked="checked"{% endif %}> 2 Days
-                </label>
-            </div>
-
-        </div>
-    {% endif %}
-
-    {% if (form.selectedChart != 'availability')
-        and (form.selectedChart != 'acpnom')
-        and (form.selectedChart != 'dcpnomcurr')
-        and (form.selectedChart != 'pr_and_av')
-        and (form.selectedChart != 'forecast')
-        and (form.selectedChart != 'forecast_dayahead')
-        and (form.selectedChart != 'status_log')
-        and (form.selectedChart != 'pvsyst')
-        and (form.selectedChart != 'heatmap')
-        and (form.selectedChart != 'tempheatmap')
-        and (form.selectedChart != 'sollistanalyse')
-        and (form.selectedChart != 'sollistirranalyse')
-        and (form.selectedChart != 'sollisttempanalyse')
-        and (form.selectedChart != 'sollistheatmap')
-        and (form.selectedChart != 'grid') %}
-        {% if is_granted('ROLE_G4N') %}
-        <div class="cell medium-1 large-1 xlarge-1">
-            <div class="switch tiny align-center-middle">
-                <label class="" style="line-height: 1;"><small>Interval min.</small></label>
-                <input class="switch-input js-submit-onchange" id="hour" type="checkbox"
-                       name="hour" {% if form.hour == true %} checked {% endif %}>
-                <label class="switch-paddle" for="hour">
-                    <span class="show-for-sr"></span>
-                    <span class="switch-active" aria-hidden="true">60</span>
-                    <span class="switch-inactive" aria-hidden="true">15</span>
-                </label>
-            </div>
-        </div>
-        {% endif %}
-    {% endif %}
+</div>
 </div>

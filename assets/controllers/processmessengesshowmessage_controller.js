@@ -37,6 +37,10 @@ export default class extends Controller {
         window.setTimeout(() => {
             this.fadeOutElement(messageelem);
         }, 15000);
+
+        if ($(location).attr('href').includes('/analysis/list') ){
+            location.reload(true);
+        }
     }
 
     fadeInElement(element) {

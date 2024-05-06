@@ -5,16 +5,19 @@ namespace App\Service;
 
 use App\Entity\AnlagenReports;
 use App\Repository\AnlagenRepository;
-use App\Repository\EignerRepository;
+use App\Repository\ReportsRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
 use PDO;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Shuchkin\SimpleXLSX;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class AnlageStringAssigmentService
@@ -26,12 +29,14 @@ class AnlageStringAssigmentService
         private readonly LogMessagesService $logMessages,
         private EntityManagerInterface $entityManager,
         private AnlagenRepository $anlagenRepository,
-        private readonly Filesystem $fileSystemFtp
+        private readonly Filesystem $fileSystemFtp,
+        private ReportsRepository $reportsRepository
 
     )
     {
     }
-    public function exportMontly($anlId,$year,$month,$currentUserName, $publicDirectory,$logId){
+    public function exportMontly($anlId,$year,$month,$currentUserName, $tableName,$logId): void
+    {
        $this->logMessages->updateEntry($logId, 'working', 5);
         $sql_pvp_base = "
                         SELECT
@@ -77,13 +82,14 @@ class AnlageStringAssigmentService
         $dateX = new DateTime("$year-$month-01 00:00:00");
         $dateY = (clone $dateX)->modify('last day of this month')->setTime(23, 59, 59);
 
+
         $sql = "
        SELECT
            `group_ac` AS inverterNr ,
            `wr_num` AS stringNr,
            `channel` AS channelNr,
            AVG(`I_value`) AS `average_I_value`
-       FROM `db__string_pv_CX104`
+       FROM `$tableName`
        WHERE `stamp` BETWEEN :startDateTime AND :endDateTime
        GROUP BY `group_ac`, `wr_num`, `channel`
         ";
@@ -132,36 +138,54 @@ class AnlageStringAssigmentService
 
         $spreadsheet = new Spreadsheet();
 
-        $this->prepareInitialSheet($spreadsheet->getActiveSheet(), $joinedData);
+        //remove active Sheet
+        $active=$spreadsheet->getActiveSheetIndex();
+        $spreadsheet->removeSheetByIndex($active);
 
         $this->prepareAndAddSortedSheets($spreadsheet, $joinedData);
 
+        $publicDirectory='./excel/anlagestring/'.$tableName.'/';
       $this->generateAndSaveExcelFile($spreadsheet, $anlId,$month,$year,$currentUserName, $publicDirectory);
     }
 
-    private function prepareInitialSheet($sheet, $joinedData): void
-    {
-        $header = ['Station Nr', 'Inverter Nr', 'String Nr','unit','Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut','ModuleType', 'InverterType','Impp','AVG'];
-        $sheet->setTitle('Unsorted')->fromArray($header, NULL, 'A1')->getStyle('A1:N1')->getFont()->setBold(true);
 
-        $rowIndex = 2;
-        foreach ($joinedData as $rowData) {
-            $sheet->fromArray($rowData, NULL, "A{$rowIndex}");
-            $rowIndex++;
-        }
-    }
+
+
 
     private function prepareAndAddSortedSheets($spreadsheet, $joinedData): void
     {
         $sortOptions = ['channelCat' => 'SortedBy_ChannelCat', 'position' => 'SortedBy_Position', 'tilt' => 'sortedBy_Tilt', 'azimut' => 'SortedBy_Azimut', 'moduleType' => 'SortedBy_moduleType', 'inverterType' => 'SortedBy_InverterType'];
 
+        $best=[];
+        $worst=[];
+        $sheet1 = new Worksheet($spreadsheet, 'Best_summary_performer');
+        $spreadsheet->addSheet($sheet1);
+
+        $sheet2 = new Worksheet($spreadsheet, 'worst_summary_performer');
+        $spreadsheet->addSheet($sheet2);
+
         foreach ($sortOptions as $sortBy => $sheetTitle) {
-            $sortedData = $this->prepareAndSortData($joinedData, $sortBy);
+            $data=$this->prepareAndSortData($joinedData, $sortBy);
+            foreach ($data['bestData'] as $item) {
+                $item['sortBy'] = $sortBy;
+                $best[] = $item;
+            }
+            foreach ($data['worstData'] as $item) {
+                $item['sortBy'] = $sortBy;
+                $worst[] = $item;
+            }
+
+            $sortedData = $data['sortedData'];
             $sheet = new Worksheet($spreadsheet, $sheetTitle);
             $spreadsheet->addSheet($sheet);
-            $this->fillSheetWithData($sheet, $sortedData);
+            $this->fillSheetWithData($sheet, $sortedData,'Performance');
             $this->colorizePerformanceRows($sheet, count($sortedData) + 1);
         }
+
+
+
+        $this->fillSheetWithData($sheet1, $this->reduce($best),'Performance Catagory');
+        $this->fillSheetWithData($sheet2, $this->reduce($worst),'Performance Catagory');
     }
 
     private function prepareAndSortData($data, $sortBy): array
@@ -172,28 +196,59 @@ class AnlageStringAssigmentService
         }, []);
 
         $sortedData = [];
-        array_walk($groupedData, function ($rows) use (&$sortedData) {
+        $bestData=[];
+        $worstData=[];
+        array_walk($groupedData, function ($rows) use (&$sortedData,&$bestData,&$worstData) {
             usort($rows, function ($a, $b) { return $b['avg'] <=> $a['avg']; });
             $best = array_slice($rows, 0, 10);
             $worst = array_slice($rows, -10);
 
-            array_walk($best, function (&$item) { $item['Performance'] = 'Best'; });
+            $bestData = array_merge($bestData,$best);
+            $worstData =  array_merge($worstData,$worst);
+
+            array_walk($best, function (&$item) {  $item['Performance'] = 'Best'; });
             array_walk($worst, function (&$item) { $item['Performance'] = 'Worst'; });
 
             $sortedData = array_merge($sortedData, $best, $worst);
+
         });
 
-        return $sortedData;
+        return ['sortedData'=>$sortedData, 'bestData'=>$bestData, 'worstData'=>$worstData];
     }
 
-    private function fillSheetWithData(Worksheet $sheet, array $data): void
+    private function reduce(array $a):array{
+        // Reduce the array
+        $reduced = [];
+        foreach ($a as $entry) {
+            // Create a key based on all fields except sortBy
+            $key = json_encode(array_diff_key($entry, ['sortBy' => '']));
+            if (!isset($reduced[$key])) {
+                $reduced[$key] = $entry; // Initialize if not present
+                $reduced[$key]['sortBy'] = [];
+            }
+            // Append current sortBy to the list of sortBys
+            $reduced[$key]['sortBy'][] = $entry['sortBy'];
+        }
+
+// Convert sortBy arrays to comma-separated strings
+        foreach ($reduced as &$item) {
+            $item['sortBy'] = implode(", ", $item['sortBy']);
+        }
+
+// Re-index array
+        return array_values($reduced);
+    }
+    private function fillSheetWithData(Worksheet $sheet, array $data, string $col): void
     {
-        $header = ['Station Nr', 'Inverter Nr', 'String Nr', 'Unit', 'Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut', 'ModuleType', 'InverterType', 'Impp', 'AVG', 'Performance'];
+        // Add 'Row Number' to the start of the header
+        $header = ['Nr', 'Station Nr', 'Inverter Nr', 'String Nr', 'Unit', 'Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut', 'ModuleType', 'InverterType', 'Impp', 'AVG', $col];
         $sheet->fromArray($header, null, 'A1');
-        $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:P1')->getFont()->setBold(true);
 
         $rowIndex = 2;
         foreach ($data as $rowData) {
+            // Prepend the row number to the row data
+            array_unshift($rowData, $rowIndex - 1);
             $sheet->fromArray(array_values($rowData), null, "A{$rowIndex}");
             $rowIndex++;
         }
@@ -226,13 +281,13 @@ class AnlageStringAssigmentService
     }
 
 
-    private function generateAndSaveExcelFile($spreadsheet, $anlId, $month, $year,$currentUserName,$publicDirectory)
+    private function generateAndSaveExcelFile($spreadsheet, $anlId,$month, $year,$currentUserName,$publicDirectory)
     {
 
         $writer = new Xlsx($spreadsheet);
         $currentTimestamp = (new \DateTime())->format('YmdHis');
         $fileName = "{$month}_{$year}_{$currentTimestamp}.xlsx";
-        $filepath = $publicDirectory . $fileName ;
+        $filepath = $publicDirectory .$fileName ;
 
 
         $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlId]);
@@ -242,7 +297,7 @@ class AnlageStringAssigmentService
         $anlagenReport->setReportType('string-analyse');
         $anlagenReport->setMonth($month);
         $anlagenReport->setYear($year);
-        $anlagenReport->setFile($fileName);
+        $anlagenReport->setFile($filepath);
         $anlagenReport->setStartDate(new \DateTime());
         $anlagenReport->setEndDate(new \DateTime());
         $anlagenReport->setRawReport('');
@@ -262,4 +317,64 @@ class AnlageStringAssigmentService
         $this->entityManager->flush();
 
     }
+
+    public function exportAmReport($anlId,$month,$year)
+    {
+        $data = $this->reportsRepository->getOneAnlageString($anlId, $month, $year);
+        if (!$data) {
+            throw new \Exception('Report not found.', Response::HTTP_NOT_FOUND);
+        }
+
+
+        $filePath = $data[0]->getFile();
+
+
+        if (!$this->fileSystemFtp->fileExists($filePath)) {
+            throw new \Exception('File not found.', Response::HTTP_NOT_FOUND);
+        }
+
+        // Lecture du contenu du fichier
+        try {
+            $fileContent = $this->fileSystemFtp->read($filePath);
+        } catch (FilesystemException $e) {
+            throw new \Exception('Unable to read the file content.', Response::HTTP_BAD_REQUEST);
+        }
+
+        // Copie du contenu dans un fichier temporaire
+        $tempFilePath = tempnam(sys_get_temp_dir(), 'xlsx');
+        file_put_contents($tempFilePath, $fileContent);
+
+        $sheetsData = [];
+        // Parsing du fichier Excel à partir du fichier temporaire
+        if ($xlsx = SimpleXLSX::parse($tempFilePath)) {
+
+            $sheetNames = $xlsx->sheetNames();
+            foreach ($sheetNames as $index => $name) {
+
+                $sheetData = $xlsx->rows($index);
+
+                // Nettoyage de chaque cellule
+                array_walk_recursive($sheetData, function (&$item) {
+                    if (is_string($item)) {
+                        $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8');
+                    }
+                });
+
+                $sheetsData[$name] = $sheetData;
+
+            }
+            unlink($tempFilePath); // Cleanup temporary file
+
+
+        }
+
+        return $sheetsData;
+    }
+
+
+
+
+
+
+
 }

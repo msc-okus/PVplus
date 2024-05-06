@@ -215,38 +215,38 @@ class TicketDate
         return $this;
     }
 
-    public function getValueEnergy(): ?string
+    public function getValueEnergy(): ?float
     {
-        return $this->valueEnergy;
+        return (float)str_replace(',', '.', $this->valueEnergy);
     }
 
     public function setValueEnergy(?string $valueEnergy): self
     {
-        $this->valueEnergy = $valueEnergy;
+        $this->valueEnergy = str_replace(',', '.', $valueEnergy);
 
         return $this;
     }
 
-    public function getValueIrr(): ?string
+    public function getValueIrr(): ?float
     {
-        return $this->valueIrr;
+        return (float)str_replace(',', '.', $this->valueIrr);
     }
 
     public function setValueIrr(?string $valueIrr): self
     {
-        $this->valueIrr = $valueIrr;
+        $this->valueIrr = str_replace(',', '.', $valueIrr);
 
         return $this;
     }
 
-    public function getCorrectEnergyValue(): ?string
+    public function getCorrectEnergyValue(): ?float
     {
-        return $this->correctEnergyValue;
+        return (float)str_replace(',', '.', $this->correctEnergyValue);
     }
 
     public function setCorrectEnergyValue(?string $correctEnergyValue): self
     {
-        $this->correctEnergyValue = $correctEnergyValue;
+        $this->correctEnergyValue = str_replace(',', '.', $correctEnergyValue);
 
         return $this;
     }

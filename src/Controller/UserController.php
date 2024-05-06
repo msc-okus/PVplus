@@ -89,14 +89,6 @@ class UserController extends BaseController
         }
         if ($q) {
             $term = $q;
-        } else {
-          if (!$this->isGranted('ROLE_G4N')  ) {
-              $eigner = $security->getUser()->getEigners()[0];
-              $eignerID = $eigner->getId();
-              $term = $eignerID;
-          } else {
-              $term = $q;
-          }
         }
 
         $queryBuilder = $userRepository->getWithSearchQueryBuilder($term);

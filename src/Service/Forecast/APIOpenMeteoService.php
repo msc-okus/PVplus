@@ -7,18 +7,22 @@ namespace App\Service\Forecast;
  */
 
 class APIOpenMeteoService {
+    private string $lon;
+    private string $lat;
+
     /**
      * The constructor
      * @param string $input_gl
      * @param string $input_gb
      */
-    public function __construct($input_gl, $input_gb) {
+    public function __construct(string $input_gl, string $input_gb) {
         $this->lat = number_format($input_gb, 2); // latitude
         $this->lon = number_format($input_gl, 2); // longitude
     }
 
     // Curl ini -- making the reguest
-    public function get_json_data_curl($hdays = 0, $fdays = 0, $lat, $lon) {
+    public function get_json_data_curl($hdays = 0, $fdays = 0, $lat = '', $lon = ''): bool|string
+    {
         // Curl response from Open Meteo
         ($hdays > 0) ? $historydays = "&past_days=$hdays" : $historydays = "";
         ($fdays > 0) ? $forecastdays = "&forecast_days=$fdays" : $forecastdays = "";
@@ -30,12 +34,14 @@ class APIOpenMeteoService {
 
         $response = curl_exec($curl);
         curl_close($curl);
+
         return $response;
     }
     /**
      * Sorting the curl request and build an array with 15 Minutes Data for 3 Days and hourly Data for 7 Days
      */
-    public function make_sortable_data() :array {
+    public function make_sortable_data(): array
+    {
         // Um die Genauigkeit zu verbessern werden 10 weitere Standorte im Umkeis mit eingebunden.
         # $coords = $this->getBoundingRadius($this->lat, $this->lon, 5,9); # 5 Coordinaten vom 5/9 KM Radius von Standort
         $coords = $this->convert([$this->lat, $this->lon], 5, 10); # 10 Coordinaten vom 5 KM Radius von Standort
@@ -95,7 +101,8 @@ class APIOpenMeteoService {
     /**
      * Funktion zur Umkreisberechung anhand Lat und Lon mittels Radius in Ecken
      */
-    public function getBoundingRadius($lat, $lon, $radiusklein, $radiusgross) {
+    public function getBoundingRadius($lat, $lon, $radiusklein, $radiusgross): array
+    {
         $earth_radius = 6371;
         $maxLatr1 = $lat + rad2deg($radiusklein / $earth_radius);
         $minLatr1 = $lat - rad2deg($radiusklein / $earth_radius);
@@ -121,7 +128,8 @@ class APIOpenMeteoService {
     /**
      * Funktion zur Umkreisberechung anhand Lat und Lon mittels Radius als Kreis
      */
-    public function convert($center, $radius, $numberOfSegments = 360) {
+    public function convert($center, $radius, $numberOfSegments = 360): array
+    {
         $lat = $center[0];
         $lon = $center[1];
         $n = $numberOfSegments;
