@@ -32,7 +32,7 @@ class ForcastDEKService {
         $this->anlagenmodulesdbrepository = $anlageModulesDBRepository;
       }
 
-    public function get_DEK_Data($input_gl,$input_mer,$input_gb,$input_mn,$input_ab,$datfile,$has_suns_model,$anlageId,$doy):array
+    public function get_DEK_Data($input_gl,$input_mer,$input_gb,$input_mn,$input_ab,$datfile,$has_suns_model,$anlageId,$doy): bool|array
     {
         /**
          * @var Anlage $anlage

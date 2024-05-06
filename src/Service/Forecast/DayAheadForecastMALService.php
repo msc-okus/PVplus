@@ -16,14 +16,15 @@ use App\Service\Functions\IrradiationService;
 class DayAheadForecastMALService
 {
     public function __construct(
-        private PdoService $pdoService,
+        private readonly PdoService $pdoService,
         private readonly AnlagenRepository $anlagenRepository,
         private readonly IrradiationService $irradiationService
     ) {
 
     }
 
-  public function calcforecastout($anlageId,$decarray): array {
+  public function calcforecastout($anlageId,$decarray): array
+  {
 
       $conn = $this->pdoService->getPdoPlant();
       $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlageId]);
