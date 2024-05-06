@@ -23,8 +23,34 @@ class Status
     #[ORM\Column(type: 'text')]
     private ?string $Status = null;
 
+    // has plant, plant data input?
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $isData = null;
+
+    // has plant, weather data input
     #[ORM\Column(type: 'boolean')]
     private ?bool $isWeather = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private string $paToday = '0';
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private string $expDiffToday = '100';
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private string $openExpTickets = '0';
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private string $openPATickets = '0';
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private string $openPerfTickets = '0';
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private string $openMROTickets = '0';
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $prYear = null;
 
     public function getId(): ?int
     {

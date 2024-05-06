@@ -50,16 +50,13 @@ class AlertSystemV2Service
      */
     public function generateTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
-
         $fromStamp = strtotime($from);
         if ($to != null) {
-
             $toStamp = strtotime($to);
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
                 $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
             }
-        }
-        else {
+        } else {
             $this->checkSystem($anlage, date('Y-m-d H:i:00', $fromStamp));
         }
     }

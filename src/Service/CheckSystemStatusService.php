@@ -424,7 +424,7 @@ class CheckSystemStatusService
      * Ermitteln der Leitung einer Anlage für den angegebenen Zeitraum
      * Return Array mit AC Ist und DC Ist.
      */
-    private function calcPowerIstAcAndDc(Anlage $anlage, $from, $to)
+    private function calcPowerIstAcAndDc(Anlage $anlage, $from, $to): array
     {
         $conn = $this->pdoService->getPdoPlant();
         if ($anlage->getUseNewDcSchema()) {
@@ -470,7 +470,7 @@ class CheckSystemStatusService
      * Ermitteln der Soll Leitung einer Anlage für den angegebenen Zeitraum
      * Return Array mit AC Soll und DC Soll.
      */
-    private function calcPowerSollAcAndDc(Anlage $anlage, $from, $to)
+    private function calcPowerSollAcAndDc(Anlage $anlage, $from, $to): array
     {
         $conn = $this->pdoService->getPdoPlant();
         // Soll AC
