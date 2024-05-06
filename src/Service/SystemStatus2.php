@@ -14,7 +14,7 @@ class SystemStatus2
 {
     use G4NTrait;
 
-    private int $cacheLifetime = 1;
+    private int $cacheLifetime = 900; // in sekunden
 
     public function __construct(
         private readonly PdoService $pdoService,
@@ -24,7 +24,6 @@ class SystemStatus2
     }
 
     /**
-     * @throws NonUniqueResultException
      * @throws InvalidArgumentException
      */
     public function systemstatus(Anlage $anlage): array
@@ -36,11 +35,14 @@ class SystemStatus2
         $result['ioPlantData']      = $this->checkIOPlantData($anlage, $today);
         $result['ioWeatherData']    = $this->checkIOWeatherData($anlage, $today);
         $result['paToday']          = $this->checkPA($anlage, date('Y-m-d 00:15:00', $today), date('Y-m-d H:i:s', $today));
-        $result['expDiff']          = $this->checkExpDiff($anlage, date('Y-m-d 00:00:00', $yesterday), date('Y-m-d H:i:s', $yesterday));
+        $result['expDiff']          = $this->checkExpDiff($anlage, date('Y-m-d 00:00:00', $yesterday), date('Y-m-d 23:59:00', $yesterday));
 
         return $result;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     private function checkIOPlantData(Anlage $anlage, $currentTimeStamp): array
     {
         return $this->cache->get('status_checkIOPlantData_'.md5($anlage->getAnlId()), function(CacheItemInterface $cacheItem) use ($anlage, $currentTimeStamp) {
@@ -73,6 +75,9 @@ class SystemStatus2
         });
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     private function checkIOWeatherData(Anlage $anlage, $currentTimeStamp): array
     {
         return $this->cache->get('status_checkIOWeatherData_'.md5($anlage->getAnlId()), function(CacheItemInterface $cacheItem) use ($anlage, $currentTimeStamp) {
@@ -104,7 +109,6 @@ class SystemStatus2
     }
 
     /**
-     * @throws NonUniqueResultException
      * @throws InvalidArgumentException
      */
     private function checkPA(Anlage $anlage, $from, $to): array
@@ -120,6 +124,10 @@ class SystemStatus2
             return $result;
         });
     }
+
+    /**
+     * @throws InvalidArgumentException
+     */
     private function checkExpDiff(Anlage $anlage, $from, $to): array
     {
         return $this->cache->get('status_checkExpDiff_'.md5($anlage->getAnlId()), function(CacheItemInterface $cacheItem) use ($anlage, $from, $to) {
@@ -153,6 +161,7 @@ class SystemStatus2
     /**
      * Ermitteln der Leitung einer Anlage für den angegebenen Zeitraum
      * Return Array mit AC Ist und DC Ist.
+     * @throws InvalidArgumentException
      */
     private function calcPowerIstAcAndDc(Anlage $anlage, $from, $to): array
     {
@@ -199,6 +208,7 @@ class SystemStatus2
     /**
      * Ermitteln der Soll Leitung einer Anlage für den angegebenen Zeitraum
      * Return Array mit AC Soll und DC Soll.
+     * @throws InvalidArgumentException
      */
     private function calcPowerSollAcAndDc(Anlage $anlage, $from, $to): array
     {
