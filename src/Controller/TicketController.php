@@ -125,6 +125,9 @@ class TicketController extends BaseController
         ]);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/ticket/edit/{id}', name: 'app_ticket_edit')]
     public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request, functionsService $functions, AcGroupsRepository $acRepo): Response
     {
@@ -181,7 +184,6 @@ class TicketController extends BaseController
                 $ticket->setWhenHidded("");
             }
             $ticketDates = $ticket->getDates();
-            #$ticket->setEditor($this->getUser()->getUserIdentifier());
             $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
             if ($ticket->getStatus() == 90) {
                 $ticket->setWhenClosed(new DateTime('now'));
@@ -192,14 +194,14 @@ class TicketController extends BaseController
             // Adjust, if neccesary, the start and end Date of the master Ticket, depending on the TicketDates
 
             if (count($ticketDates) > 0) { // cambiar aqui para que si el primer y ultimo date estan fuera del ticket se expande el ticket
+                /*
                 $found = false;
 
                 while (!$found) {
-
                     $firstTicketDate = $ticketDates->first();
-
-                    if ($firstTicketDate->getEnd() < $ticket->getBegin()) $ticket->removeDate($firstTicketDate);
-                    elseif ($firstTicketDate->getEnd() == $ticket->getBegin()) {
+                    if ($firstTicketDate->getEnd() < $ticket->getBegin()) {
+                        $ticket->removeDate($firstTicketDate);
+                    } elseif ($firstTicketDate->getEnd() == $ticket->getBegin()) {
                         $ticket->removeDate($firstTicketDate);
                         $found = true;
                     } else {
@@ -226,7 +228,7 @@ class TicketController extends BaseController
                 foreach ($ticketDates as $date) {
                     $date->setInverter($ticket->getInverter());
                 }
-
+                */
             } else {
                 $date = new ticketDate();
                 $date->copyTicket($ticket);
@@ -248,13 +250,14 @@ class TicketController extends BaseController
                 else  $sensorArray[$key]['checked'] = "";
             }
             if ($ticket->getStatus() == '10') $ticket->setStatus(30); // If 'New' Ticket change to work in Progress
-            $ticket->setUpdatedAt(new DateTime('now'));
 
+            #$ticket->setUpdatedAt(new DateTime('now'));
             $em->persist($ticket);
             $em->flush();
 
             return new Response(null, Response::HTTP_NO_CONTENT);
         }
+
         if ($ticket->getAlertType() >= 70 && $ticket->getAlertType() < 80) $performanceTicket = true;
         else $performanceTicket = false;
 
@@ -531,7 +534,7 @@ class TicketController extends BaseController
             $ticketDate->setEnd($splitTime);
             $ticket->addDate($mainDate);
             $ticket->setSplitted(true);
-            $ticket->setUpdatedAt(new DateTime('now'));
+            #$ticket->setUpdatedAt(new DateTime('now'));
             $em->persist($ticket);
             $em->flush();
         }
@@ -600,7 +603,7 @@ class TicketController extends BaseController
         $em->persist($newTicket);
         $em->flush();
         $ticket->setDescription($ticket->getDescription() . " Ticket splited into Ticket: " . $newTicket->getId());
-        $ticket->setUpdatedAt(new DateTime('now'));
+        #$ticket->setUpdatedAt(new DateTime('now'));
         $em->persist($ticket);
         $em->flush();
 

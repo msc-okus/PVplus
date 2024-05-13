@@ -107,9 +107,9 @@ class ImportService
         $to = date('Y-m-d H:i', $end);
 
         $sunArray = $this->weatherService->getSunrise($anlage, $from);
-        $start = strtotime((string) $sunArray['sunrise']);
+        #$start = strtotime((string) $sunArray['sunrise']);
         $sunArray = $this->weatherService->getSunrise($anlage, $to);
-        $end = strtotime((string) $sunArray['sunset']);
+        #$end = strtotime((string) $sunArray['sunset']);
 
 
         //get the Data from VCOM for all Plants are configured in the current plant
