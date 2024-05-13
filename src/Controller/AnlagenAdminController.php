@@ -230,7 +230,7 @@ class AnlagenAdminController extends BaseController
      * @throws \Exception
      */
     #[Route(path: '/admin/anlagen/editconfig/{id}', name: 'app_admin_anlagen_edit_config')]
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $repositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): RedirectResponse|Response
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $repositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem, PaginatorInterface $paginator): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->findOneByIdAndJoin($id);
         $upload = new AnlageFile();
@@ -255,7 +255,7 @@ class AnlagenAdminController extends BaseController
 
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $uploadedFile = $form['picture']->getData();
-            $extraFiles = $form['infoFiles']->getData();
+
 
             foreach ($extraFiles as $files){
                 $uploaderHelper->uploadPlantDocumentation($files, $anlage->getEigner()->getFirma(), $anlage);

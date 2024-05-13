@@ -652,7 +652,7 @@ class TicketController extends BaseController
 
 
     /**
-     * Delete hole Ticket
+     * Delete the Ticket
      *
      * @param $id
      * @param TicketRepository $ticketRepo

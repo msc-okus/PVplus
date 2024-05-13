@@ -98,31 +98,41 @@ class UploaderHelper
         $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $mimeType = pathinfo($uploadedFile->getClientMimeType(), PATHINFO_FILENAME);
         $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
-        switch ($mimeType) {
-            case 'pdf':
-                $fileroute = './documentation/'.$owner.'/'.$anlage->getAnlName().'/pdfs/';
-                break;
-            case 'xlsx':
-                $fileroute = './documentation/'.$owner.'/'.$anlage->getAnlName().'/excel/';
-                break;
-            default:
-                $fileroute = './documentation/'.$owner.'/'.$anlage->getAnlName().'/others/';
+
+        if (str_contains($uploadedFile->getClientMimeType(), "image" )){
+            $type = "image";
+            $fileroute = './documentation/'.$owner.'/'.$anlage->getAnlName().'/images/';
         }
+
+        else if (str_contains($uploadedFile->getClientMimeType(), "pdf" )){
+            $type = "pdf";
+            $fileroute = './documentation/'.$owner.'/'.$anlage->getAnlName().'/pdf/';
+        }
+
+        else if (str_contains($uploadedFile->getClientMimeType(), "xlsx" )){
+            $type = "excel";
+            $fileroute = './documentation/'.$owner.'/'.$anlage->getAnlName().'/excel/';
+        }
+        else {
+            $type = "other";
+            $fileroute = './documentation/'.$owner.'/'.$anlage->getAnlName().'/other/';
+        }
+
         $fileroute = str_replace(" ", "_", $fileroute);
         if ($this->fileSystemFtp->fileExists($fileroute) === false)$this->fileSystemFtp->createDirectory( $fileroute );
         $this->fileSystemFtp->write(
             $fileroute.$newFilename,
             file_get_contents($uploadedFile->getPathname())
         );
-        dump($mimeType);
         $upload->setAnlage($anlage);
+        $upload->setStamp(date_format(new \DateTime( 'now'),"Y-m-d H:i"));
         $upload->setFilename($newFilename);
         $upload->setPath($fileroute);
-        $upload->setMimeType($mimeType);
+        $upload->setMimeType($type);
         $anlage->addDocument($upload);
         $this->em->persist($upload);
         $this->em->persist($anlage);
-        //$this->em->flush();
+        $this->em->flush();
     }
     /**
      * @throws \Exception
@@ -206,11 +216,6 @@ class UploaderHelper
         }
 
          $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.pathinfo($originalFilename, PATHINFO_EXTENSION);
-    #    $datfile_folder = $this->kernel->getProjectDir()."/public/uploads/"; //
-    #    if (file_exists($datfile_folder.'/'.$directory.'/'.$newFilename)) {
-    #     $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.pathinfo($originalFilename, PATHINFO_EXTENSION);
-    #    }
-
         $stream = fopen($file->getPathname(), 'r');
 
         $this->fileSystemFtp->writeStream(

@@ -174,7 +174,6 @@
                 <li class="tabs-title"><a data-tabs-target="legend" href="#legend">Legend Configuration</a></li>
                 <li class="tabs-title"><a data-tabs-target="pvsyst" href="#pvsyst">PVSYST Month Values Design</a></li>
                 <li class="tabs-title"><a data-tabs-target="monthly-yield" href="#monthly-yield">Monthly recalculated Values</a></li>
-                <li class="tabs-title"><a data-tabs-target="media" href="#media">Media Library </a></li>
                 {% if is_granted('ROLE_AM') %}
                     <li class="tabs-title"><a data-tabs-target="economics" href="#economics">Economic Variables </a></li>
                     <li class="tabs-title"><a data-tabs-target="economicsvalues" href="#economicsvalues">Economic Reports </a></li>
@@ -437,33 +436,6 @@
                     </div>
                 </div>
 
-                <div class="tabs-panel" id="media">
-                    <div class="grid-x grid-margin-x">
-                        <fieldset class="fieldset">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th> Name</th>
-                                        <th> Upload date</th>
-                                        <th> Type</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for file in files %}
-                                        <tr>
-                                            <td>file.filename</td>
-                                            <td>file.stamp</td>
-                                            <td>file.mimeType</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-
-
-                            </table>
-                            {{ form_row(anlageForm.infoFiles) }}
-                        </fieldset>
-                    </div>
-                </div>
                 {% if is_granted('ROLE_AM') %}
                     {# Economics Variable Names #}
                     <div class="tabs-panel" id="economics">

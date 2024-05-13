@@ -266,6 +266,7 @@ class AnlageConfigFormType extends AbstractType
                 'by_reference' => false,
             ])
             ->add('infoFiles', FileType::class, [
+                'label' => ' ',
                 'multiple' => 'multiple',
                 'mapped'      => false
             ])

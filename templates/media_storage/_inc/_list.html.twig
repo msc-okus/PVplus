@@ -1,0 +1,33 @@
+<table class="table sortable stickyheader">
+    <thead>
+        <tr>
+            <th> Id</th>
+            <th> Name</th>
+            <th> Type </th>
+            <th> Upload Date</th>
+            <th> Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in pagination %}
+            <tr>
+                <td> {{ file.id }} </td>
+                <td> {{ file.filename }} </td>
+                <td> {{ file.mimetype }} </td>
+                <td> {{ file.stamp }} </td>
+                <td>
+                    <a href="{{ path('app_media_download', { id: file.id}) }}" class="hollow button tiny action-icon shadow"><span class="fa fa-file-pdf"></span></a>
+                    <a href="#" class="hollow alert button tiny action-icon shadow"
+                            {{ stimulus_controller('submit-confirm', {
+                                title: 'Remove this file?',
+                                confirmButtonText: 'Yes, remove it',
+                                redirectUrl: path('app_media_delete', { id: file.id})
+                            }) }}
+                       data-action="submit-confirm#onSubmit">
+                        <span class="fa fa-trash-alt"></span>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
