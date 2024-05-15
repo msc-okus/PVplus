@@ -62,13 +62,13 @@ class TicketController extends BaseController
             $ticket->setAnlage($anlage);
             $ticket
                 ->setBegin(date_create(date('Y-m-d H:i:s', time() - time() % 900)))
-                ->setEnd(date_create(date('Y-m-d H:i:s', (time() - time() % 900) + 900)))
+                //->setEnd(date_create(date('Y-m-d H:i:s', (time() - time() % 900) + 900)))
                 ->setAlertType(0);
             $ticketDate = new TicketDate();
 
             $ticketDate
                 ->setBegin($ticket->getBegin())
-                ->setEnd($ticket->getEnd())
+                //->setEnd($ticket->getEnd())
                 ->setAnlage($anlage);
             $ticket->getDates()->add($ticketDate);
             $form = $this->createForm(TicketFormType::class, $ticket);

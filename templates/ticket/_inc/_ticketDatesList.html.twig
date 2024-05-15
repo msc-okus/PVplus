@@ -155,6 +155,7 @@
                 </div>
             </td> {# delete Button #}
             <td id="{{ date.vars.value.id|default(0) }}">
+                {%  if (edited) %}
                 <button
                         {% if (date.vars.value.end|date("U") - date.vars.value.begin|date("U") <= 900) %} disabled {% endif %}
                         {% if (features == null or features.SplitGap != true) %} hidden {% endif%}
@@ -240,6 +241,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </td>
         </tr>
     {% endfor %}

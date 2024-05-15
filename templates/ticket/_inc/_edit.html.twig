@@ -18,7 +18,7 @@
     <div class="cell">
         <div class="grid-x grid-margin-y" id="ticket-edit">
             <div class="cell">
-                {{ form_start(ticketForm) }}
+                {{ form_start(ticketForm, {attr: {'novalidate': 'novalidate'}}) }}
                 <div class="ticket-content">
                     {% if (edited) %}
                         {% set dropdownId = ticketForm.vars.value.id %}
@@ -54,12 +54,12 @@
                                     <div class="cell small-12 medium-4">
                                         {# Select inverter stuff #}
                                         <label>&nbsp;</label>
-                                        <button class="button small no-margin hollow expanded" type="button"
-                                                data-toggle="inverter-dropdown-{{ dropdownId }}">Select Inverters
+                                        <button  class="button small no-margin hollow expanded" type="button"
+                                                data-toggle="inverter-dropdown-{{ dropdownId }}" data-action="click->ticket-edit#disableSave">Select Inverters
                                         </button>
                                         <div class="dropdown-pane shadow" id="inverter-dropdown-{{ dropdownId }}"
                                              data-dropdown data-auto-focus="true" data-alignment="center"
-                                             data-close-on-click="true">
+                                             data-close-on-click="false">
                                             {% if (invArray != null) %}
                                                 <div class="grid-x">
                                                     <div class="cell small-form">
@@ -105,7 +105,9 @@
                                             {% else %}
                                                 No Inverters found to select
                                             {% endif %}
+                                            <button data-action="click->ticket-edit#saveCheck" class="button small no-margin hollow expanded" data-toggle="inverter-dropdown-{{ dropdownId }}">Submit Inverter Selection</button>
                                         </div>
+
                                     </div>
                                     <div class="cell small-12 medium-4">
                                         {{ form_row(ticketForm.inverterName) }}
