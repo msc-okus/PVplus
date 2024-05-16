@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{  parent() }}special operations
+{% endblock %}
+
+{% block styles %}
+    {{  parent() }}
+    {{ encore_entry_link_tags('special_export') }}
+    <link href="{{ absolute_url(asset('css/monthly_report_inline.css')) }}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('special_export') }}
+{% endblock %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>{{ headline }}</h1>
+        </div>
+    </div>
+
+    <div>
+        Steps:
+        {% include '@CraueFormFlow/FormFlow/stepList.html.twig' %}
+    </div>
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+
+        {% if flow.getCurrentStepNumber() == 1 %}
+            <div>
+                When selecting four wheels you have to choose the engine in the next step.<br />
+                {{ form_row(form.numberOfWheels) }}
+            </div>
+        {% endif %}
+
+        {{ form_rest(form) }}
+
+        {% include '@CraueFormFlow/FormFlow/buttons.html.twig' %}
+    {{ form_end(form) }}
+
+{% endblock %}

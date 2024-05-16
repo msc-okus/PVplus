@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Anlage;
 use App\Entity\TicketDate;
 use App\Repository\AnlagenRepository;
+use App\Repository\MonthlyDataRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\Reports\ReportsMonthlyV2Service;
@@ -15,6 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use App\Form\LiveReporting\CreateMonthlyForm;
+use Craue\FormFlowBundle\Form\FormFlow;
 
 class LiveReportingController extends AbstractController
 {
@@ -47,26 +50,36 @@ class LiveReportingController extends AbstractController
         $anlageId = $request->request->get('anlage-id');
         $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
 
-        // Start individual part
-        /** @var Anlage $anlage */
+        $formData = new MonthlyDataRepository(); // Your form data class. Has to be an object, won't work properly with an array.
 
-        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+        $flow = $this->getSubscribedServices('livereporting.form.flow.createMonthly'); // must match the flow's service id
+        $flow->bind($formData);
 
-        if ($submitted && $anlageId !== null) {
-            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
-            $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
+        // form of the current step
+        $form = $flow->createForm();
+
+        if ($flow->isValid($form)) {
+            $flow->saveCurrentStepData($form);
+
+            if ($flow->nextStep()) {
+                // form for the next step
+                $form = $flow->createForm();
+            } else {
+                // flow finished
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($formData);
+                $em->flush();
+
+                $flow->reset(); // remove step data from the session
+
+                return $this->redirectToRoute('home'); // redirect when done
+            }
         }
 
-
-        return $this->render('live_reporting/reportMonthlyNew.html.twig', [
+        return $this->render('live_reporting/_inc/createMonthly.html.twig', [
             'headline' => 'Monthly Report',
-            'anlagen' => $anlagen,
-            'anlage' => $anlage,
-            'report' => $output,
-            'status' => $anlageId,
-            'datatable' => $table,
-            'tickets'   => $tickets
+            'form' => $form->createView(),
+            'flow' => $flow,
         ]);
 
     }
