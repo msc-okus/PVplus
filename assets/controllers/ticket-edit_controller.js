@@ -15,7 +15,7 @@ export default class extends Controller {
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
                         'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
                         'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'modalContactBody', 'contactButton', 'modalContactCreateBody',
-                        'contactModalCreate', 'modalTimelineBody', 'timelineModal', 'firstDateEnd', 'lastDateBegin'];
+                        'contactModalCreate', 'modalTimelineBody', 'timelineModal', 'firstDateEnd', 'lastDateBegin','AlertInverterSubmit'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -1181,6 +1181,13 @@ export default class extends Controller {
     }
     disableSave(){
         $(this.saveButtonTarget).attr('disabled', 'disabled');
+        $(this.AlertInverterSubmitTarget).removeClass('is-hidden');
+        $().addClass('is-hidden');
+    }
+    submitInverters(event){
+        event.preventDefault();
+        $(this.AlertInverterSubmitTarget).addClass('is-hidden');
+        this.saveCheck();
     }
     saveCheck(){
         event.preventDefault();

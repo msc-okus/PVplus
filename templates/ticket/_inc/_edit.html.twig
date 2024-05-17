@@ -105,7 +105,7 @@
                                             {% else %}
                                                 No Inverters found to select
                                             {% endif %}
-                                            <button data-action="click->ticket-edit#saveCheck" class="button small no-margin hollow expanded" data-toggle="inverter-dropdown-{{ dropdownId }}">Submit Inverter Selection</button>
+                                            <button data-action="click->ticket-edit#submitInverters" class="button small no-margin hollow expanded" data-toggle="inverter-dropdown-{{ dropdownId }}">Submit Inverter Selection</button>
                                         </div>
 
                                     </div>
@@ -308,16 +308,20 @@
                 <p class="is-hidden"
                    data-ticket-edit-target="AlertDates"
                 >
-                    Error, end date can not be before or equal the beginning
+                    Error, end date can not be before or equal the beginning.
                 </p>
                 <p {% if edited %}class="is-hidden"{% endif %}
                    data-ticket-edit-target="AlertInverter"
                 >
-                    Error, at least one inverter must be selected
+                    Error, at least one inverter must be selected.
                 </p>
                 <p {% if edited %}class="is-hidden"{% endif %}
                    data-ticket-edit-target="AlertCategory">
-                    Error, a category must be selected
+                    Error, a category must be selected.
+                </p>
+                <p class="is-hidden"
+                   data-ticket-edit-target="AlertInverterSubmit">
+                    Please, submit your inverter selection.
                 </p>
             </div>
         </div>
