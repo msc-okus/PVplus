@@ -90,7 +90,6 @@ class ExpectedService
         $aktuellesJahr = date('Y', strtotime((string) $from));
         $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre
         $month = date('m', strtotime((string) $from));
-        $has_suns_model = (float)$anlage->getHasSunshadingModel(); // check if has sunshading Model
         $sshrep = $this->anlageSunShadingRepository->findBy(['anlage' => $anlage->getAnlId()]); // Call the Repository
         $conn = $this->pdoService->getPdoPlant();
         // Lade Wetter (Wetterstation der Anlage) Daten für die angegebene Zeit und Speicher diese in ein Array
@@ -111,7 +110,7 @@ class ExpectedService
         }
         $conn = null;
         // wenn das Sunshadding Model eingegeben wurde.
-        if($has_suns_model){
+        if($anlage->getHasSunshadingModel()){
             $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
             $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
             $input_mer = (integer)$anlage->getBezMeridan();   // Bezugsmeridan Mitteleuropa
@@ -161,7 +160,7 @@ class ExpectedService
                         $tempIrr = $this->functions->mittelwert([(float) $weather['irr_upper'], (float) $weather['irr_lower']]);
                     }
                     // wenn das Sunshadding Model eingegeben wurde.
-                    if ($has_suns_model) {
+                    if ($anlage->getHasSunshadingModel()) {
                         // Beginn Shadow Loss
                         if ($tempIrr >= 400) { // Wenn Strahlung größer 500 Wh/m2
                             $AOIarray = $this->forecastCalcService->getAOI($input_mn, $input_gb, $input_gl, $input_mer, $doy, $hour, $ausrichtung);

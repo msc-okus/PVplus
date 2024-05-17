@@ -38,13 +38,9 @@ class AnlageGroupsTypeForm extends AbstractType
                 'label'=>'Last unit (GAK, Inverter, ...)',
                 'help'=>'unitLast'
             ])
-            ->add('irrUpper', TextType::class,[
-                'label'=>'Irr Upper',
-                'help'=>'irrUpper'
-            ])
-            ->add('irrLower', TextType::class,[
-                'label'=>'Irr Lower',
-                'help'=>'irrLower'
+            ->add('cabelLoss', TextType::class, [
+                'help' => '[cabelLoss]',
+                'label' => 'Cabel loss',
             ])
             ->add('secureLoss', TextType::class,[
                 'label'=>'Secure Loss [%]',
