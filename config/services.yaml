@@ -58,6 +58,3 @@ services:
     App\Command\ForcastWriteDBCommand:
         tags: [ { name: 'console.command', command: 'pvp:forcastwritedb' } ]
 
-    livereporting.form.flow.createMonthly:
-        class: App\Form\LiveReporting\MonthlyFlow
-        autoconfigure: true

@@ -17,16 +17,26 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use App\Form\LiveReporting\CreateMonthlyForm;
-use Craue\FormFlowBundle\Form\FormFlow;
+use App\Form\Type\Monthly;
+use Craue\FormFlowBundle\Form\FormFlowInterface;
+use Craue\FormFlowBundle\Util\FormFlowUtil;
+use App\Form\Type\TopicCategoryType;
+
+use Craue\FormFlowDemoBundle\Form\CreateTopicFlow;
 
 class LiveReportingController extends AbstractController
 {
+    /**
+     * @var FormFlowUtil
+     */
+    private $formFlowUtil;
     public function __construct(
         private readonly TicketDateRepository $ticketDateRepo,
         private readonly TranslatorInterface $translator,
+        FormFlowUtil $formFlowUtil
     )
     {
-
+        $this->formFlowUtil = $formFlowUtil;
     }
     /**
      * Erzeugt einen Monatsreport mit den einzelenen Tagen und einer Monatstotalen
@@ -40,7 +50,7 @@ class LiveReportingController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
-    public function monthlyReportWithDays(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
+    public function createTopicAction(Request $request, CreateTopicFlow $flow, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
         $output = $table = $tickets = null;
         $startDay = $request->request->get('start-day');
@@ -50,38 +60,45 @@ class LiveReportingController extends AbstractController
         $anlageId = $request->request->get('anlage-id');
         $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
 
-        $formData = new MonthlyDataRepository(); // Your form data class. Has to be an object, won't work properly with an array.
+        return $this->processFlow($request, new Topic(), $flow,
+            'live_reporting/createTopic.html.twig');
 
-        $flow = $this->getSubscribedServices('livereporting.form.flow.createMonthly'); // must match the flow's service id
+
+
+    }
+
+    protected function processFlow(Request $request, $formData, FormFlowInterface $flow, $template) {
         $flow->bind($formData);
 
-        // form of the current step
-        $form = $flow->createForm();
-
-        if ($flow->isValid($form)) {
-            $flow->saveCurrentStepData($form);
+        $form = $submittedForm = $flow->createForm();
+        if ($flow->isValid($submittedForm)) {
+            $flow->saveCurrentStepData($submittedForm);
 
             if ($flow->nextStep()) {
-                // form for the next step
+                // create form for next step
                 $form = $flow->createForm();
             } else {
                 // flow finished
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($formData);
-                $em->flush();
+                // ...
 
-                $flow->reset(); // remove step data from the session
+                $flow->reset();
 
-                return $this->redirectToRoute('home'); // redirect when done
+                return $this->redirectToRoute('_FormFlow_start');
             }
         }
 
-        return $this->render('live_reporting/_inc/createMonthly.html.twig', [
-            'headline' => 'Monthly Report',
+        if ($flow->redirectAfterSubmit($submittedForm)) {
+            $params = $this->formFlowUtil->addRouteParameters(array_merge($request->query->all(),
+                $request->attributes->get('_route_params')), $flow);
+
+            return $this->redirectToRoute($request->attributes->get('_route'), $params);
+        }
+
+        return new Response($this->twig->render($template, [
             'form' => $form->createView(),
             'flow' => $flow,
-        ]);
-
+            'formData' => $formData,
+        ]));
     }
 
     /**

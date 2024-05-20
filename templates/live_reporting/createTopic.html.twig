@@ -1,0 +1,52 @@
+{% extends '@CraueFormFlowDemo/FormFlowDemo/layout_flow.html.twig' %}
+
+{% block headline %}
+	<h1>{{ 'formFlow.demo' | trans }}: {{ 'formFlow.demo.topicFlow.title' | trans }}</h1>
+{% endblock %}
+
+{% block form %}
+	{% set routeParams = app.request.query.all() | merge(app.request.attributes.get('_route_params')) %}
+	{% if flow.isAllowDynamicStepNavigation() %}
+		{% set routeParams = routeParams | craue_removeDynamicStepNavigationParameters(flow) %}
+	{% endif %}
+
+	{{ form_start(form, {'action': path(app.request.attributes.get('_route'), routeParams), 'attr': {'class': 'flow-form'}}) }}
+		<fieldset>
+			<legend>{{ 'step' | trans }} {{ flow.getCurrentStepNumber() }}: {{ flow.getCurrentStepLabel() | trans }}</legend>
+			{{ form_errors(form) }}
+
+			{% if flow.getCurrentStepNumber() == 3 %}
+				{{ 'bug_details_intro' | trans }}
+				<br /><br />
+				{{ form_row(form.details) }}
+			{% endif %}
+
+			{% if flow.getCurrentStepNumber() == 4 %}
+				{{ 'confirmation_intro' | trans }}
+				<br />
+				<dl>
+					<dt>{{ 'title' | trans }}:</dt>
+					<dd>{{ formData.title }}</dd>
+
+					<dt>{{ 'description' | trans }}:</dt>
+					<dd>{{ formData.description | default('—') }}</dd>
+
+					<dt>{{ 'category' | trans }}:</dt>
+					<dd>{{ formData.category | trans({}, 'topicCategories') }}</dd>
+
+					<dt>{{ 'comment' | trans }}:</dt>
+					<dd>{{ formData.comment | nl2br | default('—') }}</dd>
+
+					{% if formData.isBugReport() %}
+						<dt>{{ 'details' | trans }}:</dt>
+						<dd>{{ formData.details | nl2br }}</dd>
+					{% endif %}
+				</dl>
+			{% endif %}
+
+			{{ form_rest(form) }}
+		</fieldset>
+
+		{% include '@CraueFormFlow/FormFlow/buttons.html.twig' %}
+	{{ form_end(form) }}
+{% endblock %}
