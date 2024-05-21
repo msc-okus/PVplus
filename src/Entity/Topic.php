@@ -11,31 +11,37 @@ class Topic {
 	use EntityHasIdTrait;
 
 	/**
-	 * @var string
-	 * @ORM\Column(name="title", type="string", nullable=false)
+	 * @var array
+	 * @ORM\Column(name="year", type="array", nullable=false)
 	 * @Assert\NotBlank(groups={"flow_createTopic_step1"})
 	 */
-	public $title;
+	public $year;
 
 	/**
-	 * @var string
-	 * @ORM\Column(name="description", type="string", nullable=true)
+	 * @var array
+	 * @ORM\Column(name="month", type="array", nullable=true)
 	 */
-	public $description;
+	public $month;
 
 	/**
-	 * @var string
-	 * @ORM\Column(name="category", type="string", nullable=false)
+	 * @var object
+	 * @ORM\Column(name="anlage", type="object", nullable=false)
 	 * @Assert\Choice(callback="getValidCategories", groups={"flow_createTopic_step1"}, strict=true)
 	 * @Assert\NotBlank(groups={"flow_createTopic_step1"})
 	 */
-	public $category;
+	public $anlage;
 
 	/**
-	 * @var string
-	 * @ORM\Column(name="comment", type="text", nullable=true)
+	 * @var array
+	 * @ORM\Column(name="startday", type="array", nullable=true)
 	 */
-	public $comment;
+	public $startday;
+
+    /**
+     * @var array
+     * @ORM\Column(name="endday", type="array", nullable=true)
+     */
+    public $endday;
 
 	/**
 	 * @var string
@@ -48,12 +54,5 @@ class Topic {
 		return $this->category === 'BUG_REPORT';
 	}
 
-	public static function getValidCategories() {
-		return [
-			'DISCUSSION',
-			'BUG_REPORT',
-			'SUPPORT_REQUEST',
-		];
-	}
 
 }

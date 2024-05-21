@@ -60,8 +60,20 @@ class LiveReportingController extends AbstractController
         $anlageId = $request->request->get('anlage-id');
         $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
 
+        // Start individual part
+        /** @var Anlage $anlage */
+
+        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+
+        if ($submitted && $anlageId !== null) {
+            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
+            $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
+        }
+
+
         return $this->processFlow($request, new Topic(), $createTopicFlow,
-            'live_reporting/createTopic.html.twig');
+            'live_reporting/reportMonthlyNew.html.twig');
 
 
 
@@ -95,12 +107,17 @@ class LiveReportingController extends AbstractController
             return $this->redirectToRoute($request->attributes->get('_route'), $params);
         }
 
-
-
         return $this->render($template, [
             'form' => $form->createView(),
             'flow' => $flow,
             'formData' => $formData,
+            'headline' => 'Monthly Report',
+            'anlagen' => $anlagen,
+            'anlage' => $anlage,
+            'report' => $output,
+            'status' => $anlageId,
+            'datatable' => $table,
+            'tickets'   => $tickets
         ]);
     }
 

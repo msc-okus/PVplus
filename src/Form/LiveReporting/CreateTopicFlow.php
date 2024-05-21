@@ -22,11 +22,11 @@ class CreateTopicFlow extends FormFlow {
 
 		return [
 			[
-				'label' => 'basics',
+				'label' => 'Choose Year. Month and Plant',
 				'form_type' => $formType,
 			],
 			[
-				'label' => 'comment',
+				'label' => 'Choose start and endday',
 				'form_type' => $formType,
 			],
 			[
@@ -47,6 +47,16 @@ class CreateTopicFlow extends FormFlow {
 	 */
 	public function getFormOptions($step, array $options = []) {
 		$options = parent::getFormOptions($step, $options);
+        if ($step === 2) {
+            $formData = $this->getFormData();
+
+            echo "<pre>";
+            print_r($this->retrieveStepData());
+            echo "<pre>";
+            exit;
+            #$options['year'] = $formData->year;
+            #$options['month'] =$formData->month;
+        }
 
 		if ($step === 3) {
 			$options['isBugReport'] = $this->getFormData()->isBugReport();

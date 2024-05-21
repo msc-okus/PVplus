@@ -8,6 +8,7 @@
     {{  parent() }}
     {{ encore_entry_link_tags('special_export') }}
     <link href="{{ absolute_url(asset('css/monthly_report_inline.css')) }}" rel="stylesheet" type="text/css">
+    <link type="text/css" rel="stylesheet" href="{{ asset('bundles/craueformflow/css/buttons.css') }}" />
 {% endblock %}
 
 {% block javascripts %}
@@ -22,7 +23,7 @@
         </div>
     </div>
 
-    {% include'live_reporting/_inc/_createFormByDate.html.twig' %}
+    {% include'live_reporting/_inc/createTopic.html.twig' %}
     <hr>
     {% if report != null %}
         <div class="grid-x">
