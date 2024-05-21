@@ -37,9 +37,16 @@ class UserController extends BaseController
             $roles = $form->get('roles')->getData();
             $user = $form->getData();
 
-            if ($this->isGranted('ROLE_OWNER_ADMIN') && $security->getUser()->getUserIdentifier() != "admin" ) {
-                $eignerDn = $security->getUser()->getEigners()[0];
-                $user->addEigner($eignerDn);
+
+            if ($this->isGranted('ROLE_G4N')){
+                $user->addEigner($form->get('eigners')->getData()[0]);
+            } else {
+                if ($this->isGranted('ROLE_OWNER_ADMIN')) { // && $security->getUser()->getUserIdentifier() != "admin") {
+                    $user->addEigner($security->getUser()->getEigners()[0]);
+                } else {
+                    // somthing went wrong -> logout
+                    return $this->redirectToRoute('app_logout');
+                }
             }
 
             $user->setGrantedList($savPlantList);
@@ -162,6 +169,7 @@ class UserController extends BaseController
 
             return $this->render('user/edit.html.twig', [
                 'userForm' => $form,
+                'user'  => $user,
             ]);
 
         } else {
@@ -248,4 +256,44 @@ class UserController extends BaseController
         return $this->redirectToRoute('app_admin_user_list');
     }
 
+    /**
+     * Lock a user. Means this user is no longer able to login to the Software
+     * his email Address will be set to 'anonymous', but Reports, tickets and so on will show the User as last modified
+     *
+     * @param $id
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @param SecurityController $security
+     * @return Response
+     */
+    #[Route(path: 'admin/user/lock/{id}', name: 'app_admin_user_lock')]
+    #[IsGranted('ROLE_OWNER_ADMIN')]
+    public function lockUser($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security,): Response
+    {
+        // To do Abfrage Yes No
+        $user = $userRepository->find($id);
+        // prüfen ob user existiert
+        if ($user) {
+            $form = $this->createForm(UserFormType::class, $user);
+            $form->handleRequest($request);
+            $selSingleEigner = $form->get('singleeigners')->getData();
+            if (!$this->isGranted('ROLE_OWNER_ADMIN')){
+                // prüfen ob user und der eigner die gleichen sind
+                if (!in_array($user->getEigners()[0]->getID(), $selSingleEigner)) {
+                    $this->addFlash('warning', 'You have no rights to do this.');
+                    return $this->redirectToRoute('app_admin_user_list');
+                }
+            }
+
+            $user->eraseCredentials();
+            #$em->remove($user);
+            $em->flush();
+            $this->addFlash('warning', 'User are locked.');
+
+            return $this->redirectToRoute('app_admin_user_list');
+        }
+
+        return $this->redirectToRoute('app_admin_user_list');
+    }
 }

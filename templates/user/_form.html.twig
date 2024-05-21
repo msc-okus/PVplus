@@ -67,8 +67,11 @@
         {{ form_widget(userForm.save) }}
         {{ form_widget(userForm.saveclose) }}
         {{ form_widget(userForm.close) }}
-        {% if is_granted('ROLE_G4N') %}
-            {% if app.request.requesturi != "/admin/user/new" %}
+        {% if app.request.requesturi != "/admin/user/new" %}
+            {% if is_granted('ROLE_OWNER_ADMIN') and not(user.locked) %}
+                <a href="{{ path('app_admin_user_lock', {id: app.request.attributes.get('id')}) }}" onclick="return confirm('WARNING! Are you sure to lock this User?')" class="button alert"><i class="fa fa-lock"></i> Lock User</a>
+            {% endif %}
+            {% if is_granted('ROLE_G4N') %}
                 <a href="{{ path('app_admin_user_delete', {id: app.request.attributes.get('id')}) }}" onclick="return confirm('WARNING! Are you sure to delete this User?')" class="button alert"><i class="fa fa-trash"></i> Delete User</a>
             {% endif %}
         {% endif %}
