@@ -134,7 +134,7 @@ class AnlageStringAssigmentService
             }
 
         }
-       $this->logMessages->updateEntry($logId, 'working', 90);
+        $this->logMessages->updateEntry($logId, 'working', 90);
 
         $spreadsheet = new Spreadsheet();
 

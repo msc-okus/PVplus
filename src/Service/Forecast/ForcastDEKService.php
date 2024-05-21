@@ -127,7 +127,7 @@ class ForcastDEKService {
                                                 $faktorRVSued = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren // Return Array faktor RSH
                                                 $DIRpoa = $DIRpoa * $faktorRVSued['FKR'];  // Neuer DIRpoa mit multiplikation des Verschattungs Faktor
                                                 $RSHArray = $faktorRVSued['RSH']; // Array der Reihenabschattung
-                                                $this->shadingmodelservice->modrow_shading_loss($RSHArray, $DIFFSAMA, $GDIRPRZ, $sshrep, $modrep);
+                                                $this->shadingmodelservice->modrow_shading_loss($RSHArray, $DIFFSAMA, $GDIRPRZ, $sshrep);
                                                 $RGES = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour zzg. Verschattungs Faktor
                                             }
                                         }
@@ -141,7 +141,7 @@ class ForcastDEKService {
                                                 $faktorRVOst = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren // Return Array faktor RSH
                                                 $DIRpoa = $DIRpoa * $faktorRVOst['FKR']; // Neuer DIRpoa mit multiplikation des Verschattungs Faktor
                                                 $RSHArray = $faktorRVOst['RSH']; // Array der Reihenabschattung
-                                                $this->shadingmodelservice->modrow_shading_loss($RSHArray, $DIFFSAMA, $GDIRPRZ, $sshrep, $modrep);
+                                                $this->shadingmodelservice->modrow_shading_loss($RSHArray, $DIFFSAMA, $GDIRPRZ, $sshrep);
                                                 $RGES_UPPER = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour OST zzg. Verschattungs Faktor
                                             }
                                         }
@@ -155,7 +155,7 @@ class ForcastDEKService {
                                                 $faktorRVWest = $this->shadingmodelservice->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren // Return Array faktor RSH
                                                 $DIRpoa = $DIRpoa * $faktorRVWest['FKR']; // Neuer DIRpoa mit multiplikation des Verschattungs Faktor
                                                 $RSHArray = $faktorRVWest['RSH']; // Array der Reihenabschattung
-                                                $this->shadingmodelservice->modrow_shading_loss($RSHArray, $DIFFSAMA, $GDIRPRZ, $sshrep, $modrep);
+                                                $this->shadingmodelservice->modrow_shading_loss($RSHArray, $DIFFSAMA, $GDIRPRZ, $sshrep);
                                                 $RGES_LOWER = round($DIRpoa + $DIFpoa + $REFpoa, 3); // Gesamtstrahlung in der Modulebene W/m2 per Hour West zzg. Verschattungs Faktor
                                             }
                                         }
