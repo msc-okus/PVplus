@@ -1,0 +1,23 @@
+{% extends 'report/assetreport.base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {% for sheetName, sheetData in sheetsData %}
+            {% set rows = sheetData|slice(1) %} {# Exclure l'en-tête pour le traitement #}
+            {% set numRows = rows|length %}
+            {% set segments = (numRows / 15)|round(0, 'ceil') %}
+            {% set sheetNameNew = sheetName|replace({'_': ' '}) %}
+
+            {% for segment in 0..segments - 1 %}
+                {% set segmentData = rows|slice(segment * 15, 15) %}
+                {% set segmentDataWithHeader = [sheetData[0]]|merge(segmentData) %}
+                {% include 'report/string_assigment_body.html.twig' with {
+                    'sheetName': sheetNameNew ~ ' - Part ' ~ (segment + 1),
+                    'sheetData': segmentDataWithHeader
+                } %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endblock %}

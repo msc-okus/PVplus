@@ -57,37 +57,91 @@ class SollIstHeatmapChartService
     // MS 06/2022
     public function getSollIstHeatmap(Anlage $anlage, $from, $to, $sets = 0, bool $hour = false): array
     {
+        ini_set('memory_limit', '3G');
+        set_time_limit(500);
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
         $counter = 0;
+        $counterInv = 0;
 
         $sunArray = $this->weatherService->getSunrise($anlage, $from);
+
         $sunrise = strtotime((string) $sunArray['sunrise']);
         $sunArray = $this->weatherService->getSunrise($anlage, $to);
+
         $sunset = strtotime((string) $sunArray['sunset']);
 
         $from = date('Y-m-d H:i', $sunrise);
         $to = date('Y-m-d H:i', $sunset + 3600);
 
+        switch ($anlage->getConfigType()) {
+            case 1:
+                $group = 'group_dc';
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                $idArray = $this->functions->getIdArray($anlage, 'dc');
+                break;
+            default:
+                $group = 'group_ac';
+                $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                $idArray = $this->functions->getIdArray($anlage, 'ac');
+        }
+
+
+        $groupct = count($nameArray);
+
         // fix the sql Query with an select statement in the join this is much faster
         if ($anlage->getUseNewDcSchema()) {
-            $nameArray = $this->functions->getNameArray($anlage, 'dc');
-            $groupct = count($anlage->getGroupsDc());
+
+            $gruopsDc = $anlage->getGroupsDc();
+            for ($i = 1; $i <= count($gruopsDc); ++$i) {
+                $nameArray[$i] = $gruopsDc[$i]['GroupName'];
+                $idsArray[$i] = $i;
+            }
+
+            $groupct = count($nameArray);
             if ($groupct) {
                 if ($sets == null) {
                     $min = 1;
                     $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
                     $max = (($max > 50) ? '50' : $max);
-                    $sqladd = "AND c.wr_group BETWEEN '$min' AND '$max'";
-                    $sqladb = "AND b.group_dc BETWEEN '$min' AND '$max '";
+
+                    $tempc = '';
+                    $tempb = '';
+                    $j = 1;
+                    for ($i = 0; $i < $max; ++$i) {
+                        $invId = $i+1;
+                        $tempc = $tempc.'c.wr_group'." = ".$invId." OR ";
+                        $tempb = $tempb.'b.group_dc'." = ".$invId." OR ";
+                        $invIdArray[$i+1] =  $idArray[$i+1];
+                        $invNameArray[$i+1] =  $nameArray[$i+1];
+                    }
+
+                    $tempc = substr($tempc, 0, -4);
+                    $tempb = substr($tempb, 0, -4);
+                    $sqladd = "AND ($tempc) ";
+                    $sqladb = "AND ($tempb) ";
+
                 } else {
-                    $res = explode(',', $sets);
-                    $min = (int)ltrim($res[0], "[");
-                    $max = (int)rtrim($res[1], "]");
-                    (($max > $groupct) ? $max = $groupct:$max = $max);
-                    (($groupct > $min) ? $min = $min:$min = 1);
-                    $sqladd = "AND c.wr_group BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
-                    $sqladb = "AND b.group_dc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
+                    $tempc = '';
+                    $tempb = '';
+
+                    $j = 1;
+                    for ($i = 0; $i < count($nameArray); ++$i) {
+                        if(str_contains($sets, $nameArray[$i+1])){
+                            $invId = $i+1;
+                            $tempc = $tempc.'c.wr_group'." = ".$invId." OR ";
+                            $tempb = $tempb.'b.group_dc'." = ".$invId." OR ";
+                            $invIdArray[$i+1] =  $idArray[$i+1];
+                            $invNameArray[$j] =  $nameArray[$i+1];
+                            $j++;
+                        }
+                    }
+
+                    $tempc = substr($tempc, 0, -4);
+                    $tempb = substr($tempb, 0, -4);
+                    $sqladd = "AND ($tempc) ";
+                    $sqladb = "AND ($tempb) ";
+
                 }
             } else {
                 $min = 1;
@@ -95,6 +149,7 @@ class SollIstHeatmapChartService
                 $sqladd = "AND c.wr_group BETWEEN '$min' AND '$max '";
                 $sqladb = "AND b.group_dc BETWEEN '$min' AND '$max '";
             }
+
 // fix the sql Query with an select statement in the join this is much faster
             $sql = "SELECT 
                 as1.ts,
@@ -118,23 +173,36 @@ class SollIstHeatmapChartService
                 on (as1.ts = as2.ts and as1.inv = as2.grp_dc)";
 
         } else {
-            $nameArray = $this->functions->getNameArray($anlage, 'dc');
-            $groupct = count($anlage->getGroupsDc());
             if ($groupct) {
                 if ($sets == null) {
                     $min = 1;
                     $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
-                    $max = (($max > 50) ? '50' : $max);
-                    $sqladd = "AND c.group_dc BETWEEN '$min' AND '$max'";
-                    $sqladb = "AND b.group_dc BETWEEN '$min' AND '$max'";
+                    $temp = '';
+                    $j = 1;
+                    for ($i = 0; $i < $max; ++$i) {
+                        $invId = $i+1;
+                        $temp = $temp.$group." = ".$invId." OR ";
+                        $invIdArray[$i+1] =  $idArray[$i+1];
+                        $invNameArray[$i+1] =  $nameArray[$i+1];
+                    }
+
+                    $temp = substr($temp, 0, -4);
+                    $sqladd = "AND ($temp) ";
+
                 } else {
-                    $res = explode(',', $sets);
-                    $min = (int)ltrim($res[0], "[");
-                    $max = (int)rtrim($res[1], "]");
-                    (($max > $groupct) ? $max = $groupct:$max = $max);
-                    (($groupct > $min) ? $min = $min:$min = 1);
-                    $sqladd = "AND c.group_dc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
-                    $sqladb = "AND b.group_dc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
+                    $temp = '';
+                    $j = 1;
+                    for ($i = 0; $i < count($nameArray); ++$i) {
+                        if(str_contains($sets, $nameArray[$i+1])){
+                            $invId = $i+1;
+                            $temp = $temp.$group." = ".$invId." OR ";
+                            $invIdArray[$i+1] =  $idArray[$i+1];
+                            $invNameArray[$j] =  $nameArray[$i+1];
+                            $j++;
+                        }
+                    }
+                    $temp = substr($temp, 0, -4);
+                    $sqladd = "AND ($temp) ";
                 }
             } else {
                 $min = 1;
@@ -164,10 +232,11 @@ class SollIstHeatmapChartService
                 AS as2  
                 on (as1.ts = as2.ts and as1.inv = as2.group_dc);";
         }
-//
-        $dataArray['minSeries'] = $min;
-        $dataArray['maxSeries'] = $max;
+
+        $dataArray['invNames'] = $invNameArray;
+        $dataArray['invIds'] = $invIdArray;
         $dataArray['sumSeries'] = $groupct;
+        $dataArray['temp'] = $tempb;
 
         $resultActual = $conn->query($sql);
         $dataArray['inverterArray'] = $nameArray;
@@ -182,7 +251,7 @@ class SollIstHeatmapChartService
 
                 if ($powersoll != 0) {
                     $value = round(($powerist / $powersoll) * (float) 100);
-                 } else {
+                } else {
                     $value = 0;
                 }
                 $value = ($value > (float) 100) ? (float) 100 : $value;

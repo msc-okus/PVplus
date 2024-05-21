@@ -28,6 +28,7 @@ class AvailabilityChartService
     {
         $dataArray = [];
         $dataArray['availability'] = $this->availabilityRepository->findAvailabilityAnlageDate($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
+        $dataArray['days'] = $from->diff($to)->format("%r%a");
         foreach ($dataArray['availability'] as $key => $value) {
             $dataArray['availability'][$key]['invAPart10'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case10'], 'case2' => $value['case20'], 'case3' => $value['case30'], 'case5' => $value['case50'], 'control' => $value['control0']],0);
             $dataArray['availability'][$key]['invAPart11'] = $this->availabilityByTicket->calcInvAPart1($anlage,['case1' => $value['case11'], 'case2' => $value['case21'], 'case3' => $value['case31'], 'case5' => $value['case51'], 'control' => $value['control1']],1);

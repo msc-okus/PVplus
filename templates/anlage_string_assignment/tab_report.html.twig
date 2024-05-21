@@ -36,13 +36,15 @@
                                 <td>final</td>
                                 <td class="text-right">
                                     <div >
-                                        <a href="{{ path('app_analysis_download_file', { fileName: report.file|url_encode }) }}" class="hollow button tiny action-icon shadow" target="_blank">
+
+                                        <a href="{{ path('app_analysis_download_file', { fileName: report.file|replace({'/': '-'})}) }}" class="hollow button tiny action-icon shadow" target="_blank">
                                             <span class="fa fa-file-export"></span>
                                         </a>
 
                                         <button  data-action="click->anlagestring#delete"  data-anlagestring-fileName="{{ report.file|url_encode }}" data-anlagestring-reportid="{{ report.id }}" class="hollow alert button tiny action-icon shadow">
                                             <span class="fa fa-trash-alt"></span>
                                         </button>
+
 
                                     </div>
                                 </td>

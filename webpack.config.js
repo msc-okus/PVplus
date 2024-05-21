@@ -34,6 +34,7 @@ Encore
     .addEntry('tools', './assets/js/tools.js')
     .addEntry('special_export', './assets/js/special_export.js')
     .addEntry('eigner', './assets/js/eigner.js')
+    .addEntry('notification_confirm', './assets/js/notification_confirm.js')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

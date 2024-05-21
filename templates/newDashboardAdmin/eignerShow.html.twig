@@ -69,7 +69,6 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {#                    {{ dump(content[0].activeAnlage) }}#}
                         {% for owner in content %}
                             {% for plant in owner.activeAnlage(is_granted('ROLE_G4N')) %}
                                 {% if plant.anlId in app.user.grantedList or is_granted('ROLE_G4N') %}
@@ -77,7 +76,7 @@
                                         <td>{{ plant.projektNr }}</td>
                                         <td>{{ plant.anlName }}</td>
                                         <td>{{ owner.firma }}</td>
-                                        <td>{{ plant.getPnom }}</td>
+                                        <td>{{ plant.getPnom|number_format(2, '.', ',') }} Kw</td>
                                         <td><img height='25' width='25' style='margin-top: -9px;' src='/images/flag/flag-{{ plant.country }}.png'  alt="{{ plant.country }}"/></td>
                                         <td>{{ plant.country }}</td>
                                         <td style="justify-items: center">

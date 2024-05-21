@@ -15,12 +15,13 @@ class AnlageStringAssignmentHandler
         private readonly AnlageStringAssigmentService $anlageStringAssigmentService,
         private readonly LogMessagesService $logMessages)
     {
+
     }
 
     /**
      * @throws NonUniqueResultException
      */
-    public function __invoke(AnlageStringAssignment $anlageStringAssigment): void
+    public function __invoke( AnlageStringAssignment $anlageStringAssigment): void
     {
         $anlageId = $anlageStringAssigment->getAnlId();
         $logId = $anlageStringAssigment->getlogId();

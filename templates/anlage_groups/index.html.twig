@@ -8,59 +8,67 @@
         url:path('app_anlage_groups_anlage_index',{'anlage':anlage})
     }) }}{% endif %}>
         <div class="grid-x grid-margin-x">
-            <div class="cell medium-3">
-                {{ form_start(form) }}
-
-                        {{ form_row(form.anlage) }}
-
-                {{ form_end(form) }}
+            <div class="cell medium-4">
+                <fieldset class="fieldset">
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell small-6">
+                            {{ form_start(form) }}
+                                {{ form_row(form.anlage) }}
+                            {{ form_end(form) }}
+                        </div>
+                        <div class="cell small-6">
+                            {% if show_form2 == true %}
+                                <form>
+                                    <input
+                                            name="q"
+                                            value="{{ searchTerm }}"
+                                            placeholder="Search specifics {{ anlage.anlName }} groups..."
+                                            type="search"
+                                            data-action="search-group#onSearchGroup"
+                                    >
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </fieldset>
             </div>
-
             {% if show_form2 == true %}
-                <div class="cell medium-3">
-                    <form>
-                        <input
-                                name="q"
-                                value="{{ searchTerm }}"
-                                placeholder="Search specifics {{ anlage.anlName }} groups..."
-                                type="search"
-                                data-action="search-group#onSearchGroup"
-                        >
-                    </form>
-                </div>
-                <div class="cell medium-1">
-                </div>
-                <div class="cell medium-5">
-                {{ form_start(form2, {'attr':{
-                    'data-controller':'submit-confirm',
-                    'data-action':'submit-confirm#onSubmit',
-                    'data-submit-confirm-title-value':'This action will change these settings for all this groups Plant. ',
-                    'data-submit-confirm-text-value':"Are you sure you want to continue!",
-                    'data-submit-confirm-icon-value':'warning',
-                }}) }}
+            <div class="cell medium-8 align-right">
+                <fieldset class="fieldset">
+                    {{ form_start(form2, {'attr':{
+                        'data-controller':'submit-confirm',
+                        'data-action':'submit-confirm#onSubmit',
+                        'data-submit-confirm-title-value':'This action will change these settings for all this groups Plant. ',
+                        'data-submit-confirm-text-value':"Are you sure you want to continue!",
+                        'data-submit-confirm-icon-value':'warning',
+                    }}) }}
 
                     <div class="grid-x grid-margin-x">
-                        <div class="cell small-2">
+                        <div class="cell auto">
+                            {{ form_row(form2.cabelLoss) }}
+                        </div>
+                        <div class="cell auto">
                             {{ form_row(form2.secureLoss) }}
                         </div>
-                        <div class="cell small-2">
+                        <div class="cell auto">
                             {{ form_row(form2.factorAC) }}
                         </div>
-                        <div class="cell small-2">
+                        <div class="cell auto">
                             {{ form_row(form2.gridLoss) }}
                         </div>
-                        <div class="cell small-2">
+                        <div class="cell auto">
                             {{ form_row(form2.limitAc) }}
                         </div>
-                        <div class="cell small-2">
+                        <div class="cell auto">
                             {{ form_row(form2.gridLimitAc) }}
                         </div>
-                        <div class="cell small-2">
-                            <button type="submit" class="button " formnovalidate>update</button>
+                        <div class="cell auto">
+                            <button type="submit" class="button small" formnovalidate>update</button>
                         </div>
                     </div>
                     {{ form_end(form2) }}
-                </div>
+                </fieldset>
+            </div>
             {% endif %}
         </div>
 
@@ -75,7 +83,6 @@
                     <th>AcGroup</th>
                     <th>UnitFirst</th>
                     <th>UnitLast</th>
-                    <th>ShadowLoss</th>
                     <th>CabelLoss</th>
                     <th>SecureLoss</th>
                     <th>FactorAC</th>
@@ -96,7 +103,6 @@
                         <td>{{ anlage_group.acGroup }}</td>
                         <td>{{ anlage_group.unitFirst }}</td>
                         <td>{{ anlage_group.unitLast }}</td>
-                        <td>{{ anlage_group.shadowLoss }}</td>
                         <td>{{ anlage_group.cabelLoss }}</td>
                         <td>{{ anlage_group.secureLoss }}</td>
                         <td>{{ anlage_group.factorAC }}</td>

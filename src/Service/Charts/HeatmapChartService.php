@@ -74,41 +74,66 @@ class HeatmapChartService
         $to = date('Y-m-d H:i', $sunset + 3600);
 
         switch ($anlage->getConfigType()) {
-            case 3:
-            case 4:
-                $nameArray = $this->functions->getNameArray($anlage, 'ac');
-                $group = 'group_ac';
-                $groupct = count($anlage->getGroupsAc());
+            case 1:
+                $group = 'group_dc';
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                $idArray = $this->functions->getIdArray($anlage, 'dc');
                 break;
             default:
-                $nameArray = $this->functions->getNameArray($anlage, 'dc');
-                $group = 'group_dc';
-                $groupct = count($anlage->getGroupsDc());
+                $group = 'group_ac';
+                $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                $idArray = $this->functions->getIdArray($anlage, 'ac');
         }
 
+        $groupct = count($nameArray);
+
+        $invNameArray = [];
         if ($groupct) {
             if ($sets == null) {
                 $min = 1;
                 $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
+
+                $temp = '';
+                $j = 1;
+                for ($i = 0; $i < $max; ++$i) {
+                    $invId = $i+1;
+                    $temp = $temp.$group." = ".$invId." OR ";
+                    $invIdArray[$i+1] =  $idArray[$i+1];
+                    $invNameArray[$i+1] =  $nameArray[$i+1];
+                }
+
+                $temp = substr($temp, 0, -4);
+                $sqladd = "AND ($temp) ";
+
                 $max = (($max > 50) ? '50' : $max);
                 $sqladd = "AND $group BETWEEN '$min' AND '$max'";
             } else {
-                $res = explode(',', $sets);
-                $min = (int)ltrim($res[0], "[");
-                $max = (int)rtrim($res[1], "]");
-                if ($max > $groupct) $max = $groupct;
-                if (($groupct <= $min)) $min = 1;
-                $sqladd = "AND $group BETWEEN ".(empty($min)? '0' : $min)." AND ".(empty($max)? '50' : $max)."";
+                $temp = '';
+                $j = 1;
+                for ($i = 0; $i < count($nameArray); ++$i) {
+                    if(str_contains($sets, $nameArray[$i+1])){
+                        $invId = $i+1;
+                        $temp = $temp.$group." = ".$invId." OR ";
+                        $invIdArray[$i+1] =  $idArray[$i+1];
+                        $invNameArray[$j] =  $nameArray[$i+1];
+                        $j++;
+                    }
+                }
+
+                $temp = substr($temp, 0, -4);
+                $sqladd = "AND ($temp) ";
             }
         } else {
-               $min = 1;
-               $max = 50;
-               $sqladd = "AND $group BETWEEN '$min' AND '$max'";
+            $min = 1;$max = 5;
+            $sqladd = "AND $group BETWEEN '$min' AND ' $max'";
         }
 
-        $dataArray['minSeries'] = $min;
-        $dataArray['maxSeries'] = $max;
+
+        // the array for range slider min max
+        $dataArray['invNames'] = $invNameArray;
+        $dataArray['invIds'] = $invIdArray;
         $dataArray['sumSeries'] = $groupct;
+        $dataArray['temp'] = $temp;
 
         //fix the sql Query with an select statement in the join this is much faster
         $sql = "SELECT T1.istPower,T1.$group,T1.ts,T2.g_upper
@@ -161,6 +186,7 @@ class HeatmapChartService
                 $dataArray['chart'][$counter]['istkwh'] =  $poweristkwh ;
                 */
                 ++$counter;
+                ++$counterInv;
             }
             $dataArray['offsetLegend'] = 0;
         }

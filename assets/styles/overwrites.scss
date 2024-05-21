@@ -467,17 +467,17 @@
     .notifyheader {
         display: inline-block;
         font-size: 80px; // Icon Size
-      //  width: 1em;
+        //  width: 1em;
         height: 0.4em;
         letter-spacing: 0;
         position: relative;
-      //  border-radius: 20%;
-      //  background: linear-gradient(45deg, #fabbfd, #00b7b5);
-      //  box-shadow: 0 0 40px rgba(#000, 0.15);
+        //  border-radius: 20%;
+        //  background: linear-gradient(45deg, #fabbfd, #00b7b5);
+        //  box-shadow: 0 0 40px rgba(#000, 0.15);
 
         &-label {
             font-size: 11px;
-           // position: absolute;
+            // position: absolute;
             top: 100%;
             left: 0;
             right: 0;
@@ -525,7 +525,7 @@
         border-spacing: 0;
     }
 
-   .stickyheader th {
+    .stickyheader th {
         position: sticky;
         top: 7.1em;
         background-color: #F9F8F8;
@@ -533,7 +533,7 @@
         border-top: 2px solid #71A8E2;
         border-right: #eee 0px solid;
         z-index: 100;
-   }
+    }
 
     table {
         &#background-tasks {
@@ -583,6 +583,32 @@
         padding-bottom: 2rem;
         padding-top: 2rem;
         min-height: calc(100vh - 200px);
+
+        .select-inverters-frame{
+            position: relative;
+            margin-left: 10px;
+            .hiddeninvs{
+                display: none;
+            }
+            .cell{
+                float: left;
+                .invselector{
+                    width: 150px !important;
+                    float: left;
+                    font-size: 90%;
+                }
+            }
+        }
+
+        #selectInverters {
+            width: 130px;
+        }
+
+        #clearAll{
+            width: 120px;
+            float: right;
+            margin-right: 20% !important;
+        }
 
         .no-margin {
             margin: 0 !important;
@@ -736,6 +762,9 @@
                 min-height: 320px;
 
                 ul.statusLights {
+                    .has-tip{
+                        color: $g4n-white;
+                    }
                     list-style-type: none; margin: 0;
 
                     li {
@@ -747,8 +776,6 @@
                             &.headline {font-size: 12px;}
                         }
                     }
-
-
                     .label-normal {background-color: $success}
                     .label-warning {background-color: $warning}
                     .label-alert {background-color: $danger}
@@ -757,9 +784,7 @@
         }
 
         #ownerNew{
-
                 ul.statusLights {
-
                     li{
                         margin-right: 2px;
                     }
@@ -767,7 +792,6 @@
                     .label-warning {background-color: $warning}
                     .label-alert {background-color: $danger}
                 }
-
         }
 
         #plants{
@@ -873,7 +897,7 @@
                 }
 
                 .input-group-label {
-                   // height: 2.25rem;
+                    // height: 2.25rem;
 
                 }
                 .button-group > .button {
@@ -968,7 +992,48 @@
                 a.chart-label {text-decoration: none; cursor: pointer;}
             }
 
+            .selectInvertersContent{
+                color: #1779ba;
+                display: block;
+                background-color: #f2f4f5;
+                padding: 10px 10px 5px 10px;
+                min-width: 800px;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                z-index: 8000;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                top: -1500px;
+                opacity: 0;
+                transition: opacity 2s;
+                padding: 15px;
+                h3 {
+                    display: block;
+                    font-size: 1.17em;
+                    margin-block-start: 1em;
+                    margin-block-end: 1em;
+                    margin-inline-start: 0px;
+                    margin-inline-end: 0px;
+                    font-weight: bold;
+                    color: #0a0a0a;
+                }
+                .invSelector{
+                    float:left !important;
+                }
+                .js-checkbox{
+                    margin: 5px 5px 0 0 !important;
+                }
+                .siClose{
+                    float: right;
+                    padding-right: 10px;
+                    font-size: 90%;
+                    color: buttontext;
+                    cursor: pointer;
+                }
+            }
         }
+
+
 
         //--------------------------------------------------
         [id^="chart"][id$="_chart"]{
@@ -1096,7 +1161,6 @@
                 }
             }
         }
-
     }
 
     .message-log{

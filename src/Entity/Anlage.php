@@ -457,7 +457,7 @@ class Anlage implements \Stringable
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageMonth::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $anlageMonth;
 
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageInverters::class)]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageInverters::class, cascade: ['persist', 'remove'])]
     private Collection $Inverters;
 
     #[ORM\Column(type: 'string', length: 20)]
@@ -524,7 +524,7 @@ class Anlage implements \Stringable
     private bool $hasPannelTemp = false;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: Ticket::class, cascade: ['remove'])]
-    private Collection $tickets;
+    private ?Collection $tickets;
 
     #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: EconomicVarNames::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private ?EconomicVarNames $economicVarNames = null;
@@ -550,8 +550,8 @@ class Anlage implements \Stringable
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $lossesForecast = '5';
 
-    #[ORM\OneToMany(mappedBy: 'plant', targetEntity: AnlageFile::class, orphanRemoval: true)]
-    private Collection $anlageFiles;
+    #[ORM\OneToMany(mappedBy: 'plant', targetEntity: AnlageFile::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private ?Collection $anlageFiles;
 
     #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: AnlageSettings::class, cascade: ['persist', 'remove'])]
     private ?AnlageSettings $settings = null;
@@ -680,7 +680,7 @@ class Anlage implements \Stringable
     #[ORM\Column(nullable: true)]
     private ?bool $ppcBlockTicket = false;
 
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageStringAssignment::class)]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageStringAssignment::class, cascade: ['persist', 'remove'])]
     private Collection $anlageStringAssignments;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]

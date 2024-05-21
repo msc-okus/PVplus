@@ -19,15 +19,16 @@ export default class extends Controller {
 
     onSubmit(event) {
         event.preventDefault();
-        var title = this.titleValue;
+
+        let title = this.titleValue;
         if ($('#titletextflex').length > 0) {
-            var titletext = document.getElementsByClassName('titletextflex')[0];
-            if (titletext.textContent != '') {
-                var title = titletext.textContent;
+            const titletext = document.getElementsByClassName('titletextflex')[0];
+            if (titletext.textContent !== '') {
+                title = titletext.textContent;
             }
         }
         Swal.fire({
-            title: title || null,
+            title: this.titleValue || null,
             text: this.textValue || null,
             icon: this.iconValue || null,
             showCancelButton: true,
@@ -51,5 +52,4 @@ export default class extends Controller {
         }
 
     }
-
 }
