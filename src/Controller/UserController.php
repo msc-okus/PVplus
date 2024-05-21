@@ -286,8 +286,10 @@ class UserController extends BaseController
                 }
             }
 
-            $user->eraseCredentials();
-            #$em->remove($user);
+            $emailParts = explode('@', $user->getEmail());
+            $user->setEmail("locked@".$emailParts[1]);
+            $user->setPassword('');
+            $user->setLocked(true);
             $em->flush();
             $this->addFlash('warning', 'User are locked.');
 

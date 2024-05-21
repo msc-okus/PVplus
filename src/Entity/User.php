@@ -228,7 +228,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getPassword(): string
     {
-        return (string) $this->password;
+        return $this->password;
     }
 
     public function setPassword(string $password): self
@@ -246,10 +246,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        $emailParts = explode('@', $this->email);
-        $this->email = "locked@".$emailParts[1];
-        $this->password = "";
-        $this->locked = true;
+
     }
 
     public function getAccessList(): array
