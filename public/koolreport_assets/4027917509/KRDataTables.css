@@ -1,0 +1,32 @@
+krwidget table.dataTable tr.dtrg-group td:first-child {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+krwidget table.dataTable tr.dtrg-group.dtrg-level-1 td:first-child {
+    padding-left: 2em;
+}
+
+krwidget table.dataTable tr.dtrg-group.dtrg-level-2 td:first-child {
+    padding-left: 4em;
+}
+
+krwidget table.dataTable tr.dtrg-group.dtrg-level-3 td:first-child {
+    padding-left: 6em;
+}
+
+krwidget table.dataTable tr.dtrg-group.dtrg-level-4 td:first-child {
+    padding-left: 8em;
+}
+
+.fa, .far {
+    cursor: pointer;
+}
+
+td.details-control {
+    text-align: center;
+}
+
+table.dataTable thead th.details-control {
+    background-image: none;
+}

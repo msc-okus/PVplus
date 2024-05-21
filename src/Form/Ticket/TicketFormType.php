@@ -182,7 +182,7 @@ class TicketFormType extends AbstractType
             // ### List of Ticket Dates
             ->add('dates', CollectionType::class, [
                 'entry_type' => TicketDateEmbeddedFormType::class,
-                'allow_add' => true, //This should do the trick.
+                'allow_add' => true,
             ])
             ->add('KpiStatus', ChoiceType::class, [
                 'choices' => self::kpiStatus(),

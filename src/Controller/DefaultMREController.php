@@ -6,12 +6,16 @@ use App\Entity\Anlage;
 use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use App\Repository\TicketRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\AvailabilityService;
 use App\Service\CheckSystemStatusService;
 use App\Service\ExportService;
 use App\Service\ExpectedService;
 use App\Service\PRCalulationService;
+use App\Service\SystemStatus2;
+use App\Service\TicketsGeneration\AlertSystemV2Service;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -38,33 +42,59 @@ class DefaultMREController extends BaseController
     #[Route(path: '/mr/test')]
     public function test(): Response
     {
-        $currentDir = "/home/g4npvdbi/public_html";
-        dump($this->kernelProjectDir);
-        $process = new Process(["php -dsafe_mode=Off $currentDir/anlagen/goldbeck/SUNROCK_Moerdijk/loadDataFromApi.php"]);
-        $process->run();
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
+        $currentDir = "../..";
+        $process = exec("php -dsafe_mode=Off $currentDir/anlagen/goldbeck/SUNROCK_Moerdijk/loadDataFromApi.php");
+        dump($process);
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
             'availabilitys' => '',
-            'output' => $process->getOutput(),
+            'output' => $process,
         ]);
     }
 
     #[Route(path: '/mr/status')]
-    public function updateStatus(CheckSystemStatusService $checkSystemStatus): Response
+    public function updateStatus(SystemStatus2 $checkSystemStatus, AnlagenRepository $anlagenRepository): Response
     {
+        $anlage = $anlagenRepository->find('93');
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
             'availabilitys' => '',
-            'output' => $checkSystemStatus->checkSystemStatus(),
+            'output' => $checkSystemStatus->systemStatus($anlage),
         ]);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
+    #[Route(path: '/mr/expectedtickets')]
+    public function expectedTickets(AlertSystemv2Service $alertServiceV2, AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em): Response
+    {
+        $anlage = $anlagenRepository->find('92');
+        $start = new \DateTime('2024-01-01');
+        $end = new \DateTime('now');
+
+        $tickets = $ticketRepo->findForSafeDelete($anlage, $start->format('Y-m-d'), $end->format('Y-m-d'));
+        foreach ($tickets as $ticket) {
+            $dates = $ticket->getDates();
+            foreach ($dates as $date) {
+                $em->remove($date);
+            }
+            $em->remove($ticket);
+        }
+        $em->flush();
+
+        for ($stamp = $start->getTimestamp(); $stamp <= $end->getTimestamp(); $stamp = $stamp + (24 * 3600)) {
+            $alertServiceV2->checkExpected($anlage, date('Y-m-d 12:00:00', $stamp));
+        }
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Update Expected Ticket '.$anlage->getAnlName(),
+            'availabilitys' => '',
+            'output' => 'fertig',
+        ]);
+    }
     /**
      * @throws NonUniqueResultException
      */

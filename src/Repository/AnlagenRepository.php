@@ -26,16 +26,6 @@ class AnlagenRepository extends ServiceEntityRepository
         parent::__construct($registry, Anlage::class);
     }
 
-    public function getSymfonyImportPlants()
-    {
-        $qb = $this->createQueryBuilder('plants')
-            ->leftJoin('plants.settings', 'settings')
-            ->where('settings.symfonyImport = true')
-        ;
-
-        return $qb->getQuery()
-            ->getResult();
-    }
 
     public static function selectLegendType($type): Criteria
     {
@@ -376,8 +366,7 @@ class AnlagenRepository extends ServiceEntityRepository
     public function findAllSymfonyImport(): array
     {
         $qb = self::querBuilderFindAllActiveAndAllowed();
-        $qb
-            ->andWhere('settings.symfonyImport = true');
+        $qb->andWhere('settings.symfonyImport = true'); // OR LENGTH(a.pathToImportScript) > 0');
 
         return $qb->getQuery()->getResult();
     }

@@ -1,6 +1,6 @@
 {% import _self as macros %}
 
-{% macro availabilityTable(availability, aktAnlage) %}
+{% macro availabilityTable(availability, aktAnlage, days) %}
     {% set pa0   = 0 %}
     {% set pa1   = 0 %}
     {% set pa2   = 0 %}
@@ -75,7 +75,7 @@
             {% for stati in availability %}
                 <tr>
                     <td>{{ stati.stamp|date("Y-m-d") }} </td>
-                    <td style="text-align: left;">{{ aktAnlage.inverterFromAnlage[stati.inverter] }} <br> ({{ stati.inverter }})</td>
+                    <td style="text-align: left;">{% if aktAnlage.inverterFromAnlage[stati.inverter] is defined() %}{{ aktAnlage.inverterFromAnlage[stati.inverter] }}{% endif %} <br> ({{ stati.inverter }})</td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">PA.0 (Open Book) </span>
                         {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">PA.1 ({{ aktAnlage.eigner.settings.nameDep1 }})</span>{% endif %}
@@ -138,10 +138,10 @@
                         {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.invAPart13|number_format(2, ',', '.') }}</span>{% endif %}
                     </td>
                     <td class="toggle_visibility_td">
-                        <span class="topline js-pa-0">{{ stati.invA0|number_format(4, ',', '.') }}</span>
-                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.invA1|number_format(4, ',', '.') }}</span>{% endif %}
-                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.invA2|number_format(4, ',', '.') }}</span>{% endif %}
-                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.invA3|number_format(4, ',', '.') }}</span>{% endif %}
+                        <span class="topline js-pa-0">{{ (stati.invA0 / days)|number_format(4, ',', '.') }}</span>
+                        {% if not(aktAnlage.settings.disableDep1) %}<span data-toggle-one-target = "item" class="topline js-pa-1">{{ (stati.invA1 / days)|number_format(4, ',', '.') }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}<span data-toggle-two-target = "item" class="topline js-pa-2">{{ (stati.invA2 / days)|number_format(4, ',', '.') }}</span>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}<span data-toggle-three-target = "item" class="topline js-pa-3">{{ (stati.invA3 / days)|number_format(4, ',', '.') }}</span>{% endif %}
                     </td>
                 </tr>
                 {% set pa0 = pa0 + stati.invA0 %}
@@ -170,10 +170,10 @@
                 <td>{{ case6 }} / {{ case6 / 4 }}</td>
                 <td>{{ control }} / {{ control / 4 }}</td>
                 <td></td>
-                <td><b>PA 0: </b>{{ pa0|number_format(4, ',', '.') }}<br>
-                    {% if not(aktAnlage.settings.disableDep1) %}<b>PA 1: </b>{{ pa1|number_format(4, ',', '.') }}<br>{% endif %}
-                    {% if not(aktAnlage.settings.disableDep2) %}<b>PA 2: </b>{{ pa2|number_format(4, ',', '.') }}<br>{% endif %}
-                    {% if not(aktAnlage.settings.disableDep3) %}<b>PA 3: </b>{{ pa3|number_format(4, ',', '.') }}{% endif %}
+                <td><b>PA 0: </b>{{ (pa0 / days)|number_format(4, ',', '.') }}<br>
+                    {% if not(aktAnlage.settings.disableDep1) %}<b>PA 1: </b>{{ (pa1 / days)|number_format(4, ',', '.') }}<br>{% endif %}
+                    {% if not(aktAnlage.settings.disableDep2) %}<b>PA 2: </b>{{ (pa2 / days)|number_format(4, ',', '.') }}<br>{% endif %}
+                    {% if not(aktAnlage.settings.disableDep3) %}<b>PA 3: </b>{{ (pa3 / days)|number_format(4, ',', '.') }}{% endif %}
                 </td>
             </tr>
             </tbody>
@@ -185,7 +185,7 @@
 
 <div class="grid-x">
     <div class="cell medium-9">
-        {{ macros.availabilityTable(content.availability, aktAnlage) }}
+        {{ macros.availabilityTable(content.availability, aktAnlage, content.days) }}
     </div>
     <div class="cell medium-3">
         <div class="callout secondary text-left" >
@@ -197,23 +197,24 @@
 
                 <dt>Case 1 (t<sub>i</sub> - part 1)</dt>
                 <dd>irradiation below limit value<br>
-                    <small>G [W/qm] > {{ aktAnlage.threshold1PA }} && G [W/qm] <= {{ aktAnlage.threshold2PA }}</small></dd>
+                    <small><code>G [W/qm] > <b>threshold1</b> && G [W/qm] <= <b>threshold2</b></code></small></dd>
 
                 <dt>Case 2 (t<sub>i</sub> - part 2)</dt>
                 <dd>inverter available under operating conditions<br>
-                    <small>G [W/qm] > {{ aktAnlage.threshold2PA }}</small></dd>
-                <dd><br>(sum from case1 and case 2 are t<sub>i</sub>)</dd>
+                    <small><code>G [W/qm] > <b>threshold2</b></code></small>
+                    <br>(sum from case1 and case 2 are t<sub>i</sub>)
+                </dd>
 
                 <dt>Case 3</dt>
                 <dd>inverter not available under operating conditions<br>
-                    <small>G [W/qm] > {{ aktAnlage.threshold2PA }} && Pac [kWh] <= 0</small></dd>
+                    <small>G [W/qm] > threshold2 && Pac [kWh] <= 0</small></dd>
 
                 <dt>Case 4</dt>
                 <dd>inverter not available because of curtailment<br>
-                    <small>G [W/qm] > {{ aktAnlage.threshold2PA }} && Pac [kWh] > 0 && CosPhi = 0</small></dd>
+                    <small><code>G [W/qm] > <b>threshold2</b> && Pac [kWh] > 0 && CosPhi = 0</code></small></dd>
 
                 <dt>Case 5 (t<sub>iFM</sub>)</dt>
-                <dd>inverter not available because of maintenance<br>
+                <dd>inverter not available because of force majour<br>
                     <small></small></dd>
 
                 <dt>Case 6</dt>
@@ -221,17 +222,23 @@
                     <small></small></dd>
 
                 <dt>Control (t<sub>i,theo</sub>)</dt>
-                <!--<dd>control field case 1 + case 2 + case 5 + case 6<br>-->
-                    <small>G [W/qm] > 0</small></dd>
+                <dd><small><code>G [W/qm] > 0</code></small></dd>
 
                 <dt>Availability cases</dt>
-                <dd> the individual availability of an inverter or group. Full availability: 100%<br>
-                    <!--<small>G [W/qm] > 0</small>--></dd>
+                <dd> the individual availability of an inverter or group.<br>Full availability: 100%</dd>
 
                 <dt>Relative availability in plant</dt>
-                <dd> the relative availability of and inverter or group within the PV plant. Full availability is equal to the ratio of inverter power to total plant power. Total plant availability: the sum of all relative inverter availabilities.  <br>
-                    <!--<small>G [W/qm] > 0</small>--></dd>
+                <dd> the relative availability of and inverter or group within the PV plant. Full availability is equal to the ratio of inverter power to total plant power. Total plant availability: the sum of all relative inverter availabilities.</dd>
 
+                <dt>Definition threshold</dt>
+                <dd>
+                    <small>
+                        OpenBook: threshold1 = {{ aktAnlage.threshold1PA0 }}, threshold2 = {{ aktAnlage.threshold2PA0 }}<br>
+                        {% if not(aktAnlage.settings.disableDep1) %}{{ aktAnlage.eigner.settings.nameDep1 }}: threshold1 = {{ aktAnlage.threshold1PA1 }}, threshold2 = {{ aktAnlage.threshold2PA1 }}<br>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep2) %}{{ aktAnlage.eigner.settings.nameDep2 }}: threshold1 = {{ aktAnlage.threshold1PA2 }}, threshold2 = {{ aktAnlage.threshold2PA2 }}<br>{% endif %}
+                        {% if not(aktAnlage.settings.disableDep3) %}{{ aktAnlage.eigner.settings.nameDep3 }}: threshold1 = {{ aktAnlage.threshold1PA3 }}, threshold2 = {{ aktAnlage.threshold2PA3 }}{% endif %}
+                    </small>
+                </dd>
             </dl>
         </div>
     </div>

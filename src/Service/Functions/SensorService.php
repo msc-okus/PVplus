@@ -219,10 +219,28 @@ class SensorService
                         $replaceArray = $this->getPvSystIrr($anlage, $pvSystStartDate, $pvSystEndDate);
                         $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData, $ticketDate);
                     } elseif ($ticketDate->isReplaceEnergyG4N()) {
-                        // do nothing at the moment
+                        //ToDo: implement replacement by G4N Expected
                     } else {
-                        $replaceValueIrr = (float)$ticketDate->getValueIrr();
-                        // ToDo: Repolace IRR algorithmus
+                        $replaceValueIrr = $ticketDate->getValueIrr() * 1000;
+                        $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
+                        if ($replaceValueIrr > 0) {
+                            $sensorData['irr1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['irr1'] - $tempWeatherArray['irr1'] + $replaceValueIrr : $sensorData['irr1'];
+                            $sensorData['irr2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['irr2'] - $tempWeatherArray['irr2'] + $replaceValueIrr : $sensorData['irr2'];
+                            $sensorData['irr3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['irr3'] - $tempWeatherArray['irr3'] + $replaceValueIrr : $sensorData['irr3'];
+
+                            $sensorData['irrEast1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['irrEast1'] - $tempWeatherArray['irr1'] + $replaceValueIrr : $sensorData['irrEast1'];
+                            $sensorData['irrEast2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['irrEast2'] - $tempWeatherArray['irr2'] + $replaceValueIrr : $sensorData['irrEast2'];
+                            $sensorData['irrEast3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['irrEast3'] - $tempWeatherArray['irr3'] + $replaceValueIrr : $sensorData['irrEast3'];
+
+                            $sensorData['irrWest1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['irrWest1'] - $tempWeatherArray['irr1'] + $replaceValueIrr : $sensorData['irrWest1'];
+                            $sensorData['irrWest2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['irrWest2'] - $tempWeatherArray['irr2'] + $replaceValueIrr : $sensorData['irrWest2'];
+                            $sensorData['irrWest3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['irrWest3'] - $tempWeatherArray['irr3'] + $replaceValueIrr : $sensorData['irrWest3'];
+
+                            $theoEnergie = $replaceValueIrr * $anlage->getPnom() / 1000;
+                            $sensorData['theoPowerPA1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['theoPowerPA1'] - $tempWeatherArray['theoPowerPA1'] + $theoEnergie : $sensorData['theoPowerPA1'];
+                            $sensorData['theoPowerPA2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['theoPowerPA2'] - $tempWeatherArray['theoPowerPA2'] + $theoEnergie : $sensorData['theoPowerPA2'];
+                            $sensorData['theoPowerPA3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['theoPowerPA3'] - $tempWeatherArray['theoPowerPA3'] + $theoEnergie : $sensorData['theoPowerPA3'];
+                        }
                     }
                     break;
             }

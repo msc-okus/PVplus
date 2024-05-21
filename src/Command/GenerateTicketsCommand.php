@@ -67,9 +67,7 @@ class GenerateTicketsCommand extends Command
             }
 
             foreach ($anlagen as $anlage) {
-
                 try {
-
                     $tickets = $this->ticketRepo->findForSafeDelete($anlage, $optionFrom, $optionTo);
                     foreach ($tickets as $ticket) {
                         $dates = $ticket->getDates();
@@ -116,7 +114,7 @@ class GenerateTicketsCommand extends Command
                     }
                     $io->comment($anlage->getAnlName());
 
-                    }catch(Exception $e){
+                    }catch(\Exception $e){
 
 
                     }
