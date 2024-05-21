@@ -87,15 +87,7 @@ class InternalAlertSystemService
                 WHERE stamp ='$time' ";
         $resp = $conn->query($sql);
         $plantStatus['countExp']  = $resp->rowCount() !== count($anlage->getInverterFromAnlage());
-        /*
-        $sql = "SELECT *
-                FROM ". $anlage->getDbNamePPC()."
 
-                WHERE stamp = '$time' ";
-        $resp = $conn->query($sql);
-
-        $plantStatus['countPPC'] =  $resp->rowCount() === 0;
-*/
         $plantStatus['countPPC'] = false;
         return $plantStatus;
     }

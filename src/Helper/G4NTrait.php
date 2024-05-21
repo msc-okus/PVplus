@@ -32,7 +32,7 @@ trait G4NTrait
         return trim($string, $trimChar);
     }
 
-    public static function getCetTime($format = 'timestamp')
+    public static function getCetTime($format = 'timestamp'): \DateTime|int|string
     {
         $date = new \DateTime('now', new \DateTimeZone('UTC'));
         if ($date->format('I') == 1) {
@@ -80,7 +80,7 @@ trait G4NTrait
         return date('Y-m-d', strtotime((string) $date)) == date('Y-m-d', self::getCetTime());
     }
 
-    public static function isInTimeRange($stamp = '')
+    public static function isInTimeRange($stamp = ''): bool
     {
         if ($stamp == '') {
             $currentTime = self::getCetTime();
@@ -203,8 +203,9 @@ trait G4NTrait
      * Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms<br>
      * adjust Plant timestamp with offset from entity plant ($anlage->getAnlZeitzone()).
      *
+     * @param Anlage $anlage
      * @param $stamp
-     *
+     * @param bool $reverse
      * @return string
      * @throws Exception
      */
@@ -245,7 +246,11 @@ trait G4NTrait
     /**
      * as the name of the function describs, get the plants nearest timezone.
      *
+     * @param float $cur_lat
+     * @param float $cur_long
+     * @param string $country_code
      * @return string
+     * @throws Exception
      */
     public function getNearestTimezone(float $cur_lat, float $cur_long, string $country_code = ''): string
     {
@@ -405,6 +410,22 @@ trait G4NTrait
         $returnArray['array2'] = array_diff($array2, $array1);
         return $returnArray;
     }
+
+
+    // Helper for Array Merge
+    static public function array_merge_recursive_distinct(array $array1, array $array2): array
+    {
+        $merged = $array1;
+        foreach ($array2 as $key => $value) {
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+                $merged[$key] = self::array_merge_recursive_distinct($merged[$key], $value);
+            } else {
+                $merged[$key] = $value;
+            }
+        }
+        return $merged;
+    }
+
 
     /**
      *

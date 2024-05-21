@@ -90,8 +90,6 @@ class AnlageStringAssignmentController extends AbstractController
         $createForm->handleRequest($request);
         if ($createForm->isSubmitted() && $createForm->isValid()) {
 
-
-
             $anlage = $createForm['anlage']->getData();
             $anlageId = $anlage->getAnlagenId();
             $tableName='db__string_pv_'. $anlage->getAnlIntnr();
@@ -104,6 +102,7 @@ class AnlageStringAssignmentController extends AbstractController
             $job .= " - " . $this->getUser()->getname();
             $logId = $logMessages->writeNewEntry($anlage, 'AnlageStringAssignment', $job, $uid);
 
+          //  $anlageStringAssigmentService->exportMontly((int)$anlageId,(int)$year,(int)$month,$currentUserName,$publicDirectory,$logId);
 
            $message = new \App\Message\Command\AnlageStringAssignment((int)$anlageId,(int)$year,(int)$month,$currentUserName,$tableName,$logId);
            $messageBus->dispatch($message);

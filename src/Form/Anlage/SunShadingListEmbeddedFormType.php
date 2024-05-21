@@ -115,21 +115,24 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 30px'],
                 'required' => true,
             ])
+               /*
                ->add('has_row_shading', SwitchType::class, [
                    'label' => 'Use this row shading data',
                    'help' => '[Yes / No]',
                    'required' => false,
                ])
+               */
                ->add('mod_alignment', ChoiceType::class, [
                    'label' => 'The Modul Alignment',
                    'choices' => array(
-                       'Portrait'   => '0',
-                       'Landscape' => '1',
+                       'Landscape' => '0',
+                       'Portrait Fullzell'   => '1',
+                       'Portrait Halfzell'   => '2',
                    ),
                    'multiple' => false,
                    'expanded' => false,
-                   'help' => '[The modul alignment portrait/landscape]',
-                   'attr' => ['pattern' => '[0-9]{10}', 'maxlength' => 10, 'style' => 'width: 125px'],
+                   'help' => '[The modul alignment portrait or landscape]',
+                   'attr' => ['pattern' => '[0-9]{10}', 'maxlength' => 18, 'style' => 'width: 145px'],
                ])
                ->add('mod_long_page', TextType::class, [
                    'label' => 'Modul long page in mm',
