@@ -97,7 +97,7 @@
                                                             <input id="I-{{ loop.index }}" type="checkbox"
                                                                    class="js-checkbox"
                                                                    name="{{ inverter['inv'] }}" {{ inverter['select'] }} {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %}
-                                                                   data-action="click->ticket-edit#saveCheck"/>
+                                                                   />
                                                             <label for="I-{{ loop.index }}" class="">{{ inverter['inv'] }}</label>
                                                         </div>
                                                     {% endfor %}

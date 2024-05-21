@@ -1026,7 +1026,6 @@ export default class extends Controller {
     }
 
     setHiddenValue(){
-
         this.formBeginTarget.dataset.originalValue = $(this.formBeginTarget).prop('value');
         this.formEndTarget.dataset.originalValue = $(this.formEndTarget).prop('value');
     }
@@ -1181,8 +1180,9 @@ export default class extends Controller {
     }
     disableSave(){
         $(this.saveButtonTarget).attr('disabled', 'disabled');
+        $(this.CalloutTarget).removeClass('is-hidden');
         $(this.AlertInverterSubmitTarget).removeClass('is-hidden');
-        $().addClass('is-hidden');
+        console.log("we should be hidding");
     }
     submitInverters(event){
         event.preventDefault();
@@ -1190,7 +1190,7 @@ export default class extends Controller {
         this.saveCheck();
     }
     saveCheck(){
-        event.preventDefault();
+        //event.preventDefault();
         //getting a string with the inverters so later we can check if there is any or none
         let inverterString = '';
         let inverterNameString = '';
