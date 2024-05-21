@@ -3,7 +3,7 @@
 {% block body %}
     <div class="grid-x grid-margin-x grid-padding-x">
         <div class="cell">
-            <h1>Edit User</h1>
+            <h1>Edit User {% if user.locked %}<span style="color: red; text-transform: uppercase;">this User is locked</span>{% endif %}</h1>
         </div>
     </div>
     {{ include('user/_form.html.twig') }}

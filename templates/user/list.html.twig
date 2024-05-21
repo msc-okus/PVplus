@@ -45,7 +45,7 @@
             {% for user in pagination %}
                 <tr>
                     <td>{{ user.userId }}</td>
-                    <td>{{ user.userName }}</td>
+                    <td><span {% if user.locked %}style="text-decoration: line-through;"{% endif %}>{{ user.userName }}</span></td>
                     <td>{{ user.email }}</td>
                   {#  <td>{{ user.getEignerIdNew }}</td> #}
                     <td><small>{{ user.rolesAsString }}</small></td>

@@ -34,8 +34,9 @@ class UserFormType extends AbstractType
         /** @var Eigner $eigner_l */
 
         $user = $options['data'] ?? null;
-        $isEdit = $user && $user->getUserId();
-        $anlagen = [];
+        // Wenn User 'gelocked' ist dann setze $disabled auf true
+        $readonly = $user && $user->getLocked() ;
+
         //the logged eigner id
         if ($this->security->isGranted('ROLE_G4N')){
             $eigner = null;
@@ -56,9 +57,9 @@ class UserFormType extends AbstractType
         } else {
             $grantedArray = [];
         }
-
+        $anlagenid = [];
         if ($anlagen){
-            foreach ($anlagen as $key => $anlage){
+            foreach ($anlagen as $anlage){
                 $anlagenid[] = [strtoupper((string) $anlage['country'])." | ".$anlage['anlName'] => $anlage['anlId']];
             }
         }
@@ -75,7 +76,10 @@ class UserFormType extends AbstractType
             ->add('username', TextType::class, [
                 'label' => 'User Name',
                 'required' => true,
-                'attr' => ['placeholder' => 'Benutzername'],
+                'attr' => [
+                    'placeholder' => 'Benutzername',
+                    'readonly' => $readonly,
+                ],
             ])
             ->add('newPlainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
@@ -84,17 +88,24 @@ class UserFormType extends AbstractType
                 'second_options' => ['label' => 'Repeat Password'],
                 'required' => true,
                 'mapped' => false,
-                'attr' => ['autocomplete'=>'new-password'],
+                'attr' => [
+                    'readonly' => $readonly,
+                ],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'eMail address',
                 'empty_data' => '',
-                'required' => true,
+                'required' => true, 'attr' => [
+                    'readonly' => $readonly,
+                ],
             ])
             ->add('roles', ChoiceType::class, [
                 'choices' => $choicesRolesArray,
                 'multiple' => true,
                 'expanded' => true,
+                'attr' => [
+                    'readonly' => $readonly,
+                ],
             ])
             ->add('eigners', EntityType::class, [
                 'class' => Eigner::class,

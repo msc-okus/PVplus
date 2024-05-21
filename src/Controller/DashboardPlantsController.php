@@ -22,6 +22,10 @@ use App\Service\FunctionsService;
 class DashboardPlantsController extends BaseController
 {
     use G4NTrait;
+
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route(path: '/api/plants/{eignerId}/{anlageId}/{analyse}', name: 'api_dashboard_plant_analsyse', methods: ['GET','POST'])]
     public function analysePlantAPI($eignerId, $anlageId, $analyse, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, HeatmapChartService $heatmapChartService): Response
     {
@@ -72,12 +76,12 @@ class DashboardPlantsController extends BaseController
            case 'sollisttempanalyse':
                break;
            default:
-               return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
+               return new Response(null, Response::HTTP_NO_CONTENT);
         }
         if (is_array($content) or $content) {
             return new JsonResponse($content);
          } else {
-            return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
+            return new Response(null, Response::HTTP_NO_CONTENT);
         }
     }
     /**

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\Eigner;
+use App\Form\User\UserAccountFormType;
 use App\Form\User\UserFormType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,9 +37,16 @@ class UserController extends BaseController
             $roles = $form->get('roles')->getData();
             $user = $form->getData();
 
-            if ($this->isGranted('ROLE_OWNER_ADMIN') && $security->getUser()->getUserIdentifier() != "admin" ) {
-                $eignerDn = $security->getUser()->getEigners()[0];
-                $user->addEigner($eignerDn);
+
+            if ($this->isGranted('ROLE_G4N')){
+                $user->addEigner($form->get('eigners')->getData()[0]);
+            } else {
+                if ($this->isGranted('ROLE_OWNER_ADMIN')) { // && $security->getUser()->getUserIdentifier() != "admin") {
+                    $user->addEigner($security->getUser()->getEigners()[0]);
+                } else {
+                    // somthing went wrong -> logout
+                    return $this->redirectToRoute('app_logout');
+                }
             }
 
             $user->setGrantedList($savPlantList);
@@ -161,6 +169,7 @@ class UserController extends BaseController
 
             return $this->render('user/edit.html.twig', [
                 'userForm' => $form,
+                'user'  => $user,
             ]);
 
         } else {
@@ -173,24 +182,13 @@ class UserController extends BaseController
      * USER Show zum Anzeigen der eigenen Userverwalltung
      **/
     #[Route(path: '/admin/user/show/{id}', name: 'app_admin_user_show')]
-    public function show($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher): Response
+    public function editUserAccount($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher): Response
     {
         $user = $userRepository->find($id);
         // prüfen ob user existiert
         if ($user) {
-            $form = $this->createForm(UserFormType::class, $user);
+            $form = $this->createForm(UserAccountFormType::class, $user);
             $form->handleRequest($request);
-            $selEignerID = $form->get('eigners')->getData()[0];
-            $selSingleEigner = $form->get('singleeigners')->getData();
-            $user = $form->getData();
-            // für die Rolle G4N entfällt die Prüfung
-            if (!$this->isGranted('ROLE_G4N')){
-                // prüfen ob user und der eigner die gleichen sind
-                if (!in_array($user->getEigners()[0]->getID(), $selSingleEigner)) {
-                    $this->addFlash('warning', 'You have no rights to do this.');
-                    return $this->redirectToRoute('app_dashboard_plant', ['eignerId' => $user->getEigners()[0]->getID(), 'anlageId' => '00']);
-                }
-            }
 
             if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
                 if ($form['newPlainPassword']->getData() != '') {
@@ -202,14 +200,13 @@ class UserController extends BaseController
                 $em->persist($user);
                 $em->flush();
                 $this->addFlash('success', 'User saved!');
-                if ($form->get('saveclose')->isClicked()) {
-                    return $this->redirectToRoute('app_dashboard_plant', ['eignerId' => $user->getEigners()[0]->getID(), 'anlageId' => '00']);
-                }
+
+                return $this->redirectToRoute('app_dashboard');
             }
 
             if ($form->isSubmitted() && $form->get('close')->isClicked()) {
                 $this->addFlash('warning', 'Canceled. No data was saved.');
-                return $this->redirectToRoute('app_dashboard_plant', ['eignerId' => $user->getEigners()[0]->getID(), 'anlageId' => '00']);
+                return $this->redirectToRoute('app_dashboard');
             }
 
             return $this->render('user/show.html.twig', [
@@ -224,7 +221,7 @@ class UserController extends BaseController
 
     // USER Suche
     #[Route(path: '/user/find', name: 'app_admin_user_find', methods: 'GET')]
-    public function find(UserRepository $userRepo, Request $request): Response
+    public function findUser(UserRepository $userRepo, Request $request): Response
     {
         $user = $userRepo->findByAllMatching($request->query->get('query'));
         return $this->json([
@@ -235,7 +232,7 @@ class UserController extends BaseController
     // USER Löschen
     #[Route(path: 'admin/user/delete/{id}', name: 'app_admin_user_delete', methods: 'GET')]
     #[IsGranted('ROLE_OWNER_ADMIN')]
-    public function delete($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security,): RedirectResponse
+    public function deleteUser($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security,): RedirectResponse
     {
         // To do Abfrage Yes No
         $user = $userRepository->find($id);
@@ -259,4 +256,46 @@ class UserController extends BaseController
         return $this->redirectToRoute('app_admin_user_list');
     }
 
+    /**
+     * Lock a user. Means this user is no longer able to login to the Software
+     * his email Address will be set to 'anonymous', but Reports, tickets and so on will show the User as last modified
+     *
+     * @param $id
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @param SecurityController $security
+     * @return Response
+     */
+    #[Route(path: 'admin/user/lock/{id}', name: 'app_admin_user_lock')]
+    #[IsGranted('ROLE_OWNER_ADMIN')]
+    public function lockUser($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security,): Response
+    {
+        // To do Abfrage Yes No
+        $user = $userRepository->find($id);
+        // prüfen ob user existiert
+        if ($user) {
+            $form = $this->createForm(UserFormType::class, $user);
+            $form->handleRequest($request);
+            $selSingleEigner = $form->get('singleeigners')->getData();
+            if (!$this->isGranted('ROLE_OWNER_ADMIN')){
+                // prüfen ob user und der eigner die gleichen sind
+                if (!in_array($user->getEigners()[0]->getID(), $selSingleEigner)) {
+                    $this->addFlash('warning', 'You have no rights to do this.');
+                    return $this->redirectToRoute('app_admin_user_list');
+                }
+            }
+
+            $emailParts = explode('@', $user->getEmail());
+            $user->setEmail("locked@".$emailParts[1]);
+            $user->setPassword('');
+            $user->setLocked(true);
+            $em->flush();
+            $this->addFlash('warning', 'User are locked.');
+
+            return $this->redirectToRoute('app_admin_user_list');
+        }
+
+        return $this->redirectToRoute('app_admin_user_list');
+    }
 }
