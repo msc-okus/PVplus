@@ -9,11 +9,7 @@ use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-/**
- * @author Christian Raue <christian.raue@gmail.com>
- * @copyright 2013-2022 Christian Raue
- * @license http://opensource.org/licenses/mit-license.php MIT License
- */
+
 class TopicCategoryType extends AbstractType {
 
 	/**
@@ -38,13 +34,13 @@ class TopicCategoryType extends AbstractType {
 		];
 
 		$defaultOptions['choices'] = function(Options $options) {
-			$choices = [];
+			$choices = [
+                1,
+                2,
+                3,
+                4
+            ];
 
-			foreach (Topic::getValidCategories() as $value) {
-				$choices[$this->translator->trans($value, [], 'topicCategories')] = $value;
-			}
-
-			ksort($choices);
 
 			return $choices;
 		};

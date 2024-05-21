@@ -21,8 +21,8 @@ use App\Form\Type\Monthly;
 use Craue\FormFlowBundle\Form\FormFlowInterface;
 use Craue\FormFlowBundle\Util\FormFlowUtil;
 use App\Form\Type\TopicCategoryType;
-
-use Craue\FormFlowDemoBundle\Form\CreateTopicFlow;
+use App\Entity\Topic;
+use App\Form\LiveReporting\CreateTopicFlow;
 
 class LiveReportingController extends AbstractController
 {
@@ -50,7 +50,7 @@ class LiveReportingController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
-    public function createTopicAction(Request $request, CreateTopicFlow $flow, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
+    public function createTopicAction(Request $request, CreateTopicFlow $createTopicFlow, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
         $output = $table = $tickets = null;
         $startDay = $request->request->get('start-day');
@@ -60,7 +60,7 @@ class LiveReportingController extends AbstractController
         $anlageId = $request->request->get('anlage-id');
         $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
 
-        return $this->processFlow($request, new Topic(), $flow,
+        return $this->processFlow($request, new Topic(), $createTopicFlow,
             'live_reporting/createTopic.html.twig');
 
 
@@ -68,6 +68,7 @@ class LiveReportingController extends AbstractController
     }
 
     protected function processFlow(Request $request, $formData, FormFlowInterface $flow, $template) {
+
         $flow->bind($formData);
 
         $form = $submittedForm = $flow->createForm();
@@ -94,11 +95,13 @@ class LiveReportingController extends AbstractController
             return $this->redirectToRoute($request->attributes->get('_route'), $params);
         }
 
-        return new Response($this->twig->render($template, [
+
+
+        return $this->render($template, [
             'form' => $form->createView(),
             'flow' => $flow,
             'formData' => $formData,
-        ]));
+        ]);
     }
 
     /**

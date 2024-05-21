@@ -3,12 +3,12 @@
 namespace App\Form\LiveReporting;
 
 #use Craue\FormFlowDemoBundle\Entity\Topic;
-use App\Form\LiveReporting\Type\TopicCategoryType;
+use App\Form\Type\TopicCategoryType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-
+use App\Entity\Topic;
 /**
  * @author Christian Raue <christian.raue@gmail.com>
  * @copyright 2013-2022 Christian Raue
