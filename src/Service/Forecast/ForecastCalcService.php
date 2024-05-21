@@ -53,7 +53,11 @@ class ForecastCalcService {
             $AT = asin((-cos($DEK) * sin($SW)) / cos($SH) ); // Azimutwinkel in RAD
             $SA = deg2rad(180) - $AT; // Sonnenazimut
             $AOI = acos(cos($SZ) * cos(deg2rad($input_mn)) + sin($SZ) * sin(deg2rad($input_mn)) * cos($SA - deg2rad($winkel))); // Einfallwinkel Strahlung auf Modul
-            $out = ['AOI' => $AOI,'SA' => $SA,'SZ' => $SZ,'SH' => $SH];
+            $IAM = 1 - 0.05 * (1 / cos($AOI) - 1);   //  Reflexionsverlust der Einstrahlung
+            $SAGD = round(rad2deg($SA), 0); // SA in Grad
+            $DIFFSAMA = $winkel - $SAGD;             // Differenz von SA - SA
+            $CSZ = cos($SZ);
+            $out = ['AOI' => $AOI,'SA' => $SA,'SZ' => $SZ,'SH' => $SH,'IAM' => $IAM,'SAGD' => $SAGD,'DIFFSAMA' => $DIFFSAMA,'CSZ' => $CSZ];
         } else {
             $out = [];
         }
