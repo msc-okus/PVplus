@@ -68,17 +68,21 @@ class DayAheadWriteDBCommand extends Command {
 
             foreach ($anlagen as $anlage) {
                 // Die Inputs aus der Anlagen DB werden gelesen!
-                $anlageId = $anlage->getAnlId(); // the Anlagen ID
-                $usedayforecast = (float)$anlage->getUseDayaheadForecast();  // Yes / No
-                $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
-                $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
-                $input_mer = (integer)$anlage->getBezMeridan();   // Bezugsmeridan Mitteleuropa
-                $input_mn = (integer)$anlage->getModNeigung();    // Modulneigung Grad in radiat deg2rad(45) <----
-                //$input_ma = (integer)$anlage->getModAzimut();     // Modul Azimut Grad Wert wenn Ausrichtung nach Süden: 0° nach Südwest: +45° nach Nord: +/-180° nach Osten: -90°
-                $input_ab = (float)$anlage->getAlbeto();          // Albedo 0.15 Gras 0.3 Dac
-                $has_suns_model = (float)$anlage->getHasSunshadingModel(); // Check if has sunshading Model
-                $DbNameForecast = $anlage->getDbNameForecastDayahead(); // The Name of the Database
-                // Ersteinmal ein paar Checks
+                $anlageHidePalant = $anlage->getAnlHidePlant(); // the Anlagen Hidden Status
+                // Weiterverarbeiten der Daten nur wenn die Anlage nicht hidden geschaltet ist.
+                if ($anlageHidePalant == 'No') {
+                    $anlageId = $anlage->getAnlId(); // the Anlagen ID
+                    $io->info("Start with plant id: $anlageId");
+                    $usedayforecast = (float)$anlage->getUseDayaheadForecast();  // Yes / No
+                    $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
+                    $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
+                    $input_mer = (integer)$anlage->getBezMeridan();   // Bezugsmeridan Mitteleuropa
+                    $input_mn = (integer)$anlage->getModNeigung();    // Modulneigung Grad in radiat deg2rad(45) <----
+                    //$input_ma = (integer)$anlage->getModAzimut();     // Modul Azimut Grad Wert wenn Ausrichtung nach Süden: 0° nach Südwest: +45° nach Nord: +/-180° nach Osten: -90°
+                    $input_ab = (float)$anlage->getAlbeto();          // Albedo 0.15 Gras 0.3 Dac
+                    $has_suns_model = (float)$anlage->getHasSunshadingModel(); // Check if has sunshading Model
+                    $DbNameForecast = $anlage->getDbNameForecastDayahead(); // The Name of the Database
+                    // Ersteinmal ein paar Checks
                 if ($usedayforecast == 1) {
                     $io->info("Setting status ! OK");
                   } else {
@@ -100,7 +104,14 @@ class DayAheadWriteDBCommand extends Command {
 
                     $decarray = $this->dayaheadforecastdekservice->get_DEK_Data($input_gl, $input_mer, $input_gb, $input_mn, $input_ab, $meteo_array, $has_suns_model, $anlageId, 'all');
                     $forcarstarray = $this->aheadForecastMALService->calcforecastout($anlageId, $decarray);
-                   # dd(print_r($forcarstarray));
+                    // only for debuging //
+                  #  $h = fopen('dayaheadarray.txt', 'w');
+                    #print_R($decarray); // IR Values
+                    #print_R($dec_array);
+                    #print_R($reg_array);
+                   # fwrite($h, var_export($decarray, true));
+                  #  exit;
+
                     $endprz = 0;
 
                     foreach ($forcarstarray as $interarray) {
@@ -186,7 +197,8 @@ class DayAheadWriteDBCommand extends Command {
                     echo json_encode(http_response_code(400));
 
                 }
-            }
+             }
+           }
         } else {
             // Unsuccessfull return
             $io->error('No anlage ID ! or API fail !');

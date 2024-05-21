@@ -25,7 +25,6 @@ class APIOpenMeteoService {
         set_time_limit(550);
         $curl = curl_init();
         curl_setopt_array($curl, [CURLOPT_URL => 'https://api.open-meteo.com/v1/forecast?latitude=' . $lat . '&longitude=' . $lon . $historydays . $forecastdays . '&minutely_15=temperature_2m,windspeed_10m,global_tilted_irradiance_instant,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&hourly=temperature_2m,windspeed_10m,global_tilted_irradiance_instant,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&timezone=Europe%2FBerlin', CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => '', CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => 'GET']);
-
         #curl_setopt_array($curl,[CURLOPT_URL => 'https://api.open-meteo.com/v1/forecast?latitude='.$lat.'&longitude='.$lon.'&minutely_15=temperature_2m,windspeed_10m,global_tilted_irradiance,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&hourly=temperature_2m,windspeed_10m,global_tilted_irradiance,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&timezone=Europe%2FBerlin&start_date=2023-08-08&end_date=2023-08-12', CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => '', CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => 'GET']);
 
         $response = curl_exec($curl);
@@ -39,7 +38,7 @@ class APIOpenMeteoService {
         // Um die Genauigkeit zu verbessern werden 10 weitere Standorte im Umkeis mit eingebunden.
         // global_tilted_irradiance hinzugefuegt neu
         # $coords = $this->getBoundingRadius($this->lat, $this->lon, 5,9); # 5 Coordinaten vom 5/9 KM Radius von Standort
-        $coords = $this->convert([$this->lat, $this->lon], 5, 14); # errechnet 14 Coordinaten vim 5 KM Radius von Standort
+        $coords = $this->convert([$this->lat, $this->lon], 1, 14); # errechnet 14 Coordinaten vim 5 KM Radius von Standort
         $cn = 1;
 
         // Auslesen der Standorte im Umkeis.

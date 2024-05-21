@@ -128,19 +128,20 @@ class AnlageStringAssigmentService
             }
 
         }
-       $this->logMessages->updateEntry($logId, 'working', 90);
+        $this->logMessages->updateEntry($logId, 'working', 90);
 
         $spreadsheet = new Spreadsheet();
 
         $this->prepareInitialSheet($spreadsheet->getActiveSheet(), $joinedData);
-
+/*
         $this->prepareAndAddSortedSheets($spreadsheet, $joinedData);
-
-      $this->generateAndSaveExcelFile($spreadsheet, $anlId,$month,$year,$currentUserName, $publicDirectory);
+*/
+       $this->generateAndSaveExcelFile($spreadsheet, $anlId,$month,$year,$currentUserName, $publicDirectory);
     }
 
     private function prepareInitialSheet($sheet, $joinedData): void
     {
+
         $header = ['Station Nr', 'Inverter Nr', 'String Nr','unit','Channel Nr', 'String Active', 'Channel Cat', 'Position', 'Tilt', 'Azimut','ModuleType', 'InverterType','Impp','AVG'];
         $sheet->setTitle('Unsorted')->fromArray($header, NULL, 'A1')->getStyle('A1:N1')->getFont()->setBold(true);
 

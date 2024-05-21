@@ -14,6 +14,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
+use App\Repository\ModulesRepository;
 use App\Repository\OpenWeatherRepository;
 use App\Service\Forecast\SunShadingModelService;
 use App\Service\Functions\IrradiationService;
@@ -42,6 +43,7 @@ class ExpectedService
         private readonly AnlageSunShadingRepository $anlageSunShadingRepository,
         private readonly SunShadingModelService $sunShadingModelService,
         private readonly ForecastCalcService $forecastCalcService,
+        private readonly ModulesRepository $modulesRepository,
         private readonly IrradiationService $irradiationService)
     {
     }
@@ -56,7 +58,8 @@ class ExpectedService
         }
 
         $output = '';
-        if ($anlage->getGroups() && !$anlage->isExcludeFromExpCalc() && $anlage->getAnlBetrieb() !== null) {
+      # if ($anlage->getGroups() && !$anlage->isExcludeFromExpCalc() && $anlage->getAnlBetrieb() !== null) {
+        if ($anlage->getGroups() && $anlage->getAnlBetrieb() !== null) {
             $conn = $this->pdoService->getPdoPlant();
             $arrayExpected = $this->calcExpected($anlage, $from, $to);
             if ($arrayExpected) {
@@ -84,13 +87,13 @@ class ExpectedService
     /**
      * @throws NonUniqueResultException
      */
-    private function calcExpected(Anlage $anlage, $from, $to): array
+    private function calcExpected(Anlage|int $anlage, $from, $to): array
     {
         $resultArray = [];
+        $sumModules = 0;
         $aktuellesJahr = date('Y', strtotime((string) $from));
         $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre
         $month = date('m', strtotime((string) $from));
-        $has_suns_model = (float)$anlage->getHasSunshadingModel(); // check if has sunshading Model
         $sshrep = $this->anlageSunShadingRepository->findBy(['anlage' => $anlage->getAnlId()]); // Call the Repository
         $conn = $this->pdoService->getPdoPlant();
         // Lade Wetter (Wetterstation der Anlage) Daten für die angegebene Zeit und Speicher diese in ein Array
@@ -111,7 +114,7 @@ class ExpectedService
         }
         $conn = null;
         // wenn das Sunshadding Model eingegeben wurde.
-        if($has_suns_model){
+        if($anlage->getHasSunshadingModel()) {
             $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
             $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
             $input_mer = (integer)$anlage->getBezMeridan();   // Bezugsmeridan Mitteleuropa
@@ -120,6 +123,13 @@ class ExpectedService
         }
 
         /** @var AnlageGroups $group  */
+        
+        foreach ($anlage->getGroups() as $group) {
+            foreach ($group->getModules() as $module) {
+                $sumModules += $module->getNumStringsPerUnit() * $module->getNumModulesPerString();
+            }
+        }
+
         foreach ($anlage->getGroups() as $group) {
             // Monatswerte für diese Gruppe laden
             /** @var AnlageGroupMonths $groupMonth */
@@ -161,13 +171,19 @@ class ExpectedService
                         $tempIrr = $this->functions->mittelwert([(float) $weather['irr_upper'], (float) $weather['irr_lower']]);
                     }
                     // wenn das Sunshadding Model eingegeben wurde.
-                    if ($has_suns_model) {
-                        // Beginn Shadow Loss
+                    if ($anlage->getHasSunshadingModel()) {
+                        // Beginn Shadow Loss & Reihenverschattung
                         if ($tempIrr >= 400) { // Wenn Strahlung größer 500 Wh/m2
+                            /* toDo: Anrechnen der Rheihenabschattung - auf den Strom mit bypassdioden ??
+                            */
                             $AOIarray = $this->forecastCalcService->getAOI($input_mn, $input_gb, $input_gl, $input_mer, $doy, $hour, $ausrichtung);
                             $AOI = $AOIarray['AOI']; // Das AOI aus dem Calc Service
-                            $faktorRVSued = $this->sunShadingModelService->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
-                            $shadow_loss = $faktorRVSued['FKR'];  // Shadow loss multiplikation des Verschattungsfaktor.
+                            $DIFFSAMA = $AOIarray['DIFFSAMA']; // Differenz von SA - SA
+                            $RVArray = $this->sunShadingModelService->genSSM_Data($sshrep, $AOI); // Verschattungsfaktor generieren
+                            $shadow_loss = $RVArray['FKR'];  // Shadow loss multiplikation des Verschattungsfaktor.
+                            $RSHArray = $RVArray['RSH']; // Array aus der Reihen abschattung
+                            #$this->sunShadingModelService->modrow_shading_loss($RSHArray, $DIFFSAMA, $sshrep); // Verschattungsverlust Faktor auf Strom anwenden
+                            #echo "[hour] $hour - [faktor] - $shadow_loss - [Irr] - $tempIrr - [AOI] - $AOI \n";
                         }
                     } else {
                         // Default Shadow Loss
@@ -200,8 +216,13 @@ class ExpectedService
 
                     /** @var AnlageGroupModules[] $modules */
                     $modules = $group->getModules();
+
                     $expPowerDc = $expCurrentDc = $limitExpCurrent = $limitExpPower = $expVoltage = 0;
+
                     foreach ($modules as $modul) {
+
+                        $grpModules = $module->getNumStringsPerUnit() * $module->getNumModulesPerString();
+
                         if ($anlage->getIsOstWestAnlage()) {
                             // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
                             // Power
@@ -430,6 +451,7 @@ class ExpectedService
                             // Monatswerte für diese Gruppe laden
                             /** @var AnlageGroupMonths $groupMonth */
                             $modules = $group->getModules();
+                            $modulesCnd = $group->getModulesCnd();
                             $expPowerDc = 0;
 
                             foreach ($modules as $modul) {

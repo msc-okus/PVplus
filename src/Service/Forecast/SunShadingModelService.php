@@ -60,7 +60,7 @@ class SunShadingModelService {
                 $RT = $LW + $d; // Reihenteilung [RT]
             }
             // Das AOI aus den DEK Service [aE]
-            $aoi = round(rad2deg(cos($aoi)), 0);
+            $aoi = round(rad2deg(cos($aoi)), 0); // [aE]
 
             $y = 180 - $aoi; // Komplementärwinkel berechnen
             $a = 180 - $y - $NT; // Winkel zwischen der Ebene und Einfallrichtung IRR
@@ -156,7 +156,9 @@ class SunShadingModelService {
 
             $SP = ($S / $M) * 100; // Verschattung in Prozent
             $faktor = round((1 - ($SP / 100)), 3); // Verschattungsfaktor - FKR
-            ## echo "$aoi - $y  -  $a  -  $L  -  $S - $TAV_PZ - $faktor \n";
+            //
+         ###   echo "[aE]: $aoi - [y]: $y  - [a]: $a  - [l]:  $L  - [s]: $S - [TAV]: $TAV_PZ - [FKR]: $faktor \n";
+            //
             return $out[] = ['FKR' => $faktor,'RSH' => $RSH_Array]; // Setzen des berechneten faktor und des Reihen abschattung als Array - RSK
           } else {
             $faktor = 1;
@@ -167,20 +169,14 @@ class SunShadingModelService {
         // End Funktion genSSM_Data()
     }
 
-    // Funktion zur berechnung der Modulverschattungs Verluste bei Halbzelle, Vollzelle
+    // Funktion zur berechnung der Modulverschattungsverluste bei Halbzelle, Vollzelle
     // Berechnung vom Verlustfaktor Strom
-    public function modrow_shading_loss($RSKArray,$DIFFSAMA,$GDIRPRZ,$shdata,$modrep) {
+    public function modrow_shading_loss($RSKArray,$DIFFSAMA,$shdata) {
         // Vorrausetzung für die Verschattungsberechnung
 
         if ($shdata) {
             foreach ($shdata as $shdaten) {
-                $modalignment = $shdaten->getModAlignment(); // Modul Aurichtung - 0 = Portrait | 1 = Landscape
-            }
-        }
-
-        if ($modrep) {
-            foreach ($modrep as $modaten) {
-                $baypassdiodes = $modaten->getBaypassDiodeAnz(); // Baypass Dioden 0,2,3
+                $modalignment = $shdaten->getModAlignment(); // Modul Ausrichtung - 0 = Landscape | 1 = Portrait Full | 2 = Portrait Half |
             }
         }
 
@@ -188,16 +184,16 @@ class SunShadingModelService {
             $tablerows = count($RSKArray);
             if ($tablerows != 0) {
                 foreach ($RSKArray as $key => $val) {
-                    $SVL22 = $SVL12 =$SVL = $SVL00 = $SVL13 = $SVL23 = 0;
+                    $SVL22 = $SVL12 = $SVL = $SVL00 = $SVL13 = $SVL23 = 0;
                     $mrv = $val['MRV'];
                     $mr = $key;
                     if ($mrv >= 0) {
                         // Verschattung in Prozent aus der Modulreihenverschattung
                         // Dreigliedrige Berechnung bis zum Durchschalten von 3 Bypassdioden - Potrait - Vollzelle
-                       if ($modalignment == 0 and $baypassdiodes == 3) {
-                           if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80 && $GDIRPRZ >= 5) {
+                       if ($modalignment == 1 ) {
+                           if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80) {
                                $SHT = $mrv;
-                               // Hier Modell mit 3 Bypassdioden
+                               // Hier Modell Vollzelle mit 3 Bypassdioden
                                if ($SHT >= 0 && $SHT <= 39) {
                                    $SVL23 = round((-0.0007 * pow($SHT, 3) - 0.005 * pow($SHT, 2) - 0.3833 * $SHT + 100) / 100, 4); // 1 Bypass
                                }
@@ -208,14 +204,15 @@ class SunShadingModelService {
                                    $SVL00 = round((-0.0325 * pow($SHT, 2) + 4.635 * $SHT - 137.85) / 100, 4); // 3 Bypass
                                }
                                //
-                               echo "Reihe: $mr - Schatten: $SHT ---> BP1: $SVL23  BP2: $SVL13 - BP3: $SVL00 \n";
+                               echo "PV - Reihe: $mr - Schatten: $SHT ---> BP1: $SVL23  BP2: $SVL13 - BP3: $SVL00 \n";
+                               //
                            }
 
-                       } elseif($modalignment == 0 and $baypassdiodes == 2) {
+                       } elseif($modalignment == 2 ) {
 
-                           if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80 && $GDIRPRZ >= 5) {
+                           if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80 ) {
                                $SHT = $mrv;
-                               // Hier Modell mit 2 Bypassdioden
+                               // Hier Modell Halbzell mit 2 Bypassdioden
                                #=(-3*10^-17*$B82^3-0,0089*$B82^2-0,5536*$B82+100)/100
                                if ($SHT >= 0 && $SHT <= 59) {
                                    $SVL22 = round(((-3 * pow(10,-17)) * pow($SHT, 3) - 0.0089 * pow($SHT, 2) - 0.5536 * $SHT + 100) / 100, 4); // 1 Bypass
@@ -224,29 +221,28 @@ class SunShadingModelService {
                                    $SVL12 = round((-0.0071 * pow($SHT, 2) + 0.0429 * $SHT + 67.714) / 100, 4); // 2 Bypass
                                }
                                //
-                               echo "Reihe: $mr - Schatten: $SHT ---> BP1: $SVL22  BP2: $SVL12 \n";
+                               echo "PH - Reihe: $mr - Schatten: $SHT ---> BP1: $SVL22  BP2: $SVL12 \n";
+                               //
                            }
 
                        } else {
 
-                           if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80 && $GDIRPRZ >= 5) {
+                           if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80 ) {
                                $SHT = $mrv;
                                // Hier Modell ohne Bypassdioden Landscape
                                if ($SHT >= 0 && $SHT <= 100) {
                                    $SVL = round((-$SHT + 100) / 100, 4); //
                                }
                                //
-                               echo "Reihe: $mr - Schatten: $SHT ---> Verlust:  $SVL  \n";
+                              echo "LA - Reihe: $mr - Schatten: $SHT ---> Verlust:  $SVL  \n";
+                               //
                            }
 
                        }
                     }
                 }
-
             }
-
         }
         // End Funktion modrow_shading_loss()
     }
-
 }

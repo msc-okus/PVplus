@@ -30,7 +30,7 @@ class DayAheadForecastMALService
       $samples = array();
       $targets = array();
       $resultArray = array();
-      $modulisbif = false;   // Sollte aus der Modul DB kommen muss noch gemacht werden
+      $modulisbif = false;   // todo : Sollte aus der Modul DB kommen muss noch gemacht werden
 
       if ($anlage->getUseDayaheadForecast()) {
           // Suche ersten und letzten Eintrag in der DB
@@ -128,7 +128,7 @@ class DayAheadForecastMALService
                               if ($tip == "60min") { $irr = $irr / 4 ; }
 
                               $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
-                              if ($irr == 0.0 OR $irr == 0 OR $irr == NULL){
+                              if ($irr == 0.0 OR $irr == 0 OR $irr == NULL) {
                                   $ex4 = 0.0;
                               } else {
                                   $ex4 = $regression->predict([$irr, $Tcell]);

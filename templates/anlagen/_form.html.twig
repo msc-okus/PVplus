@@ -12,21 +12,21 @@
                 </div>
                 <div class="grid-x grid-padding-x">
                     <div class="cell medium-4">{{ form_row(sunshading.mod_tilt) }}</div>
-                    <div class="cell medium-4">{# { form_row(sunshading.mod_height) }#}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_table_height) }}</div>
                     <div class="cell medium-4">{{ form_row(sunshading.mod_width) }}</div>
                 </div>
             <div class="grid-x grid-padding-x">
-                    <div class="cell medium-4">{{ form_row(sunshading.mod_table_height) }}</div>
                     <div class="cell medium-4">{{ form_row(sunshading.mod_table_distance) }}</div>
                     <div class="cell medium-4">{{ form_row(sunshading.distance_a) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.distance_b) }}</div>
                 </div>
                 <div class="grid-x grid-padding-x">
-                    <div class="cell medium-6">{{ form_row(sunshading.ground_slope) }}</div>
-                    <div class="cell medium-6">{{ form_row(sunshading.modulesDB) }}</div>
+                    <div class="cell medium-12">{{ form_row(sunshading.ground_slope) }}</div>
                 </div>
             <fieldset class="fieldset">
                 <div class="grid-x grid-padding-x">
-                    <div class="cell medium-6">{{ form_row(sunshading.has_row_shading) }}</div>
+                    <div class="cell medium-6">{{ form_row(sunshading.modulesDB) }}</div>
+                    {#  <div class="cell medium-6">{{ form_row(sunshading.has_row_shading) }}</div> #}
                     <div class="cell medium-6">{{ form_row(sunshading.mod_alignment) }}</div>
                 </div>
                 <div class="grid-x grid-padding-x">
@@ -390,12 +390,13 @@
                                                         <div class="cell medium-4">{{ form_row(sunshading.distance_b) }}</div>
                                                     </div>
                                                     <div class="grid-x grid-padding-x">
-                                                        <div class="cell medium-6">{{ form_row(sunshading.ground_slope) }}</div>
-                                                        <div class="cell medium-6">{{ form_row(sunshading.modulesDB) }}</div>
+                                                        <div class="cell medium-12">{{ form_row(sunshading.ground_slope) }}</div>
+
                                                     </div>
                                                     <fieldset class="fieldset">
                                                         <div class="grid-x grid-padding-x">
-                                                            <div class="cell medium-6">{{ form_row(sunshading.has_row_shading) }}</div>
+                                                            <div class="cell medium-6">{{ form_row(sunshading.modulesDB) }}</div>
+                                                           {#  <div class="cell medium-6">{{ form_row(sunshading.has_row_shading) }}</div> #}
                                                             <div class="cell medium-6">{{ form_row(sunshading.mod_alignment) }}</div>
                                                         </div>
                                                         <div class="grid-x grid-padding-x">
