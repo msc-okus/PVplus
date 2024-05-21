@@ -64,8 +64,10 @@
 
 <div class="grid-x grid-padding-y action-menu">
     <div class="cell">
-        {{ form_widget(userForm.save) }}
-        {{ form_widget(userForm.saveclose) }}
+        {% if not(user.locked) %}
+            {{ form_widget(userForm.save) }}
+            {{ form_widget(userForm.saveclose) }}
+        {% endif %}
         {{ form_widget(userForm.close) }}
         {% if app.request.requesturi != "/admin/user/new" %}
             {% if is_granted('ROLE_OWNER_ADMIN') and not(user.locked) %}

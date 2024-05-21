@@ -35,7 +35,7 @@
                 "symfony/web-link": "^6.4 || ^7.0",
                 "willdurand/negotiation": "^3.0"
             },
-            "conflict": {
+            "conflict": {x
                 "doctrine/common": "<3.2.2",
                 "doctrine/dbal": "<2.10",
                 "doctrine/mongodb-odm": "<2.4",
