@@ -34,6 +34,11 @@ class AnlageFile
     #[ORM\JoinColumn(nullable: true)]
     private ?Anlage $plant = null;
 
+    #[ORM\ManyToOne(inversedBy: 'documents')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Anlage $anlage = null;
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -95,6 +100,18 @@ class AnlageFile
     public function setPlant(?Anlage $plant): self
     {
         $this->plant = $plant;
+
+        return $this;
+    }
+
+    public function getAnlage(): ?Anlage
+    {
+        return $this->anlage;
+    }
+
+    public function setAnlage(?Anlage $anlage): static
+    {
+        $this->anlage = $anlage;
 
         return $this;
     }
