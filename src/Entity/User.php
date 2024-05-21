@@ -42,6 +42,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'Developer'             => 'ROLE_DEV',
         'Admin'                 => 'ROLE_ADMIN',
         'Green4Net User'        => 'ROLE_G4N',
+        'Operated by G4N'       => 'ROLE_OPERATIONS_G4N',
         'API (full)'            => 'ROLE_API_FULL_USER',
         'API '                  => 'ROLE_API_USER',
         'Beta Tester'           => 'ROLE_BETA',
