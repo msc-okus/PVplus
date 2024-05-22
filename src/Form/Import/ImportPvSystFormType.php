@@ -4,21 +4,19 @@ namespace App\Form\Import;
 
 use App\Entity\Anlage;
 
+use App\Form\Model\ImportPvSystModel;
 use App\Form\Model\ToolsModel;
 
 use App\Repository\AnlagenRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
-use Knp\Bundle\PaginatorBundle\DependencyInjection\Configuration;
 use Symfony\Component\Validator\Constraints\File;
 
 
@@ -61,14 +59,27 @@ class ImportPvSystFormType extends AbstractType
                     ]),
                 ],
             ])
+            ->add('separator', ChoiceType::class, [
+                'choices' => [';' => ';', ',' => ',']
+            ])
+            ->add('dateFormat', ChoiceType::class, [
+                'choices'   => ['d/m/y h:m' => 'd/m/y H:i']
+            ])
+            ->add('filename', TextType::class, [
+
+            ])
+
 
 
             // #############################################
             // ###          STEUERELEMENTE              ####
             // #############################################
-
-            ->add('calc', SubmitType::class, [
-                'label' => 'Start calculation',
+            ->add('preview', SubmitType::class, [
+                'label' => 'Preview File',
+                'attr' => ['class' => 'primary save'],
+            ])
+            ->add('import', SubmitType::class, [
+                'label' => 'Start Import',
                 'attr' => ['class' => 'primary save'],
             ])
             ->add('close', SubmitType::class, [
@@ -81,7 +92,7 @@ class ImportPvSystFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => ToolsModel::class,
+            'data_class' => ImportPvSystModel::class,
         ]);
     }
 }

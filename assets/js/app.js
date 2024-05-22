@@ -23,7 +23,9 @@ import $ from 'jquery';
 
 $(document).foundation();
 
-$('.my-alert-box').closest('[data-alert]').fadeOut(8000);
+$(document).ready( function() {
+    $('.my-alert-box').closest('[data-alert]').delay(4000).trigger('close');
+});
 
 document.addEventListener("DOMContentLoaded", () => {
 
