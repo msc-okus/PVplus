@@ -289,7 +289,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->eigners;
     }
-    public function getOwner(): ?Eigner
+    public function getOwner(): bool|Eigner
     {
         return $this->getEigners()->first();
     }

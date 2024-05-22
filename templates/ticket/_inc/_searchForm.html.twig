@@ -1,3 +1,11 @@
+
+{% set alertName = 'Alert' %}
+{% if app.user and app.user.owner %}
+    {% if app.user.owner.id == 10004 or app.user.owner.id == 10009 %}
+        {% set alertName = 'Ticket' %}
+    {% endif %}
+{% endif %}
+
 <div class="cell medium-9">
     <form method="get">
         <label><b>Filter / Search by:</b></label>
@@ -172,7 +180,7 @@
 
 <div class="cell medium-3 text-left" >
     <div id="modal-form0" {{ stimulus_controller('ticket-edit', {formUrl: path('app_ticket_create'),}) }}>
-        <label><b>Create New Ticket:</b></label>
+        <label><b>Create New {{ alertName }}:</b></label>
         {# create New Ticket – Begin #}
         <div class="grid-x grid-margin-x align-top align-center">
 

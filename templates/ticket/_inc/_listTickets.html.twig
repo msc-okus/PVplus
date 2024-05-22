@@ -88,7 +88,7 @@
                         timelineUrl: path('app_ticket_notification_timeline', {id: ticket.id}),
                     }) }}>
 
-                    <button title="Edit Ticket [{{ ticket.id }}]" class="button action-icon tiny hollow shadow"
+                    <button title="Edit {{ alertName }} [{{ ticket.id }}]" class="button action-icon tiny hollow shadow"
                             data-action="ticket-edit#openModal"
                             data-append-to="div#modal-form{{ ticket.id }}">
                         <span class="fa fa-edit"></span>
@@ -126,7 +126,7 @@
 
                     {{ include('ticket/_inc/_modalTicket.html.twig', {
                         modalId: ticket.id,
-                        modalTitel: 'Edit Ticket',
+                        modalTitel: "Edit "~ alertName,
                         class: 'large',
                         dataVOffset: '10',
                     }) }}
@@ -134,9 +134,9 @@
             </td>
             <td>
                 {% if is_granted('ROLE_ADMIN') %}
-                    <button title="Remove Ticket [{{ ticket.id }}]" class="hollow alert button action-icon tiny shadow"
+                    <button title="Remove {{ alertName }} [{{ ticket.id }}]" class="hollow alert button action-icon tiny shadow"
                             {{ stimulus_controller('submit-confirm', {
-                                title: 'Remove this ticket?',
+                                title: 'Remove this' ~ alertName ~'?',
                                 confirmButtonText: 'Yes, remove it',
                                 redirectUrl: path('app_ticket_deleteticket', { id: ticket.id})
                             }) }}
