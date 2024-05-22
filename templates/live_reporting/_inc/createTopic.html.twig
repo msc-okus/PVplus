@@ -1,4 +1,45 @@
+{% block header %}
+	<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+	<script>
+		$(function () {
+			let daysInMonth = $('#createTopic_daysinmonth').val();
 
+			$("[name='createTopic']").submit(function(e) {
+				$('#createTopic_issm').val(2);
+			});
+			let isSubmitted = $('#createTopic_issm').val();
+
+
+				$('#createTopic_startDay').on('change', function (e) {
+					let optionSelected = $("option:selected", this);
+					let startDay = parseInt(this.value);
+					let restDays = daysInMonth - startDay;
+
+					startDay = startDay + 1;
+					$('#createTopic_endDay').empty();
+					$('#createTopic_endDay').append($('<option>', {
+						value: 0,
+						text : 'please choose',
+						selected: true
+					}));
+					let i = startDay;
+					while (i <= daysInMonth) {
+						$('#createTopic_endDay').append($('<option>', {
+							value: i,
+							text : i
+						}));
+						i++;
+					}
+				});
+
+				$('#createTopic_endDay').on('change', function (e) {
+					$('#createTopic_endDay option[value="17"]').attr('selected', 'selected');
+				});
+
+
+	});
+	</script>
+{% endblock %}
 {% block form %}
 	{% set routeParams = app.request.query.all() | merge(app.request.attributes.get('_route_params')) %}
 	{% if flow.isAllowDynamicStepNavigation() %}
@@ -24,16 +65,17 @@
 					<dd>{{ formData.year }}</dd>
 
 					<dt>{{ 'month' | trans }}:</dt>
-					<dd>{{ formData.month | default('—') }}</dd>
+					<dd>{{ formData.month |  trans({}, 'topicPlants') }}</dd>
 
 					<dt>{{ 'anlage' | trans }}:</dt>
 					<dd>{{ formData.anlage | trans({}, 'topicPlants') }}</dd>
 
 					<dt>{{ 'startday' | trans }}:</dt>
-					<dd>{{ formData.startday | nl2br | default('—') }}</dd>
+					<dd>{{ formData.startday |  trans({}, 'topicPlants') }}</dd>
 
 					<dt>{{ 'endday' | trans }}:</dt>
-					<dd>{{ formData.endday | nl2br | default('—') }}</dd>
+					<dd>{{ formData.endday |  trans({}, 'topicPlants') }}</dd>
+
 
 					{% if formData.isBugReport() %}
 						<dt>{{ 'details' | trans }}:</dt>
@@ -47,7 +89,7 @@
 
 	{% include '@CraueFormFlow/FormFlow/buttons.html.twig' with {
 		craue_formflow_button_class_last: 'btn btn-primary',
-		craue_formflow_button_class_back: 'btn',
+		craue_formflow_button_class_back: 'btn_back',
 		craue_formflow_button_class_reset: 'btn btn-warning',
 		craue_formflow_button_class_next: 'btn_next',
 		craue_formflow_button_label_finish: 'submit',

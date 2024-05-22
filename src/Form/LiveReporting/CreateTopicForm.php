@@ -20,6 +20,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Form\Type\TopicCategoryType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use App\Entity\Topic;
 /**
  * @author Christian Raue <christian.raue@gmail.com>
@@ -78,7 +79,7 @@ class CreateTopicForm extends AbstractType {
                     'mapped' => false,
                     'required' => true,
                 ]);
-				$builder->add('mohth', ChoiceType::class, [
+				$builder->add('month', ChoiceType::class, [
                     'choices' => $monthArray,
                     'placeholder' => 'please Choose ...',
                     'mapped' => false,
@@ -99,23 +100,34 @@ class CreateTopicForm extends AbstractType {
                 $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
                 //create select for month
                 $startDayArray = [];
+                $endDayArray = [];
                 for($i=1; $i <= $daysInMonth; $i++) {
                     $startDayArray[$i] = $i;
                 }
 
-                $builder->add('startDay', ChoiceType::class, [
-                    'choices' => $yearArray,
-                    'placeholder' => 'please Choose ...',
-                    'mapped' => false,
-                    'required' => true,
+                $builder->add('daysinmonth', HiddenType::class, [
+                    'data' => $daysInMonth,
                 ]);
 
-                $builder->add('endDay', ChoiceType::class, [
-                    'choices' => $yearArray,
+                $builder->add('issm', HiddenType::class, [
+                    'data' => 1,
+                ]);
+
+                $builder->add('startDay', ChoiceType::class, [
+                    'choices' => $startDayArray,
                     'placeholder' => 'please Choose ...',
                     'mapped' => false,
-                    'required' => true,
+                    'required' => true
                 ]);
+
+
+                $builder->add('endDay', ChoiceType::class, [
+                    'choices' => $startDayArray,
+                    'placeholder' => 'please Choose ...',
+                    'mapped' => false,
+                    'required' => true
+                ]);
+
 				break;
 			case 3:
 				if ($isBugReport) {
@@ -130,8 +142,9 @@ class CreateTopicForm extends AbstractType {
 	 */
 	public function configureOptions(OptionsResolver $resolver) {
 		$resolver->setDefaults([
-			'data' => new Topic(),
-			'isBugReport' => false,
+            'data_class' => Topic::class,
+            'month' => '',
+            'year' => '',
 		]);
 	}
 

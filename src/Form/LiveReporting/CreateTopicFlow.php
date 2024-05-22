@@ -5,13 +5,7 @@ namespace App\Form\LiveReporting;
 use Craue\FormFlowBundle\Form\FormFlow;
 use Craue\FormFlowBundle\Form\FormFlowInterface;
 
-/**
- * This flow uses one form type for the entire flow.
- *
- * @author Christian Raue <christian.raue@gmail.com>
- * @copyright 2013-2022 Christian Raue
- * @license http://opensource.org/licenses/mit-license.php MIT License
- */
+
 class CreateTopicFlow extends FormFlow {
 
 	/**
@@ -48,19 +42,18 @@ class CreateTopicFlow extends FormFlow {
 	public function getFormOptions($step, array $options = []) {
 		$options = parent::getFormOptions($step, $options);
         if ($step === 2) {
-            $formData = $this->getFormData();
+            $formData = $this->retrieveStepData();
 
-            echo "<pre>";
-            print_r($this->retrieveStepData());
-            echo "<pre>";
-            exit;
-            #$options['year'] = $formData->year;
-            #$options['month'] =$formData->month;
+
+            $options['year'] = $formData[1]['year'];
+            $options['month'] = $formData[1]['month'];
+
         }
 
 		if ($step === 3) {
 			$options['isBugReport'] = $this->getFormData()->isBugReport();
 		}
+
 
 		return $options;
 	}

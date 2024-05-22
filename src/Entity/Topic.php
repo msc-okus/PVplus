@@ -23,6 +23,13 @@ class Topic {
 	 */
 	public $month;
 
+    /**
+     * @var integer
+     * @ORM\Column(name="daysinmonth", type="integer", nullable=true)
+     */
+    public $daysinmonth;
+
+
 	/**
 	 * @var object
 	 * @ORM\Column(name="anlage", type="object", nullable=false)
@@ -32,23 +39,37 @@ class Topic {
 	public $anlage;
 
 	/**
-	 * @var array
-	 * @ORM\Column(name="startday", type="array", nullable=true)
+	 * @var string
+	 * @ORM\Column(name="startday", type="string", nullable=true)
 	 */
 	public $startday;
 
     /**
-     * @var array
-     * @ORM\Column(name="endday", type="array", nullable=true)
+     * @var string
+     * @ORM\Column(name="endday", type="string", nullable=true)
      */
     public $endday;
 
-	/**
-	 * @var string
-	 * @ORM\Column(name="details", type="text", nullable=true)
-	 * @Assert\NotBlank(groups={"flow_createTopic_step3"})
-	 */
-	public $details;
+    /**
+     * @var integer
+     * @ORM\Column(name="issm", type="integer", nullable=true)
+     */
+    public $issm;
+
+    public function getMonth(): ?string
+    {
+        return $this->month;
+    }
+
+    public function getStartDay(): ?string
+    {
+        return $this->startday;
+    }
+
+    public function getDaysInMonth(): ?string
+    {
+        return $this->daysinmonth;
+    }
 
 	public function isBugReport() {
 		return $this->category === 'BUG_REPORT';
