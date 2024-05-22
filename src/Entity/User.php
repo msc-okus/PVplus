@@ -32,25 +32,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
     security: "ROLE_ADMIN"
 )]
 #[ApiFilter(SearchFilter::class, properties: ['anlName' => 'partital'])]
-/**
- * ApiResource(
- *      security="is_granted('ROLE_ADMIN')",
- *      securityMessage="Only Admin can access to this page",
- *      collectionOperations={
- *      "get",
- *      "post"},
- *      itemOperations={"get","put"},
- *      shortName="users",
- *      normalizationContext={"groups"={"user:read"}},
- *     denormalizationContext={"groups"={"user:write"}},
- *     attributes={
- *          "pagination_items_per_page"=10,
- *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
- *     }
- * )
- * ApiFilter(SearchFilter::class, properties={"anlName":"partial"})
- *
- */
 #[ORM\Table(name: 'pvp_user')]
 #[ORM\UniqueConstraint(name: 'name', columns: ['name'])]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -61,6 +42,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'Developer'             => 'ROLE_DEV',
         'Admin'                 => 'ROLE_ADMIN',
         'Green4Net User'        => 'ROLE_G4N',
+        'Operated by G4N'       => 'ROLE_OPERATIONS_G4N',
         'API (full)'            => 'ROLE_API_FULL_USER',
         'API '                  => 'ROLE_API_USER',
         'Beta Tester'           => 'ROLE_BETA',
@@ -117,6 +99,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: true)]
     private ?bool $allPlants = false;
+
+    #[Groups(['user:read', 'user_list'])]
+    #[ORM\Column(nullable: true)]
+    private ?bool $locked = false;
 
     #[Groups(['user:read'])]
     #[ORM\ManyToMany(targetEntity: Eigner::class, mappedBy: 'user')]
@@ -183,30 +169,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getLevel(): ?int
-    {
-        return $this->level;
-    }
-
-    public function setLevel(int $level): self
-    {
-        $this->level = $level;
-
-        return $this;
-    }
-
-    public function getAdmin(): ?int
-    {
-        return $this->admin;
-    }
-
-    public function setAdmin(int $admin): self
-    {
-        $this->admin = $admin;
-
-        return $this;
-    }
-
     public function getEmail(): ?string
     {
         return $this->email;
@@ -267,7 +229,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getPassword(): string
     {
-        return (string) $this->password;
+        return $this->password;
     }
 
     public function setPassword(string $password): self
@@ -285,7 +247,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+
     }
 
     public function getAccessList(): array
@@ -388,6 +350,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->allPlants = $allPlants;
 
         return $this;
+    }
+
+    public function getLocked(): ?bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(?bool $locked): void
+    {
+        $this->locked = $locked;
     }
 
 

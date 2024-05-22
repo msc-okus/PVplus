@@ -114,7 +114,8 @@ class ExpectedService
         }
         $conn = null;
         // wenn das Sunshadding Model eingegeben wurde.
-        if($anlage->getHasSunshadingModel()) {
+
+        if($anlage->getHasSunshadingModel()){
             $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
             $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
             $input_mer = (integer)$anlage->getBezMeridan();   // Bezugsmeridan Mitteleuropa
@@ -173,6 +174,7 @@ class ExpectedService
                     // wenn das Sunshadding Model eingegeben wurde.
                     if ($anlage->getHasSunshadingModel()) {
                         // Beginn Shadow Loss & Reihenverschattung
+
                         if ($tempIrr >= 400) { // Wenn Strahlung größer 500 Wh/m2
                             /* toDo: Anrechnen der Rheihenabschattung - auf den Strom mit bypassdioden ??
                             */

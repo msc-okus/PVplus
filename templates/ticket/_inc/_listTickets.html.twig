@@ -46,9 +46,9 @@
             <td>
                 {% if (ticket.alertType >= 70 and ticket.alertType < 80) %}
                     {% if (ticket.kpiStatus == 10) %} {# Activ #}
-                        <span style="color: green;font-size: 20px">●</span>
+                        <span style="color: green; font-size: 20px">●</span>
                     {% elseif (ticket.kpiStatus == 20) %}{# inactiv #}
-                        <span style="color: red;font-size: 20px">●</span>
+                        <span style="color: red; font-size: 20px">●</span>
                     {% endif %}
                 {% endif %}
             </td>

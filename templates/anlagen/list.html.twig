@@ -51,6 +51,7 @@
                     {% if is_granted('ROLE_G4N') %}
                         <a href="{{ path('app_admin_anlagen_edit_dcgroups', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> DC Groups</a>
                         <a href="{{ path('app_admin_anlagen_edit_acgroups', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> AC Groups</a>
+                        <a href="{{ path('app_media_list', { id: plant.anlId}) }}" title="media Files" class="hollow button tiny action-icon shadow"> Media Files </a>&nbsp;
 
                         {% if is_granted('ROLE_DEV') %}
                             <a href="{{ path('app_admin_anlagen_edit_sensors', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> Sensors</a>

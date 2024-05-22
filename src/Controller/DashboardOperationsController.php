@@ -18,10 +18,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class DashboardOperationsController extends AbstractController
 {
     /**
-     * @throws NonUniqueResultException
      * @throws InvalidArgumentException
      */
-    #[IsGranted('ROLE_Operations')]
+    #[IsGranted('ROLE_OPERATIONS_G4N')]
     #[Route(path: '/operations/dashboard', name: 'app_operations_dashboard')]
     public function operations(EignerRepository $eignerRepository, SystemStatus2 $checkSystemStatus): Response
     {

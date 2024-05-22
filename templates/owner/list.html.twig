@@ -5,7 +5,7 @@
 
 {% block body %}
     <h1>List Owners</h1>
-    {{ macrolibrary.searchbox() }}
+    {{ macrolibrary.searchbox(app.request.query.get('qp'), 'qp') }}
     <table class="table">
         <thead>
         <tr>

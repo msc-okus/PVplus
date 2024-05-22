@@ -230,7 +230,7 @@ class AnlagenAdminController extends BaseController
      * @throws \Exception
      */
     #[Route(path: '/admin/anlagen/editconfig/{id}', name: 'app_admin_anlagen_edit_config')]
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $repositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem): RedirectResponse|Response
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $repositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem, PaginatorInterface $paginator): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->findOneByIdAndJoin($id);
         $upload = new AnlageFile();
@@ -255,6 +255,11 @@ class AnlagenAdminController extends BaseController
 
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $uploadedFile = $form['picture']->getData();
+
+
+            foreach ($extraFiles as $files){
+                $uploaderHelper->uploadPlantDocumentation($files, $anlage->getEigner()->getFirma(), $anlage);
+            }
             if ($uploadedFile != '') {
                 $isupload = 'yes';
                 $newFile = $uploaderHelper->uploadImageSFTP($uploadedFile, $anlage->getEigner()->getFirma(), $anlage->getAnlName(), 'plant');
@@ -292,6 +297,7 @@ class AnlagenAdminController extends BaseController
                     'econames' => $economicVarNames1,
                     'isupload' => $isupload,
                     'imageuploadet' => $tempFile,
+                    'files'        => $anlage->getAnlageFiles()
                 ]);
 
                 return $response;
@@ -315,6 +321,7 @@ class AnlagenAdminController extends BaseController
             'econames' => $economicVarNames1,
             'isupload' => $isupload,
             'imageuploadet' => $tempFile,
+            'files'        => $anlage->getAnlageFiles()
         ]);
 
         return $response;
