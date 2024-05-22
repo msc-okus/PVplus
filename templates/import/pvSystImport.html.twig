@@ -28,7 +28,7 @@
     </div>
 
 
-    <div class="grid-x grid-margin-x {% if filename is null%} hidden{% endif %}">
+    <div class="grid-x grid-margin-x {% if prefills.filename is null%} hidden{% endif %}">
         <div class="cell medium-2">
             {{ form_row(form.separator) }}
         </div>
@@ -36,7 +36,7 @@
             {{ form_row(form.dateFormat) }}
         </div><div class="cell medium-8">
             {{ form_row(form.filename, {attr: {
-                value: filename
+                value: prefills.filename
             }}) }}
         </div>
     </div>
@@ -53,12 +53,17 @@
 
     <div class="grid-x grid-margin-x grid-margin-y">
         <div class="cell medium-4">
-            {{ form_widget(form.preview) }}
-            {% if filename is null %}
+            {% if prefills.filename is null %}
+                {{ form_widget(form.preview, {attr: {
+                    disabled: false
+                }}) }}
                 {{ form_widget(form.import, {attr: {
                     disabled: true
                 }}) }}
             {% else %}
+                {{ form_widget(form.preview, {attr: {
+                    disabled: true
+                }}) }}
                 {{ form_widget(form.import, {attr: {
                     disabled: false
                 }}) }}
