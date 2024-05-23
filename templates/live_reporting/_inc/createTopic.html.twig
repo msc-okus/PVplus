@@ -10,21 +10,21 @@
 			let isSubmitted = $('#createTopic_issm').val();
 
 
-				$('#createTopic_startDay').on('change', function (e) {
+				$('#createTopic_startday').on('change', function (e) {
 					let optionSelected = $("option:selected", this);
-					let startDay = parseInt(this.value);
-					let restDays = daysInMonth - startDay;
+					let startday = parseInt(this.value);
+					let restDays = daysInMonth - startday;
 
-					startDay = startDay + 1;
-					$('#createTopic_endDay').empty();
-					$('#createTopic_endDay').append($('<option>', {
+					startday = startday + 1;
+					$('#createTopic_endday').empty();
+					$('#createTopic_endday').append($('<option>', {
 						value: 0,
 						text : 'please choose',
 						selected: true
 					}));
-					let i = startDay;
+					let i = startday;
 					while (i <= daysInMonth) {
-						$('#createTopic_endDay').append($('<option>', {
+						$('#createTopic_endday').append($('<option>', {
 							value: i,
 							text : i
 						}));
@@ -69,10 +69,10 @@
 					<dd>{{ formData.anlage | trans({}, 'topicPlants') }}</dd>
 
 					<dt>{{ 'startday' | trans }}:</dt>
-					<dd>{{ formData.startDay |  trans({}, 'topicPlants') }}</dd>
+					<dd>{{ formData.startday |  trans({}, 'topicPlants') }}</dd>
 
 					<dt>{{ 'endday' | trans }}:</dt>
-					<dd>{{ formData.endDay |  trans({}, 'topicPlants') }}</dd>
+					<dd>{{ formData.endday |  trans({}, 'topicPlants') }}</dd>
 
 
 					{% if formData.isBugReport() %}

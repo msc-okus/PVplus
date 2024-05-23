@@ -97,10 +97,10 @@ class CreateTopicForm extends AbstractType {
 
                 $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
                 //create select for month
-                $startDayArray = [];
-                $endDayArray = [];
+                $startdayArray = [];
+                $enddayArray = [];
                 for($i=1; $i <= $daysInMonth; $i++) {
-                    $startDayArray[$i] = $i;
+                    $startdayArray[$i] = $i;
                 }
 
                 $builder->add('daysinmonth', HiddenType::class, [
@@ -111,15 +111,15 @@ class CreateTopicForm extends AbstractType {
                     'data' => 1,
                 ]);
 
-                $builder->add('startDay', ChoiceType::class, [
-                    'choices' => $startDayArray,
+                $builder->add('startday', ChoiceType::class, [
+                    'choices' => $startdayArray,
                     'placeholder' => 'please Choose ...',
                     'required' => true
                 ]);
 
 
-                $builder->add('endDay', ChoiceType::class, [
-                    'choices' => $startDayArray,
+                $builder->add('endday', ChoiceType::class, [
+                    'choices' => $startdayArray,
                     'placeholder' => 'please Choose ...',
                     'required' => true
                 ]);

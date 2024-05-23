@@ -91,9 +91,7 @@ class LiveReportingController extends AbstractController
                 // ...
                 $form = $flow->createForm();
                 $data = $form->getData();
-                dump($data);
-                echo $data->getStartDay.' / '.$data->getEndDay;
-                exit;
+
                 $output = $table = $tickets = null;
                 $startDay = $data->getStartDay();
                 $endDay = $data->getEndDay();

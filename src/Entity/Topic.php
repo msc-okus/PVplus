@@ -42,13 +42,13 @@ class Topic {
 	 * @var string
 	 * @ORM\Column(name="startday", type="string", nullable=true)
 	 */
-	public $startDay;
+	public $startday;
 
     /**
      * @var string
      * @ORM\Column(name="endday", type="string", nullable=true)
      */
-    public $endDay;
+    public $endday;
 
     /**
      * @var integer
@@ -56,19 +56,29 @@ class Topic {
      */
     public $issm;
 
+    public function getYear(): ?string
+    {
+        return $this->year;
+    }
+
     public function getMonth(): ?string
     {
         return $this->month;
     }
 
+    public function getAnlage(): ?string
+    {
+        return $this->anlage;
+    }
+
     public function getStartDay(): ?string
     {
-        return $this->startDay;
+        return $this->startday;
     }
 
     public function getEndDay(): ?string
     {
-        return $this->endDay;
+        return $this->endday;
     }
 
     public function getDaysInMonth(): ?string
