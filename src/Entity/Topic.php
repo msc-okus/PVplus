@@ -42,13 +42,13 @@ class Topic {
 	 * @var string
 	 * @ORM\Column(name="startday", type="string", nullable=true)
 	 */
-	public $startday;
+	public $startDay;
 
     /**
      * @var string
      * @ORM\Column(name="endday", type="string", nullable=true)
      */
-    public $endday;
+    public $endDay;
 
     /**
      * @var integer
@@ -64,6 +64,11 @@ class Topic {
     public function getStartDay(): ?string
     {
         return $this->startday;
+    }
+
+    public function getEndDay(): ?string
+    {
+        return $this->endtday;
     }
 
     public function getDaysInMonth(): ?string

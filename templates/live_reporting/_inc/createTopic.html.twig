@@ -32,9 +32,7 @@
 					}
 				});
 
-				$('#createTopic_endDay').on('change', function (e) {
-					$('#createTopic_endDay option[value="17"]').attr('selected', 'selected');
-				});
+
 
 
 	});
@@ -71,10 +69,10 @@
 					<dd>{{ formData.anlage | trans({}, 'topicPlants') }}</dd>
 
 					<dt>{{ 'startday' | trans }}:</dt>
-					<dd>{{ formData.startday |  trans({}, 'topicPlants') }}</dd>
+					<dd>{{ formData.startDay |  trans({}, 'topicPlants') }}</dd>
 
 					<dt>{{ 'endday' | trans }}:</dt>
-					<dd>{{ formData.endday |  trans({}, 'topicPlants') }}</dd>
+					<dd>{{ formData.endDay |  trans({}, 'topicPlants') }}</dd>
 
 
 					{% if formData.isBugReport() %}
@@ -92,6 +90,7 @@
 		craue_formflow_button_class_back: 'btn_back',
 		craue_formflow_button_class_reset: 'btn btn-warning',
 		craue_formflow_button_class_next: 'btn_next',
+		craue_formflow_button_class_finish: 'submit',
 		craue_formflow_button_label_finish: 'submit',
 		craue_formflow_button_label_reset: 'Start over',
 	} %}
