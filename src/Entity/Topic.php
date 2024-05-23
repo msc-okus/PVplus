@@ -63,12 +63,12 @@ class Topic {
 
     public function getStartDay(): ?string
     {
-        return $this->startday;
+        return $this->startDay;
     }
 
     public function getEndDay(): ?string
     {
-        return $this->endtday;
+        return $this->endDay;
     }
 
     public function getDaysInMonth(): ?string

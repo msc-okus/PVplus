@@ -52,6 +52,7 @@ class LiveReportingController extends AbstractController
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
     public function createTopicAction(Request $request, CreateTopicFlow $createTopicFlow, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
+
         $output = $table = $tickets = null;
         $startDay = $request->request->get('start-day');
         $endDay = $request->request->get('end-day');
@@ -63,23 +64,17 @@ class LiveReportingController extends AbstractController
         // Start individual part
         /** @var Anlage $anlage */
 
-        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
 
-        if ($submitted && $anlageId !== null) {
-            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
-            $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
-        }
 
 
         return $this->processFlow($request, new Topic(), $createTopicFlow,
-            'live_reporting/reportMonthlyNew.html.twig');
+            'live_reporting/reportMonthlyNew.html.twig', $anlagenRepository, $reportsMonthly);
 
 
 
     }
 
-    protected function processFlow(Request $request, $formData, FormFlowInterface $flow, $template) {
+    protected function processFlow(Request $request, $formData, FormFlowInterface $flow, $template, $anlagenRepository, $reportsMonthly) {
 
         $flow->bind($formData);
 
@@ -89,14 +84,48 @@ class LiveReportingController extends AbstractController
 
             if ($flow->nextStep()) {
                 // create form for next step
+
                 $form = $flow->createForm();
             } else {
                 // flow finished
                 // ...
+                $form = $flow->createForm();
+                $data = $form->getData();
+                dump($data);
+                echo $data->getStartDay.' / '.$data->getEndDay;
+                exit;
+                $output = $table = $tickets = null;
+                $startDay = $data->getStartDay();
+                $endDay = $data->getEndDay();
+                $month = $data->getMonth();
+                $year = $data->getYear();
+                $anlageId = $data->getAnlage();
+                $submitted = true;
+
+                // Start individual part
+                /** @var Anlage $anlage */
+
+                $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+
+                if ($submitted && $anlageId !== null) {
+                    $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+                    $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
+                    $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
+                }
 
                 $flow->reset();
 
-                return $this->redirectToRoute('_FormFlow_start');
+                return $this->render($template, [
+                    'form' => $form->createView(),
+                    'flow' => $flow,
+                    'formData' => $formData,
+                    'headline' => 'Monthly Report',
+                    'anlage' => $anlage,
+                    'report' => $output,
+                    'status' => $anlageId,
+                    'datatable' => $table,
+                    'tickets'   => $tickets
+                ]);
             }
         }
 
@@ -112,12 +141,11 @@ class LiveReportingController extends AbstractController
             'flow' => $flow,
             'formData' => $formData,
             'headline' => 'Monthly Report',
-            'anlagen' => $anlagen,
-            'anlage' => $anlage,
-            'report' => $output,
-            'status' => $anlageId,
-            'datatable' => $table,
-            'tickets'   => $tickets
+            'anlage' => '',
+            'report' => '',
+            'status' => '',
+            'datatable' => '',
+            'tickets'   => ''
         ]);
     }
 
