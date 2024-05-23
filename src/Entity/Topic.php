@@ -50,12 +50,6 @@ class Topic {
      */
     public $endday;
 
-    /**
-     * @var integer
-     * @ORM\Column(name="issm", type="integer", nullable=true)
-     */
-    public $issm;
-
     public function getYear(): ?string
     {
         return $this->year;

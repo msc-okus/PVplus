@@ -107,10 +107,6 @@ class CreateTopicForm extends AbstractType {
                     'data' => $daysInMonth,
                 ]);
 
-                $builder->add('issm', HiddenType::class, [
-                    'data' => 1,
-                ]);
-
                 $builder->add('startday', ChoiceType::class, [
                     'choices' => $startdayArray,
                     'placeholder' => 'please Choose ...',

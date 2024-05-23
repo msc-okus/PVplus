@@ -3,13 +3,6 @@
 	<script>
 		$(function () {
 			let daysInMonth = $('#createTopic_daysinmonth').val();
-
-			$("[name='createTopic']").submit(function(e) {
-				$('#createTopic_issm').val(2);
-			});
-			let isSubmitted = $('#createTopic_issm').val();
-
-
 				$('#createTopic_startday').on('change', function (e) {
 					let optionSelected = $("option:selected", this);
 					let startday = parseInt(this.value);
@@ -31,10 +24,6 @@
 						i++;
 					}
 				});
-
-
-
-
 	});
 	</script>
 {% endblock %}
@@ -56,27 +45,27 @@
 			{% endif %}
 
 			{% if flow.getCurrentStepNumber() == 4 %}
-				{{ 'confirmation_intro' | trans }}
+				{{ 'Check your Data' }}
 				<br />
 				<dl>
-					<dt>{{ 'year' | trans }}:</dt>
+					<dt>{{ 'year' }}:</dt>
 					<dd>{{ formData.year }}</dd>
 
-					<dt>{{ 'month' | trans }}:</dt>
-					<dd>{{ formData.month |  trans({}, 'topicPlants') }}</dd>
+					<dt>{{ 'month' }}:</dt>
+					<dd>{{ formData.month }}</dd>
 
-					<dt>{{ 'anlage' | trans }}:</dt>
-					<dd>{{ formData.anlage | trans({}, 'topicPlants') }}</dd>
+					<dt>{{ 'anlage' }}:</dt>
+					<dd>{{ formData.anlage }}</dd>
 
-					<dt>{{ 'startday' | trans }}:</dt>
-					<dd>{{ formData.startday |  trans({}, 'topicPlants') }}</dd>
+					<dt>{{ 'startday' }}:</dt>
+					<dd>{{ formData.startday }}</dd>
 
-					<dt>{{ 'endday' | trans }}:</dt>
-					<dd>{{ formData.endday |  trans({}, 'topicPlants') }}</dd>
+					<dt>{{ 'endday' }}:</dt>
+					<dd>{{ formData.endday }}</dd>
 
 
 					{% if formData.isBugReport() %}
-						<dt>{{ 'details' | trans }}:</dt>
+						<dt>{{ 'details' }}:</dt>
 						<dd>{{ formData.details | nl2br }}</dd>
 					{% endif %}
 				</dl>
