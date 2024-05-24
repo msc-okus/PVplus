@@ -572,10 +572,19 @@ class ChartService
                     $resultArray['SeriesNameArray'] = json_encode($dataArray['SeriesNameArray']);
                     break;
                 case 'dcpnomcurr':
+                    switch ($anlage->getConfigType()) {
+                        case 3:
+                            $resultArray['headline'] = 'DC Current SCB normalized';
+                            break;
+
+                        default:
+                            $resultArray['headline'] = 'DC Current Inverter normalized';
+                    }
+
                     #$to =  date('Y-m-d 00:00:00',strtotime($form['to']));
                     $dataArray = $this->currentChart->getNomCurrentGroupDC($anlage, $from, $to, $form['invnames']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
-                    $resultArray['headline'] = 'DC Current Inverter normalized';
+
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
                     $resultArray['minSeries'] = $dataArray['minSeries'];
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];

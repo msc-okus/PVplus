@@ -292,8 +292,12 @@ class DCPowerChartService
         $dataArray = [];
 
         $groups = $anlage->getGroupsDc();
+
         switch ($anlage->getConfigType()) {
             case 3:
+                $groupQuery = "group_ac = '$group' ";
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                break;
             case 4:
                 // z.B. Gronningen
                 $groupQuery = "group_ac = '$group' ";
@@ -303,6 +307,8 @@ class DCPowerChartService
                 $groupQuery = "group_dc = '$group' ";
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
         }
+
+
         if ($hour) {
             $exppart1 = "DATE_FORMAT(DATE_ADD(a.stamp, INTERVAL 45 MINUTE), '%Y-%m-%d %H:%i:00') AS stamp,";
             $exppart2 = "GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
@@ -407,6 +413,7 @@ class DCPowerChartService
                             WHERE a.stamp > '$from' AND a.stamp <= '$to' 
                             $exppart2";
 
+
             $dataArray['inverterArray'] = $nameArray;
             $result = $conn->query($sqlExpected);
             $maxInverter = 0;
@@ -453,6 +460,7 @@ class DCPowerChartService
                     } else {
                         $sql = 'SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM ' . $anlage->getDbNameAcIst() . " WHERE $whereQueryPart1 AND $groupQuery GROUP BY unit;";
                     }
+
 
                     $resultIst = $conn->query($sql);
                     $counterInv = 1;
