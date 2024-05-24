@@ -1164,46 +1164,50 @@
     }
 
     //beginn fromflow
-    .craue_formflow_buttons {
-        overflow: hidden;
-    }
+    .flow-form{
 
-    .formflowbuttons{
-        border: none;
-        width: 300px;
-        overflow: hidden;
-        .formflowbuttonsinner{
+        .craue_formflow_buttons {
+            overflow: hidden;
+        }
+
+        .formflowbuttons{
+            border: none;
+            width: 300px;
+            overflow: hidden;
+            .formflowbuttonsinner{
+                float: left;
+            }
+        }
+
+        .craue_formflow_buttons button {
+            float: right;
+            border: solid 1px;
+        }
+
+        .btn_next, .btn_back, .btn-warning, .submit{
+            -webkit-appearance: none;
+            border: 1px solid #0000;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            font-family: inherit;
+            font-size: .9rem;
+            line-height: 1;
+            margin: 0 0 .5rem;
+            padding: .5em 1em;
+            text-align: center;
+            transition: background-color .25s ease-out, color .25s ease-out;
+            vertical-align: middle;
+            background-color: #1779ba;
+            color: #fefefe;
+        }
+
+        .formFlowConfirmData{
             float: left;
+            margin: 0 15px 20px 0;
         }
     }
 
-    .craue_formflow_buttons button {
-        float: right;
-        border: solid 1px;
-    }
-
-    .btn_next, .btn_back, .btn-warning, .submit{
-        -webkit-appearance: none;
-        border: 1px solid #0000;
-        border-radius: 4px;
-        cursor: pointer;
-        display: inline-block;
-        font-family: inherit;
-        font-size: .9rem;
-        line-height: 1;
-        margin: 0 0 .5rem;
-        padding: .5em 1em;
-        text-align: center;
-        transition: background-color .25s ease-out, color .25s ease-out;
-        vertical-align: middle;
-        background-color: #1779ba;
-        color: #fefefe;
-    }
-
-    .formFlowConfirmData{
-        float: left;
-        margin: 0 15px 20px 0;
-    }
     //end fromflow
 
     .message-log{

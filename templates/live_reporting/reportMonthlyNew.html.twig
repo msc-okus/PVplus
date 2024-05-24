@@ -14,6 +14,33 @@
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('special_export') }}
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script>
+        $(function () {
+            let daysInMonth = $('#createTopic_daysinmonth').val();
+            $('#createTopic_startday').on('change', function (e) {
+                let optionSelected = $("option:selected", this);
+                let startday = parseInt(this.value);
+                let restDays = daysInMonth - startday;
+
+
+                $('#createTopic_endday').empty();
+                $('#createTopic_endday').append($('<option>', {
+                    value: 0,
+                    text : 'please choose',
+                    selected: true
+                }));
+                let i = startday;
+                while (i <= daysInMonth) {
+                    $('#createTopic_endday').append($('<option>', {
+                        value: i,
+                        text : i
+                    }));
+                    i++;
+                }
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block body %}

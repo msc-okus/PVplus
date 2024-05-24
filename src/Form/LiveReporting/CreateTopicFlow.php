@@ -2,15 +2,19 @@
 
 namespace App\Form\LiveReporting;
 
+use App\Repository\AnlagenRepository;
 use Craue\FormFlowBundle\Form\FormFlow;
 use Craue\FormFlowBundle\Form\FormFlowInterface;
 
 
 class CreateTopicFlow extends FormFlow {
 
-	/**
-	 * {@inheritDoc}
-	 */
+    public function __construct(
+        private readonly AnlagenRepository $anlagenRepository,
+    )
+    {
+    }
+
 	protected function loadStepsConfig() {
 		$formType = CreateTopicForm::class;
 
@@ -44,10 +48,11 @@ class CreateTopicFlow extends FormFlow {
         if ($step === 2) {
             $formData = $this->retrieveStepData();
 
-
+            $anlage = $this->anlagenRepository->findOneBy(['anlId' => $formData[1]['anlage']]);
+            $anlageName = $anlage->getAnlName();
             $options['year'] = $formData[1]['year'];
             $options['month'] = $formData[1]['month'];
-
+            $options['anlagename'] = $anlageName;
         }
 
 		if ($step === 3) {

@@ -1,49 +1,4 @@
-{% extends 'base.html.twig' %}
 
-{% block title %}
-	{{  parent() }}special operations
-{% endblock %}
-
-{% block styles %}
-	{{  parent() }}
-	{{ encore_entry_link_tags('special_export') }}
-	<link href="{{ absolute_url(asset('css/monthly_report_inline.css')) }}" rel="stylesheet" type="text/css">
-{% endblock %}
-
-{% block javascripts %}
-	{{ parent() }}
-	{{ encore_entry_script_tags('special_export') }}
-	<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-	<script>
-		$(function () {
-			let daysInMonth = $('#createTopic_daysinmonth').val();
-			$('#createTopic_startday').on('change', function (e) {
-				let optionSelected = $("option:selected", this);
-				let startday = parseInt(this.value);
-				let restDays = daysInMonth - startday;
-
-				startday = startday + 1;
-				$('#createTopic_endday').empty();
-				$('#createTopic_endday').append($('<option>', {
-					value: 0,
-					text : 'please choose',
-					selected: true
-				}));
-				let i = startday;
-				while (i <= daysInMonth) {
-					$('#createTopic_endday').append($('<option>', {
-						value: i,
-						text : i
-					}));
-					i++;
-				}
-			});
-		});
-	</script>
-
-{% endblock %}
-
-{% block body %}
 	{% block form %}
 		{% set routeParams = app.request.query.all() | merge(app.request.attributes.get('_route_params')) %}
 		{% if flow.isAllowDynamicStepNavigation() %}
@@ -52,7 +7,7 @@
 
 		{{ form_start(form, {'action': path(app.request.attributes.get('_route'), routeParams), 'attr': {'class': 'flow-form'}}) }}
 		<fieldset>
-			<legend>{{ 'step' | trans }} {{ flow.getCurrentStepNumber() }}: {{ flow.getCurrentStepLabel() | trans }}</legend>
+			<legend><span id="step">{{ 'step' | trans }} {{ flow.getCurrentStepNumber() }}: <br> {{ flow.getCurrentStepLabel() | trans }}</span></legend>
 			{{ form_errors(form) }}
 
 			{% if flow.getCurrentStepNumber() == 3 %}
@@ -77,7 +32,7 @@
 
 					<div class="formFlowConfirmData">
 						<dt>{{ 'Plant' }}</dt>
-						<dd>{{ formData.anlage }}</dd>
+						<dd>{{ formData.anlagename }}</dd>
 					</div>
 
 					<div class="formFlowConfirmData">
@@ -86,7 +41,7 @@
 					</div>
 
 					<div class="formFlowConfirmData">
-						<dt>{{ 'Sndday' }}</dt>
+						<dt>{{ 'Endday' }}</dt>
 						<dd>{{ formData.endday }}</dd>
 					</div>
 
@@ -115,5 +70,3 @@
 		</div>
 		{{ form_end(form) }}
 	{% endblock %}
-
-{% endblock %}

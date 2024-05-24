@@ -24,6 +24,12 @@ class Topic {
 	public $month;
 
     /**
+     * @var string
+     * @ORM\Column(name="anlagename", type="string", nullable=true)
+     */
+    public $anlagename;
+
+    /**
      * @var integer
      * @ORM\Column(name="daysinmonth", type="integer", nullable=true)
      */

@@ -112,6 +112,7 @@ class LiveReportingController extends AbstractController
                 }
 
                 $flow->reset();
+                echo "<style>#step, .btn_next{display: none !important;}</style>";
 
                 return $this->render($template, [
                     'form' => $form->createView(),
