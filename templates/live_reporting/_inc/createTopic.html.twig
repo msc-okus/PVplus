@@ -1,39 +1,56 @@
-{% block header %}
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{  parent() }}special operations
+{% endblock %}
+
+{% block styles %}
+	{{  parent() }}
+	{{ encore_entry_link_tags('special_export') }}
+	<link href="{{ absolute_url(asset('css/monthly_report_inline.css')) }}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	{{ encore_entry_script_tags('special_export') }}
 	<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 	<script>
 		$(function () {
 			let daysInMonth = $('#createTopic_daysinmonth').val();
-				$('#createTopic_startday').on('change', function (e) {
-					let optionSelected = $("option:selected", this);
-					let startday = parseInt(this.value);
-					let restDays = daysInMonth - startday;
+			$('#createTopic_startday').on('change', function (e) {
+				let optionSelected = $("option:selected", this);
+				let startday = parseInt(this.value);
+				let restDays = daysInMonth - startday;
 
-					startday = startday + 1;
-					$('#createTopic_endday').empty();
+				startday = startday + 1;
+				$('#createTopic_endday').empty();
+				$('#createTopic_endday').append($('<option>', {
+					value: 0,
+					text : 'please choose',
+					selected: true
+				}));
+				let i = startday;
+				while (i <= daysInMonth) {
 					$('#createTopic_endday').append($('<option>', {
-						value: 0,
-						text : 'please choose',
-						selected: true
+						value: i,
+						text : i
 					}));
-					let i = startday;
-					while (i <= daysInMonth) {
-						$('#createTopic_endday').append($('<option>', {
-							value: i,
-							text : i
-						}));
-						i++;
-					}
-				});
-	});
+					i++;
+				}
+			});
+		});
 	</script>
-{% endblock %}
-{% block form %}
-	{% set routeParams = app.request.query.all() | merge(app.request.attributes.get('_route_params')) %}
-	{% if flow.isAllowDynamicStepNavigation() %}
-		{% set routeParams = routeParams | craue_removeDynamicStepNavigationParameters(flow) %}
-	{% endif %}
 
-	{{ form_start(form, {'action': path(app.request.attributes.get('_route'), routeParams), 'attr': {'class': 'flow-form'}}) }}
+{% endblock %}
+
+{% block body %}
+	{% block form %}
+		{% set routeParams = app.request.query.all() | merge(app.request.attributes.get('_route_params')) %}
+		{% if flow.isAllowDynamicStepNavigation() %}
+			{% set routeParams = routeParams | craue_removeDynamicStepNavigationParameters(flow) %}
+		{% endif %}
+
+		{{ form_start(form, {'action': path(app.request.attributes.get('_route'), routeParams), 'attr': {'class': 'flow-form'}}) }}
 		<fieldset>
 			<legend>{{ 'step' | trans }} {{ flow.getCurrentStepNumber() }}: {{ flow.getCurrentStepLabel() | trans }}</legend>
 			{{ form_errors(form) }}
@@ -45,27 +62,36 @@
 			{% endif %}
 
 			{% if flow.getCurrentStepNumber() == 4 %}
-				{{ 'Check your Data' }}
+				<h2>{{ 'Check your Data' }}</h2>
 				<br />
 				<dl>
-					<dt>{{ 'year' }}:</dt>
-					<dd>{{ formData.year }}</dd>
+					<div class="formFlowConfirmData">
+						<dt>{{ 'Year' }}:</dt>
+						<dd>{{ formData.year }}</dd>
+					</div>
 
-					<dt>{{ 'month' }}:</dt>
-					<dd>{{ formData.month }}</dd>
+					<div class="formFlowConfirmData">
+						<dt>{{ 'Month' }}</dt>
+						<dd>{{ formData.month }}</dd>
+					</div>
 
-					<dt>{{ 'anlage' }}:</dt>
-					<dd>{{ formData.anlage }}</dd>
+					<div class="formFlowConfirmData">
+						<dt>{{ 'Plant' }}</dt>
+						<dd>{{ formData.anlage }}</dd>
+					</div>
 
-					<dt>{{ 'startday' }}:</dt>
-					<dd>{{ formData.startday }}</dd>
+					<div class="formFlowConfirmData">
+						<dt>{{ 'Startday' }}</dt>
+						<dd>{{ formData.startday }}</dd>
+					</div>
 
-					<dt>{{ 'endday' }}:</dt>
-					<dd>{{ formData.endday }}</dd>
-
+					<div class="formFlowConfirmData">
+						<dt>{{ 'Sndday' }}</dt>
+						<dd>{{ formData.endday }}</dd>
+					</div>
 
 					{% if formData.isBugReport() %}
-						<dt>{{ 'details' }}:</dt>
+						<dt>{{ 'details' }}</dt>
 						<dd>{{ formData.details | nl2br }}</dd>
 					{% endif %}
 				</dl>
@@ -87,5 +113,7 @@
 				} %}
 			</div>
 		</div>
-	{{ form_end(form) }}
+		{{ form_end(form) }}
+	{% endblock %}
+
 {% endblock %}
