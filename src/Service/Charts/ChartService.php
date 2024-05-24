@@ -535,7 +535,6 @@ class ChartService
                     break;
                 case 'forecast_pr':
                     $dataArray = $this->forecastChart->getForecastDayPr($anlage, $to);
-
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Forecast PR';
