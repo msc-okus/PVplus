@@ -1,7 +1,13 @@
 {% extends 'base.html.twig' %}
 
+{% if app.user.eigners.owner.id == 10004 or app.user.eigners.owner.id == 10009 %}
+    {% set alertName = 'Tickets' %}
+{% else %}
+    {% set alertName = 'Alerts' %}
+{% endif %}
+
 {% block title %}
-    {{  parent() }}Edit Ticket
+    {{  parent() }}Edit {{ alertName }}
 {% endblock %}
 
 {% block javascripts %}

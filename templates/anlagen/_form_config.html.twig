@@ -198,12 +198,11 @@
                             </div>
                             <div class="cell medium-6">
                                 {{ form_row(anlageForm.picture) }}
+                                {%  if isupload == 'yes' %}
+                                    Last Uploaded:<br>
+                                    <img class="article-img" src="{{ absolute_url(asset(imageuploadet)) }}" alt="-"><br>
+                                {% endif %}
 
-                            {%  if isupload == 'yes' %}
-                                Last Uploaded:<br>
-                                <img class="article-img" src="{{ absolute_url(asset(imageuploadet)) }}" alt="-"><br>
-
-                            {% endif %}
                             </div>
                         </div>
                         <hr>

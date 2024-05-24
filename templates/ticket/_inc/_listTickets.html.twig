@@ -1,13 +1,19 @@
+{% set alertName = 'Alert' %}
+{% if app.user and app.user.owner %}
+    {% if app.user.owner.id == 10004 or app.user.owner.id == 10009 %}
+        {% set alertName = 'Ticket' %}
+    {% endif %}
+{% endif %}
 <form id="tableForm"></form>
 
 <table class="table sortable stickyheader">
     <thead>
     <tr>
         <th {% if pagination.isSorted('ticket.id') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'Ticket ID', ['ticket.id'], {'data-action': 'ticket-list#sortId'}) }}
-            <span data-tooltip tabindex="1" title="With '•' means: is created by 'AlertSystem'"><i class="fa fa-info-circle"></i></span>
+            {{ knp_pagination_sortable(pagination, alertName ~' ID', ['ticket.id'], {'data-action': 'ticket-list#sortId'}) }}
+            <span data-tooltip tabindex="1" title="With '•' means: was created by 'AlertSystem'"><i class="fa fa-info-circle"></i></span>
         </th>
-        <th> <span data-tooltip tabindex="1" title="For a Performance Ticket a green dot means it is active, a red one means it is not"><i class="fa fa-info-circle"></i></span> </th>
+        <th> <span data-tooltip tabindex="1" title="For a Performance {{ alertName }} a green dot means it is active, a red one means it is not"><i class="fa fa-info-circle"></i></span> </th>
         <th>Plant</th>
         <th>Identifier</th>
         <th class="text-center">Status</th>
@@ -46,9 +52,9 @@
             <td>
                 {% if (ticket.alertType >= 70 and ticket.alertType < 80) %}
                     {% if (ticket.kpiStatus == 10) %} {# Activ #}
-                        <span style="color: green;font-size: 20px">●</span>
+                        <span style="color: green; font-size: 20px">●</span>
                     {% elseif (ticket.kpiStatus == 20) %}{# inactiv #}
-                        <span style="color: red;font-size: 20px">●</span>
+                        <span style="color: red; font-size: 20px">●</span>
                     {% endif %}
                 {% endif %}
             </td>
@@ -88,7 +94,7 @@
                         timelineUrl: path('app_ticket_notification_timeline', {id: ticket.id}),
                     }) }}>
 
-                    <button title="Edit Ticket [{{ ticket.id }}]" class="button action-icon tiny hollow shadow"
+                    <button title="Edit {{ alertName }} [{{ ticket.id }}]" class="button action-icon tiny hollow shadow"
                             data-action="ticket-edit#openModal"
                             data-append-to="div#modal-form{{ ticket.id }}">
                         <span class="fa fa-edit"></span>
@@ -126,7 +132,7 @@
 
                     {{ include('ticket/_inc/_modalTicket.html.twig', {
                         modalId: ticket.id,
-                        modalTitel: 'Edit Ticket',
+                        modalTitel: "Edit "~ alertName,
                         class: 'large',
                         dataVOffset: '10',
                     }) }}
@@ -134,9 +140,9 @@
             </td>
             <td>
                 {% if is_granted('ROLE_ADMIN') %}
-                    <button title="Remove Ticket [{{ ticket.id }}]" class="hollow alert button action-icon tiny shadow"
+                    <button title="Remove {{ alertName }} [{{ ticket.id }}]" class="hollow alert button action-icon tiny shadow"
                             {{ stimulus_controller('submit-confirm', {
-                                title: 'Remove this ticket?',
+                                title: 'Remove this' ~ alertName ~'?',
                                 confirmButtonText: 'Yes, remove it',
                                 redirectUrl: path('app_ticket_deleteticket', { id: ticket.id})
                             }) }}

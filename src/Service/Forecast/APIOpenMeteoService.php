@@ -28,9 +28,8 @@ class APIOpenMeteoService {
         ($fdays > 0) ? $forecastdays = "&forecast_days=$fdays" : $forecastdays = "";
         set_time_limit(550);
         $curl = curl_init();
-        curl_setopt_array($curl, [CURLOPT_URL => 'https://api.open-meteo.com/v1/forecast?latitude=' . $lat . '&longitude=' . $lon . $historydays . $forecastdays . '&minutely_15=temperature_2m,windspeed_10m,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&hourly=temperature_2m,windspeed_10m,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&timezone=Europe%2FBerlin', CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => '', CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => 'GET']);
-
-        #curl_setopt_array($curl,[CURLOPT_URL => 'https://api.open-meteo.com/v1/forecast?latitude='.$lat.'&longitude='.$lon.'&minutely_15=temperature_2m,windspeed_10m,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&hourly=temperature_2m,windspeed_10m,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&timezone=Europe%2FBerlin&start_date=2023-08-08&end_date=2023-08-12', CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => '', CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => 'GET']);
+        curl_setopt_array($curl, [CURLOPT_URL => 'https://api.open-meteo.com/v1/forecast?latitude=' . $lat . '&longitude=' . $lon . $historydays . $forecastdays . '&minutely_15=temperature_2m,windspeed_10m,global_tilted_irradiance_instant,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&hourly=temperature_2m,windspeed_10m,global_tilted_irradiance_instant,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&timezone=Europe%2FBerlin', CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => '', CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => 'GET']);
+        #curl_setopt_array($curl,[CURLOPT_URL => 'https://api.open-meteo.com/v1/forecast?latitude='.$lat.'&longitude='.$lon.'&minutely_15=temperature_2m,windspeed_10m,global_tilted_irradiance,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&hourly=temperature_2m,windspeed_10m,global_tilted_irradiance,direct_normal_irradiance_instant,diffuse_radiation_instant,direct_radiation_instant,shortwave_radiation_instant&timezone=Europe%2FBerlin&start_date=2023-08-08&end_date=2023-08-12', CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => '', CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => 'GET']);
 
         $response = curl_exec($curl);
         curl_close($curl);
@@ -43,8 +42,9 @@ class APIOpenMeteoService {
     public function make_sortable_data(): array
     {
         // Um die Genauigkeit zu verbessern werden 10 weitere Standorte im Umkeis mit eingebunden.
+        // global_tilted_irradiance hinzugefuegt neu
         # $coords = $this->getBoundingRadius($this->lat, $this->lon, 5,9); # 5 Coordinaten vom 5/9 KM Radius von Standort
-        $coords = $this->convert([$this->lat, $this->lon], 5, 10); # 10 Coordinaten vom 5 KM Radius von Standort
+        $coords = $this->convert([$this->lat, $this->lon], 1, 14); # errechnet 14 Coordinaten vim 5 KM Radius von Standort
         $cn = 1;
 
         // Auslesen der Standorte im Umkeis.
@@ -69,8 +69,9 @@ class APIOpenMeteoService {
                 $daghi15 = $dataarray->minutely_15->direct_radiation_instant[$key];
                 $datmp15 = $dataarray->minutely_15->temperature_2m[$key];
                 $dawds15 = $dataarray->minutely_15->windspeed_10m[$key];
+                $dagti15 = $dataarray->minutely_15->global_tilted_irradiance_instant[$key];
                 #$minarray[$date]['minute'][$key] = ["ts" => $sqldate, "year" => $year, "month" => $month, "day" => $day, "doy" => $dayofyear + 1, "hour" => $hour, "minute" => $minute, "dni" => $dadni15, "dhi" => $dadhi15, "ghi" => $daghi15, "swi" => $daswi15, "tmp" => $datmp15, "wds" => $dawds15];
-                $minarray[$date]['minute'][$sqldate][$cn] = ["dni" => $dadni15, "dhi" => $dadhi15, "ghi" => $daghi15, "swi" => $daswi15, "tmp" => $datmp15, "wds" => $dawds15];
+                $minarray[$date]['minute'][$sqldate][$cn] = ["gti" => $dagti15,"dni" => $dadni15, "dhi" => $dadhi15, "ghi" => $daghi15, "swi" => $daswi15, "tmp" => $datmp15, "wds" => $dawds15];
              }
 
             // build Array for Hourly Data
@@ -85,8 +86,9 @@ class APIOpenMeteoService {
                 $daghi60 = $dataarray->hourly->direct_radiation_instant[$key];
                 $datmp60 = $dataarray->hourly->temperature_2m[$key];
                 $dawds60 = $dataarray->hourly->windspeed_10m[$key];
+                $dagti60 = $dataarray->hourly->global_tilted_irradiance_instant[$key];
                 #$hrarray[$date]['hourly'][$key] = ["ts" => $sqldate, "year" => $year, "month" => $month, "day" => $day, "doy" => $dayofyear + 1, "hour" => $hour, "minute" => $minute, "dni" => $dadni60, "dhi" => $dadhi60, "ghi" => $daghi60, "swi" => $daswi60, "tmp" => $datmp60, "wds" => $dawds60];
-                $hrarray[$date]['hourly'][$sqldate][$cn] = ["dni" => $dadni60, "dhi" => $dadhi60, "ghi" => $daghi60, "swi" => $daswi60, "tmp" => $datmp60, "wds" => $dawds60];
+                $hrarray[$date]['hourly'][$sqldate][$cn] = ["gti" => $dagti60,"dni" => $dadni60, "dhi" => $dadhi60, "ghi" => $daghi60, "swi" => $daswi60, "tmp" => $datmp60, "wds" => $dawds60];
             }
 
             $cn++;

@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+
+{% block title %}
+    {{ parent() }}Media
+{% endblock %}
+
+{% block body %}
+    <h1>List Media Resources</h1>
+    <div {{ stimulus_controller('media-list', {
+        urlSearch: path('app_media_list', { id:  id , ajax: 1 }),
+
+    }) }}
+            id="list">
+        <div {{ stimulus_controller('request') }}>
+            <div data-action="submit-confirm:async:submitted->media-list#update">
+                <div  >
+                    <div class="grid-x grid-margin-x align-top" >
+                        {% include 'media_storage/_inc/_form.html.twig' %}
+                    </div>
+                </div>
+                <div data-media-list-target="list" >
+                    {% include 'media_storage/_inc/_list.html.twig' %}
+                </div>
+            </div>
+            <div data-media-list-target="uploadForm">
+                {{ form_start(form) }}
+                    {{ form_widget(form.files) }}
+                    {{ form_widget(form.save) }}
+
+                <div class="is-hidden"> {{ form_rest(form) }}</div>
+                {{ form_end(form) }}
+            </div>
+
+
+        </div>
+    </div>
+{% endblock %}

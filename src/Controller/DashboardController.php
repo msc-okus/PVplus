@@ -21,7 +21,7 @@ class DashboardController extends BaseController
 
         if ($this->isGranted('ROLE_G4N')) { // Benutzer ist administrator (sieht alle Eigner mit allen Anlagen)
             $eigners = $eignerRepository->findAllDashboard();
-        } else if ($this->isGranted('ROLE_Operations')) {
+        } else if ($this->isGranted('ROLE_OPERATIONS_G4N')) {
             return $this->redirectToRoute('app_operations_dashboard');
         } else {
             $eigners = $this->getUser()->getEigners();

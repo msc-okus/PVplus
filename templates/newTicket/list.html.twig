@@ -6,11 +6,11 @@
 {% endblock %}
 
 {% block title %}
-    {{ parent() }}tickets
+    {{ parent() }}{{ alertName }}
 {% endblock %}
 
 {% block body %}
-    <h1>List Tickets</h1>
+    <h1>List {{ alertName }}</h1>
     <div id="anlTicket">
         <div {{ stimulus_controller('ticket-list', {
                     urlCreate: path('app_ticket_create'),

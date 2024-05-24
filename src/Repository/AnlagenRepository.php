@@ -26,16 +26,6 @@ class AnlagenRepository extends ServiceEntityRepository
         parent::__construct($registry, Anlage::class);
     }
 
-    public function getSymfonyImportPlants()
-    {
-        $qb = $this->createQueryBuilder('plants')
-            ->leftJoin('plants.settings', 'settings')
-            ->where('settings.symfonyImport = true')
-        ;
-
-        return $qb->getQuery()
-            ->getResult();
-    }
 
     public static function selectLegendType($type): Criteria
     {

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Form\Import\ImportEGridFormType;
 use App\Form\Import\ImportPvSystFormType;
 use App\Form\ImportTools\ImportToolsFormType;
+use App\Form\Model\ImportPvSystModel;
 use App\Form\Model\ImportToolsModel;
 use App\Helper\G4NTrait;
 use App\Helper\ImportFunctionsTrait;
@@ -119,7 +120,7 @@ class ImportToolsController extends BaseController
     {
 
         //get all Plants for Import via via Cron
-        $anlagen = $anlagenRepo->getSymfonyImportPlants();
+        $anlagen = $anlagenRepo->findAllSymfonyImport();
 
         $time = time();
         $time -= $time % 900;
@@ -255,16 +256,18 @@ class ImportToolsController extends BaseController
     #[Route(path: '/import/pvsyst', name: 'import_pvsyst')]
     public function importPvSyst(Request $request, PvSystImportService $pvSystImport): Response
     {
-        $filename = null;
-        $form = $this->createForm(ImportPvSystFormType::class);
+        $prefills = new ImportPvSystModel();
+        $prefills->separator = ';';
+        $prefills->dateFormat = 'd/m/y h:m';
+        $prefills->filename = null;
+
+        $form = $this->createForm(ImportPvSystFormType::class, $prefills );
         $form->handleRequest($request);
+
 
         $output = '';
 
         if ($form->isSubmitted() && $form->isValid() && $form->get('preview')->isClicked()) {
-
-            $anlage = $form->getData()->anlage;
-
             /** @var UploadedFile $uploadedFile */
             /** @var UploadedFile $file */
             $uploadedFile = $form['file']->getData();
@@ -272,11 +275,19 @@ class ImportToolsController extends BaseController
             $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
             $newFilename = Urlizer::urlize($originalFilename) . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
             $file = $uploadedFile->move($destination, $newFilename);
-            $filename = $file->getPathname();
+            $prefills->filename = $file->getPathname();
             $fileStream = fopen($file->getPathname(), 'r');
             for ($n = 1; $n <= 20; $n++) {
-                $output .= fgets($fileStream) . '<br>';
+                $line = fgets($fileStream);
+                //try to analyse wich field separator is used (default is ';')
+                if ($n === 11) {
+                    if (str_contains($line, ",")){
+                        $prefills->separator = ',';
+                    }
+                }
+                $output .= $line . '<br>';
             }
+            $form = $this->createForm(ImportPvSystFormType::class, $prefills );
         }
 
         if ($form->isSubmitted() && $form->isValid() && $form->get('import')->isClicked()) {
@@ -295,7 +306,7 @@ class ImportToolsController extends BaseController
 
         return $this->render('import/pvSystImport.html.twig', [
             'form'     => $form,
-            'filename' => $filename,
+            'prefills' => $prefills,
             'output'   => $output,
         ]);
     }

@@ -502,7 +502,7 @@ class AnlageModules
 
     public function getBackSideFactorMultiplier(): float
     {
-        return 1 + $this->backSideFactor / 100;
+        return 1 + ($this->backSideFactor / 100);
     }
 
     public function getAnlage(): ?Anlage
