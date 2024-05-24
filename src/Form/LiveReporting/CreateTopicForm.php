@@ -77,17 +77,20 @@ class CreateTopicForm extends AbstractType {
                     'choices' => $yearArray,
                     'placeholder' => 'please Choose ...',
                     'required' => true,
+                    'attr' => array('style' => 'width: 200px')
                 ]);
 				$builder->add('month', ChoiceType::class, [
                     'choices' => $monthArray,
                     'placeholder' => 'please Choose ...',
                     'required' => true,
+                    'attr' => array('style' => 'width: 200px')
 				]);
 				$builder->add('anlage', EntityType::class, [
                     'label' => 'Please select a Plant',
                     'class' => Anlage::class,
                     'choices' => $anlagen_toShow,
                     'choice_label' => 'anlName',
+                    'attr' => array('style' => 'width: 200px')
                 ]);
 
 				break;
@@ -110,14 +113,16 @@ class CreateTopicForm extends AbstractType {
                 $builder->add('startday', ChoiceType::class, [
                     'choices' => $startdayArray,
                     'placeholder' => 'please Choose ...',
-                    'required' => true
+                    'required' => true,
+                    'attr' => array('style' => 'width: 200px')
                 ]);
 
 
                 $builder->add('endday', ChoiceType::class, [
                     'choices' => $startdayArray,
                     'placeholder' => 'please Choose ...',
-                    'required' => true
+                    'required' => true,
+                    'attr' => array('style' => 'width: 200px')
                 ]);
 
 				break;

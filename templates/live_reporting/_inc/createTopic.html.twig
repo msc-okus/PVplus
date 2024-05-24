@@ -74,14 +74,18 @@
 			{{ form_rest(form) }}
 		</fieldset>
 
-	{% include '@CraueFormFlow/FormFlow/buttons.html.twig' with {
-		craue_formflow_button_class_last: 'btn btn-primary',
-		craue_formflow_button_class_back: 'btn_back',
-		craue_formflow_button_class_reset: 'btn btn-warning',
-		craue_formflow_button_class_next: 'btn_next',
-		craue_formflow_button_class_finish: 'submit',
-		craue_formflow_button_label_finish: 'submit',
-		craue_formflow_button_label_reset: 'Start over',
-	} %}
+		<div class="formflowbuttons">
+			<div class="formflowbuttonsinner">
+				{% include '@CraueFormFlow/FormFlow/buttons.html.twig' with {
+					craue_formflow_button_class_last: 'btn btn-primary',
+					craue_formflow_button_class_back: 'btn_back',
+					craue_formflow_button_class_reset: 'btn btn-warning',
+					craue_formflow_button_class_next: 'btn_next',
+					craue_formflow_button_class_finish: 'submit',
+					craue_formflow_button_label_finish: 'Create report',
+					craue_formflow_button_label_reset: 'Start over',
+				} %}
+			</div>
+		</div>
 	{{ form_end(form) }}
 {% endblock %}
