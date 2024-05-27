@@ -19,22 +19,25 @@
             {% endif %}
 
             {% if flow.getCurrentStepNumber() == 4 %}
+                {% set monthlist = {1: 'January',2: 'February', 3: 'March',4: 'April', 5: 'May',6: 'June', 7: 'July',8: 'August', 9: 'September',10: 'October',11: 'November',12: 'December'} %}
+                {% set month = formData.month %}
                 <h3>{{ 'Check your Data' }}</h3>
                 <br />
                 <dl>
+                    <div class="formFlowConfirmData">
+                        <dt>{{ 'Plant' }}</dt>
+                        <dd>{{ formData.anlagename }}</dd>
+                    </div>
+
                     <div class="formFlowConfirmData">
                         <dt>{{ 'Year' }}:</dt>
                         <dd>{{ formData.year }}</dd>
                     </div>
 
-                    <div class="formFlowConfirmData">
-                        <dt>{{ 'Month' }}</dt>
-                        <dd>{{ formData.month }}</dd>
-                    </div>
 
                     <div class="formFlowConfirmData">
-                        <dt>{{ 'Plant' }}</dt>
-                        <dd>{{ formData.anlagename }}</dd>
+                        <dt>{{ 'Month' }}</dt>
+                        <dd>{{ attribute(monthlist, month) }}</dd>
                     </div>
 
                     <div class="formFlowConfirmData">

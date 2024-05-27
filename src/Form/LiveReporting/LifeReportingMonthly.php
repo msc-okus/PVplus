@@ -55,16 +55,32 @@ class LifeReportingMonthly extends AbstractType {
         }
 
         //create select for month
-        $monthArray = [];
-        for($i=1; $i <= 12; $i++) {
-            $monthArray[$i] = $i;
-        }
+        $monthnameArray = [
+            'January' => 1,
+            'February' => 2,
+            'March' => 3,
+            'April' => 4,
+            'May' => 5,
+            'June' => 6,
+            'July' => 7,
+            'August' => 8,
+            'September' => 9,
+            'October' => 10,
+            'November' => 11,
+            'December' => 12
+        ];
 
 		$isBugReport = $options['isBugReport'];
 
-
 		switch ($options['flow_step']) {
 			case 1:
+                $builder->add('anlage', EntityType::class, [
+                    'label' => 'Please select a Plant',
+                    'class' => Anlage::class,
+                    'choices' => $anlagen_toShow,
+                    'choice_label' => 'anlName',
+                    'attr' => array('style' => 'width: 200px')
+                ]);
                 $builder->add('year', ChoiceType::class, [
                     'choices' => $yearArray,
                     'placeholder' => 'please Choose ...',
@@ -72,19 +88,11 @@ class LifeReportingMonthly extends AbstractType {
                     'attr' => array('style' => 'width: 200px')
                 ]);
 				$builder->add('month', ChoiceType::class, [
-                    'choices' => $monthArray,
+                    'choices' => $monthnameArray,
                     'placeholder' => 'please Choose ...',
                     'required' => true,
                     'attr' => array('style' => 'width: 200px')
 				]);
-				$builder->add('anlage', EntityType::class, [
-                    'label' => 'Please select a Plant',
-                    'class' => Anlage::class,
-                    'choices' => $anlagen_toShow,
-                    'choice_label' => 'anlName',
-                    'attr' => array('style' => 'width: 200px')
-                ]);
-
 				break;
 			case 2:
                 $year = $options['year'];
