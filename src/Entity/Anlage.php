@@ -3762,9 +3762,11 @@ class Anlage implements \Stringable
         return $this;
     }
 
-  public function getFildForcastDat() {
+    public function getFildForcastDat(): ?string
+    {
         return $this->getDatFilename();
-  }
+    }
+
     public function isDay(?DateTime $stamp = null): bool
     {
         if (!$stamp) $stamp = new DateTime();
@@ -3998,6 +4000,7 @@ class Anlage implements \Stringable
     {
         return $this->sensors;
     }
+
 
     public function getSensorsInUse(): Collection
     {

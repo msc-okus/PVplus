@@ -5,7 +5,9 @@ namespace App\Service;
 use App\Entity\AlertMessages;
 use App\Helper\G4NTrait;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 
 class G4NSendMailService
 {
@@ -19,7 +21,7 @@ class G4NSendMailService
 
     public function SendAlertMail($to, $subject, $message, $alertType = 0, $anlagenId = 0, $statusId = 0, $statusIdLast = 0)
     {
-        /*
+
         $email =  new TemplatedEmail();
         $alertEmailG4n = new Address('alert@g4npvplus.de', 'Alert Email');
         $email
@@ -34,13 +36,13 @@ class G4NSendMailService
             $email->addTo($to);
         }
 
-        $this->mailer->send($email);
+        //$this->mailer->send($email);
         sleep(2);
-*/
+
         $alertMessage = new AlertMessages();
         $alertMessage->setAlertType($alertType);
         $alertMessage->setAnlagenId($anlagenId);
-        ($to) ? $alertMessage->setEmailRecipient($to) : $alertMessage->setEmailRecipient($alertEmailG4n);
+        ($to) ? $alertMessage->setEmailRecipient($to) : $alertMessage->setEmailRecipient($alertEmailG4n->getAddress());
         $alertMessage->setSubject($subject);
         $alertMessage->setMessage($message);
         $alertMessage->setStatusId('0');

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\AnlageSensors;
 use App\Entity\NotificationInfo;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
@@ -55,15 +56,18 @@ class TicketController extends BaseController
         }
 
         if ($anlage != null) {
-            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
+            //$trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
+
         if ($anlage) {
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
             $ticket = new Ticket();
-            $ticket->setAnlage($anlage);
             $ticket
+                ->setAnlage($anlage)
                 ->setBegin(date_create(date('Y-m-d H:i:s', time() - time() % 900)))
                 //->setEnd(date_create(date('Y-m-d H:i:s', (time() - time() % 900) + 900)))
                 ->setAlertType(0);
+
             $ticketDate = new TicketDate();
 
             $ticketDate
@@ -97,7 +101,7 @@ class TicketController extends BaseController
         }
         $nameArray = $anlage->getInverterFromAnlage();
         $inverterArray = [];
-        $namesSensors = $anlage->getSensors();
+        $namesSensors = $anlage->getSensorsInUse(); // lade alle Sensoren die für die Berechnung vbon Mittelwerten benötigt werden
         $sensorArray = [];
         // I loop over the array with the real names and the array of selected inverters
         // of the inverter to create a 2-dimension array with the real name and the inverters that are selected
@@ -106,12 +110,15 @@ class TicketController extends BaseController
             $inverterArray[$key]["inv"] = $value;
             $inverterArray[$key]["select"] = "";
         }
+        /**
+         * @var AnlageSensors $sensor
+         */
         foreach ($namesSensors as $key => $sensor) {
+            $sensorArray[$key]['id'] = $sensor->getId();
             $sensorArray[$key]['name'] = $sensor->getName();
             $sensorArray[$key]['nameS'] = $sensor->getNameShort();
             $sensorArray[$key]['checked'] = "";
         }
-
 
         return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,

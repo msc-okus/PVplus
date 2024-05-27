@@ -13,6 +13,7 @@ use App\Service\CheckSystemStatusService;
 use App\Service\ExportService;
 use App\Service\ExpectedService;
 use App\Service\PRCalulationService;
+use App\Service\Sensors\SensorGettersServices;
 use App\Service\SystemStatus2;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,19 +36,20 @@ class DefaultMREController extends BaseController
         private readonly PRCalulationService $prCalulation,
         private readonly AvailabilityByTicketService $availabilityByTicket,
         private readonly AvailabilityService $availabilityService,
+        private readonly AnlagenRepository $anlagenRepository,
         private $kernelProjectDir,
     ){
     }
 
     #[Route(path: '/mr/test')]
-    public function test(): Response
+    public function test(SensorGettersServices $sensorServices): Response
     {
-        $currentDir = "../..";
-        $process = exec("php -dsafe_mode=Off $currentDir/anlagen/goldbeck/SUNROCK_Moerdijk/loadDataFromApi.php");
-        dump($process);
+        $anlage = $this->anlagenRepository->find('245');
+
+        dd($sensorServices->getSensorsIrrByTime($anlage, date_create('2024-05-26 10:00'), date_create('2024-05-26 11:00')));
 
         return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Update Systemstatus',
+            'headline' => 'Test',
             'availabilitys' => '',
             'output' => $process,
         ]);

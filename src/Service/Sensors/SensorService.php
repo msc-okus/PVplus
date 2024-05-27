@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Functions;
+namespace App\Service\Sensors;
 
 use App\Entity\Anlage;
 use App\Entity\TicketDate;
@@ -8,13 +8,13 @@ use App\Helper\G4NTrait;
 use App\Repository\PVSystDatenRepository;
 use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
+use App\Service\PdoService;
 use App\Service\WeatherFunctionsService;
-use Doctrine\ORM\NonUniqueResultException;
 use DateTime;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use JsonException;
 use Psr\Cache\InvalidArgumentException;
-use App\Service\PdoService;
 
 class SensorService
 {
