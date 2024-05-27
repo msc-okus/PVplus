@@ -7,7 +7,7 @@ use Craue\FormFlowBundle\Form\FormFlow;
 use Craue\FormFlowBundle\Form\FormFlowInterface;
 
 
-class CreateTopicFlow extends FormFlow {
+class LifeReportingMonthlyFlow extends FormFlow {
 
     public function __construct(
         private readonly AnlagenRepository $anlagenRepository,
@@ -16,7 +16,7 @@ class CreateTopicFlow extends FormFlow {
     }
 
 	protected function loadStepsConfig() {
-		$formType = CreateTopicForm::class;
+		$formType = LifeReportingMonthly::class;
 
 		return [
 			[

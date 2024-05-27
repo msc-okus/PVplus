@@ -21,8 +21,8 @@ use App\Form\Type\Monthly;
 use Craue\FormFlowBundle\Form\FormFlowInterface;
 use Craue\FormFlowBundle\Util\FormFlowUtil;
 use App\Form\Type\TopicCategoryType;
-use App\Entity\Topic;
-use App\Form\LiveReporting\CreateTopicFlow;
+use App\Entity\LiveReporting;
+use App\Form\LiveReporting\LifeReportingMonthlyFlow;
 
 class LiveReportingController extends AbstractController
 {
@@ -50,7 +50,7 @@ class LiveReportingController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
-    public function createTopicAction(Request $request, CreateTopicFlow $createTopicFlow, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
+    public function createTopicAction(Request $request, LifeReportingMonthlyFlow $createTopicFlow, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
 
         $output = $table = $tickets = null;
@@ -67,7 +67,7 @@ class LiveReportingController extends AbstractController
 
 
 
-        return $this->processFlow($request, new Topic(), $createTopicFlow,
+        return $this->processFlow($request, new LiveReporting(), $createTopicFlow,
             'live_reporting/reportMonthlyNew.html.twig', $anlagenRepository, $reportsMonthly);
 
 

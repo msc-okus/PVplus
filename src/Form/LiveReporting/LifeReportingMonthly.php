@@ -13,13 +13,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use App\Entity\Topic;
+use App\Entity\LiveReporting;
 /**
  * @author Christian Raue <christian.raue@gmail.com>
  * @copyright 2013-2022 Christian Raue
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-class CreateTopicForm extends AbstractType {
+class LifeReportingMonthly extends AbstractType {
 
     public function __construct(
         private readonly AnlagenRepository $anlagenRepository,
@@ -136,7 +136,7 @@ class CreateTopicForm extends AbstractType {
 	 */
 	public function configureOptions(OptionsResolver $resolver) {
 		$resolver->setDefaults([
-            'data_class' => Topic::class,
+            'data_class' => LiveReporting::class,
             'month' => '',
             'year' => '',
             'anlagename' => ''
@@ -147,7 +147,7 @@ class CreateTopicForm extends AbstractType {
 	 * {@inheritDoc}
 	 */
 	public function getBlockPrefix() : string {
-		return 'createTopic';
+		return 'createLifeRepoting_Monthly';
 	}
 
 }

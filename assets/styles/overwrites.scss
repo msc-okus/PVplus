@@ -1165,7 +1165,10 @@
 
     //beginn fromflow
     .flow-form{
-
+        fieldset{
+            display: block !important;
+            margin-left: 10px;
+        }
         .craue_formflow_buttons {
             overflow: hidden;
         }
@@ -1207,7 +1210,6 @@
             margin: 0 15px 20px 0;
         }
     }
-
     //end fromflow
 
     .message-log{

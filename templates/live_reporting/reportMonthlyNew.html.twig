@@ -8,7 +8,6 @@
     {{  parent() }}
     {{ encore_entry_link_tags('special_export') }}
     <link href="{{ absolute_url(asset('css/monthly_report_inline.css')) }}" rel="stylesheet" type="text/css">
-    <link type="text/css" rel="stylesheet" href="{{ asset('bundles/craueformflow/css/buttons.css') }}" />
 {% endblock %}
 
 {% block javascripts %}
@@ -17,22 +16,22 @@
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script>
         $(function () {
-            let daysInMonth = $('#createTopic_daysinmonth').val();
-            $('#createTopic_startday').on('change', function (e) {
+            let daysInMonth = $('#createLifeRepoting_Monthly_daysinmonth').val();
+            $('#createLifeRepoting_Monthly_startday').on('change', function (e) {
                 let optionSelected = $("option:selected", this);
                 let startday = parseInt(this.value);
                 let restDays = daysInMonth - startday;
 
 
-                $('#createTopic_endday').empty();
-                $('#createTopic_endday').append($('<option>', {
+                $('#createLifeRepoting_Monthly_endday').empty();
+                $('#createLifeRepoting_Monthly_endday').append($('<option>', {
                     value: 0,
                     text : 'please choose',
                     selected: true
                 }));
                 let i = startday;
                 while (i <= daysInMonth) {
-                    $('#createTopic_endday').append($('<option>', {
+                    $('#createLifeRepoting_Monthly_endday').append($('<option>', {
                         value: i,
                         text : i
                     }));
@@ -50,7 +49,7 @@
         </div>
     </div>
 
-    {% include'live_reporting/_inc/createTopic.html.twig' %}
+    {% include'live_reporting/_inc/_createMotnhly.html.twig' %}
     <hr>
     {% if report != null %}
         <div class="grid-x">

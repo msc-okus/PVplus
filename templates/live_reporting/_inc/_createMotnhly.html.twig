@@ -1,44 +1,75 @@
-{% extends 'base.html.twig' %}
 
-{% block title %}
-    {{  parent() }}special operations
-{% endblock %}
+{% block form %}
 
-{% block styles %}
-    {{  parent() }}
-    {{ encore_entry_link_tags('special_export') }}
-    <link href="{{ absolute_url(asset('css/monthly_report_inline.css')) }}" rel="stylesheet" type="text/css">
-{% endblock %}
+    {% set routeParams = app.request.query.all() | merge(app.request.attributes.get('_route_params')) %}
+    {% if flow.isAllowDynamicStepNavigation() %}
+        {% set routeParams = routeParams | craue_removeDynamicStepNavigationParameters(flow) %}
+    {% endif %}
 
-{% block javascripts %}
-    {{ parent() }}
-    {{ encore_entry_script_tags('special_export') }}
-{% endblock %}
+    {{ form_start(form, {'action': path(app.request.attributes.get('_route'), routeParams), 'attr': {'class': 'flow-form'}}) }}
+    <div class="grid-x grid-margin-x align-middle">
+        <fieldset>
+            <legend><span id="step"><br> <h2>{{ 'Step' | trans }} {{ flow.getCurrentStepNumber() }} {{ flow.getCurrentStepLabel() | trans }}</h2></span></legend>
+            {{ form_errors(form) }}
 
-{% block body %}
-    <div class="grid-x">
-        <div class="cell">
-            <h1>{{ headline }}</h1>
+            {% if flow.getCurrentStepNumber() == 3 %}
+                {{ 'bug_details_intro' | trans }}
+                <br /><br />
+                {{ form_row(form.details) }}
+            {% endif %}
+
+            {% if flow.getCurrentStepNumber() == 4 %}
+                <h3>{{ 'Check your Data' }}</h3>
+                <br />
+                <dl>
+                    <div class="formFlowConfirmData">
+                        <dt>{{ 'Year' }}:</dt>
+                        <dd>{{ formData.year }}</dd>
+                    </div>
+
+                    <div class="formFlowConfirmData">
+                        <dt>{{ 'Month' }}</dt>
+                        <dd>{{ formData.month }}</dd>
+                    </div>
+
+                    <div class="formFlowConfirmData">
+                        <dt>{{ 'Plant' }}</dt>
+                        <dd>{{ formData.anlagename }}</dd>
+                    </div>
+
+                    <div class="formFlowConfirmData">
+                        <dt>{{ 'Startday' }}</dt>
+                        <dd>{{ formData.startday }}</dd>
+                    </div>
+
+                    <div class="formFlowConfirmData">
+                        <dt>{{ 'Endday' }}</dt>
+                        <dd>{{ formData.endday }}</dd>
+                    </div>
+
+                    {% if formData.isBugReport() %}
+                        <dt>{{ 'details' }}</dt>
+                        <dd>{{ formData.details | nl2br }}</dd>
+                    {% endif %}
+                </dl>
+            {% endif %}
+
+            {{ form_rest(form) }}
+        </fieldset>
+    </div>
+    <div class="formflowbuttons">
+        <div class="formflowbuttonsinner">
+            {% include '@CraueFormFlow/FormFlow/buttons.html.twig' with {
+                craue_formflow_button_class_last: 'btn btn-primary',
+                craue_formflow_button_class_back: 'btn_back',
+                craue_formflow_button_class_reset: 'btn btn-warning',
+                craue_formflow_button_class_next: 'btn_next',
+                craue_formflow_button_class_finish: 'submit',
+                craue_formflow_button_label_finish: 'Create report',
+                craue_formflow_button_label_reset: 'Start over',
+            } %}
         </div>
     </div>
-
-    <div>
-        Steps:
-        {% include '@CraueFormFlow/FormFlow/stepList.html.twig' %}
-    </div>
-    {{ form_start(form) }}
-        {{ form_errors(form) }}
-
-        {% if flow.getCurrentStepNumber() == 1 %}
-            <div>
-                When selecting four wheels you have to choose the engine in the next step.<br />
-                {{ form_row(form.numberOfWheels) }}
-            </div>
-        {% endif %}
-
-        {{ form_rest(form) }}
-
-        {% include '@CraueFormFlow/FormFlow/buttons.html.twig' %}
     {{ form_end(form) }}
 
 {% endblock %}
