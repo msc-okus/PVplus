@@ -25,13 +25,15 @@
         {% if is_granted('ROLE_G4N') or is_granted('ROLE_AM_STRING_ANALYSE') %}
             <li><a href="{{ path('app_analysis_list') }}"><i class="fa fa-chart-area"></i><span> Analysis Tools</span></a></li>
         {% endif %}
-        {% if is_granted('ROLE_G4N') %}
+        {% if is_granted('ROLE_G4N') or is_granted('ROLE_BETA') %}
             <li>
                 <a href="#"><i class="fa fa-file-import"></i><span> Import</span></a>
                 <ul class="vertical menu nested">
                     <li><a href="{{ path('import_egrid') }}"><i class="fa fa-file-import"></i>eGrid Import</a></li>
                     <li><a href="{{ path('import_pvsyst') }}"><i class="fa fa-file-import"></i>PV Syst Import</a></li>
-                    <li><a href="{{ path('import_fb_excel') }}"><i class="fa fa-file-import"></i>Tickets Import</a></li>
+                    {% if is_granted('ROLE_G4N') %}
+                        <li><a href="{{ path('import_fb_excel') }}"><i class="fa fa-file-import"></i>Tickets Import</a></li>
+                    {% endif %}
                 </ul>
             </li>
         {% endif %}
