@@ -470,7 +470,7 @@
                                     {% if templateForSelection == 'selectstringboxes.html.twig' %}
                                         {% include 'dashboardPlants/_incl/chart/selectstringboxes.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited, useRadioButtons:useRadioButtons, form:form, configtype:configtype} only %}
                                     {% else %}
-                                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited, useRadioButtons:useRadioButtons, form:form, configtype:configtype} only %}
+                                        {% include 'dashboardPlants/_incl/chart/selectinverters.html.twig' with {invArray:invArray, invIdsArray:invIdsArray, trafoArray:trafoArray, edited:edited, useRadioButtons:useRadioButtons, form:form, configtype:configtype, selectAllInverters:selectAllInverters} only %}
                                     {% endif %}
                                 </div>
                             </div>
