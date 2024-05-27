@@ -128,11 +128,12 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '',
                 'required' => false,
             ])
-            ->add('country', TextType::class, [
+            ->add('country', ChoiceType::class, [
                 'label' => 'Shortcut for the country (de, nl, ...)',
                 'help' => '[country]',
                 'empty_data' => '',
                 'required' => false,
+                'choices' => $this->countryCodes(),
             ])
             ->add('anlGeoLat', TextType::class, [
                 'label' => 'Latitude [Decimal notation]',
