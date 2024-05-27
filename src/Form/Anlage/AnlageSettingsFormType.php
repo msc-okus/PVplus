@@ -264,6 +264,15 @@ class AnlageSettingsFormType extends AbstractType
                 'required' => false,
             ])
 
+            ->add('dataDelay', IntegerType::class, [
+                'label' => 'Data Delay(max 24 hours)',
+                'help' => 'use this if data from vcom or FTP-Push are delayed as normal case)',
+                'empty_data' => '0',
+                'required' => false,
+                'attr' => array('max' < 25,
+                    'maxlength' => 2)
+            ])
+
             ###### Analysis ######
             ->add('activateAnalysis', SwitchType::class, [
                 'label'     => 'Enable the Analysis tools for this plant',
