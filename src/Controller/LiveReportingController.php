@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Anlage;
 use App\Entity\TicketDate;
 use App\Repository\AnlagenRepository;
+use App\Repository\MonthlyDataRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\Reports\ReportsMonthlyV2Service;
@@ -15,15 +16,27 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use App\Form\LiveReporting\CreateMonthlyForm;
+use App\Form\Type\Monthly;
+use Craue\FormFlowBundle\Form\FormFlowInterface;
+use Craue\FormFlowBundle\Util\FormFlowUtil;
+use App\Form\Type\TopicCategoryType;
+use App\Entity\LiveReporting;
+use App\Form\LiveReporting\LifeReportingMonthlyFlow;
 
 class LiveReportingController extends AbstractController
 {
+    /**
+     * @var FormFlowUtil
+     */
+    private $formFlowUtil;
     public function __construct(
         private readonly TicketDateRepository $ticketDateRepo,
         private readonly TranslatorInterface $translator,
+        FormFlowUtil $formFlowUtil
     )
     {
-
+        $this->formFlowUtil = $formFlowUtil;
     }
     /**
      * Erzeugt einen Monatsreport mit den einzelenen Tagen und einer Monatstotalen
@@ -37,8 +50,9 @@ class LiveReportingController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
-    public function monthlyReportWithDays(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
+    public function createTopicAction(Request $request, LifeReportingMonthlyFlow $createTopicFlow, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
+
         $output = $table = $tickets = null;
         $startDay = $request->request->get('start-day');
         $endDay = $request->request->get('end-day');
@@ -50,25 +64,88 @@ class LiveReportingController extends AbstractController
         // Start individual part
         /** @var Anlage $anlage */
 
-        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
 
-        if ($submitted && $anlageId !== null) {
-            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
-            $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
+
+
+        return $this->processFlow($request, new LiveReporting(), $createTopicFlow,
+            'live_reporting/reportMonthlyNew.html.twig', $anlagenRepository, $reportsMonthly);
+
+
+
+    }
+
+    protected function processFlow(Request $request, $formData, FormFlowInterface $flow, $template, $anlagenRepository, $reportsMonthly) {
+
+        $flow->bind($formData);
+
+        $form = $submittedForm = $flow->createForm();
+        if ($flow->isValid($submittedForm)) {
+            $flow->saveCurrentStepData($submittedForm);
+
+            if ($flow->nextStep()) {
+                // create form for next step
+
+                $form = $flow->createForm();
+            } else {
+                // flow finished
+                // ...
+                $form = $flow->createForm();
+                $data = $form->getData();
+
+                $output = $table = $tickets = null;
+                $startDay = $data->getStartDay();
+                $endDay = $data->getEndDay();
+                $month = $data->getMonth();
+                $year = $data->getYear();
+                $anlageId = $data->getAnlage();
+                $submitted = true;
+
+                // Start individual part
+                /** @var Anlage $anlage */
+
+                $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+
+                if ($submitted && $anlageId !== null) {
+                    $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+                    $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
+                    $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
+                }
+
+                $flow->reset();
+                echo "<style>#step, .btn_next{display: none !important;}</style>";
+
+                return $this->render($template, [
+                    'form' => $form->createView(),
+                    'flow' => $flow,
+                    'formData' => $formData,
+                    'headline' => 'Monthly Report',
+                    'anlage' => $anlage,
+                    'report' => $output,
+                    'status' => $anlageId,
+                    'datatable' => $table,
+                    'tickets'   => $tickets
+                ]);
+            }
         }
 
+        if ($flow->redirectAfterSubmit($submittedForm)) {
+            $params = $this->formFlowUtil->addRouteParameters(array_merge($request->query->all(),
+                $request->attributes->get('_route_params')), $flow);
 
-        return $this->render('live_reporting/reportMonthlyNew.html.twig', [
+            return $this->redirectToRoute($request->attributes->get('_route'), $params);
+        }
+
+        return $this->render($template, [
+            'form' => $form->createView(),
+            'flow' => $flow,
+            'formData' => $formData,
             'headline' => 'Monthly Report',
-            'anlagen' => $anlagen,
-            'anlage' => $anlage,
-            'report' => $output,
-            'status' => $anlageId,
-            'datatable' => $table,
-            'tickets'   => $tickets
+            'anlage' => '',
+            'report' => '',
+            'status' => '',
+            'datatable' => '',
+            'tickets'   => ''
         ]);
-
     }
 
     /**
