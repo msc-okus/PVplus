@@ -45,55 +45,63 @@ class AnlageNewFormType extends AbstractType
                 'disabled' => false,
             ])
             ->add('anlName', TextType::class, [
-                'label' => 'Anlagen Name',
-                'help' => '[anlName]',
+                'label' => 'Plant Name',
+                'help' =>  '[anlName]<br>The Name of the Plant',
                 'empty_data' => '',
                 'required' => true,
             ])
             ->add('projektNr', TextType::class, [
-                'label' => 'Projekt Nummer',
-                'help' => '[projektNr]',
+                'label' => 'Project Nummer',
+                'help' => '[projektNr]<br>optional Project No',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlStrasse', TextType::class, [
-                'label' => 'Strasse',
+                'label' => 'Street',
                 'help' => '[anlStrasse]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlPlz', TextType::class, [
-                'label' => 'PLZ',
+                'label' => 'ZIP Code',
                 'help' => '[anlPlz]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlOrt', TextType::class, [
-                'label' => 'Ort',
+                'label' => 'City',
                 'help' => '[anlOrt]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('country', TextType::class, [
-                'label' => 'Land als Kürzel (de, nl, ...)',
+                'label' => 'Shortcut for the country (de, nl, ...)',
                 'help' => '[country]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlGeoLat', TextType::class, [
-                'label' => 'Geografische Breite (Latitude) [Dezimalgrad]',
+                'label' => 'Latitude [Decimal notation]',
                 'help' => '[anlGeoLat]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlGeoLon', TextType::class, [
-                'label' => 'Geografische Länge (Longitude) [Dezimalgrad]',
+                'label' => 'Longitude [Decimal notation]',
                 'help' => '[anlGeoLon]',
                 'empty_data' => '',
                 'required' => false,
             ])
+            ->add('customPlantId', TextType::class, [
+                'label' => 'Identifier/s to select Plant via API',
+                'help' => '[customPlantId]<br> Can be more then one ID, seperatet with: comma. <br>Example: ABC2X,CDE3F]',
+                'empty_data' => '',
+                'required' => false,
+                'disabled' => false,
+            ])
             ->add('notes', TextareaType::class, [
                 'label' => 'Notizen zur Anlage',
+                'help' => '[notes]',
                 'attr' => ['rows' => '6'],
                 'empty_data' => '',
                 'required' => false,
@@ -129,25 +137,7 @@ class AnlageNewFormType extends AbstractType
                 'placeholder' => 'Please Choose',
                 'empty_data' => '+0',
             ])
-            ->add('anlInputDaily', ChoiceType::class, [
-                'label' => 'Nur einmal am Tag neue Daten',
-                'help' => '[anlInputDaily]',
-                'choices' => ['Yes' => 'Yes', 'No' => 'No'],
-                'placeholder' => 'Please Choose',
-                'empty_data' => 'No',
-                'disabled' => !($isDeveloper),
-            ])
-            /*
-            ->add('useNewDcSchema', ChoiceType::class, [
-                'label' => 'Neues DC Database Schema (separate Tabelle für DC IST)',
-                'help' => '[useNewDcSchema]',
-                'choices' => ['Yes' => '1', 'No' => '0'],
-                'empty_data' => '0',
-                'expanded' => false,
-                'multiple' => false,
-                'disabled' => !($isDeveloper),
-            ])
-            */
+
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
                 'help' => '[configType]',

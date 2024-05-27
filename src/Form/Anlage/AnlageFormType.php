@@ -135,20 +135,20 @@ class AnlageFormType extends AbstractType
                 'required' => false,
             ])
             ->add('anlGeoLat', TextType::class, [
-                'label' => 'Geografische Breite (Latitude) [Dezimalgrad]',
+                'label' => 'Latitude [Decimal notation]',
                 'help' => '[anlGeoLat]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlGeoLon', TextType::class, [
-                'label' => 'Geografische Länge (Longitude) [Dezimalgrad]',
+                'label' => 'Longitude [Decimal notation]',
                 'help' => '[anlGeoLon]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('customPlantId', TextType::class, [
-                'label' => 'Identifier/s to select Plant via API (e.g. VCOM can be more then one seperatet with ,)',
-                'help' => '[customPlantId/s you can add one or more VCOM-Ids like ABC2X,CDE3F]',
+                'label' => 'Identifier/s to select Plant via API',
+                'help' => '[customPlantId]<br> Can be more then one ID, seperatet with: comma. <br>Example: ABC2X,CDE3F]',
                 'empty_data' => '',
                 'required' => false,
                 'disabled' => !$isG4NUser,
@@ -192,6 +192,7 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '+0',
                 'disabled' => !$isG4NUser,
             ])
+            /*
             ->add('anlInputDaily', ChoiceType::class, [
                 'label' => 'Nur einmal am Tag neue Daten',
                 'help' => '[anlInputDaily]',
@@ -200,6 +201,7 @@ class AnlageFormType extends AbstractType
                 'empty_data' => 'No',
                 'disabled' => !($isDeveloper),
             ])
+            */
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
                 'help' => '[configType]<br>' . $tooltipTextPlantType,

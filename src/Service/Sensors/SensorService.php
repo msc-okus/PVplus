@@ -25,7 +25,8 @@ class SensorService
         private readonly WeatherFunctionsService $weatherFunctionsService,
         private readonly TicketDateRepository    $ticketDateRepo,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
-        private readonly PVSystDatenRepository $pvSystDatenRepo
+        private readonly PVSystDatenRepository $pvSystDatenRepo,
+        private readonly SensorGettersServices $sensorGetters,
     )
     {
     }
@@ -78,18 +79,14 @@ class SensorService
 
                     // Search for sensor (irr) values in ac_ist database
                     $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
-                    $sensorArrays = $this->weatherFunctionsService->getSensors($anlage, $tempStartDate, $tempEndDate);
                     $intervallPAs = $this->weatherFunctionsService->getIntervallPA($anlage, $tempStartDateMinus15, $tempEndDateMinus15);
 
-                    /* deprecated
-                    $sensorSum = [];
-                    foreach ($sensorArrays as $sensorArray){
-                        foreach ($sensorArray as $key => $sensorVal) {
-                            if(!key_exists($key,$sensorSum)) $sensorSum[$key] = 0;
-                            $sensorSum[$key] += $sensorVal;
-                        }
+                    if ($anlage->getSettings()->isUseSensorsData()) {  // sensor daten aus Datenban 'Sensors' ermitteln
+                        $sensorArrays = $this->sensorGetters->getSensorsIrrByTime($anlage, $tempStartDate, $tempEndDate);
+                    } else {  // Search for sensor (irr) values in ac_ist database
+                        $sensorArrays = $this->weatherFunctionsService->getSensors($anlage, $tempStartDate, $tempEndDate);
                     }
-                    */
+
 
                     // ermitteln welche Sensoren excludiert werden sollen
                     $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];

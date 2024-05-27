@@ -111,11 +111,9 @@ class IrradiationService
             switch ($ticket->getAlertType()) {
                 // Exclude Sensors
                 case '70':
-                    if ($anlage->getSettings()->isUseSensorsData()) {
-                        // sensor daten aus Datenban 'Sensors' ermitteln
+                    if ($anlage->getSettings()->isUseSensorsData()) { // sensor daten aus Datenban 'Sensors' ermitteln
                         $sensorValues = $this->sensorGetters->getSensorsIrrByTime($anlage, $tempoStartDate, $tempoEndDate);
-                    } else {
-                        // Search for sensor (irr) values in ac_ist database
+                    } else { // Search for sensor (irr) values in ac_ist database
                         $sensorValues = $this->weatherFunctionsService->getSensors($anlage, $tempoStartDate, $tempoEndDate);
                     }
                     // ermitteln welche Sensoren excludiert werden sollen
@@ -138,7 +136,7 @@ class IrradiationService
                                         break;
                                 }
                             }
-                            // erechne neuen Mittelwert aus den Sensoren die genutzt werden sollen
+                            // berechne neuen Mittelwert aus den Sensoren die genutzt werden sollen
                             if ($anlage->getIsOstWestAnlage()) {
                                 $irrData[$date]['irr'] = (self::mittelwert($mittelwertPyroEastArray) * $anlage->getPowerEast() + self::mittelwert($mittelwertPyroWestArray) * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
                             } else {
