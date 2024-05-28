@@ -381,7 +381,7 @@
         </select>
     </div>
 
-    {# neues Cahrt Control System #}
+    {# neues Chart Control System #}
 
     <div class="cell medium-2 large-4 xlarge-4">
         <div class="input-group">
@@ -479,6 +479,65 @@
                 {% else %}
                     <input type="hidden" id="invnames" name="selectedSet" value="0">
                 {% endif %}
+            {% endif %}
+            {% if form.selectedChart == 'availability' %}
+
+                <div data-controller="toggle-by-class">
+                    {% if form.togglePaNull == true %}
+                        <div class="" id=""
+                                {{ stimulus_controller('toggle-by-class', {
+                                    action: 'togglePaNull',
+                                }) }}>
+                        </div>
+                    {% endif %}
+                    {% if form.togglePaOne == true %}
+                        <div class="" id=""
+                                {{ stimulus_controller('toggle-by-class', {
+                                    action: 'togglePaOne',
+                                }) }}>
+                        </div>
+                    {% endif %}
+                    {% if form.togglePaTwo == true %}
+                        <div class="" id=""
+                                {{ stimulus_controller('toggle-by-class', {
+                                    action: 'togglePaTwo',
+                                }) }}>
+                        </div>
+                    {% endif %}
+                    {% if form.togglePaThree == true %}
+                        <div class="" id=""
+                                {{ stimulus_controller('toggle-by-class', {
+                                    action: 'togglePaThree',
+                                }) }}>
+                        </div>
+                    {% endif %}
+                    <table class="table_toggle_buttons">
+                        <tr>
+                            <td>PA 0 (OpenBook) hide/show </td>
+                            <td>
+                                <input type="checkbox" name="togglePaNull" data-action="toggle-by-class#togglePaNull" {% if form.togglePaNull == true %} checked {% endif %}>
+                            </td>
+                            {% if not(aktAnlage.settings.disableDep1) %}
+                                <td>PA 1 ({{ aktAnlage.eigner.settings.nameDep1 }}) hide/show</td>
+                                <td>
+                                    <input type="checkbox" name="togglePaOne" data-action="toggle-by-class#togglePaOne"{% if form.togglePaOne == true %} checked {% endif %}>
+                                </td>
+                            {% endif %}
+                            {% if not(aktAnlage.settings.disableDep2) %}
+                                <td>PA 2 ({{ aktAnlage.eigner.settings.nameDep2 }}) hide/show </td>
+                                <td>
+                                     <input type="checkbox" id="togglePaTwo" name="togglePaTwo" data-action="toggle-by-class#togglePaTwo"{% if form.togglePaTwo == true %} checked {% endif %}>
+                                </td>
+                            {% endif %}
+                            {% if not(aktAnlage.settings.disableDep3) %}
+                                <td>PA 3 ({{ aktAnlage.eigner.settings.nameDep3 }}) hide/show</td>
+                                <td>
+                                    PA 3 ({{ aktAnlage.eigner.settings.nameDep3 }}) hide/show<input type="checkbox" name="togglePaThree" data-action="toggle-by-class#togglePaThree"{% if form.togglePaThree == true %} checked {% endif %}>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    </table>
+                </div>
             {% endif %}
             {% if form.selectedChart == 'sollistirranalyse' %}
                 <div class="cell medium-4 large-4 xlarge-4">

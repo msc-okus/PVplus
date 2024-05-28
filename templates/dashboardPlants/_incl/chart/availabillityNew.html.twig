@@ -14,46 +14,7 @@
     {% set case6 = 0 %}
     {% set control = 0 %}
     <div data-controller="toggle-by-class">
-        <table class="table_toggle_buttons">
-            <tr>
-                <td>
-                    <button class="toggle_visibility"
-                            type="button"
-                            data-action="toggle-by-class#togglePaNull">
-                        PA 0 (OpenBook) hide/show
-                    </button>
-                </td>
-                {% if not(aktAnlage.settings.disableDep1) %}
-                <td>
-                    <button class="toggle_visibility"
-                            type="button"
-                            data-action="toggle-by-class#togglePaOne">
-                        PA 1 ({{ aktAnlage.eigner.settings.nameDep1 }}) hide/show
-                    </button>
-                </td>
-                {% endif %}
-                {% if not(aktAnlage.settings.disableDep2) %}
-                <td>
-                    <button class="toggle_visibility"
-                            type="button"
-                            data-action="toggle-by-class#togglePaTwo">
-                        PA 2 ({{ aktAnlage.eigner.settings.nameDep2 }}) hide/show
-                    </button>
-                </td>
-                {% endif %}
-                {% if not(aktAnlage.settings.disableDep3) %}
-                <td>
-                    <button class="toggle_visibility"
-                            type="button"
-                            data-action="toggle-by-class#togglePaThree">
-                        PA 3 ({{ aktAnlage.eigner.settings.nameDep3 }}) hide/show
-                    </button>
-                </td>
-                {% endif %}
-            </tr>
-        </table>
         <table id="statusTable" style="width: 100%;" data-show-hide-availabillity-target ="table1">
-
             <thead>
                 <tr>
                     <th>Date</th>

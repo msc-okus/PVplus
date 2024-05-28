@@ -730,6 +730,9 @@
             border: none;
             border-collapse: unset;
             width: 51%;
+            td{
+                vertical-align: top;
+            }
         }
         .toggle_visibility{
             background-color: #1779ba;
