@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "api-platform/core",
-            "version": "v3.3.3",
+            "version": "v3.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/core.git",
-                "reference": "59dca65e4f9aa2be6fd85fa944482a7d73eb5fc2"
+                "reference": "2f4ecc875975c1f6f09606fdd08162347214d015"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/core/zipball/59dca65e4f9aa2be6fd85fa944482a7d73eb5fc2",
-                "reference": "59dca65e4f9aa2be6fd85fa944482a7d73eb5fc2",
+                "url": "https://api.github.com/repos/api-platform/core/zipball/2f4ecc875975c1f6f09606fdd08162347214d015",
+                "reference": "2f4ecc875975c1f6f09606fdd08162347214d015",
                 "shasum": ""
             },
             "require": {
@@ -190,9 +190,9 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/core/issues",
-                "source": "https://github.com/api-platform/core/tree/v3.3.3"
+                "source": "https://github.com/api-platform/core/tree/v3.3.4"
             },
-            "time": "2024-05-10T11:16:59+00:00"
+            "time": "2024-05-24T16:43:49+00:00"
         },
         {
             "name": "babdev/pagerfanta-bundle",
@@ -4880,16 +4880,16 @@
         },
         {
             "name": "php-http/httplug-bundle",
-            "version": "1.33.0",
+            "version": "1.33.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-http/HttplugBundle.git",
-                "reference": "76e4c5d91f5149b56f3fccccd7a6e66901177b09"
+                "reference": "b7ad2c1951edec36ef0bd9897e309b0038c59a54"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-http/HttplugBundle/zipball/76e4c5d91f5149b56f3fccccd7a6e66901177b09",
-                "reference": "76e4c5d91f5149b56f3fccccd7a6e66901177b09",
+                "url": "https://api.github.com/repos/php-http/HttplugBundle/zipball/b7ad2c1951edec36ef0bd9897e309b0038c59a54",
+                "reference": "b7ad2c1951edec36ef0bd9897e309b0038c59a54",
                 "shasum": ""
             },
             "require": {
@@ -4976,9 +4976,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-http/HttplugBundle/issues",
-                "source": "https://github.com/php-http/HttplugBundle/tree/1.33.0"
+                "source": "https://github.com/php-http/HttplugBundle/tree/1.33.1"
             },
-            "time": "2024-02-27T16:04:16+00:00"
+            "time": "2024-05-27T11:35:05+00:00"
         },
         {
             "name": "php-http/logger-plugin",
@@ -13702,16 +13702,16 @@
     "packages-dev": [
         {
             "name": "phpstan/phpstan",
-            "version": "1.11.1",
+            "version": "1.11.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "e524358f930e41a2b4cca1320e3b04fc26b39e0b"
+                "reference": "0d5d4294a70deb7547db655c47685d680e39cfec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e524358f930e41a2b4cca1320e3b04fc26b39e0b",
-                "reference": "e524358f930e41a2b4cca1320e3b04fc26b39e0b",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/0d5d4294a70deb7547db655c47685d680e39cfec",
+                "reference": "0d5d4294a70deb7547db655c47685d680e39cfec",
                 "shasum": ""
             },
             "require": {
@@ -13756,7 +13756,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-15T08:00:59+00:00"
+            "time": "2024-05-24T13:23:04+00:00"
         },
         {
             "name": "rector/rector",

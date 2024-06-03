@@ -1,9 +1,26 @@
 import { Controller } from 'stimulus';
 
 export default class extends Controller {
+    static values = {
+        action: String
+    }
+    connect() {
+        if(this.actionValue == 'togglePaNull'){
+            this.togglePaNull();
+        }
+        if(this.actionValue == 'togglePaOne'){
+            this.togglePaOne();
+        }
+        if(this.actionValue == 'togglePaTwo'){
+            this.togglePaTwo();
+        }
+        if(this.actionValue == 'togglePaThree'){
+            this.togglePaThree();
+        }
+    }
+
     toggle(){
-        const counterNumberElement = this.element
-            .getElementsByClassName('js-pa-0');
+        const counterNumberElement = document.getElementsByClassName('js-pa-0');
         //counterNumberElement[1].classList.add('hidden');
 
         let fLen = counterNumberElement.length;
@@ -12,10 +29,8 @@ export default class extends Controller {
         }
     }
 
-
     togglePaNull(){
-        const counterNumberElement = this.element
-            .getElementsByClassName('js-pa-0');
+        const counterNumberElement = document.getElementsByClassName('js-pa-0');
         let fLen = counterNumberElement.length;
         for (let i = 0; i < fLen; i++) {
             counterNumberElement[i].classList.toggle('hidden');
@@ -23,8 +38,7 @@ export default class extends Controller {
     }
 
     togglePaOne(){
-        const counterNumberElement = this.element
-            .getElementsByClassName('js-pa-1');
+        const counterNumberElement = document.getElementsByClassName('js-pa-1');
         let fLen = counterNumberElement.length;
         for (let i = 0; i < fLen; i++) {
             counterNumberElement[i].classList.toggle('hidden');
@@ -32,8 +46,7 @@ export default class extends Controller {
     }
 
     togglePaTwo(){
-        const counterNumberElement = this.element
-            .getElementsByClassName('js-pa-2');
+        const counterNumberElement = document.getElementsByClassName('js-pa-2');
         let fLen = counterNumberElement.length;
         for (let i = 0; i < fLen; i++) {
             counterNumberElement[i].classList.toggle('hidden');
