@@ -89,7 +89,8 @@ class ImportService
         $mcToken = $owner->getSettings()->getMcToken();
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
-        //end collect params from plans
+        $dataDelay = $anlage->getSettings()->getDataDelay()*3600;
+        //end collect params from plant
 
         $bulkMeaserments = [];
 
@@ -102,6 +103,9 @@ class ImportService
         $sensors = [];
         $stringBoxes = [];
         $numberOfPlants = count($arrayVcomIds);
+
+        $start = $start - $dataDelay;
+        $end = $end - $dataDelay;
 
         $from = date('Y-m-d H:i', $start);
         $to = date('Y-m-d H:i', $end);
