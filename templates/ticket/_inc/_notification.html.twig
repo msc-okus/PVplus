@@ -14,7 +14,10 @@
                             ago)
                         </p>
                     {% endif %}
-                    <button class="button small"> Add Documents for information</button>
+                    <button class="button small"
+                    data-ticket-edit-target="attatchButton"
+                    data-action="click->ticket-edit#openDocumentationModal"
+                    > Add Documents for information</button>
                     {{ form_widget(notificationForm.contacted) }}
                     Priority:
                     {{ form_widget(notificationForm.priority) }}

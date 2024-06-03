@@ -15,7 +15,7 @@ export default class extends Controller {
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
                         'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
                         'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'modalContactBody', 'contactButton', 'modalContactCreateBody',
-                        'contactModalCreate', 'modalTimelineBody', 'timelineModal', 'firstDateEnd', 'lastDateBegin','AlertInverterSubmit'];
+                        'contactModalCreate', 'modalTimelineBody', 'timelineModal', 'firstDateEnd', 'lastDateBegin','AlertInverterSubmit', 'attatchButton'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -59,6 +59,9 @@ export default class extends Controller {
         this.modalContactBodyTarget.innerHTML = await $.ajax({
             url: this.notifyUrlValue,
         });
+    }
+    async openDocumentationModal(event){
+        event.preventDefault();
     }
     async opendocumentationModal(event) {
 
