@@ -60,6 +60,9 @@ export default class extends Controller {
             url: this.notifyUrlValue,
         });
     }
+    async opendocumentationModal(event) {
+
+    }
 
     async openTimelineModal(event) {
         this.modalTimelineBodyTarget.innerHTML = 'Loading ...';
