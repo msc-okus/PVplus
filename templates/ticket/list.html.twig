@@ -1,16 +1,25 @@
 {% extends 'base.html.twig' %}
 
+{% set alertName = 'Alert' %}
+{% if app.user and app.user.owner %}
+    {% if app.user.owner.id == 10004 or app.user.owner.id == 10009 %}
+        {% set alertName = 'Ticket' %}
+    {% endif %}
+{% endif %}
+
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('tickets_list') }}
 {% endblock %}
 
 {% block title %}
-    {{ parent() }}tickets
+    {{ parent() }}{{ alertName }}
 {% endblock %}
 
 {% block body %}
-    <h1>List Tickets</h1>
+    {{ parent() }}
+
+    <h1>List {{ alertName }}s</h1>
     <div {{ stimulus_controller('ticket-list', {
                 urlCreate: path('app_ticket_create'),
                 urlSearch: path('app_ticket_list', { ajax: 1 }),

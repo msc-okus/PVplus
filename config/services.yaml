@@ -57,3 +57,9 @@ services:
 
     App\Command\ForcastWriteDBCommand:
         tags: [ { name: 'console.command', command: 'pvp:forcastwritedb' } ]
+
+
+
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']

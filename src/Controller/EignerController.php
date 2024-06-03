@@ -54,7 +54,7 @@ class EignerController extends BaseController
     #[Route(path: '/admin/owner/list', name: 'app_admin_owner_list')]
     public function list(Request $request, PaginatorInterface $paginator, EignerRepository $ownerRepo): Response
     {
-        $q = $request->query->get('q');
+        $q = $request->query->get('qp');
         $queryBuilder = $ownerRepo->getWithSearchQueryBuilder($q);
         $pagination = $paginator->paginate(
             $queryBuilder, /* query NOT result */

@@ -64,7 +64,7 @@ class SollIstAnalyseChartService
             3, 4 => $this->functions->getNameArray($anlage, 'ac'),
             default => $this->functions->getNameArray($anlage, 'dc'),
         };
-        if ($inverter >= 0) {
+        if ($inverter > 0 && $inverter != 100000) {
             $sql_add_where_b = "AND b.wr_num = '$inverter'";
             $sql_add_where_a = "AND c.unit = '$inverter'";
         } else {

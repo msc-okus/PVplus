@@ -112,7 +112,7 @@ class Ticket
     private ?bool $ignoreTicket = false;
 
     #[ORM\Column(length: 100, nullable: true)]
-    private ?string $TicketName = "";
+    private ?string $ticketName = "";
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $whoHided = null;
@@ -323,6 +323,7 @@ class Ticket
 
         // from here on allow to edit inside the table inside edit Ticket
         $this->errorType = $ticket->getErrorType();
+        $this->ticketName = $ticket->getTicketName();
         $this->description = "Ticket created from Ticket ".  $ticket->getId();
         $this->systemStatus = $ticket->getSystemStatus();
         $this->priority = $ticket->getPriority();
@@ -359,12 +360,12 @@ class Ticket
 
     public function getTicketName(): ?string
     {
-        return $this->TicketName;
+        return $this->ticketName;
     }
 
-    public function setTicketName(?string $TicketName): self
+    public function setTicketName(?string $ticketName): self
     {
-        $this->TicketName = $TicketName;
+        $this->ticketName = $ticketName;
 
         return $this;
     }

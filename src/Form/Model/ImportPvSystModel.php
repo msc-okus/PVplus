@@ -12,6 +12,6 @@ class ImportPvSystModel
 
     public string $dateFormat;
 
-    public string $filename;
+    public ?string $filename;
 
 }
