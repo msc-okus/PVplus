@@ -123,11 +123,7 @@ class AlertSystemWeatherService
 
             if ($anlage->getHasWindSpeed()) {
                 if ($wdata['wspeed'] != null) {
-                    if ($wdata['wspeed'] == 0) {
-                        $status_report['wspeed'] = 'Wind Speed is 0';
-                    } else {
-                        $status_report['wspeed'] = 'All good';
-                    }
+                    $status_report['wspeed'] = 'All good';
                 } else {
                     $status_report['wspeed'] = 'No data';
                 }
