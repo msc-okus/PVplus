@@ -19,7 +19,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class AnlageCase5
 {
     use TimestampableEntity;
-
     use BlameableEntity;
 
     #[Groups(['case5'])]

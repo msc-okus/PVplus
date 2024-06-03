@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Helper\TicketTrait;
 use App\Repository\TicketRepository;
-use App\Service\FunctionsService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -12,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
-use Symfony\Component\Serializer\Serializer;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 class Ticket
@@ -162,14 +160,14 @@ class Ticket
         #[ORM\Column(type: 'string', length: 255, nullable: true)]
         private ?string $generatedFrom = '';
     */
+    private string $generatedFrom;
 
     public function __construct()
     {
         $this->dates = new ArrayCollection();
+        $this->notificationInfos = new ArrayCollection();
         $this->priority = 10; // Low
         $this->status = 30; // Work in Progress
-
-        $this->notificationInfos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -306,14 +304,15 @@ class Ticket
         return $this;
     }
 
-    public function getGeneratedFrom()
+    public function getGeneratedFrom(): string
     {
         return $this->generatedFrom;
     }
-    public function setGeneratedFrom(String $generated)
+    public function setGeneratedFrom(String $generated): void
     {
         $this->generatedFrom = $generated;
     }
+
     public function copyTicket(Ticket $ticket): void
     {
         $this->begin = $ticket->getBegin();
@@ -321,13 +320,14 @@ class Ticket
         $this->anlage = $ticket->getAnlage();
         if ($this->inverter == "")$this->inverter = $ticket->getInverter();
         $this->status = $ticket->getStatus();
+
         // from here on allow to edit inside the table inside edit Ticket
         $this->errorType = $ticket->getErrorType();
-        $this->freeText = '';
         $this->description = "Ticket created from Ticket ".  $ticket->getId();
         $this->systemStatus = $ticket->getSystemStatus();
         $this->priority = $ticket->getPriority();
         $this->answer = $ticket->getAnswer();
+        $this->freeText = $ticket->getFreeText();
         $this->alertType = $ticket->getAlertType();
         $this->kpiPaDep1 = $ticket->getKpiPaDep1();
         $this->kpiPaDep2 = $ticket->getKpiPaDep2();
@@ -538,8 +538,6 @@ class Ticket
 
         return $this;
     }
-
-
 
     public function getInverterName(): ?string
     {

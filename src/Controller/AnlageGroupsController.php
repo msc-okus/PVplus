@@ -72,20 +72,23 @@ class AnlageGroupsController extends AbstractController
 
             $groups=$groupsRepository->searchGroupByAnlageQueryBuilder($anlage,$form2->getData()['term'])->getQuery()->getResult();
 
-            foreach ($groups  as $group){
-                if($form2->getData()['secureLoss'] !==null){
+            foreach ($groups as $group){
+                if($form2->getData()['cabelLoss'] !== null){
+                    $group->setCabelLoss($form2->getData()['cabelLoss']);
+                }
+                if($form2->getData()['secureLoss'] !== null){
                     $group->setSecureLoss($form2->getData()['secureLoss']);
                 }
-                if($form2->getData()['factorAC'] !==null){
+                if($form2->getData()['factorAC'] !== null){
                     $group->setFactorAC($form2->getData()['factorAC']);
                 }
-                if($form2->getData()['gridLoss'] !==null){
+                if($form2->getData()['gridLoss'] !== null){
                     $group->setGridLoss($form2->getData()['gridLoss']);
                 }
-                if($form2->getData()['limitAc'] !==null){
+                if($form2->getData()['limitAc'] !== null){
                     $group->setLimitAc($form2->getData()['limitAc']);
                 }
-                if($form2->getData()['gridLimitAc'] !==null){
+                if($form2->getData()['gridLimitAc'] !== null){
                     $group->setGridLimitAc($form2->getData()['gridLimitAc']);
                 }
 

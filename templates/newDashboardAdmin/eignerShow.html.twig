@@ -69,7 +69,6 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {#                    {{ dump(content[0].activeAnlage) }}#}
                         {% for owner in content %}
                             {% for plant in owner.activeAnlage(is_granted('ROLE_G4N')) %}
                                 {% if plant.anlId in app.user.grantedList or is_granted('ROLE_G4N') %}
