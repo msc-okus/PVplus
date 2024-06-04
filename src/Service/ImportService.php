@@ -120,6 +120,8 @@ class ImportService
         for ($i = 0; $i < $numberOfPlants; ++$i) {
             $bulkMeaserments[$i] = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $arrayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
         }
+        dd($bulkMeaserments);
+
         curl_close($curl);
         $data_pv_ist = [];
         $data_pv_dcist = [];
