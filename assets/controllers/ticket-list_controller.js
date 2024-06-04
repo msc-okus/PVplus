@@ -48,6 +48,7 @@ export default class extends Controller {
         this.proofamTarget.innerText = response['counts']['proofByAM'];
         this.ignoredTarget.innerText = response['counts']['ignored'];
         this.proofmaintenanceTarget.innerText = response['counts']['proofByMaintenance'];
+
         $(document).foundation();
         this.disableAllToolTips()
     }
