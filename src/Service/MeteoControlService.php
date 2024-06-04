@@ -104,19 +104,28 @@ class MeteoControlService
             date_default_timezone_set($timeZonePlant);
             $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $to));
-
-            curl_setopt($curl, CURLOPT_USERPWD, $mcUser);
-            curl_setopt($curl, CURLOPT_PASSWORD, $mcPassword);
-            curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
             #echo "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution <br>";
-            curl_setopt_array($curl, [CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution", CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => "", CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => "GET", CURLOPT_HTTPHEADER => [
-                "X-API-KEY: ". $mcToken,
-                "Cache-Control: no-cache"
-            ]]);
+            $token = auth($mcUser, $mcPassword, $mcToken);
 
-            $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_HTTPHEADER => array(
+                    "X-API-KEY: ". $mcToken,
+                    "Cache-Control: no-cache",
+                    'Authorization: Bearer '.$token['access_token'],
+                ),
+            ));
+
+            $response = curl_exec($curl);
 
             if (curl_errno($curl)) {
                 echo curl_error($curl);
@@ -193,4 +202,33 @@ class MeteoControlService
 
         return $response;
     }
+}
+
+/**
+ * Get an authentication token
+ */
+function auth($mcUser, $mcPassword, $mcToken)
+{
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://api.meteocontrol.de/v2/login",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYHOST =>false,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => "grant_type=password&client_id=vcom-api&client_secret=AYB=~9_f-BvNoLt8+x=3maCq)>/?@Nom&username=$mcUser&password=$mcPassword",
+        CURLOPT_HTTPHEADER => array(
+            "content-type: application/x-www-form-urlencoded",
+            "X-API-KEY: ". $mcToken,
+        ),
+    ));
+
+
+    $response = curl_exec($curl);
+    curl_close($curl);
+    return json_decode($response, true);
 }

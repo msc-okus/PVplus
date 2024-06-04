@@ -243,11 +243,20 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => 'This plant have sensors in Vcom/Basics'
             ])
 
+            ->add('apiType', ChoiceType::class, [
+                'choices' => self::apiTypes(),
+                'placeholder' => 'please Choose ...',
+                'mapped' => false,
+                'required' => true,
+                'attr' => array('style' => 'width: 200px')
+            ])
+
             ->add('importType', ChoiceType::class, [
                 'choices'       => self::importTypes(),
                 'placeholder'   => 'please Select',
                 'required'      => false,
-                'help'      => 'Chose the plant have Stringboxes or inverters only'
+                'help'      => 'Chose the plant have Stringboxes or inverters only',
+                'attr' => array('style' => 'width: 200px')
             ])
 
             ->add('stringboxesUnits', IntegerType::class, [
@@ -255,6 +264,7 @@ class AnlageSettingsFormType extends AbstractType
                 'help' => 'How many Units have a stringbox? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
+                'attr' => array('style' => 'width: 200px')
             ])
 
             ->add('invertersUnits', IntegerType::class, [
@@ -262,7 +272,9 @@ class AnlageSettingsFormType extends AbstractType
                 'help' => 'How many Units have a inverter? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
+                'attr' => array('style' => 'width: 200px')
             ])
+
 
             ->add('dataDelay', IntegerType::class, [
                 'label' => 'Data Delay(max 24 hours)',
@@ -270,7 +282,8 @@ class AnlageSettingsFormType extends AbstractType
                 'empty_data' => '0',
                 'required' => false,
                 'attr' => array('max' < 25,
-                    'maxlength' => 2)
+                    'maxlength' => 2,
+                    'style' => 'width: 200px'),
             ])
 
             ###### Analysis ######

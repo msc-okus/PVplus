@@ -8,6 +8,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 trait PVPNameArraysTrait
 {
 
+    public static function apiTypes(): array
+    {
+        return [
+            'vcom'              => 'vcom',
+            'Huawai'      => 'huawai',
+        ];
+    }
+
     public static function importTypes(): array
     {
         return [

@@ -59,6 +59,9 @@ class ImportService
         $groups = $anlage->getGroups();
         $systemKey = $anlage->getCustomPlantId();
 
+        $apiType = $anlage->getSettings()->getApiType();
+        echo "api $apiType";
+        exit;
         #check if the plant use Stringboxes
         if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
             $acGroups = $anlage->getAcGroups()->toArray();

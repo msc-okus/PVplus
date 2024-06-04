@@ -21,12 +21,12 @@
             {% if is_granted('ROLE_G4N') %}
                 <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
                 <li class="tabs-title"><a data-tabs-target="features" href="#features">Features</a></li>
+                <li class="tabs-title"><a data-tabs-target="apiconfig" href="#features">API Config</a></li>
             {% endif %}
              <li class="tabs-title "><a data-tabs-target="contacts" href="#contacts">Contacts</a></li>
         </ul>
 
         <div class="tabs-content" data-tabs-content="owner-tabs">
-
             {# Basic Infos Owner #}
             <div class="tabs-panel is-active" id="owner1">
                 <div class="grid-x grid-margin-x grid-margin-y">
@@ -99,6 +99,29 @@
                     </fieldset>
                 </div>
             {% endif %}
+            {# ApiConfig #}
+            <div class="tabs-panel" id="apiconfig">
+                <fieldset class="fieldset js-contact-wrapper"
+                          >
+                    <legend>Contacts</legend>
+                    <table id="contact-table">
+                        <thead>
+                        <tr>
+                            <th style="width: 20%; ">Api type</th>
+                            <th style="width: 20%; ">Api name</th>
+                            <th style="width: 20%; ">User name</th>
+                            <th style="width: 20%; ">Password</th>
+                            <th style="width: 15%; ">API Token</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                    <button type="button" class="button secondary small js-add-contact"> <span class="fa fa-plus-circle"></span>&nbsp;Add Api Config</button>
+                </fieldset>
+            </div>
             {# Contacts #}
             <div class="tabs-panel" id="contacts">
                 <fieldset class="fieldset js-contact-wrapper"

@@ -174,6 +174,9 @@ class AnlageSettings
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $importType = null;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $apiType = null;
+
     #[ORM\Column(nullable: true, options: ['default' => null])]
     private ?int $stringboxesUnits = null;
 
@@ -795,6 +798,18 @@ class AnlageSettings
     public function setImportType(?string $importType): static
     {
         $this->importType = $importType;
+
+        return $this;
+    }
+
+    public function getApiType(): ?string
+    {
+        return $this->apiType;
+    }
+
+    public function setApiType(?string $apiType): static
+    {
+        $this->apiType = $apiType;
 
         return $this;
     }
