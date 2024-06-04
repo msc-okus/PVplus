@@ -249,6 +249,7 @@ class IrradiationChartService
 
     /**
      * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wird.
+     * @deprecated Wird erstezt durch Diagramm, dass Sensor Daten direkt aus neuer, separater Tabelle lisst. [getIrradiationPlantFromSensorsData()]
      *
      * @param Anlage $anlage
      * @param $from
@@ -308,7 +309,7 @@ class IrradiationChartService
 
                         $irrAnlageArray = json_decode((string) $row['irr_anlage'], null, 512, JSON_THROW_ON_ERROR);
                         $irrCounter = 1;
-                        foreach ($irrAnlageArray as $irrAnlageItem => $irrAnlageValue) {
+                        foreach ($irrAnlageArray as $irrAnlageKey => $irrAnlageValue) {
 
                             if (!($irrAnlageValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                                 if (!isset($irrAnlageValue) or is_array($irrAnlageValue)) {
@@ -317,7 +318,7 @@ class IrradiationChartService
 
                                 $dataArray['chart'][$counter]["val$irrCounter"] = round(max($irrAnlageValue, 0), 2);
                                 if (!isset($dataArray['nameX'][$irrCounter])) {
-                                    $dataArray['nameX'][$irrCounter] = $irrAnlageItem;
+                                    $dataArray['nameX'][$irrCounter] = $irrAnlageKey;
                                 }
                             }
                             if ($irrCounter > $dataArray['maxSeries']) {
@@ -332,7 +333,7 @@ class IrradiationChartService
             }
         }
         $conn = null;
-
+        dump($dataArray);
         return $dataArray;
     }
 

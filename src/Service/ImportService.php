@@ -92,7 +92,8 @@ class ImportService
         $mcToken = $owner->getSettings()->getMcToken();
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
-        //end collect params from plans
+        $dataDelay = $anlage->getSettings()->getDataDelay()*3600;
+        //end collect params from plant
 
         $bulkMeaserments = [];
 
@@ -105,6 +106,9 @@ class ImportService
         $sensors = [];
         $stringBoxes = [];
         $numberOfPlants = count($arrayVcomIds);
+
+        $start = $start - $dataDelay;
+        $end = $end - $dataDelay;
 
         $from = date('Y-m-d H:i', $start);
         $to = date('Y-m-d H:i', $end);
@@ -119,6 +123,8 @@ class ImportService
         for ($i = 0; $i < $numberOfPlants; ++$i) {
             $bulkMeaserments[$i] = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $arrayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
         }
+        dd($bulkMeaserments);
+
         curl_close($curl);
         $data_pv_ist = [];
         $data_pv_dcist = [];
