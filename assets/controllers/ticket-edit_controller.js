@@ -59,13 +59,9 @@ export default class extends Controller {
         this.modalContactBodyTarget.innerHTML = await $.ajax({
             url: this.notifyUrlValue,
         });
+        $(this.modalContactBodyTarget).foundation();
     }
-    async openDocumentationModal(event){
-        event.preventDefault();
-    }
-    async opendocumentationModal(event) {
 
-    }
 
     async openTimelineModal(event) {
         this.modalTimelineBodyTarget.innerHTML = 'Loading ...';
@@ -707,7 +703,6 @@ export default class extends Controller {
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
                 break;
             case '100':
-                console.log("hiding");
                 $(this.headerExcludeTargets).addClass('is-hidden');
                 $(this.headerReplaceTargets).addClass('is-hidden');
                 $(this.headerReplacePowerTargets).addClass('is-hidden');
@@ -864,6 +859,7 @@ export default class extends Controller {
     }
     async contact() {
         const $form = $(this.contactModalTarget).find('form');
+        console.log($form, "hey");
         try {
             await $.ajax({
                 url: this.notifyUrlValue,

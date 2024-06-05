@@ -11,6 +11,7 @@ use App\Form\Notification\NotificationEditFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AcGroupsRepository;
+use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\ContactInfoRepository;
 use App\Repository\NotificationInfoRepository;
@@ -438,10 +439,12 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/notify/{id}', name: 'app_ticket_notify', methods: ['GET', 'POST'])]
-    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, ContactInfoRepository $contactRepo, MessageService $messageService, PiiCryptoService $encryptService, NotificationInfoRepository $notificationInfoRepository): Response
+    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, ContactInfoRepository $contactRepo, MessageService $messageService, PiiCryptoService $encryptService, NotificationInfoRepository $notificationInfoRepository, AnlageFileRepository $docuRepo): Response
     {
         $ticket = $ticketRepo->findOneById($id);
         $notifications = $ticket->getNotificationInfos();
+        $anlage = $ticket->getAnlage();
+        $documents = $anlage->getDocuments();
         $actualNotification = "";
         $timeDiff = null;
         if (!$notifications->isEmpty()) {
@@ -452,11 +455,16 @@ class TicketController extends BaseController
         $eigner = $ticket->getAnlage()->getEigner();
         $form = $this->createForm(\App\Form\Notification\NotificationFormType::class, null, ['eigner' => $eigner]);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
+
             $ticket->setNotified(true);
             $contact = $contactRepo->findBy(["id" => $form->getData()['contacted']])[0];
             $key = uniqid($ticket->getId());
             $notification = new NotificationInfo();
+            foreach (array_keys($request->request->all(), "on") as $documentId) {
+                $notification->addAttachedMedium($docuRepo->findOneBy(['id' => $documentId]));
+            }
             $notification->setTicket($ticket);
             $notification->setStatus(10);
             $notification->setContactedPerson($contact);
@@ -490,10 +498,14 @@ class TicketController extends BaseController
             'owner' => $eigner,
             'modalId' => $ticket->getId(),
             'timeDiff' => $timeDiff,
-            'notifications' => $ticket->getNotificationInfos()
+            'notifications' => $ticket->getNotificationInfos(),
+            'documents' => $documents
         ]);
     }
 
+    public function addDocuments($id, TicketRepository $ticketRepository, ContactInfoRepository $contactRepo, Request $request, EntityManagerInterface $em){
+
+    }
     #[Route(path: '/ticket/proofCount', name: 'app_ticket_proof_count', methods: ['GET', 'POST'])]
     public function getProofCount(TicketRepository $ticketRepo): Response
     {
@@ -963,6 +975,7 @@ class TicketController extends BaseController
     #[Route(path: '/notification/edit/{id}', name: 'app_ticket_notification_edit')]
     public function changeNotificationStatus($id, TicketRepository $ticketRepo, Request $request, PiiCryptoService $encryptService, MessageService $messageService, EntityManagerInterface $em, AcGroupsRepository $acRepo): Response
     {
+
         $ticketId = $encryptService->unHashData($id);
         $ticket = $ticketRepo->findOneBy(['securityToken' => $ticketId]);
         $notification = $ticket->getNotificationInfos()->last();
