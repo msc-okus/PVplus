@@ -125,7 +125,7 @@ class MeteoControlService
                 ),
             ));
 
-            $response = curl_exec($curl);
+            $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
 
             if (curl_errno($curl)) {
                 echo curl_error($curl);

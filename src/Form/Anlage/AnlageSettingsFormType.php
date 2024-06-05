@@ -245,13 +245,6 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => 'This plant have sensors in Vcom/Basics'
             ])
 
-            ->add('apiType', ChoiceType::class, [
-                'choices' => self::apiTypes(),
-                'placeholder' => 'please Select ...',
-                'required' => true,
-                'attr' => array('style' => 'width: 200px')
-            ])
-
             ->add('importType', ChoiceType::class, [
                 'choices'       => self::importTypes(),
                 'placeholder'   => 'please Select',

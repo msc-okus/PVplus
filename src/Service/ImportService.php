@@ -59,9 +59,6 @@ class ImportService
         $groups = $anlage->getGroups();
         $systemKey = $anlage->getCustomPlantId();
 
-        $apiType = $anlage->getSettings()->getApiType();
-        echo "api $apiType";
-        exit;
         #check if the plant use Stringboxes
         if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
             $acGroups = $anlage->getAcGroups()->toArray();
@@ -123,7 +120,6 @@ class ImportService
         for ($i = 0; $i < $numberOfPlants; ++$i) {
             $bulkMeaserments[$i] = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $arrayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
         }
-        dd($bulkMeaserments);
 
         curl_close($curl);
         $data_pv_ist = [];
@@ -135,7 +131,10 @@ class ImportService
                 for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
                     $date = date('c', $timestamp);
                     if($i == 0){
-                        $sensors[$date] = $bulkMeaserments[$i]['sensors'][$date];
+                        if(!$hasSensorsInBasics){
+                            $sensors[$date] = $bulkMeaserments[$i]['sensors'][$date];
+                        }
+
                         $inverters[$date] = $bulkMeaserments[$i]['inverters'][$date];
                         $basics[$date] = $bulkMeaserments[$i]['basics'][$date];
                         if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
