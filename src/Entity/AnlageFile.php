@@ -38,6 +38,9 @@ class AnlageFile
     #[ORM\JoinColumn(nullable: false)]
     private ?Anlage $anlage = null;
 
+    #[ORM\ManyToOne(inversedBy: 'attachedMedia')]
+    private ?NotificationInfo $notificationInfo = null;
+
 
     public function getId(): ?int
     {
@@ -112,6 +115,18 @@ class AnlageFile
     public function setAnlage(?Anlage $anlage): static
     {
         $this->anlage = $anlage;
+
+        return $this;
+    }
+
+    public function getNotificationInfo(): ?NotificationInfo
+    {
+        return $this->notificationInfo;
+    }
+
+    public function setNotificationInfo(?NotificationInfo $notificationInfo): static
+    {
+        $this->notificationInfo = $notificationInfo;
 
         return $this;
     }

@@ -46,6 +46,23 @@
                 </p>
             </fieldset>
             <fieldset class="fieldset">
+                <legend>Attached Media</legend>
+                <table class="table sortable stickyheader">
+                    <thead>
+                    <tr>
+                        <th> Name</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for file in notification.attachedMedia %}
+                        <tr>
+                            <td> <a href="{{ path('app_media_download', { id: file.id}) }}">{{ file.filename }}</a> </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </fieldset>
+            <fieldset class="fieldset">
                 <legend>You Answer</legend>
                 <p> {{ form_row(notificationEditForm.answers) }}</p>
                 <p> {{ form_row(notificationEditForm.freeText) }}</p>

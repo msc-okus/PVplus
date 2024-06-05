@@ -59,13 +59,9 @@ export default class extends Controller {
         this.modalContactBodyTarget.innerHTML = await $.ajax({
             url: this.notifyUrlValue,
         });
+        $(this.modalContactBodyTarget).foundation();
     }
-    async openDocumentationModal(event){
-        event.preventDefault();
-    }
-    async opendocumentationModal(event) {
 
-    }
 
     async openTimelineModal(event) {
         this.modalTimelineBodyTarget.innerHTML = 'Loading ...';
@@ -896,6 +892,7 @@ export default class extends Controller {
     }
     async contact() {
         const $form = $(this.contactModalTarget).find('form');
+        console.log($form, "hey");
         try {
             await $.ajax({
                 url: this.notifyUrlValue,
