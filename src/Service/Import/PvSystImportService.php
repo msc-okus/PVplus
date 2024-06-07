@@ -34,7 +34,6 @@ class PvSystImportService
             $headline = fgetcsv($fileStream, null, $separator);
             $units = fgetcsv($fileStream, null, $separator);
             $keyStamp       = array_search('date', $headline);
-            $keyEGrid       = array_search('E_Grid', $headline);
             $keyGlobHor     = array_search('GlobHor', $headline);
             $keyGlobEff     = array_search('GlobEff', $headline);
             $keyGlobInc     = array_search('GlobInc', $headline);

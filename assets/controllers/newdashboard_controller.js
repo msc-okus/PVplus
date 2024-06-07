@@ -137,7 +137,7 @@ export default class extends Controller {
     setupCompanyFilter(table) {
         $('#companyFilter').on('change', function() {
             // Assuming 'company' is the 2nd column
-            table.column(1).search(this.value).draw();
+            table.column(2).search(this.value).draw();
         });
     }
 

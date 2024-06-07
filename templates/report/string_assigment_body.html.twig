@@ -5,15 +5,15 @@
     <h2 style="color: #0a62f8">String Assignment Monthly Overview </h2>
     <h6 style="color: #2370f3">{{ sheetName }}</h6>
 
-    {% set performanceColumnIndex = 14 %}
+    {% set performanceColumnIndex = 15 %}
 
     <table border="1">
         <thead>
         <tr>
             {% for header in sheetData[0] %}
-                {% if loop.index0 != performanceColumnIndex %}
+
                     <th>{{ header }}</th>
-                {% endif %}
+
             {% endfor %}
         </tr>
         </thead>
@@ -27,9 +27,9 @@
             {% endif %}
             <tr style="{{ rowStyle }}">
                 {% for cell in row %}
-                    {% if loop.index0 != performanceColumnIndex %}
+
                         <td class="tr_next_columns">{{ cell }}</td>
-                    {% endif %}
+
                 {% endfor %}
             </tr>
         {% endfor %}

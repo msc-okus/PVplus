@@ -62,18 +62,15 @@ class GroupsListEmbeddedFormType extends AbstractType
                 'empty_data' => '0',
                 'required' => false,
             ])
-            ->add('irrUpper', TextType::class, [
-                'help' => '[irrUpper]',
-                'empty_data' => '0.5',
-                'required' => false,
-            ])
-            ->add('irrLower', TextType::class, [
-                'help' => '[irrLower]',
-                'empty_data' => '0.5',
-                'required' => false,
-            ])
             ->add('gridLoss', TextType::class, [
                 'help' => '[gridLoss]',
+                'label' => 'Grid Loss',
+                'empty_data' => '0',
+                'required' => false,
+            ])
+            ->add('cabelLoss', TextType::class, [
+                'help' => '[cabelLoss]',
+                'label' => 'Cabel loss',
                 'empty_data' => '0',
                 'required' => false,
             ])
@@ -84,7 +81,7 @@ class GroupsListEmbeddedFormType extends AbstractType
                 'required' => false,
             ])
             ->add('weatherStation', EntityType::class, [
-                'label' => 'Wetterstation',
+                'label' => 'Weatherstation',
                 'help' => '[weatherStation]',
                 'class' => WeatherStation::class,
                 'choice_label' => fn(WeatherStation $station) => sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()),

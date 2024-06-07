@@ -15,14 +15,16 @@ class ForecastCalcService {
     }
     // Erstelle den Deklationswinkel pro Tag
     // Übergabe day 1 - 365
-    public function getDekofday($day):Array {
+    public function getDekofday($day): array
+    {
             $DEK = -23.45 * (COS((2*PI()/365.25)*($day+10)));
             $dekofday[$day] = ['DAY' => $day, 'DEK' => deg2rad($DEK)];
             return $dekofday;
     }
     // Erstelle den Stundenwinkel der Sonne anhand der MOZ (mittlere Ortszeit) pro Stunde
     // Übergabe Geo Länge / Longitude, Bezugsmeridan Mitteleuropa, hour 0 - 23
-    public function getMozofday($input_gl,$input_mer,$hour):array {
+    public function getMozofday($input_gl,$input_mer,$hour): array
+    {
         if ($input_gl && $input_mer) {
                $MOZ = (($input_gl - $input_mer) / 15) + $hour; // Mittlere Ortszeit
                $SW = 15 * ($MOZ - 12); // Stundenwinkel der Sonne
@@ -35,7 +37,8 @@ class ForecastCalcService {
     }
     // Erstelle den Einfallswinkel der Strahlung auf die Modulebene
     // Übergabe Modulneigung Grad, Geo Breite / Latitute, Geo Länge / Longitude, Bezugsmeridan Mitteleuropa, day 1-365, hour 0-23, winkel 90 - 180 - 270,
-    public function getAOI($input_mn,$input_gb,$input_gl,$input_mer,$day,$hour,$winkel):array {
+    public function getAOI($input_mn,$input_gb,$input_gl,$input_mer,$day,$hour,$winkel): array
+    {
         if ($input_gl && $input_mer) {
             $dekofday = $this->getDekofday($day);
             $mozofhour = $this->getMozofday($input_gl,$input_mer,$hour);
@@ -50,7 +53,11 @@ class ForecastCalcService {
             $AT = asin((-cos($DEK) * sin($SW)) / cos($SH) ); // Azimutwinkel in RAD
             $SA = deg2rad(180) - $AT; // Sonnenazimut
             $AOI = acos(cos($SZ) * cos(deg2rad($input_mn)) + sin($SZ) * sin(deg2rad($input_mn)) * cos($SA - deg2rad($winkel))); // Einfallwinkel Strahlung auf Modul
-            $out = ['AOI' => $AOI,'SA' => $SA,'SZ' => $SZ,'SH' => $SH];
+            $IAM = 1 - 0.05 * (1 / cos($AOI) - 1);   //  Reflexionsverlust der Einstrahlung
+            $SAGD = round(rad2deg($SA), 0); // SA in Grad
+            $DIFFSAMA = $winkel - $SAGD;             // Differenz von SA - SA
+            $CSZ = cos($SZ);
+            $out = ['AOI' => $AOI,'SA' => $SA,'SZ' => $SZ,'SH' => $SH,'IAM' => $IAM,'SAGD' => $SAGD,'DIFFSAMA' => $DIFFSAMA,'CSZ' => $CSZ];
         } else {
             $out = [];
         }

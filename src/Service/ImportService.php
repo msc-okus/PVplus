@@ -89,7 +89,8 @@ class ImportService
         $mcToken = $owner->getSettings()->getMcToken();
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
-        //end collect params from plans
+        $dataDelay = $anlage->getSettings()->getDataDelay() * 3600;
+        //end collect params from plant
 
         $bulkMeaserments = [];
 
@@ -103,13 +104,16 @@ class ImportService
         $stringBoxes = [];
         $numberOfPlants = count($arrayVcomIds);
 
+        $start = $start - $dataDelay;
+        $end = $end - $dataDelay;
+
         $from = date('Y-m-d H:i', $start);
         $to = date('Y-m-d H:i', $end);
 
         $sunArray = $this->weatherService->getSunrise($anlage, $from);
-        $start = strtotime((string) $sunArray['sunrise']);
+        #$start = strtotime((string) $sunArray['sunrise']);
         $sunArray = $this->weatherService->getSunrise($anlage, $to);
-        $end = strtotime((string) $sunArray['sunset']);
+        #$end = strtotime((string) $sunArray['sunset']);
 
 
         //get the Data from VCOM for all Plants are configured in the current plant

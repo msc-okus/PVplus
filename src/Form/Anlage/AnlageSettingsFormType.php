@@ -13,9 +13,11 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormTypeInterface;
+use Symfony\Component\Validator\Constraints\Length;
 class AnlageSettingsFormType extends AbstractType
 {
     use PVPNameArraysTrait;
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -230,46 +232,62 @@ class AnlageSettingsFormType extends AbstractType
             ###### Import ######
             ->add('symfonyImport', SwitchType::class, [
                 'label'     => 'Import Data with Symphony',
-                'help'      => 'Enable Import Data with Symphony without the old php skript files'
+                'help'      => '[settings.symfonyImport]<br>Enable Import Data with Symphony without the old php skript files'
             ])
 
             ->add('useSensorsData', SwitchType::class, [
                 'label'     => 'Import Sensors Data into new Table',
-                'help'      => 'Import Sensors Data into new Table like db__pv_sensors_data_CX...'
+                'help'      => '[settings.useSensorsData]<br>Import Sensors Data into new Table like db__pv_sensors_data_CX...'
             ])
 
             ->add('sensorsInBasics', SwitchType::class, [
                 'label'     => 'This plant have sensors in VCOM/Basics',
-                'help'      => 'This plant have sensors in Vcom/Basics'
+                'help'      => '[settings.sensorsInBasics]<br>This plant have sensors in Vcom/Basics'
             ])
 
             ->add('importType', ChoiceType::class, [
                 'choices'       => self::importTypes(),
                 'placeholder'   => 'please Select',
                 'required'      => false,
-                'help'      => 'Chose the plant have Stringboxes or inverters only'
+                'help'      => '[settings.importType]<br>Chose the plant have Stringboxes or inverters only',
+                'attr' => ['style' => 'width: 150px']
             ])
 
             ->add('stringboxesUnits', IntegerType::class, [
                 'label' => 'Stringboxes Units',
-                'help' => 'How many Units have a stringbox? (look in the Response from VCOM)',
+                'help' => '[settings.stringboxesUnits]<br>How many Units have a stringbox? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
+                'attr' => ['style' => 'width: 70px']
             ])
 
             ->add('invertersUnits', IntegerType::class, [
                 'label' => 'Inverters Units',
-                'help' => 'How many Units have a inverter? (look in the Response from VCOM)',
+                'help' => '[settings.invertersUnits]<br>How many Units have a inverter? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
+                'attr' => ['style' => 'width: 70px']
+            ])
+
+            ->add('dataDelay', ChoiceType::class, [
+                'multiple' => false,
+                'choices' => self::delayedDataValus(),
+                'preferred_choices' => array(1),
+                'label' => 'Data Delay (max 24 hours)',
+                'help' => '[settings.dataDelay]<br>use this if data from vcom or FTP-Push are delayed as normal case)',
+                'required' => false,
+                'attr' => ['style' => 'width: 70px'],
+                'empty_data' => '0'
             ])
 
             ###### Analysis ######
             ->add('activateAnalysis', SwitchType::class, [
                 'label'     => 'Enable the Analysis tools for this plant',
+                'help'  => '[settings.activateAnalysis]<br>',
             ])
             ->add('stringAnalysis', SwitchType::class, [
                 'label'     => 'Enable String Analysis ',
+                'help'  => '[settings.stringAnalysis]<br>',
             ])
         ;
     }

@@ -363,6 +363,15 @@ class AnlageGroups
         return $pNom;
     }
 
+    public function getModulesCnd(): int
+    {
+        $mcd = 0;
+        foreach ($this->getModules() as $module) {
+            $mcd ++;
+        }
+
+        return $mcd;
+    }
 
 
 

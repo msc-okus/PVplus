@@ -47,7 +47,7 @@ class DefaultJMController extends AbstractController
 
     #[NoReturn]
     #[Route(path: '/test/ticketsName', name: 'test_tickets')]
-    public function teastTicketName(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
+    public function testTicketName(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2)
     {
         $ticket = $ticketRepo->findOneById("399529 ");
         dd($ticket->getInverterName());
@@ -60,6 +60,7 @@ class DefaultJMController extends AbstractController
         $stringService->exportMontly("104", "2023","07", "jose", $publicDirectory, "404");
         dd("hey");
     }
+
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2): void
     {
@@ -88,7 +89,6 @@ class DefaultJMController extends AbstractController
 
         dd("hello world");
     }
-
 
     #[NoReturn]
     #[Route(path: '/test/createticket', name: 'default_check')]
@@ -384,6 +384,7 @@ class DefaultJMController extends AbstractController
         $output['avg'][$inverter ] = round($efficiencySum / $efficiencyCount, 2); //we make the last average outside of the loop
         return $output;
     }
+
     #[NoReturn]
     #[Route(path: '/test/sftp', name: 'default_sftp_test')]
     public function sftpTest($fileSystemFtp, AnlagenRepository $ar, EntityManagerInterface $em){

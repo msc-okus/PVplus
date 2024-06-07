@@ -17,7 +17,7 @@ class LogMessages
     private string $plant;
 
     #[ORM\Column(type: 'integer', length: 5)]
-    private string $userId;
+    private int $userId;
 
     #[ORM\Column(type: 'string', length: 50)]
     private string $function;

@@ -41,9 +41,12 @@ class TicketFormType extends AbstractType
         $ticket = $options['data'] ?? null;
 
         $isNewTicket = !(($ticket !== null && $ticket->getCreatedAt() !== null));
-        $anlage = ($ticket != null) ? $ticket->getAnlage() : null;
-        $full = ($anlage) ?  $anlage->getKpiTicket() : true;
-        $errorCategorie = self::errorCategorie();
+        $anlage = $ticket?->getAnlage();
+        if ($anlage){
+            $errorCategorie = self::errorCategorie($anlage->getKpiTicket());
+        } else {
+            $errorCategorie = self::errorCategorie();
+        }
 
         $builder
             ->add('TicketName', TextType::class, [
@@ -182,7 +185,7 @@ class TicketFormType extends AbstractType
             // ### List of Ticket Dates
             ->add('dates', CollectionType::class, [
                 'entry_type' => TicketDateEmbeddedFormType::class,
-                'allow_add' => true, //This should do the trick.
+                'allow_add' => true,
             ])
             ->add('KpiStatus', ChoiceType::class, [
                 'choices' => self::kpiStatus(),

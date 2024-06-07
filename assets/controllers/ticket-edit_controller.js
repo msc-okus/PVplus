@@ -15,7 +15,7 @@ export default class extends Controller {
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
                         'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
                         'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'modalContactBody', 'contactButton', 'modalContactCreateBody',
-                        'contactModalCreate', 'modalTimelineBody', 'timelineModal', 'firstDateEnd', 'lastDateBegin'];
+                        'contactModalCreate', 'modalTimelineBody', 'timelineModal', 'firstDateEnd', 'lastDateBegin','AlertInverterSubmit'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -47,10 +47,10 @@ export default class extends Controller {
                 url: this.formUrlValue,
             });
         }
-        this.checkCategory();
-
         $(this.modalBodyTarget).foundation();
+        this.checkCategory();
     }
+
     async openContactModal(event) {
 
         this.modalContactBodyTarget.innerHTML = 'Loading ...';
@@ -462,7 +462,6 @@ export default class extends Controller {
             $(this.scopeTarget).removeClass('is-hidden');
         }
         else  $(this.scopeTarget).addClass('is-hidden');
-        console.log(cat);
         switch (cat){
             case '10':
                 $(this.headerExcludeTargets).addClass('is-hidden');
@@ -497,7 +496,7 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 $(this.formkpiStatusTargets).addClass('is-hidden');
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
-                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
+                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)}
                 break;
             case '20':
                 $(this.headerExcludeTargets).addClass('is-hidden');
@@ -533,7 +532,41 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 $(this.formkpiStatusTargets).addClass('is-hidden');
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
-                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
+                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)}
+                break;
+            case '40':
+                $(this.headerExcludeTargets).addClass('is-hidden');
+                $(this.headerReplaceTargets).addClass('is-hidden');
+                $(this.headerReplacePowerTargets).addClass('is-hidden');
+                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+                $(this.headerHourTargets).addClass('is-hidden');
+                $(this.headerEnergyValueTargets).addClass('is-hidden');
+                $(this.headerIrrValueTargets).addClass('is-hidden');
+                $(this.headerCorrectionTargets).addClass('is-hidden');
+                $(this.headerEvaluationTargets).addClass('is-hidden');
+                $(this.headerAktDep1Targets).addClass('is-hidden');
+                $(this.headerReasonTargets).addClass('is-hidden');
+                $(this.headerAktDep2Targets).addClass('is-hidden');
+                $(this.headerAktDep3Targets).addClass('is-hidden');
+                $(this.headerFormKpiTargets).addClass('is-hidden');
+                $(this.headerPRMethodTargets).addClass('is-hidden');
+
+                $(this.fieldSensorTargets).addClass('is-hidden');
+                $(this.fieldReplacePowerTargets).addClass('is-hidden');
+                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+                $(this.fieldHourTargets).addClass('is-hidden');
+                $(this.fieldEnergyValueTargets).addClass('is-hidden');
+                $(this.fieldIrrValueTargets).addClass('is-hidden');
+                $(this.fieldCorrectionTargets).addClass('is-hidden');
+                $(this.fieldEvaluationTargets).addClass('is-hidden');
+                $(this.fieldAktDep1Targets).addClass('is-hidden');
+                $(this.fieldAktDep2Targets).addClass('is-hidden');
+                $(this.fieldAktDep3Targets).addClass('is-hidden');
+                $(this.fieldReasonTargets).addClass('is-hidden');
+                $(this.formHourTargets).prop('checked', false);
+                $(this.fieldPRMethodTargets).addClass('is-hidden');
+                $(this.inverterDivTargets).addClass('is-hidden');
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)}
                 break;
             case '70':
                 $(this.headerExcludeTargets).removeClass('is-hidden');
@@ -578,7 +611,7 @@ export default class extends Controller {
                 body.find('#ticket_form_inverterName').val(inverterNameString);
                 $(this.formkpiStatusTargets).removeClass('is-hidden');
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
-                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(10)};
+                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(10)}
                 break;
             case '71':
                 $(this.headerExcludeTargets).addClass('is-hidden');
@@ -624,7 +657,7 @@ export default class extends Controller {
                 body.find('#ticket_form_inverterName').val(inverterNameString);
                 $(this.formkpiStatusTargets).removeClass('is-hidden');
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
-                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)}
                 break;
             case '72':
                 $(this.headerExcludeTargets).addClass('is-hidden');
@@ -659,7 +692,7 @@ export default class extends Controller {
                 $(this.inverterDivTargets).addClass('is-hidden');
                 $(this.fieldPRMethodTargets).removeClass('is-hidden');
 
-                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(10)};
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(10)}
                 break;
             case '73':
                 this.replaceCheck();
@@ -702,7 +735,6 @@ export default class extends Controller {
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
                 break;
             case '100':
-                console.log("hiding");
                 $(this.headerExcludeTargets).addClass('is-hidden');
                 $(this.headerReplaceTargets).addClass('is-hidden');
                 $(this.headerReplacePowerTargets).addClass('is-hidden');
@@ -736,7 +768,7 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 $(this.formkpiStatusTargets).addClass('is-hidden');
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
-                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
+                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)}
                 break;
             case '':
                 $(this.headerExcludeTargets).addClass('is-hidden');
@@ -774,7 +806,6 @@ export default class extends Controller {
                 break;
 
             default:
-
                 $(this.headerExcludeTargets).addClass('is-hidden');
                 $(this.headerReplaceTargets).addClass('is-hidden');
                 $(this.headerReplacePowerTargets).addClass('is-hidden');
@@ -806,10 +837,10 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
                 $(this.inverterDivTargets).removeClass('is-hidden');
-                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
-
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)}
         }
     }
+
     setBody(html){
         this.modalBodyTarget.innerHTML = html;
     }
@@ -1027,12 +1058,12 @@ export default class extends Controller {
     }
 
     setHiddenValue(){
-
         this.formBeginTarget.dataset.originalValue = $(this.formBeginTarget).prop('value');
         this.formEndTarget.dataset.originalValue = $(this.formEndTarget).prop('value');
     }
 
     beginCheck(event){
+        event.prevent
         if ($(this.formBeginTarget).prop('value') != this.formBeginTarget.dataset.originalValue) {
             const valueBegin = $(this.formBeginTarget).prop('value');
             const date = new Date(valueBegin);
@@ -1085,6 +1116,31 @@ export default class extends Controller {
                     minutes = '0'.concat(minutes.toString());
                 }
                 let newStringdate = date.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
+                if ($(this.formEndTarget).prop('value') == ""){
+                    const timestampEnd = date.getTime() + 900000;
+                    const endDate = new Date(timestampEnd);
+                    var hour = endDate.getHours();
+                    var minutes = endDate.getMinutes();
+
+                    if (endDate.getMonth() < 9) {
+                        var Month = '0'.concat((endDate.getMonth() + 1).toString());
+                    } else {
+                        var Month = (endDate.getMonth() + 1).toString();
+                    }
+                    if (endDate.getDate() < 10) {
+                        var Day = '0'.concat(endDate.getDate().toString());
+                    } else {
+                        var Day = endDate.getDate().toString();
+                    }
+                    if (hour < 10) {
+                        hour = '0'.concat(hour.toString());
+                    }
+                    if (minutes < 10) {
+                        minutes = '0'.concat(minutes.toString());
+                    }
+                    let endDateString = endDate.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);$(this.formEndTarget).val(endDateString);
+                    $(this.formEndDateTarget).val(endDateString);
+                }
                 $(this.formBeginTarget).val(newStringdate);
                 $(this.formBeginDateTarget).val(newStringdate);
             }
@@ -1096,8 +1152,8 @@ export default class extends Controller {
     endCheck()
         {
             if ($(this.formEndTarget).prop('value') != this.formEndTarget.dataset.originalValue) {
-                const valueBegin = $(this.formEndTarget).prop('value');
-                const date = new Date(valueBegin);
+                const valueEnd = $(this.formEndTarget).prop('value');
+                const date = new Date(valueEnd);
                 date.setSeconds(0);
                 const timestamp1 = date.getTime();
                 if (timestamp1 % 300000 == 0) {
@@ -1154,9 +1210,20 @@ export default class extends Controller {
 
         this.saveCheck();
     }
+    disableSave(){
+        $(this.saveButtonTarget).attr('disabled', 'disabled');
+        $(this.CalloutTarget).removeClass('is-hidden');
+        $(this.AlertInverterSubmitTarget).removeClass('is-hidden');
+        console.log("we should be hidding");
+    }
+    submitInverters(event){
+        event.preventDefault();
+        $(this.AlertInverterSubmitTarget).addClass('is-hidden');
+        this.saveCheck();
+    }
     saveCheck(){
+        //event.preventDefault();
         //getting a string with the inverters so later we can check if there is any or none
-
         let inverterString = '';
         let inverterNameString = '';
         let body = $(this.modalBodyTarget);

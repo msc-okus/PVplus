@@ -11,7 +11,6 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 class AnlageFile
 {
     use TimestampableEntity;
-
     use BlameableEntity;
 
     #[ORM\Id]
@@ -33,7 +32,12 @@ class AnlageFile
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageFiles')]
     #[ORM\JoinColumn(nullable: true)]
-    private ?\App\Entity\Anlage $plant = null;
+    private ?Anlage $plant = null;
+
+    #[ORM\ManyToOne(inversedBy: 'documents')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Anlage $anlage = null;
+
 
     public function getId(): ?int
     {
@@ -96,6 +100,18 @@ class AnlageFile
     public function setPlant(?Anlage $plant): self
     {
         $this->plant = $plant;
+
+        return $this;
+    }
+
+    public function getAnlage(): ?Anlage
+    {
+        return $this->anlage;
+    }
+
+    public function setAnlage(?Anlage $anlage): static
+    {
+        $this->anlage = $anlage;
 
         return $this;
     }

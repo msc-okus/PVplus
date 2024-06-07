@@ -4,7 +4,10 @@ import {Reveal} from "foundation-sites";
 import {useDispatch} from "stimulus-use";
 
 export default class extends Controller {
-    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd', 'sort', 'direction', 'proofam', 'proofepc', 'prooftam', 'proofg4n', 'ignored', 'proofmaintenance', 'selectedInverter', 'anlageselect', 'InverterSearchDropdown', 'InverterSearchButton', 'switch'];
+    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton',
+        'formBegin', 'formEnd', 'sort', 'direction', 'proofam', 'proofepc', 'prooftam',
+        'proofg4n', 'ignored', 'proofmaintenance', 'selectedInverter', 'anlageselect',
+        'InverterSearchDropdown', 'InverterSearchButton', 'switch', 'deactivableTarget'];
     static values = {
         urlCreate: String,
         urlSearch: String,
@@ -20,12 +23,19 @@ export default class extends Controller {
         event.preventDefault();
         const $searchListform = $(this.searchBarTarget).find('form');
         let serializedData = $searchListform.serialize().concat("&page=1");
-        const $queryParams = $(event.currentTarget).data("query-value");
+        let newPlantId = $(this.listTarget).find('#newPlantSelect').find(":selected").val()
+        let url = this.urlSearchValue.concat('&newPlantId=', newPlantId);
         this.listTarget.innerHTML = await $.ajax({
-            url: this.urlSearchValue,
+            url: url,
             method: $searchListform.prop('method'),
             data: serializedData,
         });
+
+        if (newPlantId > 0) {
+            let $button = $(this.listTarget).find('#newTicketBtn');
+            $button.attr('disabled',false);
+        }
+
         $(document).foundation();
         this.disableAllToolTips()
     }
@@ -34,8 +44,10 @@ export default class extends Controller {
         event.preventDefault();
         const $searchListform = $(this.searchBarTarget).find('form');
         let serializedData = $searchListform.serialize();
+        let newPlantId = $(this.listTarget).find('#newPlantSelect').find(":selected").val()
+        let url = this.urlSearchValue.concat('&newPlantId=', newPlantId);
         this.listTarget.innerHTML = await $.ajax({
-            url: this.urlSearchValue,
+            url: url ,
             method: $searchListform.prop('method'),
             data: serializedData,
         });
@@ -48,8 +60,14 @@ export default class extends Controller {
         this.proofamTarget.innerText = response['counts']['proofByAM'];
         this.ignoredTarget.innerText = response['counts']['ignored'];
         this.proofmaintenanceTarget.innerText = response['counts']['proofByMaintenance'];
-        $(document).foundation();
+
+        if (newPlantId > 0) {
+            let $button = $(this.listTarget).find('#newTicketBtn');
+            $button.attr('disabled',false);
+        }
+
         this.disableAllToolTips()
+        $(document).foundation();
     }
 
     async page(event) {

@@ -8,8 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 #[ORM\Table(name: 'anlage_availability')]
-#[ORM\Index(name: 'stamp', columns: ['stamp'])]
-#[ORM\Index(name: 'inverter', columns: ['inverter'])]
+#[ORM\Index(columns: ['stamp'], name: 'stamp')]
+#[ORM\Index(columns: ['inverter'], name: 'inverter')]
 #[ORM\Entity(repositoryClass: AnlageAvailabilityRepository::class)]
 class AnlageAvailability
 {

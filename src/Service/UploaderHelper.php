@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Entity\AnlageFile;
+use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
@@ -21,7 +23,8 @@ class UploaderHelper
     public function __construct(
         private readonly string     $tempPathBaseUrl,
         private readonly Filesystem $fileSystemFtp,
-        private readonly RequestStackContext $requestStackContext
+        private readonly RequestStackContext $requestStackContext,
+        private EntityManagerInterface $em,
     )
 
     {
@@ -88,6 +91,48 @@ class UploaderHelper
         ];
 
         return $result;
+    }
+    public function uploadPlantDocumentation(UploadedFile $uploadedFile, $owner, $anlage): void
+    {
+        $upload = new AnlageFile();
+        $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $mimeType = pathinfo($uploadedFile->getClientMimeType(), PATHINFO_FILENAME);
+        $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
+
+        if (str_contains($uploadedFile->getClientMimeType(), "image" )){
+            $type = "image";
+            $fileroute = './documentation/'.$owner.'/'.$anlage->getAnlName().'/images/';
+        }
+
+        else if (str_contains($uploadedFile->getClientMimeType(), "pdf" )){
+            $type = "pdf";
+            $fileroute = './documentation/'.$owner.'/'.$anlage->getAnlName().'/pdf/';
+        }
+
+        else if (str_contains($uploadedFile->getClientMimeType(), "xlsx" )){
+            $type = "excel";
+            $fileroute = './documentation/'.$owner.'/'.$anlage->getAnlName().'/excel/';
+        }
+        else {
+            $type = "other";
+            $fileroute = './documentation/'.$owner.'/'.$anlage->getAnlName().'/other/';
+        }
+
+        $fileroute = str_replace(" ", "_", $fileroute);
+        if ($this->fileSystemFtp->fileExists($fileroute) === false)$this->fileSystemFtp->createDirectory( $fileroute );
+        $this->fileSystemFtp->write(
+            $fileroute.$newFilename,
+            file_get_contents($uploadedFile->getPathname())
+        );
+        $upload->setAnlage($anlage);
+        $upload->setStamp(date_format(new \DateTime( 'now'),"Y-m-d H:i"));
+        $upload->setFilename($newFilename);
+        $upload->setPath($fileroute);
+        $upload->setMimeType($type);
+        $anlage->addDocument($upload);
+        $this->em->persist($upload);
+        $this->em->persist($anlage);
+        $this->em->flush();
     }
     /**
      * @throws \Exception
@@ -171,11 +216,6 @@ class UploaderHelper
         }
 
          $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.pathinfo($originalFilename, PATHINFO_EXTENSION);
-    #    $datfile_folder = $this->kernel->getProjectDir()."/public/uploads/"; //
-    #    if (file_exists($datfile_folder.'/'.$directory.'/'.$newFilename)) {
-    #     $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.pathinfo($originalFilename, PATHINFO_EXTENSION);
-    #    }
-
         $stream = fopen($file->getPathname(), 'r');
 
         $this->fileSystemFtp->writeStream(
