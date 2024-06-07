@@ -78,6 +78,7 @@ class PvSystImportService
                         ->setIrrGlobalInc($irrInc)
                         ->setIrrGlobalEff($irrEff)
                         ->setElectricityGrid($eGrid)
+                        ->setElectricityInverterOut('')
                     ;
 
                     $output .= $anlage->getAnlId() ." | ".$stamp->format('Y-m-d H:i')." | ".$eGrid."<br>";

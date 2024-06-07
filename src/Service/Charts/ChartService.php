@@ -931,14 +931,13 @@ class ChartService
     public function getpvSyst(Anlage $anlage, $from, $to): array
     {
         $dataArray = [];
-        $pvsysts= $this->pvSystRepository->allGreateZero($anlage, $from, $to);
-        dump($from, $to);
+        $pvsysts = $this->pvSystRepository->allGreateZero($anlage, $from, $to);
         $conn = $this->pdoService->getPdoPlant();
         /** @var AnlagePVSystDaten $pvsyst */
         foreach ($pvsysts as $key => $pvsyst) {
-            $stampAdjust = self::timeAjustment($pvsyst->getStamp(), 0.25);
+            $stampAdjust = self::timeAjustment($pvsyst->getStamp(), -1);
             $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-            $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and unit = 1 GROUP by date_format(stamp, '%y%m%d%')";
+            $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE stamp > '$stampAdjust' AND stamp <= '$stampAdjust2' and unit = 1 GROUP by date_format(stamp, '%y%m%d%')";
             $resEvu = $conn->query($sqlEvu);
             $eZEvu = 0;
             if ($resEvu->rowCount() == 1) {
