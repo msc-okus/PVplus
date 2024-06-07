@@ -390,10 +390,15 @@ class TicketController extends BaseController
         }
         $session->set('page', "$page");
 
+        $newAnlage = 0;
+
         if ($request->query->get('ajax') || $request->isXmlHttpRequest()) {
+            $newAnlage = $request->query->get('newPlantId');
+            dump($newAnlage);
             return $this->render('ticket/_inc/_listTickets.html.twig', [
                 'pagination' => $pagination,
-                'anlagen' => $anlagenRepo->findAllActiveAndAllowed()
+                'anlagen' => $filter['anlagen']['array'],
+                'newPlantId' => $newAnlage,
             ]);
         }
         //here we will configure the array of reason suggestions
@@ -412,6 +417,7 @@ class TicketController extends BaseController
             'begin' => $begin,
             'end' => $end,
             'counts' => $this->getCountOfTickets($ticketRepo),
+            'newPlantId' => $newAnlage,
         ]);
     }
 

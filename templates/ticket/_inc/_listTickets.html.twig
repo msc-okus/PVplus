@@ -6,31 +6,30 @@
 {% endif %}
 <form id="tableForm"></form>
 <div id="modal-form0" {{ stimulus_controller('ticket-edit', {formUrl: path('app_ticket_create'),}) }}>
-    <label><b>Create New {{ alertName }}:</b></label>
+    <h4>Create New {{ alertName }}:</h4>
     {# create New Ticket – Begin #}
     <div class="grid-x grid-margin-x align-top align-center">
-
         <div class="cell small-8 medium-8 ">
-            <select name="anlage-id"
+            <select id="newPlantSelect"
+                    name="anlage-id"
                     data-ticket-edit-target="anlage"
                     data-action="ticket-edit#toggle">
                 <option value="" disabled selected hidden>Please choose a Plant</option>
                 {% for anlage in anlagen %}
-                    <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
+                    {# <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option> #}
+                    <option value="{{ anlage.anlId }}"{% if newPlantId == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="cell small-4 medium-4">
-            <div class="input-group-button" style="display: inline-flex;">
-                    <span data-tooltip tabindex="1" title="Create New Ticket">
-                        <button title="New Ticket" name="new-ticket" class="button action-icon tiny hollow shadow expanded no-margins"
-                                disabled
-                                data-ticket-edit-target="deactivable"
-                                data-action="ticket-edit#openModal">
-                            <span class="fa fa-plus"></span>
-                        </button>
-                    </span>
-            </div>
+            <span data-tooltip tabindex="1" title="Create New Ticket">
+                <button id="newTicketBtn" title="New Ticket" name="new-ticket" class="button action-icon tiny hollow shadow no-margins"
+                        disabled
+                        data-ticket-edit-target="deactivable"
+                        data-action="ticket-edit#openModal">
+                    <span class="fa fa-plus"></span>
+                </button>
+            </span>
         </div>
     </div>
 
