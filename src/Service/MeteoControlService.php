@@ -16,7 +16,7 @@ class MeteoControlService
     }
 
     static function getSystemKeys($mcUser, $mcPassword, $mcToken, $curl ) {
-        $token = auth($mcUser, $mcPassword, $mcToken, $curl);
+        $oauthThoken = auth($mcUser, $mcPassword, $mcToken, $curl);
 
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
@@ -32,7 +32,7 @@ class MeteoControlService
             CURLOPT_HTTPHEADER => array(
                 "X-API-KEY: ". $mcToken,
                 "Cache-Control: no-cache",
-                'Authorization: Bearer '.$token['access_token'],
+                'Authorization: Bearer '.$oauthThoken['access_token'],
             ),
         ));
 
@@ -53,7 +53,7 @@ class MeteoControlService
             #echo "CURLOPT_URL => https://api.meteocontrol.de/v2/systems/$key/sensors/$device/abbreviations/$abbrevationId/measurements?from=$from&to=$to&resolution=$resolution\n";
 
             $curl = curl_init();
-            $token = auth($mcUser, $mcPassword, $mcToken);
+            $oauthThoken = auth($mcUser, $mcPassword, $mcToken);
             curl_setopt_array($curl, array(
                 CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/sensors/$device/abbreviations/$abbrevationId/measurements?from=$from&to=$to&resolution=$resolution",
                 CURLOPT_RETURNTRANSFER => true,
@@ -66,7 +66,7 @@ class MeteoControlService
                     CURLOPT_HTTPHEADER => array(
                         "X-API-KEY: ". $mcToken,
                         "Cache-Control: no-cache",
-                        'Authorization: Bearer '.$token['access_token'],
+                        'Authorization: Bearer '.$oauthThoken['access_token'],
                     ),
                 )
             );
@@ -85,7 +85,7 @@ class MeteoControlService
             $to = urlencode(date('c', $to));
             #echo "CURLOPT_URL => https://api.meteocontrol.de/v2/systems/$key/$type/bulk/measurements?from=$from&to=$to&resolution=$resolution\n";
 
-            $token = auth($mcUser, $mcPassword, $mcToken, $curl);
+            $oauthThoken = auth($mcUser, $mcPassword, $mcToken, $curl);
 
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
@@ -101,7 +101,7 @@ class MeteoControlService
                     CURLOPT_HTTPHEADER => array(
                         "X-API-KEY: ". $mcToken,
                         "Cache-Control: no-cache",
-                        'Authorization: Bearer '.$token['access_token'],
+                        'Authorization: Bearer '.$oauthThoken['access_token'],
                     ),
                 )
             );
@@ -128,7 +128,7 @@ class MeteoControlService
             $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $to));
 
-            $token = auth($mcUser, $mcPassword, $mcToken, $curl);
+            $oauthThoken = auth($mcUser, $mcPassword, $mcToken, $curl);
 
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
@@ -144,7 +144,7 @@ class MeteoControlService
                 CURLOPT_HTTPHEADER => array(
                     "X-API-KEY: ". $mcToken,
                     "Cache-Control: no-cache",
-                    'Authorization: Bearer '.$token['access_token'],
+                    'Authorization: Bearer '.$oauthThoken['access_token'],
                 ),
             ));
 
@@ -166,7 +166,7 @@ class MeteoControlService
             $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $to));
 
-            $token = auth($mcUser, $mcPassword, $mcToken, $curl);
+            $oauthThoken = auth($mcUser, $mcPassword, $mcToken, $curl);
             curl_setopt_array($curl, array(
                     CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/sensors/bulk/measurements?from=$from&to=$to&resolution=$resolution",
                     CURLOPT_RETURNTRANSFER => true,
@@ -179,7 +179,7 @@ class MeteoControlService
                     CURLOPT_HTTPHEADER => array(
                         "X-API-KEY: ". $mcToken,
                         "Cache-Control: no-cache",
-                        'Authorization: Bearer '.$token['access_token'],
+                        'Authorization: Bearer '.$oauthThoken['access_token'],
                     ),
                 )
             );
@@ -199,7 +199,7 @@ class MeteoControlService
             //echo "CURLOPT_URL => https://api.meteocontrol.de/v2/systems/$key/basics/bulk/measurements?from=$from&to=$to&resolution=$resolution\n";
 
 
-            $token = auth($mcUser, $mcPassword, $mcToken, $curl);
+            $oauthThoken = auth($mcUser, $mcPassword, $mcToken, $curl);
             curl_setopt_array($curl, array(
                     CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/basics/bulk/measurements?from=$from&to=$to&resolution=$resolution",
                     CURLOPT_RETURNTRANSFER => true,
@@ -212,7 +212,7 @@ class MeteoControlService
                     CURLOPT_HTTPHEADER => array(
                         "X-API-KEY: ". $mcToken,
                         "Cache-Control: no-cache",
-                        'Authorization: Bearer '.$token['access_token'],
+                        'Authorization: Bearer '.$oauthThoken['access_token'],
                     ),
                 )
             );
@@ -228,7 +228,7 @@ class MeteoControlService
     static function getSystemsKeyInverters($mcUser, $mcPassword, $mcToken, $key, $curl) {
         //echo "CURLOPT_URL => https://api.meteocontrol.de/v2/systems/$key/inverters\n";
 
-        $token = auth($mcUser, $mcPassword, $mcToken, $curl);
+        $oauthThoken = auth($mcUser, $mcPassword, $mcToken, $curl);
 
         curl_setopt_array($curl, array(
                 CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/inverters",
@@ -242,7 +242,7 @@ class MeteoControlService
                 CURLOPT_HTTPHEADER => array(
                     "X-API-KEY: ". $mcToken,
                     "Cache-Control: no-cache",
-                    'Authorization: Bearer '.$token['access_token'],
+                    'Authorization: Bearer '.$oauthThoken['access_token'],
                 ),
             )
         );
