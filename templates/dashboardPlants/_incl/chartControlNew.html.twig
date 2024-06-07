@@ -366,7 +366,7 @@
             {% if is_granted('ROLE_ADMIN') %}
                 <optgroup label="Admin Stuff">
                     <option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show status log</option>
-                    {% if aktAnlage.showPvSyst %}
+                    {% if aktAnlage.showPvSyst or is_granted('ROLE_G4N') %}
                         <option value="pvsyst" {% if form.selectedChart == 'pvsyst' %}selected{% endif %}>Show pvSyst</option>
                     {% endif %}
                     {% if is_granted('ROLE_DEV') %}

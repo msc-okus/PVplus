@@ -932,7 +932,7 @@ class ChartService
     {
         $dataArray = [];
         $pvsysts= $this->pvSystRepository->allGreateZero($anlage, $from, $to);
-
+        dump($from, $to);
         $conn = $this->pdoService->getPdoPlant();
         /** @var AnlagePVSystDaten $pvsyst */
         foreach ($pvsysts as $key => $pvsyst) {
@@ -951,8 +951,10 @@ class ChartService
             }
             $dataArray[$key]['date'] = $pvsyst->getStamp();
             $dataArray[$key]['evu'] = $eZEvu;
-            $dataArray[$key]['electricityGrid'] = round($pvsyst->getElectricityGrid()); // durch 100 um auf kWh zu kommen
-            $dataArray[$key]['electricityInverter'] = round($pvsyst->getElectricityInverterOut()); // durch 100 um auf kWh zu kommen
+            $dataArray[$key]['electricityGrid'] = $pvsyst->getElectricityGrid();
+            $dataArray[$key]['electricityInverter'] = $pvsyst->getElectricityInverterOut();
+            $dataArray[$key]['irrGlobalInc'] = $pvsyst->getIrrGlobalInc();
+            $dataArray[$key]['irrGlobalEff'] = $pvsyst->getIrrGlobalEff();
 
         }
 
