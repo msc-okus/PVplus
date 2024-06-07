@@ -66,53 +66,14 @@ class LiveReportingController extends AbstractController
 
     }
 
-    protected function processFlow(Request $request, $formData, FormFlowInterface $flow, $template, $anlagenRepository, $reportsMonthly) {
-
-        $flow->bind($formData);
-
-        $form = $submittedForm = $flow->createForm();
-        if ($flow->isValid($submittedForm)) {
-            $flow->saveCurrentStepData($submittedForm);
-
-            if ($flow->nextStep()) {
-                // create form for next step
-
-                $form = $flow->createForm();
-            } else {
-                // flow finished
-                // ...
-                $form = $flow->createForm();
-                $data = $form->getData();
-
-                $output = $table = $tickets = null;
-                $startDay = $data->getStartDay();
-                $endDay = $data->getEndDay();
-                $month = $data->getMonth();
-                $year = $data->getYear();
-                $anlageId = $data->getAnlage();
-                $submitted = true;
-
-                if ($submitted && $anlageId !== null) {
-                    $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-                    $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
-                    $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
-                }
-
-                #$flow->reset();
-                echo "<style>#step, .btn_next{display: none !important;}</style>";
-
-                return $this->render($template, [
-                    'form' => $form->createView(),
-                    'flow' => $flow,
-                    'formData' => $formData,
-                    'headline' => 'Monthly Report',
-                    'anlage' => $anlage,
-                    'report' => $output,
-                    'status' => $anlageId,
-                    'datatable' => $table,
-                    'tickets'   => $tickets
-                ]);
+        if ($submitted && $anlageId !== null) {
+            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+            if(!$anlage){
+                return $this->redirectToRoute('month_daily_report');
             }
+            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
+            $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
+
         }
 
         if ($flow->redirectAfterSubmit($submittedForm)) {
