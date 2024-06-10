@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Helper\PVPNameArraysTrait;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 class OwnerApiFormType extends AbstractType
 {
@@ -31,17 +32,17 @@ class OwnerApiFormType extends AbstractType
         ->add('configName', TextType::class, [
             'label'  => 'Name of the Config'
         ])
-        ->add('mcUser', TextType::class, [
-            'label' => 'MedioControl VCOM User',
-            'help'  => '[mcUser]'
+        ->add('apiUser', TextType::class, [
+            'label' => 'API User',
+            'help'  => '[API User]'
         ])
-        ->add('mcPassword', TextType::class, [
-            'label' => 'MedioControl VCOM Passwort',
-            'help'  => '[mcPassword]'
+        ->add('apiPassword', TextType::class, [
+            'label' => 'API Passwort',
+            'help'  => '[API Password]'
 
         ])
-        ->add('mcToken', TextType::class, [
-            'label' => 'MedioControl VCOM API Token',
+        ->add('apiToken', TextType::class, [
+            'label' => 'API Token',
             'help'  => '[mcToken]'
 
         ]);

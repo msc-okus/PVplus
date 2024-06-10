@@ -17,9 +17,9 @@
     <tr>
         <td>{{ form_widget(api.apiType) }}</td>
         <td>{{ form_widget(api.configName) }}</td>
-        <td>{{ form_widget(api.mcUser) }}</td>
-        <td>{{ form_widget(api.mcPassword) }}</td>
-        <td>{{ form_widget(api.mcToken) }}</td>
+        <td>{{ form_widget(api.apiUser) }}</td>
+        <td>{{ form_widget(api.apiPassword) }}</td>
+        <td>{{ form_widget(api.apiToken) }}</td>
         <td></td>
     </tr>
 {% endmacro %}
@@ -129,9 +129,9 @@
                             <tr class="js-apiconfig-item">
                                 <td>{{ form_widget(api.apiType) }}</td>
                                 <td>{{ form_widget(api.configName) }}</td>
-                                <td>{{ form_widget(api.mcUser) }}</td>
-                                <td>{{ form_widget(api.mcPassword) }}</td>
-                                <td>{{ form_widget(api.mcToken) }}</td>
+                                <td>{{ form_widget(api.apiUser) }}</td>
+                                <td>{{ form_widget(api.apiPassword) }}</td>
+                                <td>{{ form_widget(api.apiToken) }}</td>
                                 <td><a href="#" class="js-remove-apiconfig"><span class="fa fa-minus-circle"></span></a></td>
                             </tr>
                         {% endfor %}

@@ -23,13 +23,13 @@ class ApiConfig extends PiiCryptoService
     private ?string $configName = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    private ?string $mcUser = null;  // mc = Medio Control = VCOM
+    private ?string $apiUser = null;  // mc = Medio Control = VCOM
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $mcPassword = null; // mc = Medio Control = VCOM
+    private ?string $apiPassword = null; // mc = Medio Control = VCOM
 
     #[ORM\Column(length: 100, nullable: true)]
-    private ?string $mcToken = null;  // mc = Medio Control = VCOM
+    private ?string $apiToken = null;  // mc = Medio Control = VCOM
 
     #[ORM\ManyToOne(inversedBy: 'apiConfig')]
     private ?Eigner $owner = null;
@@ -58,43 +58,43 @@ class ApiConfig extends PiiCryptoService
         return $this;
     }
 
-    public function getMcUser(): ?string
+    public function getapiUser(): ?string
     {
-        return $this->mcUser;
+        return $this->apiUser;
     }
 
-    public function setMcUser(?string $mcUser): self
+    public function setapiUser(?string $apiUser): self
     {
-        $this->mcUser = $mcUser;
+        $this->apiUser = $apiUser;
 
         return $this;
     }
 
-    public function getMcPassword(): ?string
+    public function getapiPassword(): ?string
     {
-        if($this->mcPassword != NULL){
-            return $this->unHashData($this->mcPassword);
+        if($this->apiPassword != NULL){
+            return $this->unHashData($this->apiPassword);
         }else{
-            return $this->mcPassword;
+            return $this->apiPassword;
         }
 
     }
 
-    public function setMcPassword(?string $mcPassword): self
+    public function setapiPassword(?string $apiPassword): self
     {
-        $this->mcPassword = is_string($mcPassword) ? $this->hashData($mcPassword) : null;
+        $this->apiPassword = is_string($apiPassword) ? $this->hashData($apiPassword) : null;
 
         return $this;
     }
 
-    public function getMcToken(): ?string
+    public function getapiToken(): ?string
     {
-        return $this->mcToken;
+        return $this->apiToken;
     }
 
-    public function setMcToken(?string $mcToken): self
+    public function setapiToken(?string $apiToken): self
     {
-        $this->mcToken = $mcToken;
+        $this->apiToken = $apiToken;
 
         return $this;
     }
