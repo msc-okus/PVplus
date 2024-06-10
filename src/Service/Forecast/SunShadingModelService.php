@@ -2,12 +2,9 @@
 
 namespace App\Service\Forecast;
 
-use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageSunShadingRepository;
 use App\Service\PdoService;
-use App\Repository\AnlageModulesDBRepository;
-use PDO;
 
 class SunShadingModelService {
     use G4NTrait;
@@ -19,10 +16,10 @@ class SunShadingModelService {
     {
 
     }
-/**
- * Berechnung der Verschattungsverluste durch Reihenverschattung
- * MS 10/23 Co. TL - Guidelines: Verschattungsverluste.docx
-*/
+    /**
+     * Berechnung der Verschattungsverluste durch Reihenverschattung
+     * MS 10/23 Co. TL - Guidelines: Verschattungsverluste.docx
+     */
     public function genSSM_Data($shdata,$aoi): array
     {
         // Verarbeiten der Daten aus dem Objekt
@@ -84,7 +81,7 @@ class SunShadingModelService {
                             $MRV = ($modalignment == 0 ? ($S - (1 * $modlongpage)) / $modlongpage : ($S - (1 * $modshortpage)) / $modshortpage);
                             if ($modalignment == 0) {
                                 ($S > (1 * $modlongpage) ? $MRV_PZ = round(($MRV > 1 ? $MRV = 100 : $MRV * 100), 2) : $MRV_PZ = 0);
-                                } else {
+                            } else {
                                 ($S > (1 * $modshortpage) ? $MRV_PZ = round(($MRV > 1 ? $MRV = 100 : $MRV * 100), 2) : $MRV_PZ = 0);
                             }
                             $RSH_Array[$mx] = ['MRV' => $MRV_PZ,'TAV' => $TAV_PZ,'S' =>  $S];
@@ -153,14 +150,19 @@ class SunShadingModelService {
             } else {
                 $RSH_Array = [];
             }
+            try {
+                $SP = ($S / $M) * 100; // Verschattung in Prozent
+            } catch (DivisionByZeroError $e) {
+                echo "FAIL -> DivisionByZero Error -> SunShading Config Check! \n";
+                $SP = 1;
+            }
 
-            $SP = ($S / $M) * 100; // Verschattung in Prozent
             $faktor = round((1 - ($SP / 100)), 3); // Verschattungsfaktor - FKR
             //
-         ###   echo "[aE]: $aoi - [y]: $y  - [a]: $a  - [l]:  $L  - [s]: $S - [TAV]: $TAV_PZ - [FKR]: $faktor \n";
+            ### echo "[aE]: $aoi - [y]: $y  - [a]: $a  - [l]:  $L  - [s]: $S - [TAV]: $TAV_PZ - [FKR]: $faktor \n";
             //
             return $out[] = ['FKR' => $faktor,'RSH' => $RSH_Array]; // Setzen des berechneten faktor und des Reihen abschattung als Array - RSK
-          } else {
+        } else {
             $faktor = 1;
             $RSH_Array = array();
             return $out[] = ['FKR' => $faktor,'RSH' => $RSH_Array]; // Setze faktor und leere Array - RSK
@@ -171,7 +173,8 @@ class SunShadingModelService {
 
     // Funktion zur berechnung der Modulverschattungsverluste bei Halbzelle, Vollzelle
     // Berechnung vom Verlustfaktor Strom
-    public function modrow_shading_loss($RSKArray,$DIFFSAMA,$shdata) {
+    /* todo:implement gdirprz*/
+    public function modrow_shading_loss($RSKArray,$DIFFSAMA,$GDIRPRZ,$shdata) {
         // Vorrausetzung für die Verschattungsberechnung
 
         if ($shdata) {
@@ -190,55 +193,55 @@ class SunShadingModelService {
                     if ($mrv >= 0) {
                         // Verschattung in Prozent aus der Modulreihenverschattung
                         // Dreigliedrige Berechnung bis zum Durchschalten von 3 Bypassdioden - Potrait - Vollzelle
-                       if ($modalignment == 1 ) {
-                           if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80) {
-                               $SHT = $mrv;
-                               // Hier Modell Vollzelle mit 3 Bypassdioden
-                               if ($SHT >= 0 && $SHT <= 39) {
-                                   $SVL23 = round((-0.0007 * pow($SHT, 3) - 0.005 * pow($SHT, 2) - 0.3833 * $SHT + 100) / 100, 4); // 1 Bypass
-                               }
-                               if ($SHT >= 40 && $SHT <= 69) {
-                                   $SVL13 = round((-0.085 * pow($SHT, 2) + 7.15 * $SHT - 90) / 100, 4); // 2 Bypass
-                               }
-                               if ($SHT >= 70 && $SHT <= 100) {
-                                   $SVL00 = round((-0.0325 * pow($SHT, 2) + 4.635 * $SHT - 137.85) / 100, 4); // 3 Bypass
-                               }
-                               //
-                               echo "PV - Reihe: $mr - Schatten: $SHT ---> BP1: $SVL23  BP2: $SVL13 - BP3: $SVL00 \n";
-                               //
-                           }
+                        if ($modalignment == 1 ) {
+                            if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80) {
+                                $SHT = $mrv;
+                                // Hier Modell Vollzelle mit 3 Bypassdioden
+                                if ($SHT >= 0 && $SHT <= 39) {
+                                    $SVL23 = round((-0.0007 * pow($SHT, 3) - 0.005 * pow($SHT, 2) - 0.3833 * $SHT + 100) / 100, 4); // 1 Bypass
+                                }
+                                if ($SHT >= 40 && $SHT <= 69) {
+                                    $SVL13 = round((-0.085 * pow($SHT, 2) + 7.15 * $SHT - 90) / 100, 4); // 2 Bypass
+                                }
+                                if ($SHT >= 70 && $SHT <= 100) {
+                                    $SVL00 = round((-0.0325 * pow($SHT, 2) + 4.635 * $SHT - 137.85) / 100, 4); // 3 Bypass
+                                }
+                                //
+                                echo "PV - Reihe: $mr - Schatten: $SHT ---> BP1: $SVL23  BP2: $SVL13 - BP3: $SVL00 \n";
+                                //
+                            }
 
-                       } elseif($modalignment == 2 ) {
+                        } elseif($modalignment == 2 ) {
 
-                           if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80 ) {
-                               $SHT = $mrv;
-                               // Hier Modell Halbzell mit 2 Bypassdioden
-                               #=(-3*10^-17*$B82^3-0,0089*$B82^2-0,5536*$B82+100)/100
-                               if ($SHT >= 0 && $SHT <= 59) {
-                                   $SVL22 = round(((-3 * pow(10,-17)) * pow($SHT, 3) - 0.0089 * pow($SHT, 2) - 0.5536 * $SHT + 100) / 100, 4); // 1 Bypass
-                               }
-                               if ($SHT >= 60 && $SHT <= 100) {
-                                   $SVL12 = round((-0.0071 * pow($SHT, 2) + 0.0429 * $SHT + 67.714) / 100, 4); // 2 Bypass
-                               }
-                               //
-                               echo "PH - Reihe: $mr - Schatten: $SHT ---> BP1: $SVL22  BP2: $SVL12 \n";
-                               //
-                           }
+                            if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80 ) {
+                                $SHT = $mrv;
+                                // Hier Modell Halbzell mit 2 Bypassdioden
+                                #=(-3*10^-17*$B82^3-0,0089*$B82^2-0,5536*$B82+100)/100
+                                if ($SHT >= 0 && $SHT <= 59) {
+                                    $SVL22 = round(((-3 * pow(10,-17)) * pow($SHT, 3) - 0.0089 * pow($SHT, 2) - 0.5536 * $SHT + 100) / 100, 4); // 1 Bypass
+                                }
+                                if ($SHT >= 60 && $SHT <= 100) {
+                                    $SVL12 = round((-0.0071 * pow($SHT, 2) + 0.0429 * $SHT + 67.714) / 100, 4); // 2 Bypass
+                                }
+                                //
+                                echo "PH - Reihe: $mr - Schatten: $SHT ---> BP1: $SVL22  BP2: $SVL12 \n";
+                                //
+                            }
 
-                       } else {
+                        } else {
 
-                           if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80 ) {
-                               $SHT = $mrv;
-                               // Hier Modell ohne Bypassdioden Landscape
-                               if ($SHT >= 0 && $SHT <= 100) {
-                                   $SVL = round((-$SHT + 100) / 100, 4); //
-                               }
-                               //
-                              echo "LA - Reihe: $mr - Schatten: $SHT ---> Verlust:  $SVL  \n";
-                               //
-                           }
+                            if ($DIFFSAMA <= 80 && $DIFFSAMA >= -80 ) {
+                                $SHT = $mrv;
+                                // Hier Modell ohne Bypassdioden Landscape
+                                if ($SHT >= 0 && $SHT <= 100) {
+                                    $SVL = round((-$SHT + 100) / 100, 4); //
+                                }
+                                //
+                                echo "LA - Reihe: $mr - Schatten: $SHT ---> Verlust:  $SVL  \n";
+                                //
+                            }
 
-                       }
+                        }
                     }
                 }
             }
