@@ -30,7 +30,7 @@ class DayAheadForecastDEKService {
         $this->anlagesunshadingrepository = $anlageSunShadingRepository;
         $this->forecastCalcService = $forecastCalcService;
         $this->anlagenmodulesdbrepository = $anlageModulesDBRepository;
-      }
+    }
 
     public function get_DEK_Data($input_gl,$input_mer,$input_gb,$input_mn,$input_ab,$datfile,$has_suns_model,$anlageId,$doy): bool|array {
         // Predefine the Vars
@@ -194,7 +194,7 @@ class DayAheadForecastDEKService {
                                     break;
                             }
 
-                       }
+                        }
 
                     }
 
@@ -202,7 +202,7 @@ class DayAheadForecastDEKService {
                     $RGES_UPPER = ($RGES_UPPER < 0 ? 0 : $RGES_UPPER);
                     $RGES_LOWER = ($RGES_LOWER < 0 ? 0 : $RGES_LOWER);
 
-                    echo "$d $h $m - $DNI - $RGES - $RGES_UPPER  \n";
+                    ##   echo "$d $h $m - $DNI - $RGES - $RGES_UPPER  \n";
 
                     $valueofdayandhour[$gendoy][$h][$m] =
                         [
@@ -228,8 +228,8 @@ class DayAheadForecastDEKService {
                                 'RGESBIF_UPPER' => $RGESBIF_UPPER,
                                 'RGESBIF_LOWER' => $RGESBIF_LOWER],
                             "TRACKEROW" => [
-                            'RGES' => $TR_RGES,
-                            'RGESBIF' => $TR_RGESBIF],
+                                'RGES' => $TR_RGES,
+                                'RGESBIF' => $TR_RGESBIF],
                         ];
                     $SWI = $GTI = $GHI2 = $DNI = $DHI = $GHI= 0;
                     $RGES_LOWER = $RGES_UPPER = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGESBIF = $RGES = $TR_RGES = $TR_RGESBIF = 0;
@@ -248,7 +248,7 @@ class DayAheadForecastDEKService {
         } else {
             return false;
         }
-      // End funktion get_DEK_Data()
+        // End funktion get_DEK_Data()
     }
 
 }
