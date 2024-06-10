@@ -1214,7 +1214,6 @@ export default class extends Controller {
         $(this.saveButtonTarget).attr('disabled', 'disabled');
         $(this.CalloutTarget).removeClass('is-hidden');
         $(this.AlertInverterSubmitTarget).removeClass('is-hidden');
-        console.log("we should be hidding");
     }
     submitInverters(event){
         event.preventDefault();

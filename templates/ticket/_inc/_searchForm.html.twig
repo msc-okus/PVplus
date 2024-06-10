@@ -150,8 +150,7 @@
                         </div>
                     </div>
                 </div>
-
-                <div {% if (not is_granted('ROLE_G4N') and not is_granted('ROLE_MRO')) %} hidden {% endif %} class="cell small-4 medium-3 large-1 notifyclass" >
+                <div {% if not(app.user.owner.features.mroAktive and is_granted('ROLE_MRO')) %} hidden {% endif %} class="cell small-4 medium-3 large-1 notifyclass" >
                     <div class="notifyheader">
                         <div class="notifyheader-label">Proof by MRO
                             <input type="checkbox" name="proofmaintenance" class="input-group-field" value="1">

@@ -79,13 +79,12 @@ class TicketRepository extends ServiceEntityRepository
     public function countByProofG4N(QueryBuilder $query){
 
         $result = clone $query;
-        dump($result->getQuery()->getDQL());
         $result
             ->addSelect('count(ticket.id)')
             ->andWhere('ticket.needsProofg4n = true')
             ->andWhere('ticket.ignoreTicket = false')
         ;
-        dump($result->getQuery()->getDQL());
+
         return $result->getQuery()->getResult()[0][1];
     }
 

@@ -19,32 +19,32 @@ class OwnerFeaturesFormType extends AbstractType
                 'help'      => '[simulatorName]<br>example: PVSyst, PV Sol, etc <br>default value = "Simulation"'
             ])
             ->add('aktDep1', SwitchType::class, [
-                'label'     => 'Aktivate Department 1 (O&M)',
+                'label'     => 'Activate Department 1 (O&M)',
                 'help'      => '[aktDep1]'
             ])
             ->add('aktDep2', SwitchType::class, [
-                'label'     => 'Aktivate Department 2 (EPC)',
+                'label'     => 'Activate Department 2 (EPC)',
                 'help'      => '[aktDep2]'
             ])
             ->add('aktDep3', SwitchType::class, [
-                'label'     => 'Aktivate Department 3 (AM)',
+                'label'     => 'Activate Department 3 (AM)',
                 'help'      => '[aktDep3]'
             ])
             ->add('SplitInverter', SwitchType::class, [
-                'label'     => 'Split by Inverter',
-                'help'      => '[SplitInverter]<br>Ticket feature - Split ticket by inverter (on/off)'
+                'label'     => 'Activate - Split by Inverter',
+                'help'      => '[SplitInverter]<br>Ticket feature - Split ticket by inverter'
             ])
             ->add('SplitGap', SwitchType::class, [
-                'label'     => 'Split by Time',
-                'help'      => '[SplitGap]<br>Ticket feature - Split ticket by time (on/off)'
+                'label'     => 'Activate - Split by Time',
+                'help'      => '[SplitGap]<br>Ticket feature - Split ticket by time'
             ])
-            ->add('manAktive', SwitchType::class, [
-                'label'     => 'Aktivate Maintenance Contact',
-                'help'      => '[ManAktive]<br>Aktivate the maintenance contact function (on/off) ',
+            ->add('mroAktive', SwitchType::class, [
+                'label'     => 'Activate - MRO ticket',
+                'help'      => "[mroAktive]<br>Activate the 'MRO ticket' function",
             ])
             ->add('amStringAnalyseAktive', SwitchType::class, [
-                'label'     => 'AM String Analyse',
-                'help'      => '[amStringAnalyseAktive]<br>Aktivate the Asset Management String Analyse (on/off) ',
+                'label'     => 'Activate - AM String Analyse',
+                'help'      => '[amStringAnalyseAktive]<br>Activate the Asset Management String Analyse',
             ])
         ;
     }

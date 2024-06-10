@@ -236,7 +236,7 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-            dump($time, $plant_status);
+
             $anlType = $anlage->getAnlType();
             if ( $plant_status['Irradiation'] == false ) {
                 if ($plant_status['ppc'] != null && $plant_status['ppc']) $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc'], false);
