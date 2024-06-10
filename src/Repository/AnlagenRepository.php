@@ -279,6 +279,23 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return Anlage[]
+     */
+    public function findByEigner($eigner): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.anlName','a.anlId','a.country')
+            ->andWhere('a.eignerId = :eigner')
+            ->andWhere("a.anlHidePlant = 'No'")
+            ->andWhere("a.anlView = 'Yes'")
+            ->orderBy('a.country')
+            ->addOrderBy('a.anlName')
+            ->setParameter('eigner', $eigner)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findAllIDByEigner($eigner): array
     {
         return $this->createQueryBuilder('a')
@@ -292,11 +309,12 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
     public function findSymfonyImportByEigner($eigner): array
     {
         return $this->createQueryBuilder('a')
             ->select('a.anlName','a.anlId','a.country')
-            ->leftJoin('plants.settings', 'settings')
+            ->leftJoin('a.settings', 'settings')
             ->where('settings.symfonyImport = true')
             ->andWhere('a.eignerId = :eigner')
             ->andWhere("a.anlHidePlant = 'No'")
@@ -316,15 +334,7 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-    public function findAllAnlageByUser($userid): array
-    {
-        $query = $this->createQueryBuilder('a');
-        $query->select('a.anlId')
-            ->leftJoin('a.eigner','e')->addSelect('e.id')
-            ->where('a.eigner = :creator')
-            ->setParameter('creator', $userid);
-        return $query->getQuery()->getResult();
-    }
+
 
     /**
      * @return Anlage[]

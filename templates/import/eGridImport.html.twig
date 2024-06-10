@@ -32,12 +32,14 @@
             <div class="callout" >
                 {{ output|raw }}
             </div>
-            <div class="" style="max-height: 50vh; overflow-y: scroll;"
-                    {{ stimulus_controller('tools-message', {
-                        url: path('app_log_messages_list'),
-                        refreshIntervale: 5000,
-                    }) }}>
-            </div>
+            {% if is_granted('ROLE_G4N') %}
+                <div class="" style="max-height: 50vh; overflow-y: scroll;"
+                        {{ stimulus_controller('tools-message', {
+                            url: path('app_log_messages_list'),
+                            refreshIntervale: 5000,
+                        }) }}>
+                </div>
+            {% endif %}
         </div>
     </div>
 

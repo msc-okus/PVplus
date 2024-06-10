@@ -15,7 +15,8 @@ class LifeReportingMonthlyFlow extends FormFlow {
     {
     }
 
-	protected function loadStepsConfig() {
+	protected function loadStepsConfig(): array
+    {
 		$formType = LifeReportingMonthly::class;
 
 		return [

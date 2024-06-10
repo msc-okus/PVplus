@@ -34,19 +34,11 @@ class ImportPvSystFormType extends AbstractType
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
-        if ($this->security->isGranted('ROLE_G4N')) {
-            $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
-        } else {
-            $eigner = $this?->security->getUser()?->getEigners()[0];
-            $anlagen = $this->anlagenRepository->findAllIDByEigner($eigner);
-        }
-
-
         $builder
             ->add('anlage', EntityType::class, [
                 'label' => 'Please select a Plant',
                 'class' => Anlage::class,
-                'choices' => $anlagen,
+                'choices' => $anlagen = $this->anlagenRepository->findAllActiveAndAllowed(),
                 'choice_label' => 'anlName',
             ])
             ->add('file', FileType::class, [
