@@ -17,8 +17,6 @@ use Symfony\Bundle\SecurityBundle\Security;
  */
 class TicketRepository extends ServiceEntityRepository
 {
-
-
     public function __construct(
         ManagerRegistry $registry,
         private readonly Security $security,
@@ -43,111 +41,73 @@ class TicketRepository extends ServiceEntityRepository
         return $q->getQuery()->getResult();
     }
 
-    public function countByProof(){
-        /** @var User $user */
-        $user = $this->security->getUser();
-
-        $granted =  $this->anlRepo->findAllActiveAndAllowed();
-
-        $result = $this->createQueryBuilder('t')
-            ->innerJoin('t.anlage', 'a')
-            ->addSelect('count(t.id)')
-            ->andWhere('t.needsProof = true')
-            ->andWhere('t.ignoreTicket = false');
-
-        if (!$this->security->isGranted('ROLE_G4N')) {
-            $result->andWhere('t.internal = false');
-            $result->andWhere('a.anlId IN (:plantList)')
-                ->setParameter('plantList', $granted);
-        }
+    public function countByProof(QueryBuilder $query){
+        $result = clone $query;
+        $result
+            ->addSelect('count(ticket.id)')
+            ->andWhere('ticket.needsProof = true')
+            ->andWhere('ticket.ignoreTicket = false')
+        ;
         return $result->getQuery()->getResult()[0][1];
 
     }
 
-    public function countByProofAM(){
+    public function countByProofAM(QueryBuilder $query){
 
-        $granted =  $this->anlRepo->findAllActiveAndAllowed();
-        $result = $this->createQueryBuilder('t')
-            ->innerJoin('t.anlage', 'a')
-            ->addSelect('count(t.id)')
-            ->andWhere('t.ProofAM = true')
-            ->andWhere('t.ignoreTicket = false')
+        $result = clone $query;
+        $result
+            ->addSelect('count(ticket.id)')
+            ->andWhere('ticket.ProofAM = true')
+            ->andWhere('ticket.ignoreTicket = false')
         ;
-        if (!$this->security->isGranted('ROLE_G4N')) {
-            $result->andWhere('t.internal = false');
-            $result->andWhere('a.anlId IN (:plantList)')
-                ->setParameter('plantList', $granted);
-        }
 
         return $result->getQuery()->getResult()[0][1];
     }
-    public function countByProofEPC(){
+    public function countByProofEPC(QueryBuilder $query){
 
-        $granted =  $this->anlRepo->findAllActiveAndAllowed();
-
-        $result = $this->createQueryBuilder('t')
-            ->innerJoin('t.anlage', 'a')
-            ->addSelect('count(t.id)')
-            ->andWhere('t.needsProofEPC = true')
-            ->andWhere('t.ignoreTicket = false')
+        $result = clone $query;
+        $result
+            ->addSelect('count(ticket.id)')
+            ->andWhere('ticket.needsProofEPC = true')
+            ->andWhere('ticket.ignoreTicket = false')
         ;
-        if (!$this->security->isGranted('ROLE_G4N')) {
-            $result->andWhere('t.internal = false');
-            $result->andWhere('a.anlId IN (:plantList)')
-                ->setParameter('plantList', $granted);
-        }
+
         return $result->getQuery()->getResult()[0][1];
 
     }
 
-    public function countByProofG4N(){
+    public function countByProofG4N(QueryBuilder $query){
 
-        $granted =  $this->anlRepo->findAllActiveAndAllowed();
-
-        $result = $this->createQueryBuilder('t')
-            ->innerJoin('t.anlage', 'a')
-            ->addSelect('count(t.id)')
-            ->andWhere('t.needsProofg4n = true')
-            ->andWhere('t.ignoreTicket = false')
+        $result = clone $query;
+        dump($result->getQuery()->getDQL());
+        $result
+            ->addSelect('count(ticket.id)')
+            ->andWhere('ticket.needsProofg4n = true')
+            ->andWhere('ticket.ignoreTicket = false')
         ;
-        if (!$this->security->isGranted('ROLE_G4N')) {
-            $result->andWhere('t.internal = false');
-            $result->andWhere('a.anlId IN (:plantList)')
-                ->setParameter('plantList', $granted);
-        }
+        dump($result->getQuery()->getDQL());
         return $result->getQuery()->getResult()[0][1];
     }
 
-    public function countByProofMaintenance(){
-        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+    public function countByProofMaintenance(QueryBuilder $query){
 
-        $result = $this->createQueryBuilder('t')
-            ->innerJoin('t.anlage', 'a')
-            ->addSelect('count(t.id)')
-            ->andWhere('t.notified = true')
+        $result = clone $query;
+        $result
+            ->addSelect('count(ticket.id)')
+            ->andWhere('ticket.notified = true')
         ;
-        if (!$this->security->isGranted('ROLE_G4N')) {
-            $result->andWhere('t.internal = false');
-            $result->andWhere('a.anlId IN (:plantList)')
-                ->setParameter('plantList', $granted);
-        }
+
         return $result->getQuery()->getResult()[0][1];
     }
 
-    public function countIgnored(){
+    public function countIgnored(QueryBuilder $query){
 
-        $granted =  $this->anlRepo->findAllActiveAndAllowed();
-
-        $result = $this->createQueryBuilder('t')
-            ->innerJoin('t.anlage', 'a')
-            ->addSelect('count(t.id)')
-            ->andWhere('t.ignoreTicket = true')
+        $result = clone $query;
+        $result
+            ->addSelect('count(ticket.id)')
+            ->andWhere('ticket.ignoreTicket = true')
         ;
-        if (!$this->security->isGranted('ROLE_G4N')) {
-            $result->andWhere('t.internal = false');
-            $result->andWhere('a.anlId IN (:plantList)')
-                ->setParameter('plantList', $granted);
-        }
+
         return $result->getQuery()->getResult()[0][1];
     }
 
@@ -280,6 +240,117 @@ class TicketRepository extends ServiceEntityRepository
 
         return $qb;
     }
+
+    /**
+     * Build query with all options, including 'has user rights to see'.
+     *
+     * @param Anlage|null $anlage
+     * @param string|null $editor
+     * @param string|null $id
+     * @param string|null $prio
+     * @param string|null $status
+     * @param string|null $category
+     * @param string|null $type
+     * @param string|null $inverter
+     * @param string $sort
+     * @param string $direction
+     * @param bool $ignore
+     * @param string $ticketName
+     * @param int $kpistatus
+     * @param string $begin
+     * @param string $end
+     * @return QueryBuilder
+     */
+    public function getWithSearchQueryBuilderWithoutSwitch(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, string $sort = "", string $direction = "", bool $ignore = false, string $ticketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
+    {
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
+
+        $qb = $this->createQueryBuilder('ticket')
+            ->innerJoin('ticket.anlage', 'a')
+            ->addSelect('a')
+        ;
+        if (!$this->security->isGranted('ROLE_G4N')) {
+
+            $qb->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
+        }
+        if ($anlage != '') {
+            $qb->andWhere("ticket.anlage = '$anlage'");
+        }
+        if ($editor != '') {
+            $qb->andWhere("ticket.editor = '$editor'");
+        }
+        if ((int) $id > 0) {
+            $qb->andWhere("ticket.id = $id");
+        }
+        if ($inverter != '') {
+            // Suche nach Invertern mit AND => suche Tickets in denen alle diese Inverter betroffen sind
+            /*
+            $invArray = explode(", ", $inverter);
+            foreach ($invArray as $inverterId) {
+                $qb->andWhere("ticket.inverter = '$inverterId' or ticket.inverter = '*'");
+            }
+            */
+            // Suche mit OR => suche alle Tickets in denen einer dieser Inverter betroffen ist
+            $qb->andWhere("ticket.inverter IN ($inverter) or ticket.inverter = '*'");
+        }
+        if ((int) $prio > 0) {
+            $qb->andWhere("ticket.priority = $prio");
+        }
+        if ((int) $status > 0) {
+            $qb->andWhere("ticket.status = $status");
+        }
+        if ((int) $type > 0) {
+            $qb->andWhere("ticket.errorType = $type");
+        } // SFOR, EFOR, OMC
+
+        if ((int) $category == 7){
+            $qb->andWhere("ticket.alertType >= 70");
+            $qb->andWhere("ticket.alertType < 80");
+        } else if ((int) $category == 9){
+            $qb->andWhere("ticket.alertType > 90");
+            $qb->andWhere("ticket.alertType < 100");
+        } else if ((int) $category > 0) {
+            $qb->andWhere("ticket.alertType = $category");
+        } else {
+            $qb->andWhere("ticket.alertType < 90 or ticket.alertType >= 100");
+        }
+
+        if ($kpistatus != 0){
+            $qb->andWhere("ticket.kpiStatus = $kpistatus");
+        }
+        if ($ticketName !== "") {
+            $qb->andWhere("ticket.TicketName LIKE '%$ticketName%'");
+        }
+
+        if ($ignore) {
+            $qb->andWhere("ticket.ignoreTicket = true");
+        } elseif (!$this->security->isGranted('ROLE_ADMIN')) { // G4N Admin Users should see the 'ignore' Tickets
+            $qb->andWhere("ticket.ignoreTicket = false");
+        }
+
+        if ($begin != "" && $end == ""){ // only begin is set
+            $qb->andWhere("ticket.begin LIKE '$begin%'");
+        } elseif ($begin == "" && $end != ""){ // only end is set
+            $qb->andWhere("ticket.begin LIKE '$end%'");
+        } else {
+            if ($begin != "" ){
+                $qb->andWhere("ticket.end >= '$begin'");
+            }
+            if ($end != ""){
+                $qb->andWhere("ticket.end <= '$end'");
+            }
+        }
+
+        if ($sort !== "") $qb->addOrderBy($sort, $direction);
+        $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
+
+        return $qb;
+    }
+
 
     public function findAllMaintenanceAnlage(Anlage $anlage, $begin, $end){
         $result = $this->createQueryBuilder('t')

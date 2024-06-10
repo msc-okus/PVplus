@@ -30,6 +30,17 @@ export default class extends Controller {
             method: $searchListform.prop('method'),
             data: serializedData,
         });
+        const response = await $.ajax({
+            url: '/ticket/proofCount',
+            method: $searchListform.prop('method'),
+            data: serializedData,
+        });
+        this.proofepcTarget.innerText = response['counts']['proofByEPC'];
+        this.prooftamTarget.innerText = response['counts']['proofByTam'];
+        this.proofg4nTarget.innerText = response['counts']['proofByG4N'];
+        this.proofamTarget.innerText = response['counts']['proofByAM'];
+        this.ignoredTarget.innerText = response['counts']['ignored'];
+        this.proofmaintenanceTarget.innerText = response['counts']['proofByMaintenance'];
 
         if (newPlantId > 0) {
             let $button = $(this.listTarget).find('#newTicketBtn');
@@ -53,6 +64,8 @@ export default class extends Controller {
         });
         const response = await $.ajax({
             url: '/ticket/proofCount',
+            method: $searchListform.prop('method'),
+            data: serializedData,
         });
         this.proofepcTarget.innerText = response['counts']['proofByEPC'];
         this.prooftamTarget.innerText = response['counts']['proofByTam'];
