@@ -5,49 +5,39 @@ namespace App\Controller;
 use App\Entity\Anlage;
 use App\Entity\TicketDate;
 use App\Repository\AnlagenRepository;
-use App\Repository\MonthlyDataRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\Reports\ReportsMonthlyV2Service;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use App\Form\LiveReporting\CreateMonthlyForm;
-use App\Form\Type\Monthly;
 use Craue\FormFlowBundle\Form\FormFlowInterface;
 use Craue\FormFlowBundle\Util\FormFlowUtil;
-use App\Form\Type\TopicCategoryType;
 use App\Entity\LiveReporting;
 use App\Form\LiveReporting\LifeReportingMonthlyFlow;
 
 class LiveReportingController extends AbstractController
 {
-    /**
-     * @var FormFlowUtil
-     */
-    private $formFlowUtil;
     public function __construct(
         private readonly TicketDateRepository $ticketDateRepo,
-        private readonly TranslatorInterface $translator,
-        FormFlowUtil $formFlowUtil
-    )
-    {
-        $this->formFlowUtil = $formFlowUtil;
+        private readonly FormFlowUtil $formFlowUtil,
+    ){
+
     }
+
     /**
      * Erzeugt einen Monatsreport mit den einzelenen Tagen und einer Monatstotalen
      * Kann auch für einen Auswal einiger Tage eines Moants genutzt werden
      *
      * @param Request $request
+     * @param LifeReportingMonthlyFlow $createTopicFlow
      * @param AnlagenRepository $anlagenRepository
      * @param ReportsMonthlyV2Service $reportsMonthly
      * @return Response
-     * @throws InvalidArgumentException
-     * @throws NonUniqueResultException
      */
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
     public function createTopicAction(Request $request, LifeReportingMonthlyFlow $createTopicFlow, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
@@ -65,15 +55,49 @@ class LiveReportingController extends AbstractController
             'live_reporting/reportMonthlyNew.html.twig', $anlagenRepository, $reportsMonthly);
 
     }
+    protected function processFlow(Request $request, $formData, FormFlowInterface $flow, $template, $anlagenRepository, $reportsMonthly): RedirectResponse|Response
+    {
+        $flow->bind($formData);
 
-        if ($submitted && $anlageId !== null) {
-            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
-            if(!$anlage){
-                return $this->redirectToRoute('month_daily_report');
+        $form = $submittedForm = $flow->createForm();
+        if ($flow->isValid($submittedForm)) {
+            $flow->saveCurrentStepData($submittedForm);
+
+            if ($flow->nextStep()) {
+                // create form for next step
+
+                $form = $flow->createForm();
+            } else {
+                // flow finished
+                // ...
+                $form = $flow->createForm();
+                $data = $form->getData();
+
+                $output = $table = $tickets = null;
+                $startDay = $data->getStartDay();
+                $endDay = $data->getEndDay();
+                $month = $data->getMonth();
+                $year = $data->getYear();
+                $anlageId = $data->getAnlage();
+
+                if ($anlageId !== null) {
+                    $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+                    $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
+                    $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
+                }
+
+                return $this->render($template, [
+                    'form' => $form->createView(),
+                    'flow' => $flow,
+                    'formData' => $formData,
+                    'headline' => 'Monthly Report',
+                    'anlage' => $anlage,
+                    'report' => $output,
+                    'status' => $anlageId,
+                    'datatable' => $table,
+                    'tickets'   => $tickets
+                ]);
             }
-            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
-            $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
-
         }
 
         if ($flow->redirectAfterSubmit($submittedForm)) {
