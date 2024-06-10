@@ -202,7 +202,7 @@ class DayAheadForecastDEKService {
                     $RGES_UPPER = ($RGES_UPPER < 0 ? 0 : $RGES_UPPER);
                     $RGES_LOWER = ($RGES_LOWER < 0 ? 0 : $RGES_LOWER);
 
-                    echo "$d $h $m - $DNI - $RGES - $RGES_UPPER  \n";
+                 ##   echo "$d $h $m - $DNI - $RGES - $RGES_UPPER  \n";
 
                     $valueofdayandhour[$gendoy][$h][$m] =
                         [
