@@ -20,7 +20,7 @@ class NotificationWork
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     private string $type;
 
-    #[ORM\ManyToOne(inversedBy: 'notifcationWorks')]
+    #[ORM\ManyToOne(targetEntity: NotificationInfo::class, inversedBy: 'notificationWorks')]
     #[ORM\JoinColumn(nullable: false)]
     private ?NotificationInfo $notificationInfo = null;
 
