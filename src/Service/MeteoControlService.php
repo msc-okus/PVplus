@@ -53,7 +53,7 @@ class MeteoControlService
             #echo "CURLOPT_URL => https://api.meteocontrol.de/v2/systems/$key/sensors/$device/abbreviations/$abbrevationId/measurements?from=$from&to=$to&resolution=$resolution\n";
 
             $curl = curl_init();
-            $oauthThoken = auth($mcUser, $mcPassword, $mcToken);
+            $oauthThoken = auth($mcUser, $mcPassword, $mcToken, $curl);
             curl_setopt_array($curl, array(
                 CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/sensors/$device/abbreviations/$abbrevationId/measurements?from=$from&to=$to&resolution=$resolution",
                 CURLOPT_RETURNTRANSFER => true,
@@ -78,7 +78,7 @@ class MeteoControlService
         }
     }
 
-    static function getSystemKeyMeaserment($mcUser, $mcPassword, $mcToken, $key, $type, $from = 0, $to = 0, $resolution = "fifteen-minutes", $curl)
+    static function getSystemKeyMeaserment($mcUser, $mcPassword, $mcToken, $key, $type, $from = 0, $to = 0, $resolution = "fifteen-minutes", $curl = null)
     {
         if (is_int($from) && is_int($to)) {
             $from = urlencode(date('c', $from - 900));
@@ -116,7 +116,7 @@ class MeteoControlService
         }
     }
 
-    public function getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $key, int $from = 0, int $to = 0, $resolution = "fifteen-minutes", $timeZonePlant = "Europe/Berlin", $curl = NULL) {
+    public function getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $key, int $from = 0, int $to = 0, $resolution = "fifteen-minutes", $timeZonePlant = "Europe/Berlin", $curl = null) {
         if (is_int($from) && is_int($to)) {
             $offsetServerUTC = new \DateTimeZone("UTC");
             $offsetServer = new \DateTimeZone("Europe/Berlin");
@@ -161,7 +161,7 @@ class MeteoControlService
         return false;
     }
 
-    static function getSystemsKeySensorsMeaserments($mcUser, $mcPassword, $mcToken, $key, $from = 0, $to = 0, $resolution = "fifteen-minutes", $curl) {
+    static function getSystemsKeySensorsMeaserments($mcUser, $mcPassword, $mcToken, $key, $from = 0, $to = 0, $resolution = "fifteen-minutes", $curl = null) {
         if (is_int($from) && is_int($to)) {
             $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $to));
@@ -192,7 +192,7 @@ class MeteoControlService
         return false;
     }
 
-    static function getSystemsKeyBasicsMeaserments($mcUser, $mcPassword, $mcToken, $key, $from = 0, $to = 0, $resolution = "fifteen-minutes", $curl) {
+    static function getSystemsKeyBasicsMeaserments($mcUser, $mcPassword, $mcToken, $key, $from = 0, $to = 0, $resolution = "fifteen-minutes", $curl = null) {
         if (is_int($from) && is_int($to)) {
             $from = urlencode(date('c', $from - 900));
             $to = urlencode(date('c', $to));

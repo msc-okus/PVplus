@@ -8,7 +8,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class LiveReporting {
 
-	use EntityHasIdTrait;
+    /**
+     * @var int
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
 
 	/**
 	 * @var array
