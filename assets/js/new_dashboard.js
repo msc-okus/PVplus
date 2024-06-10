@@ -131,7 +131,6 @@ function  chart(){
             contentType: 'text/plain; charset=utf-8',
             success: function (data, status, xhr) {
 
-                console.log(data);
                 // Extract the plantchart content from the response
                 // Insert the plantchart content into the anlChart element
                // $('#anlChart').html($(data).find('#plantChart').html());

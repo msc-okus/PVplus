@@ -651,19 +651,19 @@ class AnlageFormType extends AbstractType
             ])
             ->add('usePAFlag0', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA<br>only Zwartowo, at the moment',
             ])
             ->add('usePAFlag1', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA<br>only Zwartowo, at the moment',
             ])
             ->add('usePAFlag2', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA<br>only Zwartowo, at the moment',
             ])
             ->add('usePAFlag3', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA<br>only Zwartowo, at the moment',
             ])
             ->add('paFormular0', ChoiceType::class, [
                 'label' => 'PA Formular',

@@ -174,7 +174,11 @@ class ACPowerChartsService
                                 //($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
                         }
                     }
-                    $dataArray['chart'][$counter]['theoPower'] = $dataArray['chart'][$counter]['irradiation'] * $anlage->getPnom() / 4000;
+                    if ($hour) {
+                        $dataArray['chart'][$counter]['theoPower'] = $dataArray['chart'][$counter]['irradiation'] * $anlage->getPnom() / 1000;
+                    } else {
+                        $dataArray['chart'][$counter]['theoPower'] = $dataArray['chart'][$counter]['irradiation'] * $anlage->getPnom() / 4000;
+                    }
                     $theoPowerSum += $dataArray['chart'][$counter]['theoPower'];
                     $irrSum += $hour ? $dataArray['chart'][$counter]['irradiation'] : $dataArray['chart'][$counter]['irradiation'] / 4;
                 }

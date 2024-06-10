@@ -21,6 +21,7 @@ use App\Service\MessageService;
 use App\Service\PiiCryptoService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -376,6 +377,7 @@ class TicketController extends BaseController
         $filter['kpistatus']['value'] = $kpistatus;
         $filter['kpistatus']['array'] = self::kpiStatus();
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $proofg4n, $proofMaintenance, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
+        $queryBuilderWithoutSwitch = $ticketRepo->getWithSearchQueryBuilderWithoutSwitch($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
 
         $pagination = $paginator->paginate($queryBuilder, $page, 25);
@@ -390,10 +392,14 @@ class TicketController extends BaseController
         }
         $session->set('page', "$page");
 
+        $newAnlage = 0;
+
         if ($request->query->get('ajax') || $request->isXmlHttpRequest()) {
+            $newAnlage = $request->query->get('newPlantId');
             return $this->render('ticket/_inc/_listTickets.html.twig', [
                 'pagination' => $pagination,
-                'anlagen' => $anlagenRepo->findAllActiveAndAllowed()
+                'anlagen' => $filter['anlagen']['array'],
+                'newPlantId' => $newAnlage,
             ]);
         }
         //here we will configure the array of reason suggestions
@@ -411,7 +417,8 @@ class TicketController extends BaseController
             'direction' => $direction,
             'begin' => $begin,
             'end' => $end,
-            'counts' => $this->getCountOfTickets($ticketRepo),
+            'counts' => $this->getCountOfTickets($ticketRepo, $queryBuilderWithoutSwitch),
+            'newPlantId' => $newAnlage,
         ]);
     }
 
@@ -495,10 +502,27 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/proofCount', name: 'app_ticket_proof_count', methods: ['GET', 'POST'])]
-    public function getProofCount(TicketRepository $ticketRepo): Response
+    public function getProofCount(TicketRepository $ticketRepo, AnlagenRepository $anlagenRepo, Request $request): Response
     {
+        $anlage = $anlagenRepo->findOneBy(['anlId' => $request->query->get('anlage')]);
+        $status = $request->query->get('status');
+        $editor = $request->query->get('editor');
+        $id = $request->query->get('id');
+        $inverter = $request->query->get('inverter');
+        $prio = $request->query->get('prio');
+        $category = $request->query->get('category');
+        $type = $request->query->get('type');
+        $sort = $request->query->get('sort', "");
+        $direction = $request->query->get('direction', "");
+        $ignored = $request->query->get('ignored', 0);
+        $TicketName = $request->query->get('TicketName', "");
+        $kpistatus = $request->query->get('kpistatus', 0);
+        $begin = $request->query->get('begin', "");
+        $end = $request->query->get('end', "");
+        $queryBuilderWithoutSwitch = $ticketRepo->getWithSearchQueryBuilderWithoutSwitch($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $sort, $direction, $ignored, $TicketName, $kpistatus, $begin, $end);
+
         return new JsonResponse([
-            'counts'        => $this->getCountOfTickets($ticketRepo)
+            'counts'        => $this->getCountOfTickets($ticketRepo, $queryBuilderWithoutSwitch)
         ]);
     }
 
@@ -765,6 +789,7 @@ class TicketController extends BaseController
             $pagination->setParam('sort', $sort);
             $pagination->setParam('direction', $direction);
         }
+        $newAnlage = $request->query->get('newPlantId');
         $session->set('page', "$page");
 
 
@@ -782,7 +807,8 @@ class TicketController extends BaseController
             'direction' => $direction,
             'begin' => $begin,
             'end' => $end,
-            'counts' => $this->getCountOfTickets($ticketRepo),
+            'counts' => $this->getCountOfTickets($ticketRepo, $queryBuilder),
+            'newPlantId' => $newAnlage,
         ]);
     }
 
@@ -1193,16 +1219,17 @@ class TicketController extends BaseController
      * $counts['ignored']<br>
      *
      * @param TicketRepository $ticketRepo
+     * @param QueryBuilder $queryBuilder
      * @return array
      */
-    private function getCountOfTickets(TicketRepository $ticketRepo): array
+    private function getCountOfTickets(TicketRepository $ticketRepo, QueryBuilder $queryBuilder): array
     {
-        $counts['proofByTam'] = $ticketRepo->countByProof();
-        $counts['proofByEPC'] = $ticketRepo->countByProofEPC();
-        $counts['proofByAM'] = $ticketRepo->countByProofAM();
-        $counts['proofByG4N'] = $ticketRepo->countByProofG4N();
-        $counts['proofByMaintenance'] = $ticketRepo->countByProofMaintenance();
-        $counts['ignored'] = $ticketRepo->countIgnored();
+        $counts['proofByTam'] = $ticketRepo->countByProof($queryBuilder);
+        $counts['proofByEPC'] = $ticketRepo->countByProofEPC($queryBuilder);
+        $counts['proofByAM'] = $ticketRepo->countByProofAM($queryBuilder);
+        $counts['proofByG4N'] = $ticketRepo->countByProofG4N($queryBuilder);
+        $counts['proofByMaintenance'] = $ticketRepo->countByProofMaintenance($queryBuilder);
+        $counts['ignored'] = $ticketRepo->countIgnored($queryBuilder);
         return $counts;
     }
 }

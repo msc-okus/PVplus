@@ -103,19 +103,21 @@
         <table id="statusTable" class="" style="width: 100%">
             <thead>
             <tr>
-                <th style="text-align: center">Date</th>
-                <th style="text-align: center">VCOM eGrid</th>
-                <th style="text-align: center">PV Syst eGrid</th>
-                <th style="text-align: center"></th>
+                <th style="text-align: left">Date</th>
+                <th style="text-align: right">Measured eGrid</th>
+                <th style="text-align: right">PV Syst eGrid</th>
+                <th style="text-align: right">PV Syst Irr_Global_Inc</th>
+                <th style="text-align: right">PV Syst Irr_Global_Eff</th>
             </tr>
             </thead>
             <tbody>
             {% for pvSyst in pvSysts %}
                 <tr>
-                    <td>{{ pvSyst.date|date("y-m-d H:i") }}</td>
-                    <td>{{ pvSyst.evu }}</td>
-                    <td>{{ pvSyst.electricityGrid|number_format(0, ',', '.') }}</td>
-                    <td></td>
+                    <td style="text-align: left">{{ pvSyst.date|date("d.m.Y H:i") }}</td>
+                    <td style="text-align: right">{{ pvSyst.evu|number_format(2, ',', '.') }}</td>
+                    <td style="text-align: right">{{ pvSyst.electricityGrid|number_format(2, ',', '.') }}</td>
+                    <td style="text-align: right">{{ pvSyst.irrGlobalInc|number_format(2, ',', '.') }}</td>
+                    <td style="text-align: right">{{ pvSyst.irrGlobalEff|number_format(2, ',', '.') }}</td>
                 </tr>
             {% endfor %}
             </tbody>

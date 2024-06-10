@@ -333,17 +333,18 @@ class IrradiationChartService
             }
         }
         $conn = null;
-        dump($dataArray);
+
         return $dataArray;
     }
 
     /**
      * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wird aus SensorsData Tabelle.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param bool $hour
      * @return array
-     * @throws \Exception
      */
     public function getIrradiationPlantFromSensorsData(Anlage $anlage, $from, $to, bool $hour): array
     {
