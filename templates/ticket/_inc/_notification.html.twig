@@ -1,12 +1,12 @@
 <div class="grid-x grid-padding-y">
-    {{ form_start(notificationForm) }}
     <div class="cell notification">
+        {{ form_start(notificationForm) }}
         <fieldset>
             <legend>Maintenance notification</legend>
-            <ul class="tabs" data-tabs id="config-tabs" data-deep-link="true">
+            <ul class="tabs" data-tabs id="config-tabs" data-deep-link="true" style="list-style-type: none !important;">
                 <li class="tabs-title is-active"><a data-tabs-target="general" href="#general" aria-selected="true">General</a>
                 </li>
-                <li class="tabs-title"><a data-tabs-target="documents" href="#documents">Documentation</a></li>
+                <li class="tabs-title" ><a data-tabs-target="documents" href="#documents">Attached Media</a></li>
                 <li class="tabs-title"><a data-tabs-target="chat" href="#chat">Chat Log</a></li>
                 {#  <li class="tabs-title"><a data-tabs-target="contact" href="#contact">Contacts</a></li> #}
             </ul>
@@ -116,8 +116,8 @@
                 #}
             </div>
         </fieldset>
+        {{ form_end(notificationForm) }}
     </div>
-    {{ form_end(notificationForm) }}
 </div>
 
 

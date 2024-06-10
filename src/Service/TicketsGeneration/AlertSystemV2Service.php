@@ -252,7 +252,7 @@ class AlertSystemV2Service
             }
         }
 
-        //$this->em->flush();
+        $this->em->flush();
 
         return 'success';
     }

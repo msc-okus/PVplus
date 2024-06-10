@@ -20,14 +20,17 @@ use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
 use App\Service\MessageService;
 use App\Service\PiiCryptoService;
+use App\Service\UploaderHelper;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -959,6 +962,7 @@ class TicketController extends BaseController
             'notificationConfirmForm' => $form,
             'answered' => $notification->getStatus() == 50 or $notification->getStatus() == 60,
             'finishedJob' => $finishedJob,
+            'token' => $id,
         ]);
     }
 
@@ -975,7 +979,6 @@ class TicketController extends BaseController
     #[Route(path: '/notification/edit/{id}', name: 'app_ticket_notification_edit')]
     public function changeNotificationStatus($id, TicketRepository $ticketRepo, Request $request, PiiCryptoService $encryptService, MessageService $messageService, EntityManagerInterface $em, AcGroupsRepository $acRepo): Response
     {
-
         $ticketId = $encryptService->unHashData($id);
         $ticket = $ticketRepo->findOneBy(['securityToken' => $ticketId]);
         $notification = $ticket->getNotificationInfos()->last();
@@ -1025,6 +1028,7 @@ class TicketController extends BaseController
             'ticket' => $ticket,
             'notification' => $notification,
             'notificationEditForm' => $form,
+            'token' => $id,
             'answered' => false,
         ]);
 
@@ -1127,6 +1131,28 @@ class TicketController extends BaseController
         ]);
     }
 
+    #[Route(path: '/notification/downloadmedia/{id}/{token}', name: 'app_notification_media_external_download')]
+    public function externalDownload($id, $token,  PiiCryptoService $encryptService, UploaderHelper $uploaderHelper, AnlageFileRepository $anlFileRepo){
+
+        $anlageFile = $anlFileRepo->findOneBy(['id' => $id]);
+        $ticket = $anlageFile->getNotificationInfo()->getTicket();
+        if ($ticket->getSecurityToken() === $encryptService->unHashData($token)) {
+            $response = new StreamedResponse(function () use ($anlageFile, $uploaderHelper) {
+                $outputStream = fopen('php://output', 'wb');
+                $fileStream = $uploaderHelper->readStream($anlageFile->getPath() . $anlageFile->getFilename());
+                stream_copy_to_stream($fileStream, $outputStream);
+            });
+
+            $disposition = HeaderUtils::makeDisposition(
+                HeaderUtils::DISPOSITION_ATTACHMENT,
+                $anlageFile->getFilename()
+            );
+            $response->headers->set('Content-Disposition', $disposition);
+            return $response;
+        }
+        else return new Response(null, Response::HTTP_FORBIDDEN);
+    }
+
     /**
      * @param $stamp
      * @param $ticket
@@ -1218,4 +1244,5 @@ class TicketController extends BaseController
         $counts['ignored'] = $ticketRepo->countIgnored();
         return $counts;
     }
+
 }
