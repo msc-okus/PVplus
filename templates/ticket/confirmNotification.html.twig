@@ -62,7 +62,7 @@
                     <tbody>
                     {% for file in notification.attachedMedia %}
                         <tr>
-                            <td> <a href="{{ path('app_media_download', { id: file.id}) }}">{{ file.filename }}</a> </td>
+                            <td> <a href="{{ path('app_notification_media_external_download', { id: file.id, token: token}) }}">{{ file.filename }}</a> </td>
                         </tr>
                     {% endfor %}
                     </tbody>
