@@ -585,15 +585,20 @@ class AnlageFormType extends AbstractType
                 'attr' => ['maxlength' => 4, 'style' => 'width: 55px']
             ])
             ->add('datFilename', FileType::class, [
-                'label' => 'Upload the metonorm *dat file',
+                'label' => 'Upload the metonorm *.dat file',
                 'mapped' => false,
-                'help' => '[The generated meteonorm *dat file]',
-                'attr' => ['class' => 'filestyle'],
+                'help' => '[datFilename]<br>The generated meteonorm *.dat file',
+                'attr' => [
+                    'class' => 'filestyle',
+                    'accept' => '.dat',
+                ],
                 'constraints' => [
                     new File([
                         'maxSize' => '5120k',
-                        'mimeTypes' => [],
-                        'mimeTypesMessage' => 'Please upload a valid *dat file',
+                        'mimeTypes' => [
+                            'text/dat'
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid *.dat file',
                     ])
                 ],
                 'required' => true,
