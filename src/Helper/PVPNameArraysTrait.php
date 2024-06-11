@@ -324,19 +324,15 @@ trait PVPNameArraysTrait
     {
         return $this->errorType();
     }
-    public function PRExcludeMethods(): array
-    {
+    public function PRExcludeMethods(){
         $prMethod[$this->translator->trans('ticket.prmethod.10')] = 10;
         $prMethod[$this->translator->trans('ticket.prmethod.20')] = 20;
-
         return $prMethod;
     }
-    public function scope(): array
-    {
+    public function scope(){
         $scope[$this->translator->trans('ticket.scope.10')] = 10;
         $scope[$this->translator->trans('ticket.scope.20')] = 20;
         $scope[$this->translator->trans('ticket.scope.30')] = 30;
-
         return $scope;
     }
 }

@@ -20,6 +20,8 @@ use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 
 trait G4NTrait
 {
+
+
     /**
      *  Removes control char from given string.
      */
@@ -61,7 +63,7 @@ trait G4NTrait
      * @param bool $reverse
      * @return string
      */
-    public static function timeAjustment($timestamp, float $val = 0, bool $reverse = false): string
+    public static function timeAjustment($timestamp, float $val = 0, $reverse = false): string
     {
         $format = 'Y-m-d H:i:s';
         // Sollte die Zeit als String übergeben worden sein, dann wandele in TimeStamp um
@@ -463,8 +465,6 @@ trait G4NTrait
      */
     function getSensorsData(array $anlageSensors, int $length): array
     {
-        $sensors = [];
-
         for ($i = 0; $i < $length; $i++) {
             $sensorId = $anlageSensors[$i]->getId();
             $sensorType = $anlageSensors[$i]->getvirtualSensor();

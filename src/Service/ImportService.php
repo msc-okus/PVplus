@@ -89,7 +89,7 @@ class ImportService
         $mcToken = $owner->getSettings()->getMcToken();
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
-        $dataDelay = $anlage->getSettings()->getDataDelay() * 3600;
+        $dataDelay = $anlage->getSettings()->getDataDelay()*3600;
         //end collect params from plant
 
         $bulkMeaserments = [];

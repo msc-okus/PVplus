@@ -48,6 +48,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'Beta Tester'           => 'ROLE_BETA',
         'Admin Owner'           => 'ROLE_OWNER_ADMIN',
         'AM String Analyse'     => 'ROLE_AM_STRING_ANALYSE',
+        'Alert Receiver'        => 'ROLE_ALERT_RECEIVER',
     ];
     final public const ARRAY_OF_ROLES_USER = [
         'Owner (full)'      => 'ROLE_OWNER_FULL',

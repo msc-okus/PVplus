@@ -34,7 +34,7 @@ class AnlagePVSystDaten
     private string $irrGlobalInc;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private string $irrGlobalEff;
+    private string $tempAmbiant;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $electricityGrid;
@@ -95,14 +95,14 @@ class AnlagePVSystDaten
         return $this;
     }
 
-    public function getIrrGlobalEff(): ?string
+    public function getTempAmbiant(): ?string
     {
-        return $this->irrGlobalEff;
+        return $this->tempAmbiant;
     }
 
-    public function setIrrGlobalEff(string $irrGlobalEff): self
+    public function setTempAmbiant(string $tempAmbiant): self
     {
-        $this->irrGlobalEff = str_replace(',', '.',$irrGlobalEff);
+        $this->tempAmbiant = str_replace(',', '.',$tempAmbiant);
 
         return $this;
     }

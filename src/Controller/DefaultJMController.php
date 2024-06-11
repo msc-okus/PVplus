@@ -29,7 +29,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-#[IsGranted('ROLE_DEV')]
+#[IsGranted('ROLE_G4N')]
 class DefaultJMController extends AbstractController
 {
     use G4NTrait;
@@ -64,8 +64,8 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2): void
     {
-        $fromDate = "2024-01-13 00:00";
-        $toDate = "2024-01-15 00:00";
+        $fromDate = "2024-06-10 12:00";
+        $toDate = "2024-06-10 14:00";
         $anlagen[] = $anlagenRepository->findIdLike("218")[0];
 
         $fromStamp = strtotime($fromDate);

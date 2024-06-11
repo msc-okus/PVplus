@@ -847,9 +847,9 @@ class AnlageSettings
         return $this;
     }
 
-    public function getDataDelay(): int
+    public function getDataDelay(): ?int
     {
-        return is_null($this->dataDelay) ? 0 : $this->dataDelay;
+        return $this->dataDelay;
     }
 
     public function setDataDelay(?int $dataDelay): self

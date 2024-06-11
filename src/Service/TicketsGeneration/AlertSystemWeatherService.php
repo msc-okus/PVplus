@@ -71,14 +71,14 @@ class AlertSystemWeatherService
      * @param string $time
      * @return void
      */
-    public function checkWeatherStation(Anlage $anlage, string $time): void
+    public function checkWeatherStation(Anlage $anlage, string $time)
     {
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         //if ($anlage->getWeatherStation()->getType() !== 'custom') {
             if ($time >= $sungap['sunrise'] && $time <=  $sungap['sunset']) {
-                $status_report = $this->analyseWeatherData($anlage, $time);
+                $status_report = $this->WData($anlage, $time);
                 $ticketData = "";
-                if ($status_report['irradiation']) $ticketData = $ticketData . "Problem with the Irradiation ";
+                if ($status_report['Irradiation']) $ticketData = $ticketData . "Problem with the Irradiation ";
                 if ($status_report['Temperature']) $ticketData = $ticketData . "Problem with the Temperature";
                 //if ($status_report['wspeed'] != "") $ticketData = $ticketData . "Problem with the Wind Speed";
                 $this->generateTicket($ticketData, $time, $anlage);
@@ -92,12 +92,11 @@ class AlertSystemWeatherService
      * here we analyze the data from the weather station and generate the status.
      * @param Anlage $anlage
      * @param $time
-     * @return array
+     * @return mixed
      */
-    private function analyseWeatherData(Anlage $anlage, $time): array
+    private function WData(Anlage $anlage, $time): mixed
     {
         $time = date('Y-m-d H:i:s', strtotime($time));
-        $status_report = [];
         $conn = $this->pdoService->getPdoPlant();
         $sqlw = 'SELECT b.g_lower as gi , b.g_upper as gmod, b.temp_ambient as temp, b.wind_speed as wspeed 
                     FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
@@ -108,12 +107,12 @@ class AlertSystemWeatherService
             $wdata = $resw->fetch(PDO::FETCH_ASSOC);
             if ($wdata['gi'] != null && $wdata['gmod'] != null) {
                 if ($wdata['gi'] <= 0 && $wdata['gmod'] <= 0) {
-                    $status_report['irradiation'] = 'Irradiation is 0';
+                    $status_report['Irradiation'] = 'Irradiation is 0';
                 } else {
-                    $status_report['irradiation'] = 'All good';
+                    $status_report['Irradiation'] = 'All good';
                 }
             } else {
-                $status_report['irradiation'] = 'No data';
+                $status_report['Irradiation'] = 'No data';
             }
 
             if ($wdata['temp'] != null) {
@@ -124,7 +123,11 @@ class AlertSystemWeatherService
 
             if ($anlage->getHasWindSpeed()) {
                 if ($wdata['wspeed'] != null) {
-                    $status_report['wspeed'] = 'All good';
+                    if ($wdata['wspeed'] == 0) {
+                        $status_report['wspeed'] = 'Wind Speed is 0';
+                    } else {
+                        $status_report['wspeed'] = 'All good';
+                    }
                 } else {
                     $status_report['wspeed'] = 'No data';
                 }
@@ -153,8 +156,8 @@ class AlertSystemWeatherService
             $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
             $end->getTimestamp();
             $ticket->setEnd($end);
-            $this->em->persist($ticket);
-            $this->em->flush();
+             $this->em->persist($ticket);
+             $this->em->flush();
         }
          else if ($status_report != ""){
              $ticket = new Ticket();
@@ -200,7 +203,7 @@ class AlertSystemWeatherService
      * @param $message
      * @param $anlage
      */
-    private function messagingFunction($message, $anlage): void
+    private function messagingFunction($message, $anlage)
     {
         if ($message != '') {
             sleep(2);

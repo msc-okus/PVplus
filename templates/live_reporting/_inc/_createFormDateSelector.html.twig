@@ -1,8 +1,8 @@
 <form method="post">
-    <div class="grid-x grid-margin-x align-middle" data-controller="formdate">
+    <div class="grid-x grid-margin-x align-middle">
         <div class="cell medium-2">
-            <label for="anlage-id">Plant <i class="fa fa-info-circle"></i></label>
-            <select id="anlage-id" name="anlage-id" data-action="change->formdate#enableStartday">
+            <label for="anlage-id">Plant</label>
+            <select id="anlage-id" name="anlage-id">
                 <option value="" disabled selected hidden>Please choose a Plant</option>
                 <option value=""   {% if status == ''   %}   selected {% endif %} > Select a Plant</option>
                 {% for anlage in anlagen %}
@@ -13,17 +13,17 @@
 
         <div class="cell medium-2">
             <label for="start-day">Start Day</label>
-            <input disabled type="date" id="start-day" name="start-day" value="{{ startday }}" data-action="change->formdate#enableEndday" />
+            <input type="date" id="start-day" name="start-day" value="{{ startday }}" />
         </div>
         <div class="cell medium-2">
             <label for="end-day">End Day</label>
-            <input disabled type="date" id="end-day" name="end-day" value="{{ endday }}" data-action="change->formdate#enableButtons" />
+            <input type="date" id="end-day" name="end-day" value="{{ endday }}" />
         </div>
         <div class="cell medium-4" style="margin-top: 22px;">
             {% if is_granted('ROLE_G4N') or is_granted('ROLE_BETA') %}
-                <button hidden name="recalc-PA" id="recalc-PA" class="button" value="yes" title="Depending on the selected dates, this takes very long." disabled>Recalculate PA</button>
+                <button hidden name="recalc-PA" class="button" value="yes" title="Depending on the selected dates, this takes very long.">Recalculate PA</button>
             {% endif %}
-            <button name="new-report" id="new-report" class="button" value="yes" disabled>create Report</button>
+            <button name="new-report" class="button" value="yes">create Report</button>
         </div>
 
     </div>

@@ -694,6 +694,44 @@ class Anlage implements \Stringable
 
 
 
+    #[ORM\Column(name: 'allow_send_alert_mail', type: 'boolean', nullable: true)]
+    private bool $allowSendAlertMail = false;
+
+    #[ORM\Column(name: 'alert_mail_receiver', type: 'json', nullable: true)]
+    private ?array $alertMailReceiver = null;
+
+    #[ORM\Column(name: 'alert_check_interval', nullable: true)]
+    private int $alertCheckInterval = 2;
+
+    public function getAlertCheckInterval(): int
+    {
+        return $this->alertCheckInterval;
+    }
+
+    public function setAlertCheckInterval(int $alertCheckInterval): void
+    {
+        $this->alertCheckInterval = $alertCheckInterval;
+    }
+
+    public function getAlertMailReceiver(): ?array
+    {
+        return $this->alertMailReceiver;
+    }
+
+    public function setAlertMailReceiver(?array $alertMailReceiver): void
+    {
+        $this->alertMailReceiver = $alertMailReceiver;
+    }
+    public function isAllowSendAlertMail(): bool
+    {
+        return $this->allowSendAlertMail;
+    }
+
+    public function setAllowSendAlertMail(bool $allowSendAlertMail): void
+    {
+        $this->allowSendAlertMail = $allowSendAlertMail;
+    }
+
     /**
      * @return string|null
      */
