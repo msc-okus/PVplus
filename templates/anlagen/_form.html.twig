@@ -598,15 +598,7 @@
                                         </div>
                                     </div>
                                 {% endif %}
-                                {{ form_row(anlageForm.newAlgorythm) }}
-                                <div class="grid-x grid-margin-x">
-                                    <div class="cell small-6">
-                                        {{ form_row(anlageForm.freqBase) }}
-                                    </div>
-                                    <div class="cell small-6">
-                                        {{ form_row(anlageForm.freqTolerance) }}
-                                    </div>
-                                </div>
+
                                 {% if (anlage.anlType != "masterslave") %}
                                     <div class="grid-x grid-margin-x">
                                         <div class="cell small-6">
@@ -634,6 +626,14 @@
                                     </div>
                                     <div class="cell small-6">
                                         {{ form_row(anlageForm.ppcBlockTicket) }}
+                                    </div>
+                                </div>
+                                <div class="grid-x grid-margin-x">
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.freqBase) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.freqTolerance) }}
                                     </div>
                                 </div>
 
@@ -864,5 +864,6 @@
     {% do anlageForm.timesConfigs.setRendered() %}
     {% do anlageForm.anlInputDaily.setRendered() %}
     {% do anlageForm.configType.setRendered() %}
+  {% do anlageForm.newAlgorythm.setRendered() %}
 
 {{ form_end(anlageForm) }}
