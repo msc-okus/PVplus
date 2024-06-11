@@ -71,14 +71,14 @@ class AlertSystemWeatherService
      * @param string $time
      * @return void
      */
-    public function checkWeatherStation(Anlage $anlage, string $time): void
+    public function checkWeatherStation(Anlage $anlage, string $time)
     {
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         //if ($anlage->getWeatherStation()->getType() !== 'custom') {
             if ($time >= $sungap['sunrise'] && $time <=  $sungap['sunset']) {
-                $status_report = $this->analyseWeatherData($anlage, $time);
+                $status_report = $this->WData($anlage, $time);
                 $ticketData = "";
-                if ($status_report['irradiation']) $ticketData = $ticketData . "Problem with the Irradiation ";
+                if ($status_report['Irradiation']) $ticketData = $ticketData . "Problem with the Irradiation ";
                 if ($status_report['Temperature']) $ticketData = $ticketData . "Problem with the Temperature";
                 //if ($status_report['wspeed'] != "") $ticketData = $ticketData . "Problem with the Wind Speed";
                 $this->generateTicket($ticketData, $time, $anlage);

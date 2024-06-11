@@ -1,12 +1,11 @@
-<div class="reveal text-left {{ class|default('') }}"
-     id="modal{{ modalId }}"
+<div class="reveal text-left {{ class|default('') }}" id="modal{{ modalId }}"
      data-multiple-opened="true"
      data-v-offset="{{ dataVOffset|default('auto') }}"
      data-ticket-edit-target="modal"
      data-reveal
      data-close-on-click="false"
      data-append-to="div#modal-form{{ modalId }}"
->
+     xmlns="http://www.w3.org/1999/html">
     <h1>{{ modalTitel }}{% if (modalId != 0)%} - {{ modalId }}{% endif %}</h1>
     <div class="grid-x grid-padding-y">
         <div class="cell modal-body"
@@ -48,6 +47,7 @@
                         </div>
                     </div>
                 {% endif %}
+
             {% endif %}
         </div>
     </div>

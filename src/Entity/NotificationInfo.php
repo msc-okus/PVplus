@@ -26,6 +26,7 @@ class NotificationInfo
     #[ORM\OneToMany(mappedBy: 'notificationInfo', targetEntity: NotificationWork::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $notificationWorks;
 
+
     #[ORM\Column]
     private ?int $status = null;
 
