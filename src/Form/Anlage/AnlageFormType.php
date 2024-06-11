@@ -748,7 +748,7 @@ class AnlageFormType extends AbstractType
 
             ->add('ActivateTicketSystem', SwitchType::class, [
                 'label' => 'Activate ticket autogeneration',
-                'help' => '[ActivateTicketSystem]',
+                'help' => '[ActivateTicketSystem] ',
                 'attr' => ['data-plant-target' => 'activateTicket', 'data-action' => 'plant#activateTicket'],
                 'disabled' => !$isG4NUser,
             ])
