@@ -1,8 +1,7 @@
-<div class="grid-x grid-padding-y">
-    <div class="cell notification">
-        {{ form_start(notificationForm) }}
-        <fieldset>
-            <legend>Maintenance notification</legend>
+{{ form_start(notificationForm) }}
+    <div class=" notification">
+
+            <h4 style="text-align: center;">Maintenance notification</h4>
             <ul class="tabs" data-tabs id="config-tabs" data-deep-link="true" style="list-style-type: none !important;">
                 <li class="tabs-title is-active"><a data-tabs-target="general" href="#general" aria-selected="true">General</a>
                 </li>
@@ -11,8 +10,10 @@
                 {#  <li class="tabs-title"><a data-tabs-target="contact" href="#contact">Contacts</a></li> #}
             </ul>
             <div class="tabs-content" data-tabs-content="config-tabs">
-                <div class="tabs-panel is-active" id="general" style="width: 100%!important">
-                    <fieldset class="fieldset">
+                <div class="tabs-panel is-active" id="general">
+                    <div class="grid-x">
+                        <div class="cell">
+                            <fieldset class="fieldset">
                         <legend>General info</legend>
                         {% if (actualNotification != null) %}
                             {% set errcat %} notification.status.{{ actualNotification.status }}{% endset %}
@@ -34,9 +35,13 @@
                         <div class="is-hidden">{{ form_widget(notificationForm.contact) }}</div>
 
                     </fieldset>
+                        </div>
+                    </div>
                 </div>
-                <div class="tabs-panel " id="documents" style="width: 100%!important">
-                    <fieldset class="fieldset">
+                <div class="tabs-panel " id="documents" >
+                    <div class="grid-x">
+                        <div class="cell">
+                             <fieldset class="fieldset">
                         <legend>Attached Documents</legend>
                         <table>
                             <thead>
@@ -62,8 +67,12 @@
                         </table>
 
                     </fieldset>
+                        </div>
+                    </div>
                 </div>
-                <div class="tabs-panel" id="chat" style="width: 100%!important">
+                <div class="tabs-panel" id="chat" >
+                    <div class="grid-x">
+                        <div class="cell">
                     <fieldset class="fieldset">
                         <legend>Chat Log</legend>
                         {% if notifications|length > 0 %}
@@ -88,9 +97,13 @@
                             </div>
                         {% endif %}
                     </fieldset>
+                        </div>
+                    </div>
                 </div>
                 {#
-                <div class="tabs-panel" id="contact" style="width: 100%!important">
+                <div class="tabs-panel" id="contact" >
+                      <div class="grid-x">
+                        <div class="cell">
                     <fieldset class="fieldset">
                         <legend>Contact info</legend>
                             <button type="button" class="button small "
@@ -112,14 +125,13 @@
                                 </div>
                             </div>
                     </fieldset>
+                    </div>
+                    </div>
                 </div>
                 #}
             </div>
-        </fieldset>
-        {{ form_end(notificationForm) }}
     </div>
-</div>
-
+{{ form_end(notificationForm) }}
 
 <button class="close-button"
         type="button"
@@ -131,6 +143,24 @@
         data-action="click->ticket-edit#contact">Send notification <i class="fa fa-paper-plane"
                                                                       aria-hidden="true"></i>
 </button>
+<button type="button" class="button small "
+        data-ticket-edit-target="contactButton"
+        data-action="click->ticket-edit#openContactCreateModal"> Create New Contact
+</button>
+<div id="formContactCreate{{ modalId }}">
+    <div class="reveal text-left small" id="modal-contact-create-{{ modalId }}"
+         data-reveal
+         data-append-to="div#formContactCreate{{ modalId }}"
+         data-close-on-click="false"
+         data-multiple-opened="true"
+         data-ticket-edit-target="contactModalCreate">
+        <div class="cell modal-body"
+             data-ticket-edit-target="modalContactCreateBody"
+             data-action="modal-form#submitForm">
+            {{ modalContent|default('Loading...') }}
+        </div>
+    </div>
+</div>
 
 
     {# Modal for new Contact #}
