@@ -595,9 +595,7 @@ class AnlageFormType extends AbstractType
                 'constraints' => [
                     new File([
                         'maxSize' => '5120k',
-                        'mimeTypes' => [
-                            'text/dat'
-                        ],
+                        'mimeTypes' => [],
                         'mimeTypesMessage' => 'Please upload a valid *.dat file',
                     ])
                 ],
