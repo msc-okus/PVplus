@@ -34,6 +34,9 @@ class InternalAlertSystemService
     ){
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function generateTicketsInterval(Anlage $anlage, string $from, string $to = null): void
     {
         $this->checkSystem($anlage,  $from,  $to);
@@ -51,7 +54,7 @@ class InternalAlertSystemService
         $timeStamp = strtotime($time);
 
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', $timeStamp));
-        $time = self::timeAjustment($timeStamp, -2);
+        $time = self::timeAjustment($timeStamp, -1);
         if (($time > $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
                 $plant_status = self::RetrievePlant($anlage, date('Y-m-d H:i:00', strtotime($time)));
                 if ($plant_status['countIrr'] == true) $this->generateTickets(91, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
