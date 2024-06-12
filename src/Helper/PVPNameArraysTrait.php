@@ -8,6 +8,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 trait PVPNameArraysTrait
 {
 
+
     public static function apiTypes(): array
     {
         return [

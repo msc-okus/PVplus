@@ -165,7 +165,6 @@ class MeteoControlService
         if (is_int($from) && is_int($to)) {
             $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $to));
-
             $oauthThoken = auth($mcUser, $mcPassword, $mcToken, $curl);
             curl_setopt_array($curl, array(
                     CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/sensors/bulk/measurements?from=$from&to=$to&resolution=$resolution",

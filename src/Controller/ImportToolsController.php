@@ -121,6 +121,7 @@ class ImportToolsController extends BaseController
 
         //get all Plants for Import via via Cron
         $anlagen = $anlagenRepo->findAllSymfonyImport();
+        dd($anlagen);
 
         $time = time();
         $time -= $time % 900;
@@ -152,7 +153,7 @@ class ImportToolsController extends BaseController
         $fromts = strtotime("$from 00:00:00");
         $tots = strtotime("$to 23:59:00");
 
-        //get all Plants for Import via via Cron
+        //get one Plant for Import manuell
         $anlage = $anlagenRepo->findOneByIdAndJoin($id);
 
         for ($dayStamp = $fromts; $dayStamp <= $tots; $dayStamp += 24*3600) {

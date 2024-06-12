@@ -168,6 +168,9 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $chartSensor4 = false;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $apiConfig = null;
+
     #[ORM\Column(nullable: true)]
     private ?bool $symfonyImport = false;
 
@@ -783,6 +786,18 @@ class AnlageSettings
     public function setSymfonyImport(?bool $symfonyImport): self
     {
         $this->symfonyImport = $symfonyImport;
+
+        return $this;
+    }
+
+    public function getApiConfig(): ?string
+    {
+        return $this->apiConfig;
+    }
+
+    public function setApiConfig(?string $apiConfig): static
+    {
+        $this->apiConfig = $apiConfig;
 
         return $this;
     }

@@ -43,6 +43,7 @@ class AnlageFormType extends AbstractType
             throw new \RuntimeException('Invalid entity.');
         }
 
+        $_SESSION['tempOwnerId'] = $anlage->getEigner()->getEignerId();
 
         $prArray = self::prFormulars();
 

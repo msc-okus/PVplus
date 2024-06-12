@@ -367,7 +367,7 @@ class AnlagenRepository extends ServiceEntityRepository
     {
         $qb = self::querBuilderFindAllActiveAndAllowed();
         $qb->andWhere('settings.symfonyImport = true'); // OR LENGTH(a.pathToImportScript) > 0');
-
+        $qb->orderBy('settings.id');
         return $qb->getQuery()->getResult();
     }
 

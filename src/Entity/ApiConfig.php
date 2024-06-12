@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\OwnerSettingsRepository;
+use App\Repository\ApiConfigRepository;
 use App\Service\PiiCryptoService;
 use Doctrine\ORM\Mapping as ORM;
+use phpseclib3\Math\BigInteger;
 
 
-
-#[ORM\Entity(repositoryClass: OwnerSettingsRepository::class)]
+#[ORM\Entity(repositoryClass: ApiConfigRepository::class)]
 class ApiConfig extends PiiCryptoService
 {
     #[ORM\Id]
@@ -17,22 +17,30 @@ class ApiConfig extends PiiCryptoService
     private ?int $id = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    private ?string $ownerId = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
     private ?string $apiType = null;
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $configName = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    private ?string $apiUser = null;  // mc = Medio Control = VCOM
+    private ?string $apiUser = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $apiPassword = null; // mc = Medio Control = VCOM
+    private ?string $apiPassword = null;
 
     #[ORM\Column(length: 100, nullable: true)]
-    private ?string $apiToken = null;  // mc = Medio Control = VCOM
+    private ?string $apiToken = null;
 
     #[ORM\ManyToOne(inversedBy: 'apiConfig')]
     private ?Eigner $owner = null;
+
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
 
     public function getApiType(): ?string
     {
