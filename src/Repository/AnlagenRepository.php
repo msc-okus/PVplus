@@ -375,8 +375,15 @@ class AnlagenRepository extends ServiceEntityRepository
      */
     public function findAllSymfonyImport(): array
     {
-        $qb = self::querBuilderFindAllActiveAndAllowed();
-        $qb->andWhere('settings.symfonyImport = true'); // OR LENGTH(a.pathToImportScript) > 0');
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings')
+            ->andWhere("a.anlHidePlant = 'No'")
+            ->andWhere('settings.symfonyImport = true');
 
         return $qb->getQuery()->getResult();
     }
