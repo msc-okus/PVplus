@@ -34,28 +34,6 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 
 )]
 #[ApiFilter(SearchFilter::class, properties: ['anlName' => 'partial'])]
-/**
- * ApiResource(
- *     security="is_granted('ROLE_ADMIN')",
- *     collectionOperations={
- *      "get"={"security"="is_granted('ROLE_API_USER')"},
- *      "post"
- *      },
- *     itemOperations={
- *     "get"={"security"="is_granted('ROLE_API_USER')"},
- *     "put"
- *     },
- *     shortName="anlages",
- *     normalizationContext={"groups"={"api:read"}},
- *     denormalizationContext={"groups"={"api:write"}},
- *     attributes={
- *          "pagination_items_per_page"=30,
- *          "formats"={ "json", "jsonld","html", "csv"={"text/csv"}}
- *     }
- * )
- * ApiFilter(SearchFilter::class, properties={"anlName":"partial"})
- *
- */
 #[ORM\Table(name: 'anlage')]
 #[ORM\Entity(repositoryClass: \App\Repository\AnlagenRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -63,6 +41,7 @@ class Anlage implements \Stringable
 {
     private string $dbAnlagenData = 'pvp_data';
     private string $dbAnlagenBase = 'pvp_base';
+    private string $dbAnlagenDivision = 'pvp_division';
 
     #[Groups(['main','api:read'])]
     #[SerializedName('id')]
@@ -1328,7 +1307,7 @@ class Anlage implements \Stringable
 
     public function getDbNameDivisionsStringTable(): string
     {
-        return $this->dbAnlagenData.'.db__string_pv_'.$this->getAnlIntnr();
+        return $this->dbAnlagenDivision.'.db__string_pv_'.$this->getAnlIntnr();
     }
     public function getDbNameSection(): string
     {
