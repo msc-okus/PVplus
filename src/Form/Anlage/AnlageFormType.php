@@ -822,7 +822,6 @@ class AnlageFormType extends AbstractType
                 'label' => 'PPC blocks the generation of inverter tickets',
                 'help' => '[ppcBlockTicket]',
                 'attr' => ['data-plant-target' => 'ticket'],
-                'empty_data' => 'false',
                 'disabled' => !$isG4NUser,
             ])
             // ###############################################
