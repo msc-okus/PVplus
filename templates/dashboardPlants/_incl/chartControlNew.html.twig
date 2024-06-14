@@ -261,21 +261,10 @@
 
     <div class="cell medium-6 large-4 xlarge-2">
         <select class="js-submit-onchange-select selectedChart" title="Please select a view from the list."
-                data-toggle="tooltip" name="selectedChart">
-            <optgroup label="Analysis">
-                {% if aktAnlage.settings.chartAnalyse1 or is_granted('ROLE_ADMIN') %}
-                    <option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>
-                        Show Availability [%]
-                    </option>
-                {% endif %}
-                {% if is_granted('ROLE_DEV') %}
-                    <option value="availability_intervall" {% if form.selectedChart == 'availability_intervall' %}selected{% endif %}>
-                        Show Availability by Intervall
-                    </option>
-                {% endif %}
-                {% if aktAnlage.settings.chartAnalyse2 and is_granted('ROLE_ADMIN') %}
-                    <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
-                {% endif %}
+                data-toggle="tooltip" name="selectedChart"
+        >
+            {# Forecast #}
+            <optgroup label="Forcast">
                 {% if aktAnlage.settings.chartAnalyse3 %}
                     <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast Ertrag&nbsp;[kWh]
                     </option>
@@ -292,21 +281,24 @@
                     <option value="forecast_dayahead" {% if form.selectedChart == 'forecast_dayahead' %}selected{% endif %}>Forecast-Day-Ahead&nbsp;[kWh]
                     </option>
                 {% endif %}
-                {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
-                    {% if aktAnlage.settings.chartAnalyse4 %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Heatmap #}
-                    {% if aktAnlage.settings.chartAnalyse5 %}{{ showTempHeatmap(form, aktAnlage) }}{% endif %}         {# Heatmap #}
-                    {% if aktAnlage.hasDc %}   {# DC Current Headmap ausblenden wenn keine DC Daten vorhanden sind #}
-                        {% if aktAnlage.settings.chartAnalyse6 %}{{ showSollIstHeatmap(form, aktAnlage) }}{% endif %}
-                    {% endif %}
-                {% endif %}
-                {% if is_granted('ROLE_G4N') or is_granted('ROLE_BETA') %}
-                    {% if aktAnlage.settings.chartAnalyse7 %}{{ showSollIstAnalyse(form, aktAnlage) }}{% endif %}         {# Bubblechart #}
-                    {% if aktAnlage.settings.chartAnalyse8 %}{{ showSollIstTempAnalyse(form, aktAnlage) }}{% endif %}     {# Bubblechart #}
-                    {% if aktAnlage.hasDc %}
-                        {% if aktAnlage.settings.chartAnalyse9 %}{{ showSollIstIrrAnalyse(form, aktAnlage) }}{% endif %}
-                    {% endif %}  {# Bubblechart mit DC Anteil daher ausblenden wenn keine DC Daten vorhanden sind #}
-                {% endif %}
             </optgroup>
+
+            {# Analyse #}
+            {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
+                <optgroup label="Analysis">
+                        {% if aktAnlage.settings.chartAnalyse4 %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Heatmap #}
+                        {% if aktAnlage.settings.chartAnalyse5 %}{{ showTempHeatmap(form, aktAnlage) }}{% endif %}         {# Heatmap #}
+                        {% if aktAnlage.hasDc %}   {# DC Current Headmap ausblenden wenn keine DC Daten vorhanden sind #}
+                            {% if aktAnlage.settings.chartAnalyse6 %}{{ showSollIstHeatmap(form, aktAnlage) }}{% endif %}
+                        {% endif %}
+
+                        {% if aktAnlage.settings.chartAnalyse7 %}{{ showSollIstAnalyse(form, aktAnlage) }}{% endif %}         {# Bubblechart #}
+                        {% if aktAnlage.settings.chartAnalyse8 %}{{ showSollIstTempAnalyse(form, aktAnlage) }}{% endif %}     {# Bubblechart #}
+                        {% if aktAnlage.hasDc %}
+                            {% if aktAnlage.settings.chartAnalyse9 %}{{ showSollIstIrrAnalyse(form, aktAnlage) }}{% endif %}
+                        {% endif %}  {# Bubblechart mit DC Anteil daher ausblenden wenn keine DC Daten vorhanden sind #}
+                </optgroup>
+            {% endif %}
             <!-- ab hier AC -->
             <optgroup label="AC">
                 {% if aktAnlage.settings.chartAC1 %}{{ acActPlant(form, aktAnlage) }}{% endif %}       {# AC1 #}
@@ -349,7 +341,7 @@
 
             {% endif %}
 
-            <!-- diverses -->
+            {#  diverses  #}
             <optgroup label="Sensors">
                 {% if aktAnlage.settings.chartSensor1 %}{{ irradiation(form, aktAnlage) }}{% endif %}
                 {% if aktAnlage.settings.chartSensor2 %}
@@ -365,7 +357,24 @@
 
             </optgroup>
 
-            <!-- Developer and G4N Stuff -->
+            {# Helper #}
+            <optgroup label="Helper">
+                {% if aktAnlage.settings.chartAnalyse1 or is_granted('ROLE_ADMIN') %}
+                    <option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>
+                        Show Availability [%]
+                    </option>
+                {% endif %}
+                {% if is_granted('ROLE_DEV') %}
+                    <option value="availability_intervall" {% if form.selectedChart == 'availability_intervall' %}selected{% endif %}>
+                        Show Availability by Intervall
+                    </option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAnalyse2 and is_granted('ROLE_ADMIN') %}
+                    <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
+                {% endif %}
+            </optgroup>
+
+            {# Developer and G4N Stuff  #}
             {% if is_granted('ROLE_ADMIN') %}
                 <optgroup label="Admin Stuff">
                     <option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show status log</option>
