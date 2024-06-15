@@ -584,15 +584,18 @@ class AnlageFormType extends AbstractType
                 'attr' => ['maxlength' => 4, 'style' => 'width: 55px']
             ])
             ->add('datFilename', FileType::class, [
-                'label' => 'Upload the metonorm *dat file',
+                'label' => 'Upload the metonorm *.dat file',
                 'mapped' => false,
-                'help' => '[The generated meteonorm *dat file]',
-                'attr' => ['class' => 'filestyle'],
+                'help' => '[datFilename]<br>The generated meteonorm *.dat file',
+                'attr' => [
+                    'class' => 'filestyle',
+                    'accept' => '.dat',
+                ],
                 'constraints' => [
                     new File([
                         'maxSize' => '5120k',
                         'mimeTypes' => [],
-                        'mimeTypesMessage' => 'Please upload a valid *dat file',
+                        'mimeTypesMessage' => 'Please upload a valid *.dat file',
                     ])
                 ],
                 'required' => true,
@@ -840,7 +843,6 @@ class AnlageFormType extends AbstractType
                 'label' => 'PPC blocks the generation of inverter tickets',
                 'help' => '[ppcBlockTicket]',
                 'attr' => ['data-plant-target' => 'ticket'],
-                'empty_data' => 'false',
                 'disabled' => !$isG4NUser,
             ])
 

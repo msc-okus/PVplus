@@ -100,6 +100,9 @@ class AnlageConfigFormType extends AbstractType
             ->add('picture', FileType::class, [
                 'label' => 'Picture',
                 'mapped' => false,
+                'attr' => [
+                    'accept' => '.jpeg, .gif, .png, .gif, .jpg, .svg',
+                ],
                 'constraints' => [
                     new image([
                         'maxSize' => '10M',
