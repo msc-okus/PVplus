@@ -1,85 +1,168 @@
-<div class="grid-x grid-padding-y">
-    <div class="cell notification">
-        <fieldset class="fieldset">
-            <legend><h4>Maintenance notification</h4></legend>
-            <div class="grid-x grid-padding-y grid-padding-x">
-                <div class="cell medium-6">
-                    {{ form_start(notificationForm) }}
-                    {% if (actualNotification != null) %}
-                        {% set errcat %} notification.status.{{ actualNotification.status }}{% endset %}
-                        <p>
-                            <b>Last contacted Person:</b> {{ actualNotification.contactedPerson.name }}<br>
-                            <b>Status:</b> {{ errcat|trans }}<br>
-                            <b>Notification Date:</b> {{ actualNotification.date |date("d.m.y H:i") }} ({{ timeDiff }}
-                            ago)
-                        </p>
-                    {% endif %}
-                    <button class="button small "> Add Documents for information</button>
-                    {{ form_widget(notificationForm.contacted) }}
-                    Priority:
-                    {{ form_widget(notificationForm.priority) }}
-                    <br>Message for the Maintenance Provider:
-                    {{ form_widget(notificationForm.freeText) }}
+{{ form_start(notificationForm) }}
+    <div class=" notification">
 
-                    <div class="is-hidden">{{ form_widget(notificationForm.contact) }}</div>
-                    {{ form_end(notificationForm) }}
-                    <br>
-                    <button type="button" class="button small "
-                            data-action="click->ticket-edit#contact">Send notification <i class="fa fa-paper-plane"
-                                                                                          aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="button small "
-                            data-ticket-edit-target="contactButton"
-                            data-action="click->ticket-edit#openContactCreateModal"> Create New Contact
-                    </button>
-                </div>
-                <div class="cell medium-6">
-                    {% if notifications|length > 0 %}
-                        <h5>Notification Log</h5>
-                        <div class="container">
-                            <div class="mro">
-                                {% for notification in notifications %}
-                                    <div>{{ notification.contactedPerson.Name }}</div>
-                                    {% if notification.freeText != '' %}
-                                        <div class="other"> {{ notification.freeText }} -
-                                        <i>{{ notification.Date |format_datetime(pattern="yyyy-MM-dd HH:mm") }} </i>
-                                        </div>{% endif %}
-                                    {% if notification.answerFreeText != '' %}
-                                        <div class="receiver">
-                                        <i>{{ notification.answerDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i>
-                                        - {{ notification.answerFreeText }}</div>{% endif %}
-                                    {% if notification.closeFreeText != '' %}
-                                        <div class="receiver">
-                                        <i>{{ notification.closeDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i>
-                                        - {{ notification.closeFreeText }}</div>{% endif %}
-                                {% endfor %}
-                            </div>
+            <h4 style="text-align: center;">Maintenance notification</h4>
+            <ul class="tabs" data-tabs id="config-tabs" data-deep-link="true" style="list-style-type: none !important;">
+                <li class="tabs-title is-active"><a data-tabs-target="general" href="#general" aria-selected="true">General</a>
+                </li>
+                <li class="tabs-title" ><a data-tabs-target="documents" href="#documents">Attached Media</a></li>
+                <li class="tabs-title"><a data-tabs-target="chat" href="#chat">Chat Log</a></li>
+                {#  <li class="tabs-title"><a data-tabs-target="contact" href="#contact">Contacts</a></li> #}
+            </ul>
+            <div class="tabs-content" data-tabs-content="config-tabs">
+                <div class="tabs-panel is-active" id="general">
+                    <div class="grid-x">
+                        <div class="cell">
+                            <fieldset class="fieldset">
+                        <legend>General info</legend>
+                        {% if (actualNotification != null) %}
+                            {% set errcat %} notification.status.{{ actualNotification.status }}{% endset %}
+                            <p>
+                                <b>Last contacted Person:</b> {{ actualNotification.contactedPerson.name }}<br>
+                                <b>Status:</b> {{ errcat|trans }}<br>
+                                <b>Notification Date:</b> {{ actualNotification.date |date("d.m.y H:i") }}
+                                ({{ timeDiff }}
+                                ago)
+                            </p>
+                        {% endif %}
+
+                        {{ form_widget(notificationForm.contacted) }}
+                        Priority:
+                        {{ form_widget(notificationForm.priority) }}
+                        <br>Message for the Maintenance Provider:
+                        {{ form_widget(notificationForm.freeText) }}
+
+                        <div class="is-hidden">{{ form_widget(notificationForm.contact) }}</div>
+
+                    </fieldset>
                         </div>
-                    {% endif %}
+                    </div>
                 </div>
-            </div>
-        </fieldset>
-        <button class="close-button"
-                type="button"
-                data-action="ticket-edit#closeContact"
-        >
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
+                <div class="tabs-panel " id="documents" >
+                    <div class="grid-x">
+                        <div class="cell">
+                             <fieldset class="fieldset">
+                        <legend>Attached Documents</legend>
+                        <table>
+                            <thead>
+                            <tr>
+                                <th> Attach</th>
+                                <th> Id</th>
+                                <th> Name</th>
+                                <th> Type</th>
+                                <th> Upload Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for file in documents %}
+                                <tr>
+                                    <td><input type="checkbox" name="{{ file.id }}"></td>
+                                    <td> {{ file.id }} </td>
+                                    <td> <a href="{{ path('app_media_download', { id: file.id}) }}">{{ file.filename }}</a> </td>
+                                    <td> {{ file.mimetype }} </td>
+                                    <td> {{ file.stamp }} </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
 
-    {# Modal for new Contact #}
-    <div id="formContactCreate{{ modalId }}">
-        <div class="reveal text-left small" id="modal-contact-create-{{ modalId }}"
-             data-reveal
-             data-append-to="div#formContactCreate{{ modalId }}"
-             data-close-on-click="false"
-             data-multiple-opened="true"
-             data-ticket-edit-target="contactModalCreate">
-            <div class="cell modal-body"
-                 data-ticket-edit-target="modalContactCreateBody"
-                 data-action="modal-form#submitForm">
-                {{ modalContent|default('Loading...') }}
+                    </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div class="tabs-panel" id="chat" >
+                    <div class="grid-x">
+                        <div class="cell">
+                    <fieldset class="fieldset">
+                        <legend>Chat Log</legend>
+                        {% if notifications|length > 0 %}
+                            <div class="container">
+                                <div class="mro">
+                                    {% for notification in notifications %}
+                                        <div>{{ notification.contactedPerson.Name }}</div>
+                                        {% if notification.freeText != '' %}
+                                            <div class="other"> {{ notification.freeText }} -
+                                            <i>{{ notification.Date |format_datetime(pattern="yyyy-MM-dd HH:mm") }} </i>
+                                            </div>{% endif %}
+                                        {% if notification.answerFreeText != '' %}
+                                            <div class="receiver">
+                                            <i>{{ notification.answerDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i>
+                                            - {{ notification.answerFreeText }}</div>{% endif %}
+                                        {% if notification.closeFreeText != '' %}
+                                            <div class="receiver">
+                                            <i>{{ notification.closeDate |format_datetime(pattern="yyyy-MM-dd HH:mm") }}</i>
+                                            - {{ notification.closeFreeText }}</div>{% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </fieldset>
+                        </div>
+                    </div>
+                </div>
+                {#
+                <div class="tabs-panel" id="contact" >
+                      <div class="grid-x">
+                        <div class="cell">
+                    <fieldset class="fieldset">
+                        <legend>Contact info</legend>
+                            <button type="button" class="button small "
+                                    data-ticket-edit-target="contactButton"
+                                    data-action="click->ticket-edit#openContactCreateModal"> Create New Contact
+                            </button>
+                            <div id="formContactCreate{{ modalId }}">
+                                <div class="reveal text-left small" id="modal-contact-create-{{ modalId }}"
+                                     data-reveal
+                                     data-append-to="div#formContactCreate{{ modalId }}"
+                                     data-close-on-click="false"
+                                     data-multiple-opened="true"
+                                     data-ticket-edit-target="contactModalCreate">
+                                    <div class="cell modal-body"
+                                         data-ticket-edit-target="modalContactCreateBody"
+                                         data-action="modal-form#submitForm">
+                                        {{ modalContent|default('Loading...') }}
+                                    </div>
+                                </div>
+                            </div>
+                    </fieldset>
+                    </div>
+                    </div>
+                </div>
+                #}
             </div>
+    </div>
+{{ form_end(notificationForm) }}
+
+<button class="close-button"
+        type="button"
+        data-action="ticket-edit#closeContact"
+>
+    <span aria-hidden="true">&times;</span>
+</button>
+<button type="button" class="button small "
+        data-action="click->ticket-edit#contact">Send notification <i class="fa fa-paper-plane"
+                                                                      aria-hidden="true"></i>
+</button>
+<button type="button" class="button small "
+        data-ticket-edit-target="contactButton"
+        data-action="click->ticket-edit#openContactCreateModal"> Create New Contact
+</button>
+<div id="formContactCreate{{ modalId }}">
+    <div class="reveal text-left small" id="modal-contact-create-{{ modalId }}"
+         data-reveal
+         data-append-to="div#formContactCreate{{ modalId }}"
+         data-close-on-click="false"
+         data-multiple-opened="true"
+         data-ticket-edit-target="contactModalCreate">
+        <div class="cell modal-body"
+             data-ticket-edit-target="modalContactCreateBody"
+             data-action="modal-form#submitForm">
+            {{ modalContent|default('Loading...') }}
         </div>
     </div>
 </div>
+
+
+    {# Modal for new Contact #}
+
+
