@@ -92,8 +92,6 @@ class ImportService
         $dataDelay = $anlage->getSettings()->getDataDelay()*3600;
         //end collect params from plant
 
-        $bulkMeaserments = [];
-
         //get the Data from vcom
         $curl = curl_init();
 
@@ -109,12 +107,6 @@ class ImportService
 
         $from = date('Y-m-d H:i', $start);
         $to = date('Y-m-d H:i', $end);
-
-        $sunArray = $this->weatherService->getSunrise($anlage, $from);
-        #$start = strtotime((string) $sunArray['sunrise']);
-        $sunArray = $this->weatherService->getSunrise($anlage, $to);
-        #$end = strtotime((string) $sunArray['sunset']);
-
 
         //get the Data from VCOM for all Plants are configured in the current plant
         for ($i = 0; $i < $numberOfPlants; ++$i) {

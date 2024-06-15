@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AlertMessages;
 use App\Entity\Anlage;
 use App\Entity\NotificationInfo;
 use App\Entity\Ticket;
@@ -18,6 +19,7 @@ use App\Repository\NotificationInfoRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
+use App\Service\G4NSendMailService;
 use App\Service\MessageService;
 use App\Service\PiiCryptoService;
 use App\Service\UploaderHelper;
@@ -1243,6 +1245,38 @@ class TicketController extends BaseController
         $counts['proofByMaintenance'] = $ticketRepo->countByProofMaintenance();
         $counts['ignored'] = $ticketRepo->countIgnored();
         return $counts;
+    }
+
+
+    #[Route('/verify', name: 'verify_alert_message')]
+    public function verifyAlert(Request $request, EntityManagerInterface $em): Response
+    {
+        $token = $request->query->get('token');
+        $email = $request->query->get('email');
+
+        if (!$token || !$email) {
+            return new Response('Invalid token or email', Response::HTTP_BAD_REQUEST);
+        }
+
+        $alertMessageRepository = $em->getRepository(AlertMessages::class);
+        $alertMessage = $alertMessageRepository->findOneBy(['token' => $token]);
+
+
+        if (!$alertMessage) {
+            return new Response('No alert found', Response::HTTP_NOT_FOUND);
+        }
+
+        if ($alertMessage->getChecked()) {
+            return new Response('Alert already validated by ' . $alertMessage->getCheckedByUser(), Response::HTTP_FORBIDDEN);
+        }
+
+        $alertMessage->setChecked(true);
+        $alertMessage->setCheckedByUser($email);
+        $alertMessage->setCheckedAt(new \DateTimeImmutable());
+        $em->persist($alertMessage);
+        $em->flush();
+
+        return new Response('Alert verified successfully');
     }
 
 }

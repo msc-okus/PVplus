@@ -34,28 +34,6 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 
 )]
 #[ApiFilter(SearchFilter::class, properties: ['anlName' => 'partial'])]
-/**
- * ApiResource(
- *     security="is_granted('ROLE_ADMIN')",
- *     collectionOperations={
- *      "get"={"security"="is_granted('ROLE_API_USER')"},
- *      "post"
- *      },
- *     itemOperations={
- *     "get"={"security"="is_granted('ROLE_API_USER')"},
- *     "put"
- *     },
- *     shortName="anlages",
- *     normalizationContext={"groups"={"api:read"}},
- *     denormalizationContext={"groups"={"api:write"}},
- *     attributes={
- *          "pagination_items_per_page"=30,
- *          "formats"={ "json", "jsonld","html", "csv"={"text/csv"}}
- *     }
- * )
- * ApiFilter(SearchFilter::class, properties={"anlName":"partial"})
- *
- */
 #[ORM\Table(name: 'anlage')]
 #[ORM\Entity(repositoryClass: \App\Repository\AnlagenRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -63,6 +41,7 @@ class Anlage implements \Stringable
 {
     private string $dbAnlagenData = 'pvp_data';
     private string $dbAnlagenBase = 'pvp_base';
+    private string $dbAnlagenDivision = 'pvp_division';
 
     #[Groups(['main','api:read'])]
     #[SerializedName('id')]
@@ -694,6 +673,44 @@ class Anlage implements \Stringable
 
 
 
+    #[ORM\Column(name: 'allow_send_alert_mail', type: 'boolean', nullable: true)]
+    private bool $allowSendAlertMail = false;
+
+    #[ORM\Column(name: 'alert_mail_receiver', type: 'json', nullable: true)]
+    private ?array $alertMailReceiver = null;
+
+    #[ORM\Column(name: 'alert_check_interval', nullable: true)]
+    private int $alertCheckInterval = 2;
+
+    public function getAlertCheckInterval(): int
+    {
+        return $this->alertCheckInterval;
+    }
+
+    public function setAlertCheckInterval(int $alertCheckInterval): void
+    {
+        $this->alertCheckInterval = $alertCheckInterval;
+    }
+
+    public function getAlertMailReceiver(): ?array
+    {
+        return $this->alertMailReceiver;
+    }
+
+    public function setAlertMailReceiver(?array $alertMailReceiver): void
+    {
+        $this->alertMailReceiver = $alertMailReceiver;
+    }
+    public function isAllowSendAlertMail(): bool
+    {
+        return $this->allowSendAlertMail;
+    }
+
+    public function setAllowSendAlertMail(bool $allowSendAlertMail): void
+    {
+        $this->allowSendAlertMail = $allowSendAlertMail;
+    }
+
     /**
      * @return string|null
      */
@@ -1290,7 +1307,7 @@ class Anlage implements \Stringable
 
     public function getDbNameDivisionsStringTable(): string
     {
-        return $this->dbAnlagenData.'.db__string_pv_'.$this->getAnlIntnr();
+        return $this->dbAnlagenDivision.'.db__string_pv_'.$this->getAnlIntnr();
     }
     public function getDbNameSection(): string
     {

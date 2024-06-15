@@ -23,7 +23,7 @@ class AlertMessages
     #[ORM\Column(type: 'integer')]
     private ?int $AnlagenId = null;
 
-    #[ORM\Column(type: 'string', length: 60)]
+    #[ORM\Column(type: 'string', length: 60,nullable: true)]
     private ?string $emailRecipient = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -40,6 +40,76 @@ class AlertMessages
 
     #[ORM\Column(type: 'string', length: 20)]
     private ?string $eventType = null;
+
+    #[ORM\Column( type: 'integer',nullable: true)]
+    private ?int $alertId = null;
+
+    #[ORM\Column( type: 'boolean',nullable: true)]
+    private ?bool $checked = null;
+
+
+    #[ORM\Column( type: 'string',length: 20,nullable: true)]
+    private ?string $checkedByUser = null;
+
+    #[ORM\Column(type: 'datetime_immutable',nullable: true)]
+    private ?\DateTimeImmutable $checkedAt = null;
+
+    #[ORM\Column(type: 'string', length: 32, nullable: true)]
+    private ?string $token = null;
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(?string $token): self
+    {
+        $this->token = $token;
+        return $this;
+    }
+
+    public function getChecked(): ?bool
+    {
+        return $this->checked;
+    }
+
+    public function setChecked(?bool $checked): void
+    {
+        $this->checked = $checked;
+    }
+
+    public function getAlertId(): ?int
+    {
+        return $this->alertId;
+    }
+
+    public function setAlertId(?int $alertId): void
+    {
+        $this->alertId = $alertId;
+    }
+
+    public function getCheckedByUser(): ?string
+    {
+        return $this->checkedByUser;
+    }
+
+    public function setCheckedByUser(?string $checkedByUser): self
+    {
+        $this->checkedByUser = $checkedByUser;
+        return $this;
+    }
+
+    public function getCheckedAt(): ?\DateTimeImmutable
+    {
+        return $this->checkedAt;
+    }
+
+    public function setCheckedAt(?\DateTimeImmutable $checkedAt): void
+    {
+        $this->checkedAt = $checkedAt;
+    }
+
+
 
     public function getId(): ?int
     {

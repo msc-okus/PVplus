@@ -152,6 +152,8 @@ class AnlagenAdminController extends BaseController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() || $form->get('savecreatedb')->isClicked())) {
+
+
             // Forecast Tab Field Check
             if($form['useDayForecast']->getData() === true) {
                 $checkfields = true;
@@ -194,6 +196,7 @@ class AnlagenAdminController extends BaseController
                     $successMessage = 'Plant data saved and DB created.';
                 }
             }
+
 
             $em->persist($anlage);
             $em->flush();

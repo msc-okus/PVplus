@@ -67,6 +67,7 @@ class DefaultJMController extends AbstractController
     {
         $fromDate = "2024-05-20 00:00";
         $toDate = "2024-06-02 00:00";
+
         $anlagen[] = $anlagenRepository->findIdLike("218")[0];
 
         $fromStamp = strtotime($fromDate);

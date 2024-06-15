@@ -12,6 +12,7 @@ use App\Service\AvailabilityService;
 use App\Service\CheckSystemStatusService;
 use App\Service\ExportService;
 use App\Service\ExpectedService;
+use App\Service\ImportService;
 use App\Service\PRCalulationService;
 use App\Service\SystemStatus2;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
@@ -40,16 +41,30 @@ class DefaultMREController extends BaseController
     }
 
     #[Route(path: '/mr/test')]
-    public function test(): Response
+    public function test(AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
-        $currentDir = "../..";
-        $process = exec("php -dsafe_mode=Off $currentDir/anlagen/goldbeck/SUNROCK_Moerdijk/loadDataFromApi.php");
-        dump($process);
+        $anlagen = $anlagenRepo->findAllSymfonyImport();
+        $time = time();
+        $time -= $time % 900;
+        $currentHour = (int)date('h');
+        if ($currentHour >= 12) {
+            $start = $time - (12 * 3600);
+        } else {
+            $start = $time - ($currentHour * 3600) + 900;
+        }
+        $start = $time - 4 * 3600;
+        $end = $time;
+
+        foreach ($anlagen as $anlage) {
+
+                $importService->prepareForImport($anlage, $start, $end);
+
+        }
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
             'availabilitys' => '',
-            'output' => $process,
+            'output' => '',
         ]);
     }
 

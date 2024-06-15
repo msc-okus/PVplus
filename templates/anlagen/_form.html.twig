@@ -642,6 +642,28 @@
                         <div class="cell small-12 medium-6">
                             <fieldset class="fieldset">
                                 <legend>Alert</legend>
+                                {% if is_granted('ROLE_G4N') %}
+                                    <div class="grid-x grid-margin-x">
+                                        <div class="cell small-6">
+                                            {{ form_row(anlageForm.allowSendAlertMail) }}
+                                        </div>
+                                    </div>
+                                    <div class="grid-x grid-margin-x">
+                                        <div class="cell small-6">
+                                            {{ form_row(anlageForm.alertMailReceiver, { 'attr': {'multiple': 'multiple'} }) }}
+                                        </div>
+                                    </div>
+                                    <div class="grid-x grid-margin-x">
+                                        <div class="cell small-6">
+                                            {{ form_row(anlageForm.alertCheckInterval, {
+                                                'attr': {
+                                                    'min': '1'
+                                                }
+                                            }) }}
+                                        </div>
+                                    </div>
+
+                                {% endif %}
                             </fieldset>
                         </div>
                     </div>

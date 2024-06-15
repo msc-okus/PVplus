@@ -4,19 +4,26 @@ namespace App\Form\Anlage;
 
 use App\Entity\Anlage;
 use App\Entity\Eigner;
+use App\Entity\User;
 use App\Entity\WeatherStation;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
+
+use App\Repository\UserRepository;
+use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -28,8 +35,22 @@ class AnlageFormType extends AbstractType
     use PVPNameArraysTrait;
 
     public function __construct(
-        private readonly Security $security
+        private readonly Security $security,
+        private readonly UserRepository $userRepository,
+
     ){
+    }
+
+    private function getUserChoices(): array
+    {
+        $adminUsers = $this->userRepository->findByRole('ROLE_ALERT_RECEIVER');
+        $choices = [];
+
+        foreach ($adminUsers as $user) {
+            $choices[$user->getname()] = $user->getEmail();
+        }
+
+        return $choices;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -563,15 +584,18 @@ class AnlageFormType extends AbstractType
                 'attr' => ['maxlength' => 4, 'style' => 'width: 55px']
             ])
             ->add('datFilename', FileType::class, [
-                'label' => 'Upload the metonorm *dat file',
+                'label' => 'Upload the metonorm *.dat file',
                 'mapped' => false,
-                'help' => '[The generated meteonorm *dat file]',
-                'attr' => ['class' => 'filestyle'],
+                'help' => '[datFilename]<br>The generated meteonorm *.dat file',
+                'attr' => [
+                    'class' => 'filestyle',
+                    'accept' => '.dat',
+                ],
                 'constraints' => [
                     new File([
                         'maxSize' => '5120k',
                         'mimeTypes' => [],
-                        'mimeTypesMessage' => 'Please upload a valid *dat file',
+                        'mimeTypesMessage' => 'Please upload a valid *.dat file',
                     ])
                 ],
                 'required' => true,
@@ -819,7 +843,31 @@ class AnlageFormType extends AbstractType
                 'label' => 'PPC blocks the generation of inverter tickets',
                 'help' => '[ppcBlockTicket]',
                 'attr' => ['data-plant-target' => 'ticket'],
-                'empty_data' => 'false',
+                'disabled' => !$isG4NUser,
+            ])
+
+            ->add('allowSendAlertMail', SwitchType::class, [
+                'label' => 'Activate email alert ',
+                'help' => '[allowSendAlertMail]',
+                'required' => false,
+                'disabled' => !$isG4NUser,
+            ])
+
+            ->add('alertMailReceiver', ChoiceType::class, [
+                'help' => '[alertMailReceiver]',
+                'choices' => $this->getUserChoices(),
+                'multiple' => true,
+                'expanded' => true,
+                'label' => 'Send an email to',
+                'required' => false,
+                'disabled' => !$isG4NUser,
+            ])
+
+            ->add('alertCheckInterval', IntegerType::class, [
+                'label' => 'Send a reminder email after (minutes)',
+                'help' => '[alertCheckInterval]',
+                'empty_data' => 120,
+                'required' => false,
                 'disabled' => !$isG4NUser,
             ])
             // ###############################################
@@ -951,6 +999,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[showForecast]',
             ])
 
+
             // ###############################################
             // ###              AM Report                 ####
             // ###############################################
@@ -1027,7 +1076,8 @@ class AnlageFormType extends AbstractType
                 'attr' => ['class' => 'secondary small', 'formnovalidate' => 'formnovalidate'],
             ])
         ;
-    }
+
+}
 
     public function configureOptions(OptionsResolver $resolver): void
     {

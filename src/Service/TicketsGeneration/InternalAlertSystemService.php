@@ -19,7 +19,7 @@ use Psr\Cache\InvalidArgumentException;
 class InternalAlertSystemService
 {
     use G4NTrait;
-    private $ticketArray;
+
     public function __construct(
         private readonly AnlagenRepository       $anlagenRepository,
         private readonly WeatherServiceNew       $weather,
@@ -34,6 +34,9 @@ class InternalAlertSystemService
     ){
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function generateTicketsInterval(Anlage $anlage, string $from, string $to = null): void
     {
         $this->checkSystem($anlage,  $from,  $to);
@@ -51,13 +54,16 @@ class InternalAlertSystemService
         $timeStamp = strtotime($time);
 
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', $timeStamp));
-        $time = self::timeAjustment($timeStamp, -2);
+        $time = self::timeAjustment($timeStamp, - 2);
+
+        // nur ausführen wenn $time zwische sonnen auf und sonnen untergan liegt
         if (($time > $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
                 $plant_status = self::RetrievePlant($anlage, date('Y-m-d H:i:00', strtotime($time)));
-                if ($plant_status['countIrr'] == true) $this->generateTickets(91, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
-                if ($plant_status['countExp'] == true) $this->generateTickets(92, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
-                if ($plant_status['countPPC'] == true) $this->generateTickets(93, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
+                if ($plant_status['countIrr'] === true) $this->generateTickets(91, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
+                if ($plant_status['countExp'] === true) $this->generateTickets(92, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
+                if ($plant_status['countPPC'] === true) $this->generateTickets(93, $anlage, date('Y-m-d H:i:00', strtotime($time)), "");
         }
+
         return 'success';
     }
 
@@ -73,15 +79,22 @@ class InternalAlertSystemService
     {
         $conn = $this->pdo->getPdoPlant();
         $time = date('Y-m-d H:i:s', strtotime($time) );
+
+        // prüfe ob wetter daten vorhanden sind
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameWeather()."
                 WHERE stamp = '$time' ";
         $resp = $conn->query($sql);
+
+        // prüfe ob die Wetter daten werte enthalten (oder 'null' sind)
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameWeather()."
-                WHERE stamp ='$time' and g_upper  is null and g_lower is null";
+                WHERE stamp ='$time' and g_upper is null and g_lower is null";
         $respNull = $conn->query($sql);
+
         $plantStatus['countIrr']  = $resp->rowCount() === 0  ||  $respNull->rowCount() === 1;
+
+        // prüfe ob expected datensätze da sind
         $sql = "SELECT *
                 FROM ". $anlage->getDbNameDcSoll()."
                 WHERE stamp ='$time' ";
@@ -89,6 +102,7 @@ class InternalAlertSystemService
         $plantStatus['countExp']  = $resp->rowCount() !== count($anlage->getInverterFromAnlage());
 
         $plantStatus['countPPC'] = false;
+
         return $plantStatus;
     }
 

@@ -10,6 +10,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
+use App\Service\G4NSendMailService;
 use App\Service\MessageService;
 use App\Service\WeatherFunctionsService;
 use App\Service\WeatherServiceNew;
@@ -35,7 +36,9 @@ class AlertSystemV2Service
         private readonly MessageService          $mailservice,
         private readonly FunctionsService        $functions,
         private readonly StatusRepository        $statusRepo,
-        private readonly TicketRepository        $ticketRepo)
+        private readonly TicketRepository        $ticketRepo,
+        private readonly  G4NSendMailService     $g4NSendMailService
+    )
     {
 
     }
@@ -52,11 +55,14 @@ class AlertSystemV2Service
     {
         $fromStamp = strtotime($from);
         if ($to != null) {
+
+
             $toStamp = strtotime($to);
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
                 $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
             }
         } else {
+
             $this->checkSystem($anlage, date('Y-m-d H:i:00', $fromStamp));
         }
     }
@@ -218,7 +224,9 @@ class AlertSystemV2Service
      */
     public function checkSystem(Anlage $anlage, ?string $time = null): string
     {
+
         if ($time === null) {
+
             $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
         }
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
@@ -236,18 +244,30 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-            dump($time, $plant_status);
+
             $anlType = $anlage->getAnlType();
             if ( $plant_status['Irradiation'] == false ) {
-                if ($plant_status['ppc'] != null && $plant_status['ppc']) $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc'], false);
-                if ($plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "", ($plant_status['ppc']), false);
+
+                if ($plant_status['ppc'] != null && $plant_status['ppc']){
+
+                    $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc'], false);}
+                if ($plant_status['Gap'] != null && count($plant_status['Gap']) > 0){
+                    $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "", ($plant_status['ppc']), false);}
                 if ($anlType != "masterslave"){
+
+
                     if ($plant_status['Power0'] != null && count($plant_status['Power0']) > 0 ){
-                        if (!$anlage->isPpcBlockTicket() or !$plant_status['ppc'])$this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "", ($plant_status['ppc']), false);
+                        if (!$anlage->isPpcBlockTicket() or !$plant_status['ppc']){
+
+                            $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "", ($plant_status['ppc']), false);}
                     }
                 }
-                if ($plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "", ($plant_status['ppc']), false);
+                if ($plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*"))
+                {
+
+                    $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "", ($plant_status['ppc']), false);}
             }else {
+
                 $this->generateTickets('', 100, $anlage, ['*'], $time, "Data Gap set automatically to com. issue because of a gap in the irradiation", $plant_status['ppc'], true);
             }
         }
@@ -277,6 +297,7 @@ class AlertSystemV2Service
         $powerThreshold = (float) $anlage->getPowerThreshold() / 4;
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
+
 
         if ($irradiation !== null && $irradiation < $irrLimit) $this->irr = true; // about irradiation === null, it is better to miss a ticket than to have a false one
         else $this->irr = false;
@@ -364,6 +385,7 @@ class AlertSystemV2Service
     {
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
             if ($ticketArray != []) {
+
                 foreach ($ticketArray as $ticketOld) {
                     $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
                     $result = self::subArrayFromArray($inverter, $ticketOld->getInverterArray()); // this is the most important part of this function
@@ -391,12 +413,15 @@ class AlertSystemV2Service
                             $ticketNew->setCreatedBy("AlertSystem");
                             $ticketNew->setUpdatedBy("AlertSystem");
                             $this->em->persist($ticketNew);
+
+
                         } else {
                             $ticketOld->setEnd($end);
                             $ticketOld->setOpenTicket(true);
                             $ticketOld->setInverter($intersection);
                             $ticketDate->setEnd($end);
                             $this->em->persist($ticketOld);
+
                         }
                     }
                     if ($Ticket2Inverters !== ""){
@@ -404,15 +429,21 @@ class AlertSystemV2Service
                         $ticketOld->setInverter($Ticket2Inverters);
                         $ticketOld->getDates()->last()->setEnd($endclose);
                         $this->em->persist($ticketOld);
+
+
                     }
                 }
             }
             if ($inverter != "*" ) {
+
                 $restInverter = implode(', ', $inverter);
+
             } else {
+
                 $restInverter = $inverter;
             }
             if ($restInverter != "" && $this->irr === false) { // this is the easy part, here we create a new ticket if there is nothing else to link with, so this is the actual part where new tickets are created
+
                 //we set the internal values of the ticket based on the type of error and the current state of the system (mostly PPC signals)
                 $ticket = new Ticket();
                 $ticketDate = new TicketDate();
@@ -471,8 +502,20 @@ class AlertSystemV2Service
                 }
                 if ($errorCategorie == 10 && $fullGap) $ticketDate->setDataGapEvaluation(20);
 
+
+
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
+                $this->em->flush();
+
+
+                //send alertMessage
+                $this->g4NSendMailService->sendAlertMessage($anlage,$ticket);
+
+
+
+
+
             }
     }
 
