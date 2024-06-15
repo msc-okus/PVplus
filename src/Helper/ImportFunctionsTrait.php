@@ -4,8 +4,6 @@ namespace App\Helper;
 require_once __DIR__.'/../../public/config.php';
 
 use PDO;
-use PDOException;
-use phpseclib3\File\ASN1\Maps\Time;
 
 trait ImportFunctionsTrait
 {
@@ -648,7 +646,7 @@ trait ImportFunctionsTrait
             $voltageDc = $stringBoxesTime[$scbNo]['U_DC'];
             #$powerDc = $currentDcSCB * $voltageDc / 1000 / 4; // Umrechnung von W auf kW/h
 
-            If(array_key_exists('P_DC', $stringBoxesTime[$scbNo])){
+            If(is_array($stringBoxesTime[$scbNo]) && array_key_exists('P_DC', $stringBoxesTime[$scbNo])){
                 $powerDc = $stringBoxesTime[$scbNo]['P_DC'] / 1000 / 4; // Umrechnung von W auf kW/h
             }else{
                 $powerDc = $currentDc * $voltageDc / 1000 / 4;
