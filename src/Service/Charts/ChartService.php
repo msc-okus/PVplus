@@ -931,13 +931,14 @@ class ChartService
     public function getpvSyst(Anlage $anlage, $from, $to): array
     {
         $dataArray = [];
-        $pvsysts = $this->pvSystRepository->allGreateZero($anlage, $from, $to);
+        $pvsysts= $this->pvSystRepository->allGreateZero($anlage, $from, $to);
+
         $conn = $this->pdoService->getPdoPlant();
         /** @var AnlagePVSystDaten $pvsyst */
         foreach ($pvsysts as $key => $pvsyst) {
-            $stampAdjust = self::timeAjustment($pvsyst->getStamp(), -1);
+            $stampAdjust = self::timeAjustment($pvsyst->getStamp(), 0.25);
             $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-            $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE stamp > '$stampAdjust' AND stamp <= '$stampAdjust2' and unit = 1 GROUP by date_format(stamp, '%y%m%d%')";
+            $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and unit = 1 GROUP by date_format(stamp, '%y%m%d%')";
             $resEvu = $conn->query($sqlEvu);
             $eZEvu = 0;
             if ($resEvu->rowCount() == 1) {
@@ -950,10 +951,8 @@ class ChartService
             }
             $dataArray[$key]['date'] = $pvsyst->getStamp();
             $dataArray[$key]['evu'] = $eZEvu;
-            $dataArray[$key]['electricityGrid'] = $pvsyst->getElectricityGrid();
-            $dataArray[$key]['electricityInverter'] = $pvsyst->getElectricityInverterOut();
-            $dataArray[$key]['irrGlobalInc'] = $pvsyst->getIrrGlobalInc();
-            $dataArray[$key]['irrGlobalEff'] = $pvsyst->getIrrGlobalEff();
+            $dataArray[$key]['electricityGrid'] = round($pvsyst->getElectricityGrid()); // durch 100 um auf kWh zu kommen
+            $dataArray[$key]['electricityInverter'] = round($pvsyst->getElectricityInverterOut()); // durch 100 um auf kWh zu kommen
 
         }
 

@@ -24,7 +24,6 @@ class UserController extends BaseController
     {
         $form = $this->createForm(UserFormType::class);
         $form->handleRequest($request);
-        $user['locked'] = false;
 
         if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');

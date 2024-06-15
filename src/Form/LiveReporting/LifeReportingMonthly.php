@@ -14,20 +14,43 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use App\Entity\LiveReporting;
-
+/**
+ * @author Christian Raue <christian.raue@gmail.com>
+ * @copyright 2013-2022 Christian Raue
+ * @license http://opensource.org/licenses/mit-license.php MIT License
+ */
 class LifeReportingMonthly extends AbstractType {
 
     public function __construct(
         private readonly AnlagenRepository $anlagenRepository,
-    ){
-    }
-	public function buildForm(FormBuilderInterface $builder, array $options): void
+        private readonly Security          $security
+    )
     {
-        //create select for year
+    }
+	public function buildForm(FormBuilderInterface $builder, array $options) {
+        $isDeveloper = $this->security->isGranted('ROLE_DEV');
+        $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
+        //create select for plant
+        if ($this->security->isGranted('ROLE_G4N')) {
+            $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
+        } else {
+            $eigner = $this?->security->getUser()?->getEigners()[0];
+            $anlagen = $this->anlagenRepository->findSymfonyImportByEigner($eigner);
+        }
+
+        $anlagen_toShow = [];
+        $i = 0;
+        foreach ($anlagen as $anlage) {
+            $anlagen_toShow[$i] = $anlage;
+            $i++;
+        }
+
+        //create select for year
+        $startYear = 2020;
         $currentYear = date('Y');
         $yearArray = [];
-        for($startYear = 2020; $startYear <= $currentYear; $startYear++) {
+        for($startYear=$startYear; $startYear <= $currentYear; $startYear++) {
             $yearArray[$startYear] = $startYear;
         }
 
@@ -54,7 +77,7 @@ class LifeReportingMonthly extends AbstractType {
                 $builder->add('anlage', EntityType::class, [
                     'label' => 'Please select a Plant',
                     'class' => Anlage::class,
-                    'choices' => $this->anlagenRepository->findAllActiveAndAllowed(),
+                    'choices' => $anlagen_toShow,
                     'choice_label' => 'anlName',
                     'attr' => array('style' => 'width: 200px')
                 ]);
@@ -119,8 +142,7 @@ class LifeReportingMonthly extends AbstractType {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function configureOptions(OptionsResolver $resolver): void
-    {
+	public function configureOptions(OptionsResolver $resolver) {
 		$resolver->setDefaults([
             'data_class' => LiveReporting::class,
             'month' => '',
@@ -132,8 +154,7 @@ class LifeReportingMonthly extends AbstractType {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getBlockPrefix() : string
-    {
+	public function getBlockPrefix() : string {
 		return 'createLifeRepoting_Monthly';
 	}
 

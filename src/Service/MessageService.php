@@ -5,9 +5,11 @@ namespace App\Service;
 use App\Entity\AlertMessages;
 use App\Entity\Anlage;
 use App\Entity\AnlageEventMail;
+use App\Entity\Ticket;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageEventMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
@@ -22,7 +24,8 @@ class MessageService
         private readonly EntityManagerInterface $em,
         private readonly MailerInterface $mailer,
         private readonly AnlageEventMailRepository $anlageEventMail,
-        private PiiCryptoService $encryptService
+        private PiiCryptoService $encryptService,
+        private LoggerInterface $logger
     )
     {
     }
@@ -103,6 +106,8 @@ class MessageService
             sleep(2);
         }
     }
+
+
 
     public function sendMessageToMaintenance($subject, $message, $to, $name, $Tam, $attachedFiles = false, $ticket = false):void{
         $email = new TemplatedEmail();
@@ -202,4 +207,11 @@ class MessageService
         $this->em->persist($alertMessage);
         $this->em->flush();
     }
+
+
+
+
+
+
 }
+
