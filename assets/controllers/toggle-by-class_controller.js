@@ -54,8 +54,7 @@ export default class extends Controller {
     }
 
     togglePaThree(){
-        const counterNumberElement = this.element
-            .getElementsByClassName('js-pa-3');
+        const counterNumberElement = document.getElementsByClassName('js-pa-3');
         let fLen = counterNumberElement.length;
         for (let i = 0; i < fLen; i++) {
             counterNumberElement[i].classList.toggle('hidden');

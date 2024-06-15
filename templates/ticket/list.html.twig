@@ -29,17 +29,19 @@
             data-ticket-list-target="ticketForm"
             class="ticket"
     >
-    <div {{ stimulus_controller('request') }}>
-        <div data-action="ticket-edit:success->ticket-list#update submit-confirm:async:submitted->ticket-list#update">
-             <div data-ticket-list-target="searchBar" class="ticketsearchbar" >
+        <div {{ stimulus_controller('request') }}>
+            <div data-action="ticket-edit:success->ticket-list#update submit-confirm:async:submitted->ticket-list#update">
                 <div class="grid-x grid-margin-x align-top" >
-                    {% include 'ticket/_inc/_searchForm.html.twig' %}
+                    <div class="cell small-12 ticketsearchbar"  data-ticket-list-target="searchBar" >
+                        {% include 'ticket/_inc/_searchForm.html.twig' %}
+                    </div>
+                </div>
+                <div class="grid-x grid-margin-x align-top" >
+                    <div class="cell small-12" data-ticket-list-target="list" >
+                      {% include 'ticket/_inc/_listTickets.html.twig' %}
+                    </div>
                 </div>
             </div>
-            <div data-ticket-list-target="list" >
-                {% include 'ticket/_inc/_listTickets.html.twig' %}
-            </div>
         </div>
-    </div>
     </div>
 {% endblock %}
