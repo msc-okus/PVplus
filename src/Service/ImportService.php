@@ -156,7 +156,9 @@ class ImportService
                 $date = date('c', $timestamp);
 
 
-                $eZEvu = $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
+                $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
+                $eZEvu = 0.0;
+
                 $tempAnlageArray = $windAnlageArray = $irrAnlageArrayGMO = $irrAnlageArray = [];
 
                 if (is_array($basics) && array_key_exists($date, $basics)) {
@@ -237,7 +239,6 @@ class ImportService
                     $irrAnlage = '0';
                 }
 
-                echo "$stamp $irrUpper<br>";
                 $data_pv_weather[] = [
                     'anl_intnr' => $weatherDbIdent,
                     'anl_id' => 0,
