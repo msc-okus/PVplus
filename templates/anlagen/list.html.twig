@@ -51,7 +51,6 @@
                     {% if is_granted('ROLE_G4N') %}
                         <a href="{{ path('app_admin_anlagen_edit_dcgroups', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> DC Groups</a>
                         <a href="{{ path('app_admin_anlagen_edit_acgroups', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> AC Groups</a>
-                        <a href="{{ path('app_media_list', { id: plant.anlId}) }}" title="media Files" class="hollow button tiny action-icon shadow"> Media Files </a>&nbsp;
 
                         {% if is_granted('ROLE_DEV') %}
                             <a href="{{ path('app_admin_anlagen_edit_sensors', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> Sensors</a>
@@ -61,12 +60,16 @@
                             <a href="{{ path('app_admin_anlagen_edit_ppcs', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> PPCs</a>
                         {% endif %}
 
-                        <a href="{{ path('app_admin_anlagen_edit', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> Settings</a>&nbsp;
-                        <a href="{{ path('app_admin_anlagen_edit_config', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-cog"></span></a>&nbsp;
+                        <a href="{{ path('app_admin_anlagen_edit', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> Settings</a>
+                        <a href="{{ path('app_media_list', { id: plant.anlId}) }}" title="media Files" class="hollow button action-icon shadow no-margin"><span class="fa fa-file-archive"></span> Media Files </a>
+                        <a href="{{ path('app_admin_anlagen_edit_config', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-cog"></span></a>
                         {# {% if is_granted('ROLE_DEV') and app.user.name == 'matthias' %}<a href="{{ path('app_admin_anlage_delete', { id: plant.anlId}) }}" class="hollow button tiny action-icon shadow" onclick="return window.confirm('Löschen?');"><span class="fa fa-trash red"></span></a>{% endif %}&nbsp; #}
                     {% else %}
-                        <a href="{{ path('app_anlagen_setting_edit', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> Settings</a>&nbsp;
-                        <a href="{{ path('app_anlagen_edit', { id: plant.anlId}) }}" title="Edit Legend" class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a>&nbsp;
+                        {% if is_granted('ROLE_BETA') %}
+                            <a href="{{ path('app_media_list', { id: plant.anlId}) }}" title="media Files" class="hollow button action-icon shadow no-margin"><span class="fa fa-file-archive"></span> Media Files </a>
+                        {% endif %}
+                        <a href="{{ path('app_anlagen_setting_edit', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> Settings</a>
+                        <a href="{{ path('app_anlagen_edit', { id: plant.anlId}) }}" title="Edit Legend" class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a>
                     {% endif %}
                 </td>
             </tr>

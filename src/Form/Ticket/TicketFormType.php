@@ -42,8 +42,7 @@ class TicketFormType extends AbstractType
 
         $isNewTicket = !(($ticket !== null && $ticket->getCreatedAt() !== null));
         $anlage = ($ticket != null) ? $ticket->getAnlage() : null;
-        $full = ($anlage) ?  $anlage->getKpiTicket() : true;
-        $errorCategorie = self::errorCategorie();
+        $errorCategorie = self::errorCategorie($anlage->getKpiTicket());
 
         $builder
             ->add('TicketName', TextType::class, [

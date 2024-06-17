@@ -42,7 +42,7 @@ ticket:
     90: Closed
 
   kpistatus:
-    name: KpiStatus
+    name: Kpi Status
     10: Activ
     20: Inactiv
 

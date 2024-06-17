@@ -535,7 +535,6 @@ class ChartService
                     break;
                 case 'forecast_pr':
                     $dataArray = $this->forecastChart->getForecastDayPr($anlage, $to);
-
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Forecast PR';
@@ -573,10 +572,19 @@ class ChartService
                     $resultArray['SeriesNameArray'] = json_encode($dataArray['SeriesNameArray']);
                     break;
                 case 'dcpnomcurr':
+                    switch ($anlage->getConfigType()) {
+                        case 3:
+                            $resultArray['headline'] = 'DC Current SCB normalized';
+                            break;
+
+                        default:
+                            $resultArray['headline'] = 'DC Current Inverter normalized';
+                    }
+
                     #$to =  date('Y-m-d 00:00:00',strtotime($form['to']));
                     $dataArray = $this->currentChart->getNomCurrentGroupDC($anlage, $from, $to, $form['invnames']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
-                    $resultArray['headline'] = 'DC Current Inverter normalized';
+
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
                     $resultArray['minSeries'] = $dataArray['minSeries'];
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
@@ -617,6 +625,9 @@ class ChartService
                     if($form['inverterRadio'] == ''){
                         $form['inverterRadio'] = 1;
                     }
+                    if($form['inverterRadio'] == 1000000){
+                        $form['inverterRadio'] = 0;
+                    }
                     $dataArray = $this->sollistAnalyseChartService->getSollIstDeviationAnalyse($anlage, $from, $to ,$form['inverterRadio']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'AC differnce between actual and expected power';
@@ -625,6 +636,9 @@ class ChartService
                     if($form['inverterRadio'] == ''){
                         $form['inverterRadio'] = 1;
                     }
+                    if($form['inverterRadio'] == 1000000){
+                        $form['inverterRadio'] = 0;
+                    }
                     $dataArray = $this->sollisttempAnalyseChartService->getSollIstTempDeviationAnalyse($anlage, $from, $to, $form['inverterRadio']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Performance Categories vs. Temperatures';
@@ -632,6 +646,9 @@ class ChartService
                 case 'sollistirranalyse':
                     if($form['inverterRadio'] == ''){
                         $form['inverterRadio'] = 1;
+                    }
+                    if($form['inverterRadio'] == 1000000){
+                        $form['inverterRadio'] = 0;
                     }
                     $dataArray = $this->sollistirrAnalyseChartService->getSollIstIrrDeviationAnalyse($anlage, $from, $to, $form['inverterRadio'], $form['optionIrrVal']);
                     $resultArray['data'] = json_encode($dataArray['0']['chart']);
