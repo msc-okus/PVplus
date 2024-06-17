@@ -689,7 +689,9 @@
 
         ul.tabs {
             background: none;
-            border: none;
+            border-top: none;
+            border-right: none;
+            border-left: none;
 
             .tabs-title {
                 border-top-left-radius: 4px;
