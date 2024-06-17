@@ -962,7 +962,6 @@ class TicketController extends BaseController
 
             $em->persist($notification);
             $em->flush();
-            if ($notification->getStatus() != 30) {
                 if ($notification->getStatus() == 50) {
                     $messageService->sendRawMessage("Reparation finished - Ticket: " . $ticket->getId(),
                         "The maintenance provider has finished the reparation job with id: " . $notification->getIdentificator() . " <br> Maintenance answer: " . $notification->getCloseFreeText(),
@@ -975,14 +974,8 @@ class TicketController extends BaseController
                         $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(),
                         false);
                 }
-
+            $this->addFlash('success', "Successfully saved");
                 return $this->redirectToRoute('app_ticket_notification_confirm', ['id' => $id]);
-            }
-            else{
-
-                return $this->redirectToRoute('app_ticket_notification_confirm', ['id' => $id]);
-
-            }
 
         }
         return $this->render('/ticket/confirmNotification.html.twig', [
@@ -1129,10 +1122,11 @@ class TicketController extends BaseController
             }
             $timeDiff = $beginDate->diff($endTime)->format("%d days %h hours %i minutes");
         }
+        $notiArray = $notifications->toArray();
 
         return $this->render('/ticket/_inc/_timeline.html.twig', [
             'ticket' => $ticket,
-            'notifications' => $notifications,
+            'notifications' => $notiArray,
             'timeElapsed' => $timeDiff,
         ]);
     }

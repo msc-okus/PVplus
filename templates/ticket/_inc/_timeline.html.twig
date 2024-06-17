@@ -42,6 +42,10 @@
                            {% endif %}
                        {% endif %}
                    {% endif %}
+                   {{ notification.notificationWorks }}
+                        {% for work in notification.notificationWorks  %}
+                            {{ work.type }}
+                        {% endfor %}
                {% endfor %}
                {% if ticket.status == 90 %}
                    <li>

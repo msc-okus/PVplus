@@ -233,7 +233,7 @@ class AlertSystemV2Service
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $time = self::timeAjustment($time, -2);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
-
+            dump($time);
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
             $ticketOld = $this->getAllTickets($anlage, $time);
@@ -383,6 +383,7 @@ class AlertSystemV2Service
      */
     private function generateTickets($errorType, $errorCategorie,Anlage $anlage, $inverter, $time, $message, $PPC, ?bool $fullGap = false): void
     {
+        dump("ticket generated");
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
             if ($ticketArray != []) {
 
