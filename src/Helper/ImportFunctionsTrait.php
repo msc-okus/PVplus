@@ -3,6 +3,7 @@ namespace App\Helper;
 
 require_once __DIR__.'/../../public/config.php';
 
+use App\Entity\WeatherStation;
 use PDO;
 
 trait ImportFunctionsTrait
@@ -463,7 +464,7 @@ trait ImportFunctionsTrait
      * @param $gMo
      * @return array
      */
-    function getSensorsDataFromVcomResponse(array $anlageSensors, int $length, array $sensors, array $basics, $stamp, $date, string $gMo): array
+    function getSensorsDataFromVcomResponse(array $anlageSensors, int $length, array $sensors, array $basics, $stamp, $date, string $gMo, bool $isDay): array
     {
         $gmx = 0;
         for ($i = 0; $i < $length; $i++) {
@@ -487,12 +488,18 @@ trait ImportFunctionsTrait
                         }else{
                             $value = max($basics[$date][$anlageSensors[$i]->getNameShort()], 0);
                         }
+                        if($sensortype == 'pyranometer' && $isDay != 1){
+                            $value = 0;
+                        }
                     }else{
                         $sensortype = $anlageSensors[$i]->getType();
                         if($sensortype == 'temperature'){
                             $value = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
                         }else{
                             $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                        }
+                        if($sensortype == 'pyranometer' && $isDay != 1){
+                            $value = 0;
                         }
                     }
                 }else{
@@ -854,5 +861,6 @@ trait ImportFunctionsTrait
         $result[] = $data_ppc;
         return $result;
     }
+
 
 }
