@@ -163,8 +163,8 @@ class ImportToolsController extends BaseController
 
         for ($dayStamp = $fromts; $dayStamp <= $tots; $dayStamp += 24*3600) {
 
-            $from_new = strtotime(date('Y-m-d 00:15', $dayStamp));
-            $to_new = strtotime(date('Y-m-d 23:59', $dayStamp));
+            $from_new = strtotime(date('Y-m-d 00:00', $dayStamp));
+            $to_new = strtotime(date('Y-m-d 23:45', $dayStamp));
             $currentDay = date('d', $dayStamp);
 
             // Proof if date = today, if yes set $to to current DateTime

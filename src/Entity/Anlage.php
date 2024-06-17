@@ -19,6 +19,7 @@ use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use DateTimeZone;
 
 #[ApiResource(
     shortName: 'anlages',
@@ -3782,29 +3783,58 @@ class Anlage implements \Stringable
   public function getFildForcastDat() {
         return $this->getDatFilename();
   }
-    public function isDay(?DateTime $stamp = null): bool
+    public function isDay($timestamp = 0): bool
     {
-        if (!$stamp) $stamp = new DateTime();
-        $sunrisedata = date_sun_info($stamp->getTimestamp(), (float) $this->getAnlGeoLat(), (float) $this->getAnlGeoLon());
+        date_default_timezone_set($this->getNearestTimezone($this->getAnlGeoLat(), $this->getAnlGeoLon(),strtoupper($this->getCountry())));
+        $sunrisedata = date_sun_info($timestamp, (float) $this->getAnlGeoLat(), (float) $this->getAnlGeoLon());
 
-        // ToDo: add some code to respect different timezones
-        /*
-        $offsetServer = new \DateTimeZone("Europe/Luxembourg");
-        $plantoffset = new \DateTimeZone($this->getNearestTimezone($this->getAnlGeoLat(), $$this->getAnlGeoLon()));
-        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
-        $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
-        $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
-        */
+        date_default_timezone_set('Europe/Berlin');
 
-        $sunrise = date_create(date("Y-m-d H:i:s", $sunrisedata['sunrise']));
-        $sunset = date_create(date("Y-m-d H:i:s", $sunrisedata['sunset']));
+        $isDay = true;
+        if($sunrisedata['sunrise'] > $timestamp || $sunrisedata['sunset'] <= $timestamp) {
+            $isDay = false;
+        }
+        #echo $timestamp.' /// aaa/ '.$sunrisedata['sunrise'].' / '.$sunrisedata['sunset']."<br>";
 
-        return ($sunrise < $stamp && $stamp < $sunset);
+        return ($isDay);
     }
 
-    public function isNight(?DateTime $stamp = null): bool
+    public function getNearestTimezone($cur_lat, $cur_long, string $country_code = ''): string
     {
-        return !$this->isDay($stamp);
+        $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)
+            : DateTimeZone::listIdentifiers();
+
+        if ($timezone_ids && is_array($timezone_ids) && isset($timezone_ids[0])) {
+            $time_zone = '';
+            $tz_distance = 0;
+
+            // only one identifier?
+            if (count($timezone_ids) == 1) {
+                $time_zone = $timezone_ids[0];
+            } else {
+                foreach ($timezone_ids as $timezone_id) {
+                    $timezone = new DateTimeZone($timezone_id);
+                    $location = $timezone->getLocation();
+                    $tz_lat = $location['latitude'];
+                    $tz_long = $location['longitude'];
+
+                    $theta = $cur_long - $tz_long;
+                    $distance = (sin(deg2rad($cur_lat)) * sin(deg2rad($tz_lat)))
+                        + (cos(deg2rad($cur_lat)) * cos(deg2rad($tz_lat)) * cos(deg2rad($theta)));
+                    $distance = acos($distance);
+                    $distance = abs(rad2deg($distance));
+
+                    if (!$time_zone || $tz_distance > $distance) {
+                        $time_zone = $timezone_id;
+                        $tz_distance = $distance;
+                    }
+                }
+            }
+
+            return $time_zone;
+        }
+
+        return 'unknown';
     }
 
     public function isExpectedTicket(): ?bool
