@@ -97,6 +97,9 @@
                 <p> {{ form_row(notificationConfirmForm.closeFreeText) }}</p>
             </fieldset>
             <p> {{ form_widget(notificationConfirmForm.answer) }}</p>
+            <div class="is-hidden">
+                 {{ form_rest(notificationConfirmForm) }}
+            </div>
             {{ form_end(notificationConfirmForm) }}
         {% else %}
             Expired Notification

@@ -483,6 +483,7 @@ class TicketController extends BaseController
             $notification->setWhoNotified($this->getUser());
             $notification->setDate(new DateTime('now'));
             $notification->setFreeText($form->getData()['freeText']);
+            $notification->setPriority($form->getData()['priority']);
             $ticket->setSecurityToken($key);
             $ticket->addNotificationInfo($notification);
                 //here we are supossed to generate the identificator
@@ -945,7 +946,6 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->findOneBy(['securityToken' => $ticketId]);
         $notification = $ticket->getNotificationInfos()->last();
         $lastWork = $notification->getNotificationWorks()->last();
-
         $finishedJob = false;
         if ($lastWork != null){
             $finishedJob = $lastWork->getType() == "30";
@@ -962,6 +962,7 @@ class TicketController extends BaseController
 
             $em->persist($notification);
             $em->flush();
+            if ($finishedJob) {
                 if ($notification->getStatus() == 50) {
                     $messageService->sendRawMessage("Reparation finished - Ticket: " . $ticket->getId(),
                         "The maintenance provider has finished the reparation job with id: " . $notification->getIdentificator() . " <br> Maintenance answer: " . $notification->getCloseFreeText(),
@@ -974,9 +975,9 @@ class TicketController extends BaseController
                         $ticket->getNotificationInfos()->last()->getWhoNotified()->getname(),
                         false);
                 }
+            }
             $this->addFlash('success', "Successfully saved");
-                return $this->redirectToRoute('app_ticket_notification_confirm', ['id' => $id]);
-
+            return $this->redirectToRoute('app_ticket_notification_confirm', ['id' => $id]);
         }
         return $this->render('/ticket/confirmNotification.html.twig', [
             'ticket' => $ticket,
@@ -1111,8 +1112,19 @@ class TicketController extends BaseController
     #[Route(path: '/notification/timeline/{id}', name: 'app_ticket_notification_timeline')]
     public function getTimeline($id, TicketRepository $ticketRepo): Response
     {
+        $timelineArray = [];
         $ticket = $ticketRepo->findOneBy(['id' => $id]);
         $notifications = $ticket->getNotificationInfos();
+        foreach ($notifications as $index => $notification){
+            $timelineArray[$index]['Date'] = $notification->getDate();
+            $timelineArray[$index]['priority'] = $notification->getPriority();
+            $timelineArray[$index]['answerDate'] = $notification->getAnswerDate();
+            $timelineArray[$index]['closeDate'] = $notification->getCloseDate();
+            $timelineArray[$index]['contactedPerson'] = $notification->getContactedPerson();
+            $timelineArray[$index]['status'] = $notification->getStatus();
+            $timelineArray[$index]['notificationWorks'] = $notification->getWorkAsArray();
+        }
+
         if (!$notifications->isEmpty()) {
             $beginDate = $notifications->first()->getDate();
             if ($ticket->getStatus() == 90) {
@@ -1122,11 +1134,9 @@ class TicketController extends BaseController
             }
             $timeDiff = $beginDate->diff($endTime)->format("%d days %h hours %i minutes");
         }
-        $notiArray = $notifications->toArray();
-
         return $this->render('/ticket/_inc/_timeline.html.twig', [
             'ticket' => $ticket,
-            'notifications' => $notiArray,
+            'notifications' => $timelineArray,
             'timeElapsed' => $timeDiff,
         ]);
     }

@@ -22,6 +22,33 @@
         </div>
     </div>
 </header>
+<div class="alert-wrapper">
+    {% for message in app.flashes('error') %}
+        <div data-closable data-alert class="my-alert-box callout alert-callout-border alert">
+            {{ message }}
+            <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('warning') %}
+        <div data-closable data-alert class="my-alert-box callout alert-callout-border warning">
+            {{ message }}
+            <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('success') %}
+        <div data-closable data-alert class="my-alert-box callout alert-callout-border success">
+            {{ message }}
+            <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+</div>
+
 <div id="offCanvas" class="off-canvas position-leftis-closed" data-transition="overlap" data-off-canvas>
     <nav></nav>
 </div>
