@@ -80,6 +80,8 @@ class AnlageGroups
     {
         $this->months = new ArrayCollection();
         $this->modules = new ArrayCollection();
+        $this->irrUpper = '0';
+        $this->irrLower = '0';
     }
 
     public function getId(): ?int

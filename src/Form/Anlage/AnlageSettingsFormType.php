@@ -16,7 +16,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-
+use Symfony\Component\Form\FormTypeInterface;
+use Symfony\Component\Validator\Constraints\Length;
 class AnlageSettingsFormType extends AbstractType
 {
     use G4NTrait;
@@ -260,7 +261,7 @@ class AnlageSettingsFormType extends AbstractType
 
             ->add('symfonyImport', SwitchType::class, [
                 'label'     => 'Import Data with Symphony',
-                'help'      => 'Enable Import Data with Symphony without the old php skript files'
+                'help'      => '[settings.symfonyImport]<br>Enable Import Data with Symphony without the old php skript files'
             ])
 
             ->add('useSensorsData', SwitchType::class, [

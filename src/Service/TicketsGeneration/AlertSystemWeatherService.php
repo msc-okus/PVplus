@@ -78,10 +78,11 @@ class AlertSystemWeatherService
             if ($time >= $sungap['sunrise'] && $time <=  $sungap['sunset']) {
                 $status_report = $this->WData($anlage, $time);
                 $ticketData = "";
-                if ($status_report['Irradiation']) $ticketData = $ticketData . "Problem with the Irradiation ";
-                if ($status_report['Temperature']) $ticketData = $ticketData . "Problem with the Temperature";
-                //if ($status_report['wspeed'] != "") $ticketData = $ticketData . "Problem with the Wind Speed";
-                $this->generateTicket($ticketData, $time, $anlage);
+                if ($status_report['Irradiation'] != "All good") $ticketData = $ticketData . "Problem with the Irradiation ";
+                if ($status_report['Temperature']!= "All good") $ticketData = $ticketData . "Problem with the Temperature";
+                if ($status_report['wspeed'] != "All good") $ticketData = $ticketData . "Problem with the Wind Speed";
+                //$this->generateTicket($ticketData, $time, $anlage);
+                dump($status_report);
                 unset($status_report);
             }
         //}
@@ -105,6 +106,7 @@ class AlertSystemWeatherService
         $resw = $conn->query($sqlw);
         if ($resw->rowCount() > 0) {
             $wdata = $resw->fetch(PDO::FETCH_ASSOC);
+            dump($wdata,$sqlw);
             if ($wdata['gi'] != null && $wdata['gmod'] != null) {
                 if ($wdata['gi'] <= 0 && $wdata['gmod'] <= 0) {
                     $status_report['Irradiation'] = 'Irradiation is 0';
@@ -123,11 +125,7 @@ class AlertSystemWeatherService
 
             if ($anlage->getHasWindSpeed()) {
                 if ($wdata['wspeed'] != null) {
-                    if ($wdata['wspeed'] == 0) {
-                        $status_report['wspeed'] = 'Wind Speed is 0';
-                    } else {
                         $status_report['wspeed'] = 'All good';
-                    }
                 } else {
                     $status_report['wspeed'] = 'No data';
                 }
@@ -136,7 +134,6 @@ class AlertSystemWeatherService
             }
         }
         $conn = null;
-
         return $status_report;
     }
     /**

@@ -30,7 +30,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-#[IsGranted('ROLE_DEV')]
+#[IsGranted('ROLE_G4N')]
 class DefaultJMController extends AbstractController
 {
     use G4NTrait;
@@ -67,6 +67,7 @@ class DefaultJMController extends AbstractController
     {
         $fromDate = "2024-05-20 00:00";
         $toDate = "2024-06-02 00:00";
+
         $anlagen[] = $anlagenRepository->findIdLike("218")[0];
 
         $fromStamp = strtotime($fromDate);
