@@ -55,14 +55,14 @@ class MeteoControlService
 
             $oauthThoken = auth($mcUser, $mcPassword, $mcToken, $curl);
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/sensors/$device/abbreviations/$abbrevationId/measurements?from=$from&to=$to&resolution=$resolution",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'GET',
+                    CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/sensors/$device/abbreviations/$abbrevationId/measurements?from=$from&to=$to&resolution=$resolution",
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => '',
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 0,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => 'GET',
                     CURLOPT_HTTPHEADER => array(
                         "X-API-KEY: ". $mcToken,
                         "Cache-Control: no-cache",

@@ -598,15 +598,7 @@
                                         </div>
                                     </div>
                                 {% endif %}
-                                {{ form_row(anlageForm.newAlgorythm) }}
-                                <div class="grid-x grid-margin-x">
-                                    <div class="cell small-6">
-                                        {{ form_row(anlageForm.freqBase) }}
-                                    </div>
-                                    <div class="cell small-6">
-                                        {{ form_row(anlageForm.freqTolerance) }}
-                                    </div>
-                                </div>
+
                                 {% if (anlage.anlType != "masterslave") %}
                                     <div class="grid-x grid-margin-x">
                                         <div class="cell small-6">
@@ -636,12 +628,42 @@
                                         {{ form_row(anlageForm.ppcBlockTicket) }}
                                     </div>
                                 </div>
+                                <div class="grid-x grid-margin-x">
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.freqBase) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.freqTolerance) }}
+                                    </div>
+                                </div>
 
                             </fieldset>
                         </div>
                         <div class="cell small-12 medium-6">
                             <fieldset class="fieldset">
                                 <legend>Alert</legend>
+                                {% if is_granted('ROLE_G4N') %}
+                                    <div class="grid-x grid-margin-x">
+                                        <div class="cell small-6">
+                                            {{ form_row(anlageForm.allowSendAlertMail) }}
+                                        </div>
+                                    </div>
+                                    <div class="grid-x grid-margin-x">
+                                        <div class="cell small-6">
+                                            {{ form_row(anlageForm.alertMailReceiver, { 'attr': {'multiple': 'multiple'} }) }}
+                                        </div>
+                                    </div>
+                                    <div class="grid-x grid-margin-x">
+                                        <div class="cell small-6">
+                                            {{ form_row(anlageForm.alertCheckInterval, {
+                                                'attr': {
+                                                    'min': '1'
+                                                }
+                                            }) }}
+                                        </div>
+                                    </div>
+
+                                {% endif %}
                             </fieldset>
                         </div>
                     </div>
@@ -864,5 +886,6 @@
     {% do anlageForm.timesConfigs.setRendered() %}
     {% do anlageForm.anlInputDaily.setRendered() %}
     {% do anlageForm.configType.setRendered() %}
+  {% do anlageForm.newAlgorythm.setRendered() %}
 
 {{ form_end(anlageForm) }}

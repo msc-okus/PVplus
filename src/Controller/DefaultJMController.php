@@ -8,6 +8,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketRepository;
 use App\Service\AnlageStringAssigmentService;
+use App\Service\TicketsGeneration\AlertSystemWeatherService;
 use App\Service\TicketsGeneration\InternalAlertSystemService;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use App\Service\AssetManagementService;
@@ -29,7 +30,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-#[IsGranted('ROLE_DEV')]
+#[IsGranted('ROLE_G4N')]
 class DefaultJMController extends AbstractController
 {
     use G4NTrait;
@@ -64,8 +65,9 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2): void
     {
-        $fromDate = "2024-01-13 00:00";
-        $toDate = "2024-01-15 00:00";
+        $fromDate = "2024-05-20 00:00";
+        $toDate = "2024-06-02 00:00";
+
         $anlagen[] = $anlagenRepository->findIdLike("218")[0];
 
         $fromStamp = strtotime($fromDate);
@@ -89,7 +91,16 @@ class DefaultJMController extends AbstractController
 
         dd("hello world");
     }
+    #[Route(path: '/generate/ticketsWeather', name: 'generate_tickets_weather')]
+    public function generateWeatherTickets(AnlagenRepository $anlagenRepository, AlertSystemWeatherService $alertServiceV2): void
+    {
+        $fromDate = "2024-05-20 00:00";
+        $toDate = "2024-06-02 00:00";
+        $anlagen = $anlagenRepository->findIdLike("237")[0];
+        $alertServiceV2->generateWeatherTicketsInterval($anlagen, $fromDate, $toDate);
+        dd("hey");
 
+    }
     #[NoReturn]
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, InternalAlertSystemService $service)

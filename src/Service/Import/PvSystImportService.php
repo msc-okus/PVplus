@@ -76,7 +76,7 @@ class PvSystImportService
                     $pvSyst
                         ->setIrrGlobalHor($irrHor)
                         ->setIrrGlobalInc($irrInc)
-                        ->setIrrGlobalEff($irrEff)
+                        ->setTempAmbiant($irrEff)
                         ->setElectricityGrid($eGrid)
                         ->setElectricityInverterOut('')
                     ;

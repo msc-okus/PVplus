@@ -17,6 +17,8 @@ use Symfony\Bundle\SecurityBundle\Security;
  */
 class TicketRepository extends ServiceEntityRepository
 {
+
+
     public function __construct(
         ManagerRegistry $registry,
         private readonly Security $security,
@@ -84,7 +86,6 @@ class TicketRepository extends ServiceEntityRepository
             ->andWhere('ticket.needsProofg4n = true')
             ->andWhere('ticket.ignoreTicket = false')
         ;
-
         return $result->getQuery()->getResult()[0][1];
     }
 
@@ -595,5 +596,8 @@ class TicketRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+
+
 
 }

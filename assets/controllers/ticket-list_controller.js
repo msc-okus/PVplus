@@ -81,6 +81,7 @@ export default class extends Controller {
 
         this.disableAllToolTips()
         $(document).foundation();
+        this.disableAllToolTips()
     }
 
     async page(event) {

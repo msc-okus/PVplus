@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
+
 class ImportService
 {
     use ImportFunctionsTrait;
@@ -89,10 +90,8 @@ class ImportService
         $mcToken = $owner->getSettings()->getMcToken();
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
-        $dataDelay = $anlage->getSettings()->getDataDelay() * 3600;
+        $dataDelay = $anlage->getSettings()->getDataDelay()*3600;
         //end collect params from plant
-
-        $bulkMeaserments = [];
 
         //get the Data from vcom
         $curl = curl_init();
@@ -109,12 +108,6 @@ class ImportService
 
         $from = date('Y-m-d H:i', $start);
         $to = date('Y-m-d H:i', $end);
-
-        $sunArray = $this->weatherService->getSunrise($anlage, $from);
-        #$start = strtotime((string) $sunArray['sunrise']);
-        $sunArray = $this->weatherService->getSunrise($anlage, $to);
-        #$end = strtotime((string) $sunArray['sunset']);
-
 
         //get the Data from VCOM for all Plants are configured in the current plant
         for ($i = 0; $i < $numberOfPlants; ++$i) {
@@ -162,10 +155,14 @@ class ImportService
 
             //beginn sort and seperate Data for writing into database
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
+
                 $stamp = date('Y-m-d H:i', $timestamp);
                 $date = date('c', $timestamp);
 
-                $eZEvu = $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
+
+                $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
+                $eZEvu = 0.0;
+
                 $tempAnlageArray = $windAnlageArray = $irrAnlageArrayGMO = $irrAnlageArray = [];
 
                 if (is_array($basics) && array_key_exists($date, $basics)) {
@@ -189,13 +186,15 @@ class ImportService
                     }
                 }
 
+                $isDay = $anlage->isDay($timestamp);
+
                 //beginn get Sensors Data
                 $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
 
                 if ((is_array($sensors) && array_key_exists($date, $sensors) && $length > 0) || $hasSensorsInBasics == 1) {
                     //if plant is use sensors datatable get data for the table
                     if($useSensorsDataTable){
-                        $result = self::getSensorsDataFromVcomResponse((array)$anlageSensors->toArray(), (int)$length, (array)$sensors, (array)$basics, $stamp, $date, (string)$irrAnlageGMO);
+                        $result = self::getSensorsDataFromVcomResponse((array)$anlageSensors->toArray(), (int)$length, (array)$sensors, (array)$basics, $stamp, $date, (string)$irrAnlageGMO, (bool)$isDay);
                         //built array for sensordata
                         for ($j = 0; $j <= count($result[0])-1; $j++) {
                             $dataSensors[] = $result[0][$j];
@@ -235,6 +234,13 @@ class ImportService
                     $irrAnlage = json_encode($irrAnlageArray, JSON_THROW_ON_ERROR);
                     $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
                     $windAnlage = json_encode($windAnlageArray, JSON_THROW_ON_ERROR);
+                }
+
+                if(!$isDay){
+                    $irrLower = '0';
+                    $irrUpper = '0';
+                    $irrHorizontal = '0';
+                    $irrAnlage = '0';
                 }
 
                 $data_pv_weather[] = [

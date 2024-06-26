@@ -24,12 +24,12 @@ class PVSystDatenRepository extends ServiceEntityRepository
 
     public function allGreateZero(Anlage $anlage, $from, $to)
     {
-        $from = date('Y-m-d 00:15', strtotime((string) $from));
-        $to = date('Y-m-d 00:00', strtotime((string) $to));
+        $from = date('Y-m-d 00:00', strtotime((string) $from));
+        $to = date('Y-m-d 23:59', strtotime((string) $to));
 
         $result = $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
-            ->andWhere(' a.stamp >= :from AND a.stamp < :to')
+            ->andWhere(' a.stamp >= :from AND a.stamp <= :to') //a.electricityGrid > 0 AND
             ->setParameter('anlage', $anlage)
             ->setParameter('from', $from)
             ->setParameter('to', $to)

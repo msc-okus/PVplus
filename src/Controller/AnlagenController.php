@@ -76,7 +76,9 @@ class AnlagenController extends BaseController
     #[Route(path: '/anlagen/edit/{id}', name: 'app_anlagen_edit')]
     public function editLegend($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo): Response
     {
+
         $anlage = $anlagenRepository->find($id);
+        dd($anlage);
         $economicVarNames1 = new EconomicVarNames();
         if ($ecoNamesRepo->findByAnlage($id)[0] != null) {
             $economicVarNames1 = $ecoNamesRepo->findByAnlage($id)[0]; // will be used to load and display the already defined names
@@ -99,6 +101,8 @@ class AnlagenController extends BaseController
                 $anlage->setEconomicVarNames($economicVarNames);
             }
 
+
+            dd($anlage);
             $successMessage = 'Plant data saved!';
             $em->persist($anlage);
             $em->flush();
@@ -113,6 +117,7 @@ class AnlagenController extends BaseController
 
             return $this->redirectToRoute('app_anlagen_list');
         }
+
 
         return $this->render('anlagen/edit_customer.html.twig', [
             'anlageForm' => $form,

@@ -1,0 +1,30 @@
+{% apply inky_to_html|inline_css(source('@styles/foundation-emails.css'), source('@styles/email.css'))  %}
+    <table align="center" bgcolor="#fefefe" class="body" width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+            <td align="center" valign="top" style="background-color: #f1efef; padding: 20px;border-radius: 10px;">
+                <center>
+                    <table class="row">
+                        <tr>
+                            <th class="small-12 large-12 columns first last">
+                                <table>
+                                    <tr>
+                                        <th>
+                                            <img src="{{ absolute_url(asset('/images/green4net.jpg')) }}" style="max-width: 200px; margin-bottom: 20px" alt="PVplus 4.0 Logo">
+                                            <h1 style="text-align: center">{{ subject }}</h1>
+                                            <p>{{ message }}</p>
+                                            <p>Please click <a href="{{ link }}">here</a> to confirm the reception of this alert</p>
+                                            <p>Your friendly <em>green4net Team</em></p>
+                                            <p>Sent from PVplus 4.0</p>
+                                        </th>
+                                    </tr>
+                                </table>
+                            </th>
+                        </tr>
+                    </table>
+                </center>
+            </td>
+        </tr>
+    </table>
+
+
+{% endapply %}

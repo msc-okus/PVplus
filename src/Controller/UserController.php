@@ -73,6 +73,7 @@ class UserController extends BaseController
 
         return $this->render('user/new.html.twig', [
             'userForm' => $form,
+            'user'  => $user,
         ]);
     }
 

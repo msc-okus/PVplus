@@ -118,14 +118,19 @@ class ImportToolsController extends BaseController
     #[Route('/import/cron', name: 'import_cron')]
     public function importCron(AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
-
         //get all Plants for Import via via Cron
         $anlagen = $anlagenRepo->findAllSymfonyImport();
         dd($anlagen);
 
         $time = time();
         $time -= $time % 900;
-        $start = $time - (4 * 3600);
+        $currentHour = (int)date('h');
+        if ($currentHour >= 12) {
+            $start = $time - (12 * 3600);
+        } else {
+            $start = $time - ($currentHour * 3600) + 900;
+        }
+        $start = $time - 4 * 3600;
         $end = $time;
 
         foreach ($anlagen as $anlage) {
@@ -158,8 +163,8 @@ class ImportToolsController extends BaseController
 
         for ($dayStamp = $fromts; $dayStamp <= $tots; $dayStamp += 24*3600) {
 
-            $from_new = strtotime(date('Y-m-d 00:15', $dayStamp));
-            $to_new = strtotime(date('Y-m-d 23:59', $dayStamp));
+            $from_new = strtotime(date('Y-m-d 00:00', $dayStamp));
+            $to_new = strtotime(date('Y-m-d 23:45', $dayStamp));
             $currentDay = date('d', $dayStamp);
 
             // Proof if date = today, if yes set $to to current DateTime

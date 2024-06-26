@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AlertMessages;
 use App\Entity\Anlage;
 use App\Entity\NotificationInfo;
 use App\Entity\Ticket;
@@ -11,23 +12,28 @@ use App\Form\Notification\NotificationEditFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AcGroupsRepository;
+use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\ContactInfoRepository;
 use App\Repository\NotificationInfoRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
+use App\Service\G4NSendMailService;
 use App\Service\MessageService;
 use App\Service\PiiCryptoService;
+use App\Service\UploaderHelper;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -445,10 +451,12 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/notify/{id}', name: 'app_ticket_notify', methods: ['GET', 'POST'])]
-    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, ContactInfoRepository $contactRepo, MessageService $messageService, PiiCryptoService $encryptService, NotificationInfoRepository $notificationInfoRepository): Response
+    public function notify($id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, ContactInfoRepository $contactRepo, MessageService $messageService, PiiCryptoService $encryptService, NotificationInfoRepository $notificationInfoRepository, AnlageFileRepository $docuRepo): Response
     {
         $ticket = $ticketRepo->findOneById($id);
         $notifications = $ticket->getNotificationInfos();
+        $anlage = $ticket->getAnlage();
+        $documents = $anlage->getDocuments();
         $actualNotification = "";
         $timeDiff = null;
         if (!$notifications->isEmpty()) {
@@ -459,11 +467,16 @@ class TicketController extends BaseController
         $eigner = $ticket->getAnlage()->getEigner();
         $form = $this->createForm(\App\Form\Notification\NotificationFormType::class, null, ['eigner' => $eigner]);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
+
             $ticket->setNotified(true);
             $contact = $contactRepo->findBy(["id" => $form->getData()['contacted']])[0];
             $key = uniqid($ticket->getId());
             $notification = new NotificationInfo();
+            foreach (array_keys($request->request->all(), "on") as $documentId) {
+                $notification->addAttachedMedium($docuRepo->findOneBy(['id' => $documentId]));
+            }
             $notification->setTicket($ticket);
             $notification->setStatus(10);
             $notification->setContactedPerson($contact);
@@ -497,10 +510,14 @@ class TicketController extends BaseController
             'owner' => $eigner,
             'modalId' => $ticket->getId(),
             'timeDiff' => $timeDiff,
-            'notifications' => $ticket->getNotificationInfos()
+            'notifications' => $ticket->getNotificationInfos(),
+            'documents' => $documents
         ]);
     }
 
+    public function addDocuments($id, TicketRepository $ticketRepository, ContactInfoRepository $contactRepo, Request $request, EntityManagerInterface $em){
+
+    }
     #[Route(path: '/ticket/proofCount', name: 'app_ticket_proof_count', methods: ['GET', 'POST'])]
     public function getProofCount(TicketRepository $ticketRepo, AnlagenRepository $anlagenRepo, Request $request): Response
     {
@@ -777,6 +794,7 @@ class TicketController extends BaseController
         $filter['kpistatus']['array'] = self::kpiStatus();
 
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $proofg4n, $proofmaintenance, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
+        $queryBuilderWithoutSwitch = $ticketRepo->getWithSearchQueryBuilderWithoutSwitch($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
 
         $pagination = $paginator->paginate($queryBuilder, $page, 25);
@@ -807,7 +825,7 @@ class TicketController extends BaseController
             'direction' => $direction,
             'begin' => $begin,
             'end' => $end,
-            'counts' => $this->getCountOfTickets($ticketRepo, $queryBuilder),
+            'counts' => $this->getCountOfTickets($ticketRepo, $queryBuilderWithoutSwitch),
             'newPlantId' => $newAnlage,
         ]);
     }
@@ -973,6 +991,7 @@ class TicketController extends BaseController
             'notificationConfirmForm' => $form,
             'answered' => $notification->getStatus() == 50 or $notification->getStatus() == 60,
             'finishedJob' => $finishedJob,
+            'token' => $id,
         ]);
     }
 
@@ -1038,6 +1057,7 @@ class TicketController extends BaseController
             'ticket' => $ticket,
             'notification' => $notification,
             'notificationEditForm' => $form,
+            'token' => $id,
             'answered' => false,
         ]);
 
@@ -1140,6 +1160,28 @@ class TicketController extends BaseController
         ]);
     }
 
+    #[Route(path: '/notification/downloadmedia/{id}/{token}', name: 'app_notification_media_external_download')]
+    public function externalDownload($id, $token,  PiiCryptoService $encryptService, UploaderHelper $uploaderHelper, AnlageFileRepository $anlFileRepo){
+
+        $anlageFile = $anlFileRepo->findOneBy(['id' => $id]);
+        $ticket = $anlageFile->getNotificationInfo()->getTicket();
+        if ($ticket->getSecurityToken() === $encryptService->unHashData($token)) {
+            $response = new StreamedResponse(function () use ($anlageFile, $uploaderHelper) {
+                $outputStream = fopen('php://output', 'wb');
+                $fileStream = $uploaderHelper->readStream($anlageFile->getPath() . $anlageFile->getFilename());
+                stream_copy_to_stream($fileStream, $outputStream);
+            });
+
+            $disposition = HeaderUtils::makeDisposition(
+                HeaderUtils::DISPOSITION_ATTACHMENT,
+                $anlageFile->getFilename()
+            );
+            $response->headers->set('Content-Disposition', $disposition);
+            return $response;
+        }
+        else return new Response(null, Response::HTTP_FORBIDDEN);
+    }
+
     /**
      * @param $stamp
      * @param $ticket
@@ -1232,4 +1274,37 @@ class TicketController extends BaseController
         $counts['ignored'] = $ticketRepo->countIgnored($queryBuilder);
         return $counts;
     }
+
+
+    #[Route('/verify', name: 'verify_alert_message')]
+    public function verifyAlert(Request $request, EntityManagerInterface $em): Response
+    {
+        $token = $request->query->get('token');
+        $email = $request->query->get('email');
+
+        if (!$token || !$email) {
+            return new Response('Invalid token or email', Response::HTTP_BAD_REQUEST);
+        }
+
+        $alertMessageRepository = $em->getRepository(AlertMessages::class);
+        $alertMessage = $alertMessageRepository->findOneBy(['token' => $token]);
+
+
+        if (!$alertMessage) {
+            return new Response('No alert found', Response::HTTP_NOT_FOUND);
+        }
+
+        if ($alertMessage->getChecked()) {
+            return new Response('Alert already validated by ' . $alertMessage->getCheckedByUser(), Response::HTTP_FORBIDDEN);
+        }
+
+        $alertMessage->setChecked(true);
+        $alertMessage->setCheckedByUser($email);
+        $alertMessage->setCheckedAt(new \DateTimeImmutable());
+        $em->persist($alertMessage);
+        $em->flush();
+
+        return new Response('Alert verified successfully');
+    }
+
 }

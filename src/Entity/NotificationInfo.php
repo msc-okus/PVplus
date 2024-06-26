@@ -54,6 +54,12 @@ class NotificationInfo
     #[ORM\Column(length: 25, nullable: true)]
     private ?string $identificator = null;
 
+    /**
+     * @var Collection<int, AnlageFile>
+     */
+    #[ORM\OneToMany(mappedBy: 'notificationInfo', targetEntity: AnlageFile::class)]
+    private Collection $attachedMedia;
+
     public function getNotificationWorks(): Collection
     {
         return $this->notificationWorks;
@@ -87,6 +93,7 @@ class NotificationInfo
     public function __construct()
     {
         $this->notificationWorks = new ArrayCollection();
+        $this->attachedMedia = new ArrayCollection();
     }
 
     public function getWhoNotified(): User
@@ -208,6 +215,36 @@ class NotificationInfo
     public function setIdentificator(?string $identificator): static
     {
         $this->identificator = $identificator;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AnlageFile>
+     */
+    public function getAttachedMedia(): Collection
+    {
+        return $this->attachedMedia;
+    }
+
+    public function addAttachedMedium(AnlageFile $attachedMedium): static
+    {
+        if (!$this->attachedMedia->contains($attachedMedium)) {
+            $this->attachedMedia->add($attachedMedium);
+            $attachedMedium->setNotificationInfo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAttachedMedium(AnlageFile $attachedMedium): static
+    {
+        if ($this->attachedMedia->removeElement($attachedMedium)) {
+            // set the owning side to null (unless already changed)
+            if ($attachedMedium->getNotificationInfo() === $this) {
+                $attachedMedium->setNotificationInfo(null);
+            }
+        }
 
         return $this;
     }

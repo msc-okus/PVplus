@@ -17,6 +17,8 @@
 {% endblock %}
 
 {% block body %}
+    {{ parent() }}
+
     <h1>List {{ alertName }}s</h1>
     <div {{ stimulus_controller('ticket-list', {
                 urlCreate: path('app_ticket_create'),
