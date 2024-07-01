@@ -13,7 +13,9 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
-
+use App\Service;
+use App\Service\Forecast;
+use App\Service\Forecast\DayAheadForecastDEKService;
 
 class ImportService
 {
@@ -31,6 +33,8 @@ class ImportService
         private readonly MeteoControlService $meteoControlService,
         private readonly ManagerRegistry $doctrine,
         private readonly WeatherServiceNew $weatherService,
+        #private readonly DayAheadForecastDEKService $dayAheadForecastDEKService,
+        #private readonly Forecast\DayAheadForecastMALService $aheadForecastMALService
     )
     {
     }
@@ -90,6 +94,10 @@ class ImportService
         $mcToken = $owner->getSettings()->getMcToken();
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
+        $hasSensorsFromSatelite = $anlage->getSettings()->isSensorsFromSatelite();
+        $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
+        $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
+
         $dataDelay = $anlage->getSettings()->getDataDelay()*3600;
         //end collect params from plant
 
@@ -108,6 +116,41 @@ class ImportService
 
         $from = date('Y-m-d H:i', $start);
         $to = date('Y-m-d H:i', $end);
+
+
+        if($hasSensorsFromSatelite == 1){
+            $meteo_data = new Service\Forecast\APIOpenMeteoService($input_gl, $input_gb);
+            $meteo_array = $meteo_data->make_sortable_data();
+
+            // Wenn Meteo daten vorhanden sind, dann Verarbeite diese.
+            if ((is_countable($meteo_array) ? count($meteo_array) : 0) > 1) {
+
+                foreach ($meteo_array as $interarray) {
+                    echo  '<pre>';
+                    #print_r($interarray['minute']);
+                    echo  '</pre>';
+
+                    foreach ($interarray['minute'] as $key => $value) {
+                        $stamp = strtotime($key);
+                        if($stamp <= $end || $stamp > $from){
+                            echo $key;
+                            echo  "<pre>";
+                            print_r($interarray['minute'][$key]);
+                            echo  '</pre>';
+                        }
+
+
+                    }
+                }
+            }
+        }
+
+
+
+
+exit;
+
+
 
         //get the Data from VCOM for all Plants are configured in the current plant
         for ($i = 0; $i < $numberOfPlants; ++$i) {
