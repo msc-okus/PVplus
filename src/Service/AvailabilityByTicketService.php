@@ -76,15 +76,20 @@ class AvailabilityByTicketService
             default => $this->timesConfigRepo->findValidConfig($anlage, 'availability_0', $date),
         };
 
-        $timestampModulo = $date->format('Y-m-d 04:00');
-        $from = $timestampModulo;
-        $dayStamp = new DateTime($from);
+        $dayStamp = new DateTime($date->format('Y-m-d 04:00'));
 
         $inverterPowerDc = [];
         $output = '';
 
+        $doCalc = match ($department) {
+            1 => isset($anlage) && $anlage->getEigner()->getFeatures()->isAktDep1() && $anlage->getSettings()->getEnablePADep1(),
+            2 => isset($anlage) && $anlage->getEigner()->getFeatures()->isAktDep2() && $anlage->getSettings()->getEnablePADep2(),
+            3 => isset($anlage) && $anlage->getEigner()->getFeatures()->isAktDep3() && $anlage->getSettings()->getEnablePADep3(),
+            default => isset($anlage),
+        };
+
         /* Verfügbarkeit der Anlage ermitteln */
-        if (isset($anlage)) {
+        if ($doCalc) {
             $output .= 'Anlage: '.$anlage->getAnlId().' / '.$anlage->getAnlName().' ; '.$date->format('Y-m-d')." ; Department: $department ; ";
 
             // Pnom für Inverter laden

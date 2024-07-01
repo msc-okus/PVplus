@@ -14,7 +14,7 @@ class SystemStatus2
 {
     use G4NTrait;
 
-    private int $cacheLifetime = 900; // in sekunden
+    private int $cacheLifetime = 900; // in sekunden (soll: 900)
 
     public function __construct(
         private readonly PdoService $pdoService,

@@ -134,15 +134,15 @@ class DefaultMREController extends BaseController
     public function updatePA($plant, AvailabilityByTicketService $availability, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
-        $from   = '2021-12-01 00:00'; //date('Y-m-d 00:00');
-        $to     = '2023-12-01 00:00';// date('Y-m-d 13:59');
+        $from   = date('Y-m-d 00:00'); //'2021-12-01 00:00'; //date('Y-m-d 00:00');
+        $to     = date('Y-m-d 13:59'); //'2023-12-01 00:00';// date('Y-m-d 23:59');
         $ergebniss = "";
         for ($stamp = strtotime($from); $stamp <= strtotime($to); $stamp = $stamp + (24 * 3600)) {
-            $from = date('Y-m-d 00:00', $stamp);
-            #$ergebniss .= $availability->checkAvailability($anlage, $from, 0) . "<br>";
-            #$ergebniss .= $availability->checkAvailability($anlage, $from, 1) . "<br>";
-            $ergebniss .= $availability->checkAvailability($anlage, $from, 2) . "<br>";
-            #$ergebniss .= $availability->checkAvailability($anlage, $from, 3) . "<hr>";
+            $day = date('Y-m-d 00:00', $stamp);
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 0) . "<br>";
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 1) . "<br>";
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 2) . "<br>";
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 3) . "<hr>";
         }
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update PA',
