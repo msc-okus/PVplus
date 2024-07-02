@@ -170,9 +170,9 @@ class ImportService
                     //Hier Mittelwert bilden
                     $irrAnlageGMO = $this->mittelwert($tempGm, true);   //
 
-                    if($basics[$date]['E_Z_EVU'] > 0){
-                        (float)$eZEvu = $basics[$date]['E_Z_EVU'];
-                    }else{
+                    if ($basics[$date]['E_Z_EVU'] > 0){
+                        $eZEvu = (float)$basics[$date]['E_Z_EVU'];
+                    } else {
                         $eZEvu = 0.0;
                     }
                 }

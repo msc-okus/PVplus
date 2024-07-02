@@ -53,18 +53,6 @@ trait ImportFunctionsTrait
         $columns = array_fill_keys(array_values($stmt->fetchAll(PDO::FETCH_COLUMN)), null);
         unset($columns['db_id']);
 
-        /* ToDo: Following code could be a good altenative to the current used 'double while with breaks'
-
-        foreach ($array as $key => $element) {
-            if ($key === array_key_first($array)) {
-                echo 'FIRST ELEMENT!';
-            }
-
-            if ($key === array_key_last($array)) {
-                echo 'LAST ELEMENT!';
-            }
-        }
-        */
         // multiple INSERT
         $rows = count($data);
         $j = 0;
@@ -459,9 +447,11 @@ trait ImportFunctionsTrait
      * @param array $anlageSensors
      * @param int $length
      * @param array $sensors
+     * @param array $basics
      * @param  $stamp
      * @param  $date
-     * @param $gMo
+     * @param string $gMo
+     * @param bool $isDay
      * @return array
      */
     function getSensorsDataFromVcomResponse(array $anlageSensors, int $length, array $sensors, array $basics, $stamp, $date, string $gMo, bool $isDay): array
@@ -699,17 +689,18 @@ trait ImportFunctionsTrait
     }
 
     //importiert die Daten für Anlegen ohne Stringboxes
+
     /**
      * @param array $inverters
      * @param string $date
      * @param int $plantId
      * @param string $stamp
      * @param float $eZEvu
-     * @param bool|string $irrAnlage
-     * @param bool|string $tempAnlage
-     * @param bool|string $windAnlage
+     * @param string $irrAnlage
+     * @param string $tempAnlage
+     * @param string $windAnlage
      * @param object $groups
-     * @param $invertersUnits
+     * @param int $invertersUnits
      * @return array
      * @throws \JsonException
      */
@@ -744,15 +735,6 @@ trait ImportFunctionsTrait
                 } else {
                     $powerDc = '';
                 }
-
-                // tempCorr nach NREL und dann theoPower berechnen
-                // prüfe auf OST / WEST Sensoren und Strahlung ermitteln
-                /*
-                                $irr = ($irrUpper * $anlage->power_east + $irrLower * $anlage->power_west) / $anlage->power ;
-                                echo "($irrUpper * $anlage->power_east + $irrLower * $anlage->power_west) / $anlage->power<br>";
-                                $tempCorr = tempCorrection($tempCorrParams, $tempCorrParams['tempCellTypeAvg'], $windSpeed, $tempAmbient, $irr);
-                                $theoPower = (($irr / 1000) * $dcPNormPerInvereter[$pvpGroupDc] * $tempCorr) / 1000 / 4;
-                */
 
                 $dcCurrentMppArray = [];
                 $dcVoltageMppArray = [];
@@ -859,6 +841,7 @@ trait ImportFunctionsTrait
             ];
         }
         $result[] = $data_ppc;
+
         return $result;
     }
 

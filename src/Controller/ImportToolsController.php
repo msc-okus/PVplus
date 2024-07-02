@@ -100,7 +100,7 @@ class ImportToolsController extends BaseController
             }
         }
 
-        return $this->render('importApiTool.html.twig', [
+        return $this->render('tools/importApiTool.html.twig', [
             'importToolsForm' => $form,
             'output' => $output,
         ]);
