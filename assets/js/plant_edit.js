@@ -328,6 +328,20 @@ $wrapper_acgroup.on('click', '.js-add-acgroup', function(e) {
     let newForm = prototype.replace(/__name__/g, index);
     $wrapper_acgroup.data('index', index + 1);
     $('#js-acgroup>tbody').append(newForm);
-    Foundation.reInit('accordion');
 });
 
+// PPCs
+let $wrapper_ppcs = $('.js-ppcs-wrapper');
+$wrapper_ppcs.on('click', '.js-remove-ppc', function(e) {
+    e.preventDefault();
+    $(this).closest('.js-ppc-item')
+        .remove();
+});
+$wrapper_ppcs.on('click', '.js-add-ppc', function(e) {
+    e.preventDefault();
+    let prototype = $wrapper_ppcs.data('prototype');
+    let index = $wrapper_ppcs.data('index');
+    let newForm = prototype.replace(/__name__/g, index);
+    $wrapper_ppcs.data('index', index + 1);
+    $('#js-ppcs>tbody').append(newForm);
+});
