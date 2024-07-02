@@ -31,6 +31,7 @@ class ChartControlFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ChartControlModel::class,
+            'required' => false,
         ]);
     }
 }

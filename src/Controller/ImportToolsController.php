@@ -4,9 +4,9 @@ namespace App\Controller;
 
 use App\Form\Import\ImportEGridFormType;
 use App\Form\Import\ImportPvSystFormType;
-use App\Form\ImportTools\ImportToolsFormType;
 use App\Form\Model\ImportPvSystModel;
 use App\Form\Model\ImportToolsModel;
+use App\Form\Tools\ImportToolsFormType;
 use App\Helper\G4NTrait;
 use App\Helper\ImportFunctionsTrait;
 use App\Message\Command\ImportData;
@@ -25,9 +25,9 @@ use Shuchkin\SimpleXLSX;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 
 class ImportToolsController extends BaseController
 {
@@ -100,7 +100,7 @@ class ImportToolsController extends BaseController
             }
         }
 
-        return $this->render('import_tools/index.html.twig', [
+        return $this->render('importApiTool.html.twig', [
             'importToolsForm' => $form,
             'output' => $output,
         ]);

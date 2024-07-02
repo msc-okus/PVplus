@@ -34,6 +34,7 @@ class AnlageStringAssigmentUploadType extends AbstractType
     {
         $resolver->setDefaults([
             'anlagen_choices' => [],
+            'required' => false,
         ]);
     }
 }
