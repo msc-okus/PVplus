@@ -8,12 +8,9 @@ use App\Helper\ImportFunctionsTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\PVSystDatenRepository;
-use App\Service\WeatherServiceNew;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
-
 
 class ImportService
 {
@@ -151,10 +148,8 @@ class ImportService
 
             //beginn sort and seperate Data for writing into database
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
-
                 $stamp = date('Y-m-d H:i', $timestamp);
                 $date = date('c', $timestamp);
-
 
                 $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
                 $eZEvu = 0.0;
