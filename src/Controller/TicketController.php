@@ -53,7 +53,7 @@ class TicketController extends BaseController
      * @throws InvalidArgumentException
      */
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
-    public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): Response
+    public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo, MessageService $messageService): Response
     {
         if ($request->query->get('anlage') !== null) {
             $anlage = $anlRepo->find($request->query->get('anlage'));
@@ -97,6 +97,12 @@ class TicketController extends BaseController
 
             $em->flush();
 
+            if ($ticket->getNeedsProofIt()){ // if this is checked we need to send an email to it@green4net.com
+                $messageService->sendRawMessage("Ticket ". $ticket->getId()." needs revision"," Please check the ticket with the provided id",
+                    "it@green4net.com", "it Team",
+                    false);
+            }
+
             return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
 
         } elseif ($form->isSubmitted() && !$form->isValid()) {
@@ -136,7 +142,7 @@ class TicketController extends BaseController
      * @throws InvalidArgumentException
      */
     #[Route(path: '/ticket/edit/{id}', name: 'app_ticket_edit')]
-    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request, AcGroupsRepository $acRepo): Response
+    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request, AcGroupsRepository $acRepo, MessageService $messageService): Response
     {
         $ticket = $ticketRepo->find($id);
         $anlage = $ticket->getAnlage();
@@ -183,6 +189,12 @@ class TicketController extends BaseController
             $request->attributes->set('page', $page);
             /** @var Ticket $ticket */
             $ticket = $form->getData();
+            if ($ticket->getNeedsProofIt()){ // if this is checked we need to send an email to it@green4net.com
+                $messageService->sendRawMessage("Ticket ". $ticket->getId()." needs revision"," Please check the ticket with the provided id",
+                    "it@green4net.com", "it Team",
+                    false);
+            }
+
             if ($form->getData()->isIgnoreTicket()) {
                 $ticket->setWhoHided($this->getUser()->getUserIdentifier());
                 $ticket->setWhenHidded(date("Y-m-d H:i:s"));
@@ -440,7 +452,9 @@ class TicketController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             $eigner->addContactInfo($form->getData());
             $em->persist($eigner);
+
             $em->flush();
+
             return new Response(null, Response::HTTP_NO_CONTENT);
         }
         return $this->render('ticket/_inc/_contact_create.html.twig', [

@@ -35,7 +35,7 @@ class AnlageFile
     private ?Anlage $plant = null;
 
     #[ORM\ManyToOne(inversedBy: 'documents')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Anlage $anlage = null;
 
     #[ORM\ManyToOne(inversedBy: 'attachedMedia')]
