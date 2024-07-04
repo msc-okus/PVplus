@@ -219,7 +219,7 @@ class SpecialOperationsController extends AbstractController
             return $this->redirectToRoute('app_dashboard');
         }
 
-        return $this->render('importTool.html.twig', [
+        return $this->render('basicTool.html.twig', [
             'toolsForm'     => $form,
             'output'        => $output,
         ]);

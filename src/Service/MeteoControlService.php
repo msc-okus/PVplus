@@ -116,7 +116,12 @@ class MeteoControlService
         }
     }
 
-    public function getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $key, int $from = 0, int $to = 0, $resolution = "fifteen-minutes", $timeZonePlant = "Europe/Berlin", $curl = NULL) {
+
+    /**
+     * @throws Exception
+     */
+    public function getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $key, int $from = 0, int $to = 0, $resolution = "fifteen-minutes", $timeZonePlant = "Europe/Berlin", $curl = NULL)
+    {
         if (is_int($from) && is_int($to)) {
             $offsetServerUTC = new \DateTimeZone("UTC");
             $offsetServer = new \DateTimeZone("Europe/Berlin");
@@ -127,12 +132,12 @@ class MeteoControlService
             date_default_timezone_set($timeZonePlant);
             $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $to));
-
+            #dump($timeZonePlant, "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution");
             $oauthThoken = auth($mcUser, $mcPassword, $mcToken, $curl);
 
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt_array($curl, array(
+            curl_setopt_array($curl, [
                 CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
@@ -141,14 +146,20 @@ class MeteoControlService
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'GET',
-                CURLOPT_HTTPHEADER => array(
+                CURLOPT_HTTPHEADER => [
                     "X-API-KEY: ". $mcToken,
                     "Cache-Control: no-cache",
                     'Authorization: Bearer '.$oauthThoken['access_token'],
-                ),
-            ));
+                ],
+            ]);
 
-            $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
+            $json = curl_exec($curl);
+            try {
+                $response = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            } catch(Exception $e) {
+                $response = false;
+            }
+
 
             if (curl_errno($curl)) {
                 echo curl_error($curl);
@@ -161,12 +172,15 @@ class MeteoControlService
         return false;
     }
 
+    /**
+     * @throws \JsonException
+     */
     static function getSystemsKeySensorsMeaserments($mcUser, $mcPassword, $mcToken, $key, $from = 0, $to = 0, $resolution = "fifteen-minutes", $curl = null) {
         if (is_int($from) && is_int($to)) {
             $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $to));
             $oauthThoken = auth($mcUser, $mcPassword, $mcToken, $curl);
-            curl_setopt_array($curl, array(
+            curl_setopt_array($curl, [
                     CURLOPT_URL => "https://api.meteocontrol.de/v2/systems/$key/sensors/bulk/measurements?from=$from&to=$to&resolution=$resolution",
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
@@ -175,15 +189,20 @@ class MeteoControlService
                     CURLOPT_FOLLOWLOCATION => true,
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'GET',
-                    CURLOPT_HTTPHEADER => array(
+                    CURLOPT_HTTPHEADER => [
                         "X-API-KEY: ". $mcToken,
                         "Cache-Control: no-cache",
                         'Authorization: Bearer '.$oauthThoken['access_token'],
-                    ),
-                )
+                    ],
+                ]
             );
 
-            $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
+            $json = curl_exec($curl);
+            try {
+                $response = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            } catch(Exception $e) {
+                $response = false;
+            }
 
             return $response;
         }
@@ -216,7 +235,12 @@ class MeteoControlService
                 )
             );
 
-            $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
+            $json = curl_exec($curl);
+            try {
+                $response = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            } catch(Exception $e) {
+                $response = false;
+            }
 
             return $response;
         }
@@ -246,7 +270,12 @@ class MeteoControlService
             )
         );
 
-        $response = json_decode(curl_exec($curl), true, 512, JSON_THROW_ON_ERROR);
+        $json = curl_exec($curl);
+        try {
+            $response = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        } catch(Exception $e) {
+            $response = false;
+        }
 
         return $response;
     }

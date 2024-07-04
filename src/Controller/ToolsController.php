@@ -119,7 +119,7 @@ class ToolsController extends BaseController
             }
         }
 
-        return $this->render('importTool.html.twig', [
+        return $this->render('tools/basicTool.html.twig', [
             'toolsForm' => $form,
             'output' => $output,
         ]);

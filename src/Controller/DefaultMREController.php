@@ -40,6 +40,10 @@ class DefaultMREController extends BaseController
     ){
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws \JsonException
+     */
     #[Route(path: '/mr/test')]
     public function test(AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
@@ -65,6 +69,34 @@ class DefaultMREController extends BaseController
             'headline' => 'Update Systemstatus',
             'availabilitys' => '',
             'output' => '',
+        ]);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws \JsonException
+     */
+    #[Route(path: '/mr/import/{plant}', defaults: ['plant' => 237])]
+    public function import($plant, AnlagenRepository $anlagenRepo, ImportService $importService): Response
+    {
+        $anlage = $anlagenRepo->find($plant);
+        $time = time() - (10 * 3600);
+        $time -= $time % 900;
+        $start = $time - (12 * 3600);
+        $end = $time;
+        $from = date_create('2024-07-04 00:15');
+        $to = date_create('2024-07-04 10:00');
+        $start = $from->getTimestamp();
+        $end = $to->getTimestamp();
+
+        $output = "from: ".$from->format('Y-m-d H:i')." to: ".$to->format('Y-m-d H:i');
+
+        $importService->prepareForImport($anlage, $start, $end);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Import '.$anlage->getAnlName(),
+            'availabilitys' => '',
+            'output' => $output,
         ]);
     }
 

@@ -104,7 +104,7 @@ class GenerateTicketsCommand extends Command
 
                     for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
                         $offsetServer = new DateTimeZone("Europe/Luxembourg");
-                        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
+                        $plantoffset = new DateTimeZone($anlage->getNearestTimezone());
                         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
                         $this->alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp + $totalOffset));
                         if ($counter % 4 == 0) {
