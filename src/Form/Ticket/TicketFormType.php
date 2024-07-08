@@ -63,7 +63,6 @@ class TicketFormType extends AbstractType
             $builder
                 ->add('inverterName', TextType::class,[
                     'label' => 'Inverter Names',
-                    'required' => true,
                     'help' => '* = all Inverters',
                     'attr' => [
                         'readonly' => true,
@@ -122,7 +121,7 @@ class TicketFormType extends AbstractType
             ->add('begin', DateTimeType::class, [
                 'label' => 'Begin',
                 'label_html' => true,
-                'required' => false,
+                'required' => true,
                 'widget' => 'single_text',
                 'attr' => [
                     'data-action' => 'blur->ticket-edit#beginCheck click->ticket-edit#setHiddenValue',
@@ -142,14 +141,12 @@ class TicketFormType extends AbstractType
             ->add('status', ChoiceType::class, [
                 'label' => 'Status',
                 'choices' => self::ticketStati(),
-                'required' => true,
                 'empty_data' => 30, // Work in Progress
                 'invalid_message' => 'Please select a Status.',
             ])
             ->add('priority', ChoiceType::class, [
                 'label' => 'Priority',
                 'choices' => self::ticketPriority(),
-                'required' => true,
                 'empty_data' => 10, // Low
                 'invalid_message' => 'Please select a Priority.',
             ])
@@ -174,12 +171,10 @@ class TicketFormType extends AbstractType
             ->add('freeText', TextareaType::class, [
                 #'config' => ['toolbar' => 'my_toolbar'],
                 'attr' => ['rows' => '9'],
-                'required' => false,
             ])
             ->add('answer', TextareaType::class, [
                 #'config' => ['toolbar' => 'my_toolbar'],
                 'attr' => ['rows' => '9'],
-                'required' => false,
             ])
 
             // ### List of Ticket Dates
@@ -210,6 +205,7 @@ class TicketFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Ticket::class,
+            'required' => false,
         ]);
     }
 }

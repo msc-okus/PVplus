@@ -4135,7 +4135,7 @@ class Anlage implements \Stringable
 
     public function getMinIrrThreshold(): mixed
     {
-        return min($this->getThreshold1PA0(), $this->getThreshold1PA1(), $this->getThreshold1PA2(), $this->getThreshold1PA3());
+        return min($this->getThreshold2PA0(), $this->getThreshold2PA1(), $this->getThreshold2PA2(), $this->getThreshold2PA3());
     }
 
     public function getPrformular0Image(): string

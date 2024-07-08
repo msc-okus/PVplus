@@ -14,6 +14,8 @@ use App\Service\G4NSendMailService;
 use App\Service\MessageService;
 use App\Service\WeatherFunctionsService;
 use App\Service\WeatherServiceNew;
+use DateTime;
+use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
 use App\Service\PdoService;
@@ -50,19 +52,21 @@ class AlertSystemV2Service
      * @param string $from
      * @param string|null $to
      * @throws InvalidArgumentException
+     * @throws \Exception
      */
     public function generateTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
-        $fromStamp = strtotime($from);
-        if ($to != null) {
+        $offsetServer = new DateTimeZone("Europe/Luxembourg");
+        $plantoffset = new DateTimeZone($anlage->getNearestTimezone());
+        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        $fromStamp = strtotime($from) + $totalOffset;
 
-
+        if ($to !== null) {
             $toStamp = strtotime($to);
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
                 $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
             }
         } else {
-
             $this->checkSystem($anlage, date('Y-m-d H:i:00', $fromStamp));
         }
     }
