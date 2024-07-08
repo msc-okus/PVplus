@@ -85,12 +85,14 @@ class ImportService
         $hasSensorsFromSatelite = $anlage->getSettings()->isSensorsFromSatelite();
         $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
         $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
+        //get all Sensors from Plant
+        $anlageSensors = $anlage->getSensors();
+        $isEastWest = $anlage->getIsOstWestAnlage();
 
         $dataDelay = $anlage->getSettings()->getDataDelay()*3600;
         //end collect params from plant
 
-        //get the Data from vcom
-        $curl = curl_init();
+
 
         $bulkMeaserments = [];
         $basics = [];
@@ -105,48 +107,125 @@ class ImportService
         $from = date('Y-m-d H:i', $start);
         $to = date('Y-m-d H:i', $end);
 
-
         if($hasSensorsFromSatelite == 1){
             $meteo_data = new Service\Forecast\APIOpenMeteoService($input_gl, $input_gb);
             $meteo_array = $meteo_data->make_sortable_data();
-
+            $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
+            $sensors = [];
             // Wenn Meteo daten vorhanden sind, dann Verarbeite diese.
             if ((is_countable($meteo_array) ? count($meteo_array) : 0) > 1) {
-
                 foreach ($meteo_array as $interarray) {
-                    echo  '<pre>';
-                    #print_r($interarray['minute']);
-                    echo  '</pre>';
-
                     foreach ($interarray['minute'] as $key => $value) {
                         $stamp = strtotime($key);
-                        if($stamp <= $end || $stamp > $from){
-                            echo $key;
-                            echo  "<pre>";
-                            print_r($interarray['minute'][$key]);
-                            echo  '</pre>';
+
+                        if($stamp <= $end && $stamp >= $start){
+                            $isDay = $anlage->isDay($stamp);
+                            $date = date_create_immutable($key, $dateTimeZoneOfPlant)->format('c');
+
+                            $irrtemp = [];
+                            $temperaturtemp = [];
+                            $wdstemp = [];
+                            for ($j = 1; $j <= count($interarray['minute'][$key]); $j++) {
+                                #echo 'GTI '.$interarray['minute'][$key][$j]['gti'].'<br';
+                                $irrtemp[] = $interarray['minute'][$key][$j]['dni'];
+                                $temperaturtemp[] = $interarray['minute'][$key][$j]['tmp'];
+                                $wdstemp[] = $interarray['minute'][$key][$j]['wds'];
+
+                            }
+                            $irr = round($this->mittelwert($irrtemp), 3);
+                            $tempAmbient = round($this->mittelwert($temperaturtemp), 3);
+                            $windSpeed = round($this->mittelwert($wdstemp), 3);
+                            $basics[$date]['date'] = $date;
+                            $basics[$date]['stamp'] = $key;
+                            $basics[$date]['isDay'] = $isDay;
+                            if($isEastWest) {
+                                $basics[$date]["GM_0_E"] = $irr;
+                                $basics[$date]["GM_0_W"] = $irr;
+                            }else{
+                                $basics[$date]["GM_0"] = $irr;
+                            }
+
+                            $basics[$date]["TA_0"] = $tempAmbient;
+                            $basics[$date]["WS_0"] = $windSpeed;
+                            unset($irrtemp);
+                            unset($temperaturtemp);
+                            unset($wdstemp);
+
                         }
-
-
                     }
                 }
             }
+
+            foreach ($basics  as $key => $value) {
+                #echo  "$key<pre>";
+                #print_r($value);
+                #echo  '</pre>';
+                if($isEastWest) {
+                    $gMo = $value["GM_0_E"];
+                }else{
+                    $gMo = $value["GM_0"];
+                }
+                $result = self::getSensorsDataFromVcomResponse((array)$anlageSensors->toArray(), $length, $sensors, $basics, $value['stamp'], $key, (string)$gMo, $value['isDay']);
+                //built array for sensordata
+                for ($j = 0; $j <= count($result[0])-1; $j++) {
+                    $dataSensors[] = $result[0][$j];
+                }
+                unset($result);
+                $tempAmbient = $value["TA_0"];
+                $tempPanel = '';
+                $windSpeed = $value["WS_0"];
+                if($isEastWest) {
+                    $irrUpper = $value["GM_0_E"];
+                    $irrLower = $value["GM_0_W"];
+                }else{
+                    $irrUpper = $value["GM_0"];
+                    $irrLower = '';
+                }
+                $irrHorizontal = '';
+
+                $data_pv_weather[] = [
+                    'anl_intnr' => $weatherDbIdent,
+                    'anl_id' => 0,
+                    'stamp' => $value['stamp'],
+                    'at_avg' => ($tempAmbient != '') ? $tempAmbient : NULL,
+                    'temp_ambient' => ($tempAmbient != '') ? $tempAmbient : NULL,
+                    'pt_avg' => ($tempPanel != '') ? $tempPanel : NULL,
+                    'temp_pannel' => ($tempPanel != '') ? $tempPanel : NULL,
+                    'gi_avg' => ($irrLower != '') ? $irrLower : NULL,
+                    'g_lower' => ($irrLower != '') ? $irrLower : NULL,
+                    'gmod_avg' => ($irrUpper != '') ? $irrUpper : NULL,
+                    'g_upper' => ($irrUpper != '') ? $irrUpper : NULL,
+                    'g_horizontal' => ($irrHorizontal != '') ? $irrHorizontal : NULL,
+                    'rso' => '0',
+                    'gi' => '0',
+                    'wind_speed' => ($windSpeed != '') ? $windSpeed : NULL,
+                    'temp_cell_multi_irr' => NULL,
+                    'temp_cell_corr' => NULL,
+                    'ft_factor' => NULL,
+                    'irr_flag' => NULL
+                ];
+            }
+
+            $DBDataConnection = $this->pdoService->getPdoPlant();
+            if($useSensorsDataTable == 1 && is_array($dataSensors) && count($dataSensors) > 0) {
+                $tableName = "db__pv_sensors_data_$anlagenTabelle";
+                self::insertData($tableName, $dataSensors, $DBDataConnection);
+            }
+
+            if(is_array($data_pv_weather) && count($data_pv_weather) > 0){
+                $tableName = "db__pv_ws_$weatherDbIdent";
+                self::insertData($tableName, $data_pv_weather, $DBDataConnection);
+            }
+            exit;
         }
 
-
-
-
-exit;
-
-
-
         //get the Data from VCOM for all Plants are configured in the current plant
+        $curl = curl_init();
         for ($i = 0; $i < $numberOfPlants; ++$i) {
             $tempBulk = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $arrayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
         }
         curl_close($curl);
-
 
         //beginn collect all Data from all Plants
         $numberOfBulkMeaserments = count($bulkMeaserments);
@@ -183,8 +262,7 @@ exit;
             }
             //end collect all Data from all Plants
 
-            //get all Sensors from Plant
-            $anlageSensors = $anlage->getSensors();
+
 
             //beginn sort and seperate Data for writing into database
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
