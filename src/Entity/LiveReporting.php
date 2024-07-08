@@ -56,12 +56,12 @@ class LiveReporting {
      */
     public $endday;
 
-    public function getYear(): ?string
+    public function getYear(): array
     {
         return $this->year;
     }
 
-    public function getMonth(): ?string
+    public function getMonth(): array
     {
         return $this->month;
     }
