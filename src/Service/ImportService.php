@@ -312,7 +312,7 @@ class ImportService
                 $checkSensors = [];
 
                 if ($length > 0){
-                    $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, (bool)$isEastWest, $sensors, $basics, $date);
+                    $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, $isEastWest, $sensors, $basics, $date);
                     $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
                     $irrLower = $checkSensors[0]['irrLower'];
