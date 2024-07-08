@@ -142,23 +142,24 @@ class CheckSystemStatusService
                         if (false === checkdate($anlage->getPacDate()->format('m'), $anlage->getPacDate()->format('d'), $anlage->getPacDate()->format('Y'))) {
                             $pacDate = $forecastDate->format('Y-m-d 00:00:00');
                         }
-                    }
-                    $powerActArray = $this->functions->getSumPowerAcAct($anlage, $forecastDate->format('Y-m-d 00:00:00'), $forecastDate->format('Y-m-d 23:00:00'), $pacDate, $forecastDate->format('Y-m-d 23:00:00'));
+                        $powerActArray = $this->functions->getSumPowerAcAct($anlage, $forecastDate->format('Y-m-d 00:00:00'), $forecastDate->format('Y-m-d 23:00:00'), $pacDate, $forecastDate->format('Y-m-d 23:00:00'));
 
-                    if ($anlage->getUseDayForecast()) {
-                        if ($anlage->getShowEvuDiag()) {
-                            $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
+
+                        if ($anlage->getUseDayForecast()) {
+                            if ($anlage->getShowEvuDiag()) {
+                                $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
+                            } else {
+                                $forecastYear = $powerActArray['powerActYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
+                            }
                         } else {
-                            $forecastYear = $powerActArray['powerActYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
-                        }
-                    } else {
-                        if ($anlage->getShowEvuDiag()) {
-                            $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
-                        } else {
-                            $forecastYear = $powerActArray['powerActYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                            if ($anlage->getShowEvuDiag()) {
+                                $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                            } else {
+                                $forecastYear = $powerActArray['powerActYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                            }
                         }
                     }
-                    if ($forecastYear === null) {
+                    if (!isset($forecastYear)) {
                         $forecastYear = 0;
                     }
                     $forecastDivMinusYear = 0;

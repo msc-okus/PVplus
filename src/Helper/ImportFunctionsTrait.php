@@ -43,7 +43,7 @@ trait ImportFunctionsTrait
      * @param null $data
      * @param object|null $DBDataConnection
      */
-    function insertData($tableName = NULL, $data = NULL, object $DBDataConnection = NULL): void
+    function insertData($tableName = NULL, array $data = [], object $DBDataConnection = NULL): void
     {
         // obtain column template
 
@@ -53,18 +53,13 @@ trait ImportFunctionsTrait
         $columns = array_fill_keys(array_values($stmt->fetchAll(PDO::FETCH_COLUMN)), null);
         unset($columns['db_id']);
 
-        /* ToDo: Following code could be a good altenative to the current used 'double while with breaks'
-
-        foreach ($array as $key => $element) {
-            if ($key === array_key_first($array)) {
-                echo 'FIRST ELEMENT!';
-            }
-
-            if ($key === array_key_last($array)) {
-                echo 'LAST ELEMENT!';
-            }
+        if (str_contains($tableName, 'pv_ws')) {
+            unset($columns['pa0']);
+            unset($columns['pa1']);
+            unset($columns['pa2']);
+            unset($columns['pa3']);
         }
-        */
+
         // multiple INSERT
         $rows = count($data);
         $j = 0;
@@ -184,16 +179,18 @@ trait ImportFunctionsTrait
                     }
                     $now = strtotime((string) $date);
                     if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                        if($anlageSensors[$i]->getIsFromBasics() == 1) {
+                        if($anlageSensors[$i]->getIsFromBasics() == 1 && array_key_exists($date, $basics)) {
                             if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                                array_push($gmPyHori, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                                $gmPyHori[] = $basics[$date][$anlageSensors[$i]->getNameShort()];
                             }
                             $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
-                        }else{
-                            if($anlageSensors[$i]->getUseToCalc() == 1){
-                                array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
+                        } else {
+                            if (array_key_exists($date, $sensors)) {
+                                if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                    $gmPyHori[] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                }
+                                $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                             }
-                            $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                         }
                     }
                 }
@@ -209,16 +206,18 @@ trait ImportFunctionsTrait
                     }
                     $now = strtotime((string) $date);
                     if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                        if($anlageSensors[$i]->getIsFromBasics() == 1) {
+                        if($anlageSensors[$i]->getIsFromBasics() == 1  && array_key_exists($date, $basics)) {
                             if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                                array_push($gmPyWest, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                                $gmPyWest[] = $basics[$date][$anlageSensors[$i]->getNameShort()];
                             }
                             $gmPyWestAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
-                        }else{
-                            if($anlageSensors[$i]->getUseToCalc() == 1){
-                                array_push($gmPyWest, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
+                        } else {
+                            if(array_key_exists($date, $sensors)) {
+                                if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                    $gmPyWest[] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                }
+                                $gmPyWestAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                             }
-                            $gmPyWestAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                         }
                     }
 
@@ -235,16 +234,18 @@ trait ImportFunctionsTrait
                     }
                     $now = strtotime((string) $date);
                     if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                        if($anlageSensors[$i]->getIsFromBasics() == 1) {
+                        if ($anlageSensors[$i]->getIsFromBasics() == 1  && array_key_exists($date, $basics)) {
                             if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                                array_push($gmPyEast, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                                $gmPyEast[] = $basics[$date][$anlageSensors[$i]->getNameShort()];
                             }
                             $gmPyEastAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
-                        }else{
-                            if($anlageSensors[$i]->getUseToCalc() == 1){
-                                array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
+                        } else {
+                            if (array_key_exists($date, $sensors)) {
+                                if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                    $gmPyEast[] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                }
+                                $gmPyEastAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                             }
-                            $gmPyEastAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                         }
                     }
                 }
@@ -266,23 +267,31 @@ trait ImportFunctionsTrait
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
+                        $start = strtotime($anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                     }
                     if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
+                        $end = strtotime($anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                     }
-                    $now = strtotime((string) $date);
+                    $now = strtotime($date);
                     if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                        if($anlageSensors[$i]->getIsFromBasics() == 1) {
-                            if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                                array_push($gmPyHori, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                        if ($anlageSensors[$i]->getIsFromBasics() == 1 && array_key_exists($date, $basics)) {
+                            if (array_key_exists($anlageSensors[$i]->getNameShort(), $basics[$date])) {
+                                if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                    $gmPyHori[] = $basics[$date][$anlageSensors[$i]->getNameShort()];
+                                }
+                                $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
                             }
-                            $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
-                        }else{
-                            if($anlageSensors[$i]->getUseToCalc() == 1){
-                                array_push($gmPyHori, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
+                        } else {
+                            if (array_key_exists($date, $sensors)) {
+                                if (array_key_exists($anlageSensors[$i]->getVcomId(), $sensors[$date])) {
+                                    if (array_key_exists($anlageSensors[$i]->getVcomAbbr(), $sensors[$date][$anlageSensors[$i]->getVcomId()])) {
+                                        if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                            $gmPyHori[] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                        }
+                                        $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                    }
+                                }
                             }
-                            $gmPyHoriAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                         }
                     }
 
@@ -292,24 +301,30 @@ trait ImportFunctionsTrait
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]->getStartDateSensor() != null) {
-                        $start = strtotime((string) $anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
+                        $start = strtotime($anlageSensors[$i]->getStartDateSensor()->format('Y-m-d H:i:s'));
                     }
                     if ($anlageSensors[$i]->getEndDateSensor() != null) {
-                        $end = strtotime((string) $anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
+                        $end = strtotime($anlageSensors[$i]->getEndDateSensor()->format('Y-m-d H:i:s'));
                     }
-                    $now = strtotime((string) $date);
+                    $now = strtotime($date);
 
                     if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                        if($anlageSensors[$i]->getIsFromBasics() == 1) {
+                        if ($anlageSensors[$i]->getIsFromBasics() == 1 && array_key_exists($date, $basics)) {
                             if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                                array_push($gmPyEast, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                                $gmPyEast[] = array_key_exists($anlageSensors[$i]->getNameShort(), $basics[$date]) ? $basics[$date][$anlageSensors[$i]->getNameShort()] : null;
                             }
                             $gmPyEastAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
-                        }else{
-                            if($anlageSensors[$i]->getUseToCalc() == 1){
-                                array_push($gmPyEast, max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0));
+                        } else {
+                            if (array_key_exists($date, $sensors)) {
+                                if (array_key_exists($anlageSensors[$i]->getVcomId(), $sensors[$date])) {
+                                    if (array_key_exists($anlageSensors[$i]->getVcomAbbr(), $sensors[$date][$anlageSensors[$i]->getVcomId()])) {
+                                        if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                            $gmPyEast[] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                        }
+                                        $gmPyEastAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                    }
+                                }
                             }
-                            $gmPyEastAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                         }
                     }
                 }
@@ -341,16 +356,22 @@ trait ImportFunctionsTrait
                 }
                 $now = strtotime((string) $date);
                 if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                    if($anlageSensors[$i]->getIsFromBasics() == 1) {
+                    if($anlageSensors[$i]->getIsFromBasics() == 1 && array_key_exists($date, $basics)) {
                         if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                            array_push($tempModule, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                            $tempModule[] = $basics[$date][$anlageSensors[$i]->getNameShort()];
                         }
                         $tempAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
-                    }else{
-                        if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                            array_push($tempModule, $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()]);
+                    } else {
+                        if (array_key_exists($date, $sensors)) {
+                            if (array_key_exists($anlageSensors[$i]->getVcomId(), $sensors[$date])) {
+                                if (array_key_exists($anlageSensors[$i]->getVcomAbbr() , $sensors[$date][$anlageSensors[$i]->getVcomId()])) {
+                                    if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                        $tempModule[] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
+                                    }
+                                    $tempAnlage[$anlageSensors[$i]->getNameShort()] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
+                                }
+                            }
                         }
-                        $tempAnlage[$anlageSensors[$i]->getNameShort()] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
                     }
                 }
             }
@@ -365,19 +386,26 @@ trait ImportFunctionsTrait
                 }
                 $now = strtotime((string) $date);
                 if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                    if($anlageSensors[$i]->getIsFromBasics() == 1) {
-                        if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                            array_push($tempAmbientArray, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                    if($anlageSensors[$i]->getIsFromBasics() == 1 && array_key_exists($date, $basics)) {
+                        if (array_key_exists($anlageSensors[$i]->getNameShort(), $basics[$date])) {
+                            if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                $tempAmbientArray[] = $basics[$date][$anlageSensors[$i]->getNameShort()];
+                            }
+                            $tempAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
                         }
-                        $tempAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
-                    }else{
-                        if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                            array_push($tempAmbientArray, $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()]);
+                    } else {
+                        if (array_key_exists($date, $sensors)) {
+                            if (array_key_exists($anlageSensors[$i]->getVcomId(), $sensors[$date])) {
+                                if (array_key_exists($anlageSensors[$i]->getVcomAbbr(), $sensors[$date][$anlageSensors[$i]->getVcomId()])) {
+                                    if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                        $tempAmbientArray[] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
+                                    }
+                                    $tempAnlage[$anlageSensors[$i]->getNameShort()] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
+                                }
+                            }
                         }
-                        $tempAnlage[$anlageSensors[$i]->getNameShort()] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
                     }
                 }
-
             }
 
             if ($anlageSensors[$i]->getvirtualSensor() == 'wind-speed') {
@@ -391,16 +419,24 @@ trait ImportFunctionsTrait
                 }
                 $now = strtotime((string) $date);
                 if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
-                    if($anlageSensors[$i]->getIsFromBasics() == 1) {
-                        if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                            array_push($windSpeedEWS, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                    if($anlageSensors[$i]->getIsFromBasics() == 1 && array_key_exists($date, $basics)) {
+                        if (array_key_exists($anlageSensors[$i]->getNameShort(), $basics[$date])) {
+                            if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                $windSpeedEWS[] = $basics[$date][$anlageSensors[$i]->getNameShort()];
+                            }
+                            $windAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
                         }
-                        $windAnlage[$anlageSensors[$i]->getNameShort()] = $basics[$date][$anlageSensors[$i]->getNameShort()];
                     }else{
-                        if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                            array_push($windSpeedEWS, $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()]);
+                        if (array_key_exists($date, $sensors)) {
+                            if (array_key_exists($anlageSensors[$i]->getVcomId(), $sensors[$date])) {
+                                if (array_key_exists($anlageSensors[$i]->getVcomAbbr(), $sensors[$date][$anlageSensors[$i]->getVcomId()])) {
+                                    if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                        $windSpeedEWS[] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
+                                    }
+                                    $windAnlage[$anlageSensors[$i]->getNameShort()] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
+                                }
+                            }
                         }
-                        $windAnlage[$anlageSensors[$i]->getNameShort()] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
                     }
                 }
             }
@@ -419,20 +455,18 @@ trait ImportFunctionsTrait
                 if (($now >= $start && ($end == 0 || $now < $end)) || ($start == 0 && $end == 0)) {
                     if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                         if ($anlageSensors[$i]->getIsFromBasics() == 1) {
-                            if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                                array_push($windDirectionEWD, $basics[$date][$anlageSensors[$i]->getNameShort()]);
+                            if ($anlageSensors[$i]->getUseToCalc() == 1 && array_key_exists($date, $basics)) {
+                                $windDirectionEWD[] = $basics[$date][$anlageSensors[$i]->getNameShort()];
                             }
                             $windAnlage[$anlageSensors[$i]->getNameShort(
                             )] = $basics[$date][$anlageSensors[$i]->getNameShort()];
                         } else {
-                            if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                                array_push(
-                                    $windDirectionEWD,
-                                    $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()]
-                                );
+                            if (array_key_exists($date, $sensors)) {
+                                if ($anlageSensors[$i]->getUseToCalc() == 1) {
+                                    $windDirectionEWD[] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
+                                }
+                                $windAnlage[$anlageSensors[$i]->getNameShort()] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
                             }
-                            $windAnlage[$anlageSensors[$i]->getNameShort(
-                            )] = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
                         }
                     }
                 }
@@ -459,14 +493,18 @@ trait ImportFunctionsTrait
      * @param array $anlageSensors
      * @param int $length
      * @param array $sensors
+     * @param array $basics
      * @param  $stamp
      * @param  $date
-     * @param $gMo
+     * @param string $gMo
+     * @param bool $isDay
      * @return array
      */
     function getSensorsDataFromVcomResponse(array $anlageSensors, int $length, array $sensors, array $basics, $stamp, $date, string $gMo, bool $isDay): array
     {
         $gmx = 0;
+        $value = '';
+        $sensorId = null;
         for ($i = 0; $i < $length; $i++) {
             $start = 0;
             $end = 0;
@@ -480,35 +518,39 @@ trait ImportFunctionsTrait
             $now = strtotime((string) $date);
             if (($now >= $start && ($end == 0 || $end >= $now)) || ($start == 0 && $end == 0)) {
                 $sensorId = $anlageSensors[$i]->getId();
-                if($anlageSensors[$i]->getName() != 'G_MX'){
-                    if($anlageSensors[$i]->getIsFromBasics() == 1){
-                        $sensortype = $anlageSensors[$i]->getType();
-                        if($sensortype == 'temperature'){
+                $sensortype = $anlageSensors[$i]->getType();
+                if ($anlageSensors[$i]->getName() != 'G_MX'){
+                    if($anlageSensors[$i]->getIsFromBasics() == 1 && array_key_exists($date, $basics)){
+                        if ($sensortype == 'temperature'){
                             $value = $basics[$date][$anlageSensors[$i]->getNameShort()];
-                        }else{
+                        } else {
                             $value = max($basics[$date][$anlageSensors[$i]->getNameShort()], 0);
                         }
-                        if($sensortype == 'pyranometer' && $isDay != 1){
-                            $value = 0;
-                        }
-                    }else{
-                        $sensortype = $anlageSensors[$i]->getType();
-                        if($sensortype == 'temperature'){
-                            $value = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
-                        }else{
-                            $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
-                        }
-                        if($sensortype == 'pyranometer' && $isDay != 1){
-                            $value = 0;
+                    } else {
+                        if (array_key_exists($date, $sensors)) {
+                            if (array_key_exists($anlageSensors[$i]->getVcomId(), $sensors[$date])) {
+                                if (array_key_exists($anlageSensors[$i]->getVcomAbbr(), $sensors[$date][$anlageSensors[$i]->getVcomId()])) {
+                                    if ($sensortype == 'temperature') {
+                                        $value = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
+                                    } else {
+                                        $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                    }
+                                }
+                            }
                         }
                     }
-                }else{
-                    $value = $basics[$date]['G_M'.$gmx];
+                    if ($sensortype == 'pyranometer' && !$isDay){
+                        $value = 0;
+                    }
+                } else {
+                    if (array_key_exists($date, $basics)) {
+                        $value = $basics[$date]['G_M' . $gmx];
+                    }
                     $gmx++;
                 }
             }
 
-            if($sensorId != null){
+            if($sensorId !== null){
                 $data_sensors[] = [
                     'date'                  => $date,
                     'stamp'                 => $stamp,
@@ -539,57 +581,65 @@ trait ImportFunctionsTrait
     //importiert die Daten für Anlegen mit Stringboxes
 
     /**
-     * @param \DateTime $stringBoxesTime
+     * @param array|null $stringBoxesTime
      * @param array $acGroups
      * @param array $inverters
      * @param string $date
      * @param int $plantId
      * @param string $stamp
      * @param float $eZEvu
-     * @param bool|string $irrAnlage
-     * @param bool|string $tempAnlage
-     * @param bool|string $windAnlage
+     * @param string $irrAnlage
+     * @param string $tempAnlage
+     * @param string $windAnlage
      * @param object $groups
      * @param int $stringBoxUnits
      * @return array
      * @throws \JsonException
      */
-    function loadDataWithStringboxes($stringBoxesTime, array $acGroups, array $inverters, string $date, int $plantId, string $stamp, float $eZEvu, string $irrAnlage, string $tempAnlage, string $windAnlage, object $groups, int $stringBoxUnits): array
+    function loadDataWithStringboxes(?array $stringBoxesTime, array $acGroups, array $inverters, string $date, int $plantId, string $stamp, float $eZEvu, string $irrAnlage, string $tempAnlage, string $windAnlage, object $groups, int $stringBoxUnits): array
     {
-        for ($i = 1; $i <= count($acGroups); $i++) {
+        for ($i = 0; $i <= count($acGroups)-1; $i++) {
 
-            $pvpGroupAc = $acGroups[$i-1]['group_ac'];
-            $pvpGroupDc = $i;
-            $pvpInverter = $acGroups[$i-1]['group_ac'];
+            $pvpGroupAc = $acGroups[$i]['group_ac'];
+            $pvpGroupDc = $i+1;
+            $pvpInverter = $acGroups[$i]['group_ac'];
 
-            if (is_array($inverters) && array_key_exists($date, $inverters)) {
-                $custInverterKennung = $acGroups[$i-1]['importId'];
-                $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
-                $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
-                $currentAcP1 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']);
-                $currentAcP2 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC2']);
-                $currentAcP3 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC3']);
-                $voltageDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['U_DC']);
-                $voltageAc = NULL;
-                $voltageAcP1 = $inverters[$date][$custInverterKennung]['U_AC_L1L2'];
-                $voltageAcP2 = $inverters[$date][$custInverterKennung]['U_AC_L2L3'];
-                $voltageAcP3 = $inverters[$date][$custInverterKennung]['U_AC_L3L1'];
-                $blindLeistung = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['Q_AC']);
-                $frequenze = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['F_AC']);
-                $powerAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['P_AC'], true); // Umrechnung von Watt auf kWh
-                $temp = $this->mittelwert([$inverters[$date][$custInverterKennung]['T_WR'], $inverters[$date][$custInverterKennung]['T_WR1'], $inverters[$date][$custInverterKennung]['T_WR2'], $inverters[$date][$custInverterKennung]['T_WR3'], $inverters[$date][$custInverterKennung]['T_WR4']]);
+            $powerAc = $currentAc = $voltageAc = $powerDc = $voltageDc = $currentDc = $temp = null;
+            $cosPhi = $blindLeistung = $frequenze = $currentAcP1 = $currentAcP2 = $currentAcP3 = $voltageAcP1 = $voltageAcP2 = $voltageAcP3 = null;
 
-                $cosPhi = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['COS_PHI']);
-                if (is_numeric($currentDc) && is_numeric($voltageDc)) {
-                    $powerDc = $currentDc * $voltageDc / 1000 / 4;
-                } else {
-                    $powerDc = '';
+            if (array_key_exists($date, $inverters)) {
+                $custInverterKennung = $acGroups[$i]['importId'];
+                if (is_array($inverters[$date]) && array_key_exists($custInverterKennung, $inverters[$date])) {
+                    $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
+                    $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
+                    $currentAcP1 = array_key_exists('I_AC1', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']) : null;
+                    $currentAcP2 = array_key_exists('I_AC2', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC2']) : null;
+                    $currentAcP3 = array_key_exists('I_AC3', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC3']) : null;
+                    $voltageDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['U_DC']);
+                    $voltageAc = NULL;
+                    $voltageAcP1 = array_key_exists('U_AC_L1L2', $inverters[$date][$custInverterKennung]) ? $inverters[$date][$custInverterKennung]['U_AC_L1L2'] : null;
+                    $voltageAcP2 = array_key_exists('U_AC_L2L3', $inverters[$date][$custInverterKennung]) ? $inverters[$date][$custInverterKennung]['U_AC_L2L3'] : null;
+                    $voltageAcP3 = array_key_exists('U_AC_L3L1', $inverters[$date][$custInverterKennung]) ? $inverters[$date][$custInverterKennung]['U_AC_L3L1'] : null;
+                    $blindLeistung = array_key_exists('Q_AC', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['Q_AC']) : null;
+                    $frequenze = array_key_exists('F_AC', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['F_AC']) : null;
+                    $powerAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['P_AC'], true); // Umrechnung von Watt auf kWh
+
+                    $wrTempArray['T_WR'] = array_key_exists('T_WR', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['T_WR']): null;
+                    $wrTempArray['T_WR1'] = array_key_exists('T_WR1', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['T_WR1']): null;
+                    $wrTempArray['T_WR2'] = array_key_exists('T_WR2', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['T_WR2']): null;
+                    $wrTempArray['T_WR3'] = array_key_exists('T_WR3', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['T_WR3']): null;
+                    $wrTempArray['T_WR4'] = array_key_exists('T_WR4', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['T_WR4']): null;
+                    $temp = $this->mittelwert($wrTempArray);
+                    unset($wrTempArray);
+
+                    $cosPhi = array_key_exists('COS_PHI', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['COS_PHI']) : null;
+                    if (is_numeric($currentDc) && is_numeric($voltageDc)) {
+                        $powerDc = $currentDc * $voltageDc / 1000 / 4;
+                    } else {
+                        $powerDc = '';
+                    }
                 }
-            } else {
-                $powerAc = $currentAc = $voltageAc = $powerDc = $voltageDc = $currentDc = $temp = null;
-                $cosPhi = $blindLeistung = $frequenze = $currentAcP1 = $currentAcP2 = $currentAcP3 = $voltageAcP1 = $voltageAcP2 = $voltageAcP3 = null;
             }
-
             $theoPower = 0;
             $tempCorr = 0;
             $dcCurrentMpp = $dcVoltageMpp = '{}';
@@ -630,7 +680,6 @@ trait ImportFunctionsTrait
                 'temp_anlage' => $tempAnlage,
                 'temp_inverter' => $tempAnlage,
                 'wind_anlage' => $windAnlage,
-
             ];
         }
 
@@ -645,18 +694,18 @@ trait ImportFunctionsTrait
             $dcCurrentMppArray = [];
             for ($n = 1; $n <= $stringBoxUnits; $n++) {
                 $key = "I$n";
-
-                $dcCurrentMppArray[$key] = $stringBoxesTime[$scbNo][$key];
-                $currentDcSCB += $stringBoxesTime[$scbNo][$key];
-                #echo "$date / $scbNo / $key".' / '.$stringBoxesTime[$scbNo][$key]." / $currentDcSCB".'<br>';
+                if (array_key_exists($scbNo, $stringBoxesTime) && array_key_exists($key, $stringBoxesTime[$scbNo])) {
+                    $dcCurrentMppArray[$key] = $stringBoxesTime[$scbNo][$key];
+                    $currentDcSCB += $stringBoxesTime[$scbNo][$key];
+                }
             }
-            $voltageDc = $stringBoxesTime[$scbNo]['U_DC'];
-            #$powerDc = $currentDcSCB * $voltageDc / 1000 / 4; // Umrechnung von W auf kW/h
 
-            If(is_array($stringBoxesTime[$scbNo]) && array_key_exists('P_DC', $stringBoxesTime[$scbNo])){
+            $voltageDc = array_key_exists($scbNo, $stringBoxesTime) && array_key_exists('U_DC', $stringBoxesTime[$scbNo]) ? $stringBoxesTime[$scbNo]['U_DC'] : null;
+
+            if (array_key_exists($scbNo, $stringBoxesTime) && array_key_exists('P_DC', $stringBoxesTime[$scbNo])){
                 $powerDc = $stringBoxesTime[$scbNo]['P_DC'] / 1000 / 4; // Umrechnung von W auf kW/h
-            }else{
-                $powerDc = $currentDc * $voltageDc / 1000 / 4;
+            } else {
+                $powerDc = $currentDcSCB * $voltageDc / 1000 / 4;
             }
 
             $dcCurrentMpp = json_encode($dcCurrentMppArray, JSON_THROW_ON_ERROR);
@@ -685,7 +734,7 @@ trait ImportFunctionsTrait
                     'group_ac' => $pvpGroupAc,
                     'wr_num' => $pvpInverter,
                     'channel' => $n,
-                    'I_value' => $stringBoxesTime[$scbNo][$key],
+                    'I_value' => array_key_exists($scbNo, $stringBoxesTime) && array_key_exists($key, $stringBoxesTime[$scbNo]) ? $stringBoxesTime[$scbNo][$key] : null,
                     'U_value' => NULL,
                 ];
             }
@@ -699,17 +748,18 @@ trait ImportFunctionsTrait
     }
 
     //importiert die Daten für Anlegen ohne Stringboxes
+
     /**
      * @param array $inverters
      * @param string $date
      * @param int $plantId
      * @param string $stamp
      * @param float $eZEvu
-     * @param bool|string $irrAnlage
-     * @param bool|string $tempAnlage
-     * @param bool|string $windAnlage
+     * @param string $irrAnlage
+     * @param string $tempAnlage
+     * @param string $windAnlage
      * @param object $groups
-     * @param $invertersUnits
+     * @param int $invertersUnits
      * @return array
      * @throws \JsonException
      */
@@ -722,58 +772,63 @@ trait ImportFunctionsTrait
             $pvpGroupDc = $group->getDcGroup();
             $pvpGroupAc = $group->getAcGroup();
 
-            if (is_array($inverters) && array_key_exists($date, $inverters)) {
+            $powerAc = $currentAc = $voltageAc = $powerDc = $voltageDc = $currentDc = $temp = null;
+            $cosPhi = $blindLeistung = $frequenze = $currentAcP1 = $currentAcP2 = $currentAcP3 = $voltageAcP1 = $voltageAcP2 = $voltageAcP3 = null;
+            $dcCurrentMpp = $dcVoltageMpp = '{}';
+
+            if (array_key_exists($date, $inverters)) {
                 $custInverterKennung = $group->getImportId();
-                $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
-                $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
-                $currentAcP1 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']);
-                $currentAcP2 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC2']);
-                $currentAcP3 = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC3']);
-                $voltageDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['U_DC']);
-                $voltageAc = NULL;
-                $voltageAcP1 = $inverters[$date][$custInverterKennung]['U_AC_L1L2'];
-                $voltageAcP2 = $inverters[$date][$custInverterKennung]['U_AC_L2L3'];
-                $voltageAcP3 = $inverters[$date][$custInverterKennung]['U_AC_L3L1'];
-                $blindLeistung = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['Q_AC']);
-                $frequenze = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['F_AC']);
-                $powerAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['P_AC'], true); // Umrechnung von Watt auf kWh
-                $temp = $this->mittelwert([$inverters[$date][$custInverterKennung]['T_WR1'], $inverters[$date][$custInverterKennung]['T_WR2'], $inverters[$date][$custInverterKennung]['T_WR3'], $inverters[$date][$custInverterKennung]['T_WR4']]);
-                $cosPhi = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['COS_PHI']);
-                if (is_numeric($currentDc) && is_numeric($voltageDc)) {
-                    $powerDc = $currentDc * $voltageDc / 1000 / 4;
-                } else {
-                    $powerDc = '';
+                if (is_array($inverters[$date]) && array_key_exists($custInverterKennung, $inverters[$date])) {
+                    $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
+                    $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
+                    $currentAcP1 = array_key_exists('I_AC1', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']) : null;
+                    $currentAcP2 = array_key_exists('I_AC2', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC2']) : null;
+                    $currentAcP3 = array_key_exists('I_AC3', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC3']) : null;
+                    $voltageDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['U_DC']);
+                    $voltageAc = NULL;
+                    $voltageAcP1 = array_key_exists('U_AC_L1L2', $inverters[$date][$custInverterKennung]) ? $inverters[$date][$custInverterKennung]['U_AC_L1L2'] : null;
+                    $voltageAcP2 = array_key_exists('U_AC_L2L3', $inverters[$date][$custInverterKennung]) ? $inverters[$date][$custInverterKennung]['U_AC_L2L3'] : null;
+                    $voltageAcP3 = array_key_exists('U_AC_L3L1', $inverters[$date][$custInverterKennung]) ? $inverters[$date][$custInverterKennung]['U_AC_L3L1'] : null;
+                    $blindLeistung = array_key_exists('Q_AC', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['Q_AC']) : null;
+                    $frequenze = array_key_exists('F_AC', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['F_AC']) : null;
+                    $powerAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['P_AC'], true); // Umrechnung von Watt auf kWh
+
+                    $wrTempArray['T_WR'] = array_key_exists('T_WR', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['T_WR']) : null;
+                    $wrTempArray['T_WR1'] = array_key_exists('T_WR1', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['T_WR1']) : null;
+                    $wrTempArray['T_WR2'] = array_key_exists('T_WR2', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['T_WR2']) : null;
+                    $wrTempArray['T_WR3'] = array_key_exists('T_WR3', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['T_WR3']) : null;
+                    $wrTempArray['T_WR4'] = array_key_exists('T_WR4', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['T_WR4']) : null;
+                    $temp = $this->mittelwert($wrTempArray);
+                    unset($wrTempArray);
+
+                    $cosPhi = array_key_exists('COS_PHI', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['COS_PHI']) : null;
+                    if (is_numeric($currentDc) && is_numeric($voltageDc)) {
+                        $powerDc = $currentDc * $voltageDc / 1000 / 4;
+                    } else {
+                        $powerDc = '';
+                    }
+
+                    $dcCurrentMppArray = [];
+                    $dcVoltageMppArray = [];
+                    if ($invertersUnits >= 1) {
+                        for ($n = 1; $n <= $invertersUnits; $n++) {
+                            $key = "I_DC$n";
+                            if (array_key_exists($key, $inverters[$date][$custInverterKennung])) {
+                                $dcCurrentMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
+                            }
+                        }
+                        $dcCurrentMpp = json_encode($dcCurrentMppArray, JSON_THROW_ON_ERROR);
+
+                        for ($n = 1; $n <= $invertersUnits; $n++) {
+                            $key = "U_DC$n";
+                            if (array_key_exists($key, $inverters[$date][$custInverterKennung])) {
+                                $dcVoltageMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
+                            }
+                        }
+                        $dcVoltageMpp = json_encode($dcVoltageMppArray, JSON_THROW_ON_ERROR);
+                    }
                 }
 
-                // tempCorr nach NREL und dann theoPower berechnen
-                // prüfe auf OST / WEST Sensoren und Strahlung ermitteln
-                /*
-                                $irr = ($irrUpper * $anlage->power_east + $irrLower * $anlage->power_west) / $anlage->power ;
-                                echo "($irrUpper * $anlage->power_east + $irrLower * $anlage->power_west) / $anlage->power<br>";
-                                $tempCorr = tempCorrection($tempCorrParams, $tempCorrParams['tempCellTypeAvg'], $windSpeed, $tempAmbient, $irr);
-                                $theoPower = (($irr / 1000) * $dcPNormPerInvereter[$pvpGroupDc] * $tempCorr) / 1000 / 4;
-                */
-
-                $dcCurrentMppArray = [];
-                $dcVoltageMppArray = [];
-                if ($invertersUnits >= 1) {
-                    for ($n = 1; $n <= $invertersUnits; $n++) {
-                        $key = "I_DC$n";
-                        $dcCurrentMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
-                    }
-                    $dcCurrentMpp = json_encode($dcCurrentMppArray, JSON_THROW_ON_ERROR);
-
-                    for ($n = 1; $n <= $invertersUnits; $n++) {
-                        $key = "U_DC$n";
-                        $dcVoltageMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
-                    }
-                    $dcVoltageMpp = json_encode($dcVoltageMppArray, JSON_THROW_ON_ERROR);
-                }
-
-            } else {
-                $powerAc = $currentAc = $voltageAc = $powerDc = $voltageDc = $currentDc = $temp = null;
-                $cosPhi = $blindLeistung = $frequenze = $currentAcP1 = $currentAcP2 = $currentAcP3 = $voltageAcP1 = $voltageAcP2 = $voltageAcP3 = null;
-                $dcCurrentMpp = $dcVoltageMpp = '{}';
             }
 
             $theoPower = 0;
@@ -859,6 +914,7 @@ trait ImportFunctionsTrait
             ];
         }
         $result[] = $data_ppc;
+
         return $result;
     }
 

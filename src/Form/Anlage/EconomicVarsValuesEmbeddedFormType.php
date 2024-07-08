@@ -166,6 +166,7 @@ class EconomicVarsValuesEmbeddedFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => EconomicVarValues::class,
+            'required' => false,
         ]);
     }
 }

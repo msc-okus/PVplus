@@ -40,6 +40,10 @@ class DefaultMREController extends BaseController
     ){
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws \JsonException
+     */
     #[Route(path: '/mr/test')]
     public function test(AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
@@ -65,6 +69,34 @@ class DefaultMREController extends BaseController
             'headline' => 'Update Systemstatus',
             'availabilitys' => '',
             'output' => '',
+        ]);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws \JsonException
+     */
+    #[Route(path: '/mr/import/{plant}', defaults: ['plant' => 237])]
+    public function import($plant, AnlagenRepository $anlagenRepo, ImportService $importService): Response
+    {
+        $anlage = $anlagenRepo->find($plant);
+        $time = time() - (10 * 3600);
+        $time -= $time % 900;
+        $start = $time - (12 * 3600);
+        $end = $time;
+        $from = date_create('2024-07-04 00:15');
+        $to = date_create('2024-07-04 10:00');
+        $start = $from->getTimestamp();
+        $end = $to->getTimestamp();
+
+        $output = "from: ".$from->format('Y-m-d H:i')." to: ".$to->format('Y-m-d H:i');
+
+        $importService->prepareForImport($anlage, $start, $end);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Import '.$anlage->getAnlName(),
+            'availabilitys' => '',
+            'output' => $output,
         ]);
     }
 
@@ -134,15 +166,15 @@ class DefaultMREController extends BaseController
     public function updatePA($plant, AvailabilityByTicketService $availability, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
-        $from   = '2021-12-01 00:00'; //date('Y-m-d 00:00');
-        $to     = '2023-12-01 00:00';// date('Y-m-d 13:59');
+        $from   = date('Y-m-d 00:00'); //'2021-12-01 00:00'; //date('Y-m-d 00:00');
+        $to     = date('Y-m-d 13:59'); //'2023-12-01 00:00';// date('Y-m-d 23:59');
         $ergebniss = "";
         for ($stamp = strtotime($from); $stamp <= strtotime($to); $stamp = $stamp + (24 * 3600)) {
-            $from = date('Y-m-d 00:00', $stamp);
-            #$ergebniss .= $availability->checkAvailability($anlage, $from, 0) . "<br>";
-            #$ergebniss .= $availability->checkAvailability($anlage, $from, 1) . "<br>";
-            $ergebniss .= $availability->checkAvailability($anlage, $from, 2) . "<br>";
-            #$ergebniss .= $availability->checkAvailability($anlage, $from, 3) . "<hr>";
+            $day = date('Y-m-d 00:00', $stamp);
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 0) . "<br>";
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 1) . "<br>";
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 2) . "<br>";
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 3) . "<hr>";
         }
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update PA',

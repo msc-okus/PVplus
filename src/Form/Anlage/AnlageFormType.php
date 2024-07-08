@@ -11,6 +11,7 @@ use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
 
 use App\Repository\UserRepository;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -168,30 +169,29 @@ class AnlageFormType extends AbstractType
                 'required' => false,
             ])
             ->add('customPlantId', TextType::class, [
-                'label' => 'Identifier/s to select Plant via API (e.g. VCOM can be more then one seperatet with ,)',
-                'help' => '[customPlantId/s you can add one or more VCOM-Ids like ABC2X,CDE3F]',
+                'label' => 'API Identifier/s for Plant',
+                'help' => '[customPlantId]<br> (e.g. VCOM can be more then one seperatet with ,) you can add one or more VCOM-Ids like ABC2X,CDE3F',
                 'empty_data' => '',
                 'required' => false,
                 'disabled' => !$isG4NUser,
             ])
-            ->add('notes', TextareaType::class, [
-                'label' => 'Notizen zur Anlage',
+            ->add('notes', CKEditorType::class, [
+                'label' => 'Notes on the plant',
                 'help' => '[notes]',
-                'attr' => ['rows' => '6'],
+                'config' => ['toolbar' => 'my_toolbar'],
                 'empty_data' => '',
-                'required' => false,
             ])
 
             // ##### Plant Base Configuration #######
             ->add('anlIntnr', TextType::class, [
-                'label' => 'Datenbankkennung',
+                'label' => 'Database Identifier',
                 'help' => '[anlIntnr]',
                 'empty_data' => '',
                 'required' => true,
                 'disabled' => !$isDeveloper,
             ])
             ->add('anlType', ChoiceType::class, [
-                'label' => 'Anlagen Typ',
+                'label' => 'Plant type',
                 'help' => '[anlType]',
                 'choices' => ['String WR' => 'string', 'ZWR' => 'zwr', 'Master Slave' => 'masterslave'],
                 'placeholder' => 'Please Choose',
@@ -200,7 +200,7 @@ class AnlageFormType extends AbstractType
                 'disabled' => !$isG4NUser,
             ])
             ->add('anlBetrieb', null, [
-                'label' => 'In Betrieb seit:',
+                'label' => 'In operation since',
                 'help' => "[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt<br> In Betrieb seit " . $anlage->getBetriebsJahre() . " Jahr(en).",
                 'widget' => 'single_text',
                 'input' => 'datetime',
@@ -600,10 +600,10 @@ class AnlageFormType extends AbstractType
                 ],
                 'required' => true,
             ])
-            ->add('dataSourceAM', TextareaType::class, [
+            ->add('dataSourceAM', CKEditorType::class, [
                 'label' => 'Summary DataSources AM Report',
                 'empty_data' => 'Module Inclination: <br>Module Name: <br>Module Type: <br>Module Performance: <br>Number of Modules: <br>Inverter Name: <br>Inverter Type: <br>Number of Inverters:',
-                #'config' => ['toolbar' => 'my_toolbar'],
+                'config' => ['toolbar' => 'my_toolbar'],
             ])
             ->add('retrieveAllData', SwitchType::class, [
                 'label' => 'Use all Data from begining of Working Time',
@@ -1084,6 +1084,7 @@ class AnlageFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Anlage::class,
             'anlagenId' => '',
+            'required' => false,
         ]);
         $resolver->setAllowedTypes('anlagenId', 'string');
     }

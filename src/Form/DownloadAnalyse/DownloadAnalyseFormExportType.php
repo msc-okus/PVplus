@@ -39,6 +39,7 @@ class DownloadAnalyseFormExportType extends AbstractType
     {
         $resolver->setDefaults([
             'anlagenid' => null,
+            'required' => false,
         ]);
     }
 }

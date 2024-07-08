@@ -189,11 +189,9 @@ private PdoService $pdoService,
     public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
         $time = date('Y-m-d',strtotime($time)); // reformat the passed $time to an only day stamp
-        date_default_timezone_set($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
+        date_default_timezone_set($anlage->getNearestTimezone());
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
-        //$offsetServer = new DateTimeZone("Europe/Luxembourg");
-        //$plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
-        //$totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+
         $totalOffset = 0; // quick fix to stop considering time zones
 
         $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
@@ -203,41 +201,4 @@ private PdoService $pdoService,
         return $returnArray;
     }
 
-    public function getNearestTimezone($cur_lat, $cur_long, string $country_code = ''): string
-    {
-        $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)
-            : DateTimeZone::listIdentifiers();
-
-        if ($timezone_ids && is_array($timezone_ids) && isset($timezone_ids[0])) {
-            $time_zone = '';
-            $tz_distance = 0;
-
-            // only one identifier?
-            if (count($timezone_ids) == 1) {
-                $time_zone = $timezone_ids[0];
-            } else {
-                foreach ($timezone_ids as $timezone_id) {
-                    $timezone = new DateTimeZone($timezone_id);
-                    $location = $timezone->getLocation();
-                    $tz_lat = $location['latitude'];
-                    $tz_long = $location['longitude'];
-
-                    $theta = $cur_long - $tz_long;
-                    $distance = (sin(deg2rad($cur_lat)) * sin(deg2rad($tz_lat)))
-                        + (cos(deg2rad($cur_lat)) * cos(deg2rad($tz_lat)) * cos(deg2rad($theta)));
-                    $distance = acos($distance);
-                    $distance = abs(rad2deg($distance));
-
-                    if (!$time_zone || $tz_distance > $distance) {
-                        $time_zone = $timezone_id;
-                        $tz_distance = $distance;
-                    }
-                }
-            }
-
-            return $time_zone;
-        }
-
-        return 'unknown';
-    }
 }

@@ -80,6 +80,7 @@ class WeatherToolsFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => WeatherToolsModel::class,
+            'required' => false,
         ]);
     }
 }

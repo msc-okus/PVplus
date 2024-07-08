@@ -300,6 +300,7 @@ class AnlageSettingsFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageSettings::class,
+            'required' => false,
         ]);
     }
 }

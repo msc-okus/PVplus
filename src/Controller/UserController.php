@@ -24,8 +24,9 @@ class UserController extends BaseController
     {
         $form = $this->createForm(UserFormType::class);
         $form->handleRequest($request);
+        $user['locked'] = false;
 
-        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
+        if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
             return $this->redirectToRoute('app_admin_user_list');
         }
@@ -74,42 +75,6 @@ class UserController extends BaseController
         return $this->render('user/new.html.twig', [
             'userForm' => $form,
             'user'  => $user,
-        ]);
-    }
-
-    // USER List zur Listen Ansicht der User
-    #[Route(path: '/admin/user/list', name: 'app_admin_user_list')]
-    #[IsGranted('ROLE_OWNER_ADMIN')]
-    public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository, SecurityController $security): Response
-    {
-        /** @var User $user */
-        /** @var Eigner $eigner */
-
-        $q = $request->query->get('qu');
-        if ($request->query->get('search') == 'yes' && $q == '') {
-            $request->getSession()->set('qu', '');
-        }
-        if ($q) {
-            $request->getSession()->set('qu', $q);
-        }
-        if ($q == '' && $request->getSession()->get('qu') != '') {
-            $q = $request->getSession()->get('qu');
-            $request->query->set('qu', $q);
-        }
-        if ($q) {
-            $term = $q;
-        }
-
-        $queryBuilder = $userRepository->getWithSearchQueryBuilder($term);
-
-        $pagination = $paginator->paginate(
-            $queryBuilder,                                  /* query NOT result */
-            $request->query->getInt('page', 1)  /* page number */,
-            25                                             /* limit per page */
-        );
-
-        return $this->render('user/list.html.twig', [
-            'pagination' => $pagination,
         ]);
     }
 
@@ -178,6 +143,44 @@ class UserController extends BaseController
             return $this->redirectToRoute('app_admin_user_list');
         }
     }
+
+
+    // USER List zur Listen Ansicht der User
+    #[Route(path: '/admin/user/list', name: 'app_admin_user_list')]
+    #[IsGranted('ROLE_OWNER_ADMIN')]
+    public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository, SecurityController $security): Response
+    {
+        /** @var User $user */
+        /** @var Eigner $eigner */
+
+        $q = $request->query->get('qu');
+        if ($request->query->get('search') == 'yes' && $q == '') {
+            $request->getSession()->set('qu', '');
+        }
+        if ($q) {
+            $request->getSession()->set('qu', $q);
+        }
+        if ($q == '' && $request->getSession()->get('qu') != '') {
+            $q = $request->getSession()->get('qu');
+            $request->query->set('qu', $q);
+        }
+        if ($q) {
+            $term = $q;
+        }
+
+        $queryBuilder = $userRepository->getWithSearchQueryBuilder($term);
+
+        $pagination = $paginator->paginate(
+            $queryBuilder,                                  /* query NOT result */
+            $request->query->getInt('page', 1)  /* page number */,
+            25                                             /* limit per page */
+        );
+
+        return $this->render('user/list.html.twig', [
+            'pagination' => $pagination,
+        ]);
+    }
+
 
     /**
      * USER Show zum Anzeigen der eigenen Userverwalltung

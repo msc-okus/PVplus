@@ -217,6 +217,7 @@ class AnlageModulesFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageModulesDB::class,
+            'required' => false,
         ]);
     }
 }

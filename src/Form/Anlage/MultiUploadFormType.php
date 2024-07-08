@@ -3,6 +3,7 @@
 namespace App\Form\Anlage;
 
 use App\Entity\Anlage;
+use App\Entity\AnlageLegendReport;
 use App\Form\EventMail\EventMailListEmbeddedFormType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
@@ -40,6 +41,8 @@ class MultiUploadFormType extends AbstractType
     }
     public function configureOptions(OptionsResolver $resolver): void
     {
-
+        $resolver->setDefaults([
+            'required' => false,
+        ]);
     }
 }
