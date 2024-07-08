@@ -14,7 +14,6 @@ use App\Repository\AnlagenRepository;
 use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
-use App\Repository\ModulesRepository;
 use App\Repository\OpenWeatherRepository;
 use App\Service\Forecast\SunShadingModelService;
 use App\Service\Functions\IrradiationService;
@@ -43,7 +42,6 @@ class ExpectedService
         private readonly AnlageSunShadingRepository $anlageSunShadingRepository,
         private readonly SunShadingModelService $sunShadingModelService,
         private readonly ForecastCalcService $forecastCalcService,
-        private readonly ModulesRepository $modulesRepository,
         private readonly IrradiationService $irradiationService)
     {
     }
@@ -124,7 +122,7 @@ class ExpectedService
         }
 
         /** @var AnlageGroups $group  */
-        
+
         foreach ($anlage->getGroups() as $group) {
             foreach ($group->getModules() as $module) {
                 $sumModules += $module->getNumStringsPerUnit() * $module->getNumModulesPerString();
@@ -176,7 +174,7 @@ class ExpectedService
                         // Beginn Shadow Loss & Reihenverschattung
 
                         if ($tempIrr >= 400) { // Wenn Strahlung größer 500 Wh/m2
-                            /* toDo: Anrechnen der Rheihenabschattung - auf den Strom mit bypassdioden ??
+                            /* toDo: Anrechnen der Reihenabschattung - auf den Strom mit bypassdioden ??
                             */
                             $AOIarray = $this->forecastCalcService->getAOI($input_mn, $input_gb, $input_gl, $input_mer, $doy, $hour, $ausrichtung);
                             $AOI = $AOIarray['AOI']; // Das AOI aus dem Calc Service
@@ -223,7 +221,7 @@ class ExpectedService
 
                     foreach ($modules as $modul) {
 
-                        $grpModules = $module->getNumStringsPerUnit() * $module->getNumModulesPerString();
+                        $grpModules = $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString();
 
                         if ($anlage->getIsOstWestAnlage()) {
                             // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
@@ -236,7 +234,7 @@ class ExpectedService
                             $expCurrentDcHlp += $modul->getModuleType()->getFactorCurrent($irrLower) * $modul->getNumStringsPerUnitWest(); // West // nicht durch 4 teilen, sind keine Ah, sondern A
                             $limitExpCurrentHlp = ($modul->getNumStringsPerUnitWest() + $modul->getNumStringsPerUnitEast()) * ($modul->getModuleType()->getMaxImpp() * 1.015); // 1,5% Sicherheitsaufschlag
                             // Voltage
-                            $expVoltageDcHlp = $modul->getModuleType()->getExpVoltage($irrUpper) * $modul->getNumModulesPerString();
+                            $expVoltageDcHlp = $modul->getModuleType()->getExpVoltage(self::mittelwert([$irrUpper, $irrLower])) * $modul->getNumModulesPerString();
                         } else {
                             // Ist keine 'Ost/West' Anlage
                             // Power
@@ -288,7 +286,6 @@ class ExpectedService
                                 }
                             }
                         }
-
 
                         if ($anlage->getSettings()->getEpxCalculationByCurrent()) {
                             // Calculate DC power by current and voltage
@@ -349,6 +346,7 @@ class ExpectedService
                 }
             }
         }
+
         return $resultArray;
     }
 
@@ -453,7 +451,6 @@ class ExpectedService
                             // Monatswerte für diese Gruppe laden
                             /** @var AnlageGroupMonths $groupMonth */
                             $modules = $group->getModules();
-                            $modulesCnd = $group->getModulesCnd();
                             $expPowerDc = 0;
 
                             foreach ($modules as $modul) {
