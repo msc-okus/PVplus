@@ -11,7 +11,7 @@
                 <div class="grid-x grid-margin-x">
                     <div class="cell small-6 ">
                         <i class="fa fa-user" aria-hidden="true"></i>
-                        <p>{{ owner.firma }} {% if is_granted('ROLE_G4N') %}<span class="small"> ({{ owner.eignerId }})</span>{% endif %}</p>
+                        <p>{{ owner.firma }} {% if is_granted('ROLE_OPERATIONS_G4N') %}<span class="small"> ({{ owner.eignerId }})</span>{% endif %}</p>
                         <h6>{{ owner.vorname }} {{ owner.nachname }}</h6>
                     </div>
                     <div class="cell small-6 ">
@@ -23,13 +23,13 @@
                     </div>
                 </div>
 
-                {% for plant in owner.activeAnlage(is_granted('ROLE_G4N')) %}
-                    {% if plant.anlId in app.user.grantedList or is_granted('ROLE_G4N') %} {# nur anzeigen wenn Anlage für diesen aktuellen User freigegebn oder admin #}
+                {% for plant in owner.activeAnlage(is_granted('ROLE_OPERATIONS_G4N')) %}
+                    {% if plant.anlId in app.user.grantedList or is_granted('ROLE_OPERATIONS_G4N') %} {# nur anzeigen wenn Anlage für diesen aktuellen User freigegebn oder admin #}
                         {% set status = stati[plant.anlId] %}
                         <div class="grid-x grid-margin-x">
                             <div class="cell">
                                 <h6><b>{{ plant.anlName }} </b>
-                                    {% if is_granted('ROLE_G4N') %}
+                                    {% if is_granted('ROLE_OPERATIONS_G4N') %}
                                         <small><b>
                                             [{{ plant.configType }} | {{ plant.anlId }} / {{ plant.anlIntNr }} /  {% if plant.weatherStation is defined and plant.weatherStation.databaseIdent is defined %}{{ plant.weatherStation.databaseIdent }} {% endif %} / {{ plant.customPlantId }}]
                                         </b></small>

@@ -13,9 +13,11 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormTypeInterface;
+use Symfony\Component\Validator\Constraints\Length;
 class AnlageSettingsFormType extends AbstractType
 {
     use PVPNameArraysTrait;
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -247,7 +249,8 @@ class AnlageSettingsFormType extends AbstractType
                 'choices'       => self::importTypes(),
                 'placeholder'   => 'please Select',
                 'required'      => false,
-                'help'      => '[importType]<br>Chose the plant have Stringboxes or inverters only'
+                'help'      => '[importType]<br>Chose the plant have Stringboxes or inverters only',
+                'attr' => ['style' => 'width: 150px']
             ])
 
             ->add('stringboxesUnits', IntegerType::class, [
@@ -255,6 +258,7 @@ class AnlageSettingsFormType extends AbstractType
                 'help' => '[stringboxesUnits]<br>How many Units have a stringbox? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
+                'attr' => ['style' => 'width: 70px']
             ])
 
             ->add('invertersUnits', IntegerType::class, [
@@ -262,6 +266,19 @@ class AnlageSettingsFormType extends AbstractType
                 'help' => '[invertersUnits]<br>How many Units have a inverter? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
+                'attr' => ['style' => 'width: 70px']
+            ])
+
+            ->add('dataDelay', ChoiceType::class, [
+                'multiple' => false,
+                'choices'       => self::delayedDataValus(),
+                'data' => 0,
+                'preferred_choices' => array(1),
+                'label' => 'Data Delay(max 24 hours)',
+                'help' => 'use this if data from vcom or FTP-Push are delayed as normal case)',
+                'required' => false,
+                'attr' => ['style' => 'width: 70px'],
+                'empty_data' => '0'
             ])
 
             ###### Analysis ######
@@ -278,6 +295,7 @@ class AnlageSettingsFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageSettings::class,
+            'required' => false,
         ]);
     }
 }

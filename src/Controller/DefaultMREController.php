@@ -12,8 +12,8 @@ use App\Service\AvailabilityService;
 use App\Service\CheckSystemStatusService;
 use App\Service\ExportService;
 use App\Service\ExpectedService;
+use App\Service\ImportService;
 use App\Service\PRCalulationService;
-use App\Service\Sensors\SensorGettersServices;
 use App\Service\SystemStatus2;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,22 +36,67 @@ class DefaultMREController extends BaseController
         private readonly PRCalulationService $prCalulation,
         private readonly AvailabilityByTicketService $availabilityByTicket,
         private readonly AvailabilityService $availabilityService,
-        private readonly AnlagenRepository $anlagenRepository,
         private $kernelProjectDir,
     ){
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws \JsonException
+     */
     #[Route(path: '/mr/test')]
-    public function test(SensorGettersServices $sensorServices): Response
+    public function test(AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
-        $anlage = $this->anlagenRepository->find('245');
+        $anlagen = $anlagenRepo->findAllSymfonyImport();
+        $time = time();
+        $time -= $time % 900;
+        $currentHour = (int)date('h');
+        if ($currentHour >= 12) {
+            $start = $time - (12 * 3600);
+        } else {
+            $start = $time - ($currentHour * 3600) + 900;
+        }
+        $start = $time - 4 * 3600;
+        $end = $time;
 
-        dd($sensorServices->getSensorsIrrByTime($anlage, date_create('2024-05-26 10:00'), date_create('2024-05-26 11:00')));
+        foreach ($anlagen as $anlage) {
+
+                $importService->prepareForImport($anlage, $start, $end);
+
+        }
 
         return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Test',
+            'headline' => 'Update Systemstatus',
             'availabilitys' => '',
-            'output' => $process,
+            'output' => '',
+        ]);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws \JsonException
+     */
+    #[Route(path: '/mr/import/{plant}', defaults: ['plant' => 199])]
+    public function import($plant, AnlagenRepository $anlagenRepo, ImportService $importService): Response
+    {
+        $anlage = $anlagenRepo->find($plant);
+        $time = time() - (10 * 3600);
+        $time -= $time % 900;
+        $start = $time - (12 * 3600);
+        $end = $time;
+        $from = date_create('2024-06-11 07:15');
+        $to = date_create('2024-06-11 08:15');
+        $start = $from->getTimestamp();
+        $end = $to->getTimestamp();
+
+        $output = "from: ".$from->format('Y-m-d H:i')." to: ".$to->format('Y-m-d H:i');
+
+        $importService->prepareForImport($anlage, $start, $end);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Import '.$anlage->getAnlName(),
+            'availabilitys' => '',
+            'output' => $output,
         ]);
     }
 
@@ -68,44 +113,14 @@ class DefaultMREController extends BaseController
     }
 
     /**
-     * @throws InvalidArgumentException
-     */
-    #[Route(path: '/mr/expectedtickets')]
-    public function expectedTickets(AlertSystemv2Service $alertServiceV2, AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em): Response
-    {
-        $anlage = $anlagenRepository->find('92');
-        $start = new \DateTime('2024-01-01');
-        $end = new \DateTime('now');
-
-        $tickets = $ticketRepo->findForSafeDelete($anlage, $start->format('Y-m-d'), $end->format('Y-m-d'));
-        foreach ($tickets as $ticket) {
-            $dates = $ticket->getDates();
-            foreach ($dates as $date) {
-                $em->remove($date);
-            }
-            $em->remove($ticket);
-        }
-        $em->flush();
-
-        for ($stamp = $start->getTimestamp(); $stamp <= $end->getTimestamp(); $stamp = $stamp + (24 * 3600)) {
-            $alertServiceV2->checkExpected($anlage, date('Y-m-d 12:00:00', $stamp));
-        }
-
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Update Expected Ticket '.$anlage->getAnlName(),
-            'availabilitys' => '',
-            'output' => 'fertig',
-        ]);
-    }
-    /**
      * @throws NonUniqueResultException
      */
-    #[Route(path: '/mr/expected/{plant}', defaults: ['plant' => 208])]
+    #[Route(path: '/mr/expected/{plant}', defaults: ['plant' => 199])]
     public function updateExpected($plant, ExpectedService $expectedService, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
-        $from = '2024-01-10 00:00'; //date('Y-m-d 00:00');
-        $to = date('Y-m-d 00:00');
+        $from = '2024-05-31 01:00'; //date('Y-m-d 00:00');
+        $to = '2024-06-30 23:45'; //date('Y-m-d 00:00');
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
@@ -121,15 +136,15 @@ class DefaultMREController extends BaseController
     public function updatePA($plant, AvailabilityByTicketService $availability, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
-        $from   = '2021-12-01 00:00'; //date('Y-m-d 00:00');
-        $to     = '2023-12-01 00:00';// date('Y-m-d 13:59');
+        $from   = date('Y-m-d 00:00'); //'2021-12-01 00:00'; //date('Y-m-d 00:00');
+        $to     = date('Y-m-d 13:59'); //'2023-12-01 00:00';// date('Y-m-d 23:59');
         $ergebniss = "";
         for ($stamp = strtotime($from); $stamp <= strtotime($to); $stamp = $stamp + (24 * 3600)) {
-            $from = date('Y-m-d 00:00', $stamp);
-            #$ergebniss .= $availability->checkAvailability($anlage, $from, 0) . "<br>";
-            #$ergebniss .= $availability->checkAvailability($anlage, $from, 1) . "<br>";
-            $ergebniss .= $availability->checkAvailability($anlage, $from, 2) . "<br>";
-            #$ergebniss .= $availability->checkAvailability($anlage, $from, 3) . "<hr>";
+            $day = date('Y-m-d 00:00', $stamp);
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 0) . "<br>";
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 1) . "<br>";
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 2) . "<br>";
+            $ergebniss .= $availability->checkAvailability($anlage, $day, 3) . "<hr>";
         }
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update PA',

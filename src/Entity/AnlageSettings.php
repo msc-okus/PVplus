@@ -180,6 +180,9 @@ class AnlageSettings
     #[ORM\Column(nullable: true, options: ['default' => null])]
     private ?int $invertersUnits = null;
 
+    #[ORM\Column(nullable: false, options: ['default' => 0])]
+    private ?int $dataDelay = 0;
+
     #[ORM\Column(nullable: true)]
     private ?bool $useSensorsData = false;
 
@@ -840,6 +843,18 @@ class AnlageSettings
     public function setInvertersUnits(?int $invertersUnits): self
     {
         $this->invertersUnits = $invertersUnits;
+
+        return $this;
+    }
+
+    public function getDataDelay(): ?int
+    {
+        return $this->dataDelay;
+    }
+
+    public function setDataDelay(?int $dataDelay): self
+    {
+        $this->dataDelay = $dataDelay;
 
         return $this;
     }

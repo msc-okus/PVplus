@@ -1,0 +1,64 @@
+{% apply inky_to_html|inline_css(source('@styles/foundation-emails.css'), source('@styles/email.css'))  %}
+    {# <table align="center" bgcolor="#fefefe" class="body" width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+            <td align="center" valign="top" style="background-color: #f1efef; padding: 20px;border-radius: 10px;">
+                <center>
+                    <table class="row">
+                        <tr>
+                            <th class="small-12 large-12 columns first last">
+                                <table>
+                                    <tr>
+                                        <th>
+                                            <img src="{{ absolute_url(asset('/images/green4net.jpg')) }}" style="max-width: 200px; margin-bottom: 20px" alt="PVplus 4.0 Logo">
+                                            <h1 style="text-align: center">{{ subject }}</h1>
+                                            <p>{{ message }}</p>
+                                            <p>Please click <a href="{{ link }}">here</a> to confirm the reception of this alert</p>
+                                            <p>Your friendly <em>green4net Team</em></p>
+                                            <p>Sent from PVplus 4.0</p>
+                                        </th>
+                                    </tr>
+                                </table>
+                            </th>
+                        </tr>
+                    </table>
+                </center>
+            </td>
+        </tr>
+    </table>
+    #}
+    <container class="main">
+        <row class="header">
+            <columns>
+                <spacer size="10"></spacer>
+                <img src="{{ absolute_url(asset('/images/green4net.jpg')) }}" class="logo" alt="PVplus 4.0 Logo">
+            </columns>
+        </row>
+        <row class="welcome">
+            <columns>
+                <spacer size="35"></spacer>
+                <h1>{{ email.subject }}</h1>
+                <spacer size="10"></spacer>
+            </columns>
+        </row>
+        <spacer size="30"></spacer>
+        <row>
+            <columns>
+                <p>{{ message|raw }}</p>
+                <p>Please click <a href="{{ link }}">here</a> to confirm the reception of this alert</p>
+            </columns>
+        </row>
+        <row class="footer">
+            <columns>
+                <p>Your friendly <em>green4net Team</em></p>
+            </columns>
+        </row>
+        <row class="bottom">
+            <columns>
+                <spacer size="20"></spacer>
+                <div>
+                    Sent️ from PVplus 4.0
+                </div>
+            </columns>
+        </row>
+    </container>
+{% endapply %}

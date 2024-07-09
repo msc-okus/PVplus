@@ -4,19 +4,27 @@ namespace App\Form\Anlage;
 
 use App\Entity\Anlage;
 use App\Entity\Eigner;
+use App\Entity\User;
 use App\Entity\WeatherStation;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
+
+use App\Repository\UserRepository;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
+use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -28,8 +36,22 @@ class AnlageFormType extends AbstractType
     use PVPNameArraysTrait;
 
     public function __construct(
-        private readonly Security $security
+        private readonly Security $security,
+        private readonly UserRepository $userRepository,
+
     ){
+    }
+
+    private function getUserChoices(): array
+    {
+        $adminUsers = $this->userRepository->findByRole('ROLE_ALERT_RECEIVER');
+        $choices = [];
+
+        foreach ($adminUsers as $user) {
+            $choices[$user->getname()] = $user->getEmail();
+        }
+
+        return $choices;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -128,50 +150,48 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '',
                 'required' => false,
             ])
-            ->add('country', ChoiceType::class, [
+            ->add('country', TextType::class, [
                 'label' => 'Shortcut for the country (de, nl, ...)',
                 'help' => '[country]',
                 'empty_data' => '',
                 'required' => false,
-                'choices' => $this->countryCodes(),
             ])
             ->add('anlGeoLat', TextType::class, [
-                'label' => 'Latitude [Decimal notation]',
+                'label' => 'Geografische Breite (Latitude) [Dezimalgrad]',
                 'help' => '[anlGeoLat]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('anlGeoLon', TextType::class, [
-                'label' => 'Longitude [Decimal notation]',
+                'label' => 'Geografische Länge (Longitude) [Dezimalgrad]',
                 'help' => '[anlGeoLon]',
                 'empty_data' => '',
                 'required' => false,
             ])
             ->add('customPlantId', TextType::class, [
-                'label' => 'Identifier/s to select Plant via API',
-                'help' => '[customPlantId]<br> Can be more then one ID, seperatet with: comma. <br>Example: ABC2X,CDE3F]',
+                'label' => 'API Identifier/s for Plant',
+                'help' => '[customPlantId]<br> (e.g. VCOM can be more then one seperatet with ,) you can add one or more VCOM-Ids like ABC2X,CDE3F',
                 'empty_data' => '',
                 'required' => false,
                 'disabled' => !$isG4NUser,
             ])
-            ->add('notes', TextareaType::class, [
-                'label' => 'Notizen zur Anlage',
+            ->add('notes', CKEditorType::class, [
+                'label' => 'Notes on the plant',
                 'help' => '[notes]',
-                'attr' => ['rows' => '6'],
+                'config' => ['toolbar' => 'my_toolbar'],
                 'empty_data' => '',
-                'required' => false,
             ])
 
             // ##### Plant Base Configuration #######
             ->add('anlIntnr', TextType::class, [
-                'label' => 'Datenbankkennung',
+                'label' => 'Database Identifier',
                 'help' => '[anlIntnr]',
                 'empty_data' => '',
                 'required' => true,
                 'disabled' => !$isDeveloper,
             ])
             ->add('anlType', ChoiceType::class, [
-                'label' => 'Anlagen Typ',
+                'label' => 'Plant type',
                 'help' => '[anlType]',
                 'choices' => ['String WR' => 'string', 'ZWR' => 'zwr', 'Master Slave' => 'masterslave'],
                 'placeholder' => 'Please Choose',
@@ -180,7 +200,7 @@ class AnlageFormType extends AbstractType
                 'disabled' => !$isG4NUser,
             ])
             ->add('anlBetrieb', null, [
-                'label' => 'In Betrieb seit:',
+                'label' => 'In operation since',
                 'help' => "[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt<br> In Betrieb seit " . $anlage->getBetriebsJahre() . " Jahr(en).",
                 'widget' => 'single_text',
                 'input' => 'datetime',
@@ -193,7 +213,6 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '+0',
                 'disabled' => !$isG4NUser,
             ])
-            /*
             ->add('anlInputDaily', ChoiceType::class, [
                 'label' => 'Nur einmal am Tag neue Daten',
                 'help' => '[anlInputDaily]',
@@ -202,7 +221,6 @@ class AnlageFormType extends AbstractType
                 'empty_data' => 'No',
                 'disabled' => !($isDeveloper),
             ])
-            */
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
                 'help' => '[configType]<br>' . $tooltipTextPlantType,
@@ -566,23 +584,26 @@ class AnlageFormType extends AbstractType
                 'attr' => ['maxlength' => 4, 'style' => 'width: 55px']
             ])
             ->add('datFilename', FileType::class, [
-                'label' => 'Upload the metonorm *dat file',
+                'label' => 'Upload the metonorm *.dat file',
                 'mapped' => false,
-                'help' => '[The generated meteonorm *dat file]',
-                'attr' => ['class' => 'filestyle'],
+                'help' => '[datFilename]<br>The generated meteonorm *.dat file',
+                'attr' => [
+                    'class' => 'filestyle',
+                    'accept' => '.dat',
+                ],
                 'constraints' => [
                     new File([
                         'maxSize' => '5120k',
                         'mimeTypes' => [],
-                        'mimeTypesMessage' => 'Please upload a valid *dat file',
+                        'mimeTypesMessage' => 'Please upload a valid *.dat file',
                     ])
                 ],
                 'required' => true,
             ])
-            ->add('dataSourceAM', TextareaType::class, [
+            ->add('dataSourceAM', CKEditorType::class, [
                 'label' => 'Summary DataSources AM Report',
                 'empty_data' => 'Module Inclination: <br>Module Name: <br>Module Type: <br>Module Performance: <br>Number of Modules: <br>Inverter Name: <br>Inverter Type: <br>Number of Inverters:',
-                #'config' => ['toolbar' => 'my_toolbar'],
+                'config' => ['toolbar' => 'my_toolbar'],
             ])
             ->add('retrieveAllData', SwitchType::class, [
                 'label' => 'Use all Data from begining of Working Time',
@@ -751,7 +772,7 @@ class AnlageFormType extends AbstractType
 
             ->add('ActivateTicketSystem', SwitchType::class, [
                 'label' => 'Activate ticket autogeneration',
-                'help' => '[ActivateTicketSystem]',
+                'help' => '[ActivateTicketSystem] ',
                 'attr' => ['data-plant-target' => 'activateTicket', 'data-action' => 'plant#activateTicket'],
                 'disabled' => !$isG4NUser,
             ])
@@ -822,7 +843,31 @@ class AnlageFormType extends AbstractType
                 'label' => 'PPC blocks the generation of inverter tickets',
                 'help' => '[ppcBlockTicket]',
                 'attr' => ['data-plant-target' => 'ticket'],
-                'empty_data' => 'false',
+                'disabled' => !$isG4NUser,
+            ])
+
+            ->add('allowSendAlertMail', SwitchType::class, [
+                'label' => 'Activate email alert ',
+                'help' => '[allowSendAlertMail]',
+                'required' => false,
+                'disabled' => !$isG4NUser,
+            ])
+
+            ->add('alertMailReceiver', ChoiceType::class, [
+                'help' => '[alertMailReceiver]',
+                'choices' => $this->getUserChoices(),
+                'multiple' => true,
+                'expanded' => true,
+                'label' => 'Send an email to',
+                'required' => false,
+                'disabled' => !$isG4NUser,
+            ])
+
+            ->add('alertCheckInterval', IntegerType::class, [
+                'label' => 'Send a reminder email after (minutes)',
+                'help' => '[alertCheckInterval]',
+                'empty_data' => 120,
+                'required' => false,
                 'disabled' => !$isG4NUser,
             ])
             // ###############################################
@@ -954,6 +999,7 @@ class AnlageFormType extends AbstractType
                 'help' => '[showForecast]',
             ])
 
+
             // ###############################################
             // ###              AM Report                 ####
             // ###############################################
@@ -1030,13 +1076,15 @@ class AnlageFormType extends AbstractType
                 'attr' => ['class' => 'secondary small', 'formnovalidate' => 'formnovalidate'],
             ])
         ;
-    }
+
+}
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Anlage::class,
             'anlagenId' => '',
+            'required' => false,
         ]);
         $resolver->setAllowedTypes('anlagenId', 'string');
     }

@@ -38,10 +38,12 @@
                             <label for="trafo{{ loop.index }}">TS {{ key }}</label>
                         </div>
                     {% endfor %}
+
                 </div>
             {% endif %}
             <hr>
             <div class="grid-x small-up-2 medium-up-4 large-up-6 xlarge-up-8">
+                {% set loops = 0 %}
                 {% for inverter in invArray %}
                     {% if (useRadioButtons == 0) %}
                         <div class="cell small-form" id="inverters-checkboxes">
@@ -69,7 +71,24 @@
                                    data-action="click->select-inverters#checkSelect">
                         </div>
                     {% endif %}
+                    {% set loops = loop.index %}
                 {% endfor %}
+
+                {% if (selectAllInverters == 1) %}
+                <div class="cell small-form" id="inverters-checkboxes">
+                    <label for="I-{{ loops+1 }}" class="invSelector">Select All</label>
+                    <input type="radio"
+                           class="js-checkbox"
+                           name="inverterRadio"
+                           id="I-{{ loops+1 }}"
+                            {% if (form.inverterRadio == 1000000) %}
+                                checked
+                            {% endif %}
+                           value=1000000
+                           data-action="click->select-inverters#checkSelect"
+                    >
+                </div>
+                {% endif %}
             </div>
             <button class="button small no-margin hollow expanded" type="button" data-action="click->select-inverters#saveInverters"
                     data-select-inverters-target="switch">Submit your Selection</button>

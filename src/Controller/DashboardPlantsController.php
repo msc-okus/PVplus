@@ -39,7 +39,7 @@ class DashboardPlantsController extends BaseController
         }
         /* @var Anlage $anlagen */
         if ($eignerId) {
-            if ($this->isGranted('ROLE_G4N')) {
+            if ($this->isGranted('ROLE_OPERATIONS_G4N')) {
                 $anlagen = $anlagenRepository->findByEignerActive($eignerId, $anlageId);
             } else {
                 $user = $this->getUser();
@@ -101,10 +101,9 @@ class DashboardPlantsController extends BaseController
         }
         /* @var Anlage $anlagen */
         if ($eignerId) {
-            if ($this->isGranted('ROLE_G4N')) {
+            if ($this->isGranted('ROLE_OPERATIONS_G4N')) {
                 $anlagen = $anlagenRepository->findByEignerActive($eignerId, $anlageId);
             } else {
-                /* @var User $user */
                 $user = $this->getUser();
                 $granted = $user->getGrantedArray();
                 $anlagen = $anlagenRepository->findGrantedActive($eignerId, $anlageId, $granted);
@@ -127,6 +126,11 @@ class DashboardPlantsController extends BaseController
             $form['invnames'] = '';
             $form['invids'] = '';
             $form['inverterRadio'] = 1;
+            $form['selectallinverters'] = 0;
+            $form['togglePaNull'] = false;
+            $form['togglePaOne'] = false;
+            $form['togglePaTwo'] = false;
+            $form['togglePaThree'] = false;
         }
 
         if ($request->request->get('mysubmit') === 'yes' || $request->request->get('mysubmit') === 'select') {
@@ -141,6 +145,12 @@ class DashboardPlantsController extends BaseController
             $form['optionDayAheadViewDay']  = $request->request->get('optionDayAheadViewDay');
             $form['hour']               = $request->request->get('hour');
             $form['inverterRadio'] = $request->request->get('inverterRadio');
+            $form['selectallinverters'] = $request->request->get('selectallinverters');
+
+            $form['togglePaNull'] = $request->request->get('togglePaNull');
+            $form['togglePaOne'] = $request->request->get('togglePaOne');
+            $form['togglePaTwo'] = $request->request->get('togglePaTwo');
+            $form['togglePaThree'] = $request->request->get('togglePaThree');
 
             if ($form['selectedChart'] == 'sollistirranalyse'   && !$form['optionIrrVal']) $form['optionIrrVal'] = 400;
             if ($form['selectedChart'] == 'pr_and_av'           && $form['optionDate'] < 7) $form['optionDate'] = 7;
@@ -241,7 +251,6 @@ class DashboardPlantsController extends BaseController
                 $templateForSelection = 'selectinverters.html.twig';
 
                 if($form['selectedChart'] == 'dc_act_overview' || $form['selectedChart'] == 'dc_act_group' || $form['selectedChart'] == 'sollistirranalyse' || $form['selectedChart'] == 'sollisttempanalyse' || $form['selectedChart'] == 'sollistanalyse' || $form['selectedChart'] == 'ac_act_frequency' || $form['selectedChart'] == 'ac_act_current' || $form['selectedChart'] == 'dc_current_overview' || $form['selectedChart'] == 'dc_current_inverter' || $form['selectedChart'] == 'ac_act_group' || $form['selectedChart'] == 'ac_act_overview' || $form['selectedChart'] == 'ac_act_voltage' || $form['selectedChart'] == 'dc_voltage_1'){
-
                     $useRadioButtons = 1;
                     if($form['inverterRadio'] < 1){
                         $form['inverterRadio'] = 1;
@@ -300,6 +309,10 @@ class DashboardPlantsController extends BaseController
         $clearSelections = 0;
 
         $_SESSION['selectedChart'] = $form['selectedChart'];
+
+        if($form['selectedChart'] == 'sollistirranalyse' || $form['selectedChart'] == 'sollisttempanalyse' || $form['selectedChart'] == 'sollistanalyse'){
+            $selectAllInverters = 1;
+        }
 #echo $form['selectedChart'];
 #exit;
 
@@ -317,7 +330,8 @@ class DashboardPlantsController extends BaseController
             'templateForSelection' => $templateForSelection,
             'useRadioButtons' => $useRadioButtons,
             'clearSelections' => $clearSelections,
-            'configtype' => $configtype
+            'configtype' => $configtype,
+            'selectAllInverters' => $selectAllInverters
         ]);
     }
 

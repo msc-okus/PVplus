@@ -2,11 +2,15 @@
 
 namespace App\Command;
 
+use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\TicketsGeneration\AlertSystemService;
 use App\Service\TicketsGeneration\AlertSystemV2Service;
 use App\Service\TicketsGeneration\InternalAlertSystemService;
+use DateTime;
+use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,14 +20,15 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 
 #[AsCommand(
-    name: 'pvp:GenerateInternalTickets',
+    name: 'pvp:generateInternalTickets',
     description: 'Command to generate internal tickets',
 )]
 class GenerateInternalTicketsCommand extends Command
 {
+    use G4NTrait;
     public function __construct(
-        private AnlagenRepository $anlagenRepository,
-        private InternalAlertSystemService $alertService,
+        private readonly AnlagenRepository          $anlagenRepository,
+        private readonly InternalAlertSystemService $alertService,
     )
     {
         parent::__construct();
@@ -38,6 +43,10 @@ class GenerateInternalTicketsCommand extends Command
         ;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     * @throws \Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -75,7 +84,10 @@ class GenerateInternalTicketsCommand extends Command
                     sleep(30);
                 }
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                    $this->alertService->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
+                    $offsetServer = new DateTimeZone("Europe/Luxembourg");
+                    $plantoffset = new DateTimeZone($anlage->getNearestTimezone());
+                    $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+                    $this->alertService->checkSystem($anlage, date('Y-m-d H:i:00', $stamp + $totalOffset));
                     if ($counter % 4 == 0) {
                         $io->progressAdvance();
                     }

@@ -38,6 +38,7 @@ class AnlageStringAssigmentCreateType extends AbstractType
     {
         $resolver->setDefaults([
             'anlagen_choices' => [],
+            'required' => false,
         ]);
     }
 }
