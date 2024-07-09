@@ -985,6 +985,7 @@ class Anlage implements \Stringable
     }
 
 
+
     public function getPnom(): ?float
     {
         return (float) $this->power;

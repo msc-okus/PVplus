@@ -1,0 +1,55 @@
+@import '~bootstrap/dist/css/bootstrap.css';
+@import '~react-grid-layout/css/styles.css';
+@import '~react-resizable/css/styles.css';
+
+
+
+.layout {
+
+    background: lightgray;
+
+}
+
+.react-grid-item-my {
+    position: relative;
+    border: 1px solid #000; /* Added border to items */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+}
+
+.btn {
+    margin: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.dropdown-type {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    z-index: 1000;
+}
+
+.dropdown-type-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdown-type-item:hover {
+    background-color: #f0f0f0;
+}
+
+/*.dropdown-type-item.disabled {*/
+/*    color: #ccc;*/
+/*    cursor: not-allowed;*/
+/*}*/
+
+/*.dropdown-type-item:not(.disabled):hover {*/
+/*    background-color: #f0f0f0;*/
+/*}*/
+
+
+
+

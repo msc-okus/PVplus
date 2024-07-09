@@ -13,7 +13,7 @@
     <link type="text/css" rel="stylesheet" href="{{ asset('bundles/craueformflow/css/buttons.css') }}" />
 
 </head>
-<body>
+<body >
 
 <div class="ajax-loader">
     <img src="{{ asset('/images/loader.gif') }}" class="img-responsive" alt="loader" />
@@ -116,6 +116,7 @@
 <div id="offCanvas" class="off-canvas position-leftis-closed" data-transition="overlap" data-off-canvas>
     {% include('base_menu.html.twig') %}
 </div>
+{% block new %}
 <div class="off-canvas-content" data-off-canvas-content>
     <main class="grid-container fluid" style="padding-top: 1rem">
         <div class="grid-x grid-margin-x grid-padding-x">
@@ -124,8 +125,9 @@
             </div>
         </div>
     </main>
-    {% include('base_footer.html.twig') %}
+    {% block footer %}{% include('base_footer.html.twig') %}{% endblock %}
 </div>
+{% endblock %}
 </body>
 </html>
 

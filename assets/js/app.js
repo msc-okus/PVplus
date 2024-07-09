@@ -21,6 +21,9 @@ global.Swal = Swal;
 import $ from 'jquery';
 //global.$ = $;
 
+
+
+
 $(document).foundation();
 
 $(document).ready( function() {

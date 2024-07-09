@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Eigner.
@@ -74,6 +75,7 @@ class Eigner
     #[ORM\Column(type: 'string', length: 15, nullable: true)]
     private ?string $activateAlertMessage = null;
 
+    #[Groups(['dashboard'])] // Include this for serialization
     #[ORM\OneToMany(mappedBy: 'eigner', targetEntity: Anlage::class)]
     private ?Collection $anlage;
 
@@ -323,6 +325,7 @@ class Eigner
         return $this->anlage;
     }
 
+    #[Groups(['dashboard'])]
     public function getActiveAnlage(bool $role = false): Collection
     {
         $criteria = EignerRepository::activeAnlagenCriteria($role);
