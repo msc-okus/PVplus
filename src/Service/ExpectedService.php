@@ -261,29 +261,7 @@ class ExpectedService
                                 // Berechne anhand der gemessenen Umgebungstemperatur, mit hilfe der NREL Methode, die Modul Temperatur
                             } else {
                                 // Wenn weder Umgebungs noch Modul Temperatur vorhanden, dann nutze Daten aus Open Weather (sind nur Stunden weise vorhanden)
-                                if ($anlage->getAnlId() == '183' ) {  // im Moment nur für REGebeng
-                                    switch ($anlage->getAnlId() == '183') {
-                                        case '183':
-                                            $windSpeed = 4; // ReGebeng – gemittelte Daten aus OpenWeather
-                                            $airTemp = 24; // ReGebeng – gemittelte Daten aus OpenWeather
-                                        break;
-                                        case 'xx':
-                                            $windSpeed = 1; //
-                                            $airTemp = 24; //
-                                        break;
-                                    }
 
-                                    #$windSpeed = $openWeather->getWindSpeed();
-                                    #$airTemp = $openWeather->getTempC();
-
-                                    // Calculate pannel temperatur by NREL
-                                    $pannelTemp = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
-
-                                    // Correct Values by modul temperature
-                                    $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
-                                    $expCurrentDcHlp = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
-                                    $expVoltageDcHlp = $expVoltageDcHlp * $modul->getModuleType()->getTempCorrVoltage($pannelTemp);
-                                }
                             }
                         }
 

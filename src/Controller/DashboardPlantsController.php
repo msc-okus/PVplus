@@ -39,7 +39,7 @@ class DashboardPlantsController extends BaseController
         }
         /* @var Anlage $anlagen */
         if ($eignerId) {
-            if ($this->isGranted('ROLE_G4N')) {
+            if ($this->isGranted('ROLE_OPERATIONS_G4N')) {
                 $anlagen = $anlagenRepository->findByEignerActive($eignerId, $anlageId);
             } else {
                 $user = $this->getUser();
@@ -101,10 +101,9 @@ class DashboardPlantsController extends BaseController
         }
         /* @var Anlage $anlagen */
         if ($eignerId) {
-            if ($this->isGranted('ROLE_G4N')) {
+            if ($this->isGranted('ROLE_OPERATIONS_G4N')) {
                 $anlagen = $anlagenRepository->findByEignerActive($eignerId, $anlageId);
             } else {
-                /* @var User $user */
                 $user = $this->getUser();
                 $granted = $user->getGrantedArray();
                 $anlagen = $anlagenRepository->findGrantedActive($eignerId, $anlageId, $granted);
