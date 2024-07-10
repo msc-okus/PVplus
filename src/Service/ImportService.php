@@ -107,12 +107,13 @@ class ImportService
         $from = date('Y-m-d H:i', $start);
         $to = date('Y-m-d H:i', $end);
 
+        //If Data comes from Satelite
         if($hasSensorsFromSatelite == 1){
+            $importType = 'api-import-weather';
             $meteo_data = new Service\Forecast\APIOpenMeteoService($input_gl, $input_gb);
             $meteo_array = $meteo_data->make_sortable_data();
             $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
             $sensors = [];
-            // Wenn Meteo daten vorhanden sind, dann Verarbeite diese.
             if ((is_countable($meteo_array) ? count($meteo_array) : 0) > 1) {
                 foreach ($meteo_array as $interarray) {
                     foreach ($interarray['minute'] as $key => $value) {
@@ -155,7 +156,7 @@ class ImportService
                     }
                 }
             }
-
+            //create Data Arrays and save them to DB
             foreach ($basics  as $key => $value) {
                 #echo  "$key<pre>";
                 #print_r($value);
@@ -216,7 +217,6 @@ class ImportService
                 $tableName = "db__pv_ws_$weatherDbIdent";
                 self::insertData($tableName, $data_pv_weather, $DBDataConnection);
             }
-            exit;
         }
 
         //get the Data from VCOM for all Plants are configured in the current plant
@@ -255,14 +255,11 @@ class ImportService
                                 $basics[$date]["E_Z_EVU"] = is_array($bulkMeaserments[$i]['basics']) && array_key_exists($date, $bulkMeaserments[$i]['basics']) ? $basics[$date]["E_Z_EVU"] + $bulkMeaserments[$i]['basics'][$date]['E_Z_EVU'] : [];
                                 $basics[$date]["G_M" . $i] = is_array($bulkMeaserments[$i]['basics']) && array_key_exists($date, $bulkMeaserments[$i]['basics']) ? $basics[$date]["G_M" . $i] + $bulkMeaserments[$i]['basics'][$date]['G_M0'] : [];
                             }
-
                         }
                     }
                 }
             }
             //end collect all Data from all Plants
-
-
 
             //beginn sort and seperate Data for writing into database
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
@@ -311,7 +308,7 @@ class ImportService
 
                 $checkSensors = [];
 
-                if ($length > 0){
+                if ($length > 0 && $hasSensorsFromSatelite != 1){
                     $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, $isEastWest, $sensors, $basics, $date);
                     $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
@@ -449,23 +446,23 @@ class ImportService
             //beginn write Data in the tables
             switch ($importType) {
                 case 'api-import-weather':
-                    if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0) {
+                    if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0 && $hasSensorsFromSatelite != 1) {
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
                     }
-                    if(is_array($data_pv_weather) && count($data_pv_weather) > 0){
+                    if(is_array($data_pv_weather) && count($data_pv_weather) > 0 && $hasSensorsFromSatelite != 1){
                         $tableName = "db__pv_ws_$weatherDbIdent";
                         self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                     }
                     break;
                 case 'api-import-ppc':
-                    if (is_array($data_ppc) && count($data_ppc) > 0) {
+                    if (is_array($data_ppc) && count($data_ppc) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_ppc_$anlagenTabelle";
                         self::insertData($tableName, $data_ppc, $DBDataConnection);
                     }
                     break;
                 case 'api-import-pvist':
-                    if ($anlage->getSettings()->getImportType() == 'withStringboxes' && is_array($data_pv_dcist) && count($data_pv_dcist) > 0) {
+                    if ($anlage->getSettings()->getImportType() == 'withStringboxes' && is_array($data_pv_dcist) && count($data_pv_dcist) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_dcist_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
 
@@ -479,21 +476,21 @@ class ImportService
                     }
                     break;
                 default:
-                    if($useSensorsDataTable == 1 && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0) {
+                    if($useSensorsDataTable == 1 && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
                     }
-                    if(is_array($data_pv_weather) && count($data_pv_weather) > 0){
+                    if(is_array($data_pv_weather) && count($data_pv_weather) > 0 && $importType != 'ftpPush'){
                         $tableName = "db__pv_ws_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                     }
 
-                    if ($anlage->getHasPPC() && is_array($data_ppc) && count($data_ppc) > 0) {
+                    if ($anlage->getHasPPC() && is_array($data_ppc) && count($data_ppc) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_ppc_$anlagenTabelle";
                         self::insertData($tableName, $data_ppc, $DBDataConnection);
                     }
 
-                    if ($anlage->getSettings()->getImportType() == 'withStringboxes' && is_array($data_pv_dcist) && count($data_pv_dcist) > 0) {
+                    if ($anlage->getSettings()->getImportType() == 'withStringboxes' && is_array($data_pv_dcist) && count($data_pv_dcist) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_dcist_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_dcist, $DBDataConnection);
 
@@ -501,7 +498,7 @@ class ImportService
                         self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
                     }
 
-                    if(is_array($data_pv_ist) && count($data_pv_ist) > 0) {
+                    if(is_array($data_pv_ist) && count($data_pv_ist) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_ist_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_ist, $DBDataConnection);
                     }
