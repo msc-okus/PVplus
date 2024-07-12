@@ -103,7 +103,12 @@ class Ticket
     private Collection $dates;
 
     #[ORM\Column(nullable: true)]
-    private ?bool $needsProof = false; // this is proof by TAM
+    private ?bool $needsProof = false;
+
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $needsProofIt = false; // this will send an email to it@green4net.com
+
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $openTicket;
@@ -280,6 +285,18 @@ class Ticket
 
         return $this;
     }
+
+    public function getNeedsProofIt(): ?bool
+    {
+        return $this->needsProofIt;
+    }
+
+    public function setNeedsProofIt(?bool $needsProofIt): void
+    {
+        $this->needsProofIt = $needsProofIt;
+    } // this is proof by TAM
+
+
     public function isNeedsProofTAM(): ?bool
     {
         return $this->needsProof;

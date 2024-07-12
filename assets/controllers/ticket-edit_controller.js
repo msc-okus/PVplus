@@ -928,7 +928,7 @@ export default class extends Controller {
             body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
                 $(this).prop('checked', true);
             });
-            body.find('input:checkbox[class=js-checkbox]').each(function () {
+            body.find('input:checkbox[class=js-multiselect-checkbox]').each(function () {
                 $(this).prop('checked', true);
                 body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
                 body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
@@ -1184,7 +1184,7 @@ export default class extends Controller {
         $(this.saveButtonTarget).attr('disabled', 'disabled');
         $(this.CalloutTarget).removeClass('is-hidden');
         $(this.AlertInverterSubmitTarget).removeClass('is-hidden');
-        console.log("we should be hidding");
+
     }
     submitInverters(event){
         event.preventDefault();

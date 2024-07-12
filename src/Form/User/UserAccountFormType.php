@@ -19,12 +19,6 @@ class UserAccountFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        /** @var User $user */
-        /** @var Eigner $eigner_l */
-
-        $user = $options['data'] ?? null;
-        $isEdit = $user && $user->getUserId();
-
         $builder
             ->add('username', TextType::class, [
                 'label' => 'User Name',

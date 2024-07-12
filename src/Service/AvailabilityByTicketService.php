@@ -59,13 +59,10 @@ class AvailabilityByTicketService
      */
     public function checkAvailability(Anlage|int $anlage, string|DateTime $date, int $department = 0): string
     {
-        if (is_int($anlage)) {
-            $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
-        }
+        // If $anlage is integer, search for Plant
+        if (is_int($anlage)) {$anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);}
         // If $date is a string, create a DateTime Object
-        if (! $date instanceof DateTime) {
-            $date = date_create($date);
-        }
+        if (! $date instanceof DateTime) {$date = date_create($date);}
 
         // Suche pasende Zeitkonfiguration für diese Anlage und dieses Datum
         /* @var TimesConfig $timesConfig */
@@ -76,15 +73,20 @@ class AvailabilityByTicketService
             default => $this->timesConfigRepo->findValidConfig($anlage, 'availability_0', $date),
         };
 
-        $timestampModulo = $date->format('Y-m-d 04:00');
-        $from = $timestampModulo;
-        $dayStamp = new DateTime($from);
+        $dayStamp = new DateTime($date->format('Y-m-d 04:00'));
 
         $inverterPowerDc = [];
         $output = '';
 
+        $doCalc = match ($department) {
+            1 => isset($anlage) && $anlage->getEigner()->getFeatures()->isAktDep1() && $anlage->getSettings()->getEnablePADep1(),
+            2 => isset($anlage) && $anlage->getEigner()->getFeatures()->isAktDep2() && $anlage->getSettings()->getEnablePADep2(),
+            3 => isset($anlage) && $anlage->getEigner()->getFeatures()->isAktDep3() && $anlage->getSettings()->getEnablePADep3(),
+            default => isset($anlage),
+        };
+
         /* Verfügbarkeit der Anlage ermitteln */
-        if (isset($anlage)) {
+        if ($doCalc) {
             $output .= 'Anlage: '.$anlage->getAnlId().' / '.$anlage->getAnlName().' ; '.$date->format('Y-m-d')." ; Department: $department ; ";
 
             // Pnom für Inverter laden
@@ -534,7 +536,7 @@ class AvailabilityByTicketService
      */
     public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null, int $department = 0): float
     {
-
+        // If $anlage is integer, search for Plant
         if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
 
         $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter

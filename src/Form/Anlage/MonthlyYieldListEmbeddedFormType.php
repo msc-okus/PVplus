@@ -35,31 +35,27 @@ class MonthlyYieldListEmbeddedFormType extends AbstractType
             ->add('month', ChoiceType::class, [
                 'choices'       => array_combine(range(1, 12), range(1, 12)),
                 'placeholder'   => 'please choose',
+                'required'      => true,
             ])
             ->add('pvSystErtrag', TextType::class, [
                 'label'         => 'Yield [kWh]',
                 'empty_data'    => 0,
-                'required'      => false,
             ])
             ->add('pvSystPR', TextType::class, [
                 'label'         => 'PR [%]',
                 'empty_data'    => 0,
-                'required'      => false,
             ])
             ->add('externMeterDataMonth', TextType::class, [
                 'label'         => 'external Meter Data',
                 'empty_data'    => 0,
-                'required'      => false,
             ])
             ->add('pvSystIrr', TextType::class, [
                 'label'         => 'PvSyst Irradiation',
                 'empty_data'    => 0,
-                'required'  => false,
             ])
             ->add('tModAvg', TextType::class, [
                 'label'         => 'T_mod_avg',
                 'empty_data'    => 0,
-                'required'  => false,
             ])
         ;
         if ($isG4N) {
@@ -77,6 +73,7 @@ class MonthlyYieldListEmbeddedFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlagenMonthlyData::class,
+            'required' => false,
         ]);
     }
 }

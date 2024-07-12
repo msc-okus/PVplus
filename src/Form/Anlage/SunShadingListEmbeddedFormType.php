@@ -7,6 +7,7 @@ use App\Entity\AnlageSunShading;
 use App\Form\Type\SwitchType;
 use App\Repository\AnlageModulesDBRepository;
 use App\Repository\ModulesRepository;
+use Doctrine\DBAL\Exception;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -161,6 +162,9 @@ class SunShadingListEmbeddedFormType extends AbstractType
         ;
     }
 
+    /**
+     * @throws Exception
+     */
     public function getModules($id): array
     {
         $conn = $this->em->getConnection();
@@ -174,6 +178,7 @@ class SunShadingListEmbeddedFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageSunShading::class,
+            'required' => false,
         ]);
     }
 

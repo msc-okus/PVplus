@@ -41,7 +41,8 @@ class AnlageStringAssigmentType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => null,
-            'anlageWithAssignments' => null
+            'anlageWithAssignments' => null,
+            'required' => false,
         ]);
     }
 }

@@ -149,6 +149,14 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getOneOrNullResult()
             ;
     }
+    public function findOneByName($name){
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.anlName LIKE :name')
+            ->setParameter('name', '%'.$name.'%')
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
 
     public function findAlertSystemActive(bool $active){
         return $this->createQueryBuilder('a')
@@ -296,7 +304,7 @@ class AnlagenRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('a')
             ->select('a.anlName','a.anlId','a.country')
-            ->leftJoin('plants.settings', 'settings')
+            ->leftJoin('a.settings', 'settings')
             ->where('settings.symfonyImport = true')
             ->andWhere('a.eignerId = :eigner')
             ->andWhere("a.anlHidePlant = 'No'")
@@ -385,13 +393,19 @@ class AnlagenRepository extends ServiceEntityRepository
             ->leftJoin('a.economicVarNames', 'varName')
             ->leftJoin('a.economicVarValues', 'ecoValu')
             ->leftJoin('a.settings', 'settings')
+            ->leftJoin('a.eigner', 'eigner')
             ->addSelect('varName')
             ->addSelect('ecoValu')
-            ->addSelect('settings');
+            ->addSelect('settings')
+            ->andWhere("a.anlHidePlant = 'No'")
+            ->andWhere("a.anlView = 'Yes'");
 
         if ($this->security->isGranted('ROLE_G4N')) {
             $qb
                 ->andWhere("a.anlHidePlant = 'No'");
+        } elseif ($this->security->isGranted('ROLE_OPERATIONS_G4N')){
+                // Wenn Benutzer die 'Operations' Rolle hat
+                $qb->andWhere('eigner.operations = 1');
         } else {
             /** @var User $user */
             $user = $this->security->getUser();
@@ -399,13 +413,9 @@ class AnlagenRepository extends ServiceEntityRepository
             if ($user->getAllPlants()) {
                 $qb
                     ->andWhere('a.eignerId = :eigner')
-                    ->andWhere("a.anlHidePlant = 'No'")
-                    ->andWhere("a.anlView = 'Yes'")
                     ->setParameter('eigner', $user->getEigners()[0]);
             } else {
                 $qb
-                    ->andWhere("a.anlHidePlant = 'No'")
-                    ->andWhere("a.anlView = 'Yes'")
                     ->andWhere("a.anlId IN (:granted)")
                     ->setParameter('granted', $granted);
             }
@@ -465,8 +475,7 @@ class AnlagenRepository extends ServiceEntityRepository
             $granted = explode(',', $user->getGrantedList());
 
             $qb->andWhere('a.anlId IN (:granted)')
-                ->setParameter('granted', $granted)
-            ;
+                ->setParameter('granted', $granted);
         }
 
         return $qb->getQuery()

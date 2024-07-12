@@ -50,6 +50,7 @@ class PvSystMonthListEmbeddedFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlagenPvSystMonth::class,
+            'required' => false,
         ]);
     }
 }

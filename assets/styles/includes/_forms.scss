@@ -1,3 +1,15 @@
+label {
+    &.required {
+        font-weight: bold;
+
+        &:after {
+            color: #e32;
+            content: ' *';
+            display: inline;
+        }
+    }
+}
+
 .form-field-error-message {
     font-size: 85%;
     span .label {

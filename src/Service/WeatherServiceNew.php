@@ -190,11 +190,9 @@ private PdoService $pdoService,
     public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
         $time = date('Y-m-d',strtotime($time)); // reformat the passed $time to an only day stamp
-        date_default_timezone_set($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
+        date_default_timezone_set($anlage->getNearestTimezone());
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
-        //$offsetServer = new DateTimeZone("Europe/Luxembourg");
-        //$plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
-        //$totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+
         $totalOffset = 0; // quick fix to stop considering time zones
         $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
         $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
@@ -202,6 +200,7 @@ private PdoService $pdoService,
 
         return $returnArray;
     }
+
     public function getNearestTimezone($cur_lat, $cur_long, string $country_code = ''): string
     {
         $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)
@@ -239,4 +238,5 @@ private PdoService $pdoService,
 
         return 'unknown';
     }
+
 }
