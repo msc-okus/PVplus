@@ -46,12 +46,12 @@ class DayAheadForecastDEKService {
         $RGES = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGES_UPPER =  $RGES_LOWER = $RGESBIF = $TR_RGES = $TR_RGESBIF = 0;
         $nowDay = strtotime(date('Y-m-d 00:00',time()));
         $next2Day = strtotime("+3 day", $nowDay);
-        $cnd = 0;
         // Durchläuft das Array $datfile von der Open Meteo API # ['hourly'] a Stündlich # ['minute'] a 15 Minuten
         foreach ($datfile as $key => $value) {
             $dataDay = strtotime($key);
             foreach ($value as $keyin => $valuein ) {
                 foreach ($valuein as $sqlstamp => $valueout ) {
+                   $devi = count($valueout);
                     if ($dataDay < $next2Day) {
                         if ($keyin == 'minute') {
                             $stampday = date('Y-m-d-H-i-z', strtotime((string)$sqlstamp));
@@ -60,28 +60,20 @@ class DayAheadForecastDEKService {
                             $d = $dayofyear + 1;
                             $h = $hour;
                             $m = $minute;
-                            $GHI2_C=$DNI_C=$DNI2=$GTI_C=$SWI_C=$DHI_C=$GHI_C=$TMP_C=$FF_C=$SWI = 0;
+                            $GHI2=$DNI=$GTI=$SWI=$DHI=$GHI=$TMP=$FF=$SWI = 0;
+                            $instep = '15min';
+
                             foreach ($valueout as $dam) {
-                                $TMP_C += $dam['tmp'] ;
-                                $FF_C += $dam['wds'] ;
-                                $SWI_C += $dam['swi'] ; # Shortware Irradiation
-                                $GTI_C += $dam['gti'] ; # global_tilted_irradiance
-                                $GHI_C += $dam['swi'] ; # shortwave_radiation = $value['ghi'] + $value['dhi'];
-                                $DHI_C += $dam['dhi'] ; # diffuse_radiation
-                                $DNI_C += $dam['dni'] ; # direct_normal_radiation
-                                $DNI2 += $dam['dni'] / 15; # direct_normal_radiation
-                                $GHI2_C += $dam['ghi'] ; # direct_radiation
+                                $TMP += $dam['tmp'] / $devi;
+                                $FF += $dam['wds'] / $devi;
+                                $SWI += $dam['swi'] / $devi ; # Shortware Irradiation
+                                $GTI += $dam['gti'] / $devi; # global_tilted_irradiance
+                                $GHI += $dam['swi'] / $devi; # shortwave_radiation = $value['ghi'] + $value['dhi'];
+                                $DHI += $dam['dhi'] / $devi; # diffuse_radiation
+                                $DNI += $dam['dni'] / $devi; # direct_normal_radiation
+                                $GHI2 += $dam['ghi'] / $devi; # direct_radiation
                             }
 
-                            $DNI = $DNI_C / 15;
-                            $SWI = $SWI_C / 15;
-                            $GHI2 = $GHI2_C / 15;
-                            $DHI = $DHI_C / 15;
-                            $GHI = $GHI_C / 15;
-                            $TMP = $TMP_C / 15;
-                            $FF = $FF_C / 15;
-                            $GTI = $GTI_C / 15;
-                            $instep = '15min';
                         }
 
                     } else {
@@ -93,28 +85,22 @@ class DayAheadForecastDEKService {
                             $d = $dayofyear + 1;
                             $h = $hour;
                             $m = $minute;
-                            $GHI2_C=$DNI_C=$DNI2=$SWI_C=$GTI_C=$DHI_C=$GHI_C=$TMP_C=$FF_C=$SWI = 0;
-                            foreach ($valueout as $dah) {
-                                $TMP_C += $dah['tmp'];
-                                $FF_C += $dah['wds'];
-                                $SWI_C += $dah['swi'] ; # Shortware Irradiation
-                                $GTI_C += $dah['gti'] ; # global_tilted_irradiance
-                                $GHI_C += $dah['swi'] ; # shortwave_radiation = $value['ghi'] + $value['dhi'];
-                                $DHI_C += $dah['dhi'] ; # diffuse_radiation
-                                $DNI_C += $dah['dni'] ; # direct_normal_radiation
-                                $DNI2 += $dah['dni'] / 15; # direct_normal_radiation
-                                $GHI2_C += $dah['ghi'] ; # direct_radiation
-                            }
-                            $DNI = $DNI_C / 15;
-                            $SWI = $SWI_C / 15;
-                            $GHI2 = $GHI2_C / 15;
-                            $DHI = $DHI_C / 15;
-                            $GHI = $GHI_C / 15;
-                            $TMP = $TMP_C / 15;
-                            $FF = $FF_C / 15;
-                            $GTI = $GTI_C / 15;
+                            $GHI2=$DNI=$DNI2=$SWI=$GTI=$DHI=$GHI=$TMP=$FF=$SWI = 0;
                             $instep = '60min';
+
+                            foreach ($valueout as $dah) {
+                                $TMP += $dah['tmp'] / $devi;
+                                $FF += $dah['wds'] / $devi;
+                                $SWI += $dah['swi'] / $devi; # Shortware Irradiation
+                                $GTI += $dah['gti'] / $devi; # global_tilted_irradiance
+                                $GHI += $dah['swi'] / $devi; # shortwave_radiation = $value['ghi'] + $value['dhi'];
+                                $DHI += $dah['dhi'] / $devi; # diffuse_radiation
+                                $DNI += $dah['dni'] / $devi; # direct_normal_radiation
+                                $GHI2 += $dah['ghi'] / $devi; # direct_radiation
+                            }
+
                         }
+
                     }
 
                     // Berechnung der Senkrechtstrahlung auf der Normal EBENE

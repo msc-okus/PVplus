@@ -176,7 +176,7 @@ class ExpectedService
                         // Beginn Shadow Loss & Reihenverschattung
 
                         if ($tempIrr >= 400) { // Wenn Strahlung größer 500 Wh/m2
-                            /* toDo: Anrechnen der Rheihenabschattung - auf den Strom mit bypassdioden ??
+                            /* toDo: Anrechnen der Reihenabschattung - auf den Strom mit bypassdioden ??
                             */
                             $AOIarray = $this->forecastCalcService->getAOI($input_mn, $input_gb, $input_gl, $input_mer, $doy, $hour, $ausrichtung);
                             $AOI = $AOIarray['AOI']; // Das AOI aus dem Calc Service
