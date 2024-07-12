@@ -31,6 +31,8 @@
                     <input type="date" name="end" class="input-group-field" value="{{ end }}" title="Interval End">
                 </div>
                 <div class="cell small-12 large-1">
+                    <input type="text" name="anlage" class="input-group-field js-autocomplete-plant" value="{{ anlage }}" placeholder="Search plants">
+                    {#
                     <select name="anlage" class="no-margin"
                             data-action="change->ticket-list#selectAnlage"
                             data-ticket-list-target="anlageselect"
@@ -41,6 +43,7 @@
                             <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
                         {% endfor %}
                     </select>
+                    #}
                 </div>
 
                 <div class="cell small-12 large-1 is-hidden">

@@ -149,6 +149,14 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getOneOrNullResult()
             ;
     }
+    public function findOneByName($name){
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.anlName LIKE :name')
+            ->setParameter('name', '%'.$name.'%')
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
 
     public function findAlertSystemActive(bool $active){
         return $this->createQueryBuilder('a')
