@@ -135,15 +135,15 @@ private PdoService $pdoService,
                 foreach ($sql_array as $row) {
                     $anlIntNr = $row['anl_intnr'];
                     $stamp = date('Y-m-d H:i:00', strtotime($row['stamp'])+(3600 * $weatherStation->gettimeZoneWeatherStation()));
-                    $isNight = $this->isNight($weatherStation, $stamp);
+                   # $isNight = $this->isNight($weatherStation, $stamp);
                     $tempAmbientAvg = $row['at_avg'];
                     $tempPannleAvg = $row['pt_avg'];
                     $gLower = $row['gi_avg'];
-                    if ($gLower < 0 || $isNight) {
+                    if ($gLower < 3 ) {
                         $gLower = '0.0';
                     }
                     $gUpper = $row['gmod_avg'];
-                    if ($gUpper < 0 || $isNight) {
+                    if ($gUpper < 3) {
                         $gUpper = '0.0';
                     }
                     $windSpeed = $row['wind_speed'];
@@ -173,6 +173,7 @@ private PdoService $pdoService,
     private function isNight(WeatherStation $weatherStation, string $stampString):bool
     {
         $stamp = date_create($stampString);
+
         if ($weatherStation->getGeoLat() == "" || $weatherStation->getGeoLon() == "") return false;
 
         $sunrisedata = date_sun_info($stamp->getTimestamp(), (float)$weatherStation->getGeoLat(), (float)$weatherStation->getGeoLon());
@@ -193,12 +194,49 @@ private PdoService $pdoService,
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
 
         $totalOffset = 0; // quick fix to stop considering time zones
-
         $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
         $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
         date_default_timezone_set('Europe/Vienna');
 
         return $returnArray;
+    }
+
+    public function getNearestTimezone($cur_lat, $cur_long, string $country_code = ''): string
+    {
+        $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)
+            : DateTimeZone::listIdentifiers();
+
+        if ($timezone_ids && is_array($timezone_ids) && isset($timezone_ids[0])) {
+            $time_zone = '';
+            $tz_distance = 0;
+
+            // only one identifier?
+            if (count($timezone_ids) == 1) {
+                $time_zone = $timezone_ids[0];
+            } else {
+                foreach ($timezone_ids as $timezone_id) {
+                    $timezone = new DateTimeZone($timezone_id);
+                    $location = $timezone->getLocation();
+                    $tz_lat = $location['latitude'];
+                    $tz_long = $location['longitude'];
+
+                    $theta = $cur_long - $tz_long;
+                    $distance = (sin(deg2rad($cur_lat)) * sin(deg2rad($tz_lat)))
+                        + (cos(deg2rad($cur_lat)) * cos(deg2rad($tz_lat)) * cos(deg2rad($theta)));
+                    $distance = acos($distance);
+                    $distance = abs(rad2deg($distance));
+
+                    if (!$time_zone || $tz_distance > $distance) {
+                        $time_zone = $timezone_id;
+                        $tz_distance = $distance;
+                    }
+                }
+            }
+
+            return $time_zone;
+        }
+
+        return 'unknown';
     }
 
 }

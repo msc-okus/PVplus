@@ -98,7 +98,7 @@ class ForcastWriteDBCommand extends Command
 #print_R($dec_array);
 #print_R($reg_array);
 #fwrite($h, var_export($dec_array, true));
-#exit;
+exit;
                 $forcarstarray = self::array_merge_recursive_distinct($dec_array, $reg_array);
                 $endprz = (is_countable($forcarstarray) ? count($forcarstarray) : 0) - 1;
                 $io->progressStart($endprz);
