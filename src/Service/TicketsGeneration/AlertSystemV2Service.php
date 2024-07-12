@@ -512,10 +512,6 @@ class AlertSystemV2Service
                 //send alertMessage
                 $this->g4NSendMailService->sendAlertMessage($anlage,$ticket);
 
-
-
-
-
             }
     }
 

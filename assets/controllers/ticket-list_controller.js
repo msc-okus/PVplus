@@ -238,10 +238,17 @@ export default class extends Controller {
     }
 
     async changeStatus(event) {
-        let ticketList = '';
+        let ticketList = [];
         $(this.listTarget).find('input:checkbox[class=js-multiselect-checkbox]:checked').each(function () {
-            ticketList = ticketList + $(this)
+            ticketList.push($(this).prop('value'));
         });
-        console.log(ticketList);
+        let status = $(this.listTarget).find('#selectNewStatus').prop('value');
+        let data = {'tickets' : ticketList.toString(), 'status' : status }
+         await $.ajax({
+            url: '/ticket/statusChange',
+             method: 'GET',
+            data: data,
+        });
+        await this.update(event);
     }
 }
