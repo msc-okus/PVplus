@@ -273,6 +273,11 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => 'This plant have sensors in Vcom/Basics'
             ])
 
+            ->add('sensorsFromSatelite', SwitchType::class, [
+                'label'     => 'This plant have sensors from an satelite',
+                'help'      => 'This plant have sensors from an satelite'
+            ])
+
             ->add('importType', ChoiceType::class, [
                 'choices'       => self::importTypes(),
                 'placeholder'   => 'please Select',
@@ -323,6 +328,7 @@ class AnlageSettingsFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageSettings::class,
+            'required' => false,
         ]);
     }
 }

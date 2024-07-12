@@ -87,6 +87,7 @@ class ToolsFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ToolsModel::class,
+            'required' => false,
         ]);
     }
 }

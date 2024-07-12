@@ -27,14 +27,15 @@ class LifeReportingMonthly extends AbstractType {
     )
     {
     }
-	public function buildForm(FormBuilderInterface $builder, array $options) {
+	public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
         //create select for plant
-        if ($this->security->isGranted('ROLE_G4N')) {
+        if ($this->security->isGranted('ROLE_OPERATIONS_G4N')) {
             $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
-        } else {
+        }  else {
             $eigner = $this?->security->getUser()?->getEigners()[0];
             $anlagen = $this->anlagenRepository->findSymfonyImportByEigner($eigner);
         }
@@ -50,8 +51,8 @@ class LifeReportingMonthly extends AbstractType {
         $startYear = 2020;
         $currentYear = date('Y');
         $yearArray = [];
-        for($startYear=$startYear; $startYear <= $currentYear; $startYear++) {
-            $yearArray[$startYear] = $startYear;
+        for($year = $startYear; $year <= $currentYear; $year++) {
+            $yearArray[$year] = $year;
         }
 
         //create select for month
@@ -95,6 +96,15 @@ class LifeReportingMonthly extends AbstractType {
 				]);
 				break;
 			case 2:
+                    echo "
+                    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
+                    <script>
+                        $(document).ready(function(){
+                            $('.btn_back').hide();
+                        });
+                    </script>
+                ";
+
                 $year = $options['year'];
                 $month = $options['month'];
                 $anlagename = $options['anlagename'];

@@ -14,7 +14,7 @@
     {% set case6 = 0 %}
     {% set control = 0 %}
     <div data-controller="toggle-by-class">
-        <table id="statusTable" style="width: 100%;" data-show-hide-availabillity-target ="table1">
+        <table id="statusTable" class="table stickyheader" data-show-hide-availabillity-target ="table1">
             <thead>
                 <tr>
                     <th>Date</th>
@@ -145,7 +145,7 @@
 
 
 
-<div class="grid-x">
+<div class="grid-x grid-margin-x">
     <div class="cell medium-9">
         {{ macros.availabilityTable(content.availability, aktAnlage, content.days) }}
     </div>

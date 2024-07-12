@@ -47,6 +47,7 @@ class TimeConfigListEmbeddedFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => TimesConfig::class,
+            'required' => false,
         ]);
     }
 }

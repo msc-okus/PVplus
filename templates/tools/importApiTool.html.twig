@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ parent() }}Tools
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+{% endblock %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1 id="thechange">ImportTools</h1>
+        </div>
+    </div>
+
+    {{ form_start(importToolsForm, {'attr':{
+        'data-controller':'submit-confirm',
+        'data-action':'submit-confirm#onSubmit',
+        'data-submit-confirm-title-value':'This action will import selected data for selected Plant. ',
+        'data-submit-confirm-text-value':"Are you sure you want to continue!",
+    }}) }}
+
+    <div class="grid-x grid-margin-x">
+        <div class="cell medium-2">
+            {{ form_row(importToolsForm.anlage) }}
+        </div>
+        <div class="cell medium-2">
+            {{ form_row(importToolsForm.startDate) }}
+        </div>
+        <div class="cell medium-2">
+            {{ form_row(importToolsForm.endDate) }}
+        </div>
+        <div class="cell medium-2">
+            {{ form_row(importToolsForm.importType) }}
+        </div>
+        <div class="cell medium-2">
+            {{ form_row(importToolsForm.function) }}
+        </div>
+    </div>
+
+    <div class="grid-x grid-margin-x" style="min-height: 50vh;">
+        <div class="cell medium-12">
+            <div class="callout" >
+                {{ output|raw }}
+            </div>
+            <div class="" style="max-height: 50vh; overflow-y: scroll;"
+                    {{ stimulus_controller('tools-message', {
+                        url: path('app_log_messages_list'),
+                        refreshIntervale: 5000,
+                    }) }}>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-x grid-margin-x grid-margin-y">
+        <div class="cell medium-4">
+            <button type="submit" id="import_tools_form_calc" name="import_tools_form[calc]" class="primary save button button">Start Import &nbsp;<i class="fa fa-cogs" aria-hidden="true"></i></button>
+        </div>
+    </div>
+    {{ form_end(importToolsForm) }}
+{% endblock %}

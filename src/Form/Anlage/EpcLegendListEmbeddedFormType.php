@@ -48,6 +48,7 @@ class EpcLegendListEmbeddedFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageLegendReport::class,
+            'required' => false,
         ]);
     }
 }

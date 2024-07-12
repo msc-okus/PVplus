@@ -193,6 +193,9 @@ class AnlageSettings
     private ?bool $sensorsInBasics = false;
 
     #[ORM\Column(nullable: true)]
+    private ?bool $sensorsFromSatelite = false;
+
+    #[ORM\Column(nullable: true)]
     private ?bool $usePpcTicketToReplacePvSyst = false;
 
     #[ORM\Column(nullable: true)]
@@ -846,6 +849,19 @@ class AnlageSettings
     public function setSensorsInBasics(?bool $sensorsInBasics): self
     {
         $this->sensorsInBasics = $sensorsInBasics;
+
+        return $this;
+    }
+
+
+    public function isSensorsFromSatelite(): ?bool
+    {
+        return $this->sensorsFromSatelite;
+    }
+
+    public function setSensorsFromSatelite(?bool $sensorsFromSatelite): self
+    {
+        $this->sensorsFromSatelite = $sensorsFromSatelite;
 
         return $this;
     }

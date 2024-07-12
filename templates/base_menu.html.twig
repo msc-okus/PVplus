@@ -12,7 +12,7 @@
             <li><a href="{{ path('app_operations_dashboard') }}"><i class="fa fa-tachometer-alt"></i><span> Operations</span></a></li>
         {% endif %}
         <li><a href="{{ path('app_analyse_download') }}"><i class="fa fa-file-download"></i><span> Download</span></a></li>
-        {% if is_granted('ROLE_G4N') or is_granted('ROLE_BETA') or is_granted('ROLE_TICKET') %}
+        {% if is_granted('ROLE_OPERATIONS_G4N') or is_granted('ROLE_BETA') or is_granted('ROLE_TICKET') %}
             <li><a href="{{ path('app_ticket_list') }}"><i class="fa fa-bell"></i><span> {{ alertName }}</span></a></li>
         {% endif %}
         <li><a href="#"><i class="fa fa-chart-area"></i><span> Live Reporting</span></a>

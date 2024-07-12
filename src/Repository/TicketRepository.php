@@ -213,7 +213,7 @@ class TicketRepository extends ServiceEntityRepository
             $qb->andWhere("ticket.kpiStatus = $kpistatus");
         }
         if ($ticketName !== "") {
-            $qb->andWhere("ticket.TicketName LIKE '%$ticketName%'");
+            $qb->andWhere("ticket.ticketName LIKE '%$ticketName%'");
         }
 
         if ($ignore) {
@@ -323,7 +323,7 @@ class TicketRepository extends ServiceEntityRepository
             $qb->andWhere("ticket.kpiStatus = $kpistatus");
         }
         if ($ticketName !== "") {
-            $qb->andWhere("ticket.TicketName LIKE '%$ticketName%'");
+            $qb->andWhere("ticket.ticketName LIKE '%$ticketName%'");
         }
 
         if ($ignore) {

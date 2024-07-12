@@ -90,6 +90,8 @@ class ImportExcelFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ToolsModel::class,
+            'required' => false,
+            'required' => false,
         ]);
     }
 }
