@@ -8,20 +8,26 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class LiveReporting {
 
-	use EntityHasIdTrait;
+    /**
+     * @var int
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
 
-	/**
-	 * @var array
-	 * @ORM\Column(name="year", type="array", nullable=false)
-	 * @Assert\NotBlank(groups={"flow_createTopic_step1"})
-	 */
-	public $year;
+    /**
+     * @var array
+     * @ORM\Column(name="year", type="array", nullable=false)
+     * @Assert\NotBlank(groups={"flow_createTopic_step1"})
+     */
+    public $year;
 
-	/**
-	 * @var array
-	 * @ORM\Column(name="month", type="array", nullable=true)
-	 */
-	public $month;
+    /**
+     * @var array
+     * @ORM\Column(name="month", type="array", nullable=true)
+     */
+    public $month;
 
     /**
      * @var string
@@ -36,19 +42,19 @@ class LiveReporting {
     public $daysinmonth;
 
 
-	/**
-	 * @var object
-	 * @ORM\Column(name="anlage", type="object", nullable=false)
-	 * @Assert\Choice(callback="getValidCategories", groups={"flow_createTopic_step1"}, strict=true)
-	 * @Assert\NotBlank(groups={"flow_createTopic_step1"})
-	 */
-	public $anlage;
+    /**
+     * @var object
+     * @ORM\Column(name="anlage", type="object", nullable=false)
+     * @Assert\Choice(callback="getValidCategories", groups={"flow_createTopic_step1"}, strict=true)
+     * @Assert\NotBlank(groups={"flow_createTopic_step1"})
+     */
+    public $anlage;
 
-	/**
-	 * @var string
-	 * @ORM\Column(name="startday", type="string", nullable=true)
-	 */
-	public $startday;
+    /**
+     * @var string
+     * @ORM\Column(name="startday", type="string", nullable=true)
+     */
+    public $startday;
 
     /**
      * @var string
@@ -56,12 +62,12 @@ class LiveReporting {
      */
     public $endday;
 
-    public function getYear(): int
+    public function getYear(): ?string
     {
         return $this->year;
     }
 
-    public function getMonth(): int
+    public function getMonth(): ?string
     {
         return $this->month;
     }
@@ -86,9 +92,9 @@ class LiveReporting {
         return $this->daysinmonth;
     }
 
-	public function isBugReport() {
-		return $this->category === 'BUG_REPORT';
-	}
+    public function isBugReport() {
+        return $this->category === 'BUG_REPORT';
+    }
 
 
 }
