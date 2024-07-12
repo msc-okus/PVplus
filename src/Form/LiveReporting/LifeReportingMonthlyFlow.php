@@ -15,7 +15,8 @@ class LifeReportingMonthlyFlow extends FormFlow {
     {
     }
 
-	protected function loadStepsConfig() {
+	protected function loadStepsConfig(): array
+    {
 		$formType = LifeReportingMonthly::class;
 
 		return [
@@ -40,10 +41,8 @@ class LifeReportingMonthlyFlow extends FormFlow {
 		];
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getFormOptions($step, array $options = []) {
+	public function getFormOptions($step, array $options = []): array
+    {
 		$options = parent::getFormOptions($step, $options);
         if ($step === 2) {
             $formData = $this->retrieveStepData();
@@ -59,6 +58,16 @@ class LifeReportingMonthlyFlow extends FormFlow {
 			$options['isBugReport'] = $this->getFormData()->isBugReport();
 		}
 
+        if ($step === 4) {
+            echo "
+                    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
+                    <script>
+                        $(document).ready(function(){
+                            $('.btn_back').show();
+                        });
+                    </script>
+                ";
+        }
 
 		return $options;
 	}

@@ -34,10 +34,10 @@ class AnlageGroups
     private int $unitLast;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private string $irrUpper;
+    private string $irrUpper = '0';
 
     #[ORM\Column(type: 'string', length: 20)]
-    private string $irrLower;
+    private string $irrLower = '0';
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $shadowLoss = '0';

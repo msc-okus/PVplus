@@ -85,6 +85,7 @@ class AnlageLegendFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Anlage::class,
+            'required' => false,
         ]);
     }
 }

@@ -70,10 +70,10 @@ class AvailabilityChartService
                 }
                 $dataArray['availability'][] = [
                     'stamp'  => $row['stamp'],
-                    'pa0'   => (float)$row['pa0'],
-                    'pa1'   => (float)$row['pa1'],
-                    'pa2'   => (float)$row['pa2'],
-                    'pa3'   => (float)$row['pa3'],
+                    'pa0'   => (float)$row['pa0'] * 100,
+                    'pa1'   => (float)$row['pa1'] * 100,
+                    'pa2'   => (float)$row['pa2'] * 100,
+                    'pa3'   => (float)$row['pa3'] * 100,
                     'irr'   => $irr,
                     'theoP_pa0' => $irr * $anlage->getPnom() * (float)$row['pa0'] / 4000,
                     'theoP_pa1' => $irr * $anlage->getPnom() * (float)$row['pa1'] / 4000,

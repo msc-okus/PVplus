@@ -3,10 +3,12 @@
 {% macro addAcGroup(acgroup) %}
 <tr class="js-acgroup-item">
     <td>{{ form_widget(acgroup.acGroup) }}</td>
+    <td>{{ form_widget(acgroup.trafoNr) }}</td>
     <td>{{ form_widget(acgroup.acGroupName) }}</td>
     <td>{{ form_widget(acgroup.unitFirst) }}</td>
     <td>{{ form_widget(acgroup.unitLast) }}</td>
     <td>{{ form_widget(acgroup.dcPowerInverter) }}</td>
+    <td></td>
     {#
     <td>{{ form_widget(acgroup.weatherStation) }}</td>
     <td>{{ form_widget(acgroup.isEastWestGroup) }}</td>

@@ -63,7 +63,7 @@
         <input type="hidden" name="page" value="{{ pagination.currentPageNumber }}">
     </div>
 
-    {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
+    {% if (is_granted('ROLE_OPERATIONS_G4N') or is_granted('ROLE_BETA')) %}
 
         <div class="cell medium-5" id="create-form" data-report-target="createForm">
             <h4>Create New Report:</h4>
