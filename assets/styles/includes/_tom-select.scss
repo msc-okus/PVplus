@@ -1,13 +1,30 @@
 .ts-wrapper {
-    min-height: 32px;
+    min-height: 26px;
+    &.single .ts-control {
+        background-image: none;
+        background-color: white;
+    }
 }
+
 .ts-dropdown {
     z-index: 1000;
 }
 .ts-control  {
-    padding: 2px 4px;
+    padding: 0 6px;
+    border-radius: 4px;
+
+    .item {
+        align-self: center;
+    }
+    .clear-button{ display: none;}
+}
+.ts-control, .ts-wrapper.single.input-active .ts-control {
+    max-height: 26px;
+}
+.ts-wrapper.single.input-active .ts-control > input {
+
 }
 .ts-dropdown, .ts-control, .ts-control input {
-    line-height: 1rem;
+    line-height: 1;
     font-size: 14px;
 }
