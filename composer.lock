@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "api-platform/core",
-            "version": "v3.3.7",
+            "version": "v3.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/core.git",
-                "reference": "6daec826cf2a26fa6455a0a137c027c71b126f15"
+                "reference": "0792141f3fda46babc59c73893491d8f0e5e1105"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/core/zipball/6daec826cf2a26fa6455a0a137c027c71b126f15",
-                "reference": "6daec826cf2a26fa6455a0a137c027c71b126f15",
+                "url": "https://api.github.com/repos/api-platform/core/zipball/0792141f3fda46babc59c73893491d8f0e5e1105",
+                "reference": "0792141f3fda46babc59c73893491d8f0e5e1105",
                 "shasum": ""
             },
             "require": {
@@ -190,9 +190,9 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/core/issues",
-                "source": "https://github.com/api-platform/core/tree/v3.3.7"
+                "source": "https://github.com/api-platform/core/tree/v3.3.8"
             },
-            "time": "2024-06-28T09:35:57+00:00"
+            "time": "2024-07-11T14:15:03+00:00"
         },
         {
             "name": "babdev/pagerfanta-bundle",
@@ -3541,16 +3541,16 @@
         },
         {
             "name": "liip/imagine-bundle",
-            "version": "2.13.0",
+            "version": "2.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/liip/LiipImagineBundle.git",
-                "reference": "0c95437a7e1a0561004c8f7f7a412884f9f12438"
+                "reference": "f3b67426800a6a86840de7447bb552c61a79f4b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liip/LiipImagineBundle/zipball/0c95437a7e1a0561004c8f7f7a412884f9f12438",
-                "reference": "0c95437a7e1a0561004c8f7f7a412884f9f12438",
+                "url": "https://api.github.com/repos/liip/LiipImagineBundle/zipball/f3b67426800a6a86840de7447bb552c61a79f4b6",
+                "reference": "f3b67426800a6a86840de7447bb552c61a79f4b6",
                 "shasum": ""
             },
             "require": {
@@ -3641,9 +3641,9 @@
             ],
             "support": {
                 "issues": "https://github.com/liip/LiipImagineBundle/issues",
-                "source": "https://github.com/liip/LiipImagineBundle/tree/2.13.0"
+                "source": "https://github.com/liip/LiipImagineBundle/tree/2.13.1"
             },
-            "time": "2024-06-19T09:35:35+00:00"
+            "time": "2024-07-03T13:28:14+00:00"
         },
         {
             "name": "lorenzo/pinky",
@@ -4051,16 +4051,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v5.0.2",
+            "version": "v5.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "139676794dc1e9231bf7bcd123cfc0c99182cb13"
+                "reference": "683130c2ff8c2739f4822ff7ac5c873ec529abd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/139676794dc1e9231bf7bcd123cfc0c99182cb13",
-                "reference": "139676794dc1e9231bf7bcd123cfc0c99182cb13",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/683130c2ff8c2739f4822ff7ac5c873ec529abd1",
+                "reference": "683130c2ff8c2739f4822ff7ac5c873ec529abd1",
                 "shasum": ""
             },
             "require": {
@@ -4071,7 +4071,7 @@
             },
             "require-dev": {
                 "ircmaxell/php-yacc": "^0.0.7",
-                "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0"
+                "phpunit/phpunit": "^9.0"
             },
             "bin": [
                 "bin/php-parse"
@@ -4103,9 +4103,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.0.2"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.1.0"
             },
-            "time": "2024-03-05T20:51:40+00:00"
+            "time": "2024-07-01T20:03:41+00:00"
         },
         {
             "name": "nuzkito/chrome-html-to-pdf",
@@ -6395,16 +6395,16 @@
         },
         {
             "name": "shuchkin/simplexlsx",
-            "version": "1.1.10",
+            "version": "1.1.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/shuchkin/simplexlsx.git",
-                "reference": "cd4f7f74d4605e618da05a7bddd839f2f624d87f"
+                "reference": "61a9eb24784a9e8aa702efca3f5c7ec1f040aefb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/shuchkin/simplexlsx/zipball/cd4f7f74d4605e618da05a7bddd839f2f624d87f",
-                "reference": "cd4f7f74d4605e618da05a7bddd839f2f624d87f",
+                "url": "https://api.github.com/repos/shuchkin/simplexlsx/zipball/61a9eb24784a9e8aa702efca3f5c7ec1f040aefb",
+                "reference": "61a9eb24784a9e8aa702efca3f5c7ec1f040aefb",
                 "shasum": ""
             },
             "require": {
@@ -6443,9 +6443,9 @@
             ],
             "support": {
                 "issues": "https://github.com/shuchkin/simplexlsx/issues",
-                "source": "https://github.com/shuchkin/simplexlsx/tree/1.1.10"
+                "source": "https://github.com/shuchkin/simplexlsx/tree/1.1.11"
             },
-            "time": "2024-04-26T19:26:21+00:00"
+            "time": "2024-07-06T17:18:59+00:00"
         },
         {
             "name": "shuchkin/simplexlsxgen",
@@ -13709,16 +13709,16 @@
     "packages-dev": [
         {
             "name": "phpstan/phpstan",
-            "version": "1.11.5",
+            "version": "1.11.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "490f0ae1c92b082f154681d7849aee776a7c1443"
+                "reference": "52d2bbfdcae7f895915629e4694e9497d0f8e28d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/490f0ae1c92b082f154681d7849aee776a7c1443",
-                "reference": "490f0ae1c92b082f154681d7849aee776a7c1443",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/52d2bbfdcae7f895915629e4694e9497d0f8e28d",
+                "reference": "52d2bbfdcae7f895915629e4694e9497d0f8e28d",
                 "shasum": ""
             },
             "require": {
@@ -13763,7 +13763,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-06-17T15:10:54+00:00"
+            "time": "2024-07-06T11:17:41+00:00"
         },
         {
             "name": "rector/rector",
@@ -13923,5 +13923,5 @@
         "ext-pdo": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.1.0"
 }
