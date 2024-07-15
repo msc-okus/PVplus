@@ -358,9 +358,10 @@ class TicketController extends BaseController
                 $page = $pageSession;
             }
         }
-        $anlageName = $request->query->get('anlage');
-        if ($anlageName != '') {
-            $anlage = $anlagenRepo->findOneByName($anlageName);
+
+        $anlageId = $request->query->get('anlage');
+        if ($anlageId != '') {
+            $anlage = $anlagenRepo->findOneBy(['anlId' => $anlageId]);
         } else {
             $anlage = null;
         }
@@ -542,9 +543,9 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/proofCount', name: 'app_ticket_proof_count', methods: ['GET', 'POST'])]
     public function getProofCount(TicketRepository $ticketRepo, AnlagenRepository $anlagenRepo, Request $request): Response
     {
-        $anlageName = $request->query->get('anlage');
-        if ($anlageName != '') {
-            $anlage = $anlagenRepo->findOneByName($anlageName);
+        $anlageId = $request->query->get('anlage');
+        if ($anlageId != '') {
+            $anlage = $anlagenRepo->findOneBy(['anlId' => $anlageId]);
         } else {
             $anlage = null;
         }
@@ -775,9 +776,9 @@ class TicketController extends BaseController
                 $page = $pageSession;
             }
         }
-        $anlageName = $request->query->get('anlage');
-        if ($anlageName != '') {
-            $anlage = $anlagenRepo->findOneByName($anlageName);
+        $anlageId = $request->query->get('anlage');
+        if ($anlageId != '') {
+            $anlage = $anlagenRepo->findOneBy(['anlId' => $anlageId]);
         } else {
             $anlage = null;
         }

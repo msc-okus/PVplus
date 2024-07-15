@@ -1,0 +1,13 @@
+.ts-wrapper {
+    min-height: 32px;
+}
+.ts-dropdown {
+    z-index: 1000;
+}
+.ts-control  {
+    padding: 2px 4px;
+}
+.ts-dropdown, .ts-control, .ts-control input {
+    line-height: 1rem;
+    font-size: 14px;
+}
