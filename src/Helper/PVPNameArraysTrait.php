@@ -13,6 +13,7 @@ trait PVPNameArraysTrait
         return [
             'standart'              => 'standart',
             'With Stringboxes'      => 'withStringboxes',
+            'FTP Push'      => 'ftpPush',
         ];
     }
 

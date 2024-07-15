@@ -44,7 +44,7 @@ export default class extends Controller {
 
         if (newPlantId > 0) {
             let $button = $(this.listTarget).find('#newTicketBtn');
-            $button.attr('disabled',false);
+            $button.attr('disabled', false);
         }
 
         $(document).foundation();
@@ -58,7 +58,7 @@ export default class extends Controller {
         let newPlantId = $(this.listTarget).find('#newPlantSelect').find(":selected").val()
         let url = this.urlSearchValue.concat('&newPlantId=', newPlantId);
         this.listTarget.innerHTML = await $.ajax({
-            url: url ,
+            url: url,
             method: $searchListform.prop('method'),
             data: serializedData,
         });
@@ -76,7 +76,7 @@ export default class extends Controller {
 
         if (newPlantId > 0) {
             let $button = $(this.listTarget).find('#newTicketBtn');
-            $button.attr('disabled',false);
+            $button.attr('disabled', false);
         }
 
         this.disableAllToolTips()
@@ -94,13 +94,18 @@ export default class extends Controller {
         $(document).foundation();
         this.disableAllToolTips()
     }
+
     async sortId(event) {
         event.preventDefault();
         $(this.sortTarget).val('ticket.id');
 
-        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
-        else {$(this.directionTarget).val('ASC');}
+        if ($(this.directionTarget).val() === '') {
+            $(this.directionTarget).val('ASC');
+        } else if ($(this.directionTarget).val() === 'ASC') {
+            $(this.directionTarget).val('DESC');
+        } else {
+            $(this.directionTarget).val('ASC');
+        }
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
         });
@@ -110,33 +115,14 @@ export default class extends Controller {
 
     async sortBegin(event) {
         $(this.sortTarget).val('ticket.begin');
-        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
-        else {$(this.directionTarget).val('ASC');}
+        if ($(this.directionTarget).val() === '') {
+            $(this.directionTarget).val('ASC');
+        } else if ($(this.directionTarget).val() === 'ASC') {
+            $(this.directionTarget).val('DESC');
+        } else {
+            $(this.directionTarget).val('ASC');
+        }
         event.preventDefault();
-        this.listTarget.innerHTML = await $.ajax({
-            url: event.currentTarget.href,
-        });
-        $(document).foundation();
-        this.disableAllToolTips()
-    }
-    async sortEnd(event) {
-        event.preventDefault();
-        $(this.sortTarget).val('ticket.end');
-        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
-        else {$(this.directionTarget).val('ASC');}
-        this.listTarget.innerHTML = await $.ajax({
-            url: event.currentTarget.href,
-        });
-        $(document).foundation();
-    }
-    async sortUpdate(event) {
-        event.preventDefault();
-        $(this.sortTarget).val('ticket.updatedAt');
-        if ($(this.directionTarget).val() === '') {$(this.directionTarget).val('ASC');}
-        else if ($(this.directionTarget).val() === 'ASC'){$(this.directionTarget).val('DESC');}
-        else {$(this.directionTarget).val('ASC');}
         this.listTarget.innerHTML = await $.ajax({
             url: event.currentTarget.href,
         });
@@ -144,28 +130,63 @@ export default class extends Controller {
         this.disableAllToolTips()
     }
 
-    disableAllToolTips(){
-        $("[id*='tooltip']").each(function() {
+    async sortEnd(event) {
+        event.preventDefault();
+        $(this.sortTarget).val('ticket.end');
+        if ($(this.directionTarget).val() === '') {
+            $(this.directionTarget).val('ASC');
+        } else if ($(this.directionTarget).val() === 'ASC') {
+            $(this.directionTarget).val('DESC');
+        } else {
+            $(this.directionTarget).val('ASC');
+        }
+        this.listTarget.innerHTML = await $.ajax({
+            url: event.currentTarget.href,
+        });
+        $(document).foundation();
+    }
+
+    async sortUpdate(event) {
+        event.preventDefault();
+        $(this.sortTarget).val('ticket.updatedAt');
+        if ($(this.directionTarget).val() === '') {
+            $(this.directionTarget).val('ASC');
+        } else if ($(this.directionTarget).val() === 'ASC') {
+            $(this.directionTarget).val('DESC');
+        } else {
+            $(this.directionTarget).val('ASC');
+        }
+        this.listTarget.innerHTML = await $.ajax({
+            url: event.currentTarget.href,
+        });
+        $(document).foundation();
+        this.disableAllToolTips()
+    }
+
+    disableAllToolTips() {
+        $("[id*='tooltip']").each(function () {
             $(this).css('display', 'none');
         });
     }
-    async selectAnlage(){
-        let id= $(this.anlageselectTarget).val();
-        if (id !=  '') {
+
+    async selectAnlage() {
+        let id = $(this.anlageselectTarget).val();
+        if (id != '') {
             $(this.InverterSearchButtonTarget).removeAttr('disabled');
-                this.InverterSearchDropdownTarget.innerHTML = await $.ajax({
+            this.InverterSearchDropdownTarget.innerHTML = await $.ajax({
                 url: '/list/getinverterarray/' + id,
             });
         } else {
             $(this.InverterSearchButtonTarget).attr('disabled', 'disabled');
         }
     }
-    checkTrafo({ params: { first, last, trafo }}){
+
+    checkTrafo({params: {first, last, trafo}}) {
         let body = $(this.InverterSearchDropdownTarget);
         let checked = $("#search-trafo" + trafo).prop('checked');
-        body.find('input:checkbox[class=js-checkbox]').each(function (){
+        body.find('input:checkbox[class=js-checkbox]').each(function () {
             if ($(this).prop('id').substring(9) >= first) {
-                if ($(this).prop('id').substring(9) <= last){
+                if ($(this).prop('id').substring(9) <= last) {
                     if (checked) $(this).prop('checked', true);
                     else $(this).prop('checked', false);
                 }
@@ -174,24 +195,26 @@ export default class extends Controller {
         $(this.switchTarget).prop('checked', false)
         this.setInverter()
     }
-    setInverter(){
+
+    setInverter() {
         let inverterString = '';
         let body = $(this.InverterSearchDropdownTarget);
         let counter = 0;
-        body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
-            counter ++;
+        body.find('input:checkbox[class=js-checkbox]:checked').each(function () {
+            counter++;
             if (inverterString == '') {
                 inverterString = inverterString + $(this).prop('id').substring(9);
             } else {
                 inverterString = inverterString + ', ' + $(this).prop('id').substring(9);
             }
         });
-        if (counter == body.find('input:checkbox[class=js-checkbox]').length){
+        if (counter == body.find('input:checkbox[class=js-checkbox]').length) {
             inverterString = '*';
         }
         $('#inverterSearch').val(inverterString);
     }
-    selectAll(){
+
+    selectAll() {
         let inverterString = '';
         let body = $(this.InverterSearchDropdownTarget);
         if ($(this.switchTarget).prop('checked')) {
@@ -206,11 +229,26 @@ export default class extends Controller {
             body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
                 $(this).prop('checked', false);
             });
-            body.find('input:checkbox[class=js-checkbox]').each(function(){
+            body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', false);
             });
             inverterString = '';
         }
         $('#inverterSearch').val(inverterString);
+    }
+
+    async changeStatus(event) {
+        let ticketList = [];
+        $(this.listTarget).find('input:checkbox[class=js-multiselect-checkbox]:checked').each(function () {
+            ticketList.push($(this).prop('value'));
+        });
+        let status = $(this.listTarget).find('#selectNewStatus').prop('value');
+        let data = {'tickets' : ticketList.toString(), 'status' : status }
+         await $.ajax({
+            url: '/ticket/statusChange',
+             method: 'GET',
+            data: data,
+        });
+        await this.update(event);
     }
 }

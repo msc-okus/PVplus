@@ -250,7 +250,11 @@
                             <div class="cell small-6 medium-1">
                                 {{ form_row(ticketForm.needsProofg4n) }}
                             </div>
-
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <div class="cell small-6 medium-1">
+                                    {{ form_row(ticketForm.needsProofIt) }}
+                                </div>
+                            {% endif %}
                             <div data-ticket-edit-target="headerFormKpi" class="cell small-6 medium-1">
                                 {% if (is_granted('ROLE_G4N')) %}
                                     {{ form_row(ticketForm.KpiStatus) }}

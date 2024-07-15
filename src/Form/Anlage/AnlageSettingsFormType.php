@@ -245,6 +245,11 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => '[sensorsInBasics]<br>This plant have sensors in Vcom/Basics'
             ])
 
+            ->add('sensorsFromSatelite', SwitchType::class, [
+                'label'     => 'This plant have sensors from an satelite',
+                'help'      => 'This plant have sensors from an satelite'
+            ])
+
             ->add('importType', ChoiceType::class, [
                 'choices'       => self::importTypes(),
                 'placeholder'   => 'please Select',
