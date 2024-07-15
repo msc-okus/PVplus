@@ -34,8 +34,9 @@ class SensorGettersServices
 
         if ($result->rowCount() > 0) {
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $id = $sensors[array_search('TM_TS02', $sensors, true)]->getNameShort();
-                $resultArray[$row['stamp']][$id] = $row['value'];
+                foreach ($sensors as $sensor) {
+                    $resultArray[$row['stamp']][$sensor->getNameShort()] = $row['value'];
+                }
             }
         }
 
