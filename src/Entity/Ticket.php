@@ -167,6 +167,9 @@ class Ticket
     */
     private string $generatedFrom;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $mailSent = false;
+
     public function __construct()
     {
         $this->dates = new ArrayCollection();
@@ -602,7 +605,9 @@ class Ticket
             case 30:
                 $this->description = "Grid Error in Inverter(s): " .  $inverterString;
                 break;
-
+            case 100:
+                $this->description = "Data gap in Irradiation Database" ;
+                break;
             default:
                 $this->description = "Error in inverter: " .  $inverterString;
         }
@@ -631,6 +636,18 @@ class Ticket
     public function setWhenClosed(?\DateTimeInterface $whenClosed): static
     {
         $this->whenClosed = $whenClosed;
+
+        return $this;
+    }
+
+    public function isMailSent(): ?bool
+    {
+        return $this->mailSent;
+    }
+
+    public function setMailSent(?bool $mailSent): static
+    {
+        $this->mailSent = $mailSent;
 
         return $this;
     }

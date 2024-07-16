@@ -93,15 +93,17 @@ class TicketController extends BaseController
             foreach ($dates as $date) {
                 $date->copyTicket($ticket);
             }
+            if ($ticket->getNeedsProofIt() && !$ticket->isMailSent()){ // if this is checked we need to send an email to it@green4net.com
+                $messageService->sendRawMessage("Ticket ". $ticket->getId()." needs revision"," Please check the ticket with the provided id: ". $ticket->getId(),
+                    "it@green4net.com", "it Team",
+                    false);
+                $ticket->setMailSent(true);
+            }
             $em->persist($ticket);
 
             $em->flush();
 
-            if ($ticket->getNeedsProofIt()){ // if this is checked we need to send an email to it@green4net.com
-                $messageService->sendRawMessage("Ticket ". $ticket->getId()." needs revision"," Please check the ticket with the provided id",
-                    "it@green4net.com", "it Team",
-                    false);
-            }
+
 
             return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
 
@@ -189,10 +191,11 @@ class TicketController extends BaseController
             $request->attributes->set('page', $page);
             /** @var Ticket $ticket */
             $ticket = $form->getData();
-            if ($ticket->getNeedsProofIt()){ // if this is checked we need to send an email to it@green4net.com
-                $messageService->sendRawMessage("Ticket ". $ticket->getId()." needs revision"," Please check the ticket with the provided id",
+            if ($ticket->getNeedsProofIt() && !$ticket->isMailSent()){ // if this is checked we need to send an email to it@green4net.com
+                $messageService->sendRawMessage("Ticket ". $ticket->getId()." needs revision"," Please check the ticket with the provided id: ". $ticket->getId(),
                     "it@green4net.com", "it Team",
                     false);
+                $ticket->setMailSent(true);
             }
 
             if ($form->getData()->isIgnoreTicket()) {
