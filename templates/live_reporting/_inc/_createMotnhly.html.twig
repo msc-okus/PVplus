@@ -1,10 +1,6 @@
 
 {% if currentStep == 2 %}
-    <script>
-        $(document).ready(function(){
-            $('.btn_back').hide();
-        });
-    </script>
+    <style>#step, .btn_back{display: none !important;}</style>
 {% endif %}
 {% if finished == 1 %}
     <style>#step, .btn_next{display: none !important;}</style>
