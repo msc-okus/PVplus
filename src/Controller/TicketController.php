@@ -192,6 +192,7 @@ class TicketController extends BaseController
         $form->handleRequest($request);
 
 
+
         if ($form->isSubmitted() && $form->isValid()) {
             $request->attributes->set('page', $page);
             /** @var Ticket $ticket */
