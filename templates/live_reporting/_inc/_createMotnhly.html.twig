@@ -1,4 +1,10 @@
 
+{% if currentStep == 2 %}
+    <style>#step, .btn_back{display: none !important;}</style>
+{% endif %}
+{% if finished == 1 %}
+    <style>#step, .btn_next{display: none !important;}</style>
+{% endif %}
 {% block form %}
 
     {% set routeParams = app.request.query.all() | merge(app.request.attributes.get('_route_params')) %}
