@@ -1,4 +1,14 @@
 
+{% if currentStep == 2 %}
+    <script>
+        $(document).ready(function(){
+            $('.btn_back').hide();
+        });
+    </script>
+{% endif %}
+{% if finished == 1 %}
+    <style>#step, .btn_next{display: none !important;}</style>
+{% endif %}
 {% block form %}
 
     {% set routeParams = app.request.query.all() | merge(app.request.attributes.get('_route_params')) %}
