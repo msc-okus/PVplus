@@ -58,17 +58,6 @@ class LifeReportingMonthlyFlow extends FormFlow {
 			$options['isBugReport'] = $this->getFormData()->isBugReport();
 		}
 
-        if ($step === 4) {
-            echo "
-                    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
-                    <script>
-                        $(document).ready(function(){
-                            $('.btn_back').show();
-                        });
-                    </script>
-                ";
-        }
-
 		return $options;
 	}
 
