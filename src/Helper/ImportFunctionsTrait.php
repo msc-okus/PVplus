@@ -779,12 +779,52 @@ trait ImportFunctionsTrait
             if (array_key_exists($date, $inverters)) {
                 $custInverterKennung = $group->getImportId();
                 if (is_array($inverters[$date]) && array_key_exists($custInverterKennung, $inverters[$date])) {
-                    $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
+                    $dcCurrentMppArray = [];
+                    $dcVoltageMppArray = [];
+                    $currentDc = 0;
+                    $voltageDc = 0;
+                    $voltageDcTemp = [];
+                    if ($invertersUnits >= 1) {
+                        for ($n = 1; $n <= $invertersUnits; $n++) {
+                            $key = "I_DC$n";
+                            if (array_key_exists($key, $inverters[$date][$custInverterKennung])) {
+                                $dcCurrentMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
+                                if($dcCurrentMppArray[$key] != null){
+                                    $currentDc = $currentDc + $inverters[$date][$custInverterKennung][$key];
+                                }
+                            }
+                        }
+                        $dcCurrentMpp = json_encode($dcCurrentMppArray, JSON_THROW_ON_ERROR);
+
+                        for ($n = 1; $n <= $invertersUnits; $n++) {
+                            $key = "U_DC$n";;
+                            if (array_key_exists($key, $inverters[$date][$custInverterKennung])) {
+                                $dcVoltageMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
+                                if($dcVoltageMppArray[$key] != null){
+                                    $voltageDcTemp[] = $inverters[$date][$custInverterKennung][$key];
+                                }
+                            }
+                        }
+
+                        $dcVoltageMpp = json_encode($dcVoltageMppArray, JSON_THROW_ON_ERROR);
+                    }
+
+                    #print_r($voltageDcTemp);
+
+                    if(count($voltageDcTemp) > 0){
+                        $voltageDc = $this->mittelwert($voltageDcTemp);
+                    }
+
+                    if(array_key_exists('I_DC', $inverters[$date][$custInverterKennung])){
+                        $currentDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_DC']);
+                    }
                     $currentAc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC']);
                     $currentAcP1 = array_key_exists('I_AC1', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC1']) : null;
                     $currentAcP2 = array_key_exists('I_AC2', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC2']) : null;
                     $currentAcP3 = array_key_exists('I_AC3', $inverters[$date][$custInverterKennung]) ? $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['I_AC3']) : null;
-                    $voltageDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['U_DC']);
+                    if(array_key_exists('U_DC', $inverters[$date][$custInverterKennung])){
+                        $voltageDc = $this->checkIfValueIsNotNull($inverters[$date][$custInverterKennung]['U_DC']);
+                    }
                     $voltageAc = NULL;
                     $voltageAcP1 = array_key_exists('U_AC_L1L2', $inverters[$date][$custInverterKennung]) ? $inverters[$date][$custInverterKennung]['U_AC_L1L2'] : null;
                     $voltageAcP2 = array_key_exists('U_AC_L2L3', $inverters[$date][$custInverterKennung]) ? $inverters[$date][$custInverterKennung]['U_AC_L2L3'] : null;
@@ -808,24 +848,8 @@ trait ImportFunctionsTrait
                         $powerDc = '';
                     }
 
-                    $dcCurrentMppArray = [];
-                    $dcVoltageMppArray = [];
-                    if ($invertersUnits >= 1) {
-                        for ($n = 1; $n <= $invertersUnits; $n++) {
-                            $key = "I_DC$n";
-                            if (array_key_exists($key, $inverters[$date][$custInverterKennung])) {
-                                $dcCurrentMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
-                            }
-                        }
-                        $dcCurrentMpp = json_encode($dcCurrentMppArray, JSON_THROW_ON_ERROR);
-
-                        for ($n = 1; $n <= $invertersUnits; $n++) {
-                            $key = "U_DC$n";
-                            if (array_key_exists($key, $inverters[$date][$custInverterKennung])) {
-                                $dcVoltageMppArray[$key] = $inverters[$date][$custInverterKennung][$key] * 4;
-                            }
-                        }
-                        $dcVoltageMpp = json_encode($dcVoltageMppArray, JSON_THROW_ON_ERROR);
+                    if(array_key_exists('P_DC', $inverters[$date][$custInverterKennung]) && $inverters[$date][$custInverterKennung]['P_DC'] > 0){
+                        $powerDc = $inverters[$date][$custInverterKennung]['P_DC'] / 4000;
                     }
                 }
 
