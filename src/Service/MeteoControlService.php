@@ -128,8 +128,14 @@ class MeteoControlService
 
             $plantoffset = new \DateTimeZone($timeZonePlant);
             $totalOffset = $plantoffset->getOffset(new \DateTime("now")) - $offsetServerUTC->getOffset(new \DateTime("now")) - $offsetServer->getOffset(new \DateTime("now"));
+            #echo $timeZonePlant;
+            date_default_timezone_set('Asia/Qyzylorda');
+            $timestamp = time();
+            $datum = date("d.m.Y",$timestamp);
+            $uhrzeit = date("H:i",$timestamp);
+            echo $datum," - ",$uhrzeit," Uhr";
+            exit;
 
-            date_default_timezone_set($timeZonePlant);
             $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $to));
             #dump($timeZonePlant, "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution");
