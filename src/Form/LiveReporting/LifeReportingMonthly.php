@@ -27,17 +27,13 @@ class LifeReportingMonthly extends AbstractType {
     )
     {
     }
-	public function buildForm(FormBuilderInterface $builder, array $options) {
+	public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
         //create select for plant
-        if ($this->security->isGranted('ROLE_G4N')) {
-            $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
-        } else {
-            $eigner = $this?->security->getUser()?->getEigners()[0];
-            $anlagen = $this->anlagenRepository->findSymfonyImportByEigner($eigner);
-        }
+        $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
 
         $anlagen_toShow = [];
         $i = 0;
@@ -50,8 +46,8 @@ class LifeReportingMonthly extends AbstractType {
         $startYear = 2020;
         $currentYear = date('Y');
         $yearArray = [];
-        for($startYear=$startYear; $startYear <= $currentYear; $startYear++) {
-            $yearArray[$startYear] = $startYear;
+        for($year = $startYear; $year <= $currentYear; $year++) {
+            $yearArray[$year] = $year;
         }
 
         //create select for month

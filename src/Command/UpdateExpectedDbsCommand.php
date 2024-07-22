@@ -79,7 +79,9 @@ class UpdateExpectedDbsCommand extends Command
         }
 
         foreach ($anlagen as $anlage) {
+
             $io->progressStart($counter);
+
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
                 $from = date('Y-m-d 00:00', $stamp);
                 $to = date('Y-m-d 23:59', $stamp);
@@ -87,7 +89,7 @@ class UpdateExpectedDbsCommand extends Command
                 $output = $this->expected->storeExpectedToDatabase($anlage, $from, $to);
             }
             $io->comment($anlage->getAnlName().' - '.$anlage->getAnlId());
-            sleep(5);
+            sleep(3);
         }
         $io->progressFinish();
         $io->success('Berechnung der Soll Werte abgeschlossen!');

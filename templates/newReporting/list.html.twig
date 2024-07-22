@@ -30,7 +30,7 @@
 {#        </form>#}
             {% include 'newReporting/_inc/_listReports.html.twig' %}
             <hr>
-        {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA') ) %}
+        {% if (is_granted('ROLE_OPERATIONS_G4N') or is_granted('ROLE_BETA') ) %}
             <form>
                 <div id="create-form" data-newreport-target="createForm">
                     {% include'newReporting/_inc/_createForm.html.twig' %}

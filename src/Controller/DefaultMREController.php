@@ -40,6 +40,10 @@ class DefaultMREController extends BaseController
     ){
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws \JsonException
+     */
     #[Route(path: '/mr/test')]
     public function test(AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
@@ -68,6 +72,34 @@ class DefaultMREController extends BaseController
         ]);
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws \JsonException
+     */
+    #[Route(path: '/mr/import/{plant}', defaults: ['plant' => 199])]
+    public function import($plant, AnlagenRepository $anlagenRepo, ImportService $importService): Response
+    {
+        $anlage = $anlagenRepo->find($plant);
+        $time = time() - (10 * 3600);
+        $time -= $time % 900;
+        $start = $time - (12 * 3600);
+        $end = $time;
+        $from = date_create('2024-06-11 07:15');
+        $to = date_create('2024-06-11 08:15');
+        $start = $from->getTimestamp();
+        $end = $to->getTimestamp();
+
+        $output = "from: ".$from->format('Y-m-d H:i')." to: ".$to->format('Y-m-d H:i');
+
+        $importService->prepareForImport($anlage, $start, $end);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Import '.$anlage->getAnlName(),
+            'availabilitys' => '',
+            'output' => $output,
+        ]);
+    }
+
     #[Route(path: '/mr/status')]
     public function updateStatus(SystemStatus2 $checkSystemStatus, AnlagenRepository $anlagenRepository): Response
     {
@@ -81,44 +113,14 @@ class DefaultMREController extends BaseController
     }
 
     /**
-     * @throws InvalidArgumentException
-     */
-    #[Route(path: '/mr/expectedtickets')]
-    public function expectedTickets(AlertSystemv2Service $alertServiceV2, AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em): Response
-    {
-        $anlage = $anlagenRepository->find('92');
-        $start = new \DateTime('2024-01-01');
-        $end = new \DateTime('now');
-
-        $tickets = $ticketRepo->findForSafeDelete($anlage, $start->format('Y-m-d'), $end->format('Y-m-d'));
-        foreach ($tickets as $ticket) {
-            $dates = $ticket->getDates();
-            foreach ($dates as $date) {
-                $em->remove($date);
-            }
-            $em->remove($ticket);
-        }
-        $em->flush();
-
-        for ($stamp = $start->getTimestamp(); $stamp <= $end->getTimestamp(); $stamp = $stamp + (24 * 3600)) {
-            $alertServiceV2->checkExpected($anlage, date('Y-m-d 12:00:00', $stamp));
-        }
-
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Update Expected Ticket '.$anlage->getAnlName(),
-            'availabilitys' => '',
-            'output' => 'fertig',
-        ]);
-    }
-    /**
      * @throws NonUniqueResultException
      */
-    #[Route(path: '/mr/expected/{plant}', defaults: ['plant' => 208])]
+    #[Route(path: '/mr/expected/{plant}', defaults: ['plant' => 199])]
     public function updateExpected($plant, ExpectedService $expectedService, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
-        $from = '2024-01-10 00:00'; //date('Y-m-d 00:00');
-        $to = date('Y-m-d 00:00');
+        $from = '2024-05-31 01:00'; //date('Y-m-d 00:00');
+        $to = '2024-06-30 23:45'; //date('Y-m-d 00:00');
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
