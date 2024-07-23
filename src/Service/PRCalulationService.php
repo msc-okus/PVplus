@@ -13,7 +13,7 @@ use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
 use App\Repository\PVSystDatenRepository;
 use App\Service\Functions\PowerService;
-use App\Service\Functions\SensorService;
+use App\Service\Sensors\SensorService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;

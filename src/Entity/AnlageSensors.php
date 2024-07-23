@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints\DateTime;
 
 #[ORM\Entity(repositoryClass: AnlageSensorsRepository::class)]
+#[ORM\UniqueConstraint(name: 'uniqueNameShort', columns: ['anlage_id', 'name_short'])]
 class AnlageSensors
 {
     #[ORM\Id]

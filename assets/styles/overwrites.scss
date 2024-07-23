@@ -78,6 +78,7 @@
 
 @import "includes/waiting-icon"; // used for waiting icon on calculating forcast
 @import "includes/mro";
+@import "includes/tom-select";
 
 @include breakpoint(small up) {
 
@@ -577,7 +578,7 @@
         padding-top: 2rem;
         min-height: calc(100vh - 200px);
 
-        .select-inverters-frame{
+        .select-inverters-frame {
             position: relative;
             margin-left: 10px;
             .hiddeninvs{

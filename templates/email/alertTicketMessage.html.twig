@@ -1,5 +1,5 @@
 {% apply inky_to_html|inline_css(source('@styles/foundation-emails.css'), source('@styles/email.css'))  %}
-    {# <table align="center" bgcolor="#fefefe" class="body" width="100%" cellspacing="0" cellpadding="0">
+    <table align="center" bgcolor="#fefefe" class="body" width="100%" cellspacing="0" cellpadding="0">
         <tr>
             <td align="center" valign="top" style="background-color: #f1efef; padding: 20px;border-radius: 10px;">
                 <center>
@@ -25,7 +25,7 @@
             </td>
         </tr>
     </table>
-    #}
+    {#
     <container class="main">
         <row class="header">
             <columns>
@@ -61,4 +61,5 @@
             </columns>
         </row>
     </container>
+    #}
 {% endapply %}
