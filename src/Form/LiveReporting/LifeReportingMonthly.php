@@ -74,15 +74,6 @@ class LifeReportingMonthly extends AbstractType {
 				]);
 				break;
 			case 2:
-                echo "
-                    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
-                    <script>
-                        $(document).ready(function(){
-                            $('.btn_back').hide();
-                        });
-                    </script>
-                ";
-
                 $year = $options['year'];
                 $month = $options['month'];
                 $anlagename = $options['anlagename'];

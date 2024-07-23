@@ -95,7 +95,6 @@ class LiveReportingController extends AbstractController
                 }
 
                 #$flow->reset();
-                echo "<style>#step, .btn_next{display: none !important;}</style>";
 
                 return $this->render($template, [
                     'form' => $form->createView(),
@@ -106,7 +105,9 @@ class LiveReportingController extends AbstractController
                     'report' => $output,
                     'status' => $anlageId,
                     'datatable' => $table,
-                    'tickets'   => $tickets
+                    'tickets'   => $tickets,
+                    'currentStep' => $flow->getCurrentStepNumber(),
+                    'finished' => 1
                 ]);
             }
         }
@@ -127,7 +128,9 @@ class LiveReportingController extends AbstractController
             'report' => '',
             'status' => '',
             'datatable' => '',
-            'tickets'   => ''
+            'tickets'   => '',
+            'currentStep' => $flow->getCurrentStepNumber(),
+            'finished' => 0
         ]);
     }
 

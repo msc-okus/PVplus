@@ -683,6 +683,9 @@ class Anlage implements \Stringable
     #[ORM\Column(name: 'alert_check_interval', nullable: true)]
     private int $alertCheckInterval = 2;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $ticketGenerationDelay = 8;
+
     public function getAlertCheckInterval(): int
     {
         return $this->alertCheckInterval;
@@ -4256,6 +4259,18 @@ class Anlage implements \Stringable
                 $document->setAnlage(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTicketGenerationDelay(): ?int
+    {
+        return $this->ticketGenerationDelay;
+    }
+
+    public function setTicketGenerationDelay(?int $ticketGenerationDelay): static
+    {
+        $this->ticketGenerationDelay = $ticketGenerationDelay;
 
         return $this;
     }

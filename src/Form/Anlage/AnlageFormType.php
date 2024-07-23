@@ -769,7 +769,11 @@ class AnlageFormType extends AbstractType
             // ###############################################
             // ###            Ticket & Alert              ####
             // ###############################################
-
+            ->add('ticketGenerationDelay', IntegerType::class,[
+                'label' => 'Delay in the ticket generation (in 15-minutes interval)',
+                'help' => 'this number will be multiplied with 15 to get the amount of minutes ',
+                'attr' => ['data-plant-target' => 'ticket']
+            ])
             ->add('ActivateTicketSystem', SwitchType::class, [
                 'label' => 'Activate ticket autogeneration',
                 'help' => '[ActivateTicketSystem] ',
