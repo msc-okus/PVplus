@@ -12,17 +12,17 @@ trait PVPNameArraysTrait
     public static function apiTypes(): array
     {
         return [
-            'vcom'              => 'vcom',
-            'Huawai'      => 'huawai',
+            'vcom'      => 'vcom',
+            'Huawai'    => 'huawai',
         ];
     }
 
     public static function importTypes(): array
     {
         return [
-            'standart'              => 'standart',
-            'With Stringboxes'      => 'withStringboxes',
-            'FTP Push'      => 'ftpPush',
+            'standart'          => 'standart',
+            'With Stringboxes'  => 'withStringboxes',
+            'FTP Push'          => 'ftpPush',
         ];
     }
 
