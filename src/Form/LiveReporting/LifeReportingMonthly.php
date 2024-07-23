@@ -33,12 +33,7 @@ class LifeReportingMonthly extends AbstractType {
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
         //create select for plant
-        if ($this->security->isGranted('ROLE_OPERATIONS_G4N')) {
-            $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
-        }  else {
-            $eigner = $this?->security->getUser()?->getEigners()[0];
-            $anlagen = $this->anlagenRepository->findSymfonyImportByEigner($eigner);
-        }
+        $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
 
         $anlagen_toShow = [];
         $i = 0;
@@ -96,15 +91,6 @@ class LifeReportingMonthly extends AbstractType {
 				]);
 				break;
 			case 2:
-                    echo "
-                    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
-                    <script>
-                        $(document).ready(function(){
-                            $('.btn_back').hide();
-                        });
-                    </script>
-                ";
-
                 $year = $options['year'];
                 $month = $options['month'];
                 $anlagename = $options['anlagename'];

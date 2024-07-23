@@ -85,6 +85,9 @@ class ImportService
         $hasSensorsFromSatelite = $anlage->getSettings()->isSensorsFromSatelite();
         $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
         $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
+        $input_neigung = (float)$anlage->getModNeigung();       // Neigung
+        $input_azimut = (float)$anlage->getModAzimut();       // Azimut
+
         //get all Sensors from Plant
         $anlageSensors = $anlage->getSensors();
         $isEastWest = $anlage->getIsOstWestAnlage();
@@ -110,7 +113,7 @@ class ImportService
         //If Data comes from Satelite
         if($hasSensorsFromSatelite == 1){
             $importType = 'api-import-weather';
-            $meteo_data = new Service\Forecast\APIOpenMeteoService($input_gl, $input_gb);
+            $meteo_data = new Service\Forecast\APIOpenMeteoService($input_gl, $input_gb, $input_neigung, $input_azimut);
             $meteo_array = $meteo_data->make_sortable_data();
             $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
             $sensors = [];
@@ -128,7 +131,7 @@ class ImportService
                             $wdstemp = [];
                             for ($j = 1; $j <= count($interarray['minute'][$key]); $j++) {
                                 #echo 'GTI '.$interarray['minute'][$key][$j]['gti'].'<br';
-                                $irrtemp[] = $interarray['minute'][$key][$j]['dni'];
+                                $irrtemp[] = $interarray['minute'][$key][$j]['gti'];
                                 $temperaturtemp[] = $interarray['minute'][$key][$j]['tmp'];
                                 $wdstemp[] = $interarray['minute'][$key][$j]['wds'];
 

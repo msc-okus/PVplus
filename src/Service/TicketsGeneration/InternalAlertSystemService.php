@@ -133,7 +133,6 @@ class InternalAlertSystemService
             $ticket->setSystemStatus(10);
             $ticket->setPriority(20);
             $ticket->setOpenTicket(true);
-            $ticket->setDescription($message);
             $ticket->setCreatedBy("AlertSystem");
             $ticket->setUpdatedBy("AlertSystem");
             $ticket->setProofAM(false);
