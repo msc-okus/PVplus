@@ -10,9 +10,7 @@
 
 // start the Stimulus application
 import '../bootstrap';
-
 import '../styles/app.scss';
-
 import 'foundation-sites';
 
 import  Swal  from 'sweetalert2';
@@ -31,7 +29,6 @@ $(document).ready( function() {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-
     let url = window.location.href;
     let urlParams = url.split('#')[1];
     if (urlParams === 'chart') {

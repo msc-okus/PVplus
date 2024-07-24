@@ -390,26 +390,25 @@ class AnlagenRepository extends ServiceEntityRepository
     {
 
         $qb = $this->createQueryBuilder('a')
-            ->leftJoin('a.economicVarNames', 'varName')
-            ->leftJoin('a.economicVarValues', 'ecoValu')
+            #->leftJoin('a.economicVarNames', 'varName')
+            #->leftJoin('a.economicVarValues', 'ecoValu')
             ->leftJoin('a.settings', 'settings')
             ->leftJoin('a.eigner', 'eigner')
-            ->addSelect('varName')
-            ->addSelect('ecoValu')
+            #->addSelect('varName')
+            #->addSelect('ecoValu')
             ->addSelect('settings')
-            ->andWhere("a.anlHidePlant = 'No'")
-            ->andWhere("a.anlView = 'Yes'");
+            ->andWhere("a.anlHidePlant = 'No'");
 
         if ($this->security->isGranted('ROLE_G4N')) {
-            $qb
-                ->andWhere("a.anlHidePlant = 'No'");
+            #$qb->andWhere("a.anlHidePlant = 'No'");
         } elseif ($this->security->isGranted('ROLE_OPERATIONS_G4N')){
-                // Wenn Benutzer die 'Operations' Rolle hat
-                $qb->andWhere('eigner.operations = 1');
+            // Wenn Benutzer die 'Operations' Rolle hat
+            $qb->andWhere('eigner.operations = 1');
         } else {
             /** @var User $user */
             $user = $this->security->getUser();
             $granted = $user->getGrantedArray();
+            $qb->andWhere("a.anlView = 'Yes'");
             if ($user->getAllPlants()) {
                 $qb
                     ->andWhere('a.eignerId = :eigner')
@@ -424,6 +423,7 @@ class AnlagenRepository extends ServiceEntityRepository
             ->orderBy('a.anlName', 'ASC') //a.eigner
         ;
 
+        dump($qb->getQuery()->getSQL());
         return $qb;
     }
 
