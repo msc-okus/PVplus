@@ -3811,8 +3811,6 @@ class Anlage implements \Stringable
     {
         $countryCode = strtoupper($this->getCountry());
         $timezone_ids = ($countryCode) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $countryCode) : DateTimeZone::listIdentifiers();
-        $cur_lat = $this->getAnlGeoLat();
-        $cur_long = $this->getAnlGeoLon();
 
         if ($timezone_ids && isset($timezone_ids[0])) {
             $time_zone = '';
