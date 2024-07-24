@@ -1,5 +1,4 @@
 import $ from "jquery";
-import fdatepicker from 'foundation-datepicker';
 
 function Display() {
     // Get the checkbox

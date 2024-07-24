@@ -3,44 +3,27 @@
 namespace App\Form\LiveReporting;
 
 use App\Entity\Anlage;
-
 use App\Repository\AnlagenRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use App\Entity\LiveReporting;
-/**
- * @author Christian Raue <christian.raue@gmail.com>
- * @copyright 2013-2022 Christian Raue
- * @license http://opensource.org/licenses/mit-license.php MIT License
- */
+
 class LifeReportingMonthly extends AbstractType {
 
     public function __construct(
-        private readonly AnlagenRepository $anlagenRepository,
-        private readonly Security          $security
+        private readonly AnlagenRepository $anlagenRepository
     )
     {
     }
 	public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $isDeveloper = $this->security->isGranted('ROLE_DEV');
-        $isAdmin = $this->security->isGranted('ROLE_ADMIN');
-
         //create select for plant
         $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
-
-        $anlagen_toShow = [];
-        $i = 0;
-        foreach ($anlagen as $anlage) {
-            $anlagen_toShow[$i] = $anlage;
-            $i++;
-        }
 
         //create select for year
         $startYear = 2020;
@@ -73,7 +56,7 @@ class LifeReportingMonthly extends AbstractType {
                 $builder->add('anlage', EntityType::class, [
                     'label' => 'Please select a Plant',
                     'class' => Anlage::class,
-                    'choices' => $anlagen_toShow,
+                    'choices' => $anlagen,
                     'choice_label' => 'anlName',
                     'attr' => array('style' => 'width: 200px')
                 ]);
@@ -138,7 +121,8 @@ class LifeReportingMonthly extends AbstractType {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function configureOptions(OptionsResolver $resolver) {
+	public function configureOptions(OptionsResolver $resolver): void
+    {
 		$resolver->setDefaults([
             'data_class' => LiveReporting::class,
             'month' => '',
