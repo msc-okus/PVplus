@@ -44,7 +44,8 @@ trait G4NTrait
         $_time = match (strtoupper((string) $format)) {
             'SQL' => $date->format('Y-m-d H:i'),
             'OBJECT' => $date,
-            default => $date->format('U') - 7200,
+            'TIMESTAMP-REAL' => $date->format('U'),
+            default => $date->format('U') - 7200, // keine ahnung warum hier 7200 Sekunden abgezogen werden, mach aus meine Sicht keinen Sinn (wenn dann je nach DLS status 3600 oder 7200)
         };
 
         return $_time;

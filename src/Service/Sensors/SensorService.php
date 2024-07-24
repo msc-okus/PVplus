@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Functions;
+namespace App\Service\Sensors;
 
 use App\Entity\Anlage;
 use App\Entity\TicketDate;
@@ -8,13 +8,13 @@ use App\Helper\G4NTrait;
 use App\Repository\PVSystDatenRepository;
 use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
+use App\Service\PdoService;
 use App\Service\WeatherFunctionsService;
-use Doctrine\ORM\NonUniqueResultException;
 use DateTime;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use JsonException;
 use Psr\Cache\InvalidArgumentException;
-use App\Service\PdoService;
 
 class SensorService
 {
@@ -25,7 +25,8 @@ class SensorService
         private readonly WeatherFunctionsService $weatherFunctionsService,
         private readonly TicketDateRepository    $ticketDateRepo,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
-        private readonly PVSystDatenRepository $pvSystDatenRepo
+        private readonly PVSystDatenRepository $pvSystDatenRepo,
+        private readonly SensorGettersServices $sensorGetters,
     )
     {
     }
@@ -78,18 +79,14 @@ class SensorService
 
                     // Search for sensor (irr) values in ac_ist database
                     $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
-                    $sensorArrays = $this->weatherFunctionsService->getSensors($anlage, $tempStartDate, $tempEndDate);
                     $intervallPAs = $this->weatherFunctionsService->getIntervallPA($anlage, $tempStartDateMinus15, $tempEndDateMinus15);
 
-                    /* deprecated
-                    $sensorSum = [];
-                    foreach ($sensorArrays as $sensorArray){
-                        foreach ($sensorArray as $key => $sensorVal) {
-                            if(!key_exists($key,$sensorSum)) $sensorSum[$key] = 0;
-                            $sensorSum[$key] += $sensorVal;
-                        }
+                    if ($anlage->getSettings()->isUseSensorsData() && false) {  // sensor daten aus Datenban 'Sensors' ermitteln
+                        $sensorArrays = $this->sensorGetters->getSensorsIrrByTime($anlage, $tempStartDate, $tempEndDate);
+                    } else {  // Search for sensor (irr) values in ac_ist database
+                        $sensorArrays = $this->weatherFunctionsService->getSensors($anlage, $tempStartDate, $tempEndDate);
                     }
-                    */
+
 
                     // ermitteln welche Sensoren excludiert werden sollen
                     $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
@@ -101,19 +98,23 @@ class SensorService
                             if (!str_contains($ticketDate->getSensors(), $sensor->getNameShort())) {
                                 switch ($sensor->getVirtualSensor()) {
                                     case 'irr-hori':
-                                        $mittelwertPyrHoriArray[$stamp] += $sensorArray[$sensor->getNameShort()];
+                                        if (!array_key_exists($stamp, $mittelwertPyrHoriArray)) $mittelwertPyrHoriArray[$stamp] = 0; // initialisiere array element
+                                        $mittelwertPyrHoriArray[$stamp] += array_key_exists($sensor->getNameShort(), $sensorArray) ? $sensorArray[$sensor->getNameShort()] : 0;
                                         $countIrrHori++;
                                         break;
                                     case 'irr':
-                                        $mittelwertPyroArray[$stamp] += $sensorArray[$sensor->getNameShort()];
+                                        if (!array_key_exists($stamp, $mittelwertPyroArray)) $mittelwertPyroArray[$stamp] = 0; // initialisiere array element
+                                        $mittelwertPyroArray[$stamp] += array_key_exists($sensor->getNameShort(), $sensorArray) ? $sensorArray[$sensor->getNameShort()] : 0;
                                         $countIrr++;
                                         break;
                                     case 'irr-east':
-                                        $mittelwertPyroEastArray[$stamp] += $sensorArray[$sensor->getNameShort()];
+                                        if (!array_key_exists($stamp, $mittelwertPyroEastArray)) $mittelwertPyroEastArray[$stamp] = 0; // initialisiere array element
+                                        $mittelwertPyroEastArray[$stamp] += array_key_exists($sensor->getNameShort(), $sensorArray) ? $sensorArray[$sensor->getNameShort()] : 0;
                                         $countIrrEast++;
                                         break;
                                     case 'irr-west':
-                                        $mittelwertPyroWestArray[$stamp] += $sensorArray[$sensor->getNameShort()];
+                                        if (!array_key_exists($stamp, $mittelwertPyroWestArray)) $mittelwertPyroWestArray[$stamp] = 0; // initialisiere array element
+                                        $mittelwertPyroWestArray[$stamp] += array_key_exists($sensor->getNameShort(), $sensorArray) ? $sensorArray[$sensor->getNameShort()] : 0;
                                         $countIrrWest++;
                                         break;
                                 }
@@ -126,13 +127,15 @@ class SensorService
                     }
 
                     // erechne neuen Mittelwert aus den Sensoren die genutzt werden sollen
-                    $replaceArray['horizontalIrr']  = array_sum($mittelwertPyrHoriArray);//self::mittelwert($mittelwertPyrHoriArray);
-                    $replaceArray['irrModul']       = array_sum($mittelwertPyroArray);//self::mittelwert($mittelwertPyroArray);
-                    $replaceArray['irrEast']        = array_sum($mittelwertPyroEastArray);//self::mittelwert($mittelwertPyroEastArray);
-                    $replaceArray['irrWest']        = array_sum($mittelwertPyroWestArray);//self::mittelwert($mittelwertPyroWestArray);
+                    $replaceArray['horizontalIrr']  = array_sum($mittelwertPyrHoriArray);
+                    $replaceArray['irrModul']       = array_sum($mittelwertPyroArray);
+                    $replaceArray['irrEast']        = array_sum($mittelwertPyroEastArray);
+                    $replaceArray['irrWest']        = array_sum($mittelwertPyroWestArray);
 
-
-
+                    $replaceArray['theoPowerPA0'] = 0; // initialisiere array element
+                    $replaceArray['theoPowerPA1'] = 0; // initialisiere array element
+                    $replaceArray['theoPowerPA2'] = 0; // initialisiere array element
+                    $replaceArray['theoPowerPA3'] = 0; // initialisiere array element
                     // Theoretische Leistung berechnen unter berücksichtigung des PA
                     foreach ($intervallPAs as $stamp => $intervallPA) {
                         // fallback Werte falls PA nicht berechnet
@@ -292,7 +295,7 @@ class SensorService
 
             default:
                 // korrigiere Horizontal Irradiation
-                if (is_numeric($newWeather['irrHorizotal'])) {
+                if (array_key_exists('irrHorizotal', $newWeather) && is_numeric($newWeather['irrHorizotal'])) {
                     $return['irrHor0'] =  $return['horizontalIrr']    = $sensorData['horizontalIrr'] - $oldWeather['horizontalIrr'] + $newWeather['irrHorizotal'];
                     #$return['irrHor0']          = $oldWeather['horizontalIrr'];
                     $return['irrHor1']          = $ticketDate->getTicket()->isScope(10) ? $sensorData['horizontalIrr'] : $sensorData['irrHor1'];
@@ -302,21 +305,21 @@ class SensorService
 
                 // korrigiere Irradiation auf Modulebene
 
-                if ($newWeather['irrModul'] && $newWeather['irrModul'] > 0) {
+                if (array_key_exists('irrModul', $newWeather) && $newWeather['irrModul'] && $newWeather['irrModul'] > 0) {
                     $return['irr0']    = $return['upperIrr']     = $sensorData['upperIrr'] - $oldWeather['upperIrr'] + $newWeather['irrModul'];
                     $return['irr1']    = $ticketDate->getTicket()->isScope(10) ? $sensorData['irr1'] - $oldWeather['upperIrr'] + $newWeather['irrModul'] : $sensorData['irr1'];
                     $return['irr2']    = $ticketDate->getTicket()->isScope(20) ? $sensorData['irr2'] - $oldWeather['upperIrr'] + $newWeather['irrModul'] : $sensorData['irr2'];
                     $return['irr3']    = $ticketDate->getTicket()->isScope(30) ? $sensorData['irr3'] - $oldWeather['upperIrr'] + $newWeather['irrModul'] : $sensorData['irr3'];
                 }
                 // zwei Ausrichtungen (Ost / West)
-                if ($newWeather['irrEast'] && $newWeather['irrEast'] > 0) {
+                if (array_key_exists('irrEast', $newWeather) && $newWeather['irrEast'] && $newWeather['irrEast'] > 0) {
                     $return['irrEast0'] = $return['upperIrr'] = $sensorData['upperIrr'] - $oldWeather['upperIrr'] + $newWeather['irrEast'];
 
                     $return['irrEast1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['irrEast1'] - $oldWeather['upperIrr'] + $newWeather['irrEast'] : $sensorData['irrEast1'];
                     $return['irrEast2'] = $ticketDate->getTicket()->isScope(20) ? $sensorData['irrEast2'] - $oldWeather['upperIrr'] + $newWeather['irrEast'] : $sensorData['irrEast2'];
                     $return['irrEast3'] = $ticketDate->getTicket()->isScope(30) ? $sensorData['irrEast3'] - $oldWeather['upperIrr'] + $newWeather['irrEast'] : $sensorData['irrEast3'];
                 }
-                if ($newWeather['irrWest'] && $newWeather['irrWest'] > 0) {
+                if (array_key_exists('irrWest', $newWeather) && $newWeather['irrWest'] && $newWeather['irrWest'] > 0) {
                     $return['irrWest0'] = $return['lowerIrr'] = $sensorData['lowerIrr'] - $oldWeather['lowerIrr'] + $newWeather['irrWest'];
 
                     $return['irrWest1'] = $ticketDate->getTicket()->isScope(10) ? $sensorData['irrWest1'] - $oldWeather['lowerIrr'] + $newWeather['irrWest'] : $sensorData['irrWest1'];

@@ -58,7 +58,6 @@ class LifeReportingMonthlyFlow extends FormFlow {
 			$options['isBugReport'] = $this->getFormData()->isBugReport();
 		}
 
-
 		return $options;
 	}
 

@@ -11,7 +11,8 @@
             var endDatex = moment(endDate).toDate();
         }
         // jQuery Selectors
-        $('.daterange').daterangepicker({
+        $('.daterange').daterangepicker(
+            {
                 maxDate: moment().subtract(0, 'days'),
                 autostart: true,
                 showWeekNumbers: false,
@@ -22,25 +23,27 @@
                     {% if  form.selectedChart == 'heatmap'
                         or form.selectedChart == 'tempheatmap'
                         or form.selectedChart == 'sollistheatmap'
-                        or form.selectedChart == 'acpnom' %}
-                maxSpan: {months: 1,},
-                showCustomRangeLabel: true,
-                singleDatePicker: true,
-                linkedCalendars: true,
+                    %}
+                    {# or form.selectedChart == 'acpnom' #}
+                        maxSpan: {months: 1,},
+                        showCustomRangeLabel: true,
+                        singleDatePicker: true,
+                        linkedCalendars: true,
                     {% else %}
-                    {%  if  form.selectedChart == 'sollisttempanalyse'
-                        or form.selectedChart == 'sollistanalyse'
-                        or form.selectedChart == 'sollistirranalyse' %}
-                maxSpan: {months: 3,},
-                showCustomRangeLabel: true,
-                singleDatePicker: false,
-                linkedCalendars: true,
-                    {% else %}
-                maxSpan: {months: 1,},
-                showCustomRangeLabel: true,
-                singleDatePicker: false,
-                linkedCalendars: true,
-                    {% endif %}
+                        {%  if  form.selectedChart == 'sollisttempanalyse'
+                            or form.selectedChart == 'sollistanalyse'
+                            or form.selectedChart == 'sollistirranalyse'
+                        %}
+                            maxSpan: {months: 3,},
+                            showCustomRangeLabel: true,
+                            singleDatePicker: false,
+                            linkedCalendars: true,
+                                {% else %}
+                            maxSpan: {months: 1,},
+                            showCustomRangeLabel: true,
+                            singleDatePicker: false,
+                            linkedCalendars: true,
+                        {% endif %}
                     {% endif %}
                 ranges: {
                     {% if  form.selectedChart == 'heatmap'
@@ -50,18 +53,21 @@
                         or form.selectedChart == 'sollistanalyse'
                         or form.selectedChart == 'sollistirranalyse'
                         or form.selectedChart == 'forecast_dayahead'
-                        or form.selectedChart == 'dcpnomcurr'
-                        or form.selectedChart == 'acpnom' %}
-                    'Today': [moment(), moment()],
+                    %}
+                    {#
+                    or form.selectedChart == 'dcpnomcurr'
+                    or form.selectedChart == 'acpnom'
+                    #}
+                        'Today': [moment(), moment()],
                     {% else %}
-                    'Today': [moment(), moment()],
-                    //'Last 3 Days': [moment(startDatex).subtract(2, 'days'), moment(startDatex)],
-                    'Last 7 Days': [moment(startDatex).subtract(6, 'days'), moment(startDatex)],
-                    'Last 14 Days': [moment(startDatex).subtract(13, 'days'), moment(startDatex)],
-                    //'This Month': [moment(startDatex).startOf('month'), moment(startDatex).endOf('month')],
-                    //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    //'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                    //'Last 3 Month': [moment().subtract(3, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                        'Today': [moment(), moment()],
+                        //'Last 3 Days': [moment(startDatex).subtract(2, 'days'), moment(startDatex)],
+                        'Last 7 Days': [moment(startDatex).subtract(6, 'days'), moment(startDatex)],
+                        'Last 14 Days': [moment(startDatex).subtract(13, 'days'), moment(startDatex)],
+                        //'This Month': [moment(startDatex).startOf('month'), moment(startDatex).endOf('month')],
+                        //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        //'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                        //'Last 3 Month': [moment().subtract(3, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                     {% endif %}
                 },
                 opens: 'left',

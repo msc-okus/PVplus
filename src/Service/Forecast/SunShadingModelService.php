@@ -153,11 +153,16 @@ class SunShadingModelService {
             } else {
                 $RSH_Array = [];
             }
+            try {
+                $SP = ($S / $M) * 100; // Verschattung in Prozent
+            } catch (DivisionByZeroError $e) {
+                echo "FAIL -> DivisionByZero Error -> SunShading Config Check! \n";
+                $SP = 1;
+            }
 
-            $SP = ($S / $M) * 100; // Verschattung in Prozent
             $faktor = round((1 - ($SP / 100)), 3); // Verschattungsfaktor - FKR
             //
-         ###   echo "[aE]: $aoi - [y]: $y  - [a]: $a  - [l]:  $L  - [s]: $S - [TAV]: $TAV_PZ - [FKR]: $faktor \n";
+            ### echo "[aE]: $aoi - [y]: $y  - [a]: $a  - [l]:  $L  - [s]: $S - [TAV]: $TAV_PZ - [FKR]: $faktor \n";
             //
             return $out[] = ['FKR' => $faktor,'RSH' => $RSH_Array]; // Setzen des berechneten faktor und des Reihen abschattung als Array - RSK
           } else {
@@ -171,13 +176,14 @@ class SunShadingModelService {
 
     // Funktion zur berechnung der Modulverschattungsverluste bei Halbzelle, Vollzelle
     // Berechnung vom Verlustfaktor Strom
-    public function modrow_shading_loss($RSKArray,$DIFFSAMA,$shdata) {
+    /* todo:implement gdirprz*/
+    public function modrow_shading_loss($RSKArray,$DIFFSAMA,$GDIRPRZ,$shdata) {
         // Vorrausetzung für die Verschattungsberechnung
 
         if ($shdata) {
             foreach ($shdata as $shdaten) {
                 $modalignment = $shdaten->getModAlignment(); // Modul Ausrichtung - 0 = Landscape | 1 = Portrait Full | 2 = Portrait Half |
-            }
+              }
         }
 
         if (is_array($RSKArray)) {

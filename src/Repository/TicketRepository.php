@@ -136,7 +136,7 @@ class TicketRepository extends ServiceEntityRepository
      * @param string $end
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, int $proofg4n = 0, $proofmaintenance = 0, string $sort = "", string $direction = "", bool $ignore = false, string $ticketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, int $proofepc = 0, int $proofam = 0, int $proofg4n = 0, int $proofmaintenance = 0, string $sort = "", string $direction = "", bool $ignore = false, string $ticketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -213,7 +213,7 @@ class TicketRepository extends ServiceEntityRepository
             $qb->andWhere("ticket.kpiStatus = $kpistatus");
         }
         if ($ticketName !== "") {
-            $qb->andWhere("ticket.TicketName LIKE '%$ticketName%'");
+            $qb->andWhere("ticket.ticketName LIKE '%$ticketName%'");
         }
 
         if ($ignore) {
@@ -323,7 +323,7 @@ class TicketRepository extends ServiceEntityRepository
             $qb->andWhere("ticket.kpiStatus = $kpistatus");
         }
         if ($ticketName !== "") {
-            $qb->andWhere("ticket.TicketName LIKE '%$ticketName%'");
+            $qb->andWhere("ticket.ticketName LIKE '%$ticketName%'");
         }
 
         if ($ignore) {

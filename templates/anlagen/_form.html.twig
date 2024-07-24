@@ -184,17 +184,14 @@
                     <fieldset class="fieldset">
                         <legend>Basis Konfiguration</legend>
                         <div class="grid-x grid-padding-x">
-                            <div class="cell medium-3">{{ form_row(anlageForm.anlIntnr) }}</div>
-                            <div class="cell medium-3">{{ form_row(anlageForm.anlType) }}</div>
-                            <div class="cell medium-3">{{ form_row(anlageForm.anlZeitzone) }}</div>
-                            <div class="cell medium-3">{{ form_row(anlageForm.anlBetrieb) }}</div>
+                            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlIntnr) }}</div>
+                            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlType) }}</div>
+                            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlZeitzone) }}</div>
+                            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlBetrieb) }}</div>
+                            <div class="cell medium-4 large-2">{{ form_row(anlageForm.configType) }}</div>
+                            <div class="cell medium-4 large-2">{{ form_row((anlageForm.pathToImportScript)) }}</div>
                         </div>
-                        <div class="grid-x grid-padding-x">
-                            <div class="cell medium-3">{{ form_row(anlageForm.anlInputDaily) }}</div>
-                            <div class="cell medium-3"></div>
-                            <div class="cell medium-3">{{ form_row(anlageForm.configType) }}</div>
-                            <div class="cell medium-3">{{ form_row((anlageForm.pathToImportScript)) }}</div>
-                        </div>
+
                     </fieldset>
                     <fieldset class="fieldset">
                         <legend>Konfiguration Wetter Daten</legend>
@@ -242,6 +239,7 @@
                                     <div class="cell"> {{ form_row(anlageForm.hasFrequency) }}</div>
                                     <div class="cell"> {{ form_row(anlageForm.ignoreNegativEvu) }}</div>
                                     <div class="cell"> {{ form_row(anlageForm.isTrackerEow) }}</div>
+
                                 </div>
                             </fieldset>
                         </div>
@@ -586,6 +584,7 @@
                                 <div class="grid-x grid-margin-x">
                                     <div class="cell small-6">
                                         {{ form_row(anlageForm.ActivateTicketSystem) }}
+                                        {{ form_row(anlageForm.ticketGenerationDelay) }}
                                     </div>
                                     <div class="cell small-6">
                                         {{ form_row(anlageForm.PowerThreshold) }}
@@ -770,6 +769,7 @@
                                     <div class="cell"> {{ form_row(anlageForm.settings.symfonyImport) }}</div>
                                     <div class="cell"> {{ form_row(anlageForm.settings.useSensorsData) }}</div>
                                     <div class="cell"> {{ form_row(anlageForm.settings.sensorsInBasics) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.settings.sensorsFromSatelite) }}</div>
                                     <div class="cell"> {{ form_row(anlageForm.settings.importType) }}</div>
                                     <div class="cell"> {{ form_row(anlageForm.settings.stringboxesUnits) }}</div>
                                     <div class="cell"> {{ form_row(anlageForm.settings.invertersUnits) }}</div>
@@ -883,8 +883,8 @@
     {% do anlageForm.anlageSunShading.setRendered() %}
     {% do anlageForm.savecreatedb.setRendered() %}
     {% do anlageForm.timesConfigs.setRendered() %}
-    {% do anlageForm.anlInputDaily.setRendered() %}
     {% do anlageForm.configType.setRendered() %}
-  {% do anlageForm.newAlgorythm.setRendered() %}
+    {% do anlageForm.anlInputDaily.setRendered() %}
+    {% do anlageForm.newAlgorythm.setRendered() %}
 
 {{ form_end(anlageForm) }}

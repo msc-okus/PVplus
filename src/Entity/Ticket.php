@@ -103,7 +103,12 @@ class Ticket
     private Collection $dates;
 
     #[ORM\Column(nullable: true)]
-    private ?bool $needsProof = false; // this is proof by TAM
+    private ?bool $needsProof = false;
+
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $needsProofIt = false; // this will send an email to it@green4net.com
+
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $openTicket;
@@ -161,6 +166,9 @@ class Ticket
         private ?string $generatedFrom = '';
     */
     private string $generatedFrom;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $mailSent = false;
 
     public function __construct()
     {
@@ -280,6 +288,18 @@ class Ticket
 
         return $this;
     }
+
+    public function getNeedsProofIt(): ?bool
+    {
+        return $this->needsProofIt;
+    }
+
+    public function setNeedsProofIt(?bool $needsProofIt): void
+    {
+        $this->needsProofIt = $needsProofIt;
+    } // this is proof by TAM
+
+
     public function isNeedsProofTAM(): ?bool
     {
         return $this->needsProof;
@@ -585,7 +605,9 @@ class Ticket
             case 30:
                 $this->description = "Grid Error in Inverter(s): " .  $inverterString;
                 break;
-
+            case 100:
+                $this->description = "Data gap in Irradiation Database" ;
+                break;
             default:
                 $this->description = "Error in inverter: " .  $inverterString;
         }
@@ -614,6 +636,18 @@ class Ticket
     public function setWhenClosed(?\DateTimeInterface $whenClosed): static
     {
         $this->whenClosed = $whenClosed;
+
+        return $this;
+    }
+
+    public function isMailSent(): ?bool
+    {
+        return $this->mailSent;
+    }
+
+    public function setMailSent(?bool $mailSent): static
+    {
+        $this->mailSent = $mailSent;
 
         return $this;
     }

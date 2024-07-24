@@ -57,98 +57,111 @@ class DayAheadForecastMALService
           $result->execute();
 
           foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-              $samples[] = [(empty($value['g_upper'])) ? 0.0 : $value['g_upper'], (empty($value['temp_pannel'])) ? 0.0 : $value['temp_pannel']];
-              $targets[] = (empty($value['wr_pac'])) ? 0.0 : $value['wr_pac'];
+
+              if (!empty($value['temp_pannel']) or $value['temp_pannel'] > 0) {
+                  $samples[] = [(empty($value['g_upper'])) ? 0.0 : $value['g_upper'], (empty($value['temp_pannel'])) ? 0.0 : $value['temp_pannel']];
+                  $targets[] = (empty($value['wr_pac'])) ? 0.0 : $value['wr_pac'];
+              }
+
           }
+          //  Prüfen das Array Samples[] ob es geschieben wird es benötigt die PannelTemp zwingend.
+          if (count($samples) > 1) {
 
-          $regression = new LeastSquares();
-          $regression->train($samples, $targets);
+              $regression = new LeastSquares();
+              $regression->train($samples, $targets);
 
-          if ((is_countable($decarray) ? count($decarray) : 0) > 0) {
-              foreach ($decarray as $keyout => $valout) {
+              if ((is_countable($decarray) ? count($decarray) : 0) > 0) {
+                  foreach ($decarray as $keyout => $valout) {
 
-                  foreach ($valout as $keyin => $valin) {
+                      foreach ($valout as $keyin => $valin) {
 
-                      foreach ($valin as $key => $val) {
+                          foreach ($valin as $key => $val) {
 
-                          isset($val['TMP']) ? $airTemp = $val['TMP'] : $airTemp = '0.0';
-                          isset($val['FF']) ? $windSpeed = $val['FF'] : $windSpeed = '0.0';
-                          isset($val['GDIR']) ? $gdir = $val['GDIR'] : $gdir = '0.0';
-                          isset($val['DOY']) ? $doy = $val['DOY'] : $doy = '0';
-                          isset($val['HR']) ? $hr = $val['HR'] : $hr = '0';
-                          isset($val['MIN']) ? $m = $val['MIN'] : $m = '0';
-                          isset($val['TS']) ? $ts = $val['TS'] : $ts = '0';
-                          isset($val['TIP']) ? $tip = $val['TIP'] : $tip = '';
+                              isset($val['TMP']) ? $airTemp = $val['TMP'] : $airTemp = '0.0';
+                              isset($val['FF']) ? $windSpeed = $val['FF'] : $windSpeed = '0.0';
+                              isset($val['GDIR']) ? $gdir = $val['GDIR'] : $gdir = '0.0';
+                              isset($val['DOY']) ? $doy = $val['DOY'] : $doy = '0';
+                              isset($val['HR']) ? $hr = $val['HR'] : $hr = '0';
+                              isset($val['MIN']) ? $m = $val['MIN'] : $m = '0';
+                              isset($val['TS']) ? $ts = $val['TS'] : $ts = '0';
+                              isset($val['TIP']) ? $tip = $val['TIP'] : $tip = '';
 
-                          $hrarry[$doy][$hr][$key] = ['ts' => $ts, 'ex' => 0, 'irr' => 0,'tmp' => 0,'gdir' => 0,'tcell' => 0];
+                              $hrarry[$doy][$hr][$key] = ['ts' => $ts, 'ex' => 0, 'irr' => 0, 'tmp' => 0, 'gdir' => 0, 'tcell' => 0];
 
-                          if ($anlage->getIsOstWestAnlage()) {
+                              if ($anlage->getIsOstWestAnlage()) {
 
-                              if ($modulisbif) {
-                                  isset($val['OSTWEST']['RGESBIF_UPPER']) ? $irrUpper = round($val['OSTWEST']['RGESBIF_UPPER'], 2) : $irrUpper = '0.0';
-                                  isset($val['OSTWEST']['RGESBIF_LOWER']) ? $irrLower = round($val['OSTWEST']['RGESBIF_LOWER'], 2) : $irrLower = '0.0';
+                                  if ($modulisbif) {
+                                      isset($val['OSTWEST']['RGESBIF_UPPER']) ? $irrUpper = round($val['OSTWEST']['RGESBIF_UPPER'], 2) : $irrUpper = '0.0';
+                                      isset($val['OSTWEST']['RGESBIF_LOWER']) ? $irrLower = round($val['OSTWEST']['RGESBIF_LOWER'], 2) : $irrLower = '0.0';
+                                  } else {
+                                      isset($val['OSTWEST']['RGES_UPPER']) ? $irrUpper = round($val['OSTWEST']['RGES_UPPER'], 2) : $irrUpper = '0.0';
+                                      isset($val['OSTWEST']['RGES_LOWER']) ? $irrLower = round($val['OSTWEST']['RGES_LOWER'], 2) : $irrLower = '0.0';
+                                  }
+
+                                  if ($tip == "60min") {
+                                      $irrUpper = $irrUpper / 4;
+                                  }
+                                  $irr = $irrUpper;
+                                  $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irrUpper), 2);
+                                  if ($irrUpper == 0.0 or $irrUpper == 0 or $irrUpper == NULL) {
+                                      $ex4 = 0.0;
+                                  } else {
+                                      $ex4 = $regression->predict([$irrUpper, $Tcell]);
+                                  }
+
+                              } elseif ($anlage->getIsOstWestAnlage()) {
+
+                                  if ($modulisbif) {
+                                      isset($val['TRACKEROW']['RGESBIF']) ? $irr = round($val['TRACKEROW']['RGESBIF'], 2) : $irr = '0.0';
+                                  } else {
+                                      isset($val['TRACKEROW']['RGES']) ? $irr = round($val['TRACKEROW']['RGES'], 2) : $irr = '0.0';
+                                  }
+
+                                  if ($tip == "60min") {
+                                      $irr = $irr / 4;
+                                  }
+
+                                  $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
+                                  if ($irr == 0.0 or $irr == 0 or $irr == NULL) {
+                                      $ex4 = 0.0;
+                                  } else {
+                                      $ex4 = $regression->predict([$irr, $Tcell]);
+                                  }
+
                               } else {
-                                  isset($val['OSTWEST']['RGES_UPPER']) ? $irrUpper = round($val['OSTWEST']['RGES_UPPER'], 2) : $irrUpper = '0.0';
-                                  isset($val['OSTWEST']['RGES_LOWER']) ? $irrLower = round($val['OSTWEST']['RGES_LOWER'], 2) : $irrLower = '0.0';
+
+                                  if ($modulisbif) {
+                                      isset($val['SUED']['RGESBIF']) ? $irr = round($val['SUED']['RGESBIF'], 2) : $irr = '0.0';
+                                  } else {
+                                      isset($val['SUED']['RGES']) ? $irr = round($val['SUED']['RGES'], 2) : $irr = '0.0';
+                                  }
+
+                                  if ($tip == "60min") {
+                                      $irr = $irr / 4;
+                                  }
+
+                                  $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
+                                  if ($irr == 0.0 or $irr == 0 or $irr == NULL) {
+                                      $ex4 = 0.0;
+                                  } else {
+                                      $ex4 = $regression->predict([$irr, $Tcell]);
+                                  }
                               }
 
-                              if ($tip == "60min") { $irrUpper = $irrUpper / 4; }
-                              $irr = $irrUpper;
-                              $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irrUpper), 2);
-                              if ($irrUpper == 0.0 OR $irrUpper == 0 OR $irrUpper == NULL){
-                                  $ex4 = 0.0;
-                              } else {
-                                  $ex4 = $regression->predict([$irrUpper, $Tcell]);
-                              }
+                              $hrarry[$doy][$hr][$key] = ['ts' => $ts, 'ex' => round($ex4, 2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir, 'tcell' => $Tcell]; // array for houry return
+                              $irr = 0;
 
-                          } elseif($anlage->getIsOstWestAnlage()) {
-
-                              if ($modulisbif) {
-                                  isset($val['TRACKEROW']['RGESBIF']) ? $irr = round($val['TRACKEROW']['RGESBIF'], 2) : $irr = '0.0';
-                              } else {
-                                  isset($val['TRACKEROW']['RGES']) ? $irr = round($val['TRACKEROW']['RGES'], 2) : $irr = '0.0';
-                              }
-
-                              if ($tip == "60min") { $irr = $irr / 4 ; }
-
-                              $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
-                              if ($irr == 0.0 OR $irr == 0 OR $irr == NULL){
-                                  $ex4 = 0.0;
-                              } else {
-                                  $ex4 = $regression->predict([$irr, $Tcell]);
-                              }
-
-                          } else {
-
-                              if ($modulisbif) {
-                                  isset($val['SUED']['RGESBIF']) ? $irr = round($val['SUED']['RGESBIF'], 2) : $irr = '0.0';
-                              } else {
-                                  isset($val['SUED']['RGES']) ? $irr = round($val['SUED']['RGES'], 2) : $irr = '0.0';
-                              }
-
-                              if ($tip == "60min") { $irr = $irr / 4 ; }
-
-                              $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
-                              if ($irr == 0.0 OR $irr == 0 OR $irr == NULL) {
-                                  $ex4 = 0.0;
-                              } else {
-                                  $ex4 = $regression->predict([$irr, $Tcell]);
-                              }
                           }
-
-                          $hrarry[$doy][$hr][$key]  = ['ts' => $ts, 'ex' => round($ex4,2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir, 'tcell' => $Tcell]; // array for houry return
-                          $irr = 0;
 
                       }
 
-                  }
+                      $resultArray = $hrarry;
 
-                  $resultArray = $hrarry;
+                  }
 
               }
 
           }
-
       }
 
       return $resultArray;
