@@ -155,14 +155,14 @@ class ImportToolsController extends BaseController
     public function importManuell(#[MapQueryParameter] int $id, #[MapQueryParameter] string $from, #[MapQueryParameter] string $to, AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
         $fromts = strtotime("$from 00:00:00");
-        $tots = strtotime("$to 23:59:00");
+        $tots = strtotime("$to 23:45:00");
 
         //get all Plants for Import via via Cron
         $anlage = $anlagenRepo->findOneByIdAndJoin($id);
 
         for ($dayStamp = $fromts; $dayStamp <= $tots; $dayStamp += 24*3600) {
 
-            $from_new = strtotime(date('Y-m-d 00:00', $dayStamp));
+            $from_new = strtotime(date('Y-m-d 23:45', $dayStamp-900));
             $to_new = strtotime(date('Y-m-d 23:45', $dayStamp));
             $currentDay = date('d', $dayStamp);
 
