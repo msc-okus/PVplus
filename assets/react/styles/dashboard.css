@@ -4,33 +4,16 @@
 
 
 
-.layout {
-
-    background: lightgray;
-
-}
-
-.react-grid-item-my {
-    position: relative;
-    border: 1px solid #000; /* Added border to items */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-}
-
-.btn {
-    margin: 5px;
-    padding: 10px 20px;
-    cursor: pointer;
-}
 
 .dropdown-type {
     position: absolute;
     background-color: white;
     border: 1px solid #ccc;
     z-index: 1000;
+    padding:4px;
 }
+
+
 
 .dropdown-type-item {
     padding: 10px;
@@ -41,14 +24,57 @@
     background-color: #f0f0f0;
 }
 
-/*.dropdown-type-item.disabled {*/
-/*    color: #ccc;*/
-/*    cursor: not-allowed;*/
-/*}*/
 
-/*.dropdown-type-item:not(.disabled):hover {*/
-/*    background-color: #f0f0f0;*/
-/*}*/
+
+.pagination-overview {
+    display: flex;
+    justify-content: space-between;
+    background-color: white;
+
+
+
+}
+.pagination-overview button {
+
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+.pagination-overview button:disabled {
+    background-color: #e0e0e0;
+    cursor: not-allowed;
+}
+
+
+.panel-box{
+    flex: 1;
+    height: 100%;
+    display: flex;
+    color:white;
+}
+.panel-white{
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
+}
+
+.panel-pr{
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.fa-chevron-right {
+    color: rgba(204, 204, 204, 0.5);
+    font-size: 18px; /* Icon size */
+    transition: color 0.2s; /* Smooth transition for color change */
+
+}
+
+.fa-chevron-right:hover {
+     color: #ccc;
+}
+
 
 
 

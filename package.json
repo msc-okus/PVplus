@@ -44,7 +44,8 @@
         "build": "encore production --progress"
     },
     "dependencies": {
-        "axios": "^1.2.1",
+        "@tanstack/react-table": "^8.19.2",
+        "axios": "^1.7.2",
         "ckeditor4": "^4.20.1",
         "datatables": "^1.10.18",
         "datatables.net-buttons-zf": "^2.3.6",
@@ -59,6 +60,8 @@
         "moment": "^2.30.1",
         "pdfmake": "^0.2.7",
         "react-grid-layout": "^1.4.4",
+        "react-router-dom": "6",
+        "recharts": "^2.12.7",
         "sass-loader": "^13.3.1",
         "stimulus-reveal-controller": "^4.1.0",
         "stimulus-use": "^0.50.0",

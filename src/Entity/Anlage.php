@@ -44,7 +44,7 @@ class Anlage implements \Stringable
     private string $dbAnlagenBase = 'pvp_base';
     private string $dbAnlagenDivision = 'pvp_division';
 
-    #[Groups(['main','api:read'])]
+    #[Groups(['main','api:read','dashboard'])]
     #[SerializedName('id')]
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\Id]
@@ -374,6 +374,7 @@ class Anlage implements \Stringable
     private Collection $anlageGridMeterDays;
     #[ORM\Column(type: 'boolean')]
     private bool $useGridMeterDayData = false;
+    #[Groups(['dashboard'])]
     #[ORM\Column(type: 'string', length: 20)]
     private string $country = '';
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: OpenWeather::class, cascade: ['persist', 'remove'] )]
@@ -988,7 +989,7 @@ class Anlage implements \Stringable
     }
 
 
-
+    #[Groups(['dashboard'])]
     public function getPnom(): ?float
     {
         return (float) $this->power;
@@ -1474,6 +1475,7 @@ class Anlage implements \Stringable
         return $this;
     }
 
+    #[Groups(['dashboard'])]
     public function getLastStatus(): Collection
     {
         $criteria = AnlagenRepository::lastAnlagenStatusCriteria();
@@ -1516,6 +1518,7 @@ class Anlage implements \Stringable
         return $this->pr->matching($criteria);
     }
 
+    #[Groups(['dashboard'])]
     public function getYesterdayPR(): ?Collection
     {
         $criteria = AnlagenRepository::yesterdayAnlagenPRCriteria();
@@ -2559,6 +2562,7 @@ class Anlage implements \Stringable
     /**
      * @return Collection|OpenWeather
      */
+    #[Groups(['dashboard'])]
     public function getLastOpenWeather(): Collection
     {
         $criteria = AnlagenRepository::lastOpenWeatherCriteria();
@@ -4234,35 +4238,128 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    /**
-     * @return Collection<int, AnlageFile>
-     */
-    public function getDocuments(): Collection
-    {
-        return $this->documents;
-    }
 
-    public function addDocument(AnlageFile $document): static
-    {
-        if (!$this->documents->contains($document)) {
-            $this->documents->add($document);
-            $document->setAnlage($this);
-        }
 
-        return $this;
-    }
-
-    public function removeDocument(AnlageFile $document): static
+    public function getOpenTicketsAlert(): string
     {
-        if ($this->documents->removeElement($document)) {
-            // set the owning side to null (unless already changed)
-            if ($document->getAnlage() === $this) {
-                $document->setAnlage(null);
+        $criteriaForYellow = [
+            ['status' => 10, 'priority' => 10, 'alertTypes' => ['10', '20'], 'minCount' => 10],
+            ['status' => 10, 'priority' => 10, 'alertTypes' => ['40', '30'], 'minCount' => 3],
+            ['status' => 10, 'priority' => 10, 'alertTypes' => ['50', '60'], 'minCount' => 5, 'openTicket' => true],
+            ['status' => 10, 'priority' => 10, 'alertType' => '100', 'minCount' => 1, 'openTicket' => true],
+        ];
+
+        $criteriaForRed = [
+            ['status' => 10, 'priority' => 10, 'alertType' => '72', 'minCount' => 1, 'proofG4N' => true],
+            ['status' => 10, 'priority' => 10, 'alertType' => '72', 'minCount' => 1, 'proofAny' => true],
+            ['alertType' => '72', 'kpiStatus' => '20', 'minCount' => 1],
+            ['status' => 10, 'priority' => 10, 'alertType' => '73', 'minCount' => 1, 'proofG4N' => true],
+            ['alertType' => '73', 'kpiStatus' => '20', 'minCount' => 1],
+            ['alertType' => '74', 'kpiStatus' => '20', 'minCount' => 1],
+            ['alertType' => '71', 'kpiStatus' => '20', 'minCount' => 1],
+            ['alertType' => '70', 'kpiStatus' => '20', 'minCount' => 1],
+            ['priority' => 40, 'minCount' => 1],
+        ];
+
+        // Check for yellow criteria
+        foreach ($criteriaForYellow as $criteria) {
+            $count = $this->tickets->filter(function (Ticket $ticket) use ($criteria) {
+                if ($ticket->getStatus() !== $criteria['status'] || $ticket->getPriority() !== $criteria['priority']) {
+                    return false;
+                }
+                if (isset($criteria['alertTypes']) && !in_array($ticket->getAlertType(), $criteria['alertTypes'], true)) {
+                    return false;
+                }
+                if (isset($criteria['openTicket']) && $ticket->isOpenTicket() !== $criteria['openTicket']) {
+                    return false;
+                }
+                return true;
+            })->count();
+            if ($count >= $criteria['minCount']) {
+                return 'yellow';
             }
         }
 
-        return $this;
+        // Check for red criteria
+        foreach ($criteriaForRed as $criteria) {
+            $count = $this->tickets->filter(function (Ticket $ticket) use ($criteria) {
+                if (isset($criteria['status']) && $ticket->getStatus() !== $criteria['status']) {
+                    return false;
+                }
+                if (isset($criteria['priority']) && $ticket->getPriority() !== $criteria['priority']) {
+                    return false;
+                }
+                if (isset($criteria['alertType']) && $ticket->getAlertType() !== $criteria['alertType']) {
+                    return false;
+                }
+                if (isset($criteria['proofG4N']) && $ticket->isNeedsProofG4N() !== $criteria['proofG4N']) {
+                    return false;
+                }
+                if (isset($criteria['proofAny']) && !($ticket->isNeedsProofG4N() || $ticket->isNeedsProofEPC())) {
+                    return false;
+                }
+                if (isset($criteria['kpiStatus']) && $ticket->getKpiStatus() !== $criteria['kpiStatus']) {
+                    return false;
+                }
+                return true;
+            })->count();
+            if ($count >= $criteria['minCount']) {
+                return 'red';
+            }
+        }
+
+        // Default color if no criteria are met
+        return 'green';
     }
+
+    public function mroTickets(): Collection
+    {
+        return $this->tickets->filter(function (Ticket $ticket) {
+            return $ticket->hasNotificationInfos();
+        });
+    }
+
+
+
+    public function getOpenMroTicketsAlert(): string
+    {
+        $mroTickets = $this->mroTickets();
+
+        // Check for red condition
+        foreach ($mroTickets as $ticket) {
+            if (($ticket->getStatus() === 10 && $ticket->getPriority() === 10 && $ticket->getEditor() === 'Alert system') ||
+                ($ticket->getStatus() === 30 && $ticket->getPriority() === 30 && $ticket->getEditor() !== 'Alert system') ||
+                ($ticket->getStatus() === 30 && $ticket->getPriority() === 40 && $ticket->getEditor() !== 'Alert system') ||
+                ($ticket->getStatus() === 40)) {
+                return 'red';
+            }
+        }
+
+        // Check for yellow condition
+        foreach ($mroTickets as $ticket) {
+            if (($ticket->getStatus() === 30 && $ticket->getPriority() === 10 && $ticket->getEditor() !== 'Alert system') ||
+                ($ticket->getStatus() === 30 && $ticket->getPriority() === 20 && $ticket->getEditor() !== 'Alert system')) {
+                return 'yellow';
+            }
+        }
+
+        // Check for green condition
+        $allGreen = true;
+        foreach ($mroTickets as $ticket) {
+            if (!($ticket->getAlertType() === '7all' && $ticket->getKpiStatus() === '20') &&
+                !($ticket->getStatus() === 90)) {
+                $allGreen = false;
+                break;
+            }
+        }
+
+        if ($allGreen) {
+            return 'green';
+        }
+
+        return 'green';
+    }
+
 
     public function getTicketGenerationDelay(): ?int
     {

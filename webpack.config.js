@@ -23,6 +23,7 @@ Encore
     .addEntry('app', './assets/js/app.js')
     .addEntry('login', './assets/js/login.js')
     .addEntry('dashboard', './assets/js/dashboard.js')
+    .addEntry('new_dashboard', './assets/js/new_dashboard.js')
     .addEntry('reports_list', './assets/js/reports_list.js')
     .addEntry('tickets_list', './assets/js/tickets_list.js')
     .addEntry('ticket_edit', './assets/js/ticket_edit.js')

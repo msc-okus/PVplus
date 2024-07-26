@@ -543,4 +543,73 @@ class AnlagenRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    public function findPlantsForDashboardForUserWithGrantedList(array $grantedArray, $user): array
+    {
+        // Create the base query builder
+        $qb = $this->createQueryBuilder('a')
+            ->innerJoin('a.eigner', 'e')
+            ->innerJoin('e.user', 'u')
+            ->addSelect('e')
+            ->addSelect('e.firma AS firma')
+            ->addSelect('COUNT(t.id) AS total_tickets')
+            ->addSelect('SUM(CASE WHEN t.status = 10 THEN 1 ELSE 0 END) AS status_10')
+            ->addSelect('SUM(CASE WHEN t.status = 20 THEN 1 ELSE 0 END) AS status_20')
+            ->addSelect('SUM(CASE WHEN t.status = 30 THEN 1 ELSE 0 END) AS status_30')
+            ->addSelect('SUM(CASE WHEN t.status = 40 THEN 1 ELSE 0 END) AS status_40')
+            ->addSelect('SUM(CASE WHEN t.status = 90 THEN 1 ELSE 0 END) AS status_90')
+            ->leftJoin('a.tickets', 't', 'WITH', 't.createdAt >= :dateLimit')
+            ->setParameter('dateLimit', new \DateTime('-7 days'))
+            ->andWhere('u.id = :userId')
+            ->setParameter('userId', $user->getId());
+
+        // Apply the granted list filter
+        if (!empty($grantedArray)) {
+            $qb->andWhere('a.anlId IN (:grantedArray)')
+                ->setParameter('grantedArray', $grantedArray);
+        }
+
+        // Apply the criteria for active plants
+        $qb->andWhere('a.anlHidePlant = :anlHidePlant')
+            ->setParameter('anlHidePlant', 'No')
+            ->andWhere('a.anlView = :anlView')
+            ->setParameter('anlView', 'Yes');
+
+        // Group the results by anlage_id to ensure aggregation functions correctly
+        $qb->groupBy('a.anlId');
+
+        // Get the query and return results
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findPlantsForDashboard(): array
+    {
+        $qb = $this->createQueryBuilder('anlage')
+            ->innerJoin('anlage.eigner', 'eigner')
+            ->addSelect('eigner')
+            ->addSelect('eigner.firma AS firma')
+            ->leftJoin('anlage.economicVarNames', 'varName')
+            ->leftJoin('anlage.economicVarValues', 'ecoValu')
+            ->leftJoin('anlage.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings')
+            ->where('eigner.active = 1')
+            ->andWhere('anlage.anlHidePlant = :anlHidePlant')
+            ->setParameter('anlHidePlant', 'No')
+            ->orderBy('eigner.firma', 'ASC')
+            ->addOrderBy('anlage.anlName', 'ASC');
+
+        // Ajouter les jointures et sélections pour les tickets
+        $qb->leftJoin('anlage.tickets', 't', 'WITH', 't.createdAt >= :dateLimit')
+            ->setParameter('dateLimit', new \DateTime('-7 days'))
+            ->addSelect('COUNT(t.id) AS last_7_days_tickets_total')
+            ->addSelect('SUM(CASE WHEN t.status = 10 THEN 1 ELSE 0 END) AS last_7_days_tickets_status_10')
+            ->addSelect('SUM(CASE WHEN t.status = 30 THEN 1 ELSE 0 END) AS last_7_days_tickets_status_30')
+            ->addSelect('SUM(CASE WHEN t.status = 40 THEN 1 ELSE 0 END) AS last_7_days_tickets_status_40')
+            ->addSelect('SUM(CASE WHEN t.status = 90 THEN 1 ELSE 0 END) AS last_7_days_tickets_status_90')
+            ->groupBy('anlage.anlId');
+
+        return $qb->getQuery()->getResult();
+    }
+
 }

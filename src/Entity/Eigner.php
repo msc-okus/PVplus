@@ -20,6 +20,7 @@ class Eigner
     /**
      * @var int
      */
+
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
@@ -29,6 +30,7 @@ class Eigner
     #[Gedmo\Timestampable(on: 'create')]
     private  ?\DateTimeInterface $created = null;
 
+    #[Groups(['dashboard'])]
     #[ORM\Column(name: 'firma', type: 'string', length: 100, nullable: false)]
     private ?string $firma = null;
 
@@ -67,6 +69,7 @@ class Eigner
 
     #[ORM\Column(name: 'language', type: 'string', length: 10, nullable: false, options: ['default' => 'EN'])]
     private string $language = 'EN';
+
 
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eigners')]
     #[ORM\JoinTable(name: 'eigner_user')]
@@ -325,7 +328,7 @@ class Eigner
         return $this->anlage;
     }
 
-    #[Groups(['dashboard'])]
+
     public function getActiveAnlage(bool $role = false): Collection
     {
         $criteria = EignerRepository::activeAnlagenCriteria($role);

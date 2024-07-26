@@ -15,13 +15,13 @@
 
 
     {{ parent() }}
-
+    {{ encore_entry_script_tags('new_dashboard') }}
 {% endblock %}
 
 {% block new %}
-<div class="off-canvas-content" data-off-canvas-content>
-    <main class="grid-container fluid" style="padding-top: 1rem">
-        <div {{ react_component('Dashboard', {'maxItems': 4}) }}>
+<div  class="off-canvas-content" data-off-canvas-content>
+    <main class="grid-container fluid" >
+        <div id="react-root">
             Loading... <i class="fas fa-cog fa-spin fa-3x"></i>
         </div>
     </main>
