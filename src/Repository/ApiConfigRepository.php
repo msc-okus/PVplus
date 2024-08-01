@@ -36,4 +36,14 @@ class ApiConfigRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findOneById($value)
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.id = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
+
 }

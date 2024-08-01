@@ -20,19 +20,19 @@ class ApiConfig extends PiiCryptoService
     private ?string $ownerId = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    private ?string $apiType = null;
+    public ?string $apiType = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    private ?string $configName = null;
+    public ?string $configName = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    private ?string $apiUser = null;
+    public ?string $apiUser = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $apiPassword = null;
+    public ?string $apiPassword = null;
 
     #[ORM\Column(length: 100, nullable: true)]
-    private ?string $apiToken = null;
+    public ?string $apiToken = null;
 
     #[ORM\ManyToOne(inversedBy: 'apiConfig')]
     private ?Eigner $owner = null;

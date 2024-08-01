@@ -7,13 +7,12 @@ use App\Helper\G4NTrait;
 use App\Helper\ImportFunctionsTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
+use App\Repository\ApiConfigRepository;
 use App\Repository\PVSystDatenRepository;
+use App\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
-use App\Service;
-use App\Service\Forecast;
-use App\Service\Forecast\DayAheadForecastDEKService;
 
 class ImportService
 {
@@ -22,19 +21,22 @@ class ImportService
 
     public function __construct(
         private readonly PdoService $pdoService,
-        private readonly PVSystDatenRepository $pvSystRepo,
-        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PVSystDatenRepository        $pvSystRepo,
+        private readonly AnlagenRepository            $anlagenRepository,
         private readonly AnlageAvailabilityRepository $anlageAvailabilityRepo,
-        private readonly FunctionsService $functions,
-        private readonly EntityManagerInterface $em,
-        private readonly AvailabilityService $availabilityService,
-        private readonly MeteoControlService $meteoControlService,
-        private readonly ManagerRegistry $doctrine,
-        private readonly WeatherServiceNew $weatherService,
+        private readonly ApiConfigRepository          $apiConfigRepository,
+        private readonly FunctionsService             $functions,
+        private readonly EntityManagerInterface       $em,
+        private readonly AvailabilityService          $availabilityService,
+        private readonly MeteoControlService          $meteoControlService,
+        private readonly ManagerRegistry              $doctrine,
+        private readonly WeatherServiceNew            $weatherService,
+        private readonly externalApisService          $externalApis,
         #private readonly DayAheadForecastDEKService $dayAheadForecastDEKService,
         #private readonly Forecast\DayAheadForecastMALService $aheadForecastMALService
     )
     {
+        $thisApi = $this->externalApis;
     }
 
     /**
@@ -76,10 +78,24 @@ class ImportService
         $timeZonePlant = $anlage->getNearestTimezone();
         $dateTimeZoneOfPlant = new \DateTimeZone($timeZonePlant);
 
-        $owner = $anlage->getEigner();
-        $mcUser = $owner->getSettings()->getMcUser();
-        $mcPassword = $owner->getSettings()->getMcPassword();
-        $mcToken = $owner->getSettings()->getMcToken();
+        $apiconfigId = $anlage->getSettings()->getApiConfig();
+        $apiconfig = $this->apiConfigRepository->findOneById($apiconfigId);
+
+        $apiUser = $apiconfig->apiUser;
+        $apiPassword = $this->unHashData($apiconfig->apiPassword);
+        $apiToken = $apiconfig->apiToken;
+        $apiType = $apiconfig->apiType;
+
+        if($apiType == 'vcom'){
+            $baseUrl = 'http://api.meteocontrol.de/v2';
+        }
+
+
+
+        $apiAccessToken = $this->externalApis->getAccessTokenMc($baseUrl, $apiUser, $apiPassword, $apiToken);
+
+        exit;
+
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
         $hasSensorsFromSatelite = $anlage->getSettings()->isSensorsFromSatelite();
@@ -515,6 +531,11 @@ class ImportService
             }
             //end write Data in the tables
         }
+    }
+
+    public function unHashData(string $encodedData): string
+    {
+        return hex2bin(base64_decode($encodedData));
     }
 
 }
