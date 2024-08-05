@@ -34,18 +34,13 @@ class ImportPvSystFormType extends AbstractType
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
-        if ($this->security->isGranted('ROLE_G4N')) {
-            $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
-        } else {
-            $eigner = $this?->security->getUser()?->getEigners()[0];
-            $anlagen = $this->anlagenRepository->findAllIDByEigner($eigner);
-        }
-
+        $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
 
         $builder
             ->add('anlage', EntityType::class, [
                 'label' => 'Please select a Plant',
                 'class' => Anlage::class,
+                'placeholder' => 'Please select a Plant',
                 'choices' => $anlagen,
                 'choice_label' => 'anlName',
             ])
@@ -63,10 +58,15 @@ class ImportPvSystFormType extends AbstractType
                 'choices' => [';' => ';', ',' => ',']
             ])
             ->add('dateFormat', ChoiceType::class, [
-                'choices'   => ['d/m/y h:m' => 'd/m/y H:i']
+                'choices'   => [
+                    'DD/MM/YY hh:mm' => 'd/m/y H:i',
+                    'MM/DD/YY hh:mm' => 'm/d/y H:i',
+                ]
             ])
             ->add('filename', TextType::class, [
-
+                'attr' => [
+                    'readonly' => 'readonly',
+                ]
             ])
 
 
@@ -93,6 +93,7 @@ class ImportPvSystFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ImportPvSystModel::class,
+            'required' => false,
         ]);
     }
 }
