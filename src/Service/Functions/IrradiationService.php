@@ -9,15 +9,13 @@ use App\Repository\PVSystDatenRepository;
 use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
+use App\Service\PdoService;
 use App\Service\WeatherFunctionsService;
 use DateTime;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use PDO;
-use App\Service\PdoService;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
-use Psr\Cache\CacheItemInterface;
-use Psr\Cache\InvalidArgumentException;
 
 class IrradiationService
 {

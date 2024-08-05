@@ -4,39 +4,24 @@ namespace App\Controller;
 
 use App\Entity\AnlagenReports;
 use App\Entity\AnlageStringAssignment;
-
-
 use App\Entity\Eigner;
 use App\Form\Anlage\AnlageStringAssigmentCreateType;
-use App\Form\Anlage\AnlageStringAssigmentType;
-
-
 use App\Form\Anlage\AnlageStringAssigmentUploadType;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Service\AnlageStringAssigmentService;
-
-use App\Service\Functions\ImageGetterService;
+use App\Service\LogMessagesService;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Knp\Component\Pager\PaginatorInterface;
-
 use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemException;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Shuchkin\SimpleXLSX;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use App\Service\LogMessagesService;
-
 
 
 class AnlageStringAssignmentController extends AbstractController

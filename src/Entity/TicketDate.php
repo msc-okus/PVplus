@@ -4,14 +4,11 @@ namespace App\Entity;
 
 use App\Helper\TicketTrait;
 use App\Repository\TicketDateRepository;
-use App\Service\FunctionsService;
 use DateTime;
 use DateTimeInterface;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
-use Symfony\Component\Serializer\Serializer;
 
 #[ORM\Entity(repositoryClass: TicketDateRepository::class)]
 #[ORM\Table(name: 'ticket_date')]

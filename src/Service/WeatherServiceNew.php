@@ -7,8 +7,6 @@ use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\DayLightDataRepository;
-use DateTime;
-use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 

@@ -5,16 +5,10 @@ namespace App\Helper;
 require_once __DIR__.'/../../public/config.php';
 
 use App\Entity\Anlage;
-use DateTimeZone;
 use Exception;
 use FilesystemIterator;
-use JetBrains\PhpStorm\Deprecated;
-use League\Flysystem\Filesystem;
-use PDO;
-use PDOException;
 use RecursiveIteratorIterator;
 use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
-
 use Symfony\Component\Intl\Timezones;
 use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 

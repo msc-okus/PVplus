@@ -3,28 +3,21 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
-use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
-use App\Repository\TicketRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\AvailabilityService;
-use App\Service\CheckSystemStatusService;
-use App\Service\ExportService;
 use App\Service\ExpectedService;
+use App\Service\ExportService;
 use App\Service\ImportService;
 use App\Service\PRCalulationService;
 use App\Service\SystemStatus2;
-use App\Service\TicketsGeneration\AlertSystemV2Service;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_G4N')]
 class DefaultMREController extends BaseController

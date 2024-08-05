@@ -5,13 +5,11 @@
  */
 
 namespace App\Service\Forecast;
-use App\Entity\AnlageGroupMonths;
-use Phpml\Regression\LeastSquares;
 use App\Repository\AnlagenRepository;
-use App\Service;
-use PDO;
-use App\Service\PdoService;
 use App\Service\Functions\IrradiationService;
+use App\Service\PdoService;
+use PDO;
+use Phpml\Regression\LeastSquares;
 
 class DayAheadForecastMALService
 {

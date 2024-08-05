@@ -15,9 +15,9 @@ use App\Repository\TimesConfigRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
+use JetBrains\PhpStorm\Deprecated;
 use PDO;
 use Psr\Cache\InvalidArgumentException;
-use JetBrains\PhpStorm\Deprecated;
 
 #[Deprecated]
 class   AvailabilityService

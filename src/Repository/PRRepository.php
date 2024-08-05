@@ -5,10 +5,7 @@ namespace App\Repository;
 use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
  * @method AnlagenPR|null find($id, $lockMode = null, $lockVersion = null)

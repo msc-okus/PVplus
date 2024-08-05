@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
-use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;

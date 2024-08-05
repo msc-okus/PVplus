@@ -8,7 +8,6 @@ use App\Service\AssetManagementService;
 use App\Service\LogMessagesService;
 use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]

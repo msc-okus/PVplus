@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\AnlageSensorsRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 #[ORM\Entity(repositoryClass: AnlageSensorsRepository::class)]
 class AnlageSensors

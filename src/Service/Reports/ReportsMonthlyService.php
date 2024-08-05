@@ -12,16 +12,13 @@ use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\FunctionsService;
+use App\Service\PdoService;
 use App\Service\PRCalulationService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-use JetBrains\PhpStorm\NoReturn;
-use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use App\Service\PdoService;
 
 /**
  *

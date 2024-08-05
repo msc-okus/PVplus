@@ -7,7 +7,6 @@ use App\Service\PiiCryptoService;
 use Doctrine\ORM\Mapping as ORM;
 
 
-
 #[ORM\Entity(repositoryClass: OwnerSettingsRepository::class)]
 class OwnerSettings extends PiiCryptoService
 {

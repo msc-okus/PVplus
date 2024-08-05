@@ -6,9 +6,9 @@ use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Message\Command\ImportData;
 use App\Repository\AnlagenRepository;
-use App\Service\LogMessagesService;
 use App\Service\ExternFileService;
 use App\Service\ImportService;
+use App\Service\LogMessagesService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]

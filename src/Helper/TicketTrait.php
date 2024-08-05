@@ -2,13 +2,8 @@
 
 namespace App\Helper;
 
-use App\Entity\Anlage;
-use App\Repository\AcGroupsRepository;
-use App\Repository\GroupsRepository;
 use DateTimeInterface;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Persistence\ManagerRegistry;
 
 trait TicketTrait
 {

@@ -3,22 +3,24 @@
 namespace App\Service\TicketsGeneration;
 
 use App\Entity\Anlage;
+use App\Entity\SystemLog;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
+use App\Repository\SystemLogRepository;
 use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
 use App\Service\G4NSendMailService;
 use App\Service\MessageService;
+use App\Service\PdoService;
 use App\Service\WeatherFunctionsService;
 use App\Service\WeatherServiceNew;
 use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
-use App\Service\PdoService;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Twig\Error\LoaderError;
@@ -43,7 +45,8 @@ class AlertSystemV2Service
         private readonly FunctionsService        $functions,
         private readonly StatusRepository        $statusRepo,
         private readonly TicketRepository        $ticketRepo,
-        private readonly  G4NSendMailService     $g4NSendMailService
+        private readonly  G4NSendMailService     $g4NSendMailService,
+        private readonly SystemLogRepository     $sysLogRepo,
     )
     {
 
@@ -115,27 +118,6 @@ class AlertSystemV2Service
             $this->joinTicketsForTheDay($anlage, date('Y-m-d H:i:00', $stamp));
         }
     }
-
-    /**
-     * this method should be called to generate the multi inverter tickets
-     * not in use now
-     *  no other method from this class should be called manually
-     * @deprecated
-     * @param Anlage $anlage
-     * @param string $from
-     * @param string $to
-     * @throws InvalidArgumentException
-     */
-    public function generateTicketMulti(Anlage $anlage, string $from, string $to): void
-    {
-        $fromStamp = strtotime($from);
-        $toStamp = strtotime($to);
-        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-            $this->checkSystemMulti($anlage, date('Y-m-d H:i:00', $stamp));
-        }
-    }
-
-
 
     /**
      * Generate tickets for the given time, check if there is an older ticket for same inverter with same error.
@@ -278,7 +260,21 @@ class AlertSystemV2Service
                 $this->generateTickets('', 100, $anlage, ['*'], $time, $plant_status['ppc'], true);
             }
         }
-
+        $sysLog = $this->sysLogRepo->findOneBy(['anlage' => $anlage]);
+        if ($sysLog != null){
+            if ($sysLog->getLastTicketExecutionDate()->getTimestamp() < strtotime($time)){
+                $execDate = date_create(date('Y-m-d H:i:s', strtotime($time)));
+                $sysLog->setLastTicketExecutionDate($execDate);
+                $sysLog->setLastTicketExecution("Successful execution");
+            }
+        }
+        else{
+            $sysLog = new SystemLog();
+            $execDate = date_create(date('Y-m-d H:i:s', strtotime($time)));
+            $sysLog->setLastTicketExecutionDate($execDate);
+            $sysLog->setLastTicketExecution("Successful execution and log created");
+        }
+        $this->em->persist($sysLog);
         $this->em->flush();
 
         return 'success';

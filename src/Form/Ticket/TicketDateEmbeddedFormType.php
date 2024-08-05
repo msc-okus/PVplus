@@ -5,13 +5,13 @@ namespace App\Form\Ticket;
 use App\Entity\TicketDate;
 use App\Form\Type\SwitchType;
 use App\Helper\PVPNameArraysTrait;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TicketDateEmbeddedFormType extends AbstractType

@@ -3,12 +3,17 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\LiveReporting;
 use App\Entity\TicketDate;
+use App\Form\LiveReporting\CreateMonthlyForm;
+use App\Form\LiveReporting\LifeReportingMonthlyFlow;
+use App\Form\Type\TopicCategoryType;
 use App\Repository\AnlagenRepository;
-use App\Repository\MonthlyDataRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\Reports\ReportsMonthlyV2Service;
+use Craue\FormFlowBundle\Form\FormFlowInterface;
+use Craue\FormFlowBundle\Util\FormFlowUtil;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,14 +21,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use App\Form\LiveReporting\CreateMonthlyForm;
-use App\Form\Type\Monthly;
-use Craue\FormFlowBundle\Form\FormFlowInterface;
-use Craue\FormFlowBundle\Util\FormFlowUtil;
-use App\Form\Type\TopicCategoryType;
-use App\Entity\LiveReporting;
-use App\Form\LiveReporting\LifeReportingMonthlyFlow;
 
 class LiveReportingController extends AbstractController
 {
