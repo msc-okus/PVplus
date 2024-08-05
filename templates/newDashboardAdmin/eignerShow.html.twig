@@ -1,34 +1,24 @@
-{% extends "base.html.twig" %}
+<!DOCTYPE HTML>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>PVplus 4.0 - new Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block styles %}
+        {{ encore_entry_link_tags('new_dashboard') }}
+    {% endblock %}
+    {% block javascripts %}
+        {{ encore_entry_script_tags('new_dashboard') }}
+    {% endblock %}
+</head>
+<body >
 
-{% block title %}
-
-{% endblock %}
-
-{% block styles %}
-
-    {{ parent() }}
-{% endblock %}
-
-
-
-{% block javascripts %}
-
-
-    {{ parent() }}
-    {{ encore_entry_script_tags('new_dashboard') }}
-{% endblock %}
-
-{% block new %}
-<div  class="off-canvas-content" data-off-canvas-content>
-    <main class="grid-container fluid" >
-        <div id="react-root">
+        <div class="container-fluid vh-100 p-1" id="react-root">
             Loading... <i class="fas fa-cog fa-spin fa-3x"></i>
         </div>
-    </main>
-</div>
-{% endblock %}
- {% block footer %}{% endblock %}
- {% block body %}{% endblock %}
+
+</body>
+</html>
 
 
 

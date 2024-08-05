@@ -545,7 +545,6 @@ class AnlagenRepository extends ServiceEntityRepository
 
     public function findPlantsForDashboardForUserWithGrantedList(array $grantedArray, $user): array
     {
-        // Create the base query builder
         $qb = $this->createQueryBuilder('a')
             ->innerJoin('a.eigner', 'e')
             ->innerJoin('e.user', 'u')
@@ -553,10 +552,15 @@ class AnlagenRepository extends ServiceEntityRepository
             ->addSelect('e.firma AS firma')
             ->addSelect('COUNT(t.id) AS total_tickets')
             ->addSelect('SUM(CASE WHEN t.status = 10 THEN 1 ELSE 0 END) AS status_10')
+            ->addSelect('(SELECT GROUP_CONCAT(t10.id) FROM App\Entity\Ticket t10 WHERE t10.anlage = a AND t10.status = 10 AND t10.createdAt >= :dateLimit) AS status_10_ids')
             ->addSelect('SUM(CASE WHEN t.status = 20 THEN 1 ELSE 0 END) AS status_20')
+            ->addSelect('(SELECT GROUP_CONCAT(t20.id) FROM App\Entity\Ticket t20 WHERE t20.anlage = a AND t20.status = 20 AND t20.createdAt >= :dateLimit) AS status_20_ids')
             ->addSelect('SUM(CASE WHEN t.status = 30 THEN 1 ELSE 0 END) AS status_30')
+            ->addSelect('(SELECT GROUP_CONCAT(t30.id) FROM App\Entity\Ticket t30 WHERE t30.anlage = a AND t30.status = 30 AND t30.createdAt >= :dateLimit) AS status_30_ids')
             ->addSelect('SUM(CASE WHEN t.status = 40 THEN 1 ELSE 0 END) AS status_40')
+            ->addSelect('(SELECT GROUP_CONCAT(t40.id) FROM App\Entity\Ticket t40 WHERE t40.anlage = a AND t40.status = 40 AND t40.createdAt >= :dateLimit) AS status_40_ids')
             ->addSelect('SUM(CASE WHEN t.status = 90 THEN 1 ELSE 0 END) AS status_90')
+            ->addSelect('(SELECT GROUP_CONCAT(t90.id) FROM App\Entity\Ticket t90 WHERE t90.anlage = a AND t90.status = 90 AND t90.createdAt >= :dateLimit) AS status_90_ids')
             ->leftJoin('a.tickets', 't', 'WITH', 't.createdAt >= :dateLimit')
             ->setParameter('dateLimit', new \DateTime('-7 days'))
             ->andWhere('u.id = :userId')
@@ -581,6 +585,7 @@ class AnlagenRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+
     public function findPlantsForDashboard(): array
     {
         $qb = $this->createQueryBuilder('anlage')
@@ -604,12 +609,17 @@ class AnlagenRepository extends ServiceEntityRepository
             ->setParameter('dateLimit', new \DateTime('-7 days'))
             ->addSelect('COUNT(t.id) AS last_7_days_tickets_total')
             ->addSelect('SUM(CASE WHEN t.status = 10 THEN 1 ELSE 0 END) AS last_7_days_tickets_status_10')
+            ->addSelect('(SELECT GROUP_CONCAT(t10.id) FROM App\Entity\Ticket t10 WHERE t10.anlage = anlage AND t10.status = 10 AND t10.createdAt >= :dateLimit) AS last_7_days_tickets_status_10_ids')
             ->addSelect('SUM(CASE WHEN t.status = 30 THEN 1 ELSE 0 END) AS last_7_days_tickets_status_30')
+            ->addSelect('(SELECT GROUP_CONCAT(t30.id) FROM App\Entity\Ticket t30 WHERE t30.anlage = anlage AND t30.status = 30 AND t30.createdAt >= :dateLimit) AS last_7_days_tickets_status_30_ids')
             ->addSelect('SUM(CASE WHEN t.status = 40 THEN 1 ELSE 0 END) AS last_7_days_tickets_status_40')
+            ->addSelect('(SELECT GROUP_CONCAT(t40.id) FROM App\Entity\Ticket t40 WHERE t40.anlage = anlage AND t40.status = 40 AND t40.createdAt >= :dateLimit) AS last_7_days_tickets_status_40_ids')
             ->addSelect('SUM(CASE WHEN t.status = 90 THEN 1 ELSE 0 END) AS last_7_days_tickets_status_90')
+            ->addSelect('(SELECT GROUP_CONCAT(t90.id) FROM App\Entity\Ticket t90 WHERE t90.anlage = anlage AND t90.status = 90 AND t90.createdAt >= :dateLimit) AS last_7_days_tickets_status_90_ids')
             ->groupBy('anlage.anlId');
 
         return $qb->getQuery()->getResult();
     }
+
 
 }

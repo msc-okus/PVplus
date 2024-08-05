@@ -1,5 +1,7 @@
 import React from 'react';
 import { PieChart, Pie, Cell, Tooltip, Label } from 'recharts';
+import {useNavigate} from "react-router-dom";
+import {useTheme} from "./ThemenContext";
 
 const statusColors = {
     warning: '#f0ad4e',
@@ -20,9 +22,9 @@ const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
         const name = displayNames[payload[0].name] || payload[0].name;
         return (
-            <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '2px', border: '1px solid #ccc' }}>
-                <p className="label">{`${name}`}</p>
-            </div>
+
+            <span className="badge bg-secondary">{`${name}`}</span>
+
         );
     }
 
@@ -71,6 +73,8 @@ const renderCustomizedLabel = ({
 };
 
 const Status = ({ selectedRowData }) => {
+    const navigate = useNavigate();
+    const { theme } = useTheme();
     if (!selectedRowData) {
         return <span>Loading... <i className="fas fa-cog fa-spin fa-3x"></i></span>;
     }
@@ -90,11 +94,7 @@ const Status = ({ selectedRowData }) => {
 
     return (
         <div className="panel-box">
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-around'
-            }}>
+            <div className="panel-box-container">
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                     <h3>Status <span className="panel-white">Today</span></h3>
                     <button
@@ -103,6 +103,7 @@ const Status = ({ selectedRowData }) => {
                             e.stopPropagation();
                             navigate(`/new/status/${selectedRowData.id}`);
                         }}
+                        className="btn"
 
                     >
                         <i className="fa fa-chevron-right" ></i>
@@ -125,7 +126,7 @@ const Status = ({ selectedRowData }) => {
                             <Label
                                 value={`Status at ${pr_act.lastDataIo}`}
                                 position="center"
-                                style={{fontSize: '0.9rem', fill: 'white'}}
+                                style={{ fontSize: '0.9rem', fill: theme === 'light' ? 'black' : 'white' }}
                             />
                             {data.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={statusColors[entry.status]}/>

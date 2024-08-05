@@ -2,18 +2,15 @@
 
 namespace App\Controller;
 
-use App\Entity\Eigner;
+
 use App\Repository\AnlagenRepository;
 use App\Repository\EignerRepository;
-use App\Repository\UserRepository;
 use DateTime;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\SerializerInterface;
-use function Symfony\Component\String\s;
+
 
 class NewDashboardController extends BaseController
 {
@@ -37,8 +34,6 @@ class NewDashboardController extends BaseController
         } else {
             $plants = $anlagenRepository->findPlantsForDashboardForUserWithGrantedList($grantedArray, $user);
         }
-
-
 
 
         $jsonContent = [];
@@ -68,9 +63,6 @@ class NewDashboardController extends BaseController
                 ];
 
 
-
-
-
                 $powerAct=$pr?number_format($pr->getPowerAct(),1,',','.'):'';
                 $powerExp=$pr?number_format($pr->getPowerExp(),1,',','.'):'';
                 $performanceYesterday=[
@@ -87,15 +79,11 @@ class NewDashboardController extends BaseController
 
                 $last_7_days_tickets=[
                     "total" => $plant["last_7_days_tickets_total"],
-                    "status_10" => (int)$plant["last_7_days_tickets_status_10"],
-                    "status_30" => (int)$plant["last_7_days_tickets_status_30"],
-                    "status_40" => (int)$plant["last_7_days_tickets_status_40"],
-                    "status_90" => (int)$plant["last_7_days_tickets_status_90"]
+                    "status_10" => ['s'=>(int)$plant["last_7_days_tickets_status_10"],'alerts'=>(string)$plant["last_7_days_tickets_status_10_ids"]],
+                    "status_30" => ['s'=>(int)$plant["last_7_days_tickets_status_30"],'alerts'=>(string)$plant["last_7_days_tickets_status_30_ids"]],
+                    "status_40" => ['s'=>(int)$plant["last_7_days_tickets_status_40"],'alerts'=>(string)$plant["last_7_days_tickets_status_40_ids"]],
+                    "status_90" => ['s'=>(int)$plant["last_7_days_tickets_status_90"],'alerts'=>(string)$plant["last_7_days_tickets_status_90_ids"]]
                 ];
-
-
-
-
 
             $jsonContent[] = [
                 'id' => $plant[0]->getAnlId(),

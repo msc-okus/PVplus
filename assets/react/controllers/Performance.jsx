@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Performance = ({ selectedRowData }) => {
+    const navigate = useNavigate();
     if (!selectedRowData) {
         return <span>Loading... <i className="fas fa-cog fa-spin fa-3x"></i></span>;
     }
@@ -13,11 +15,7 @@ const Performance = ({ selectedRowData }) => {
 
     return (
         <div className="panel-box">
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-around'
-            }}>
+            <div className="panel-box-container" >
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                     <h3>Performance</h3>
                     <button
@@ -26,7 +24,7 @@ const Performance = ({ selectedRowData }) => {
                             e.stopPropagation();
                             navigate(`/new/performance/${selectedRowData.id}`);
                         }}
-
+                        className="btn"
                     >
                         <i className="fa fa-chevron-right" ></i>
                     </button>
@@ -35,7 +33,7 @@ const Performance = ({ selectedRowData }) => {
                     <div style={{paddingRight: '10px'}}>
                         <div>{pr_act.acActAll || '0.00'} <span className="panel-white">KWh</span></div>
                         <div className="panel-white">Performance at <span
-                            style={{color: 'white'}}>{pr_act.lastDataIo}</span></div>
+                           className="panel-white-io">{pr_act.lastDataIo}</span></div>
                     </div>
                     <div>
                         <div>{pr_exp.acExpAll || '0.00'} <span className="panel-white">GWh</span></div>
@@ -68,4 +66,3 @@ const Performance = ({ selectedRowData }) => {
 };
 
 export default Performance;
-

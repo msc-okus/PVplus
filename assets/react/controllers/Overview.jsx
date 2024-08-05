@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel, flexRender } from '@tanstack/react-table';
 import axios from 'axios';
+import ManageColumnsVisibility from "./ ManageColumnsVisibility";
+import {useTheme} from "./ThemenContext";
+
 
 
 const Overview = ({ itemId, setSelectedRowData }) => {
@@ -13,6 +16,7 @@ const Overview = ({ itemId, setSelectedRowData }) => {
     const [columnFilters, setColumnFilters] = useState([]);
     const [selectedRowData, setSelectedRowDataLocal] = useState(null);
     const [isG4N, setIsG4N] = useState(false);
+    const { theme } = useTheme();
 
     useEffect(() => {
         axios.get('/new/retrieve_plants')
@@ -91,11 +95,12 @@ const Overview = ({ itemId, setSelectedRowData }) => {
         },
         {
             accessorKey: 'pr_act',
-            header: info => {
+            header: 'Performance (kWh)',
+           /* header: info => {
                 const firstRowPerformance = info.table.getRowModel().rows[0]?.getValue('pr_act');
                 const performance = firstRowPerformance ? JSON.parse(firstRowPerformance) : [];
                 return performance['lastDataIo'] ? `Performance at  ${performance['lastDataIo']} (kWh)` : 'Performance (kWh)';
-            },
+            },*/
             cell: info => {
                 const performance = JSON.parse(info.getValue());
                 return (
@@ -107,11 +112,12 @@ const Overview = ({ itemId, setSelectedRowData }) => {
         },
         {
             accessorKey: 'pr_exp',
-            header: info => {
+            header: 'Expected performance (kWh)',
+           /* header: info => {
                 const firstRowPerformance = info.table.getRowModel().rows[0]?.getValue('pr_exp');
                 const performance = firstRowPerformance ? JSON.parse(firstRowPerformance) : [];
                 return performance['lastDataIo'] ? `Expected performance at  ${performance['lastDataIo']} (kWh)` : 'Expected performance (kWh)';
-            },
+            },*/
             cell: info => {
                 const performance = JSON.parse(info.getValue());
                 return (
@@ -159,7 +165,7 @@ const Overview = ({ itemId, setSelectedRowData }) => {
     };
 
     return (
-        <div className="overview" style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div className="overview" style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' ,backgroundColor:theme === 'light' ? '#ffffff' : '#343a40' }}>
             {loading ? (
                 <span>Loading... <i className="fas fa-cog fa-spin fa-3x"></i></span>
             ) : (
@@ -188,74 +194,58 @@ const Overview = ({ itemId, setSelectedRowData }) => {
                             />
                         </label>
                     </div>
-                    <div style={{ width: '100%', margin: '0', display: "flex" }}>
-                        <div style={{ position: "relative", display: 'flex', flex: 1, justifyContent: 'end' }}>
-                            <button
-                                onMouseDown={(e) => e.stopPropagation()}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setDropdownVisible(!dropdownVisible);
-                                }}
-
-                                className="btn btn-primary"
-                                style={{ margin: '2px', padding: '2px' }}
-                            >
-                                <i className="fa fa-wrench" aria-hidden="true"></i>
-                            </button>
-                            {dropdownVisible && (
-                                <div className="dropdown-type" style={{ right: '35px', bottom: '1px' }}>
-                                    <div style={{ display: "flex", justifyContent: 'center' }}><span>Manage columns visibility</span></div>
-                                    <div style={{ display: "flex", justifyContent: 'space-between' }}>
-                                        {table.getAllColumns().filter(column => column.id !== 'id').map(column => (
-                                            <div style={{ padding: '10px' }} key={column.id}>
-                                                <label>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={column.getIsVisible()}
-                                                        onMouseDown={(e) => e.stopPropagation()}
-                                                        onChange={(e) => {
-                                                            e.stopPropagation();
-                                                            column.toggleVisibility();
-                                                        }}
-                                                    />
-                                                    {column.columnDef.header}
-                                                </label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <div style={{ flex: '1 1 auto', overflowY: 'auto' }}>
-                        <table className="table table-striped table-hover" style={{ width: '100%' }}>
-                            <thead style={{ position: 'sticky', top: 0, background: 'white' }}>
+                    <ManageColumnsVisibility table={table}/>
+                    <div style={{flex: '1 1 auto', overflowY: 'auto'}}>
+                        <table className={`table  ${theme === 'light' ? '':'table-dark'} table-striped table-hover`} style={{width: '100%', fontSize: "0.9rem"}}>
+                            <thead style={{position: 'sticky', top: 0, background: 'white'}}>
                             {table.getHeaderGroups().map(headerGroup => (
                                 <tr key={headerGroup.id}>
                                     {headerGroup.headers.map(header => (
                                         <th key={header.id}
-                                            style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            style={{border: '1px solid #ddd', padding: '8px', textAlign: 'left'}}>
+                                            <div style={{display: 'flex', alignItems: 'center'}}>
                                                 {flexRender(header.column.columnDef.header, header.getContext())}
                                                 <button
                                                     onMouseDown={(e) => e.stopPropagation()}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        setSorting([{ id: header.column.id, desc: false }]);
+                                                        setSorting([{id: header.column.id, desc: false}]);
                                                     }}
-                                                    style={{ marginLeft: '5px', background: 'none', border: 'none', cursor: 'pointer' }}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        marginLeft: '5px',
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        color: theme === 'light' ?'black':'white'
+                                                    }}
                                                 >
-                                                    ▲
+                                                    <i className="fas fa-sort-up"></i>
                                                 </button>
                                                 <button
                                                     onMouseDown={(e) => e.stopPropagation()}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        setSorting([{ id: header.column.id, desc: true }]);
+                                                        setSorting([{id: header.column.id, desc: true}]);
                                                     }}
-                                                    style={{ marginLeft: '5px', background: 'none', border: 'none', cursor: 'pointer' }}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        marginLeft: '5px',
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        color: theme === 'light' ?'black':'white'
+                                                    }}
                                                 >
-                                                    ▼
+                                                    <i className="fas fa-sort-down"></i>
                                                 </button>
                                             </div>
                                         </th>
@@ -275,7 +265,7 @@ const Overview = ({ itemId, setSelectedRowData }) => {
                                     className={row.original.id === selectedRowData?.id ? 'table-primary' : ''}
                                 >
                                     {row.getVisibleCells().map(cell => (
-                                        <td key={cell.id} style={{ border: '1px solid #ddd', padding: '8px' }}>
+                                        <td key={cell.id} style={{border: '1px solid #ddd', padding: '8px'}}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </td>
                                     ))}
@@ -284,13 +274,15 @@ const Overview = ({ itemId, setSelectedRowData }) => {
                             </tbody>
                         </table>
                     </div>
-                    <div className="pagination-overview" style={{ display: 'flex', justifyContent: 'space-between', padding: '8px' }}>
+                    <div className="pagination-overview"
+                         style={{display: 'flex', justifyContent: 'space-between', padding: '8px'}}>
                         <div>
                             <select
                                 value={table.getState().pagination.pageSize}
                                 onChange={e => {
                                     table.setPageSize(Number(e.target.value));
                                 }}
+
                             >
                                 {[10, 20, 30, 40, 50].map(pageSize => (
                                     <option key={pageSize} value={pageSize}>
@@ -301,7 +293,6 @@ const Overview = ({ itemId, setSelectedRowData }) => {
                         </div>
                         <div>
                             <button
-                                className="border p-1"
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -312,7 +303,6 @@ const Overview = ({ itemId, setSelectedRowData }) => {
                                 {'<<'}
                             </button>
                             <button
-                                className="border p-1"
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -322,11 +312,10 @@ const Overview = ({ itemId, setSelectedRowData }) => {
                             >
                                 {'<'}
                             </button>
-                            <span className="border p-1">
+                            <span >
                                 {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
                             </span>
                             <button
-                                className="border p-1"
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -337,7 +326,6 @@ const Overview = ({ itemId, setSelectedRowData }) => {
                                 {'>'}
                             </button>
                             <button
-                                className="border p-1"
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onClick={(e) => {
                                     e.stopPropagation();
