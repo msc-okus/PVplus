@@ -18,13 +18,16 @@ class OpenWeatherService
     {
     }
 
+    /**
+     * @throws \JsonException
+     */
     public function loadOpenWeather(Anlage $anlage): string
     {
         $apiKey = '795982a4e205f23abb3ce3cf9a9a032a';
 
         $timestamp = self::getCetTime() - (self::getCetTime() % (3600));
         $offsetServer = new \DateTimeZone("Europe/Luxembourg");
-        $plantoffset = new \DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
+        $plantoffset = new \DateTimeZone($anlage->getNearestTimezone());
         $totalOffset = $plantoffset->getOffset(new \DateTime("now")) - $offsetServer->getOffset(new \DateTime("now"));
         $date = date('Y-m-d H:00:00', $timestamp + $totalOffset);
         $lat = $anlage->getAnlGeoLat();

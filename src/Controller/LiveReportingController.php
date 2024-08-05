@@ -12,6 +12,7 @@ use App\Service\Reports\ReportsMonthlyV2Service;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -26,28 +27,23 @@ use App\Form\LiveReporting\LifeReportingMonthlyFlow;
 
 class LiveReportingController extends AbstractController
 {
-    /**
-     * @var FormFlowUtil
-     */
-    private $formFlowUtil;
+
     public function __construct(
         private readonly TicketDateRepository $ticketDateRepo,
-        private readonly TranslatorInterface $translator,
-        FormFlowUtil $formFlowUtil
+        private readonly FormFlowUtil $formFlowUtil
     )
     {
-        $this->formFlowUtil = $formFlowUtil;
     }
+
     /**
      * Erzeugt einen Monatsreport mit den einzelenen Tagen und einer Monatstotalen
      * Kann auch für einen Auswal einiger Tage eines Moants genutzt werden
      *
      * @param Request $request
+     * @param LifeReportingMonthlyFlow $createTopicFlow
      * @param AnlagenRepository $anlagenRepository
      * @param ReportsMonthlyV2Service $reportsMonthly
      * @return Response
-     * @throws InvalidArgumentException
-     * @throws NonUniqueResultException
      */
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
     public function createTopicAction(Request $request, LifeReportingMonthlyFlow $createTopicFlow, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
@@ -61,12 +57,12 @@ class LiveReportingController extends AbstractController
         $anlageId = $request->request->get('anlage-id');
         $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
 
-        return $this->processFlow($request, new LiveReporting(), $createTopicFlow,
-            'live_reporting/reportMonthlyNew.html.twig', $anlagenRepository, $reportsMonthly);
+        return $this->processFlow($request, new LiveReporting(), $createTopicFlow, 'live_reporting/reportMonthlyNew.html.twig', $anlagenRepository, $reportsMonthly);
 
     }
 
-    protected function processFlow(Request $request, $formData, FormFlowInterface $flow, $template, $anlagenRepository, $reportsMonthly) {
+    protected function processFlow(Request $request, $formData, FormFlowInterface $flow, $template, $anlagenRepository, $reportsMonthly): RedirectResponse|Response
+    {
 
         $flow->bind($formData);
 
@@ -99,7 +95,6 @@ class LiveReportingController extends AbstractController
                 }
 
                 #$flow->reset();
-                echo "<style>#step, .btn_next{display: none !important;}</style>";
 
                 return $this->render($template, [
                     'form' => $form->createView(),
@@ -110,7 +105,9 @@ class LiveReportingController extends AbstractController
                     'report' => $output,
                     'status' => $anlageId,
                     'datatable' => $table,
-                    'tickets'   => $tickets
+                    'tickets'   => $tickets,
+                    'currentStep' => $flow->getCurrentStepNumber(),
+                    'finished' => 1
                 ]);
             }
         }
@@ -131,7 +128,9 @@ class LiveReportingController extends AbstractController
             'report' => '',
             'status' => '',
             'datatable' => '',
-            'tickets'   => ''
+            'tickets'   => '',
+            'currentStep' => $flow->getCurrentStepNumber(),
+            'finished' => 0
         ]);
     }
 

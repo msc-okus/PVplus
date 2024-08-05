@@ -30,10 +30,16 @@
                 <div class="cell small-12 medium-2" >
                     <input type="date" name="end" class="input-group-field" value="{{ end }}" title="Interval End">
                 </div>
-                <div class="cell small-12 large-1">
+                <div class="cell small-12 medium-2">
                     <select name="anlage" class="no-margin"
                             data-action="change->ticket-list#selectAnlage"
                             data-ticket-list-target="anlageselect"
+                            {{ stimulus_controller('symfony/ux-autocomplete/autocomplete', {
+                                tom_select_options: {
+                                    maxItems: 1,
+                                    create: false,
+                                }
+                            }) }}
                     >
                         <option value="" disabled selected hidden>Please choose a Plant</option>
                         <option value="" {% if filter.anlagen.value == '' %} selected {% endif %} >Select a Plant</option>

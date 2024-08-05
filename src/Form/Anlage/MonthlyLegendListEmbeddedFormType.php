@@ -26,22 +26,18 @@ class MonthlyLegendListEmbeddedFormType extends AbstractType
             ->add('title', TextType::class, [
                 'label' => 'Title / Formula',
                 'empty_data' => '',
-                'required' => true,
             ])
             ->add('unit', TextType::class, [
                 'label' => 'Unit',
                 'empty_data' => '',
-                'required' => false,
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'empty_data' => '',
-                'required' => false,
             ])
             ->add('source', TextType::class, [
                 'label' => 'Description',
                 'empty_data' => '',
-                'required' => false,
             ])
         ;
     }
@@ -50,6 +46,7 @@ class MonthlyLegendListEmbeddedFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageLegendReport::class,
+            'required' => false,
         ]);
     }
 }

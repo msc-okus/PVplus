@@ -8,53 +8,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class LiveReporting {
 
-	use EntityHasIdTrait;
 
-	/**
-	 * @var array
-	 * @ORM\Column(name="year", type="array", nullable=false)
-	 * @Assert\NotBlank(groups={"flow_createTopic_step1"})
-	 */
-	public $year;
+    public $year;
 
-	/**
-	 * @var array
-	 * @ORM\Column(name="month", type="array", nullable=true)
-	 */
-	public $month;
+    public string $month;
 
-    /**
-     * @var string
-     * @ORM\Column(name="anlagename", type="string", nullable=true)
-     */
-    public $anlagename;
+    public string $anlagename;
 
-    /**
-     * @var integer
-     * @ORM\Column(name="daysinmonth", type="integer", nullable=true)
-     */
-    public $daysinmonth;
+    public string $daysinmonth;
 
+    public ?Anlage $anlage;
 
-	/**
-	 * @var object
-	 * @ORM\Column(name="anlage", type="object", nullable=false)
-	 * @Assert\Choice(callback="getValidCategories", groups={"flow_createTopic_step1"}, strict=true)
-	 * @Assert\NotBlank(groups={"flow_createTopic_step1"})
-	 */
-	public $anlage;
+    public string $startday;
 
-	/**
-	 * @var string
-	 * @ORM\Column(name="startday", type="string", nullable=true)
-	 */
-	public $startday;
+    public string $endday;
 
-    /**
-     * @var string
-     * @ORM\Column(name="endday", type="string", nullable=true)
-     */
-    public $endday;
 
     public function getYear(): ?string
     {
@@ -66,7 +34,7 @@ class LiveReporting {
         return $this->month;
     }
 
-    public function getAnlage(): ?string
+    public function getAnlage(): ?Anlage
     {
         return $this->anlage;
     }
@@ -86,9 +54,9 @@ class LiveReporting {
         return $this->daysinmonth;
     }
 
-	public function isBugReport() {
-		return $this->category === 'BUG_REPORT';
-	}
-
+    public function isBugReport(): bool
+    {
+        return $this->category === 'BUG_REPORT';
+    }
 
 }

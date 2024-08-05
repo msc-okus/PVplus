@@ -135,15 +135,15 @@ private PdoService $pdoService,
                 foreach ($sql_array as $row) {
                     $anlIntNr = $row['anl_intnr'];
                     $stamp = date('Y-m-d H:i:00', strtotime($row['stamp'])+(3600 * $weatherStation->gettimeZoneWeatherStation()));
-                    $isNight = $this->isNight($weatherStation, $stamp);
+                   # $isNight = $this->isNight($weatherStation, $stamp);
                     $tempAmbientAvg = $row['at_avg'];
                     $tempPannleAvg = $row['pt_avg'];
                     $gLower = $row['gi_avg'];
-                    if ($gLower < 0 || $isNight) {
+                    if ($gLower < 3 ) {
                         $gLower = '0.0';
                     }
                     $gUpper = $row['gmod_avg'];
-                    if ($gUpper < 0 || $isNight) {
+                    if ($gUpper < 3) {
                         $gUpper = '0.0';
                     }
                     $windSpeed = $row['wind_speed'];
@@ -173,6 +173,7 @@ private PdoService $pdoService,
     private function isNight(WeatherStation $weatherStation, string $stampString):bool
     {
         $stamp = date_create($stampString);
+
         if ($weatherStation->getGeoLat() == "" || $weatherStation->getGeoLon() == "") return false;
 
         $sunrisedata = date_sun_info($stamp->getTimestamp(), (float)$weatherStation->getGeoLat(), (float)$weatherStation->getGeoLon());
@@ -189,13 +190,10 @@ private PdoService $pdoService,
     public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
         $time = date('Y-m-d',strtotime($time)); // reformat the passed $time to an only day stamp
-        date_default_timezone_set($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
+        date_default_timezone_set($anlage->getNearestTimezone());
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
-        //$offsetServer = new DateTimeZone("Europe/Luxembourg");
-        //$plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
-        //$totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
-        $totalOffset = 0; // quick fix to stop considering time zones
 
+        $totalOffset = 0; // quick fix to stop considering time zones
         $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
         $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
         date_default_timezone_set('Europe/Vienna');
@@ -240,4 +238,5 @@ private PdoService $pdoService,
 
         return 'unknown';
     }
+
 }

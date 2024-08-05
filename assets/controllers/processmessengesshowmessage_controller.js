@@ -8,7 +8,7 @@ export default class extends Controller {
         prozessid: Number
     }
     connect() {
-        if(this.messageValue != ''){
+        if(this.messageValue !== ''){
             this.showReady();
         }
     }
@@ -18,7 +18,7 @@ export default class extends Controller {
         let pdfdownload = document.getElementById('pdfdownload');
         let messagebutton = document.getElementById('far-fa-bell');
 
-        if (this.messageValue == 'empty'){
+        if (this.messageValue === 'empty'){
             messagebutton.style.color = '#1779ba';
             return; // process.exit(1);
         } else {
@@ -60,13 +60,15 @@ export default class extends Controller {
     toggletabs(event) {
         event.preventDefault();
         const value = event.target.dataset.value;
-
-        $('#messagestabs div').addClass('fade');
-        $('#messagestabs div').attr("style","display:none !important");
-        $('.messagebuttons ul li').removeClass('is-active');
-        $('.messagebuttons ul li').addClass('is-inactive');
+        const $messageTab = $('#messagestabs div');
+        const $messageButton = $('.messagebuttons ul li')
+        $messageTab.addClass('fade');
+        $messageTab.attr("style","display:none !important");
+        $messageButton.removeClass('is-active');
+        $messageButton.addClass('is-inactive');
 
         let tabtoshow = document.getElementById(value);
+
         $('#'+value).attr("style","display:block !important");
         $('#'+value).removeClass('fade');
         $('.messagebuttons ul #li'+value).removeClass('is-inactive');

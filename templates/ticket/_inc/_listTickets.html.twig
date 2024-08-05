@@ -41,10 +41,11 @@
     }) }}
 
 </div>
-<div class="">
+<div>
     <table class="table sortable stickyheader">
         <thead>
         <tr>
+            <th>Select</th>
             <th {% if pagination.isSorted('ticket.id') %} class="sorted show-for-medium" {% else %} class="show-for-medium"{% endif %}>
                 {{ knp_pagination_sortable(pagination, alertName ~' ID', ['ticket.id'], {'data-action': 'ticket-list#sortId'}) }}
                 <span data-tooltip tabindex="1" title="With '•' means: was created by 'AlertSystem'"><i class="fa fa-info-circle"></i></span>
@@ -80,6 +81,7 @@
         <tbody>
         {% for ticket in pagination %}
             <tr>
+                <td><input type="checkbox" class="js-multiselect-checkbox" value="{{ ticket.id }}"></td>
                 <td class="show-for-medium">
                     <span {% if ticket.ignoreTicket %}style="text-decoration: line-through;"{% endif %}>
                         {{ ticket.id }}{% if ticket.createdBy == 'AlertSystem' %} •{% endif %}
@@ -193,6 +195,22 @@
         </tbody>
     </table>
 </div>
+<div class="grid-x">
+    <div class="cell small-6 medium-4 large-2">
+        <select name="status" class="no-margin" id="selectNewStatus">
+            <option value="00"> {% trans %}ticket.status.name{% endtrans %} </option>
+            {% for key, value in filter.status.array %}
+                <option value="{{ value }}" {% if filter.status.value == value %} selected {% endif %}>{{ key }}</option>
+            {% endfor %}
+        </select>
+
+    </div>
+    <div class="cell small-6 medium-4 large-2">
+        <button class="button action-icon tiny hollow shadow"
+                data-action="ticket-list#changeStatus">Change Status</button>
+    </div>
+</div>
+
 
 {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}
 

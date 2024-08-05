@@ -45,14 +45,14 @@
                             <div class="dropdown-content" id="dropdown-content"
                                     {{ stimulus_controller('background-processes', {
                                         url: path('app_log_background_messages'),
-                                        refreshIntervale: 15000,
+                                        refreshIntervale: 30000,
                                     }) }}>
                             </div>
                         </div>
                         <div class="processmessenges" style="display: none"
                             {{ stimulus_controller('processmessenges', {
                                 url: path('app_log_processmessenges'),
-                                refreshIntervale: 15000,
+                                refreshIntervale: 30000,
                             }) }}>
                         </div>
                     </div>

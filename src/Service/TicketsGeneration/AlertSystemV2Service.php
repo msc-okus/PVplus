@@ -14,10 +14,16 @@ use App\Service\G4NSendMailService;
 use App\Service\MessageService;
 use App\Service\WeatherFunctionsService;
 use App\Service\WeatherServiceNew;
+use DateTime;
+use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
 use App\Service\PdoService;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 
 class AlertSystemV2Service
@@ -50,19 +56,21 @@ class AlertSystemV2Service
      * @param string $from
      * @param string|null $to
      * @throws InvalidArgumentException
+     * @throws \Exception
      */
     public function generateTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
-        $fromStamp = strtotime($from);
-        if ($to != null) {
+        $offsetServer = new DateTimeZone("Europe/Luxembourg");
+        $plantoffset = new DateTimeZone($anlage->getNearestTimezone());
+        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        $fromStamp = strtotime($from) + $totalOffset;
 
-
+        if ($to !== null) {
             $toStamp = strtotime($to);
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
                 $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
             }
         } else {
-
             $this->checkSystem($anlage, date('Y-m-d H:i:00', $fromStamp));
         }
     }
@@ -250,25 +258,24 @@ class AlertSystemV2Service
 
                 if ($plant_status['ppc'] != null && $plant_status['ppc']){
 
-                    $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, "", $plant_status['ppc'], false);}
+                    $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, $plant_status['ppc'], false);}
                 if ($plant_status['Gap'] != null && count($plant_status['Gap']) > 0){
-                    $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, "", ($plant_status['ppc']), false);}
+                    $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, ($plant_status['ppc']), false);}
                 if ($anlType != "masterslave"){
 
 
                     if ($plant_status['Power0'] != null && count($plant_status['Power0']) > 0 ){
                         if (!$anlage->isPpcBlockTicket() or !$plant_status['ppc']){
-
-                            $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "", ($plant_status['ppc']), false);}
+                            $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, ($plant_status['ppc']), false);}
                     }
                 }
                 if ($plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*"))
                 {
 
-                    $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, "", ($plant_status['ppc']), false);}
+                    $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, ($plant_status['ppc']), false);}
             }else {
 
-                $this->generateTickets('', 100, $anlage, ['*'], $time, "Data Gap set automatically to com. issue because of a gap in the irradiation", $plant_status['ppc'], true);
+                $this->generateTickets('', 100, $anlage, ['*'], $time, $plant_status['ppc'], true);
             }
         }
 
@@ -370,7 +377,7 @@ class AlertSystemV2Service
     }
 
     /**
-     * Given all the information needed to generate a ticket, the tickets are created and commited to the db (single ticket variant)
+     * Given all the information needed to generate a ticket, the tickets are created and committed to the db (single ticket variant)
      * @param $errorType
      * @param $errorCategorie
      * @param Anlage $anlage
@@ -380,8 +387,12 @@ class AlertSystemV2Service
      * @param $PPC
      * @param bool|null $fullGap
      * @return void
+     * @throws TransportExceptionInterface
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    private function generateTickets($errorType, $errorCategorie,Anlage $anlage, $inverter, $time, $message, $PPC, ?bool $fullGap = false): void
+    private function generateTickets($errorType, $errorCategorie,Anlage $anlage, $inverter, $time, $PPC, ?bool $fullGap = false): void
     {
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
             if ($ticketArray != []) {
@@ -511,10 +522,6 @@ class AlertSystemV2Service
 
                 //send alertMessage
                 $this->g4NSendMailService->sendAlertMessage($anlage,$ticket);
-
-
-
-
 
             }
     }

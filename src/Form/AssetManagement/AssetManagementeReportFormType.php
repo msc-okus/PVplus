@@ -19,21 +19,17 @@ class AssetManagementeReportFormType extends AbstractType
         $builder
             ->add('TechnicalPV', SwitchType::class, [
                 'label' => 'Technical PV Performance',
-                'required' => false,
                 'data' => true,
             ])
             ->add('Production', SwitchType::class, [
                 'label' => 'Performance Analysis',
-                'required' => false,
                 'data' => true,
             ])
             ->add('Availability', SwitchType::class, [
-                'required' => false,
                 'data' => true,
             ])
             ->add('AnalysisHeatmap', SwitchType::class, [
                 'label' => 'Analysis Heatmaps',
-                'required' => false,
                 'data' => false,
             ])
             ->add('Economics', SwitchType::class, [
@@ -44,7 +40,6 @@ class AssetManagementeReportFormType extends AbstractType
         if ($reportParts['ProductionCapFactor']) {
             $builder->add('ProdCap', SwitchType::class, [
                 'label' => 'Energy Production & Capacity Factor',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -52,7 +47,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('ProdCap', SwitchType::class, [
                 'label' => 'Energy Production & Capacity Factor (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -61,7 +55,6 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['PRPATable']) {
             $builder->add('PRPATable', SwitchType::class, [
                 'label' => 'Technical PR and Availability',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -69,7 +62,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('PRPATable', SwitchType::class, [
                 'label' => 'Technical PR and Availability (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -78,15 +70,12 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['StringAssignment']) {
             $builder->add('StringAssignment', SwitchType::class, [
                 'label' => 'String Assignment',
-                'required' => false,
                 'data' => true,
-
             ]);
         }
         else{
             $builder->add('StringAssignment', SwitchType::class, [
                 'label' => 'String Assignment (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => [ 'read_only' => true],
                 'disabled' => true,
@@ -95,7 +84,6 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['MonthlyProd']) {
             $builder->add('MonthlyProd', SwitchType::class, [
                 'label' => 'Monthly Production',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -103,7 +91,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('MonthlyProd', SwitchType::class, [
                 'label' => 'Monthly Production (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -112,7 +99,6 @@ class AssetManagementeReportFormType extends AbstractType
         if ($reportParts['production_with_forecast']) {
             $builder->add('ProdWithForecast', SwitchType::class, [
                 'label' => 'Production vs Forecast vs Expected',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -120,7 +106,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('ProdWithForecast', SwitchType::class, [
                 'label' => 'Production vs Forecast vs Expected (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -129,7 +114,6 @@ class AssetManagementeReportFormType extends AbstractType
         if ($reportParts['CumForecastPVSYS']) {
             $builder->add('CumulatForecastPVSYS', SwitchType::class, [
                 'label' => 'Cumulative Forecast',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -137,7 +121,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('CumulatForecastPVSYS', SwitchType::class, [
                 'label' => 'Cumulative Forecast (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -146,7 +129,6 @@ class AssetManagementeReportFormType extends AbstractType
         if ($reportParts['CumForecastG4N']){
             $builder->add('CumulatForecastG4N', SwitchType::class, [
                 'label' => 'Cumulative Forecast',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -154,7 +136,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('CumulatForecastG4N', SwitchType::class, [
                 'label' => 'Cumulative Forecast (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -163,7 +144,6 @@ class AssetManagementeReportFormType extends AbstractType
         if ($reportParts['CumLosses']) {
             $builder->add('CumulatLosses', SwitchType::class, [
                 'label' => 'Cumulative Losses',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -171,7 +151,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('CumulatLosses', SwitchType::class, [
                 'label' => 'Cumulative Losses (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -180,7 +159,6 @@ class AssetManagementeReportFormType extends AbstractType
         if ($reportParts['PRTable']){
             $builder->add('PRTable', SwitchType::class, [
                 'label' => 'PR Table',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -188,7 +166,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('PRTable', SwitchType::class, [
                 'label' => 'PR Table (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -198,7 +175,6 @@ class AssetManagementeReportFormType extends AbstractType
         if ($reportParts['DailyProd']){
             $builder->add('DailyProd', SwitchType::class, [
                 'label' => 'Daily Production',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -206,7 +182,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('DailyProd', SwitchType::class, [
                 'label' => 'Daily Production (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -216,7 +191,6 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['InverterRank']) {
             $builder->add('InvRank', SwitchType::class, [
                 'label' => 'Inverter Ranking by PR',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -224,7 +198,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('InvRank', SwitchType::class, [
                 'label' => 'Inverter Ranking by PR (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -234,7 +207,6 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['InverterEfficiencyRank']) {
             $builder->add('EfficiencyRank', SwitchType::class, [
                 'label' => 'Efficiency Ranking',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -242,7 +214,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('EfficiencyRank', SwitchType::class, [
                 'label' => 'Efficiency Ranking (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -251,7 +222,6 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['waterfallProd']) {
             $builder->add('waterfallProd', SwitchType::class, [
                 'label' => 'Bucket Losses Diagram',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -259,7 +229,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('waterfallProd', SwitchType::class, [
                 'label' => 'Waterfall Diagram (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -268,7 +237,6 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['maintenanceTicketTable']) {
             $builder->add('maintenanceTicketTable', SwitchType::class, [
                 'label' => 'Maintenance Tickets Summary',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -276,7 +244,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('maintenanceTicketTable', SwitchType::class, [
                 'label' => 'Maintenance Tickets Summary (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -285,7 +252,6 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['kpiTicketTable']) {
             $builder->add('kpiTicketTable', SwitchType::class, [
                 'label' => 'kpi Tickets Summary',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -293,7 +259,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('kpiTicketTable', SwitchType::class, [
                 'label' => 'kpi Tickets Summary (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -303,7 +268,6 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['InverterEfficiencyRank']) {
             $builder->add('AvYearlyTicketOverview', SwitchType::class, [
                 'label' => ' Yearly overview',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -311,7 +275,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('AvYearlyTicketOverview', SwitchType::class, [
                 'label' => ' Yearly overview (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -320,7 +283,6 @@ class AssetManagementeReportFormType extends AbstractType
         if ($reportParts['AvailabilityMonth']){
             $builder->add('AvMonthlyOverview', SwitchType::class, [
                 'label' => 'Monthly overview',
-                'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -337,7 +299,6 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['String']){
             $builder->add('StringCurr', SwitchType::class, [
                 'label' => 'Inverter current level heatmap',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -345,7 +306,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('StringCurr', SwitchType::class, [
                 'label' => 'Inverter current level heatmap (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -355,7 +315,6 @@ class AssetManagementeReportFormType extends AbstractType
 
             $builder->add('InvPow', SwitchType::class, [
                 'label' => 'Inverter power level heatmap',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -372,7 +331,6 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['AvailabilityYearOverview']) {
             $builder->add('AvYearlyOverview', SwitchType::class, [
                 'label' => 'Availability yearly heatmap',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -380,7 +338,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('AvYearlyOverview', SwitchType::class, [
                 'label' => 'Availability yearly heatmap (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -390,7 +347,6 @@ class AssetManagementeReportFormType extends AbstractType
         if($reportParts['AvailabilityByInverter']) {
             $builder->add('AvInv', SwitchType::class, [
                 'label' => 'Availability inverter heatmap',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ]);
@@ -398,7 +354,6 @@ class AssetManagementeReportFormType extends AbstractType
         else{
             $builder->add('AvInv', SwitchType::class, [
                 'label' => 'Availability inverter heatmap (Unavailable)',
-                'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny', 'read_only' => true,],
                 'disabled' => true,
@@ -421,7 +376,8 @@ class AssetManagementeReportFormType extends AbstractType
     {
         $resolver->setDefaults([
             // Configure your form options here
-            'param' => null
+            'param' => null,
+            'required' => false,
         ]);
     }
 }

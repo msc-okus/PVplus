@@ -9,26 +9,26 @@ use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
 use App\Repository\EconomicVarValuesRepository;
+use App\Repository\ForcastDayRepository;
 use App\Repository\NotificationInfoRepository;
 use App\Repository\PvSystMonthRepository;
-use App\Repository\ForcastDayRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
-use App\Service\Functions\SensorService;
 use App\Service\Reports\ReportsMonthlyV2Service;
+use App\Service\Sensors\SensorService;
 use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Hisune\EchartsPHP\ECharts;
 use JetBrains\PhpStorm\ArrayShape;
+use League\Flysystem\Filesystem;
 use PDO;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
-use League\Flysystem\Filesystem;
 
 class AssetManagementService
 {
@@ -2538,7 +2538,7 @@ class AssetManagementService
             'GapLosses' => $sumLossesYearGap
         ];
         $availabilityYearToDateTable = [
-            'expectedAvailability' => (int)$anlage->getContractualAvailability(),
+            'expectedAvailability' => (float)$anlage->getContractualAvailability(),
             'expectedSOF' => 0, // this will be a variable in the future
             'expectedEFOR' => 0,// and this
             'expectedOMC' => 0, // and this

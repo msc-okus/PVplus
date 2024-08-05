@@ -16,8 +16,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\FormTypeInterface;
-use Symfony\Component\Validator\Constraints\Length;
+
 class AnlageSettingsFormType extends AbstractType
 {
     use G4NTrait;
@@ -261,30 +260,35 @@ class AnlageSettingsFormType extends AbstractType
 
             ->add('symfonyImport', SwitchType::class, [
                 'label'     => 'Import Data with Symphony',
-                'help'      => '[settings.symfonyImport]<br>Enable Import Data with Symphony without the old php skript files'
+                'help'      => '[symfonyImport]<br>Enable Import Data with Symphony without the old php skript files'
             ])
 
             ->add('useSensorsData', SwitchType::class, [
                 'label'     => 'Import Sensors Data into new Table',
-                'help'      => 'Import Sensors Data into new Table like db__pv_sensors_data_CX...'
+                'help'      => '[useSensorsData]<br>Import Sensors Data into new Table like db__pv_sensors_data_CX...'
             ])
 
             ->add('sensorsInBasics', SwitchType::class, [
                 'label'     => 'This plant have sensors in VCOM/Basics',
-                'help'      => 'This plant have sensors in Vcom/Basics'
+                'help'      => '[sensorsInBasics]<br>This plant have sensors in Vcom/Basics'
+            ])
+
+            ->add('sensorsFromSatelite', SwitchType::class, [
+                'label'     => 'This plant have sensors from an satelite',
+                'help'      => 'This plant have sensors from an satelite'
             ])
 
             ->add('importType', ChoiceType::class, [
                 'choices'       => self::importTypes(),
                 'placeholder'   => 'please Select',
                 'required'      => false,
-                'help'      => 'Chose the plant have Stringboxes or inverters only',
+                'help'      => '[importType]<br>Chose the plant have Stringboxes or inverters only',
                 'attr' => ['style' => 'width: 150px']
             ])
 
             ->add('stringboxesUnits', IntegerType::class, [
                 'label' => 'Stringboxes Units',
-                'help' => 'How many Units have a stringbox? (look in the Response from VCOM)',
+                'help' => '[stringboxesUnits]<br>How many Units have a stringbox? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
                 'attr' => ['style' => 'width: 70px']
@@ -292,7 +296,7 @@ class AnlageSettingsFormType extends AbstractType
 
             ->add('invertersUnits', IntegerType::class, [
                 'label' => 'Inverters Units',
-                'help' => 'How many Units have a inverter? (look in the Response from VCOM)',
+                'help' => '[invertersUnits]<br>How many Units have a inverter? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
                 'attr' => ['style' => 'width: 70px']
@@ -324,6 +328,7 @@ class AnlageSettingsFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageSettings::class,
+            'required' => false,
         ]);
     }
 }

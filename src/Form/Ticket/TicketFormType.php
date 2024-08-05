@@ -31,18 +31,23 @@ class TicketFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        /*
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
         $isBeta = $this->security->isGranted('ROLE_BETA');
         $isG4N = $this->security->isGranted('ROLE_G4N');
         $isTicket = $this->security->isGranted('ROLE_TICKET');
-
+*/
         /** @var Ticket $ticket */
         $ticket = $options['data'] ?? null;
 
         $isNewTicket = !(($ticket !== null && $ticket->getCreatedAt() !== null));
-        $anlage = ($ticket != null) ? $ticket->getAnlage() : null;
-        $errorCategorie = self::errorCategorie($anlage->getKpiTicket());
+        $anlage = $ticket?->getAnlage();
+        if ($anlage){
+            $errorCategorie = self::errorCategorie($anlage->getKpiTicket());
+        } else {
+            $errorCategorie = self::errorCategorie();
+        }
 
         $builder
             ->add('TicketName', TextType::class, [
@@ -59,7 +64,6 @@ class TicketFormType extends AbstractType
             $builder
                 ->add('inverterName', TextType::class,[
                     'label' => 'Inverter Names',
-                    'required' => true,
                     'help' => '* = all Inverters',
                     'attr' => [
                         'readonly' => true,
@@ -118,7 +122,7 @@ class TicketFormType extends AbstractType
             ->add('begin', DateTimeType::class, [
                 'label' => 'Begin',
                 'label_html' => true,
-                'required' => false,
+                'required' => true,
                 'widget' => 'single_text',
                 'attr' => [
                     'data-action' => 'blur->ticket-edit#beginCheck click->ticket-edit#setHiddenValue',
@@ -138,14 +142,12 @@ class TicketFormType extends AbstractType
             ->add('status', ChoiceType::class, [
                 'label' => 'Status',
                 'choices' => self::ticketStati(),
-                'required' => true,
                 'empty_data' => 30, // Work in Progress
                 'invalid_message' => 'Please select a Status.',
             ])
             ->add('priority', ChoiceType::class, [
                 'label' => 'Priority',
                 'choices' => self::ticketPriority(),
-                'required' => true,
                 'empty_data' => 10, // Low
                 'invalid_message' => 'Please select a Priority.',
             ])
@@ -161,6 +163,9 @@ class TicketFormType extends AbstractType
             ])
             ->add('needsProofg4n', SwitchType::class, [
                 'label' => 'proof by G4N'
+            ])
+            ->add('needsProofIt', SwitchType::class, [
+            'label' => 'proof by IT'
             ]);
 
             $builder->add('ignoreTicket', SwitchType::class, [
@@ -170,12 +175,10 @@ class TicketFormType extends AbstractType
             ->add('freeText', TextareaType::class, [
                 #'config' => ['toolbar' => 'my_toolbar'],
                 'attr' => ['rows' => '9'],
-                'required' => false,
             ])
             ->add('answer', TextareaType::class, [
                 #'config' => ['toolbar' => 'my_toolbar'],
                 'attr' => ['rows' => '9'],
-                'required' => false,
             ])
 
             // ### List of Ticket Dates
@@ -206,6 +209,7 @@ class TicketFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Ticket::class,
+            'required' => false,
         ]);
     }
 }

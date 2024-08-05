@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\AlertMessages;
 use App\Entity\Anlage;
+use App\Entity\AnlageSensors;
 use App\Entity\NotificationInfo;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
@@ -53,7 +54,7 @@ class TicketController extends BaseController
      * @throws InvalidArgumentException
      */
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
-    public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo): Response
+    public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, AcGroupsRepository $acRepo, MessageService $messageService): Response
     {
         if ($request->query->get('anlage') !== null) {
             $anlage = $anlRepo->find($request->query->get('anlage'));
@@ -62,15 +63,18 @@ class TicketController extends BaseController
         }
 
         if ($anlage != null) {
-            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
+            //$trafoArray = $this->getTrafoArray($anlage, $acRepo);
         }
+
         if ($anlage) {
+            $trafoArray = $this->getTrafoArray($anlage, $acRepo);
             $ticket = new Ticket();
-            $ticket->setAnlage($anlage);
             $ticket
+                ->setAnlage($anlage)
                 ->setBegin(date_create(date('Y-m-d H:i:s', time() - time() % 900)))
                 //->setEnd(date_create(date('Y-m-d H:i:s', (time() - time() % 900) + 900)))
                 ->setAlertType(0);
+
             $ticketDate = new TicketDate();
 
             $ticketDate
@@ -93,9 +97,17 @@ class TicketController extends BaseController
             foreach ($dates as $date) {
                 $date->copyTicket($ticket);
             }
+            if ($ticket->getNeedsProofIt() && !$ticket->isMailSent()){ // if this is checked we need to send an email to it@green4net.com
+                $messageService->sendRawMessage("Ticket ". $ticket->getId()." needs revision"," Please check the ticket with the provided id: ". $ticket->getId(),
+                    "it@green4net.com", "it Team",
+                    false);
+                $ticket->setMailSent(true);
+            }
             $em->persist($ticket);
 
             $em->flush();
+
+
 
             return new Response(null, \Symfony\Component\HttpFoundation\Response::HTTP_NO_CONTENT);
 
@@ -104,7 +116,7 @@ class TicketController extends BaseController
         }
         $nameArray = $anlage->getInverterFromAnlage();
         $inverterArray = [];
-        $namesSensors = $anlage->getSensors();
+        $namesSensors = $anlage->getSensorsInUse(); // lade alle Sensoren die für die Berechnung vbon Mittelwerten benötigt werden
         $sensorArray = [];
         // I loop over the array with the real names and the array of selected inverters
         // of the inverter to create a 2-dimension array with the real name and the inverters that are selected
@@ -113,12 +125,15 @@ class TicketController extends BaseController
             $inverterArray[$key]["inv"] = $value;
             $inverterArray[$key]["select"] = "";
         }
+        /**
+         * @var AnlageSensors $sensor
+         */
         foreach ($namesSensors as $key => $sensor) {
+            $sensorArray[$key]['id'] = $sensor->getId();
             $sensorArray[$key]['name'] = $sensor->getName();
             $sensorArray[$key]['nameS'] = $sensor->getNameShort();
             $sensorArray[$key]['checked'] = "";
         }
-
 
         return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
@@ -136,7 +151,7 @@ class TicketController extends BaseController
      * @throws InvalidArgumentException
      */
     #[Route(path: '/ticket/edit/{id}', name: 'app_ticket_edit')]
-    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request, AcGroupsRepository $acRepo): Response
+    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request, AcGroupsRepository $acRepo, MessageService $messageService): Response
     {
         $ticket = $ticketRepo->find($id);
         $anlage = $ticket->getAnlage();
@@ -179,10 +194,18 @@ class TicketController extends BaseController
         $form->handleRequest($request);
 
 
+
         if ($form->isSubmitted() && $form->isValid()) {
             $request->attributes->set('page', $page);
             /** @var Ticket $ticket */
             $ticket = $form->getData();
+            if ($ticket->getNeedsProofIt() && !$ticket->isMailSent()){ // if this is checked we need to send an email to it@green4net.com
+                $messageService->sendRawMessage("Ticket ". $ticket->getId()." needs revision"," Please check the ticket with the provided id: ". $ticket->getId(),
+                    "it@green4net.com", "it Team",
+                    false);
+                $ticket->setMailSent(true);
+            }
+
             if ($form->getData()->isIgnoreTicket()) {
                 $ticket->setWhoHided($this->getUser()->getUserIdentifier());
                 $ticket->setWhenHidded(date("Y-m-d H:i:s"));
@@ -321,7 +344,6 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/list', name: 'app_ticket_list')]
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo): Response
     {
-
         //here we will count the number of different "proof by tickets"
         $filter = [];
         $session = $request->getSession();
@@ -340,6 +362,7 @@ class TicketController extends BaseController
                 $page = $pageSession;
             }
         }
+
         $anlageId = $request->query->get('anlage');
         if ($anlageId != '') {
             $anlage = $anlagenRepo->findOneBy(['anlId' => $anlageId]);
@@ -403,6 +426,7 @@ class TicketController extends BaseController
         if ($request->query->get('ajax') || $request->isXmlHttpRequest()) {
             $newAnlage = $request->query->get('newPlantId');
             return $this->render('ticket/_inc/_listTickets.html.twig', [
+                'filter' => $filter,
                 'pagination' => $pagination,
                 'anlagen' => $filter['anlagen']['array'],
                 'newPlantId' => $newAnlage,
@@ -440,7 +464,9 @@ class TicketController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             $eigner->addContactInfo($form->getData());
             $em->persist($eigner);
+
             $em->flush();
+
             return new Response(null, Response::HTTP_NO_CONTENT);
         }
         return $this->render('ticket/_inc/_contact_create.html.twig', [
@@ -521,7 +547,12 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/proofCount', name: 'app_ticket_proof_count', methods: ['GET', 'POST'])]
     public function getProofCount(TicketRepository $ticketRepo, AnlagenRepository $anlagenRepo, Request $request): Response
     {
-        $anlage = $anlagenRepo->findOneBy(['anlId' => $request->query->get('anlage')]);
+        $anlageId = $request->query->get('anlage');
+        if ($anlageId != '') {
+            $anlage = $anlagenRepo->findOneBy(['anlId' => $anlageId]);
+        } else {
+            $anlage = null;
+        }
         $status = $request->query->get('status');
         $editor = $request->query->get('editor');
         $id = $request->query->get('id');
@@ -1305,6 +1336,24 @@ class TicketController extends BaseController
         $em->flush();
 
         return new Response('Alert verified successfully');
+    }
+
+    #[Route('/ticket/statusChange', name: 'ticket_multiple_status_change')]
+    public function multipleTicketStatusChange(Request $request, EntityManagerInterface $em, TicketRepository $ticketRepo): Response
+    {
+        $status = $request->query->get('status');
+        $tickets = explode(",", $request->query->get('tickets'));
+
+        foreach ($tickets as $ticket){
+            $currTicket = $ticketRepo->findOneBy(['id' => $ticket]);
+            if ($currTicket) {
+                $currTicket->setStatus($status);
+                $em->persist($currTicket);
+            }
+        }
+
+        $em->flush();
+        return new Response(null, Response::HTTP_OK);
     }
 
 }

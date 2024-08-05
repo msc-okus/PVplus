@@ -141,6 +141,7 @@ class ModulesListEmbeddedFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageModules::class,
+            'required' => false,
         ]);
     }
 }

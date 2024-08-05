@@ -683,6 +683,9 @@ class Anlage implements \Stringable
     #[ORM\Column(name: 'alert_check_interval', nullable: true)]
     private int $alertCheckInterval = 2;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $ticketGenerationDelay = 8;
+
     public function getAlertCheckInterval(): int
     {
         return $this->alertCheckInterval;
@@ -3780,31 +3783,36 @@ class Anlage implements \Stringable
         return $this;
     }
 
-  public function getFildForcastDat() {
-        return $this->getDatFilename();
-  }
-    public function isDay($timestamp = 0): bool
+    public function getFildForcastDat(): ?string
     {
-        date_default_timezone_set($this->getNearestTimezone($this->getAnlGeoLat(), $this->getAnlGeoLon(),strtoupper($this->getCountry())));
-        $sunrisedata = date_sun_info($timestamp, (float) $this->getAnlGeoLat(), (float) $this->getAnlGeoLon());
+        return $this->getDatFilename();
+    }
 
-        date_default_timezone_set('Europe/Berlin');
+    /**
+     * @throws \Exception
+     */
+    public function isDay(int $timestamp = 0): bool
+    {
+        date_default_timezone_set($this->getNearestTimezone());
+        $sunrisedata = date_sun_info($timestamp, (float) $this->getAnlGeoLat(), (float) $this->getAnlGeoLon());
 
         $isDay = true;
         if($sunrisedata['sunrise'] > $timestamp || $sunrisedata['sunset'] <= $timestamp) {
             $isDay = false;
         }
-        #echo $timestamp.' /// aaa/ '.$sunrisedata['sunrise'].' / '.$sunrisedata['sunset']."<br>";
 
         return ($isDay);
     }
 
-    public function getNearestTimezone($cur_lat, $cur_long, string $country_code = ''): string
+    /**
+     * @throws \Exception
+     */
+    public function getNearestTimezone(): string
     {
-        $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)
-            : DateTimeZone::listIdentifiers();
+        $countryCode = strtoupper($this->getCountry());
+        $timezone_ids = ($countryCode) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $countryCode) : DateTimeZone::listIdentifiers();
 
-        if ($timezone_ids && is_array($timezone_ids) && isset($timezone_ids[0])) {
+        if ($timezone_ids && isset($timezone_ids[0])) {
             $time_zone = '';
             $tz_distance = 0;
 
@@ -3818,9 +3826,9 @@ class Anlage implements \Stringable
                     $tz_lat = $location['latitude'];
                     $tz_long = $location['longitude'];
 
-                    $theta = $cur_long - $tz_long;
-                    $distance = (sin(deg2rad($cur_lat)) * sin(deg2rad($tz_lat)))
-                        + (cos(deg2rad($cur_lat)) * cos(deg2rad($tz_lat)) * cos(deg2rad($theta)));
+                    $theta = $this->getAnlGeoLon() - $tz_long;
+                    $distance = (sin(deg2rad($this->getAnlGeoLat())) * sin(deg2rad($tz_lat)))
+                        + (cos(deg2rad($this->getAnlGeoLat())) * cos(deg2rad($tz_lat)) * cos(deg2rad($theta)));
                     $distance = acos($distance);
                     $distance = abs(rad2deg($distance));
 
@@ -4130,7 +4138,7 @@ class Anlage implements \Stringable
 
     public function getMinIrrThreshold(): mixed
     {
-        return min($this->getThreshold1PA0(), $this->getThreshold1PA1(), $this->getThreshold1PA2(), $this->getThreshold1PA3());
+        return min($this->getThreshold2PA0(), $this->getThreshold2PA1(), $this->getThreshold2PA2(), $this->getThreshold2PA3());
     }
 
     public function getPrformular0Image(): string
@@ -4251,6 +4259,18 @@ class Anlage implements \Stringable
                 $document->setAnlage(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTicketGenerationDelay(): ?int
+    {
+        return $this->ticketGenerationDelay;
+    }
+
+    public function setTicketGenerationDelay(?int $ticketGenerationDelay): static
+    {
+        $this->ticketGenerationDelay = $ticketGenerationDelay;
 
         return $this;
     }

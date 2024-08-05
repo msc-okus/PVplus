@@ -72,6 +72,7 @@ class AnlageDcGroupsFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Anlage::class,
             'anlagenId' => '',
+            'required' => false,
         ]);
         $resolver->setAllowedTypes('anlagenId', 'string');
     }
