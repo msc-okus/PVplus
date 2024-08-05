@@ -41,6 +41,7 @@ class AvailabilityByTicketService
         private readonly TicketRepository $ticketRepo,
         private readonly TicketDateRepository $ticketDateRepo,
         private readonly WeatherFunctionsService $weatherFunctionsService,
+        private readonly WeatherServiceNew $weatherService,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
         private readonly IrradiationService $irradiationService,
         private readonly CacheInterface $cache
@@ -227,6 +228,7 @@ class AvailabilityByTicketService
      * @return array
      * @throws InvalidArgumentException
      * @throws \JsonException
+     * @throws \Exception
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampDay, TimesConfig $timesConfig, array $inverterPowerDc, int $department = 0): array
     {
@@ -249,10 +251,11 @@ class AvailabilityByTicketService
                 $threshold2PA = $anlage->getThreshold2PA0();
         }
 
-        //$from   = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampDay);
-        //$to     = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampDay);
         $from   = date('Y-m-d 00:15', $timestampDay);
         $to     = date('Y-m-d 00:00', $timestampDay + (3600 * 25)); // +25 (stunden) um sicher auf einen Time stamp des nächsten Tages zu kommen, auch wenn Umstellung auf Winterzeit
+
+        $sunArray = $this->weatherService->getSunrise($anlage, $from);
+        dump($sunArray);
 
         #$maxFailTime = $timesConfig->getMaxFailTime();
         $powerThersholdkWh = $anlage->getPowerThreshold() / 4; // Umrechnung von kW auf kWh bei 15 Minuten Werten
@@ -379,7 +382,13 @@ class AvailabilityByTicketService
                 $strahlung = $einstrahlung['irr'];
                 $irrFlag = $einstrahlung['irr_flag'];
 
-                $conditionIrrCase1 = $strahlung <= $threshold2PA && $strahlung !== null;
+                if ($sunArray['sunrise'] > $stamp && $sunArray['sunset'] < $stamp) {
+                    // Wenn die Sonne aufgegangen ist muss Strahlungswert da sein
+                    $conditionIrrCase1 = $strahlung <= $threshold2PA && $strahlung !== null;
+                } else {
+                    // in der Nacht soll eine darf die Strahlung = null (datagap) sein (Bsp: null <= 50' === true)
+                    $conditionIrrCase1 = $strahlung <= $threshold2PA;
+                }
                 $conditionIrrCase2 = $strahlung > $threshold2PA;
 
                 if (($department === 0 && $anlage->isUsePAFlag0()) || ($department === 1 && $anlage->isUsePAFlag1()) ||
@@ -445,11 +454,16 @@ class AvailabilityByTicketService
                             */
                         }
                         // Case 2 (second part of ti - means case1 + case2 = ti)
-                        if ($anlage->getTreatingDataGapsAsOutage()) {
+                        #########
+
+                        if ($anlage->getTreatingDataGapsAsOutage() && ($sunArray['sunrise'] > $stamp && $sunArray['sunset'] < $stamp)) {
+                            // Data Gap soll als Ausfall gewertet werden, wenn der Zeitstempel innehalb der Aufgegangenen Sonne liegt
                             $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                         ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh) && $case5 === false && $case6 === false && $skipTi === false);
                             // Änderung am 27. Feb 24 '$powerAc > $powerThersholdkWh' ersetzt durch '($powerAc > $powerThersholdkWh || $powerAc === null)' | MRE // && $commIssuCase5 === true)
                         } else {
+                            // Data Gap wir NICHT als Ausfall gewertet.
+                            dump($stamp);
                             $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                         ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
 

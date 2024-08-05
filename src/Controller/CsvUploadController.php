@@ -11,6 +11,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\Case6DraftRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,7 @@ use function Symfony\Component\String\u;
 class CsvUploadController extends AbstractController
 {
     #[Route(path: '/csv/upload/delete/{id}', name: 'csv_upload_delete')]
+    #[Deprecated]
     public function deleteCase($id, EntityManagerInterface $em, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo): Response
     {
         $case6draft = $draftRepo->findById($id)[0];
@@ -37,6 +39,7 @@ class CsvUploadController extends AbstractController
     }
 
     #[Route(path: '/csv/upload/list/{anlId}', name: 'csv_upload_list')]
+    #[Deprecated]
     public function list($anlId, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo): Response
     {
         $anlage = $anlRepo->find($anlId);
@@ -50,6 +53,7 @@ class CsvUploadController extends AbstractController
     }
 
     #[Route(path: '/csv/upload/saveandfix/{anlId}', name: 'csv_upload_saveandfix')]
+    #[Deprecated]
     public function saveAndFix($anlId, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em, Request $request): Response
     {
         $anlage = $anlRepo->findIdLike($anlId)[0];
@@ -111,6 +115,7 @@ class CsvUploadController extends AbstractController
     }
 
     #[Route(path: '/csv/upload/save/{anlId}', name: 'csv_upload_save')]
+    #[Deprecated]
     public function save($anlId, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $anlage = $anlRepo->findIdLike($anlId)[0];
@@ -134,6 +139,7 @@ class CsvUploadController extends AbstractController
     }
 
     #[Route(path: '/csv/upload/load', name: 'csv_upload_load')]
+    #[Deprecated]
     public function load(Request $request, EntityManagerInterface $em, UploaderHelper $uploaderHelper, AnlagenRepository $anlRepo, $uploadsPath): Response
     {
         $form = $this->createForm(FileUploadFormType::class);
