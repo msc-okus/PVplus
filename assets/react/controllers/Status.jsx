@@ -124,7 +124,7 @@ const Status = ({ selectedRowData }) => {
                             label={renderCustomizedLabel}
                         >
                             <Label
-                                value={`Status at ${pr_act.lastDataIo}`}
+                                value={`Hour ${pr_act.lastDataIo}`}
                                 position="center"
                                 style={{ fontSize: '0.9rem', fill: theme === 'light' ? 'black' : 'white' }}
                             />

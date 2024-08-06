@@ -3,16 +3,14 @@ import { PieChart, Pie, Cell, Tooltip, Label } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from './ThemenContext'; // Import the useTheme hook
 
-const Alert = ({ selectedRowData }) => {
+const Mro = ({ selectedRowData }) => {
     const navigate = useNavigate();
     const { theme } = useTheme(); // Use the theme from context
 
     const statusColors = {
         new: '#f0ad4e',
         work: '#1779ba',
-        wait: '#dca3fc',
-        closed: '#5cb85c',
-        empty: theme === 'light' ? '#f3f5f5' : '#ffffff' // Apply conditional styling
+        closed: '#5cb85c'
     };
 
     const CustomTooltip = ({ active, payload }) => {
@@ -33,7 +31,7 @@ const Alert = ({ selectedRowData }) => {
                         fontSize: '0.9rem'
                     }}>
                         <p className="text-center"><span
-                            className="badge bg-secondary">{`${payload[0].value} ${payload[0].payload.description} alert(s)`}</span>
+                            className="badge bg-secondary">{`${payload[0].value} ${payload[0].payload.description} mro(s)`}</span>
                         </p>
                         <div className="d-flex flex-wrap ">
                             {payload[0].payload.i.split(',').map((value, index) => (
@@ -50,11 +48,9 @@ const Alert = ({ selectedRowData }) => {
 
     const CustomLegend = () => {
         const legendData = [
-            {name: 'New', color: statusColors.new},
-            {name: 'Work in process', color: statusColors.work},
-            {name: 'Wait external', color: statusColors.wait},
-            {name: 'Closed', color: statusColors.closed},
-            {name: 'No alert', color: statusColors.empty}
+            {name: 'Pending processing', color: statusColors.new},
+            {name: 'processing', color: statusColors.work},
+            {name: 'processing completed', color: statusColors.closed}
         ];
 
         return (
@@ -82,7 +78,7 @@ const Alert = ({ selectedRowData }) => {
         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
-        const value = payload.name === 'empty' ? '' : payload.value;
+        const value =  payload.value;
 
         return (
             <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" style={{ fontSize: '0.75rem' }}>
@@ -96,22 +92,21 @@ const Alert = ({ selectedRowData }) => {
         return <span>Loading... <i className="fas fa-cog fa-spin fa-3x"></i></span>;
     }
 
-    const statusData = JSON.parse(selectedRowData.last_7_days_tickets);
+    const statusData = JSON.parse(selectedRowData.mro);
     const status = [
-        { name: 'new', value: statusData.status_10.s, i: statusData.status_10.alerts, description: 'New'  },
-        { name: 'work', value: statusData.status_30.s, i: statusData.status_30.alerts, description: 'Work in process' },
-        { name: 'wait', value: statusData.status_40.s, i: statusData.status_40.alerts, description: 'Wait external' },
-        { name: 'closed', value: statusData.status_90.s, i: statusData.status_90.alerts, description: 'Closed' }
+        { name: 'new', value: statusData.new.zahl, i: statusData.new.alerts, description: 'Pending processing'  },
+        { name: 'work', value: statusData.work.zahl, i: statusData.work.alerts, description: 'processing' },
+        { name: 'closed', value: statusData.closed.zahl, i: statusData.closed.alerts, description: 'processing completed' }
     ];
-    const filteredStatus = status.filter(s => s.value > 0);
 
-    const pieData = filteredStatus.length > 0 ? filteredStatus : [{ name: 'empty', value: 1 }];
+
+
 
     return (
         <div className="panel-box">
             <div className="panel-box-container">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3>Alerts <span className="panel-white">Last 7 days</span></h3>
+                    <h3>Mros</h3>
                     <button
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={(e) => {
@@ -126,7 +121,7 @@ const Alert = ({ selectedRowData }) => {
                 <div style={{display: 'flex', justifyContent: 'space-between' }}>
                     <PieChart width={200} height={200}>
                         <Pie
-                            data={pieData}
+                            data={status}
                             dataKey="value"
                             nameKey="name"
                             cx="50%"
@@ -142,7 +137,7 @@ const Alert = ({ selectedRowData }) => {
                                 position="center"
                                 style={{ fontSize: '0.9rem', fill: theme==='light'?'black':'white' }}
                             />
-                            {pieData.map((entry, index) => (
+                            {status.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={statusColors[entry.name]} />
                             ))}
                         </Pie>
@@ -155,4 +150,4 @@ const Alert = ({ selectedRowData }) => {
     );
 };
 
-export default Alert;
+export default Mro;

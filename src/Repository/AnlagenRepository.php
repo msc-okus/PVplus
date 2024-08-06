@@ -8,9 +8,12 @@ use App\Helper\G4NTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\SecurityBundle\Security;
+use App\Entity\Ticket;
+use App\Entity\NotificationInfo;
 
 /**
  * @method Anlage|null find($id, $lockMode = null, $lockVersion = null)
@@ -581,13 +584,54 @@ class AnlagenRepository extends ServiceEntityRepository
         // Group the results by anlage_id to ensure aggregation functions correctly
         $qb->groupBy('a.anlId');
 
-        // Get the query and return results
-        return $qb->getQuery()->getResult();
+        // Subquery to get the latest NotificationInfo details for each Ticket
+        $ticketsQb = $this->getEntityManager()->createQueryBuilder()
+            ->select('t.id AS ticket_id, 
+                  ni.id AS notification_info_id, 
+                  ni.closeDate AS notification_info_close_date, 
+                  ni.answerDate AS notification_info_answer_date, 
+                  ni.Date AS notification_info_date')
+            ->from(NotificationInfo::class, 'ni')
+            ->leftJoin('ni.Ticket', 't')
+            ->groupBy('t.id')
+            ->orderBy('ni.Date', 'DESC')
+            ->addGroupBy('ni.id')
+            ->having('ni.id IS NOT NULL');
+
+        $ticketsResult = $ticketsQb->getQuery()->getResult();
+        $ticketsMap = [];
+        foreach ($ticketsResult as $row) {
+            if ($row['notification_info_close_date']) {
+                $ticketsMap[$row['ticket_id']] = 'closed';
+            } elseif ($row['notification_info_answer_date']) {
+                $ticketsMap[$row['ticket_id']] = 'work in process';
+            } elseif ($row['notification_info_date']) {
+                $ticketsMap[$row['ticket_id']] = 'new';
+            }
+        }
+
+
+        $results = $qb->getQuery()->getResult();
+
+        foreach ($results as &$result) {
+            $ticketIds = explode(',', $result['all_ticket_ids']);
+            $notificationInfoDetails = [];
+            foreach ($ticketIds as $ticketId) {
+                if (isset($ticketsMap[$ticketId])) {
+                    $notificationInfoDetails[$ticketId] = $ticketsMap[$ticketId];
+                }
+            }
+            $result['mro'] = $notificationInfoDetails;
+            unset($result['all_ticket_ids']);
+        }
+
+        return $results;
     }
 
 
     public function findPlantsForDashboard(): array
     {
+        // Main query for fetching Anlage details
         $qb = $this->createQueryBuilder('anlage')
             ->innerJoin('anlage.eigner', 'eigner')
             ->addSelect('eigner')
@@ -604,7 +648,7 @@ class AnlagenRepository extends ServiceEntityRepository
             ->orderBy('eigner.firma', 'ASC')
             ->addOrderBy('anlage.anlName', 'ASC');
 
-        // Ajouter les jointures et sélections pour les tickets
+        // Add joins and selections for tickets
         $qb->leftJoin('anlage.tickets', 't', 'WITH', 't.createdAt >= :dateLimit')
             ->setParameter('dateLimit', new \DateTime('-7 days'))
             ->addSelect('COUNT(t.id) AS last_7_days_tickets_total')
@@ -616,10 +660,60 @@ class AnlagenRepository extends ServiceEntityRepository
             ->addSelect('(SELECT GROUP_CONCAT(t40.id) FROM App\Entity\Ticket t40 WHERE t40.anlage = anlage AND t40.status = 40 AND t40.createdAt >= :dateLimit) AS last_7_days_tickets_status_40_ids')
             ->addSelect('SUM(CASE WHEN t.status = 90 THEN 1 ELSE 0 END) AS last_7_days_tickets_status_90')
             ->addSelect('(SELECT GROUP_CONCAT(t90.id) FROM App\Entity\Ticket t90 WHERE t90.anlage = anlage AND t90.status = 90 AND t90.createdAt >= :dateLimit) AS last_7_days_tickets_status_90_ids')
+            ->addSelect('(SELECT GROUP_CONCAT(t_all.id) FROM App\Entity\Ticket t_all WHERE t_all.anlage = anlage) AS all_ticket_ids')
             ->groupBy('anlage.anlId');
 
-        return $qb->getQuery()->getResult();
+        // Subquery to get the latest NotificationInfo details for each Ticket
+        $ticketsQb = $this->getEntityManager()->createQueryBuilder()
+            ->select('t.id AS ticket_id, 
+                  ni.id AS notification_info_id, 
+                  ni.closeDate AS notification_info_close_date, 
+                  ni.answerDate AS notification_info_answer_date, 
+                  ni.Date AS notification_info_date')
+            ->from(NotificationInfo::class, 'ni')
+            ->leftJoin('ni.Ticket', 't')
+            ->groupBy('t.id')
+            ->orderBy('ni.Date', 'DESC')
+            ->addGroupBy('ni.id')
+            ->having('ni.id IS NOT NULL');
+
+        $ticketsResult = $ticketsQb->getQuery()->getResult();
+        $ticketsMap = [];
+        foreach ($ticketsResult as $row) {
+            if ($row['notification_info_close_date']) {
+                $ticketsMap[$row['ticket_id']] = 'closed';
+            } elseif ($row['notification_info_answer_date']) {
+                $ticketsMap[$row['ticket_id']] = 'work';
+            } elseif ($row['notification_info_date']) {
+                $ticketsMap[$row['ticket_id']] = 'new';
+            }
+        }
+
+
+        $results = $qb->getQuery()->getResult();
+
+        foreach ($results as &$result) {
+            $ticketIds = explode(',', $result['all_ticket_ids']);
+            $notificationInfoDetails = [];
+            foreach ($ticketIds as $ticketId) {
+                if (isset($ticketsMap[$ticketId])) {
+                    $notificationInfoDetails[$ticketId] = $ticketsMap[$ticketId];
+                }
+            }
+            $result['mro'] = $notificationInfoDetails;
+            unset($result['all_ticket_ids']);
+        }
+
+        return $results;
     }
 
 
+
+
+
+
+
+
+
 }
+

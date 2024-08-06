@@ -2,7 +2,8 @@ import React from 'react';
 import Performance from './Performance';
 import Status from './Status';
 import Alert from './Alert';
-import { useTheme } from './ThemenContext'; // Import the useTheme hook
+import { useTheme } from './ThemenContext';
+import Mro from "./Mro"; // Import the useTheme hook
 
 const Panel = ({ itemId, selectedRowData }) => {
     const { theme } = useTheme(); // Use the theme from context
@@ -21,6 +22,7 @@ const Panel = ({ itemId, selectedRowData }) => {
                         <Performance selectedRowData={selectedRowData} />
                         <Status selectedRowData={selectedRowData} />
                         <Alert selectedRowData={selectedRowData} />
+                        {JSON.parse(selectedRowData.mro).total > 0 && <Mro selectedRowData={selectedRowData} />}
                     </div>
                 </div>
             ) : (

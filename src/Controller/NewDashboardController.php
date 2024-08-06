@@ -22,7 +22,7 @@ class NewDashboardController extends BaseController
     }
 
     #[Route(path: '/new/retrieve_plants', name: 'app_newDashboard_retrieve_plants')]
-    public function index2(EignerRepository $eignerRepository, AnlagenRepository $anlagenRepository, SerializerInterface $serializer): JsonResponse
+    public function index2( AnlagenRepository $anlagenRepository): JsonResponse
     {
         $user = $this->getUser();
         $grantedString = $user->getGrantedList();
@@ -36,12 +36,13 @@ class NewDashboardController extends BaseController
         }
 
 
+
         $jsonContent = [];
         foreach ($plants as $plant) {
 
             $status = $plant[0]->getLastStatus()[0] ?? null;
             $pr = $plant[0]->getYesterdayPR()[0] ?? null;
-
+            $mro= $this->countAndGroupElements($plant['mro']);
 
                 $statusData = [
                     'ioPlantStatus' => $status?$status->getLastDataStatus():'',
@@ -85,6 +86,7 @@ class NewDashboardController extends BaseController
                     "status_90" => ['s'=>(int)$plant["last_7_days_tickets_status_90"],'alerts'=>(string)$plant["last_7_days_tickets_status_90_ids"]]
                 ];
 
+
             $jsonContent[] = [
                 'id' => $plant[0]->getAnlId(),
                 'name' => $plant[0]->getAnlName(),
@@ -98,7 +100,10 @@ class NewDashboardController extends BaseController
                 'pr_exp'=> json_encode($performanceExp),
                 'pr_yesterday' => json_encode($performanceYesterday),
                 'pr_year'=>json_encode($performanceYear),
-                'last_7_days_tickets'=>json_encode($last_7_days_tickets)
+                'last_7_days_tickets'=>json_encode($last_7_days_tickets),
+                'mro'=>json_encode($mro)
+
+
             ];
         }
         $data['plants']=  $jsonContent;
@@ -163,5 +168,25 @@ class NewDashboardController extends BaseController
         }
 
         return 'green';
+    }
+
+    private function countAndGroupElements(array $data): array
+    {
+        $result = [];
+
+        $result['total']= count($data);
+        // Iterate over the data and count/group the elements
+        foreach ($data as $key => $value) {
+            if (isset($result[$value])) {
+                $result[$value]['zahl']++;
+                $result[$value]['alerts'] .= ',' . $key;
+            } else {
+                $result[$value]['zahl'] = 1;
+                $result[$value]['alerts'] = $key;
+            }
+        }
+
+
+        return $result;
     }
 }
