@@ -11,16 +11,17 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 class WeatherServiceNew
 {
     use G4NTrait;
 
     public function __construct(
-private PdoService $pdoService,
-        private DayLightDataRepository $dayrepo,
-        private EntityManagerInterface $em,
-        private AnlagenRepository $anlRepo)
+        private readonly PdoService $pdoService,
+        private readonly DayLightDataRepository $dayrepo,
+        private readonly EntityManagerInterface $em,
+        private readonly AnlagenRepository $anlRepo)
     {
     }
 
@@ -186,10 +187,11 @@ private PdoService $pdoService,
 
     /** Given a plant and no date it will return the sunrise info of the given plant for the current day
      * Given a plant and a time it will return the sunrise info of the given plant for the given date.
+     * @throws \Exception
      */
     public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
-        $time = date('Y-m-d',strtotime($time)); // reformat the passed $time to an only day stamp
+        $time = date('Y-m-d', strtotime($time)); // reformat the passed $time to an only day stamp
         date_default_timezone_set($anlage->getNearestTimezone());
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
 
@@ -201,6 +203,7 @@ private PdoService $pdoService,
         return $returnArray;
     }
 
+    #[Deprecated]
     public function getNearestTimezone($cur_lat, $cur_long, string $country_code = ''): string
     {
         $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)

@@ -423,7 +423,6 @@ class AnlagenRepository extends ServiceEntityRepository
             ->orderBy('a.anlName', 'ASC') //a.eigner
         ;
 
-        dump($qb->getQuery()->getSQL());
         return $qb;
     }
 

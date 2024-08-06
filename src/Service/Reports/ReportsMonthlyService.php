@@ -47,9 +47,13 @@ class ReportsMonthlyService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param int $reportMonth
+     * @param int $reportYear
      * @return string
      *
      * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function createMonthlyReport(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): string
     {
