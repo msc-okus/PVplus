@@ -27,6 +27,25 @@ class externalApisService
         );
 
         $httpClient = new OAuthHttpClient($httpClient, $grantType);
+
+        $response = $httpClient->request('POST', $url, [
+            'headers' => [
+                "X-API-KEY" => $mcToken,
+                "Content-Type" => "application/x-www-form-urlencoded"
+            ],
+            'body' => [
+                'grant_type' => 'client_credentials',
+                'client_id' => 'vcom-api',
+                'client_secret' => 'AYB=~9_f-BvNoLt8+x=3maCq)>/?@Nom' ,
+                'username' => $mcUser,
+                'password' => $mcPassword,
+                'redirect_uri' => 'https://127.0.0.1:8000/connect',
+            ],
+
+        ]);
+
+        print_r($response->getHeaders());
+
         exit;
 
 
