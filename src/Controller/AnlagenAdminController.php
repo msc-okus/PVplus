@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AnlagenPvSystMonth;
 use App\Service\PdoService;
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
@@ -56,6 +57,17 @@ class AnlagenAdminController extends BaseController
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             /** @var Anlage $anlage */
             $anlage = $form->getData();
+            for ($n = 1; $n <= 12; $n++){
+                $pvSyst = new AnlagenPvSystMonth();
+                $pvSyst
+                    ->setMonth($n)
+                    ->setPrDesign(0)
+                    ->setErtragDesign(0)
+                    ->setIrrDesign(0)
+                    ->setTempAmbientDesign('')
+                    ->setTempArrayAvgDesign('');
+                $anlage->addPvSystMonth($pvSyst);
+            }
             $em->persist($anlage);
             $em->flush();
             $anlage->setAnlIntnr('CX'.$anlage->getAnlagenId());
@@ -225,12 +237,13 @@ class AnlagenAdminController extends BaseController
      * @param AnlagenRepository $anlagenRepository
      * @param EconomicVarNamesRepository $ecoNamesRepo
      * @param UploaderHelper $uploaderHelper
-     * @param AnlageFileRepository $RepositoryUpload
+     * @param AnlageFileRepository $repositoryUpload
      * @param Filesystem $fileSystemFtp
      * @param Filesystem $filesystem
+     * @param PaginatorInterface $paginator
      * @return RedirectResponse|Response
      * @throws FilesystemException
-     * @throws \Exception
+     * @throws NonUniqueResultException
      */
     #[Route(path: '/admin/anlagen/editconfig/{id}', name: 'app_admin_anlagen_edit_config')]
     public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $repositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem, PaginatorInterface $paginator): RedirectResponse|Response
@@ -535,7 +548,7 @@ class AnlagenAdminController extends BaseController
 
     #[Route(path: '/admin/anlagen/delete/{id}', name: 'app_admin_anlage_delete')]
     #[IsGranted('ROLE_DEV')]
-    public function delete($id, EntityManagerInterface $em, AnlagenRepository $anlagenRepository, Security $security): RedirectResponse
+    public function delete($id, EntityManagerInterface $em, AnlagenRepository $anlagenRepository): RedirectResponse
     {
         if ($this->isGranted('ROLE_DEV')) {
             /** @var Anlage|null $anlage */
