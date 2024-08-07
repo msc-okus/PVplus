@@ -201,6 +201,21 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $stringAnalysis = false;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $ppcAutoTicketBehavior = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $ppcAutoTicketReplaceBy = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $ppcAutoTicketUseHour = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $ppcAutoTicketReplaceIrr = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $ppcAutoTicketPaBehavior = null;
+
     public function getActivateAnalysis(): ?bool
     {
         return $this->activateAnalysis;
@@ -888,6 +903,66 @@ class AnlageSettings
     public function setUsePpcTicketToReplacePvSyst(?bool $usePpcTicketToReplacePvSyst): void
     {
         $this->usePpcTicketToReplacePvSyst = $usePpcTicketToReplacePvSyst;
+    }
+
+    public function getPpcAutoTicketBehavior(): ?string
+    {
+        return $this->ppcAutoTicketBehavior;
+    }
+
+    public function setPpcAutoTicketBehavior(?string $ppcAutoTicketBehavior): static
+    {
+        $this->ppcAutoTicketBehavior = $ppcAutoTicketBehavior;
+
+        return $this;
+    }
+
+    public function getPpcAutoTicketReplaceBy(): ?string
+    {
+        return $this->ppcAutoTicketReplaceBy;
+    }
+
+    public function setPpcAutoTicketReplaceBy(?string $ppcAutoTicketReplaceBy): static
+    {
+        $this->ppcAutoTicketReplaceBy = $ppcAutoTicketReplaceBy;
+
+        return $this;
+    }
+
+    public function isPpcAutoTicketUseHour(): ?bool
+    {
+        return $this->ppcAutoTicketUseHour;
+    }
+
+    public function setPpcAutoTicketUseHour(?bool $ppcAutoTicketUseHour): static
+    {
+        $this->ppcAutoTicketUseHour = $ppcAutoTicketUseHour;
+
+        return $this;
+    }
+
+    public function isPpcAutoTicketReplaceIrr(): ?bool
+    {
+        return $this->ppcAutoTicketReplaceIrr;
+    }
+
+    public function setPpcAutoTicketReplaceIrr(?bool $ppcAutoTicketReplaceIrr): static
+    {
+        $this->ppcAutoTicketReplaceIrr = $ppcAutoTicketReplaceIrr;
+
+        return $this;
+    }
+
+    public function getPpcAutoTicketPaBehavior(): ?string
+    {
+        return $this->ppcAutoTicketPaBehavior;
+    }
+
+    public function setPpcAutoTicketPaBehavior(?string $ppcAutoTicketPaBehavior): static
+    {
+        $this->ppcAutoTicketPaBehavior = $ppcAutoTicketPaBehavior;
+
+        return $this;
     }
 
 }
