@@ -29,19 +29,12 @@ trait G4NTrait
     public static function getCetTime($format = 'timestamp'): \DateTime|int|string
     {
         $date = new \DateTime('now', new \DateTimeZone('UTC'));
-        if ($date->format('I') == 1) {
-            $date->modify('+2 hours');
-        } else {
-            $date->modify('+1 hours');
-        }
 
-        $_time = match (strtoupper((string) $format)) {
+        return match (strtoupper((string) $format)) {
             'SQL' => $date->format('Y-m-d H:i'),
             'OBJECT' => $date,
-            default => $date->format('U') - 7200,
+            default => $date->getTimestamp()
         };
-
-        return $_time;
     }
 
     /**

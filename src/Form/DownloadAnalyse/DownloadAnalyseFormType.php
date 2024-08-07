@@ -27,6 +27,12 @@ class DownloadAnalyseFormType extends AbstractType
                 'choices' => $this->anlagenRepository->findAllActiveAndAllowed(),
                 'choice_label' => 'anlName',
                 'required' => true,
+                'autocomplete' => true,
+                'placeholder' => 'Please select a Plant',
+                'tom_select_options' => [
+                    'max-item' => 1,
+                    'create' => false,
+                ],
             ])
             ->add('years', ChoiceType::class, [
                 'label' => 'please select a Year',

@@ -6,6 +6,7 @@ use App\Repository\AnlageSensorsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AnlageSensorsRepository::class)]
+#[ORM\UniqueConstraint(name: 'uniqueNameShort', columns: ['anlage_id', 'name_short'])]
 class AnlageSensors
 {
     #[ORM\Id]

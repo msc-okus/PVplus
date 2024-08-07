@@ -6,6 +6,7 @@ use App\Repository\Case5Repository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -16,6 +17,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Index(columns: ['stamp_to'])]
 #[ORM\Index(columns: ['inverter'])]
 #[ORM\UniqueConstraint(name: 'uniqueCase5', columns: ['anlage_id', 'stamp_from', 'stamp_to', 'inverter'])]
+#[Deprecated]
 class AnlageCase5
 {
     use TimestampableEntity;

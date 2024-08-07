@@ -42,8 +42,9 @@ class ImportDataHandler
         $timeRange = $importData->getEndDate()->getTimestamp() - $importData->getStartDate()->getTimestamp();
         if ($anlage->getSettings()->isSymfonyImport()) {
             for ($dayStamp = $importData->getStartDate()->getTimestamp(); $dayStamp <= $importData->getEndDate()->getTimestamp(); $dayStamp += 24*3600) {
-                $from = strtotime(date('Y-m-d 00:15', $dayStamp));
-                $to = strtotime(date('Y-m-d 23:59', $dayStamp));
+                $from = strtotime(date('Y-m-d 23:45', $dayStamp-900));
+                $to = strtotime(date('Y-m-d 23:45', $dayStamp));
+
                 $currentDay = date('d', $dayStamp);
 
                 // Proof if date = today, if yes set $to to current DateTime

@@ -78,7 +78,7 @@ class AnlagenController extends BaseController
     {
 
         $anlage = $anlagenRepository->find($id);
-        dd($anlage);
+
         $economicVarNames1 = new EconomicVarNames();
         if ($ecoNamesRepo->findByAnlage($id)[0] != null) {
             $economicVarNames1 = $ecoNamesRepo->findByAnlage($id)[0]; // will be used to load and display the already defined names
@@ -102,7 +102,6 @@ class AnlagenController extends BaseController
             }
 
 
-            dd($anlage);
             $successMessage = 'Plant data saved!';
             $em->persist($anlage);
             $em->flush();

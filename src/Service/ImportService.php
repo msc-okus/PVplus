@@ -231,8 +231,10 @@ class ImportService
         //beginn collect all Data from all Plants
         $numberOfBulkMeaserments = count($bulkMeaserments);
         if ($numberOfBulkMeaserments > 0) {
+
             for ($i = 0; $i < $numberOfBulkMeaserments; ++$i) {
                 for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
+
                     $stamp = date('Y-m-d H:i', $timestamp);
                     $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
                     if (array_key_exists($i, $bulkMeaserments)) {
@@ -347,6 +349,10 @@ class ImportService
                     $irrAnlage = 0;
                 }
 
+                if($timeZonePlant == 'Asia/Almaty' || $timeZonePlant == 'Asia/Qostanay'){
+                    $stamp = date('Y-m-d H:i', $timestamp-3600);
+                }
+
                 $data_pv_weather[] = [
                     'anl_intnr' => $weatherDbIdent,
                     'anl_id' => 0,
@@ -447,11 +453,11 @@ class ImportService
             //beginn write Data in the tables
             switch ($importType) {
                 case 'api-import-weather':
-                    if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0 && $hasSensorsFromSatelite != 1) {
+                    if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
                     }
-                    if(is_array($data_pv_weather) && count($data_pv_weather) > 0 && $hasSensorsFromSatelite != 1){
+                    if(is_array($data_pv_weather) && count($data_pv_weather) > 0 && $importType != 'ftpPush'){
                         $tableName = "db__pv_ws_$weatherDbIdent";
                         self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                     }
@@ -471,7 +477,7 @@ class ImportService
                         self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
                     }
 
-                    if(is_array($data_pv_ist) && count($data_pv_ist) > 0) {
+                    if(is_array($data_pv_ist) && count($data_pv_ist) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_ist_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_ist, $DBDataConnection);
                     }

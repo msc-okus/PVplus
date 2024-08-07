@@ -40,6 +40,7 @@ class AvailabilityByTicketService
         private readonly TicketRepository $ticketRepo,
         private readonly TicketDateRepository $ticketDateRepo,
         private readonly WeatherFunctionsService $weatherFunctionsService,
+        private readonly WeatherServiceNew $weatherService,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
         private readonly IrradiationService $irradiationService,
         private readonly CacheInterface $cache
@@ -226,6 +227,7 @@ class AvailabilityByTicketService
      * @return array
      * @throws InvalidArgumentException
      * @throws \JsonException
+     * @throws \Exception
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampDay, TimesConfig $timesConfig, array $inverterPowerDc, int $department = 0): array
     {
@@ -248,10 +250,11 @@ class AvailabilityByTicketService
                 $threshold2PA = $anlage->getThreshold2PA0();
         }
 
-        //$from   = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampDay);
-        //$to     = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampDay);
         $from   = date('Y-m-d 00:15', $timestampDay);
         $to     = date('Y-m-d 00:00', $timestampDay + (3600 * 25)); // +25 (stunden) um sicher auf einen Time stamp des nächsten Tages zu kommen, auch wenn Umstellung auf Winterzeit
+
+        $sunArray = $this->weatherService->getSunrise($anlage, $from);
+        #dump($sunArray);
 
         #$maxFailTime = $timesConfig->getMaxFailTime();
         $powerThersholdkWh = $anlage->getPowerThreshold() / 4; // Umrechnung von kW auf kWh bei 15 Minuten Werten
@@ -378,7 +381,13 @@ class AvailabilityByTicketService
                 $strahlung = $einstrahlung['irr'];
                 $irrFlag = $einstrahlung['irr_flag'];
 
-                $conditionIrrCase1 = $strahlung <= $threshold2PA && $strahlung !== null;
+                if ($sunArray['sunrise'] < $stamp && $sunArray['sunset'] > $stamp) {
+                    // Wenn die Sonne aufgegangen ist muss Strahlungswert da sein
+                    $conditionIrrCase1 = $strahlung <= $threshold2PA && $strahlung !== null;
+                } else {
+                    // in der Nacht soll eine darf die Strahlung = null (datagap) sein (Bsp: null <= 50 === true)
+                    $conditionIrrCase1 = $strahlung <= $threshold2PA;
+                }
                 $conditionIrrCase2 = $strahlung > $threshold2PA;
 
                 if (($department === 0 && $anlage->isUsePAFlag0()) || ($department === 1 && $anlage->isUsePAFlag1()) ||
@@ -407,8 +416,6 @@ class AvailabilityByTicketService
                     $powerAc = isset($istData[$stamp][$inverter]['power_ac']) ? (float) $istData[$stamp][$inverter]['power_ac'] : null;
                     $cosPhi  = isset($istData[$stamp][$inverter]['cos_phi'])  ? (float) $istData[$stamp][$inverter]['cos_phi'] :  null;
 
-                    // Wenn die Strahlung keine Datenlücke hat dann: ?? Brauchen wir das
-
                     $case0 = $case1 = $case2 = $case3 = $case4 = $case5 = $case6 = false;
                     $commIssu = $commIssuCase5 = $skipTi = $skipTiTheo = $outageAsTiFm = false;
 
@@ -433,22 +440,17 @@ class AvailabilityByTicketService
                             $case1 = true;
                             ++$availability[$inverter]['case1'];
                             ++$availabilityPlantByStamp['case1'];
-                            /*
-                            if ($case3Helper[$inverter] < $maxFailTime) {
-                                $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
-                                $availabilityPlantByStamp['case3'] -= $case3Helper[$inverter] / 15;
-                                $availability[$inverter]['case2'] += $case3Helper[$inverter] / 15;
-                                $availabilityPlantByStamp['case2'] += $case3Helper[$inverter] / 15;
-                            }
-                            $case3Helper[$inverter] = 0;
-                            */
                         }
                         // Case 2 (second part of ti - means case1 + case2 = ti)
-                        if ($anlage->getTreatingDataGapsAsOutage()) {
+                        #########
+
+                        if ($anlage->getTreatingDataGapsAsOutage() && ($sunArray['sunrise'] > $stamp && $sunArray['sunset'] < $stamp)) {
+                            // Data Gap soll als Ausfall gewertet werden, wenn der Zeitstempel innehalb der Aufgegangenen Sonne liegt
                             $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                         ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh) && $case5 === false && $case6 === false && $skipTi === false);
                             // Änderung am 27. Feb 24 '$powerAc > $powerThersholdkWh' ersetzt durch '($powerAc > $powerThersholdkWh || $powerAc === null)' | MRE // && $commIssuCase5 === true)
                         } else {
+                            // Data Gap wir NICHT als Ausfall gewertet.
                             $hitCase2 = ($conditionIrrCase2 && $commIssu === true && $skipTi === false) ||
                                         ($conditionIrrCase2 && ($powerAc > $powerThersholdkWh || $powerAc === null) && $case5 === false && $case6 === false && $skipTi === false);
 
@@ -457,15 +459,6 @@ class AvailabilityByTicketService
                             $case2 = true;
                             ++$availability[$inverter]['case2'];
                             ++$availabilityPlantByStamp['case2'];
-                            /*
-                            if ($case3Helper[$inverter] < $maxFailTime) {
-                                $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
-                                $availabilityPlantByStamp['case3'] -= $case3Helper[$inverter] / 15;
-                                $availability[$inverter]['case2'] += $case3Helper[$inverter] / 15;
-                                $availabilityPlantByStamp['case2'] -= $case3Helper[$inverter] / 15;
-                            }
-                            $case3Helper[$inverter] = 0;
-                            */
                         }
                         // Case 3
                         if ($conditionIrrCase2 && ($powerAc <= $powerThersholdkWh && $powerAc !== null) && !$commIssu) { // ohne case5
@@ -479,15 +472,6 @@ class AvailabilityByTicketService
                             $case4 = true;
                             ++$availability[$inverter]['case4'];
                             ++$availabilityPlantByStamp['case4'];
-                            /*
-                            if ($case3Helper[$inverter] < $maxFailTime) {
-                                $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
-                                $availabilityPlantByStamp['case3'] -= $case3Helper[$inverter] / 15;
-                                $availability[$inverter]['case2'] += $case3Helper[$inverter] / 15;
-                                $availabilityPlantByStamp['case2'] -= $case3Helper[$inverter] / 15;
-                            }
-                            $case3Helper[$inverter] = 0;
-                            */
                         }
                         // Case 5 ti,FM
                         if (($conditionIrrCase2 === true && $case5 === true)

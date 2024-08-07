@@ -6,7 +6,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-
+    {# {{ encore_entry_script_tags('tools-pvsyst-import') }}  #}
 {% endblock %}
 
 {% block body %}
@@ -15,62 +15,75 @@
             <h1 id="thechange">PV Syst Import (Beta)</h1>
         </div>
     </div>
+    <div
+        {{ stimulus_controller('tools-pvsyst-import') }}
+        {{ stimulus_target('tools-pvsyst-import', 'form') }}
+    >
+        {{ form_start(form, {'attr': {'novalidate': 'no'}} ) }}
 
-    {{ form_start(form, {'attr': {'novalidate': 'no'}}) }}
-
-    <div class="grid-x grid-margin-x">
-        <div class="cell medium-2">
-            {{ form_row(form.anlage) }}
-        </div>
-        <div class="cell medium-2">
-            {{ form_row(form.file) }}
-        </div>
-    </div>
-
-
-    <div class="grid-x grid-margin-x {% if prefills.filename is null%} hidden{% endif %}">
-        <div class="cell medium-2">
-            {{ form_row(form.separator) }}
-        </div>
-        <div class="cell medium-2">
-            {{ form_row(form.dateFormat) }}
-        </div><div class="cell medium-8">
-            {{ form_row(form.filename, {attr: {
-                value: prefills.filename
-            }}) }}
-        </div>
-    </div>
-
-
-    <div class="grid-x grid-margin-x" style="min-height: 50vh;">
-        <div class="cell medium-12">
-            <div class="callout" style="min-height: 50vh; max-height: 70vh; overflow-y: scroll; overflow-x: hidden;">
-                {{ output|raw }}
+        <div class="grid-x grid-margin-x">
+            <div class="cell medium-2">
+                {{ form_row(form.anlage, { attr: stimulus_action('tools-pvsyst-import', 'checkStatus', 'change').toArray() }) }}
+            </div>
+            <div class="cell medium-2">
+                {{ form_row(form.file, { attr: stimulus_action('tools-pvsyst-import', 'checkStatus', 'change').toArray() }) }}
             </div>
         </div>
-    </div>
 
 
-    <div class="grid-x grid-margin-x grid-margin-y">
-        <div class="cell medium-4">
-            {% if prefills.filename is null %}
-                {{ form_widget(form.preview, {attr: {
-                    disabled: false
+        <div class="grid-x grid-margin-x {% if prefills.filename is null%} hidden{% endif %}">
+            <div class="cell medium-2">
+                {{ form_row(form.separator) }}
+            </div>
+            <div class="cell medium-2">
+                {{ form_row(form.dateFormat) }}
+            </div>
+            <div class="cell medium-8"{% if not is_granted('ROLE_G4N') %} hidden{% endif %}>
+                {{ form_row(form.filename, {attr: {
+                    value: prefills.filename
                 }}) }}
-                {{ form_widget(form.import, {attr: {
-                    disabled: true
-                }}) }}
-            {% else %}
-                {{ form_widget(form.preview, {attr: {
-                    disabled: true
-                }}) }}
-                {{ form_widget(form.import, {attr: {
-                    disabled: false
-                }}) }}
-            {% endif %}
-
-            {{ form_widget(form.close) }}
+            </div>
         </div>
+        <div class="grid-x grid-margin-x {% if prefills.filename is null%} hidden{% endif %}">
+            <div class="cell">
+                <p><b>
+                    Decimal separators are automatically detected.<br>
+                    Data must be hourly.
+                </b></p>
+            </div>
+        </div>
+
+
+        <div class="grid-x grid-margin-x" style="min-height: 50vh;">
+            <div class="cell medium-12">
+                <div class="callout" style="min-height: 50vh; max-height: 70vh; overflow-y: scroll; overflow-x: hidden;">
+                    {{ output|raw }}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="grid-x grid-margin-x grid-margin-y">
+            <div class="cell medium-4">
+                {% if prefills.filename is null %}
+                    {{ form_widget(form.preview, {attr: {
+                        disabled: false
+                    }}) }}
+                    {{ form_widget(form.import, {attr: {
+                        disabled: true
+                    }}) }}
+                {% else %}
+                    {{ form_widget(form.preview, {attr: {
+                        disabled: true
+                    }}) }}
+                    {{ form_widget(form.import, {attr: {
+                        disabled: false
+                    }}) }}
+                {% endif %}
+
+                {{ form_widget(form.close) }}
+            </div>
+        </div>
+        {{ form_end(form) }}
     </div>
-    {{ form_end(form) }}
 {% endblock %}

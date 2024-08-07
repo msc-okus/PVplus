@@ -44,6 +44,12 @@ class ImportExcelFormType extends AbstractType
                 'class' => Anlage::class,
                 'choices' => $anlagen,
                 'choice_label' => 'anlName',
+                'autocomplete' => true,
+                'placeholder' => 'Please select a Plant',
+                'tom_select_options' => [
+                    'max-item' => 1,
+                    'create' => false,
+                ],
             ])
             ->add('File', FileType::class, [
                 'mapped' => false,

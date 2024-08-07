@@ -29,18 +29,13 @@ class ImportEGridFormType extends AbstractType
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
-        if ($this->security->isGranted('ROLE_G4N')) {
-            $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
-        } else {
-            $eigner = $this?->security->getUser()?->getEigners()[0];
-            $anlagen = $this->anlagenRepository->findAllIDByEigner($eigner);
-        }
-
+        $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
 
         $builder
             ->add('anlage', EntityType::class, [
                 'label' => 'Please select a Plant',
                 'class' => Anlage::class,
+                'placeholder' => 'Please select a Plant',
                 'choices' => $anlagen,
                 'choice_label' => 'anlName',
             ])
@@ -75,6 +70,7 @@ class ImportEGridFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ToolsModel::class,
+            'required' => false
         ]);
     }
 }

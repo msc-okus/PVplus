@@ -84,7 +84,6 @@ class DefaultJMController extends AbstractController
                 }
                 $em->flush();
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                    dump($stamp,$toStamp);
                     $alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
                 }
            // } catch(\Exception $e){dd("something broke");}

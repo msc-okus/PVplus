@@ -9,13 +9,16 @@ use App\Repository\PVSystDatenRepository;
 use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
-use App\Service\PdoService;
+use App\Service\Sensors\SensorGettersServices;
 use App\Service\WeatherFunctionsService;
 use DateTime;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use PDO;
+use App\Service\PdoService;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\InvalidArgumentException;
 
 class IrradiationService
 {
@@ -27,8 +30,9 @@ class IrradiationService
         private readonly TicketDateRepository $ticketDateRepo,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
         private readonly WeatherFunctionsService $weatherFunctionsService,
-        private readonly PVSystDatenRepository $pvSystDatenRepo)
-    {
+        private readonly PVSystDatenRepository $pvSystDatenRepo,
+        private readonly SensorGettersServices $sensorGetters,
+    ) {
 
     }
 
@@ -107,11 +111,11 @@ class IrradiationService
             switch ($ticket->getAlertType()) {
                 // Exclude Sensors
                 case '70':
-                    // Funktionier in der ersten Version nur für Leek und Kampen
-                    // es fehlt die Möglichkeit die gemittelte Strahlung, automatisiert aus den Sensoren zu berechnen
-                    // ToDo: Sensor Daten müssen zur Wetter DB umgezogen werden, dann Code anpassen
-                    // Search for sensor (irr) values in ac_ist database
-                    $sensorValues = $this->weatherFunctionsService->getSensors($anlage, $tempoStartDate, $tempoEndDate);
+                    if ($anlage->getSettings()->isUseSensorsData()) { // sensor daten aus Datenban 'Sensors' ermitteln
+                        $sensorValues = $this->sensorGetters->getSensorsIrrByTime($anlage, $tempoStartDate, $tempoEndDate);
+                    } else { // Search for sensor (irr) values in ac_ist database
+                        $sensorValues = $this->weatherFunctionsService->getSensors($anlage, $tempoStartDate, $tempoEndDate);
+                    }
                     // ermitteln welche Sensoren excludiert werden sollen
                     foreach ($sensorValues as $date => $sensorValue) {
                         $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
@@ -132,7 +136,7 @@ class IrradiationService
                                         break;
                                 }
                             }
-                            // erechne neuen Mittelwert aus den Sensoren die genutzt werden sollen
+                            // berechne neuen Mittelwert aus den Sensoren die genutzt werden sollen
                             if ($anlage->getIsOstWestAnlage()) {
                                 $irrData[$date]['irr'] = (self::mittelwert($mittelwertPyroEastArray) * $anlage->getPowerEast() + self::mittelwert($mittelwertPyroWestArray) * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
                             } else {

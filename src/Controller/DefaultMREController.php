@@ -93,7 +93,21 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    #[Route(path: '/mr/status')]
+    #[Route(path: '/mr/status', name: 'system_status')]
+    public function updateSystemStatus(CheckSystemStatusService $status, AnlagenRepository $anlagenRepository): Response
+    {
+        $output = '';
+        $output .= $status->checkSystemStatus();
+        $output .= '<hr>';
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'System Status',
+            'availabilitys' => '',
+            'output' => $output,
+        ]);
+    }
+
+    #[Route(path: '/mr/status2')]
     public function updateStatus(SystemStatus2 $checkSystemStatus, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find('93');
@@ -101,7 +115,7 @@ class DefaultMREController extends BaseController
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Update Systemstatus',
             'availabilitys' => '',
-            'output' => $checkSystemStatus->systemStatus($anlage),
+            'output' => self::printArrayAsTable($checkSystemStatus->systemStatus($anlage)),
         ]);
     }
 

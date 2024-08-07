@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\Case6Repository;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -14,6 +15,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Index(columns: ['stamp_to'])]
 #[ORM\Index(columns: ['inverter'])]
 #[ORM\UniqueConstraint(name: 'uniqueCase6', columns: ['anlage_id', 'stamp_from', 'stamp_to', 'inverter'])]
+#[Deprecated]
 class AnlageCase6
 {
     #[Groups(['case6'])]

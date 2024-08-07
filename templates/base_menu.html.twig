@@ -43,7 +43,6 @@
                 <ul class="vertical menu nested">
                     {% if is_granted('ROLE_DEV') %}
                         <li><a href="{{ path('bavelse_report') }}"><i class="fa fa-file"></i>Bavelse Berg Report</a></li>
-                        <li><a href="{{ path('load_weatherdata') }}"><i class="fa fa-file"></i>Load WeatherData from UP</a></li>
                         <li><a href="{{ path('import_excel') }}"><i class="fa fa-file"></i>Import Excel</a></li>
                         <li><a href="{{ path('user_login_report') }}"><i class="fa fa-file"></i>User Login</a></li>
                     {% endif %}
@@ -64,6 +63,7 @@
                     <li><a href="{{ path('app_admin_moduldb_list') }}"><i class="fa fa fa-solar-panel"></i> Modul Database (Beta)</a></li>
                     <li><a href="{{ path('app_admin_tools') }}"><i class="fa fa-toolbox"></i> Tools</a></li>
                     <li><a href="{{ path('app_admin_import_tools') }}"><i class="fa fa-toolbox"></i> Import-Tools (Prod)</a></li>
+                    <li><a href="{{ path('load_weatherdata') }}"><i class="fa fa-toolbox"></i>Load WeatherData from UP</a></li>
                 </ul>
             </li>
         {% else %}
