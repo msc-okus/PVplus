@@ -63,13 +63,24 @@ class GenerateTicketsCommand extends Command
             } else {
                 $io->comment("Generate Tickets | All Plants");
                 $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
-                //$anlagen = $this->anlagenRepository->findAlertSystemActiveByEigner(true,'10004'); // generate al gs plants
             }
 
             foreach ($anlagen as $anlage) {
-                try {
+                //try {
                     $tickets = $this->ticketRepo->findForSafeDelete($anlage, $optionFrom, $optionTo);
                     foreach ($tickets as $ticket) {
+                        $notifications = $ticket->getNotificationInfos();
+                        foreach ($notifications as $notification) {
+                            $files = $notification->getAttachedMedia();
+                            foreach ($files as $file){
+                                $this->em->remove($file);
+                            }
+                            $works = $notification->getNotificationWorks();
+                            foreach ($works as $work){
+                                $this->em->remove($work);
+                            }
+                            $this->em->remove($notification);
+                        }
                         $dates = $ticket->getDates();
                         foreach ($dates as $date) {
                             $this->em->remove($date);
@@ -111,10 +122,7 @@ class GenerateTicketsCommand extends Command
                     }
                     $io->comment($anlage->getAnlName());
 
-                    }catch(\Exception $e){
-
-
-                    }
+                    //}catch(\Exception $e){}
 
                 }
 
