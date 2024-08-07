@@ -11,9 +11,17 @@
     <div class="grid-x grid-margin-x align-top align-center">
         <div class="cell small-8 medium-8 ">
             <select id="newPlantSelect"
-                    name="anlage-id"
-                    data-ticket-edit-target="anlage"
-                    data-action="ticket-edit#toggle">
+                name="anlage-id"
+                data-ticket-edit-target="anlage"
+                data-action="ticket-edit#toggle"
+                {{ stimulus_controller('symfony/ux-autocomplete/autocomplete', {
+                    tom_select_options: {
+                        maxItems: 1,
+                        create: false,
+                    }
+                }) }}
+            >
+
                 <option value="" disabled selected hidden>Please choose a Plant</option>
                 {% for anlage in anlagen %}
                     {# <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option> #}
