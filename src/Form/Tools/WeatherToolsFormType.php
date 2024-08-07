@@ -48,6 +48,12 @@ class WeatherToolsFormType extends AbstractType
                 'class' => WeatherStation::class,
                 'choices' => $anlagen,
                 'choice_label' => 'databaseIdent',
+                'autocomplete' => true,
+                'placeholder' => 'Please select a Weatherstation',
+                'tom_select_options' => [
+                    'max-item' => 1,
+                    'create' => false,
+                ],
             ])
             ->add('startDate', DateType::class, [
                 'widget' => 'single_text',

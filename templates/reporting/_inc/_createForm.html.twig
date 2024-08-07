@@ -1,9 +1,16 @@
 <div class="cell medium-2">
 
     <div class="cell ">
-        <select name="anlage-id"
+        <select name="anlage-idddd"
                 data-report-target="anlage"
-                data-action="report#handleAnlageInput">
+                data-action="report#handleAnlageInput"
+                {{ stimulus_controller('symfony/ux-autocomplete/autocomplete', {
+                    tom_select_options: {
+                        maxItems: 1,
+                        create: false,
+                    }
+                }) }}
+        >
             <option value="" disabled selected hidden>Please choose a Plant</option>
             <option value=""   {% if status == ''   %}   selected {% endif %} > Select a Plant</option>
             {% for anlage in anlagen %}

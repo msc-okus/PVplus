@@ -12,7 +12,10 @@
 .ts-control  {
     padding: 0 6px;
     border-radius: 4px;
-
+    > input{
+        width: auto;
+        min-width: auto;
+    }
     .item {
         align-self: center;
     }

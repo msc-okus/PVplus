@@ -26,6 +26,12 @@ class DownloadAnalyseFormExportType extends AbstractType
                 'class' => Anlage::class,
                 'choices' => $this->anlagenRepository->findIdLike($options['anlagenid']),
                 'choice_label' => 'anlName',
+                'autocomplete' => true,
+                'placeholder' => 'Please select a Plant',
+                'tom_select_options' => [
+                    'max-item' => 1,
+                    'create' => false,
+                ],
             ])
             ->add('year', HiddenType::class, [
             ])
