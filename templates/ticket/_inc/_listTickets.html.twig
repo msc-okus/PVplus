@@ -9,7 +9,7 @@
     <h4>Create New {{ alertName }}:</h4>
     {# create New Ticket – Begin #}
     <div class="grid-x grid-margin-x align-top align-center">
-        <div class="cell small-8 medium-8 ">
+        <div class="cell small-11 large-4 ">
             <select id="newPlantSelect"
                 name="anlage-id"
                 data-ticket-edit-target="anlage"
@@ -25,11 +25,13 @@
                 <option value="" disabled selected hidden>Please choose a Plant</option>
                 {% for anlage in anlagen %}
                     {# <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option> #}
-                    <option value="{{ anlage.anlId }}"{% if newPlantId == anlage.anlId %} selected {% endif %}>{{ anlage.anlName }} ({{ anlage.anlId }})</option>
+                    <option value="{{ anlage.anlId }}"{% if newPlantId == anlage.anlId %} selected {% endif %}>
+                        {{ anlage.anlName }}{% if is_granted('ROLE_G4N') %} - {{ anlage.anlId }} | {{ anlage.eigner.firma }}{% endif %}
+                    </option>
                 {% endfor %}
             </select>
         </div>
-        <div class="cell small-4 medium-4">
+        <div class="cell small-1 large-8">
             <span data-tooltip tabindex="1" title="Create New Ticket">
                 <button id="newTicketBtn" title="New Ticket" name="new-ticket" class="button action-icon tiny hollow shadow no-margins"
                         disabled

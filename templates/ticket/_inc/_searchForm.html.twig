@@ -44,7 +44,9 @@
                         <option value="" disabled selected hidden>Please choose a Plant</option>
                         <option value="" {% if filter.anlagen.value == '' %} selected {% endif %} >Select a Plant</option>
                         {% for anlage in filter.anlagen.array %}
-                            <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
+                            <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>
+                                {{ anlage.anlName }}{% if is_granted('ROLE_G4N') %} - {{ anlage.anlId }} | {{ anlage.eigner.firma }}{% endif %}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
