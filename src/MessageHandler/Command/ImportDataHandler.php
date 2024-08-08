@@ -59,7 +59,7 @@ class ImportDataHandler
                     $minute = (int)date('i');
                 }
 
-                $this->importService->prepareForImport($plantId, $from, $to, $importType);
+                $this->importService->prepareForImport($plantId, $from, $to, $importType, true);
 
                 $this->logMessages->updateEntry($logId, 'working (s)', ($timeCounter / $timeRange) * 100);
                 $timeCounter += 24 * 3600;

@@ -42,8 +42,9 @@ class ImportService
      * @throws \JsonException
      * @throws \Exception
      */
-    public function prepareForImport(Anlage|int $anlage, $start, $end, string $importType = ""): void
+    public function prepareForImport(Anlage|int $anlage, $start, $end, string $importType = "", $fromCron = false): void
     {
+
         //beginn collect params from plant
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
@@ -222,10 +223,12 @@ class ImportService
             }
         }
 
+
+
         //get the Data from VCOM for all Plants are configured in the current plant
         $curl = curl_init();
         for ($i = 0; $i < $numberOfPlants; ++$i) {
-            $tempBulk = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $arrayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
+            $tempBulk = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $arrayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl, $fromCron);
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
         }
         curl_close($curl);
@@ -237,8 +240,9 @@ class ImportService
             for ($i = 0; $i < $numberOfBulkMeaserments; ++$i) {
                 for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
 
-                    $stamp = date('Y-m-d H:i', $timestamp);
+                    $stamp = date('Y-m-d H:i:s', $timestamp);
                     $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
+
                     if (array_key_exists($i, $bulkMeaserments)) {
                         if (array_key_exists('basics', $bulkMeaserments[$i])) {
                             if ($i === 0) {
@@ -270,7 +274,7 @@ class ImportService
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
                 $stamp = date('Y-m-d H:i', $timestamp);
                 $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
-
+                #echo "$stamp // $date <br>";
                 $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
                 $eZEvu = 0.0;
 
