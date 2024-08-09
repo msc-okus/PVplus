@@ -69,10 +69,14 @@ class ImportToolsFormType extends AbstractType
             ->add('anlage', EntityType::class, [
                 'label' => 'Please select a Plant',
                 'class' => Anlage::class,
-                'placeholder' => 'please Choose ...',
                 'required' => true,
                 'choices' => $anlagen_toShow,
-                'choice_label' => 'anlName',
+                'choice_label' => 'anlName','autocomplete' => true,
+                'placeholder' => 'Please select a Plant',
+                'tom_select_options' => [
+                    'max-item' => 1,
+                    'create' => false,
+                ],
             ])
             ->add('startDate', DateType::class, [
                 'widget' => 'single_text',
