@@ -41,9 +41,36 @@ class ImportDataHandler
         $timeCounter = 0;
         $timeRange = $importData->getEndDate()->getTimestamp() - $importData->getStartDate()->getTimestamp();
         if ($anlage->getSettings()->isSymfonyImport()) {
-            for ($dayStamp = $importData->getStartDate()->getTimestamp(); $dayStamp <= $importData->getEndDate()->getTimestamp(); $dayStamp += 24*3600) {
-                $from = strtotime(date('Y-m-d 23:45', $dayStamp-900));
-                $to = strtotime(date('Y-m-d 23:45', $dayStamp));
+            $step = 22*3600;
+            $step2 = 24*3600;
+            $i=1;
+
+            $fromts = $importData->getStartDate()->getTimestamp() - 900;
+
+            $tots = $importData->getEndDate()->getTimestamp();
+
+            $myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
+            for ($dayStamp = $fromts; $dayStamp < $tots; $dayStamp += $step2) {
+                $from = $dayStamp;
+                $to = $dayStamp+$step;
+
+                if($i > 1){
+                    $from = $from - 7200;
+                }
+
+                if($i == 1){
+                    $from = $from - 7200;
+                }
+
+                $fromx = date('Y-m-d H:i:s', $from);
+                $tox = date('Y-m-d H:i:s', $to);
+
+
+                $txt = "froma$i $fromx\n";
+                fwrite($myfile, $txt);
+                $txt = "tox$i $tox\n";
+                fwrite($myfile, $txt);
+
 
                 $currentDay = date('d', $dayStamp);
 
@@ -59,12 +86,14 @@ class ImportDataHandler
                     $minute = (int)date('i');
                 }
 
-                $this->importService->prepareForImport($plantId, $from, $to, $importType, true);
+                $this->importService->prepareForImport($plantId, $from, $to, $importType);
 
                 $this->logMessages->updateEntry($logId, 'working (s)', ($timeCounter / $timeRange) * 100);
                 $timeCounter += 24 * 3600;
                 sleep(1);
+                $i++;
             }
+            fclose($myfile);
             $this->logMessages->updateEntry($logId, 'done',100);
         } else {
             $this->logMessages->updateEntry($logId, "preparing", 0);

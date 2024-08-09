@@ -131,7 +131,6 @@ class ImportService
                             $temperaturtemp = [];
                             $wdstemp = [];
                             for ($j = 1; $j <= count($interarray['minute'][$key]); $j++) {
-                                #echo 'GTI '.$interarray['minute'][$key][$j]['gti'].'<br';
                                 $irrtemp[] = $interarray['minute'][$key][$j]['gti'];
                                 $temperaturtemp[] = $interarray['minute'][$key][$j]['tmp'];
                                 $wdstemp[] = $interarray['minute'][$key][$j]['wds'];
@@ -162,9 +161,6 @@ class ImportService
             }
             //create Data Arrays and save them to DB
             foreach ($basics  as $key => $value) {
-                #echo  "$key<pre>";
-                #print_r($value);
-                #echo  '</pre>';
                 if($isEastWest) {
                     $gMo = $value["GM_0_E"];
                 }else{
@@ -223,8 +219,6 @@ class ImportService
             }
         }
 
-
-
         //get the Data from VCOM for all Plants are configured in the current plant
         $curl = curl_init();
         for ($i = 0; $i < $numberOfPlants; ++$i) {
@@ -236,7 +230,7 @@ class ImportService
         //beginn collect all Data from all Plants
         $numberOfBulkMeaserments = count($bulkMeaserments);
         if ($numberOfBulkMeaserments > 0) {
-
+            date_default_timezone_set($timeZonePlant);
             for ($i = 0; $i < $numberOfBulkMeaserments; ++$i) {
                 for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
 
@@ -268,13 +262,14 @@ class ImportService
                     }
                 }
             }
+
             //end collect all Data from all Plants
 
             //beginn sort and seperate Data for writing into database
             for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
                 $stamp = date('Y-m-d H:i', $timestamp);
                 $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
-                #echo "$stamp // $date <br>";
+
                 $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
                 $eZEvu = 0.0;
 
@@ -451,6 +446,8 @@ class ImportService
                 //end Anlage hat PPC
             }
 
+            date_default_timezone_set('Europe/Berlin');
+
             //beginn get Database Connections
             $DBDataConnection = $this->pdoService->getPdoPlant();
             $DBStbConnection = $this->pdoService->getPdoStringBoxes();
@@ -519,6 +516,7 @@ class ImportService
             }
             //end write Data in the tables
         }
+
     }
 
 }

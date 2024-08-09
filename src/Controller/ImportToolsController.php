@@ -166,7 +166,6 @@ class ImportToolsController extends BaseController
         $step2 = 24*3600;
         $i=1;
         for ($dayStamp = $fromts; $dayStamp < $tots; $dayStamp += $step2) {
-
             $from_new = $dayStamp;
             $to_new = $dayStamp+$step;
 
@@ -178,10 +177,6 @@ class ImportToolsController extends BaseController
                 $to_new = $to_new + 7200;
             }
 
-            $from = date('Y-m-d H:i:s', $from_new);
-            $fto = date('Y-m-d H:i:s', $to_new);
-
-            echo "$dayStamp /// $tots // $from // $fto <br>";
             $i++;
             $currentDay = date('d', $dayStamp);
 
@@ -203,7 +198,6 @@ class ImportToolsController extends BaseController
             sleep(1);
         }
 
-
         return new Response('This is used for import via manual Import.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
     }
 
@@ -222,7 +216,6 @@ class ImportToolsController extends BaseController
     #[Route(path: '/import/egrid', name: 'import_egrid')]
     public function importEGrid(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, PdoService $pdoService, $uploadsPath): Response
     {
-
         $form = $this->createForm(ImportEGridFormType::class);
         $form->handleRequest($request);
 

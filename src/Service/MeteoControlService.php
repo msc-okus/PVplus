@@ -124,7 +124,7 @@ class MeteoControlService
     {
         if (is_int($from) && is_int($to)) {
 
-            date_default_timezone_set($timeZonePlant);
+            #date_default_timezone_set($timeZonePlant);
 
             if($fromCron){
                 $nineHundret = 900;
@@ -138,9 +138,11 @@ class MeteoControlService
             $to = urlencode(date('c', $to));
 
             $oauthThoken = self::auth($mcUser, $mcPassword, $mcToken, $curl);
-            echo "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution<br>";
-            #exit;
+            #echo "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution<br>";
 
+            $myfile = fopen("newfile2.txt", "w") or die("Unable to open file!");
+            #echo "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution<br> \n";
+            #exit;
 
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
