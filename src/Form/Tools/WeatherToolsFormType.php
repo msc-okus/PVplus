@@ -2,24 +2,16 @@
 
 namespace App\Form\Tools;
 
-use App\Entity\Anlage;
 use App\Entity\WeatherStation;
-use App\Form\Model\ToolsModel;
 use App\Form\Model\WeatherToolsModel;
-use App\Repository\AnlagenRepository;
 use App\Repository\WeatherStationRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\Form\ChoiceList\ChoiceList;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class WeatherToolsFormType extends AbstractType
 {

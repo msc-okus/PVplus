@@ -8,9 +8,9 @@
 namespace App\Service\Forecast;
 
 use App\Entity\Anlage;
+use App\Repository\AnlageModulesDBRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\AnlageSunShadingRepository;
-use App\Repository\AnlageModulesDBRepository;
 
 class DayAheadForecastDEKService {
     /**

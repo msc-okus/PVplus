@@ -1203,9 +1203,7 @@ class AssetManagementService
         }
         $this->logMessages->updateEntry($logId, 'working', 10);
         $month = $report['reportMonth'];
-        for ($i = 0; $i < 12; ++$i) {
-            $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
-        }
+
 
         $plantId = $anlage->getAnlId();
         $monthName = date('F', mktime(0, 0, 0, $report['reportMonth'], 10));
@@ -1284,6 +1282,11 @@ class AssetManagementService
             if ($anlage->hasPVSYST()) {
                 $forecast = $expectedPvSyst;
             }
+            else {
+                for ($i = 0; $i < 12; ++$i) {
+                    $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
+                }
+            }
         }
         // fuer die Tabelle
         $tbody_a_production = [
@@ -1295,6 +1298,7 @@ class AssetManagementService
             'powerExt' => $powerExternal,
             'forecast' => $forecast,
         ];
+
         $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
             $dataCfArray[$i]['month'] = $monthExtendedArray[$i]['month'];

@@ -6,23 +6,21 @@ use App\Entity\Anlage;
 use App\Entity\AnlageGroupModules;
 use App\Entity\AnlageGroupMonths;
 use App\Entity\AnlageGroups;
-use App\Entity\OpenWeather;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageMonthRepository;
 use App\Repository\AnlagenRepository;
+use App\Repository\AnlageSunShadingRepository;
 use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\OpenWeatherRepository;
+use App\Service\Forecast\ForecastCalcService;
 use App\Service\Forecast\SunShadingModelService;
 use App\Service\Functions\IrradiationService;
-use App\Repository\AnlageSunShadingRepository;
-use App\Service\Forecast\ForecastCalcService;
 use DivisionByZeroError;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
-use App\Service\PdoService;
 
 class ExpectedService
 {

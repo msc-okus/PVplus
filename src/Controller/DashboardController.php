@@ -5,11 +5,10 @@ namespace App\Controller;
 use App\Entity\Eigner;
 use App\Repository\EignerRepository;
 use App\Repository\UserRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class DashboardController extends BaseController
 {

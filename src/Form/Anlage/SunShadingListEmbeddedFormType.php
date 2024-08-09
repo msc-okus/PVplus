@@ -4,10 +4,8 @@ namespace App\Form\Anlage;
 
 use App\Entity\AnlageModulesDB;
 use App\Entity\AnlageSunShading;
-use App\Form\Type\SwitchType;
-use App\Repository\AnlageModulesDBRepository;
-use App\Repository\ModulesRepository;
 use Doctrine\DBAL\Exception;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -15,7 +13,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * MS 08/2023

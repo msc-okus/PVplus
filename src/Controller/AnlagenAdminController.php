@@ -237,13 +237,12 @@ class AnlagenAdminController extends BaseController
      * @param AnlagenRepository $anlagenRepository
      * @param EconomicVarNamesRepository $ecoNamesRepo
      * @param UploaderHelper $uploaderHelper
-     * @param AnlageFileRepository $repositoryUpload
+     * @param AnlageFileRepository $RepositoryUpload
      * @param Filesystem $fileSystemFtp
      * @param Filesystem $filesystem
-     * @param PaginatorInterface $paginator
      * @return RedirectResponse|Response
      * @throws FilesystemException
-     * @throws NonUniqueResultException
+     * @throws \Exception
      */
     #[Route(path: '/admin/anlagen/editconfig/{id}', name: 'app_admin_anlagen_edit_config')]
     public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $repositoryUpload, Filesystem $fileSystemFtp, Filesystem $filesystem, PaginatorInterface $paginator): RedirectResponse|Response
@@ -548,7 +547,7 @@ class AnlagenAdminController extends BaseController
 
     #[Route(path: '/admin/anlagen/delete/{id}', name: 'app_admin_anlage_delete')]
     #[IsGranted('ROLE_DEV')]
-    public function delete($id, EntityManagerInterface $em, AnlagenRepository $anlagenRepository): RedirectResponse
+    public function delete($id, EntityManagerInterface $em, AnlagenRepository $anlagenRepository, Security $security): RedirectResponse
     {
         if ($this->isGranted('ROLE_DEV')) {
             /** @var Anlage|null $anlage */

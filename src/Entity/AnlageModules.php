@@ -6,7 +6,6 @@ use App\Repository\ModulesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use phpDocumentor\Reflection\Types\Float_;
 
 #[ORM\Entity(repositoryClass: ModulesRepository::class)]
 class AnlageModules

@@ -5,12 +5,12 @@ namespace App\Form\Anlage;
 use App\Entity\Anlage;
 use App\Form\Sensors\SensorsListEmbeddedFormType;
 use App\Helper\G4NTrait;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class AnlageSensorsFormType extends AbstractType
 {

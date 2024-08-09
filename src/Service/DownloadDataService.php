@@ -9,7 +9,6 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\PRRepository;
 use PDO;
-use App\Service\PdoService;
 
 class DownloadDataService
 {

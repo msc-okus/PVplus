@@ -2,12 +2,6 @@
 
 namespace App\Service\Forecast;
 
-use App\Entity\Anlage;
-use App\Repository\AnlagenRepository;
-use App\Repository\StatusRepository;
-use App\Repository\TicketRepository;
-use Doctrine\ORM\EntityManagerInterface;
-
 
 class APINasaGovService {
      /**

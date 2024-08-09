@@ -5,7 +5,6 @@ namespace App\Service;
 use App\Entity\AlertMessages;
 use App\Entity\Anlage;
 use App\Entity\AnlageEventMail;
-use App\Entity\Ticket;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageEventMailRepository;
 use Doctrine\ORM\EntityManagerInterface;

@@ -8,12 +8,10 @@ use App\Helper\ImportFunctionsTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\PVSystDatenRepository;
+use App\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
-use App\Service;
-use App\Service\Forecast;
-use App\Service\Forecast\DayAheadForecastDEKService;
 
 class ImportService
 {

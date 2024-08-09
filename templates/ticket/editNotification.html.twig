@@ -68,7 +68,7 @@
                 <p> {{ form_row(notificationEditForm.freeText) }}</p>
 
                 <p> {{ form_widget(notificationEditForm.answer) }}</p>
-
+                    <div class="is-hidden">{{ form_rest(notificationEditForm) }}</div>
                 {{ form_end(notificationEditForm) }}
             </fieldset>
 

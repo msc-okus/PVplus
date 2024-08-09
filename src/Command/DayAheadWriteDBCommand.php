@@ -10,12 +10,13 @@
  */
 
 namespace App\Command;
-use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service;
-use App\Service\PdoService;
 use App\Service\Forecast;
+use App\Service\Forecast\DayAheadForecastDEKService;
+use App\Service\PdoService;
+use Doctrine\ORM\EntityManagerInterface;
 use PDO;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -24,8 +25,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
-use App\Service\Forecast\DayAheadForecastDEKService;
-use Doctrine\ORM\EntityManagerInterface;
 
 #[AsCommand(
     name: 'pvp:dayaheadwritedb',

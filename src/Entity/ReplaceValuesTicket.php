@@ -3,8 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ReplaceValuesTicketRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-USE DateTime;
 
 #[ORM\Entity(repositoryClass: ReplaceValuesTicketRepository::class)]
 class ReplaceValuesTicket

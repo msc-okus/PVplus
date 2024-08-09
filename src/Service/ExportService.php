@@ -11,9 +11,7 @@ use App\Repository\PRRepository;
 use App\Service\Functions\PowerService;
 use DateTime;
 use Doctrine\ORM\NonUniqueResultException;
-use JetBrains\PhpStorm\NoReturn;
 use PDO;
-use App\Service\PdoService;
 use Psr\Cache\InvalidArgumentException;
 
 class ExportService
