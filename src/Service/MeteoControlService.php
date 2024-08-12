@@ -123,9 +123,6 @@ class MeteoControlService
     public function getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $key, int $from = 0, int $to = 0, $resolution = "fifteen-minutes", $timeZonePlant = "Europe/Berlin", $curl = NULL, $fromCron = false)
     {
         if (is_int($from) && is_int($to)) {
-
-            #date_default_timezone_set($timeZonePlant);
-
             if($fromCron){
                 $nineHundret = 900;
             }
@@ -133,15 +130,11 @@ class MeteoControlService
                 $nineHundret = 0;
             }
 
-
             $from = urlencode(date('c', $from-$nineHundret)); // minus 15 Minute, nur bei Import ueber Cron
             $to = urlencode(date('c', $to));
 
             $oauthThoken = self::auth($mcUser, $mcPassword, $mcToken, $curl);
             #echo "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution<br>";
-
-            $myfile = fopen("newfile2.txt", "w") or die("Unable to open file!");
-            #echo "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution<br> \n";
             #exit;
 
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
@@ -169,15 +162,12 @@ class MeteoControlService
                 $response = false;
             }
 
-
             if (curl_errno($curl)) {
                 echo curl_error($curl);
             }
 
-
             return $response;
         }
-
         return false;
     }
 

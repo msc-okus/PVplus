@@ -154,7 +154,6 @@ class ImportService
                             unset($irrtemp);
                             unset($temperaturtemp);
                             unset($wdstemp);
-
                         }
                     }
                 }
@@ -516,7 +515,5 @@ class ImportService
             }
             //end write Data in the tables
         }
-
     }
-
 }

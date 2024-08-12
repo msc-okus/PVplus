@@ -49,7 +49,6 @@ class ImportToolsController extends BaseController
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
     public function importTools(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
     {
-
         //Wenn der Import aus dem Backend angestoßen wird
         $form = $this->createForm(ImportToolsFormType::class);
         $form->handleRequest($request);
@@ -154,7 +153,6 @@ class ImportToolsController extends BaseController
     #[Route('/import/manuel', name: 'import_manuell')]
     public function importManuell(#[MapQueryParameter] int $id, #[MapQueryParameter] string $from, #[MapQueryParameter] string $to, AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
-
         date_default_timezone_set('UTC');
         $fromts = strtotime("$from 00:00:00") - 900;
 
@@ -282,7 +280,6 @@ class ImportToolsController extends BaseController
         $form = $this->createForm(ImportPvSystFormType::class, $prefills );
         $form->handleRequest($request);
 
-
         $output = '';
 
         if ($form->isSubmitted() && $form->isValid() && $form->get('preview')->isClicked()) {
@@ -385,5 +382,4 @@ class ImportToolsController extends BaseController
             'output'   => $output,
         ]);
     }
-
 }
