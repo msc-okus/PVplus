@@ -293,6 +293,9 @@ class ImportService
                 }
 
                 $isDay = $anlage->isDay($timestamp);
+                if($timeZonePlant == 'Asia/Almaty' || $timeZonePlant == 'Asia/Qostanay'){
+                    $stamp = date('Y-m-d H:i', $timestamp-3600);
+                }
 
                 //beginn get Sensors Data
                 $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
@@ -347,10 +350,6 @@ class ImportService
                     $irrUpper = 0;
                     $irrHorizontal = 0;
                     $irrAnlage = 0;
-                }
-
-                if($timeZonePlant == 'Asia/Almaty' || $timeZonePlant == 'Asia/Qostanay'){
-                    $stamp = date('Y-m-d H:i', $timestamp-3600);
                 }
 
                 $data_pv_weather[] = [
