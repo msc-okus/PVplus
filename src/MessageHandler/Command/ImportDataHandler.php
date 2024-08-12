@@ -49,7 +49,6 @@ class ImportDataHandler
 
             $tots = $importData->getEndDate()->getTimestamp();
 
-            $myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
             for ($dayStamp = $fromts; $dayStamp < $tots; $dayStamp += $step2) {
                 $from = $dayStamp;
                 $to = $dayStamp+$step;
@@ -61,16 +60,6 @@ class ImportDataHandler
                 if($i == 1){
                     $from = $from - 7200;
                 }
-
-                $fromx = date('Y-m-d H:i:s', $from);
-                $tox = date('Y-m-d H:i:s', $to);
-
-
-                $txt = "froma$i $fromx\n";
-                fwrite($myfile, $txt);
-                $txt = "tox$i $tox\n";
-                fwrite($myfile, $txt);
-
 
                 $currentDay = date('d', $dayStamp);
 
@@ -93,7 +82,6 @@ class ImportDataHandler
                 sleep(1);
                 $i++;
             }
-            fclose($myfile);
             $this->logMessages->updateEntry($logId, 'done',100);
         } else {
             $this->logMessages->updateEntry($logId, "preparing", 0);
