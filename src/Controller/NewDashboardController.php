@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Repository\AnlagenRepository;
 use App\Repository\EignerRepository;
+use App\Service\SystemStatus2;
 use DateTime;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +23,7 @@ class NewDashboardController extends BaseController
     }
 
     #[Route(path: '/new/retrieve_plants', name: 'app_newDashboard_retrieve_plants')]
-    public function index2( AnlagenRepository $anlagenRepository): JsonResponse
+    public function index2( AnlagenRepository $anlagenRepository, SystemStatus2 $systemStatus2): JsonResponse
     {
         $user = $this->getUser();
         $grantedString = $user->getGrantedList();
@@ -44,14 +45,7 @@ class NewDashboardController extends BaseController
             $pr = $plant[0]->getYesterdayPR()[0] ?? null;
             $mro= $this->countAndGroupElements($plant['mro']);
 
-                $statusData = [
-                    'ioPlantStatus' => $status?$status->getLastDataStatus():'',
-                    'ioWeatherStatus' => $status?$status->getLastWeatherStatus():'',
-                    'acDiffStatus' => $status?$status->getAcDiffStatus():'',
-                    'dcDiffStatus' => $status?$status->getDcDiffStatus():'',
-                    'invStatus' => $status?$status->getInvStatus():'',
-                    'dcStatus' => $status?$status->getDcStatus():'',
-                ];
+             $statusData= $systemStatus2->systemstatus($plant[0]);
 
 
                 $performanceAct=[
@@ -91,7 +85,7 @@ class NewDashboardController extends BaseController
                 'id' => $plant[0]->getAnlId(),
                 'name' => $plant[0]->getAnlName(),
                 'country' => $plant[0]->getCountry(),
-                'status' =>$this->getStatusColor($statusData),
+                'status' =>json_encode($this->getStatusColor($statusData)),
                 'statusData' =>json_encode($statusData),
                 'firma' => $plant['firma'],
                 'anlBetrieb'=> $this->convertDateTimeToString($plant[0]->getAnlBetrieb()),
@@ -134,41 +128,37 @@ class NewDashboardController extends BaseController
 
 
 
-    private function getStatusColor(array $statusData): string
-    {
+    private function getStatusColor(array $statusData): array {
+        // Extract the relevant status values
+        $ioPlantDataStatus = $statusData['ioPlantData']['lastDataStatus'] ?? '';
+        $ioWeatherDataStatus = $statusData['ioWeatherData']['lastDataStatus'] ?? '';
+        $expDiffStatus = $statusData['expDiff']['expDiffStatus'] ?? '';
+        $paTodayStatus = $statusData['paToday']['paStatus'] ?? '';
 
-        if (empty($statusData['ioPlantStatus']) && empty($statusData['ioWeatherStatus']) &&
-            empty($statusData['acDiffStatus']) && empty($statusData['dcDiffStatus']) &&
-            empty($statusData['invStatus']) && empty($statusData['dcStatus'])) {
-            return 'blue';
+        // Check conditions for "alert"
+        if ($ioPlantDataStatus === 'alert' || $ioWeatherDataStatus === 'alert' || $expDiffStatus === 'alert' || $paTodayStatus === 'alert') {
+            return ['color'=>'red','status'=>'Alert'];
         }
 
-
-        if ($statusData['ioPlantStatus'] === 'alert' || $statusData['ioWeatherStatus'] === 'alert' ||
-            $statusData['acDiffStatus'] === 'alert' || $statusData['dcDiffStatus'] === 'alert' ||
-            $statusData['invStatus'] === 'alert' || $statusData['dcStatus'] === 'alert') {
-            return 'red';
+        // Check conditions for "warning"
+        if ($ioPlantDataStatus === 'warning' || $ioWeatherDataStatus === 'warning' || $expDiffStatus === 'warning' || $paTodayStatus === 'warning') {
+            return ['color'=>'orange','status'=>'Warning'];
         }
 
-
-        $allowedValues = ['normal', 'warning', ''];
-        if (
-            ($statusData['ioPlantStatus'] === 'normal' && $statusData['ioWeatherStatus'] === 'normal') &&
-            (in_array($statusData['acDiffStatus'], $allowedValues, true) && in_array($statusData['dcDiffStatus'], $allowedValues, true)) &&
-            (in_array($statusData['invStatus'], $allowedValues, true) && in_array($statusData['dcStatus'], $allowedValues, true))
-        ) {
-            return 'green';
+        // Check conditions for "blue"
+        if ($ioPlantDataStatus === '' || $ioWeatherDataStatus === '' || $expDiffStatus === '' || $paTodayStatus === '') {
+            return ['color'=>'blue','status'=>'No data'];
         }
 
-
-        foreach ($statusData as $value) {
-            if ($value !== 'normal' && $value !== '') {
-                return 'red';
-            }
+        // If all are "normal", return "green"
+        if ($ioPlantDataStatus === 'normal' && $ioWeatherDataStatus === 'normal' && $expDiffStatus === 'normal' && $paTodayStatus === 'normal') {
+            return ['color'=>'green','status'=>'Normal'];
         }
 
-        return 'green';
+        // Default return value if none of the above conditions match
+        return ['color'=>'black','status'=>'Unknown'];
     }
+
 
     private function countAndGroupElements(array $data): array
     {

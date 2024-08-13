@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel, flexRender } from '@tanstack/react-table';
 import axios from 'axios';
 import ManageColumnsVisibility from "./ ManageColumnsVisibility";
@@ -6,7 +6,7 @@ import {useTheme} from "./ThemenContext";
 
 
 
-const Overview = ({ itemId, setSelectedRowData }) => {
+const Overview = ({ itemId, setSelectedRowData, onFirstRowClick }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [columnVisibility, setColumnVisibility] = useState({ id: false });
@@ -17,6 +17,7 @@ const Overview = ({ itemId, setSelectedRowData }) => {
     const [selectedRowData, setSelectedRowDataLocal] = useState(null);
     const [isG4N, setIsG4N] = useState(false);
     const { theme } = useTheme();
+    const firstRowRef = useRef(null); // Ref for the first row
 
     useEffect(() => {
         axios.get('/new/retrieve_plants')
@@ -24,6 +25,13 @@ const Overview = ({ itemId, setSelectedRowData }) => {
                 setIsG4N(response.data.isG4n);
                 setData(response.data.plants);
                 setLoading(false);
+
+                // Automatically select the first row after data is loaded
+                if (response.data.plants.length > 0) {
+                    const firstRowData = response.data.plants[0];
+                    setSelectedRowDataLocal(firstRowData); // Update local state
+                    onFirstRowClick(firstRowData);
+                }
 
             })
             .catch(error => {
@@ -41,7 +49,8 @@ const Overview = ({ itemId, setSelectedRowData }) => {
             accessorKey: 'status',
             header: 'Status',
             cell: info => {
-                const color = info.getValue();
+                const status = JSON.parse(info.getValue());
+                const color= status.color
                 return (
                     <span
                         style={{
@@ -71,7 +80,7 @@ const Overview = ({ itemId, setSelectedRowData }) => {
             header: 'Country',
             cell: info => {
                 const country = info.getValue();
-                const imageUrl = `/images/flag/flag-${country.toLowerCase()}.png`;
+                const imageUrl = `/images/flag/flag-${ country?country.toLowerCase():'de'}.png`;
                 return (
                     <img
                         src={imageUrl}
@@ -167,7 +176,9 @@ const Overview = ({ itemId, setSelectedRowData }) => {
     return (
         <div className="overview" style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' ,backgroundColor:theme === 'light' ? '#ffffff' : '#343a40' }}>
             {loading ? (
-                <span>Loading... <i className="fas fa-cog fa-spin fa-3x"></i></span>
+                <div className="panel-box" style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <span>Loading... <i className="fas fa-cog fa-spin fa-3x"></i></span>
+                </div>
             ) : (
                 <div style={{
                     height: '100%',
@@ -254,9 +265,10 @@ const Overview = ({ itemId, setSelectedRowData }) => {
                             ))}
                             </thead>
                             <tbody>
-                            {table.getRowModel().rows.map(row => (
+                            {table.getRowModel().rows.map((row,index) => (
                                 <tr
                                     key={row.id}
+                                    ref={index === 0 ? firstRowRef : null} // Assign ref to the first row
                                     onMouseDown={(e) => e.stopPropagation()}
                                     onClick={(e) => {
                                         e.stopPropagation();

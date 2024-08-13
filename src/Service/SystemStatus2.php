@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
-use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -14,7 +13,7 @@ class SystemStatus2
 {
     use G4NTrait;
 
-    private int $cacheLifetime = 900; // in sekunden (soll: 900)
+    private int $cacheLifetime = 30; // in sekunden (soll: 900)
 
     public function __construct(
         private readonly PdoService $pdoService,
@@ -50,7 +49,8 @@ class SystemStatus2
 
             $conn = $this->pdoService->getPdoPlant();
             $result = [];
-            $lastRecStampIst = $lastDataStatus = null;
+            $lastRecStampIst = 0;
+            $lastDataStatus = '';
 
             $res = $conn->query("SELECT stamp FROM " . $anlage->getDbNameIst() . " WHERE e_z_evu > 0 OR wr_pac > 0 ORDER BY stamp DESC LIMIT 1");
             if ($res->rowCount() > 0) {
@@ -85,7 +85,8 @@ class SystemStatus2
 
             $conn = $this->pdoService->getPdoPlant();
             $result = [];
-            $lastRecStampWeather = $lastWeatherStatus = null;
+            $lastRecStampWeather = 0;
+            $lastWeatherStatus = '';
 
             $res = $conn->query("SELECT stamp FROM " . $anlage->getDbNameWeather() . " WHERE g_upper + g_lower > 0 ORDER BY stamp DESC LIMIT 1");
             if ($res->rowCount() > 0) {
@@ -114,12 +115,18 @@ class SystemStatus2
     private function checkPA(Anlage $anlage, $from, $to): array
     {
         return $this->cache->get('status_checkPA_'.md5($anlage->getAnlId()), function(CacheItemInterface $cacheItem) use ($anlage, $from, $to) {
+
             $cacheItem->expiresAfter($this->cacheLifetime); // Lifetime of cache Item
 
-            $result['pa'] = $this->availability->calcAvailability($anlage, date_create($from), date_create($to));
-            if ($result['pa'] >= 99.0) $result['paStatus'] = 'normal';
-            if ($result['pa'] >= 95.0 && $result['pa'] < 99.0) $result['paStatus'] = 'warning';
-            if ($result['pa'] < 95.0) $result['paStatus'] = 'alert';
+            if ($anlage->getAnlType() === 'masterslave') {
+                $result['pa'] = 0;
+                $result['paStatus'] = '';
+            } else {
+                $result['pa'] = $this->availability->calcAvailability($anlage, date_create($from), date_create($to));
+                if ($result['pa'] >= 99.0) $result['paStatus'] = 'normal';
+                if ($result['pa'] >= 95.0 && $result['pa'] < 99.0) $result['paStatus'] = 'warning';
+                if ($result['pa'] < 95.0) $result['paStatus'] = 'alert';
+            }
 
             return $result;
         });

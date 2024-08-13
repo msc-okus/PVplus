@@ -3,46 +3,55 @@ import { PieChart, Pie, Cell, Tooltip, Label } from 'recharts';
 import {useNavigate} from "react-router-dom";
 import {useTheme} from "./ThemenContext";
 
-const statusColors = {
-    warning: '#f0ad4e',
-    alert: '#d9534f',
-    normal: '#5cb85c',
-    null: '#1779ba'
-};
 
-const displayNames = {
-    plant: 'IO Plant',
-    Weather: 'IO Weather',
-    AcDiff: 'Ac Diff',
-    DcDiff: 'Dc Diff',
-    Inv: 'Inverter'
-};
+const Status = ({ selectedRowData }) => {
+    const navigate = useNavigate();
+    const { theme } = useTheme();
 
-const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-        const name = displayNames[payload[0].name] || payload[0].name;
+    const statusColors = {
+        warning: '#f0ad4e',
+        alert: '#d9534f',
+        normal: '#5cb85c',
+        null: '#1779ba'
+    };
+
+
+    const CustomTooltip = ({ active, payload }) => {
+        if (active && payload && payload.length) {
+            return (
+
+                <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    padding: '10px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+                    color: '#333',
+                    fontSize: '0.9rem'
+                }}>
+                    <p className="text-center">{` ${payload[0].payload.description}`}
+                    </p>
+
+                </div>
+
+            );
+        }
+
+        return null;
+    };
+
+    const CustomLegend = () => {
+        const legendData = [
+            {name: 'Warning', color: statusColors.warning},
+            {name: 'Alert', color: statusColors.alert},
+            {name: 'Normal', color: statusColors.normal},
+            {name: 'No data', color: statusColors.null}
+        ];
+
         return (
-
-            <span className="badge bg-secondary">{`${name}`}</span>
-
-        );
-    }
-
-    return null;
-};
-
-const CustomLegend = () => {
-    const legendData = [
-        { name: 'Warning', color: statusColors.warning },
-        { name: 'Alert', color: statusColors.alert },
-        { name: 'Normal', color: statusColors.normal },
-        { name: 'No data', color: statusColors.null }
-    ];
-
-    return (
-        <div style={{ marginLeft: '20px' }}>
-            {legendData.map((entry, index) => (
-                <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+            <div style={{marginLeft: '20px'}}>
+                {legendData.map((entry, index) => (
+                    <div key={index} style={{display: 'flex', alignItems: 'center', marginBottom: '4px'}}>
                     <span style={{
                         display: 'inline-block',
                         width: '12px',
@@ -50,46 +59,46 @@ const CustomLegend = () => {
                         backgroundColor: entry.color,
                         marginRight: '6px'
                     }}></span>
-                    {entry.name}
-                </div>
-            ))}
-        </div>
-    );
-};
+                        {entry.name}
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
-const renderCustomizedLabel = ({
-                                   cx, cy, midAngle, innerRadius, outerRadius, percent, index, name
-                               }) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const renderCustomizedLabel = ({
+                                       cx, cy, midAngle, innerRadius, outerRadius, percent, index, name
+                                   }) => {
+        const RADIAN = Math.PI / 180;
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+        const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-    return (
-        <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" style={{ fontSize: '0.75rem' }}>
-            {name}
-        </text>
-    );
-};
+        return (
+            <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" style={{ fontSize: '0.65rem' }}>
+                {name}
+            </text>
+        );
+    };
 
-const Status = ({ selectedRowData }) => {
-    const navigate = useNavigate();
-    const { theme } = useTheme();
+
+
     if (!selectedRowData) {
         return <span>Loading... <i className="fas fa-cog fa-spin fa-3x"></i></span>;
     }
 
     const statusData = JSON.parse(selectedRowData.statusData);
-    const pr_act = JSON.parse(selectedRowData.pr_act || '{}');
+    const alertType= JSON.parse(selectedRowData.status);
+
+
 
 
     const data = [
-        { name: 'plant', value: 1, status: statusData.ioPlantStatus || 'null' },
-        { name: 'Weather', value: 1, status: statusData.ioWeatherStatus || 'null' },
-        { name: 'AcDiff', value: 1, status: statusData.acDiffStatus || 'null' },
-        { name: 'DcDiff', value: 1, status: statusData.dcDiffStatus || 'null' },
-        { name: 'Inv', value: 1, status: statusData.invStatus || 'null' },
-        { name: 'Strings', value: 1, status: statusData.dcStatus || 'null' },
+        { name: 'Plant', value: 1, status: statusData.ioPlantData.lastDataStatus || 'null',description:`Last plant data ${statusData.ioPlantData.lastRecStampIst}` },
+        { name: 'Weather', value: 1, status: statusData.ioWeatherData.lastDataStatus || 'null',description:`Last weather data ${statusData.ioWeatherData.lastRecStampIst}` },
+        { name: `Pa ${(parseFloat(statusData.paToday.pa) || 0).toFixed(2)}%`, value: 1, status: statusData.paToday.paStatus || 'null',description:`Plant availability` },
+        { name: `Act ${(parseFloat(statusData.expDiff.expDiffValue) || 0).toFixed(2)}%`, value: 1, status: statusData.expDiff.expDiffStatus || 'null',description:`Compare Act to Exp` },
+
     ];
 
     return (
@@ -124,9 +133,9 @@ const Status = ({ selectedRowData }) => {
                             label={renderCustomizedLabel}
                         >
                             <Label
-                                value={`Hour ${pr_act.lastDataIo}`}
+                                value={`${alertType.status}`}
                                 position="center"
-                                style={{ fontSize: '0.9rem', fill: theme === 'light' ? 'black' : 'white' }}
+                                style={{ fontSize: '0.9rem', fill: alertType.color }}
                             />
                             {data.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={statusColors[entry.status]}/>

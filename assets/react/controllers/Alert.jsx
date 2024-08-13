@@ -35,11 +35,15 @@ const Alert = ({ selectedRowData }) => {
                         <p className="text-center"><span
                             className="badge bg-secondary">{`${payload[0].value} ${payload[0].payload.description} alert(s)`}</span>
                         </p>
-                        <div className="d-flex flex-wrap ">
-                            {payload[0].payload.i.split(',').map((value, index) => (
+                        <div className="d-flex flex-wrap">
+                            {payload[0].payload.i.split(',').slice(0, 23).map((value, index) => (
                                 <span key={index} className="fw-bold px-1">{value.trim()}</span>
                             ))}
+                            {payload[0].payload.i.split(',').length > 24 && (
+                                <span className="fw-bold px-1">...</span>
+                            )}
                         </div>
+
                     </div>
                 )
             );

@@ -17,7 +17,7 @@ const Panel = ({ itemId, selectedRowData }) => {
         }}>
             {selectedRowData ? (
                 <div style={{ flex: 1,height:'100%' }}>
-                    <div style={{ textAlign: 'center' }}><span className="panel-white">{selectedRowData.name}</span></div>
+                    <div style={{ textAlign: 'center' }}><span className="fw-bolder">{selectedRowData.name}</span></div>
                     <div className="panel-box">
                         <Performance selectedRowData={selectedRowData} />
                         <Status selectedRowData={selectedRowData} />
@@ -26,8 +26,8 @@ const Panel = ({ itemId, selectedRowData }) => {
                     </div>
                 </div>
             ) : (
-                <div className="panel-box" style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    <h3>No Plant Selected</h3>
+                <div className="panel-box" style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <span>Loading... <i className="fas fa-cog fa-spin fa-3x"></i></span>
                 </div>
             )}
         </div>

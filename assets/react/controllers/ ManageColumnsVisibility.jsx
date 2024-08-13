@@ -31,7 +31,7 @@ const ManageColumnsVisibility = ({ table }) => {
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={() => setDropdownVisible(!dropdownVisible)}
                     >
-                        <i className="fa fa-wrench" aria-hidden="true" style={{ fontSize: '0.8rem', borderRadius: '50%', backgroundColor: '#ccc', padding: '5px',color:'white' }}></i>
+                        <i className="fa fa-wrench" title="Manage columns visibility" aria-hidden="true" style={{ fontSize: '0.8rem', borderRadius: '50%', backgroundColor: '#ccc', padding: '5px',color:'white' }}></i>
                     </Dropdown.Toggle>
                     <Dropdown.Menu style={{ position: 'absolute', top: 'auto', left: 'auto', transform: 'translate(-100%, -100%)' }}>
                         <Dropdown.Header className="text-center">Manage columns visibility</Dropdown.Header>
