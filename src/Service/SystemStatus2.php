@@ -55,7 +55,6 @@ class SystemStatus2
             $res = $conn->query("SELECT stamp FROM " . $anlage->getDbNameIst() . " WHERE e_z_evu > 0 OR wr_pac > 0 ORDER BY stamp DESC LIMIT 1");
             if ($res->rowCount() > 0) {
                 $row = $res->fetch(PDO::FETCH_OBJ);
-                #if ($anlage-> getAnlId() == 56) dd($row);
                 $lastRecStampIst = strtotime((string)$row->stamp);
 
                 if ($currentTimeStamp - $lastRecStampIst <= $GLOBALS['abweichung']['io']['normal']) {

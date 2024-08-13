@@ -305,27 +305,29 @@ class AnlageSettingsFormType extends AbstractType
             ])
             ->add('ppcAutoTicketReplaceBy',ChoiceType::class, [
                 'multiple' => false,
-                'attr' => ['class' => 'js-settings js-replace-disable'],
+                'attr' => ['class' => 'js-settings js-disable-exclude','data-action' => 'anlage-ppcalert-settings#onChangeReplaceBy'],
                 'label' => 'PPC Ticket Replace',
                 'choices' => ['replace with G4N Expected' => 'g4n_exp', 'replace with PvSyst' => 'pvsyst'],
                 'help' => '[ppcAutoTicketReplaceBy]<br>Define which data should be used to repalce',
-            ])
-            ->add('ppcAutoTicketPaBehavior',ChoiceType::class, [
-                'multiple' => false,
-                'attr' => ['class' => 'js-settings js-exclude-disable'],
-                'label' => 'Behavior for PA',
-                'choices' => ['skip' => 'skip', 'replace outage for tiFM' => 'replace'],
-                'help' => '[ppcAutoTicketPaBehavior]<br>Define how PA should be handled',
+                'placeholder' => 'please Select',
             ])
             ->add('ppcAutoTicketReplaceIrr', SwitchType::class, [
                 'label' => 'replace Irradiation',
-                'attr' => ['class' => 'js-settings js-replace-disable'],
+                'attr' => ['class' => 'js-settings js-disable-exclude js-disable-replace'],
                 'help' => '[ppcAutoTicketReplaceIrr]<br>make sens only for PvSyst',
             ])
             ->add('ppcAutoTicketUseHour', SwitchType::class, [
                 'label' => 'use Houre Values',
-                'attr' => ['class' => 'js-settings js-exclude-disable'],
+                'attr' => ['class' => 'js-settings js-disable-replace'],
                 'help' => '[ppcAutoTicketUseHour]<br>make sens only for PvSyst',
+            ])
+            ->add('ppcAutoTicketPaBehavior',ChoiceType::class, [
+                'multiple' => false,
+                'attr' => ['class' => 'js-settings'],
+                'label' => 'Behavior for PA',
+                'choices' => ['skip' => 'skip', 'replace outage for tiFM' => 'replace'],
+                'help' => '[ppcAutoTicketPaBehavior]<br>Define how PA should be handled',
+                'placeholder' => 'please Select',
             ])
         ;
     }
