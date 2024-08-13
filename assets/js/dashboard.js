@@ -81,11 +81,12 @@ $(".js-submit-onchange-select").change(function () {
     $('#chart-control').submit();
 });
 
-$('#startDate').fdatepicker({
+/*
+$('#startDate').datepicker({
     language: 'en',
     weekStart: '1',
     // endDate: dateString,
 });
-
+*/
 
 

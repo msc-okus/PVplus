@@ -47,11 +47,7 @@
                                         <span class='label label-{{ status.ioWeatherData.lastDataStatus }}' data-tooltip title='Last weather data {{ status.ioWeatherData.lastRecStampIst }}'>IO weather</span>
                                     </li>
                                     <li>
-                                        {% if plant.anlType == 'masterslave' %}
-                                            <span class="label">Master Slave</span>
-                                        {% else %}
-                                            <span class='label label-{{ status.paToday.paStatus }}' data-tooltip title='Plant Availability'>PA: {{ status.paToday.pa|number_format(2) }}%</span>
-                                        {% endif %}
+                                        <span class='label label-{{ status.paToday.paStatus }}' data-tooltip title='Plant Availability'>{% if plant.anlType == 'masterslave' %}Master Slave{% else %}PA: {{ status.paToday.pa|number_format(2) }}%{% endif %}</span>
                                     </li>
                                     <li>
                                         <span class='label label-{{ status.expDiff.expDiffStatus }}' data-tooltip title='Compare Act to Exp from Yesterday'>Act = {{ status.expDiff.expDiffValue|number_format(2) }}% of Exp</span>

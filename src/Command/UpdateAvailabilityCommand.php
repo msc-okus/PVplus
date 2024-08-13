@@ -5,7 +5,6 @@ namespace App\Command;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityByTicketService;
-use App\Service\AvailabilityService;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -54,8 +53,8 @@ class UpdateAvailabilityCommand extends Command
 
         if ($day) {
             $day = strtotime((string) $day);
-            $from = date('Y-m-d 04:00', $day);
-            $to = date('Y-m-d 22:00', $day);
+            $from = date('Y-m-d 00:15', $day);
+            $to = date('Y-m-d 23:59', $day);
         } else {
             if ($optionFrom) {
                 $from = $optionFrom;
@@ -102,7 +101,7 @@ class UpdateAvailabilityCommand extends Command
                 $io->progressAdvance();
             }
             $io->comment($anlage->getAnlName());
-            sleep(5);
+            #sleep(5);
         }
         $io->progressFinish();
         $io->success('Berechnung der Verfügbarkeit abgeschlossen!');
