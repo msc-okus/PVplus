@@ -17,50 +17,54 @@ export default class extends Controller {
         settings.forEach((element) => {
             element.removeAttribute('disabled');
         });
-        console.log(this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceBy").value);
         this.changeVisibility();
     }
 
     onChangeReplaceBy() {
-        const replaceBy = this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceBy");
-        console.log(replaceBy.value);
-        switch (replaceBy.value) {
+        const ppcAutoTicketReplaceBy = this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceBy");
+        const ppcAutoTicketReplaceIrr = this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceIrr");
+        const ppcAutoTicketUseHour = this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketUseHour");
+        const ppcAutoTicketPaBehavior = this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketPaBehavior");
+        switch (ppcAutoTicketReplaceBy.value) {
             case 'g4n_exp':
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceIrr").value = '0';
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketUseHour").value = '0';
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceIrr").setAttribute('disabled', 'disabled');
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketUseHour").setAttribute('disabled', 'disabled');
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketPaBehavior").removeAttribute('disabled');
+                ppcAutoTicketReplaceIrr.value = '0';
+                ppcAutoTicketUseHour.value = '0';
+                ppcAutoTicketReplaceIrr.setAttribute('disabled', 'disabled');
+                ppcAutoTicketUseHour.setAttribute('disabled', 'disabled');
+                ppcAutoTicketPaBehavior.removeAttribute('disabled');
                 break;
             case 'pvsyst':
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceIrr").removeAttribute('disabled');
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketUseHour").removeAttribute('disabled');
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketPaBehavior").removeAttribute('disabled');
+                ppcAutoTicketReplaceIrr.removeAttribute('disabled');
+                ppcAutoTicketUseHour.removeAttribute('disabled');
+                ppcAutoTicketPaBehavior.removeAttribute('disabled');
                 break;
             default:
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceIrr").setAttribute('disabled', 'disabled');
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketUseHour").setAttribute('disabled', 'disabled');
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketPaBehavior").setAttribute('disabled', 'disabled');
+                ppcAutoTicketReplaceIrr.setAttribute('disabled', 'disabled');
+                ppcAutoTicketUseHour.setAttribute('disabled', 'disabled');
+                ppcAutoTicketPaBehavior.setAttribute('disabled', 'disabled');
         }
     }
 
     changeVisibility() {
         const behavior = $(this.behaviorTarget).find('#anlage_form_settings_ppcAutoTicketBehavior').val();
+        const ppcAutoTicketReplaceBy = this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceBy");
+        const ppcAutoTicketReplaceIrr = this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceIrr");
+        const ppcAutoTicketUseHour = this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketUseHour");
+        const ppcAutoTicketPaBehavior = this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketPaBehavior");
         let settings = [];
-        console.log(behavior);
         switch (behavior) {
             case 'nothing':
                 // disable all elments
                 settings = Array.from(this.settingsTarget.getElementsByClassName('js-settings'));
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceBy").value = '';
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceIrr").value = '0';
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketUseHour").value = '0';
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketPaBehavior").value = ''
+                ppcAutoTicketReplaceBy.value = '';
+                ppcAutoTicketReplaceIrr.value = '0';
+                ppcAutoTicketUseHour.value = '0';
+                ppcAutoTicketPaBehavior.value = ''
                 break;
             case 'replace':
                 //disable all elments wich are not necessary for 'replace'
                 settings = Array.from(this.settingsTarget.getElementsByClassName('js-disable-replace'));
-                this.settingsTarget.querySelector("#anlage_form_settings_ppcAutoTicketReplaceIrr").value = 0
+                ppcAutoTicketReplaceIrr.value = 0
                 break;
             case 'exclude':
                 //disable all elments wich are not necessary for 'exclude'
