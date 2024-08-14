@@ -120,15 +120,24 @@ class MeteoControlService
     /**
      * @throws Exception
      */
-    public function getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $key, int $from = 0, int $to = 0, $resolution = "fifteen-minutes", $timeZonePlant = "Europe/Berlin", $curl = NULL)
+    public function getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $key, int $from = 0, int $to = 0, $resolution = "fifteen-minutes", $timeZonePlant = "Europe/Berlin", $curl = NULL, $fromCron = false)
     {
         if (is_int($from) && is_int($to)) {
 
             date_default_timezone_set($timeZonePlant);
 
-            $from = urlencode(date('c', $from - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            if($fromCron){
+                $nineHundret = 900;
+            }
+            else{
+                $nineHundret = 0;
+            }
+
+
+            $from = urlencode(date('c', $from-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $to));
-            #dump($timeZonePlant, "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution");
+            #echo "https://api.meteocontrol.de/v2/systems/$key/bulk/measurements?from=$from&to=$to&resolution=$resolution";
+            #exit;
             $oauthThoken = self::auth($mcUser, $mcPassword, $mcToken, $curl);
 
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
@@ -279,7 +288,7 @@ class MeteoControlService
     /**
      * Get an authentication token
      */
-static function auth($mcUser, $mcPassword, $mcToken, $curl = null)
+    static function auth($mcUser, $mcPassword, $mcToken, $curl = null)
     {
 
         curl_setopt_array($curl, array(
