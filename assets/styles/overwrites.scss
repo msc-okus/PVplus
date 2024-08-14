@@ -275,8 +275,7 @@
             .messageProzessReady{
                 color: $g4n-blue;
                 display: block;
-                background-color: #f2f4f5;
-                //padding: 10px 10px 5px 10px;
+                background-color: $g4n-white;
                 min-width: 400px;
                 box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
                 z-index: 2000;
@@ -284,12 +283,10 @@
                 left: 50%;
                 transform: translateX(-50%);
                 top: -500px;
-                #opacity: 1;
                 transition: opacity 2s;
                 padding: 15px;
-                border-left: 5px solid $g4n-blue;
-                border-right: 5px solid $g4n-blue;
-                border-radius: 15px;
+                border-left: 2px solid $g4n-blue;
+                border-right: 2px solid $g4n-blue;
 
                 #pdfdownload div a {
                     margin-top: 7px;
@@ -342,7 +339,7 @@
                         padding: 0.5rem 1rem 0.5rem 1rem;
                         font-size: 0.75rem;
                         line-height: 1;
-                        color: #1779ba;
+                        color: $g4n-blue;
                     }
 
                     .is-active button {
@@ -356,7 +353,7 @@
                         padding: 0.5rem 1rem 0.5rem 1rem;
                         font-size: 0.75rem;
                         line-height: 1;
-                        color: #ffffff;
+                        color: $g4n-white;
                         background: $g4n-blue;
                     }
                 }
@@ -366,9 +363,9 @@
                 margin-top: 5px;
                 transition: all .5s;
                 font-size: 100%;
-                border-left: 5px solid rgba(100,100,100,0.75);
-                border-right: 5px solid rgba(100,100,100,0.75);
-                border-radius: 15px;
+                border-left: 2px solid $g4n-blue;
+                border-right: 2px solid $g4n-blue;
+                //border-radius: 15px;
                 .done td{ color: #157539;}
                 .working td{ color: #71A8E2;}
                 .waiting td {color: #be0000;}

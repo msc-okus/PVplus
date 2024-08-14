@@ -1,9 +1,6 @@
-
 {% block body %}
-        <div class="dropdown-content" {{ stimulus_controller('processmessengesshowmessage', { message: messagetext, prozesstype: function, prozessid: prozessid})}}>
-        </div>
-
+        <div class="dropdown-content" {{ stimulus_controller('processmessengesshowmessage', { message: messagetext, prozesstype: function, prozessid: prozessid})}}></div>
 {% endblock %}
 {% block styles %}
-    <link href="{{ absolute_url(asset('build/app.css')) }}" rel="stylesheet" type="text/css">
+    {#<link href="{{ absolute_url(asset('build/app.css')) }}" rel="stylesheet" type="text/css">#}
 {% endblock %}
