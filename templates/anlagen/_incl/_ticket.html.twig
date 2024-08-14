@@ -61,25 +61,28 @@
                 </div>
 
             </fieldset>
-            <fieldset class="fieldset">
+            <fieldset
+                class="fieldset"
+                {{ stimulus_controller('anlage-ppcalert-settings') }}
+            >
                 <legend>Settings for autogenerate Performance Tickets on PPC Alerts</legend>
                 {% if is_granted('ROLE_G4N') %}
-                    <div class="grid-x grid-margin-x">
+                    <div class="grid-x grid-margin-x" {{ stimulus_target('anlage-ppcalert-settings','behavior') }}>
                         <div class="cell small-6">
                             {{ form_row(anlageForm.settings.ppcAutoTicketBehavior) }}</div>
                     </div>
-                    <div class="grid-x grid-margin-x">
+                    <div class="grid-x grid-margin-x"{{ stimulus_target('anlage-ppcalert-settings','settings')}}>
                         <div class="cell small-3">
                             {{ form_row(anlageForm.settings.ppcAutoTicketReplaceBy) }}
-                        </div>
-                        <div class="cell small-3">
-                            {{ form_row(anlageForm.settings.ppcAutoTicketPaBehavior) }}
                         </div>
                         <div class="cell small-3">
                             {{ form_row(anlageForm.settings.ppcAutoTicketReplaceIrr) }}
                         </div>
                         <div class="cell small-3">
                             {{ form_row(anlageForm.settings.ppcAutoTicketUseHour) }}
+                        </div>
+                        <div class="cell small-3">
+                            {{ form_row(anlageForm.settings.ppcAutoTicketPaBehavior) }}
                         </div>
                     </div>
                 {% endif %}

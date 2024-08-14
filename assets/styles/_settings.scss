@@ -77,9 +77,10 @@ $g4n-font-family: 'Source Sans Pro', Arial, 'Helvetica Neue', Helvetica, sans-se
 $off-canvas-width: 300px;
 
 $g4n-green: #8DBE48;
-$g4n-orange: #EB9486;
+$g4n-orange: #fbb58c;
 $g4n-blue: rgb(15, 86, 148);
 $g4n-red: #bf0000;
+$g4n-light-red: #e66a63;
 $g4n-back-blue: #0F569433;
 $g4n-white: #ffffff;
 $g4n-black: #333333;
@@ -804,8 +805,8 @@ $slider-radius: $global-radius;
 // 49. Switch
 // ----------
 
-$switch-background: $medium-gray;
-$switch-background-active: $primary-color;
+$switch-background: $medium-gray; //$medium-gray;$g4n-light-red
+$switch-background-active: $g4n-green; // $primary-color;
 $switch-height: 2rem;
 $switch-height-tiny: 1.25rem;
 $switch-height-small: 1.5rem;
@@ -816,7 +817,7 @@ $switch-paddle-background: $white;
 $switch-paddle-offset: 0.25rem;
 $switch-paddle-radius: $global-radius;
 $switch-paddle-transition: all 0.25s ease-out;
-$switch-opacity-disabled: .5;
+$switch-opacity-disabled: .3;
 $switch-cursor-disabled: not-allowed;
 
 // 50. Table
