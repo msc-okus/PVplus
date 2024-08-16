@@ -87,14 +87,15 @@ class ImportService
         $apiType = $apiconfig->apiType;
 
         if($apiType == 'vcom'){
-            $baseUrl = 'http://api.meteocontrol.de/v2';
+            $baseUrl = 'https://api.meteocontrol.de/v2/login';
+            $postFileds = "grant_type=password&client_id=vcom-api&client_secret=AYB=~9_f-BvNoLt8+x=3maCq)>/?@Nom&username=$apiUser&password=$apiPassword";
+            $headerFields = [
+                "content-type: application/x-www-form-urlencoded",
+                "X-API-KEY: ". $apiToken,
+            ];
         }
 
-
-
-        $apiAccessToken = $this->externalApis->getAccessTokenMc($baseUrl, $apiUser, $apiPassword, $apiToken);
-
-        exit;
+        $apiAccessToken = $this->externalApis->getAccessToken($baseUrl, $apiToken, $postFileds, $headerFields);
 
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
@@ -110,8 +111,6 @@ class ImportService
 
         $dataDelay = $anlage->getSettings()->getDataDelay()*3600;
         //end collect params from plant
-
-
 
         $bulkMeaserments = [];
         $basics = [];
@@ -238,13 +237,22 @@ class ImportService
             }
         }
 
+        $from = urlencode(date('c', (int)$start - 900)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+        $to = urlencode(date('c', (int)$end));
+
+
+        $headerFields = [
+            "X-API-KEY: ". $apiToken,
+            "Authorization: Bearer $apiAccessToken"
+        ];
+
         //get the Data from VCOM for all Plants are configured in the current plant
-        $curl = curl_init();
+
         for ($i = 0; $i < $numberOfPlants; ++$i) {
-            $tempBulk = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $arrayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl);
+            $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
+            $tempBulk = $this->externalApis->getData($url, $headerFields);
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
         }
-        curl_close($curl);
 
         //beginn collect all Data from all Plants
         $numberOfBulkMeaserments = count($bulkMeaserments);

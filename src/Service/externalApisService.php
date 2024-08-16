@@ -1,74 +1,61 @@
 <?php
 // src/Sewrvice/externalApisSewrvice.php
 namespace App\Service;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Component\HttpClient\HttpClient;
-use BenjaminFavre\OAuthHttpClient\OAuthHttpClient;
-use BenjaminFavre\OAuthHttpClient\GrantType\ClientCredentialsGrantType;
+
+
+
 class externalApisService
 {
     public function __construct(
-        private HttpClientInterface $client,
     ) {
     }
 
-    public function getAccessTokenMc($url, $mcUser ,$mcPassword, $mcToken)
+    public function getAccessToken($url, $mcToken, $postFileds, $headerFields)
     {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYHOST =>false,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => $postFileds,
+            CURLOPT_HTTPHEADER => $headerFields,
+        ));
 
-        $url = $url.'/login';
-        echo "$url, $mcUser ,$mcPassword, $mcToken";
-        $httpClient = HttpClient::create();
+        $response = curl_exec($curl);
+        curl_close($curl);
+        $result = json_decode($response, true);
+        return $result['access_token'];
+    }
 
-        $grantType = new ClientCredentialsGrantType(
-            $httpClient,
-            $url, // The OAuth server token URL
-            'vcom-api',
-            'AYB=~9_f-BvNoLt8+x=3maCq)>/?@Nom'
-        );
+    public function getData($url, $headerFields)
+    {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $url,
+                CURLOPT_SSL_VERIFYHOST =>false,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_HTTPHEADER => $headerFields
+            ));
 
-        $httpClient = new OAuthHttpClient($httpClient, $grantType);
+        $response = curl_exec($curl);
 
-        $response = $httpClient->request('POST', $url, [
-            'headers' => [
-                "X-API-KEY" => $mcToken,
-                "Content-Type" => "application/x-www-form-urlencoded"
-            ],
-            'body' => [
-                'grant_type' => 'client_credentials',
-                'client_id' => 'vcom-api',
-                'client_secret' => 'AYB=~9_f-BvNoLt8+x=3maCq)>/?@Nom' ,
-                'username' => $mcUser,
-                'password' => $mcPassword,
-                'redirect_uri' => 'https://127.0.0.1:8000/connect',
-            ],
+        curl_close($curl);
+        $result = json_decode($response, true);
 
-        ]);
+        return $result;
 
-        print_r($response->getHeaders());
-
-        exit;
-
-
-        $response = $this->client->request('POST', $url, [
-            'headers' => [
-                "X-API-KEY" => $mcToken,
-                "Content-Type" => "application/x-www-form-urlencoded",
-                'Accept' => 'application/json'
-            ],
-            'body' => [
-                'grant_type' => 'password',
-                'client_id' => 'vcom-api',
-                'client_secret' => 'AYB=~9_f-BvNoLt8+x=3maCq)>/?@Nom' ,
-                'username' => $mcUser,
-                'password' => $mcPassword,
-                'redirect_uri' => 'https://127.0.0.1:8000/connect',
-            ],
-
-        ]);
-
-print_r($response->toArray());
-exit;
-
-        return $response;
     }
 }
