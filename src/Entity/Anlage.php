@@ -64,6 +64,10 @@ class Anlage implements \Stringable
     #[ORM\Column(name: 'anl_betrieb', type: 'date', nullable: true)]
     private ?DateTime $anlBetrieb = null;
 
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?DateTime $dataSince = null;
+
+
     #[Groups(['main','api:read'])]
     #[SerializedName('plant_name')]
     #[ORM\Column(name: 'anl_name', type: 'string', length: 50, nullable: false)]
@@ -303,9 +307,6 @@ class Anlage implements \Stringable
 
     #[ORM\Column(type: 'boolean')]
     private bool $usePac = false;
-
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageForcast::class, cascade: ['persist', 'remove'])]
-    private Collection $anlageForecasts;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageForcastDay::class, cascade: ['persist', 'remove'])]
     private Collection $anlageForecastDays;
@@ -894,6 +895,18 @@ class Anlage implements \Stringable
 
         return $this;
     }
+
+    public function getDataSince(): ?DateTime
+    {
+        return $this->dataSince;
+    }
+
+    public function setDataSince(?DateTime $dataSince): void
+    {
+        $this->dataSince = $dataSince;
+    }
+
+
 
     public function getAnlName(): ?string
     {
@@ -2090,27 +2103,6 @@ class Anlage implements \Stringable
         return $this->anlageForecasts;
     }
 
-    public function addAnlageForecast(AnlageForcast $anlageForecast): self
-    {
-        if (!$this->anlageForecasts->contains($anlageForecast)) {
-            $this->anlageForecasts[] = $anlageForecast;
-            $anlageForecast->setAnlage($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAnlageForecast(AnlageForcast $anlageForecast): self
-    {
-        if ($this->anlageForecasts->removeElement($anlageForecast)) {
-            // set the owning side to null (unless already changed)
-            if ($anlageForecast->getAnlage() === $this) {
-                $anlageForecast->setAnlage(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getAnlageForecastDays(): Collection
     {

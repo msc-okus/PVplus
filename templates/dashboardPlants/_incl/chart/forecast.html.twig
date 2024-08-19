@@ -1,3 +1,4 @@
+
 <script>
     am4core.ready(function() {
         // Create chart instance
@@ -11,7 +12,7 @@
             "minimumFractionDigits": 0
         };
         let title = chart.titles.create();
-        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
+        title.text = "{{ content.headline }}";
         title.fontSize = 18;
         title.marginBottom = 30;
 

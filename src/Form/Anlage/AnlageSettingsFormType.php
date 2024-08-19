@@ -255,7 +255,6 @@ class AnlageSettingsFormType extends AbstractType
                 'placeholder'   => 'please Select',
                 'required'      => false,
                 'help'      => '[importType]<br>Chose the plant have Stringboxes or inverters only',
-                'attr' => ['style' => 'width: 150px']
             ])
 
             ->add('stringboxesUnits', IntegerType::class, [
@@ -263,7 +262,6 @@ class AnlageSettingsFormType extends AbstractType
                 'help' => '[stringboxesUnits]<br>How many Units have a stringbox? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
-                'attr' => ['style' => 'width: 70px']
             ])
 
             ->add('invertersUnits', IntegerType::class, [
@@ -271,7 +269,6 @@ class AnlageSettingsFormType extends AbstractType
                 'help' => '[invertersUnits]<br>How many Units have a inverter? (look in the Response from VCOM)',
                 'empty_data' => '',
                 'required' => false,
-                'attr' => ['style' => 'width: 70px']
             ])
 
             ->add('dataDelay', ChoiceType::class, [
@@ -281,7 +278,6 @@ class AnlageSettingsFormType extends AbstractType
                 'preferred_choices' => array(1),
                 'help' => '[dataDelay]<br>use this if data from vcom or FTP-Push are delayed as normal case)',
                 'required' => false,
-                'attr' => ['style' => 'width: 70px'],
                 'empty_data' => '0'
             ])
 

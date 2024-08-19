@@ -12,6 +12,7 @@ use App\Service\PdoService;
 use DateTime;
 use DateTimeZone;
 use PDO;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 
 class ForecastChartService
@@ -28,6 +29,7 @@ class ForecastChartService
 
     }
 
+    #[Deprecated]
     public function getForecastFac(Anlage $anlage, $to): array
     {
         $actPerWeek = [];
@@ -102,6 +104,7 @@ class ForecastChartService
         return $dataArray;
     }
 
+    #[Deprecated]
     public function getForecastClassic(Anlage $anlage, $to): array
     {
         $actPerWeek = [];
@@ -168,44 +171,70 @@ class ForecastChartService
     // # By Day ##
     // ###########
 
+    /**
+     * @throws \Exception
+     */
     public function getForecastDayClassic(Anlage $anlage, $to): array
     {
         $actPerDay = [];
         $dataArray = [];
 
         $form = '%y%m%d';
-
+        $date = $anlage->getDataSince() === null ? $anlage->getAnlBetrieb() : $anlage->getDataSince();
+        $localFrom = date('Y') . $date->format('-m-d');
+        $localTo = (int)date('Y') + 1 . $date->format('-m-d');
         $conn = $this->pdoService->getPdoPlant();
-        $currentYear = date('Y', strtotime((string) $to));
-        if ($anlage->getShowEvuDiag()) {
-            $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
+
+        if ($anlage->getShowEvuDiag()) { //year(stamp) = '$currentYear'
+            $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS power  
                 FROM ".$anlage->getDbNameAcIst()." 
-                WHERE year(stamp) = '$currentYear' AND unit = 1 GROUP BY date_format(stamp, '$form') 
+                WHERE unit = 1 AND stamp >= '$localFrom' AND stamp < '$localTo' GROUP BY date_format(stamp, '$form')  
                 ORDER BY stamp;";
         } else {
-            $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
+            $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(wr_pac) as power  
                 FROM ".$anlage->getDbNameAcIst()." 
-                WHERE year(stamp) = '$currentYear' GROUP BY date_format(stamp, '$form')
+                WHERE unit = 1 AND stamp >= '$localFrom' AND stamp < '$localTo'  GROUP BY date_format(stamp, '$form')
                 ORDER BY stamp;";
         }
         $result = $conn->prepare($sql);
         $result->execute();
         foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if ($anlage->getShowEvuDiag()) {
-                if ($value['startDay'] < date('z', strtotime((string) $to))) {
-                    $actPerDay[(int) $value['startDay']] = round($value['sumEvu'], 2);
-                }
-            } else {
-                if ($value['startDay'] < date('z', strtotime((string) $to))) {
-                    $actPerDay[(int) $value['startDay']] = round($value['sumInvOut'], 2);
-                }
-            }
+            $actPerDay[(int) $value['startDay']] = round($value['power'], 2);
         }
         $conn = null;
-
         /** @var [] AnlageForecastDay $forecasts */
         $forecasts = $this->forcastDayRepo->findBy(['anlage' => $anlage]);
-        $counter = $forecastValue = $expectedDay = $divMinus = $divPlus = 0;
+        $forecastValue = $expectedDay = $divMinus = $divPlus = 0;
+
+        $period = new \DatePeriod(new DateTime($localFrom), new \DateInterval('P1D'), new DateTime($localTo));
+        foreach ($period as $stamp) {
+            $year = date('Y', strtotime((string) $to));
+            $day = $stamp->format('z');
+
+            if (isset($actPerDay[$day])) {
+                $expectedDay += $actPerDay[$day];
+                $divMinus += $actPerDay[$day];
+                $divPlus += $actPerDay[$day];
+            } else {
+                if (isset($forecasts[$day-1])) {
+                    $expectedDay += $forecasts[$day-1]->getPowerDay();
+                    $divMinus += $forecasts[$day-1]->getDivMinDay();
+                    $divPlus += $forecasts[$day-1]->getDivMaxDay();
+                }
+            }
+            if (isset($forecasts[$day])) $forecastValue += $forecasts[$day]->getPowerDay();
+
+            $dataArray['chart'][] = [
+                'forecast' => round($forecastValue, 1),
+                'expected' => round($expectedDay, 1),
+                'divMinus' => round($divMinus, 1),
+                'divPlus' => round($divPlus, 1),
+                'date' => $stamp->format('Y-m-d')
+            ];
+        }
+
+        $dataArray['headline'] = "Forecast: ".$anlage->getAnlName() . " (from $localFrom until $localTo)";
+        /*
         foreach ($forecasts as $count => $forecast) {
             $year = date('Y', strtotime((string) $to));
             $stamp = DateTime::createFromFormat('Y z', $year.' '.$forecast->getDay()-1);
@@ -227,6 +256,9 @@ class ForecastChartService
             $dataArray['chart'][$counter]['divPlus'] = round($divPlus);
             ++$counter;
         }
+        */
+
+
         return $dataArray;
     }
 
@@ -299,6 +331,7 @@ class ForecastChartService
 
         return $dataArray;
     }
+
     // Get the DayAhead Forecast data for Chart
     public function getForecastDayAhead(Anlage $anlage, $from, $view, $days ): array {
         $now = new DateTime('now', new DateTimeZone('Europe/Berlin'));
