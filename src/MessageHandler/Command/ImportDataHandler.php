@@ -41,9 +41,25 @@ class ImportDataHandler
         $timeCounter = 0;
         $timeRange = $importData->getEndDate()->getTimestamp() - $importData->getStartDate()->getTimestamp();
         if ($anlage->getSettings()->isSymfonyImport()) {
-            for ($dayStamp = $importData->getStartDate()->getTimestamp(); $dayStamp <= $importData->getEndDate()->getTimestamp(); $dayStamp += 24*3600) {
-                $from = strtotime(date('Y-m-d 23:45', $dayStamp-900));
-                $to = strtotime(date('Y-m-d 23:45', $dayStamp));
+            $step = 22*3600;
+            $step2 = 24*3600;
+            $i=1;
+
+            $fromts = $importData->getStartDate()->getTimestamp() - 900;
+
+            $tots = $importData->getEndDate()->getTimestamp();
+
+            for ($dayStamp = $fromts; $dayStamp < $tots; $dayStamp += $step2) {
+                $from = $dayStamp;
+                $to = $dayStamp+$step;
+
+                if($i > 1){
+                    $from = $from - 7200;
+                }
+
+                if($i == 1){
+                    $from = $from - 7200;
+                }
 
                 $currentDay = date('d', $dayStamp);
 
@@ -64,6 +80,7 @@ class ImportDataHandler
                 $this->logMessages->updateEntry($logId, 'working (s)', ($timeCounter / $timeRange) * 100);
                 $timeCounter += 24 * 3600;
                 sleep(1);
+                $i++;
             }
             $this->logMessages->updateEntry($logId, 'done',100);
         } else {
