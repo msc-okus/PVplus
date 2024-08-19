@@ -20,7 +20,7 @@ class APINasaGovService {
     // Curl ini
     public function get_json_data_curl() {
         // Curl response from NASA Gov - ALLSKY_SFC_SW_DWN
-        set_time_limit(550); //
+        set_time_limit(1110); //
         $curl = curl_init();
         curl_setopt_array($curl, [CURLOPT_URL => 'https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude='.$this->lon.'&latitude='.$this->lat.'&start='.$this->start.'&end='.$this->ende.'&format=JSON&user=DAV', CURLOPT_RETURNTRANSFER => true, CURLOPT_ENCODING => '', CURLOPT_MAXREDIRS => 10, CURLOPT_TIMEOUT => 0, CURLOPT_FOLLOWLOCATION => true, CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, CURLOPT_CUSTOMREQUEST => 'GET']);
 
