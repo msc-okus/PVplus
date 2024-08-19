@@ -8,7 +8,6 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\AnlagenStatusRepository;
 use App\Repository\ForcastDayRepository;
-use App\Repository\ForcastRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
 
@@ -23,7 +22,6 @@ class CheckSystemStatusService
         private readonly AnlagenStatusRepository $statusRepository,
         private readonly EntityManagerInterface $em,
         private readonly MessageService $messageService,
-        private readonly ForcastRepository $forecastRepo,
         private readonly ForcastDayRepository $forecastDayRepo,
         private readonly FunctionsService $functions)
     {
@@ -154,9 +152,9 @@ class CheckSystemStatusService
                             }
                         } else {
                             if ($anlage->getShowEvuDiag()) {
-                                $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                                $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
                             } else {
-                                $forecastYear = $powerActArray['powerActYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                                $forecastYear = $powerActArray['powerActYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
                             }
                         }
                     }
