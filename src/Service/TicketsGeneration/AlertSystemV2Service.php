@@ -221,9 +221,7 @@ class AlertSystemV2Service
         }
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        dump($sungap);
         $time = self::timeAjustment($time, -2);
-        dump($time);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
 
             //here we retrieve the values from the plant and set soma flags to generate tickets
@@ -236,13 +234,13 @@ class AlertSystemV2Service
                     $this->em->persist($ticket);
                 }
             }
-            dump($plant_status);
             $anlType = $anlage->getAnlType();
             if ( $plant_status['Irradiation'] == false ) {
 
                 if ($plant_status['ppc'] != null && $plant_status['ppc']){
-
-                    $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, $plant_status['ppc'], false);}
+                    $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, $plant_status['ppc'], false);
+                    $this->generatePPCTickets(ticket::OMC, $anlage,  $time);
+                }
                 if ($plant_status['Gap'] != null && count($plant_status['Gap']) > 0){
                     $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, ($plant_status['ppc']), false);}
                 if ($anlType != "masterslave"){
@@ -258,11 +256,10 @@ class AlertSystemV2Service
 
                     $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, ($plant_status['ppc']), false);}
             }else {
-                dump("generating irradiation ticket");
                 $this->generateTickets('', 100, $anlage, ['*'], $time, $plant_status['ppc'], true);
             }
         }
-        /*
+
         $sysLog = $this->sysLogRepo->findOneBy(['anlage' => $anlage]);
         if ($sysLog != null){
             if ($sysLog->getLastTicketExecutionDate()->getTimestamp() < strtotime($time)){
@@ -273,12 +270,13 @@ class AlertSystemV2Service
         }
         else{
             $sysLog = new SystemLog();
+            $sysLog->setAnlage($anlage);
             $execDate = date_create(date('Y-m-d H:i:s', strtotime($time)));
             $sysLog->setLastTicketExecutionDate($execDate);
             $sysLog->setLastTicketExecution("Successful execution and log created");
         }
         $this->em->persist($sysLog);
-        */
+
         $this->em->flush();
 
         return 'success';
@@ -376,6 +374,83 @@ class AlertSystemV2Service
         return $return;
     }
 
+    private function generatePPCTickets($errorType,Anlage $anlage, $time): void{
+        if ($anlage->getSettings()->getPpcAutoTicketBehavior() != "nothing"){
+            if ($anlage->getSettings()->getPpcAutoTicketBehavior() == "replace") {
+                $cat = 73;
+            } else {
+                $cat = 72;
+            }
+            $previousTicket = $this->getAllTicketsByCat($anlage, $time, $cat)[0];
+            if ($previousTicket !== null) {
+                $ticketDate = $previousTicket->getDates()->last();
+                $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
+                $end->getTimestamp();
+                $previousTicket->setEnd($end);
+                $previousTicket->setOpenTicket(true);
+                $ticketDate->setEnd($end);
+                $this->em->persist($ticketDate);
+                $this->em->persist($previousTicket);
+            } else {
+                $ticket = new Ticket();
+                $ticket->setErrorType($cat);
+                $ticket = new Ticket();
+                $ticketDate = new TicketDate();
+                $ticketDate->setAnlage($anlage);
+                $ticketDate->setStatus('10');
+                $ticketDate->setSystemStatus(10);
+                $ticketDate->setPriority(10);
+                $ticketDate->setCreatedBy("AlertSystem");
+                $ticketDate->setUpdatedBy("AlertSystem");
+                $ticket->setStatus('10'); // Status 10 = open
+                $ticket->setEditor('Alert system');
+                $ticket->setSystemStatus(10);
+                $ticket->setPriority(10);
+                $ticket->setOpenTicket(true);
+                $ticket->setCreatedBy("AlertSystem");
+                $ticket->setUpdatedBy("AlertSystem");
+                $ticket->setProofAM(false);
+                $ticket->setCreationLog("Irradiation Limit: " . $anlage->getMinIrrThreshold() . "; Power Limit: " . $anlage->getPowerThreshold());
+                $ticket->setAlertType($cat); //  category = alertType (bsp: datagap, inverter power, etc.)
+                $ticketDate->setAlertType($cat);
+                $ticket->setInverter('*');
+                $ticketDate->setInverter('*');
+                $ticket->setAnlage($anlage);
+                $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
+                $begin->getTimestamp();
+                $ticket->setBegin($begin);
+                $ticketDate->setBegin($begin);
+                $ticket->addDate($ticketDate);
+                $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
+                $end->getTimestamp();
+                $ticketDate->setEnd($end);
+                $ticket->setEnd($end);
+                if ($cat == 72) {
+                    if ($anlage->getSettings()->getPpcAutoTicketPaBehavior() == "skip") {
+                        $ticketDate->setPRExcludeMethod(10);
+                    } else if ($anlage->getSettings()->getPpcAutoTicketPaBehavior() == "replace") {
+                        $ticketDate->setPRExcludeMethod(20);
+                    }
+                } else if ($cat == 73) {
+                    if ($anlage->getSettings()->getPpcAutoTicketReplaceBy() == "g4n_exp") {
+                        $ticketDate->setReplaceEnergyG4N(true);
+                        $ticketDate->setReplaceIrr($anlage->getSettings()->isPpcAutoTicketReplaceIrr());
+                    } else {
+                        $ticketDate->setReplaceEnergy(true);
+                        $ticketDate->setUseHour($anlage->getSettings()->isPpcAutoTicketUseHour());
+                        $ticketDate->setReplaceIrr($anlage->getSettings()->isPpcAutoTicketReplaceIrr());
+                    }
+                }
+                if ($anlage->getSettings()->isPpcAutoTicketUseHour()) {
+                    $ticketDate->setUseHour(true);
+                } else {
+                    $ticketDate->setUseHour(false);
+                }
+                $this->em->persist($ticket);
+                $this->em->persist($ticketDate);
+            }
+        }
+    }
     /**
      * Given all the information needed to generate a ticket, the tickets are created and committed to the db (single ticket variant)
      * @param $errorType
@@ -486,8 +561,6 @@ class AlertSystemV2Service
                     $ticket->setInverter($restInverter);
                     $ticketDate->setInverter($restInverter);
                 }
-
-
                 if ($ticket->getAlertType() == "20") $ticketDate->setDataGapEvaluation(10);
                 $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
                 $begin->getTimestamp();
@@ -515,7 +588,7 @@ class AlertSystemV2Service
                 if ($errorCategorie == 10 && $fullGap) $ticketDate->setDataGapEvaluation(20);
 
 
-                dump($ticket);
+
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
                 $this->em->flush();

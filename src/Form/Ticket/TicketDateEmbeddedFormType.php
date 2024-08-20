@@ -154,8 +154,16 @@ class TicketDateEmbeddedFormType extends AbstractType
                         'data-action' => 'change->ticket-edit#replaceCheck',
                         'data-ticket-edit-target' => 'formReplace'
                     ],
+                ])
+                ->add('replaceEnergyG4N', SwitchType::class, [
+                    'label'     => 'replace Energy with G4N Expected',
+                    'attr' => [
+                        'data-action' => 'change->ticket-edit#replaceCheck',
+                        'data-ticket-edit-target' => 'formReplaceG4N'
+                    ],
                     // new field (bool)
-                ])->add('replaceIrr', SwitchType::class, [
+                ])
+                ->add('replaceIrr', SwitchType::class, [
                     'label'     => 'replace Irradiation with PVsyst',
                     'attr' => [
                         'data-action' => 'change->ticket-edit#replaceCheck',
