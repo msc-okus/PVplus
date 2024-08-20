@@ -99,7 +99,7 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
         if ($inverter === null) {
             $result = $this->createQueryBuilder('a')
                 ->andWhere('a.anlage = :anlage')
-                ->andWhere('a.stamp >= :from AND a.stamp < :to')
+                ->andWhere('a.stamp >= :from AND a.stamp <= :to')
                 ->setParameter('anlage', $anlage)
                 ->setParameter('from', $from->format('Y-m-d'))
                 ->setParameter('to', $to->format('Y-m-d'))
@@ -107,7 +107,7 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
         } else {
             $result = $this->createQueryBuilder('a')
                 ->andWhere('a.anlage = :anlage')
-                ->andWhere('a.stamp >= :from AND a.stamp < :to AND a.inverter = :inverter')
+                ->andWhere('a.stamp >= :from AND a.stamp <= :to AND a.inverter = :inverter')
                 ->setParameter('anlage', $anlage)
                 ->setParameter('from', $from->format('Y-m-d'))
                 ->setParameter('to', $to->format('Y-m-d'))

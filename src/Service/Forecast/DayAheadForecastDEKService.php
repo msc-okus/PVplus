@@ -60,7 +60,7 @@ class DayAheadForecastDEKService {
                             $d = $dayofyear + 1;
                             $h = $hour;
                             $m = $minute;
-                            $GHI2=$DNI=$GTI=$SWI=$DHI=$GHI=$TMP=$FF=$SWI = 0;
+                            $GHI2=$DNI=$GTI=$SWI=$DHI=$GHI=$TMP=$FF= 0;
                             $instep = '15min';
 
                             foreach ($valueout as $dam) {
@@ -85,7 +85,7 @@ class DayAheadForecastDEKService {
                             $d = $dayofyear + 1;
                             $h = $hour;
                             $m = $minute;
-                            $GHI2=$DNI=$DNI2=$SWI=$GTI=$DHI=$GHI=$TMP=$FF=$SWI = 0;
+                            $GHI2=$DNI=$SWI=$GTI=$DHI=$GHI=$TMP=$FF= 0;
                             $instep = '60min';
 
                             foreach ($valueout as $dah) {
@@ -102,9 +102,9 @@ class DayAheadForecastDEKService {
                         }
 
                     }
-
+                    $SWI2 = $SWI - $DHI;
                     // Berechnung der Senkrechtstrahlung auf der Normal EBENE
-                    $GDIR = $SWI;#$GTI;##$GHI - $DHI; #$SWI $GHI2; #$GHI - $DHI;
+                    $GDIR = $SWI2;#$GHI2 - $DHI;#$SWI;#$GTI;##$GHI - $DHI; #$SWI $GHI2; #$GHI - $DHI;
                     //Start Tracker OW Nachführung Berechnung
                     $TR_AOIarray = $this->forecastCalcService->getDataforAOIbyTracker($input_mn, $input_gb, $input_gl, $input_mer, $d, $h, $anlage);
                     $TR_MA = $TR_AOIarray['MA']; // Das Modul Azimut der Wert wird berechnet auf stundenbasis.
@@ -121,7 +121,7 @@ class DayAheadForecastDEKService {
                     $TR_DIFFSAMA = $TR_MA - $TR_SAGD;             // Differenz SA -SA
 
                     $TR_CSZ = sin($TR_SZ);
-                    $TR_DNI = $SWI;#$GTI;##$GDIR / $TR_CSZ; // Berechnung der Senkrechtstrahlung
+                    $TR_DNI = $SWI2 / $TR_CSZ; #$GTI;##$GDIR / $TR_CSZ; // Berechnung der Senkrecht-Strahlung
 
                     $TR_DIRpoa = $TR_DNI * cos($TR_AOI) * $TR_IAM; // Direktstrahlung in Modulebene
                     $TR_DIFpoa = $DHI * ((1 + cos(deg2rad($TR_MN))) / 2) + $GHI2 * (0.012 * $TR_SZ - 0.04) * ((1 - cos(deg2rad($TR_MN))) / 2); // Diffusstrahlung in Modulebene
@@ -143,11 +143,10 @@ class DayAheadForecastDEKService {
                         $SHGD = rad2deg($SH); // Sonnenhöhe in Grad
 
                         // Berechnung vom prozentualen Anteil der Strahlung
-
                         ($GDIR > 1) ? $GDIRPRZ = round(($GDIR / $GHI) * 100, 0) : $GDIRPRZ = 0; // in Prozent
                         $CSZ = cos($SZ);
 
-                        $DNI = $SWI / $CSZ;#$GTI ;##$GDIR / $CSZ; // Berechnung der Senkrechtstrahlung
+                        $DNI = $SWI2 / $CSZ; #$GTI ;##$GDIR / $CSZ; // Berechnung der Senkrechtstrahlung
 
                         $DIRpoa = $DNI * cos($AOI) * $IAM;     // Direktstrahlung auf der Modulebene --
                         $DIFpoa = $DHI * ((1 + cos(deg2rad($input_mn))) / 2) + $GHI2 * (0.012 * $SZ - 0.04) * ((1 - cos(deg2rad($input_mn))) / 2); // Diffusstrahlung in Modulebene
@@ -188,8 +187,6 @@ class DayAheadForecastDEKService {
                     $RGES_UPPER = ($RGES_UPPER < 0 ? 0 : $RGES_UPPER);
                     $RGES_LOWER = ($RGES_LOWER < 0 ? 0 : $RGES_LOWER);
 
-                 ##   echo "$d $h $m - $DNI - $RGES - $RGES_UPPER  \n";
-
                     $valueofdayandhour[$gendoy][$h][$m] =
                         [
                             'DOY' => $gendoy,
@@ -217,7 +214,7 @@ class DayAheadForecastDEKService {
                             'RGES' => $TR_RGES,
                             'RGESBIF' => $TR_RGESBIF],
                         ];
-                    $SWI = $GTI = $GHI2 = $DNI = $DHI = $GHI= 0;
+                    $SWI = $GHI2 = $DHI = $GHI= 0;
                     $RGES_LOWER = $RGES_UPPER = $RGESBIF_LOWER = $RGESBIF_UPPER = $RGESBIF = $RGES = $TR_RGES = $TR_RGESBIF = 0;
                 }
 
@@ -234,7 +231,7 @@ class DayAheadForecastDEKService {
         } else {
             return false;
         }
-      // End funktion get_DEK_Data()
+      // End funktion
     }
 
 }
