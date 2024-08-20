@@ -75,7 +75,7 @@ class DefaultJMController extends AbstractController
 
         foreach ($anlagen as $anlage){
             $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
-            //try {
+            try {
                 foreach ($tickets as $ticket) {
                     $dates = $ticket->getDates();
                     foreach ($dates as $date) {
@@ -87,7 +87,7 @@ class DefaultJMController extends AbstractController
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
                     $alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
                 }
-           // } catch(\Exception $e){dd("something broke");}
+            } catch(\Exception $e){dd("something broke");}
         }
 
         dd("hello world");
