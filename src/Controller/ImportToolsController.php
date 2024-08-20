@@ -49,7 +49,6 @@ class ImportToolsController extends BaseController
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
     public function importTools(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages, AnlagenRepository $anlagenRepo, EntityManagerInterface $entityManagerInterface, ImportService $importService): Response
     {
-
         //Wenn der Import aus dem Backend angestoßen wird
         $form = $this->createForm(ImportToolsFormType::class);
         $form->handleRequest($request);
@@ -62,7 +61,7 @@ class ImportToolsController extends BaseController
 
             /* @var ImportToolsModel $importToolsModel */
             $importToolsModel = $form->getData();
-            $importToolsModel->endDate = new \DateTime($importToolsModel->endDate->format('Y-m-d 23:59'));
+            $importToolsModel->endDate = new \DateTime($importToolsModel->endDate->format('Y-m-d 23:45'));
             $importToolsModel->path = $importToolsModel->anlage->getPathToImportScript();
             $importToolsModel->importType = (string)$form->get('importType')->getData();
             // Start recalculation
@@ -134,7 +133,7 @@ class ImportToolsController extends BaseController
         $end = $time;
 
         foreach ($anlagen as $anlage) {
-            $importService->prepareForImport($anlage, $start, $end);
+            $importService->prepareForImport($anlage, $start, $end, '', true);
         }
 
         return new Response('This is used for import via cron job.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
@@ -155,16 +154,29 @@ class ImportToolsController extends BaseController
     #[Route('/import/manuel', name: 'import_manuell')]
     public function importManuell(#[MapQueryParameter] int $id, #[MapQueryParameter] string $from, #[MapQueryParameter] string $to, AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
-        $fromts = strtotime("$from 00:00:00");
-        $tots = strtotime("$to 23:59:00");
+        date_default_timezone_set('UTC');
+        $fromts = strtotime("$from 00:00:00") - 900;
+
+        $tots = strtotime("$to 23:45:00");
 
         //get one Plant for Import manuell
         $anlage = $anlagenRepo->findOneByIdAndJoin($id);
+        $step = 22*3600;
+        $step2 = 24*3600;
+        $i=1;
+        for ($dayStamp = $fromts; $dayStamp < $tots; $dayStamp += $step2) {
+            $from_new = $dayStamp;
+            $to_new = $dayStamp+$step;
 
-        for ($dayStamp = $fromts; $dayStamp <= $tots; $dayStamp += 24*3600) {
+            if($i > 1){
+                $from_new = $from_new - 7200;
+            }
 
-            $from_new = strtotime(date('Y-m-d 00:00', $dayStamp));
-            $to_new = strtotime(date('Y-m-d 23:45', $dayStamp));
+            if($i == 1){
+                $to_new = $to_new + 7200;
+            }
+
+            $i++;
             $currentDay = date('d', $dayStamp);
 
             // Proof if date = today, if yes set $to to current DateTime
@@ -175,6 +187,7 @@ class ImportToolsController extends BaseController
             }
 
             $minute = (int)date('i');
+
             while (($minute >= 28 && $minute < 33) || $minute >= 58 || $minute < 3) {
                 sleep(20);
                 $minute = (int)date('i');
@@ -183,7 +196,6 @@ class ImportToolsController extends BaseController
 
             sleep(1);
         }
-
 
         return new Response('This is used for import via manual Import.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
     }
@@ -203,7 +215,6 @@ class ImportToolsController extends BaseController
     #[Route(path: '/import/egrid', name: 'import_egrid')]
     public function importEGrid(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, PdoService $pdoService, $uploadsPath): Response
     {
-
         $form = $this->createForm(ImportEGridFormType::class);
         $form->handleRequest($request);
 
@@ -269,7 +280,6 @@ class ImportToolsController extends BaseController
 
         $form = $this->createForm(ImportPvSystFormType::class, $prefills );
         $form->handleRequest($request);
-
 
         $output = '';
 
@@ -373,5 +383,4 @@ class ImportToolsController extends BaseController
             'output'   => $output,
         ]);
     }
-
 }

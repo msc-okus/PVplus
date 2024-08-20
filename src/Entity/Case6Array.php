@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+
+#[Deprecated]
 class Case6Array
 {
     private array $Case6s;

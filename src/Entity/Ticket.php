@@ -148,7 +148,7 @@ class Ticket
 
     private ?string $creationLog = null;
 
-    #[ORM\OneToMany(mappedBy: 'Ticket', targetEntity: NotificationInfo::class)]
+    #[ORM\OneToMany(mappedBy: 'Ticket', targetEntity: NotificationInfo::class, cascade: ['persist', 'remove'])]
     private Collection $notificationInfos;
 
     #[ORM\Column(length: 255, nullable: true)]

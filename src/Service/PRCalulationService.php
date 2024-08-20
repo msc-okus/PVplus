@@ -31,7 +31,7 @@ class PRCalulationService
         private readonly PRRepository $PRRepository,
         private readonly AnlageAvailabilityRepository $anlageAvailabilityRepo,
         private readonly FunctionsService $functions,
-        private readonly PowerService $powerServicer,
+        private readonly PowerService $powerService,
         private readonly EntityManagerInterface $em,
         private readonly Case5Repository $case5Repo,
         private readonly MonthlyDataRepository $monthlyDataRepo,
@@ -548,7 +548,7 @@ class PRCalulationService
      *  $result['prDep3Exp'] (by default 'AM')<br>
      *  $result['prDep3EGridExt'] (by default 'AM')<br>
      *  $result['algorithmus'] deprecated (depending on settings in Plant)<br>
-     *  $result['tempCorrection']<br>
+     *  $result['tempCorrection'] deprecated<br>
      *  $result['irradiation']<br>
      *  $result['irr0']<br>
      *  $result['irr1']<br>
@@ -560,7 +560,7 @@ class PRCalulationService
      *  $result['pa1'] (by default 'O&M')<br>
      *  $result['pa2'] (by default 'EPC')<br>
      *  $result['pa3'] (by default 'AM')<br>
-     *  $result['anzCase5'] (proof)<br>
+     *  $result['anzCase5'] (proof) deprecated<br>
      *  $result['tCellAvgMeasured'] (proof)<br>
      *  $result['tCellAvgNrel'] (proof)<br>
      *  $result['tCellAvgMultiIrr'] (proof)<br>.
@@ -615,7 +615,7 @@ class PRCalulationService
         }
 
         // Leistungsdaten ermitteln
-        $power = $this->powerServicer->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate));
+        $power = $this->powerService->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate));
 
         $result['powerEvu']     = $power['powerEvu'];
         $result['powerEvuDep0'] = $power['powerEvuDep0'];
@@ -764,8 +764,8 @@ class PRCalulationService
         $result['irrNoPpc1'] = $irrNoPpc1;
         $result['irrNoPpc2'] = $irrNoPpc2;
         $result['irrNoPpc3'] = $irrNoPpc3;
-        $result['availability'] = $pa2; // old EPC
-        $result['availability2'] = $pa1; // old O&M
+        $result['availability'] = $pa2;  /** @deprecated old EPC */
+        $result['availability2'] = $pa1; /** @deprecated  old O&M */
         $result['pa0'] = $pa0;
         $result['pa1'] = $pa1;
         $result['pa2'] = $pa2;
@@ -778,7 +778,7 @@ class PRCalulationService
         $result['prAct'] = $result['prDep2Act']; // EPC PR
         $result['prExp'] = $result['prDep0Exp']; // EPC PR
         $result['prEGridExt'] = $result['prDep2EGridExt']; // EPC PR
-        $result['anzCase5'] = $anzCase5PerDay;
+        $result['anzCase5'] = $anzCase5PerDay; /** @deprecated  */
         $result['tCellAvgMeasured'] = (float) $weather['panelTempAvg'];
         $result['tCellAvgNrel'] = (float) $weather['temp_cell_corr'];
         $result['tCellAvgMultiIrr'] = (float) $weather['temp_cell_multi_irr'];
@@ -831,7 +831,7 @@ class PRCalulationService
             $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate));
         }
         // Leistungsdaten ermitteln
-        $power = $this->powerServicer->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate), $inverterID);
+        $power = $this->powerService->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate), $inverterID);
 
         $result['powerEvu'] = $power['powerEvu'];
         $result['powerAct'] = $power['powerAct'];
@@ -913,7 +913,7 @@ class PRCalulationService
         $result['prAct'] = $result['prDep2Act']; // EPC PR
         $result['prExp'] = $result['prDep2Exp']; // EPC PR
         $result['prEGridExt'] = $result['prDep2EGridExt']; // EPC PR
-        $result['anzCase5'] = $anzCase5PerDay;
+        $result['anzCase5'] = $anzCase5PerDay;  /** @deprecated */
         $result['tCellAvgMeasured'] = (float) $weather['panelTempAvg'];
         $result['tCellAvgNrel'] = (float) $weather['temp_cell_corr'];
         $result['tCellAvgMultiIrr'] = (float) $weather['temp_cell_multi_irr'];
@@ -931,6 +931,7 @@ class PRCalulationService
      * @return array
      * @throws InvalidArgumentException
      * @throws NonUniqueResultException
+     * @throws \JsonException
      */
     public function calcPRByInverterAM(Anlage $anlage, int $inverterID, DateTime $startDate, DateTime $endDate = null): array{
         $result = [];;
@@ -954,7 +955,7 @@ class PRCalulationService
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
 
-        $power = $this->powerServicer->getSumAcPowerV2($anlage, date_create($localStartDate), date_create($localEndDate), false, $inverterID);
+        $power = $this->powerService->getSumAcPowerV2($anlage, date_create($localStartDate), date_create($localEndDate), false, $inverterID);
         $result['powerTheo'] = match($anlage->getPrFormular3()) {
             'Lelystad'  => $power['powerTheo'],         // if theoretic Power ist corrected by temperature (NREL) (PR Algorithm = Lelystad) then use 'powerTheo' from array $power array,
             'Veendam'   => $weather['theoPowerPA3'],    // if theoretic Power is weighter by pa (PR Algorithm = Veendam) the use 'theoPowerPA' from $weather array
@@ -997,7 +998,7 @@ class PRCalulationService
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
 
-        $power = $this->powerServicer->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate), $inverterID);
+        $power = $this->powerService->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate), $inverterID);
 
         if (!$anlage->getSettings()->isDisableDep3()) $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerAct'], $result['powerTheo'], $pa3, $inverterID);
         else $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerAct'], $result['powerTheo'], $pa3, $inverterID);

@@ -1,21 +1,22 @@
 <?php
 /**
  * MS 12/23
- * Das day-ahed Command zum Erechnen der day-ahed Forecast Daten!
- * Alle Fc day-ahed Daten, werden anhand der vorhanden Anlagen -AC und der -Modultemp, sowie -Einstahlung Daten auf Langzeit
- * gesucht und mithilfe der berechneten Forecast -Strahlung und -Modultemp (nach NREL) die aus einem 10 KM Radius zu abgefragten Standort,
- * mithilfe der Multiple Regression gesucht, verglichen und in eine DB geschreiben werden.
+ * Das day-ahed Command zum Errechnen der DayAhead Forecast Daten!
+ * Alle Fc DayAhead Daten, werden anhand der vorhanden Anlagen -AC der -Modultemp, sowie -Einstahlung Daten auf Langzeit
+ * gesucht. Mit der Hilfe des berechneten Forecastes aus -Strahlung und -Modultemp (nach NREL) die aus einem 10 KM Radius zu abgefragten Standort,
+ * anhand der Multiple Regression gesucht, verglichen und in eine DB geschreiben werden.
  * Aufruf für alle Anlagen -> pvp:dayaheadwritedb
  * Aufruf für eine einzelne Anlage -> pvp:dayaheadwritedb -a [anlagen id]
  */
 
 namespace App\Command;
-use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service;
-use App\Service\PdoService;
 use App\Service\Forecast;
+use App\Service\Forecast\DayAheadForecastDEKService;
+use App\Service\PdoService;
+use Doctrine\ORM\EntityManagerInterface;
 use PDO;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -24,8 +25,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
-use App\Service\Forecast\DayAheadForecastDEKService;
-use Doctrine\ORM\EntityManagerInterface;
 
 #[AsCommand(
     name: 'pvp:dayaheadwritedb',
@@ -103,8 +102,6 @@ class DayAheadWriteDBCommand extends Command {
 
                     $decarray = $this->dayaheadforecastdekservice->get_DEK_Data($input_gl, $input_mer, $input_gb, $input_mn, $input_ab, $meteo_array, $has_suns_model, $anlageId, 'all');
                     $forcarstarray = $this->aheadForecastMALService->calcforecastout($anlageId, $decarray);
-                    // only for debuging //
-                    #print_R($reg_array);exit;
 
                  // Das Forecarst Array muss geschrieben sein um weiter zu Arbeiten.
                  if (count($forcarstarray) > 0) {
@@ -188,7 +185,6 @@ class DayAheadWriteDBCommand extends Command {
                         $io->success("Day-ahead-forecast DB completed " . $anlage->getAnlName() . " !");
                     } else {
                         $io->error("Abort : Import Data Fail ModulTemp");
-                        return command::FAILURE;
                     }
 
                } else {

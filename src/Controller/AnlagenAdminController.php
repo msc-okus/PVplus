@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AnlagenPvSystMonth;
 use App\Service\PdoService;
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
@@ -56,6 +57,17 @@ class AnlagenAdminController extends BaseController
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             /** @var Anlage $anlage */
             $anlage = $form->getData();
+            for ($n = 1; $n <= 12; $n++){
+                $pvSyst = new AnlagenPvSystMonth();
+                $pvSyst
+                    ->setMonth($n)
+                    ->setPrDesign(0)
+                    ->setErtragDesign(0)
+                    ->setIrrDesign(0)
+                    ->setTempAmbientDesign('')
+                    ->setTempArrayAvgDesign('');
+                $anlage->addPvSystMonth($pvSyst);
+            }
             $em->persist($anlage);
             $em->flush();
             $anlage->setAnlIntnr('CX'.$anlage->getAnlagenId());

@@ -17,7 +17,6 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Shuchkin\SimpleXLSX;
-use Symfony\Component\HttpFoundation\Response;
 
 
 class AnlageStringAssigmentService

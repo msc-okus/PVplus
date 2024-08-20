@@ -13,7 +13,6 @@ use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
-use App\Service\PdoService;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Twig\Environment;
 

@@ -2,7 +2,6 @@
 
 namespace App\Form\User;
 
-use App\Entity\Eigner;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;

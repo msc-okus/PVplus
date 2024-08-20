@@ -1,0 +1,119 @@
+
+<div class="tabs-panel" id="ticket">
+    <div class="grid-x grid-padding-x">
+        <div class="cell small-12 medium-6">
+            <fieldset class="fieldset">
+                <legend>Ticket</legend>
+
+                <div class="grid-x grid-margin-x">
+                    <div class="cell small-6">
+                        {{ form_row(anlageForm.ActivateTicketSystem) }}
+                        {{ form_row(anlageForm.ticketGenerationDelay) }}
+                    </div>
+                    <div class="cell small-6">
+                        {{ form_row(anlageForm.PowerThreshold) }}
+                    </div>
+                </div>
+                {% if is_granted('ROLE_G4N') %}
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell small-6">
+                            {{ form_row(anlageForm.internalTicketSystem) }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if (anlage.anlType != "masterslave") %}
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell small-6">
+                            {{ form_row(anlageForm.expectedTicket) }}
+                        </div>
+                        <div class="cell small-6">
+                            {{ form_row(anlageForm.percentageDiff) }}
+                        </div>
+                    </div>
+                {% else %}
+                    {% do anlageForm.expectedTicket.setRendered() %}
+                    {% do anlageForm.percentageDiff.setRendered() %}
+                {% endif %}
+                <div class="grid-x grid-margin-x">
+                    <div class="cell small-6">
+                        {{ form_row(anlageForm.weatherTicket) }}
+                    </div>
+                    <div class="cell small-6">
+                        {{ form_row(anlageForm.kpiTicket) }}
+                    </div>
+                </div>
+                <div class="grid-x grid-margin-x">
+                    <div class="cell small-6">
+                        {{ form_row(anlageForm.gridTicket) }}
+                    </div>
+                    <div class="cell small-6">
+                        {{ form_row(anlageForm.ppcBlockTicket) }}
+                    </div>
+                </div>
+                <div class="grid-x grid-margin-x">
+                    <div class="cell small-6">
+                        {{ form_row(anlageForm.freqBase) }}
+                    </div>
+                    <div class="cell small-6">
+                        {{ form_row(anlageForm.freqTolerance) }}
+                    </div>
+                </div>
+
+            </fieldset>
+            <fieldset
+                class="fieldset"
+                {{ stimulus_controller('anlage-ppcalert-settings') }}
+            >
+                <legend>Settings for autogenerate Performance Tickets on PPC Alerts</legend>
+                {% if is_granted('ROLE_G4N') %}
+                    <div class="grid-x grid-margin-x" {{ stimulus_target('anlage-ppcalert-settings','behavior') }}>
+                        <div class="cell small-6">
+                            {{ form_row(anlageForm.settings.ppcAutoTicketBehavior) }}</div>
+                    </div>
+                    <div class="grid-x grid-margin-x"{{ stimulus_target('anlage-ppcalert-settings','settings')}}>
+                        <div class="cell small-3">
+                            {{ form_row(anlageForm.settings.ppcAutoTicketReplaceBy) }}
+                        </div>
+                        <div class="cell small-3">
+                            {{ form_row(anlageForm.settings.ppcAutoTicketReplaceIrr) }}
+                        </div>
+                        <div class="cell small-3">
+                            {{ form_row(anlageForm.settings.ppcAutoTicketUseHour) }}
+                        </div>
+                        <div class="cell small-3">
+                            {{ form_row(anlageForm.settings.ppcAutoTicketPaBehavior) }}
+                        </div>
+                    </div>
+                {% endif %}
+            </fieldset>
+        </div>
+        <div class="cell small-12 medium-6">
+            <fieldset class="fieldset">
+                <legend>Alert</legend>
+                {% if is_granted('ROLE_G4N') %}
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell small-6">
+                            {{ form_row(anlageForm.allowSendAlertMail) }}
+                        </div>
+                    </div>
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell small-6">
+                            {{ form_row(anlageForm.alertMailReceiver, { 'attr': {'multiple': 'multiple'} }) }}
+                        </div>
+                    </div>
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell small-6">
+                            {{ form_row(anlageForm.alertCheckInterval, {
+                                'attr': {
+                                    'min': '1'
+                                }
+                            }) }}
+                        </div>
+                    </div>
+
+                {% endif %}
+            </fieldset>
+        </div>
+    </div>
+</div>

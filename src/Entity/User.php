@@ -13,6 +13,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+
 #[ApiResource(
     shortName: 'users',
     formats: ['jsonld', 'json'],

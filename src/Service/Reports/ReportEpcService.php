@@ -10,16 +10,15 @@ use App\Repository\AnlagenRepository;
 use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
-use App\Service\AvailabilityService;
 use App\Service\FunctionsService;
+use App\Service\LogMessagesService;
+use App\Service\PdoService;
 use App\Service\PRCalulationService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use App\Service\PdoService;
-use App\Service\LogMessagesService;
 
 class ReportEpcService
 {
@@ -27,17 +26,16 @@ class ReportEpcService
 
     public function __construct(
         private readonly PdoService $pdoService,
-        private readonly AnlagenRepository $anlageRepo,
+        private readonly AnlagenRepository      $anlageRepo,
         private readonly GridMeterDayRepository $gridMeterRepo,
-        private readonly PRRepository $prRepository,
-        private readonly MonthlyDataRepository $monthlyDataRepo,
+        private readonly PRRepository           $prRepository,
+        private readonly MonthlyDataRepository  $monthlyDataRepo,
         private readonly EntityManagerInterface $em,
-        private readonly NormalizerInterface $serializer,
-        private readonly FunctionsService $functions,
-        private readonly PRCalulationService $PRCalulation,
-        private readonly AvailabilityService $availabilityService,
-        private readonly ReportsEpcYieldV2 $epcYieldV2,
-        private LogMessagesService $logMessages,
+        private readonly NormalizerInterface    $serializer,
+        private readonly FunctionsService       $functions,
+        private readonly PRCalulationService    $PRCalulation,
+        private readonly ReportsEpcYieldV2      $epcYieldV2,
+        private readonly LogMessagesService     $logMessages,
     )
     {}
 
@@ -183,12 +181,12 @@ class ReportEpcService
                             break;
                         default:
                             $eGridReal      = $prArray['powerEvuDep2']; // $pr->getPowerEvuMonth();
-                            $irrMonth       = $prArray['irr2']; // $pr->getIrrMonth();
-                            $prAvailability = $prArray['pa2']; // $this->availabilityService->calcAvailability($anlage, date_create("$year-$month-01 00:00"), date_create("$year-$month-$days 23:59"));
+                            $irrMonth       = $prArray['irr2'];
+                            $prAvailability = $prArray['pa2'];
                             if ($anlage->getUseGridMeterDayData()) {
-                                $eGridReal  = $prArray['powerEGridExt']; // $this->gridMeterRepo->sumByDateRange($anlage, $from, $to);
-                                $prReal     = $prArray['prDep2EGridExt']; // $pr->getPrEGridExtMonth();
-                                $prStandard = $prArray['prDep0EGridExt']; // $this->format($pr->getPrDefaultMonthEGridExt());
+                                $eGridReal  = $prArray['powerEGridExt'];
+                                $prReal     = $prArray['prDep2EGridExt'];
+                                $prStandard = $prArray['prDep0EGridExt'];
                             }
                     }
                     $prRealprProg = $prReal;

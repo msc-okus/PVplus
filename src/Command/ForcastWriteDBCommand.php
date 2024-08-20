@@ -39,8 +39,7 @@ class ForcastWriteDBCommand extends Command
 
     protected function configure(): void
     {
-        $this
-            ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'the plant ID must set to run the calculation');
+        $this->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'the plant ID must set to run the calculation');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -53,7 +52,7 @@ class ForcastWriteDBCommand extends Command
         $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlageId]);
 
         if ($anlageId and $anlage) {
-            // Inputs die aus der DB werden gelesen
+            // Die Inputs aus der DB werden gelesen
             $usedayforecast = (float)$anlage->getUseDayForecast();  // Yes / No
             $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
             $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
@@ -98,7 +97,7 @@ class ForcastWriteDBCommand extends Command
 #print_R($dec_array);
 #print_R($reg_array);
 #fwrite($h, var_export($dec_array, true));
-exit;
+
                 $forcarstarray = self::array_merge_recursive_distinct($dec_array, $reg_array);
                 $endprz = (is_countable($forcarstarray) ? count($forcarstarray) : 0) - 1;
                 $io->progressStart($endprz);

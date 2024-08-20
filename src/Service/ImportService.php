@@ -44,8 +44,9 @@ class ImportService
      * @throws \JsonException
      * @throws \Exception
      */
-    public function prepareForImport(Anlage|int $anlage, $start, $end, string $importType = ""): void
+    public function prepareForImport(Anlage|int $anlage, $start, $end, string $importType = "", $fromCron = false): void
     {
+
         //beginn collect params from plant
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
@@ -145,7 +146,6 @@ class ImportService
                             $temperaturtemp = [];
                             $wdstemp = [];
                             for ($j = 1; $j <= count($interarray['minute'][$key]); $j++) {
-                                #echo 'GTI '.$interarray['minute'][$key][$j]['gti'].'<br';
                                 $irrtemp[] = $interarray['minute'][$key][$j]['gti'];
                                 $temperaturtemp[] = $interarray['minute'][$key][$j]['tmp'];
                                 $wdstemp[] = $interarray['minute'][$key][$j]['wds'];
@@ -169,16 +169,12 @@ class ImportService
                             unset($irrtemp);
                             unset($temperaturtemp);
                             unset($wdstemp);
-
                         }
                     }
                 }
             }
             //create Data Arrays and save them to DB
             foreach ($basics  as $key => $value) {
-                #echo  "$key<pre>";
-                #print_r($value);
-                #echo  '</pre>';
                 if($isEastWest) {
                     $gMo = $value["GM_0_E"];
                 }else{
@@ -257,12 +253,13 @@ class ImportService
         //beginn collect all Data from all Plants
         $numberOfBulkMeaserments = count($bulkMeaserments);
         if ($numberOfBulkMeaserments > 0) {
-
+            date_default_timezone_set($timeZonePlant);
             for ($i = 0; $i < $numberOfBulkMeaserments; ++$i) {
                 for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
 
-                    $stamp = date('Y-m-d H:i', $timestamp);
+                    $stamp = date('Y-m-d H:i:s', $timestamp);
                     $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
+
                     if (array_key_exists($i, $bulkMeaserments)) {
                         if (array_key_exists('basics', $bulkMeaserments[$i])) {
                             if ($i === 0) {
@@ -319,6 +316,9 @@ class ImportService
                 }
 
                 $isDay = $anlage->isDay($timestamp);
+                if($timeZonePlant == 'Asia/Almaty' || $timeZonePlant == 'Asia/Qostanay'){
+                    $stamp = date('Y-m-d H:i', $timestamp-3600);
+                }
 
                 //beginn get Sensors Data
                 $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
@@ -373,10 +373,6 @@ class ImportService
                     $irrUpper = 0;
                     $irrHorizontal = 0;
                     $irrAnlage = 0;
-                }
-
-                if($timeZonePlant == 'Asia/Almaty' || $timeZonePlant == 'Asia/Qostanay'){
-                    $stamp = date('Y-m-d H:i', $timestamp-3600);
                 }
 
                 $data_pv_weather[] = [
@@ -470,6 +466,8 @@ class ImportService
                 }
                 //end Anlage hat PPC
             }
+
+            date_default_timezone_set('Europe/Berlin');
 
             //beginn get Database Connections
             $DBDataConnection = $this->pdoService->getPdoPlant();

@@ -11,11 +11,11 @@ use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
 use App\Service\MessageService;
+use App\Service\PdoService;
 use App\Service\WeatherFunctionsService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
-use App\Service\PdoService;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 define('EFOR', '10');

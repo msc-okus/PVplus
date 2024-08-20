@@ -5,16 +5,10 @@ namespace App\Helper;
 require_once __DIR__.'/../../public/config.php';
 
 use App\Entity\Anlage;
-use DateTimeZone;
 use Exception;
 use FilesystemIterator;
-use JetBrains\PhpStorm\Deprecated;
-use League\Flysystem\Filesystem;
-use PDO;
-use PDOException;
 use RecursiveIteratorIterator;
 use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
-
 use Symfony\Component\Intl\Timezones;
 use Symfony\Polyfill\Intl\Normalizer\Normalizer;
 
@@ -35,20 +29,12 @@ trait G4NTrait
     public static function getCetTime($format = 'timestamp'): \DateTime|int|string
     {
         $date = new \DateTime('now', new \DateTimeZone('UTC'));
-        if ($date->format('I') == 1) {
-            $date->modify('+2 hours');
-        } else {
-            $date->modify('+1 hours');
-        }
 
-        $_time = match (strtoupper((string) $format)) {
+        return match (strtoupper((string) $format)) {
             'SQL' => $date->format('Y-m-d H:i'),
             'OBJECT' => $date,
-            'TIMESTAMP-REAL' => $date->format('U'),
-            default => $date->format('U') - 7200, // keine ahnung warum hier 7200 Sekunden abgezogen werden, mach aus meine Sicht keinen Sinn (wenn dann je nach DLS status 3600 oder 7200)
+            default => $date->getTimestamp()
         };
-
-        return $_time;
     }
 
     /**

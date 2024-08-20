@@ -18,8 +18,10 @@ use App\Service\Functions\ImageGetterService;
 use App\Service\FunctionsService;
 use App\Service\LogMessagesService;
 use App\Service\PdfService;
+use App\Service\PdoService;
 use App\Service\PRCalulationService;
 use App\Service\ReportService;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Hisune\EchartsPHP\ECharts;
@@ -31,9 +33,6 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use DateTime;
-use App\Service\PdoService;
-use function GuzzleHttp\Psr7\str;
 
 /**
  *

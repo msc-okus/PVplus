@@ -11,6 +11,7 @@ use App\Repository\PRRepository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Service\FunctionsService;
+use App\Service\PdoService;
 use App\Service\PRCalulationService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,7 +19,6 @@ use JetBrains\PhpStorm\NoReturn;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use App\Service\PdoService;
 
 class MonthlyService
 {
