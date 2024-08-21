@@ -255,18 +255,16 @@ export default class extends Controller {
         }
     }
     hourCheck(){
-
-        if ($(this.formReplaceTarget).prop('checked') == true) $(this.formHourTarget).prop('checked', true)
-
-        const cat = $(this.formCategoryTarget).val();
-        if (cat >= 70 && cat < 80){
-            $(this.formBeginDateTarget).val($(this.formBeginTarget).prop('value'));
-            $(this.formEndDateTarget).val($(this.formEndTarget).prop('value'));
+        if ($(this.formBeginHiddenTarget).prop('value') == '' && $(this.formEndHiddenTarget).prop('value') == '') {
+            $(this.formBeginHiddenTarget).val($(this.formBeginTarget).prop('value'));
+            $(this.formEndHiddenTarget).val($(this.formEndTarget).prop('value'));
         }
+
         const valueBegin = $(this.formBeginDateTarget).prop('value');
         const valueEnd = $(this.formEndDateTarget).prop('value');
-        const valueBeginHidden = $(this.formBeginHiddenTarget).prop('value');
-        const valueEndHidden = $(this.formEndHiddenTarget).prop('value');
+        var valueBeginHidden = $(this.formBeginHiddenTarget).prop('value');
+        var valueEndHidden = $(this.formEndHiddenTarget).prop('value');
+
         if ($(this.formHourTarget).prop('checked') == true) {
             $(this.formBeginHiddenTarget).val(valueBegin);
             $(this.formEndHiddenTarget).val(valueEnd);
@@ -340,20 +338,22 @@ export default class extends Controller {
             $(this.formBeginTarget).val(newStringBeginDate);
             $(this.formEndTarget).val(newStringEndDate);
         }
-        else if(valueBeginHidden != '' && valueEndHidden != ''){
+        else {
             $(this.formBeginDateTarget).val(valueBeginHidden);
             $(this.formEndDateTarget).val(valueEndHidden);
             $(this.formBeginTarget).val(valueBeginHidden);
             $(this.formEndTarget).val(valueEndHidden);
         }
-        //now we recheck the dates
+        //now we recheck the dates (possibly not needed)
+        /*
         const date1 = new Date($(this.formBeginTarget).prop('value'));
         const date2 = new Date($(this.formEndTarget).prop('value'));
         date1.setSeconds(0);
         date2.setSeconds(0);
         const timestamp1 = date1.getTime();
         const timestamp2 = date2.getTime();
-
+        console.log(timestamp1, timestamp2);
+        //this is just to display the error messages of date inconsistency
         if (timestamp2 > timestamp1) {
             $(this.CalloutTarget).addClass('is-hidden');
             $(this.saveButtonTarget).removeAttr('disabled');
@@ -377,7 +377,7 @@ export default class extends Controller {
             }
         }
 
-
+         */
     }
     replaceCheck(){
         // this is the change of overlay if the user decides to replace energy with PVSYST in the replacement ticket
@@ -385,11 +385,9 @@ export default class extends Controller {
 
         if (this.formUrlValue === '/ticket/create') body.find('#ticket_form_KpiStatus').val(20);
         $(this.scopeTarget).removeClass('is-hidden');
-        $(this.headerReplacePowerTargets).removeClass('is-hidden');
             if ($(this.formReplaceTargets).prop('checked') == true) {
                 $(this.headerReplaceIrrTargets).removeClass('is-hidden');
                 $(this.headerHourTargets).removeClass('is-hidden');
-                $(this.headerReplacePowerG4NTargets).addClass('is-hidden');
                 $(this.headerReplacePowerTargets).removeClass('is-hidden');
             }
             else if ($(this.formReplaceG4NTargets).prop('checked') == true) {
@@ -425,7 +423,11 @@ export default class extends Controller {
                     $(this.formHourTarget).prop('checked', true);
                     this.hourCheck();
                 }
-            }else {
+            }else if ($(this.formReplaceG4NTarget).prop('checked') == true){
+                $(this.formHourTargets).prop('checked', false);
+                this.hourCheck();
+            }
+            else{
                 $(this.formHourTargets).prop('checked', false);
             }
         let reason = $(this.formReasonSelectTarget).val();
@@ -971,7 +973,6 @@ export default class extends Controller {
         $(this.saveButtonTarget).attr('disabled', 'disabled');
         $(this.CalloutTarget).removeClass('is-hidden');
         $(this.AlertInverterSubmitTarget).removeClass('is-hidden');
-
     }
     submitInverters(event){
         event.preventDefault();
