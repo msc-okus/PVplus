@@ -32,7 +32,6 @@ class WeatherFunctionsService
         private readonly GroupModulesRepository  $groupModulesRepo,
         private readonly GroupsRepository        $groupsRepo,
         private readonly GridMeterDayRepository  $gridMeterDayRepo,
-        private readonly ForcastRepository       $forecastRepo,
         private readonly TicketRepository        $ticketRepo,
         private readonly TicketDateRepository    $ticketDateRepo,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,
