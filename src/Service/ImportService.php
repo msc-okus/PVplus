@@ -93,9 +93,45 @@ class ImportService
                 "content-type: application/x-www-form-urlencoded",
                 "X-API-KEY: ". $apiToken,
             ];
+            $curlHeader = false;
         }
 
-        $apiAccessToken = $this->externalApis->getAccessToken($baseUrl, $apiToken, $postFileds, $headerFields);
+        if($apiType == 'huawai'){
+            $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/login";
+            $postFileds = '
+            {
+                "userName": "'.$apiUser.'",
+                "systemCode": "'.$apiPassword.'"
+            }
+            ';
+            $headerFields = [
+                "content-type: application/json",
+                "Cookie: XSRF-TOKEN=". $apiToken,
+            ];
+            $curlHeader = true;
+        }
+
+        $apiAccessToken = $this->externalApis->getAccessToken($baseUrl, $postFileds, $headerFields, $apiType, $curlHeader);
+        if($apiType == 'huawai'){
+            $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getStationList";
+            $headerFields = [
+                "content-type: application/json",
+                "Cookie: XSRF-TOKEN=". $apiAccessToken,
+                "XSRF-TOKEN: ". $apiAccessToken,
+            ];
+
+            $postFileds = '
+            {
+            }
+            ';
+
+            $stationCode = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'stationCode');
+
+            echo $stationCode;
+
+            exit;
+        }
+
 
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
@@ -109,7 +145,7 @@ class ImportService
         $anlageSensors = $anlage->getSensors();
         $isEastWest = $anlage->getIsOstWestAnlage();
 
-        $dataDelay = $anlage->getSettings()->getDataDelay()*3600;
+        $dataDelay = $anlage->getSettings()->getDataDelay() * 3600;
         //end collect params from plant
 
         $bulkMeaserments = [];
