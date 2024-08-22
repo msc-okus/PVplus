@@ -13,18 +13,20 @@ class AnlageStringAssigmentUploadType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-
-
-            $builder
-                ->add('anlage', ChoiceType::class, [
-                    'choices' => $options['anlagen_choices'],
-                    'placeholder' => 'Choose a plant',
-                ])
-
-                ->add('file', FileType::class, [
-                    'label' => 'Upload File:',
-                ])
-                ->add('submit', SubmitType::class);
+        $builder
+            ->add('anlage', ChoiceType::class, [
+                'choices' => $options['anlagen_choices'],
+                'placeholder' => 'Choose a plant',
+                'autocomplete' => true,
+                'tom_select_options' => [
+                    'max-item' => 1,
+                    'create' => false,
+                ],
+            ])
+            ->add('file', FileType::class, [
+                'label' => 'Upload File:',
+            ])
+            ->add('submit', SubmitType::class);
 
     }
 

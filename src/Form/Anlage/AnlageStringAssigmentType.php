@@ -29,6 +29,11 @@ class AnlageStringAssigmentType extends AbstractType
                 'attr' => [
                     'class' => 'custom-select',
                 ],
+                'autocomplete' => true,
+                'tom_select_options' => [
+                    'max-item' => 1,
+                    'create' => false,
+                ],
 
             ])
             ->add('file', FileType::class, [
