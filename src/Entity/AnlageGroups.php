@@ -58,7 +58,7 @@ class AnlageGroups
     private string $limitAc;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private string $x;
+    private string $gridLimitAc;
 
     #[ORM\Column(type: 'string', length: 40)]
     private string $importId;
