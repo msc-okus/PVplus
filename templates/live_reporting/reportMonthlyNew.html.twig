@@ -13,6 +13,7 @@
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('special_export') }}
+    {#
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script>
         $(function () {
@@ -40,6 +41,7 @@
             });
         });
     </script>
+    #}
 {% endblock %}
 
 {% block body %}
@@ -49,7 +51,7 @@
         </div>
     </div>
 
-    {% include'live_reporting/_inc/_createMotnhly.html.twig' %}
+    {% include'live_reporting/_inc/_createFormByDate.html.twig' %}
     <hr>
     {% if report != null %}
         <div class="grid-x">

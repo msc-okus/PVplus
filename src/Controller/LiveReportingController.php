@@ -42,6 +42,8 @@ class LiveReportingController extends BaseController
      * @param ReportsMonthlyV2Service $reportsMonthly
      * @return Response
      */
+
+    /*
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
     public function createTopicAction(Request $request, LifeReportingMonthlyFlow $createTopicFlow, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
@@ -91,7 +93,6 @@ class LiveReportingController extends BaseController
                     $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
                 }
 
-                #$flow->reset();
 
                 return $this->render($template, [
                     'form' => $form->createView(),
@@ -130,7 +131,49 @@ class LiveReportingController extends BaseController
             'finished' => 0
         ]);
     }
+    */
 
+    /**
+     * Erzeugt einen Monatsreport mit den einzelenen Tagen und einer Monatstotalen
+     * Kann auch für einen Auswal einiger Tage eines Moants genutzt werden
+     *
+     * @param Request $request
+     * @param AnlagenRepository $anlagenRepository
+     * @param ReportsMonthlyV2Service $reportsMonthly
+     * @return Response
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
+     */
+    #[Route(path: '/livereport/month', name: 'month_daily_report')]
+    public function monthlyReportWithDays(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
+    {
+        $output = $table = null;
+        $startDay = $request->request->get('start-day');
+        $endDay = $request->request->get('end-day');
+        $month = $request->request->get('month');
+        $year = $request->request->get('year');
+        $anlageId = $request->request->get('anlage-id');
+        $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
+        // Start individual part
+        /** @var Anlage $anlage */
+        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+        if ($submitted && $anlageId !== null) {
+            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
+            $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
+        }
+
+        return $this->render('live_reporting/reportMonthlyNew.html.twig', [
+            'headline' => 'Monthly Report',
+            'anlagen' => $anlagen,
+            'anlage' => $anlage,
+            'report' => $output,
+            'status' => $anlageId,
+            'datatable' => $table,
+            'tickets'   => $tickets
+        ]);
+
+    }
     /**
      * Erzeugt Reports für einen längeren Zeitraum, aber maximal 1 Wert pro Monat
      *
