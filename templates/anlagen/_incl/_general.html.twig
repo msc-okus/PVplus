@@ -1,0 +1,51 @@
+<fieldset class="fieldset">
+    <legend>Standort</legend>
+    <div class="grid-x grid-padding-x">
+        <div class="cell medium-3">{{ form_row(anlageForm.eigner) }}</div>
+        <div class="cell medium-3">{{ form_row(anlageForm.anlName) }}</div>
+        <div class="cell medium-3">{{ form_row(anlageForm.projektNr) }}</div>
+        <div class="cell medium-3">{{ form_row(anlageForm.customPlantId) }}</div>
+    </div>
+    <div class="grid-x grid-padding-x">
+        <div class="cell medium-4">{{ form_row(anlageForm.anlStrasse) }}</div>
+        <div class="cell medium-2">{{ form_row(anlageForm.anlPlz) }}</div>
+        <div class="cell medium-4">{{ form_row(anlageForm.anlOrt) }}</div>
+        <div class="cell medium-2">{{ form_row(anlageForm.country) }}</div>
+    </div>
+    <hr>
+    <div class="grid-x grid-padding-x">
+        <div class="cell medium-6">
+            {{ form_row(anlageForm.anlGeoLat) }}
+        </div>
+        <div class="cell medium-6">
+            {{ form_row(anlageForm.anlGeoLon) }}
+        </div>
+    </div>
+    <hr>
+    <div class="grid-x grid-padding-x">
+        <div class="cell">
+            {{ form_row(anlageForm.notes)}}
+        </div>
+    </div>
+</fieldset>
+{% if is_granted('ROLE_G4N') %}
+    <fieldset class="fieldset">
+        <legend>Basis Konfiguration</legend>
+        <div class="grid-x grid-padding-x">
+            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlIntnr) }}</div>
+            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlType) }}</div>
+            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlZeitzone) }}</div>
+            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlBetrieb) }}</div>
+            <div class="cell medium-4 large-2">{{ form_row(anlageForm.configType) }}</div>
+            <div class="cell medium-4 large-2"></div>
+        </div>
+
+    </fieldset>
+    <fieldset class="fieldset">
+        <legend>Konfiguration Wetter Daten</legend>
+        <div class="grid-x grid-padding-x">
+            <div class="cell medium-4">{{ form_row(anlageForm.WeatherStation) }}</div>
+            <div class="cell medium-4">{{ form_row(anlageForm.useLowerIrrForExpected) }}</div>
+        </div>
+    </fieldset>
+{% endif %}

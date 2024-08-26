@@ -565,7 +565,7 @@
             {{ form_widget(anlageForm.close) }}
         </div>
     </div>
-<div style="display: none">{{ form_rest(anlageForm) }}</div>
+    <div hidden style="display: none">{{ form_rest(anlageForm) }}</div>
     {% do anlageForm.legendMonthlyReports.setRendered() %}
     {% do anlageForm.legendEpcReports.setRendered() %}
     {% do anlageForm.pvSystMonths.setRendered() %}

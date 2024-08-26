@@ -101,9 +101,11 @@
                         <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
                         <li class="tabs-title"><a data-tabs-target="import" href="#import">Import</a></li>
                         <li class="tabs-title"><a data-tabs-target="forecast" href="#forecast">Forecast</a></li>
-                        <li class="tabs-title"><a data-tabs-target="timeing" href="#timeing">Time Configuration</a></li>
-                        <li class="tabs-title"><a data-tabs-target="AssetManagement" href="#AssetManagement">AM Report Configuration</a></li>
+                        {# <li class="tabs-title"><a data-tabs-target="timings" href="#timings">Time Configuration</a></li> #}
                     {% endif %}
+                {% endif %}
+                {% if is_granted('ROLE_G4N') or is_granted('ROLE_OWNER_ADMIN') or is_granted('ROLE_AM') %}
+                    <li class="tabs-title"><a data-tabs-target="AssetManagement" href="#AssetManagement">AM Report Configuration</a></li>
                 {% endif %}
             </ul>
 
@@ -111,55 +113,7 @@
 
                 {# General #}
                 <div class="tabs-panel is-active" id="plant-data">
-                    <fieldset class="fieldset">
-                        <legend>Standort</legend>
-                        <div class="grid-x grid-padding-x">
-                            <div class="cell medium-3">{{ form_row(anlageForm.eigner) }}</div>
-                            <div class="cell medium-3">{{ form_row(anlageForm.anlName) }}</div>
-                            <div class="cell medium-3">{{ form_row(anlageForm.projektNr) }}</div>
-                            <div class="cell medium-3">{{ form_row(anlageForm.customPlantId) }}</div>
-                        </div>
-                        <div class="grid-x grid-padding-x">
-                            <div class="cell medium-4">{{ form_row(anlageForm.anlStrasse) }}</div>
-                            <div class="cell medium-2">{{ form_row(anlageForm.anlPlz) }}</div>
-                            <div class="cell medium-4">{{ form_row(anlageForm.anlOrt) }}</div>
-                            <div class="cell medium-2">{{ form_row(anlageForm.country) }}</div>
-                        </div>
-                        <hr>
-                        <div class="grid-x grid-padding-x">
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlGeoLat) }}
-                            </div>
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlGeoLon) }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="grid-x grid-padding-x">
-                            <div class="cell">
-                                {{ form_row(anlageForm.notes)}}
-                            </div>
-                        </div>
-                    </fieldset>
-                    <fieldset class="fieldset">
-                        <legend>Basis Konfiguration</legend>
-                        <div class="grid-x grid-padding-x">
-                            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlIntnr) }}</div>
-                            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlType) }}</div>
-                            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlZeitzone) }}</div>
-                            <div class="cell medium-4 large-2">{{ form_row(anlageForm.anlBetrieb) }}</div>
-                            <div class="cell medium-4 large-2">{{ form_row(anlageForm.configType) }}</div>
-                            <div class="cell medium-4 large-2"></div>
-                        </div>
-
-                    </fieldset>
-                    <fieldset class="fieldset">
-                        <legend>Konfiguration Wetter Daten</legend>
-                        <div class="grid-x grid-padding-x">
-                            <div class="cell medium-4">{{ form_row(anlageForm.WeatherStation) }}</div>
-                            <div class="cell medium-4">{{ form_row(anlageForm.useLowerIrrForExpected) }}</div>
-                        </div>
-                    </fieldset>
+                    {{ include('anlagen/_incl/_general.html.twig') }}
                 </div>
 
                 {# Plant Configuration #}
@@ -425,7 +379,9 @@
                 </div>
 
                 {# Ticket #}
-                {{ include('anlagen/_incl/_ticket.html.twig') }}
+                <div class="tabs-panel" id="ticket">
+                    {{ include('anlagen/_incl/_ticket.html.twig') }}
+                </div>
 
                 {# Modules #}
                 <div class="tabs-panel" id="modules">
@@ -516,60 +472,26 @@
                 </div>
 
                 {# Settings and Config #}
-                {{ include('anlagen/_incl/_settings.html.twig') }}
+                <div class="tabs-panel" id="settings">
+                    {{ include('anlagen/_incl/_settings.html.twig') }}
+                </div>
 
                 {# Import #}
-                {{ include('anlagen/_incl/_import.html.twig') }}
-
+                <div class="tabs-panel" id="import">
+                    {{ include('anlagen/_incl/_import.html.twig') }}
+                </div>
 
                 {# Forecast Configuration Tab #}
-                {{ include('anlagen/_incl/_forecast.html.twig') }}
+                <div class="tabs-panel" id="forecast">
+                    {{ include('anlagen/_incl/_forecast.html.twig') }}
+                </div>
 
                 {# Timings #}
-                <div class="tabs-panel" id="timeing">
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell">
-
-                            <fieldset class="fieldset js-timeConfig-wrapper"
-                                      data-prototype="{{ formMacros.addTimeConfig(anlageForm.timesConfigs.vars.prototype)|e('html_attr') }}"
-                                      data-index="{{ anlageForm.timesConfigs|length }}"
-                            >
-                                <legend>Timings</legend>
-                                <table id="timeConfig">
-                                    <thead>
-                                    <tr>
-                                        <th>Type</th>
-                                        <th>Begin Date Month</th>
-                                        <th>Begin Date Day</th>
-                                        <th>End Date Month</th>
-                                        <th>End Date Day</th>
-                                        <th>Start Time</th>
-                                        <th>End Time</th>
-                                        <th>Max Fail </th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for timeConfig in anlageForm.timesConfigs %}
-                                        <tr class="js-timeConfig-item">
-                                            <td>{{ form_widget(timeConfig.type) }}</td>
-                                            <td>{{ form_widget(timeConfig.startDateMonth) }}</td>
-                                            <td>{{ form_widget(timeConfig.startDateDay) }}</td>
-                                            <td>{{ form_widget(timeConfig.endDateMonth) }}</td>
-                                            <td>{{ form_widget(timeConfig.endDateDay) }}</td>
-                                            <td>{{ form_widget(timeConfig.startTime) }}</td>
-                                            <td>{{ form_widget(timeConfig.endTime) }}</td>
-                                            <td>{{ form_widget(timeConfig.maxFailTime) }}</td>
-                                            <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-remove-timeConfig"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                                <button type="button" class="button secondary small js-add-timeConfig"> <span class="fa fa-plus-circle"></span>&nbsp;Add Time Configuartion</button>
-                            </fieldset>
-                        </div>
-                    </div>
+                {#
+                <div class="tabs-panel" id="timings">
+                    {{ include('anlagen/_incl/_timings.html.twig') }}
                 </div>
+                #}
 
                 {# Asset Managemnet #}
                 <div class="tabs-panel" id="AssetManagement">
@@ -623,6 +545,7 @@
         </div>
     </div>
 
+    <div hidden style="display: none">{{ form_rest(anlageForm) }}</div>
     {% do anlageForm.modules.setRendered() %}
     {% do anlageForm.anlageSunShading.setRendered() %}
     {% do anlageForm.savecreatedb.setRendered() %}
