@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use function Symfony\Component\String\u;
 
-class CsvUploadController extends AbstractController
+class CsvUploadController extends BaseController
 {
     #[Route(path: '/csv/upload/delete/{id}', name: 'csv_upload_delete')]
     #[Deprecated]

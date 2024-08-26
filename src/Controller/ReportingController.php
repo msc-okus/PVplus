@@ -44,7 +44,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class ReportingController extends AbstractController
+class ReportingController extends BaseController
 {
     use G4NTrait;
     use PVPNameArraysTrait;

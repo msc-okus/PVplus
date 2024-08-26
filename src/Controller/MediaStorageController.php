@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
-class MediaStorageController extends AbstractController
+class MediaStorageController extends BaseController
 {
     #[Route('/media/storage', name: 'app_media_storage')]
     public function index(): Response
