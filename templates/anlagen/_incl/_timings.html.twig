@@ -1,3 +1,17 @@
+{% macro addTimeConfig(timeConfig) %}
+    <tr>
+        <td>{{ form_widget(timeConfig.type) }}</td>
+        <td>{{ form_widget(timeConfig.startDateMonth) }}</td>
+        <td>{{ form_widget(timeConfig.startDateDay) }}</td>
+        <td>{{ form_widget(timeConfig.endDateMonth) }}</td>
+        <td>{{ form_widget(timeConfig.endDateDay) }}</td>
+        <td>{{ form_widget(timeConfig.startTime) }}</td>
+        <td>{{ form_widget(timeConfig.endTime) }}</td>
+        <td>{{ form_widget(timeConfig.maxFailTime) }}</td>
+        <td></td>
+    </tr>
+{% endmacro %}
+
 <div class="grid-x grid-margin-x">
     <div class="cell">
 
