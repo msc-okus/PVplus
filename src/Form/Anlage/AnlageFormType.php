@@ -67,9 +67,9 @@ class AnlageFormType extends AbstractType
             'Leek/Kampen' => 'Leek/Kampen',
         ];
         $epcReportArry = [
-            'Kein Bericht' => 'no',
-            'PR Garantie' => 'prGuarantee',
-            'Ertrags Garantie' => 'yieldGuarantee',
+            'No Report' => 'no',
+            'PR Guarantee' => 'prGuarantee',
+            'Yield Guarantee' => 'yieldGuarantee',
         ];
         $pldDiviorArray = [
             'Expected Energy' => 'expected',
@@ -144,11 +144,25 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '',
                 'required' => false,
             ])
+            /*
             ->add('country', TextType::class, [
                 'label' => 'Shortcut for the country (de, nl, ...)',
                 'help' => '[country]',
                 'empty_data' => '',
                 'required' => false,
+            ])
+            */
+            ->add('country', ChoiceType::class, [
+                'label' => 'Shortcut for the country (de, nl, ...)',
+                'help' => '[country]',
+                'choices' => self::countryCodes(),
+                'empty_data' => '',
+                'required' => false,
+                'autocomplete' => true,
+                'tom_select_options' => [
+                    'max-item' => 1,
+                    'create' => false,
+                ],
             ])
             ->add('anlGeoLat', TextType::class, [
                 'label' => 'Geografische Breite (Latitude) [Dezimalgrad]',
@@ -524,7 +538,6 @@ class AnlageFormType extends AbstractType
             // ###############################################
             ->add('useDayForecast', SwitchType::class, [
                 'label' => 'Use forecast by day for this plant',
-                'help' => '[useDayForecast]<br>',
                 'help' => '[useDayForecast]<br>',
                 'required' => false,
             ])

@@ -72,8 +72,8 @@ class ImportToolsFormType extends AbstractType
                 'required' => true,
                 'choices' => $anlagen_toShow,
                 'choice_label' => 'anlName',
-                'autocomplete' => true,
                 'placeholder' => 'Please select a Plant',
+                'autocomplete' => true,
                 'tom_select_options' => [
                     'max-item' => 1,
                     'create' => false,
