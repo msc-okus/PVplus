@@ -54,30 +54,34 @@ const Alert = ({ selectedRowData }) => {
 
     const CustomLegend = () => {
         const legendData = [
-            {name: 'New', color: statusColors.new},
-            {name: 'Work in process', color: statusColors.work},
-            {name: 'Wait external', color: statusColors.wait},
-            {name: 'Closed', color: statusColors.closed},
-            {name: 'No alert', color: statusColors.empty}
+            { name: 'New', color: statusColors.new },
+            { name: 'Work in process', color: statusColors.work },
+            { name: 'Wait external', color: statusColors.wait },
+            { name: 'Closed', color: statusColors.closed },
+            { name: 'No alert', color: statusColors.empty }
         ];
 
         return (
-            <div style={{marginLeft: '20px'}}>
+            <div style={{ marginLeft: '20px' }}>
                 {legendData.map((entry, index) => (
                     <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
-                        <span style={{
-                            display: 'inline-block',
-                            width: '12px',
-                            height: '12px',
-                            backgroundColor: entry.color,
-                            marginRight: '6px'
-                        }}></span>
+                    <span style={{
+                        display: 'inline-block',
+                        width: '12px',
+                        height: '12px',
+                        backgroundColor: entry.color,
+                        marginRight: '6px'
+                    }}></span>
                         {entry.name}
+                        {entry.name === 'Closed' && (
+                            <span className="panel-white" style={{marginLeft:'6px'}}> Last 7 days</span>
+                        )}
                     </div>
                 ))}
             </div>
         );
     };
+
 
     const renderCustomizedLabel = ({
                                        cx, cy, midAngle, innerRadius, outerRadius, index, payload
@@ -100,7 +104,7 @@ const Alert = ({ selectedRowData }) => {
         return <span>Loading... <i className="fas fa-cog fa-spin fa-3x"></i></span>;
     }
 
-    const statusData = JSON.parse(selectedRowData.last_7_days_tickets);
+    const statusData = JSON.parse(selectedRowData.tickets);
     const status = [
         { name: 'new', value: statusData.status_10.s, i: statusData.status_10.alerts, description: 'New'  },
         { name: 'work', value: statusData.status_30.s, i: statusData.status_30.alerts, description: 'Work in process' },
@@ -115,7 +119,7 @@ const Alert = ({ selectedRowData }) => {
         <div className="panel-box">
             <div className="panel-box-container">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3>Alerts <span className="panel-white">Last 7 days</span></h3>
+                    <h3>Alerts</h3>
                     <button
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={(e) => {

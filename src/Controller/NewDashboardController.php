@@ -38,6 +38,7 @@ class NewDashboardController extends BaseController
 
 
 
+
         $jsonContent = [];
         foreach ($plants as $plant) {
 
@@ -72,11 +73,11 @@ class NewDashboardController extends BaseController
 
                 ];
 
-                $last_7_days_tickets=[
-                    "total" => $plant["last_7_days_tickets_total"],
-                    "status_10" => ['s'=>(int)$plant["last_7_days_tickets_status_10"],'alerts'=>(string)$plant["last_7_days_tickets_status_10_ids"]],
-                    "status_30" => ['s'=>(int)$plant["last_7_days_tickets_status_30"],'alerts'=>(string)$plant["last_7_days_tickets_status_30_ids"]],
-                    "status_40" => ['s'=>(int)$plant["last_7_days_tickets_status_40"],'alerts'=>(string)$plant["last_7_days_tickets_status_40_ids"]],
+                $tickets=[
+                    "total" => $plant["tickets_status_sum"],
+                    "status_10" => ['s'=>(int)$plant["tickets_status_10"],'alerts'=>(string)$plant["tickets_status_10_ids"]],
+                    "status_30" => ['s'=>(int)$plant["tickets_status_30"],'alerts'=>(string)$plant["tickets_status_30_ids"]],
+                    "status_40" => ['s'=>(int)$plant["tickets_status_40"],'alerts'=>(string)$plant["tickets_status_40_ids"]],
                     "status_90" => ['s'=>(int)$plant["last_7_days_tickets_status_90"],'alerts'=>(string)$plant["last_7_days_tickets_status_90_ids"]]
                 ];
 
@@ -94,7 +95,7 @@ class NewDashboardController extends BaseController
                 'pr_exp'=> json_encode($performanceExp),
                 'pr_yesterday' => json_encode($performanceYesterday),
                 'pr_year'=>json_encode($performanceYear),
-                'last_7_days_tickets'=>json_encode($last_7_days_tickets),
+                'tickets'=>json_encode($tickets),
                 'mro'=>json_encode($mro)
 
 
