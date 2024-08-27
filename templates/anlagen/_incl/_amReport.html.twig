@@ -1,0 +1,57 @@
+<div class="grid-x grid-padding-x">
+    <fieldset class="fieldset">
+        <legend>Config</legend>
+        <div class="grid-x grid-margin-x">
+            <div class="cell small-6">
+                {{ form_row(anlageForm.DCCableLosses) }}
+            </div>
+            <div class="cell small-6">
+                {{ form_row(anlageForm.MissmatchingLosses) }}
+            </div>
+            <div class="cell small-6">
+                {{ form_row(anlageForm.InverterEfficiencyLosses) }}
+            </div>
+            <div class="cell small-6">
+                {{ form_row(anlageForm.ShadingLosses) }}
+            </div>
+            <div class="cell small-6">
+                {{ form_row(anlageForm.ACCableLosses) }}
+            </div>
+            <div class="cell small-6">
+                {{ form_row(anlageForm.TransformerLosses) }}
+            </div>
+            <div class="cell small-6">
+                {{ form_row(anlageForm.inverterLimitation) }}
+            </div>
+            <div class="cell small-6">
+                {{ form_row(anlageForm.transformerLimitation) }}
+            </div>
+
+            <div class="cell medium-6">{{ form_row(anlageForm.dataSourceAM) }}</div>
+            <div class="cell medium-6">{{ form_row(anlageForm.retrieveAllData) }}</div>
+        </div>
+    </fieldset>
+    <fieldset class="fieldset">
+        <legend>AM Graphics configuration</legend>
+        <div class="grid-x grid-margin-x">
+            <div class="cell small-6 medium-6">
+                PA Graphics:
+
+                {{ form_row(anlageForm.AmPADep1) }}
+
+                {{ form_row(anlageForm.AmPADep2) }}
+
+                {{ form_row(anlageForm.AmPADep3) }}
+            </div>
+            <div class="cell small-6 medium-6">
+                PR Graphics:
+
+                {{ form_row(anlageForm.AmPRDep1) }}
+
+                {{ form_row(anlageForm.AmPRDep2) }}
+
+                {{ form_row(anlageForm.AmPRDep3) }}
+            </div>
+        </div>
+    </fieldset>
+</div>
