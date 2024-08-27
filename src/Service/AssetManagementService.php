@@ -3147,7 +3147,7 @@ class AssetManagementService
                 'symbol' => 'none',
             ]
         ];
-        if (!$anlage->getSettings()->isDisableDep1()) $series[] =
+        if ($anlage->isAmPRDep1()) $series[] =
             [
                 'name' => 'O&M',
                 'type' => 'bar',
@@ -3157,7 +3157,7 @@ class AssetManagementService
                     'rotate' => 90
                 ],
             ];
-        if (!$anlage->getSettings()->isDisableDep2()) $series[] = [
+        if ($anlage->isAmPRDep2()) $series[] = [
             'name' => 'EPC',
             'type' => 'bar',
             'data' => $graphArrayPR['Dep2'],
@@ -3166,7 +3166,7 @@ class AssetManagementService
                 'rotate' => 90
             ],
         ];
-        if (!$anlage->getSettings()->isDisableDep3()) $series[] = [
+        if ($anlage->isAmPRDep3()) $series[] = [
             'name' => 'AM',
             'type' => 'bar',
             'data' => $graphArrayPR['Dep3'],
@@ -3243,7 +3243,7 @@ class AssetManagementService
                 'symbol' => 'none'
             ]
         ];
-        if (!$anlage->getSettings()->isDisableDep1()) $series[] =
+        if ($anlage->isAmPADep1()) $series[] =
             [
                 'name' => 'O&M',
                 'type' => 'bar',
@@ -3253,7 +3253,7 @@ class AssetManagementService
                     'rotate' => 90
                 ],
             ];
-        if (!$anlage->getSettings()->isDisableDep2()) $series[] = [
+        if ($anlage->isAmPADep2()) $series[] = [
             'name' => 'EPC',
             'type' => 'bar',
             'data' => $graphArrayPA['Dep2'],
@@ -3262,7 +3262,7 @@ class AssetManagementService
                 'rotate' => 90
             ],
         ];
-        if (!$anlage->getSettings()->isDisableDep3()) $series[] = [
+        if ($anlage->isAmPADep3()) $series[] = [
             'name' => 'AM',
             'type' => 'bar',
             'data' => $graphArrayPA['Dep3'],

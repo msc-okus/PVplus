@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use phpDocumentor\Reflection\Types\False_;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
@@ -683,6 +684,24 @@ class Anlage implements \Stringable
 
     #[ORM\Column(nullable: true)]
     private ?int $ticketGenerationDelay = 8;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPADep1 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPADep2 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPADep3 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPRDep1 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPRDep2 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPRDep3 = false;
 
     public function getAlertCheckInterval(): int
     {
@@ -4269,6 +4288,78 @@ class Anlage implements \Stringable
     public function setTicketGenerationDelay(?int $ticketGenerationDelay): static
     {
         $this->ticketGenerationDelay = $ticketGenerationDelay;
+
+        return $this;
+    }
+
+    public function isAmPADep1(): ?bool
+    {
+        return $this->AmPADep1;
+    }
+
+    public function setAmPADep1(?bool $AmPADep1): static
+    {
+        $this->AmPADep1 = $AmPADep1;
+
+        return $this;
+    }
+
+    public function isAmPADep2(): ?bool
+    {
+        return $this->AmPADep2;
+    }
+
+    public function setAmPADep2(?bool $AmPADep2): static
+    {
+        $this->AmPADep2 = $AmPADep2;
+
+        return $this;
+    }
+
+    public function isAmPADep3(): ?bool
+    {
+        return $this->AmPADep3;
+    }
+
+    public function setAmPADep3(?bool $AmPADep3): static
+    {
+        $this->AmPADep3 = $AmPADep3;
+
+        return $this;
+    }
+
+    public function isAmPRDep1(): ?bool
+    {
+        return $this->AmPRDep1;
+    }
+
+    public function setAmPRDep1(?bool $AmPRDep1): static
+    {
+        $this->AmPRDep1 = $AmPRDep1;
+
+        return $this;
+    }
+
+    public function isAmPRDep2(): ?bool
+    {
+        return $this->AmPRDep2;
+    }
+
+    public function setAmPRDep2(?bool $AmPRDep2): static
+    {
+        $this->AmPRDep2 = $AmPRDep2;
+
+        return $this;
+    }
+
+    public function isAmPRDep3(): ?bool
+    {
+        return $this->AmPRDep3;
+    }
+
+    public function setAmPRDep3(?bool $AmPRDep3): static
+    {
+        $this->AmPRDep3 = $AmPRDep3;
 
         return $this;
     }
