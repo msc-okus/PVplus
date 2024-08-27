@@ -3,11 +3,26 @@
         <h4>Search Report:</h4>
         <div class="grid-x grid-padding-x">
 
-            <div class="cell medium-4" >
-               <input type="text" name="anlage" class="input-group-field js-autocomplete-plant" value="{{ anlage }}" placeholder="Search plants">
+            <div class="cell medium-6" >
+                <select name="anlage"
+                        data-report-target="anlage"
+                        data-action="report#handleAnlageInput"
+                        {{ stimulus_controller('symfony/ux-autocomplete/autocomplete', {
+                            tom_select_options: {
+                                maxItems: 1,
+                                create: false,
+                            }
+                        }) }}
+                >
+                    <option value="" disabled selected hidden>Please choose a Plant</option>
+                    <option value=""   {% if status == ''   %}   selected {% endif %} > Select a Plant</option>
+                    {% for anlage in anlagen %}
+                        <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlName }} ({{ anlage.anlId }})</option>
+                    {% endfor %}
+                </select>
             </div>
 
-            <div class="cell medium-8">
+            <div class="cell medium-6">
                 <select name="searchstatus">
                     <option value=""   {% if status == ''   %}   selected {% endif %} > status             </option>
                     <option value="0"  {% if status == '0'  %}   selected {% endif %} > final              </option>
@@ -69,7 +84,16 @@
             <h4>Create New Report:</h4>
             <div class="grid-x grid-padding-x">
                 <div class="cell medium-6">
-                    <select name="anlage-id" data-report-target="anlage" data-action="report#handleAnlageInput">
+                    <select name="anlage-id"
+                            data-report-target="anlage"
+                            data-action="report#handleAnlageInput"
+                            {{ stimulus_controller('symfony/ux-autocomplete/autocomplete', {
+                                tom_select_options: {
+                                    maxItems: 1,
+                                    create: false,
+                                }
+                            }) }}
+                    >
                         <option value="" disabled selected hidden>Please choose a Plant</option>
                         <option value=""   {% if status == ''   %}   selected {% endif %} > Select a Plant</option>
                         {% for anlage in anlagen %}

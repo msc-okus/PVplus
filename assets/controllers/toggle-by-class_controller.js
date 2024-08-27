@@ -5,16 +5,16 @@ export default class extends Controller {
         action: String
     }
     connect() {
-        if(this.actionValue == 'togglePaNull'){
+        if(this.actionValue === 'togglePaNull'){
             this.togglePaNull();
         }
-        if(this.actionValue == 'togglePaOne'){
+        if(this.actionValue === 'togglePaOne'){
             this.togglePaOne();
         }
-        if(this.actionValue == 'togglePaTwo'){
+        if(this.actionValue === 'togglePaTwo'){
             this.togglePaTwo();
         }
-        if(this.actionValue == 'togglePaThree'){
+        if(this.actionValue === 'togglePaThree'){
             this.togglePaThree();
         }
     }

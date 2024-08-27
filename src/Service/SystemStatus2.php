@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
+use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -115,7 +116,6 @@ class SystemStatus2
     private function checkPA(Anlage $anlage, $from, $to): array
     {
         return $this->cache->get('status_checkPA_'.md5($anlage->getAnlId()), function(CacheItemInterface $cacheItem) use ($anlage, $from, $to) {
-
             $cacheItem->expiresAfter($this->cacheLifetime); // Lifetime of cache Item
 
             if ($anlage->getAnlType() === 'masterslave') {

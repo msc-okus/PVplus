@@ -6,6 +6,7 @@ use App\Entity\Anlage;
 use App\Entity\LogMessages;
 use App\Repository\LogMessagesRepository;
 use Doctrine\ORM\EntityManagerInterface;
+
 class LogMessagesService
 {
     public function __construct(

@@ -14,7 +14,8 @@ class OpenWeatherService
 
     public function __construct(
         private readonly OpenWeatherRepository $openWeatherRepo,
-        private readonly EntityManagerInterface $em)
+        private readonly EntityManagerInterface $em
+    )
     {
     }
 

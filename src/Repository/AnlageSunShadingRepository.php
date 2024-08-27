@@ -2,11 +2,8 @@
 
 namespace App\Repository;
 
-use App\Entity\Anlage;
 use App\Entity\AnlageSunShading;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**

@@ -10,7 +10,6 @@ use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\AcGroupsRepository;
 use App\Repository\ForcastDayRepository;
-use App\Repository\ForcastRepository;
 use App\Repository\GridMeterDayRepository;
 use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
@@ -21,10 +20,10 @@ use App\Repository\PVSystDatenRepository;
 use DateTime;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Symfony\Component\HttpFoundation\Exception\JsonException;
 use PDO;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Exception\JsonException;
 use Symfony\Contracts\Cache\CacheInterface;
 use function Symfony\Component\String\u;
 
@@ -41,7 +40,6 @@ class FunctionsService
         private readonly AcGroupsRepository $acGroupsRepo,
         private readonly InvertersRepository $inverterRepo,
         private readonly GridMeterDayRepository $gridMeterDayRepo,
-        private readonly ForcastRepository $forcastRepo,
         private readonly ForcastDayRepository $forcastDayRepo,
         private readonly MonthlyDataRepository $monthlyDataRepo,
         private readonly WeatherFunctionsService $weatherFunctions,
@@ -346,13 +344,13 @@ class FunctionsService
     {
         $forcastResultArray = [];
 
-        $forcasts = $this->forcastRepo->findBy(['anlage' => $anlage]);
+        $forcasts = $this->forcastDayRepo->findBy(['anlage' => $anlage]);
         // Kopiere alle Forcast Werte in ein Array mit dem Index der Kalenderwoche
         $forcastResultArray['sumForecast'] = $forcastResultArray['divMinus'] = $forcastResultArray['divPlus'] = $forcastResultArray['sumActual'] = 0;
         foreach ($forcasts as $forcast) {
-            $forcastResultArray['sumForecast'] += $forcast->getPowerWeek();
-            $forcastResultArray['divMinus'] += $forcast->getDivMinWeek();
-            $forcastResultArray['divPlus'] += $forcast->getDivMaxWeek();
+            $forcastResultArray['sumForecast'] += $forcast->getPowerDay();
+            $forcastResultArray['divMinus'] += $forcast->getDivMinDay();
+            $forcastResultArray['divPlus'] += $forcast->getDivMaxDay();
         }
 
         $conn = $this->pdoService->getPdoPlant();
@@ -370,10 +368,10 @@ class FunctionsService
         foreach ($forcasts as $week => $forcast) {
             if (isset($actPerWeek[$forcast->getWeek()])) {
                 $forcastResultArray['sumActual'] += $actPerWeek[$forcast->getWeek()];
-                $forcastResultArray['divMinus'] -= $forcast->getDivMinWeek();
-                $forcastResultArray['divPlus'] -= $forcast->getDivMaxWeek();
+                $forcastResultArray['divMinus'] -= $forcast->getDivMinDay();
+                $forcastResultArray['divPlus'] -= $forcast->getDivMaxDay();
             } else {
-                $forcastResultArray['sumActual'] += $forcast->getPowerWeek();
+                $forcastResultArray['sumActual'] += $forcast->getPowerDay();
             }
         }
 

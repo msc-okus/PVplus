@@ -3,12 +3,17 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\LiveReporting;
 use App\Entity\TicketDate;
+use App\Form\LiveReporting\CreateMonthlyForm;
+use App\Form\LiveReporting\LifeReportingMonthlyFlow;
+use App\Form\Type\TopicCategoryType;
 use App\Repository\AnlagenRepository;
-use App\Repository\MonthlyDataRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\Reports\ReportsMonthlyV2Service;
+use Craue\FormFlowBundle\Form\FormFlowInterface;
+use Craue\FormFlowBundle\Util\FormFlowUtil;
 use Doctrine\ORM\NonUniqueResultException;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,16 +21,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use App\Form\LiveReporting\CreateMonthlyForm;
-use App\Form\Type\Monthly;
-use Craue\FormFlowBundle\Form\FormFlowInterface;
-use Craue\FormFlowBundle\Util\FormFlowUtil;
-use App\Form\Type\TopicCategoryType;
-use App\Entity\LiveReporting;
-use App\Form\LiveReporting\LifeReportingMonthlyFlow;
 
-class LiveReportingController extends AbstractController
+class LiveReportingController extends BaseController
 {
 
     public function __construct(
@@ -45,6 +42,8 @@ class LiveReportingController extends AbstractController
      * @param ReportsMonthlyV2Service $reportsMonthly
      * @return Response
      */
+
+    /*
     #[Route(path: '/livereport/month', name: 'month_daily_report')]
     public function createTopicAction(Request $request, LifeReportingMonthlyFlow $createTopicFlow, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
     {
@@ -94,7 +93,6 @@ class LiveReportingController extends AbstractController
                     $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
                 }
 
-                #$flow->reset();
 
                 return $this->render($template, [
                     'form' => $form->createView(),
@@ -133,7 +131,49 @@ class LiveReportingController extends AbstractController
             'finished' => 0
         ]);
     }
+    */
 
+    /**
+     * Erzeugt einen Monatsreport mit den einzelenen Tagen und einer Monatstotalen
+     * Kann auch für einen Auswal einiger Tage eines Moants genutzt werden
+     *
+     * @param Request $request
+     * @param AnlagenRepository $anlagenRepository
+     * @param ReportsMonthlyV2Service $reportsMonthly
+     * @return Response
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
+     */
+    #[Route(path: '/livereport/month', name: 'month_daily_report')]
+    public function monthlyReportWithDays(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyV2Service $reportsMonthly): Response
+    {
+        $output = $table = null;
+        $startDay = $request->request->get('start-day');
+        $endDay = $request->request->get('end-day');
+        $month = $request->request->get('month');
+        $year = $request->request->get('year');
+        $anlageId = $request->request->get('anlage-id');
+        $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
+        // Start individual part
+        /** @var Anlage $anlage */
+        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+        if ($submitted && $anlageId !== null) {
+            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+            $output['days'] = $reportsMonthly->buildTable($anlage, $startDay, $endDay, $month, $year);
+            $tickets = $this->buildPerformanceTicketsOverview($anlage, $startDay, $endDay, $month, $year);
+        }
+
+        return $this->render('live_reporting/reportMonthlyNew.html.twig', [
+            'headline' => 'Monthly Report',
+            'anlagen' => $anlagen,
+            'anlage' => $anlage,
+            'report' => $output,
+            'status' => $anlageId,
+            'datatable' => $table,
+            'tickets'   => $tickets
+        ]);
+
+    }
     /**
      * Erzeugt Reports für einen längeren Zeitraum, aber maximal 1 Wert pro Monat
      *

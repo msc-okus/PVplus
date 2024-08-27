@@ -15,8 +15,8 @@ use App\Repository\PVSystDatenRepository;
 use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
-use PDO;
 use DateTime;
+use PDO;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -32,7 +32,6 @@ class WeatherFunctionsService
         private readonly GroupModulesRepository  $groupModulesRepo,
         private readonly GroupsRepository        $groupsRepo,
         private readonly GridMeterDayRepository  $gridMeterDayRepo,
-        private readonly ForcastRepository       $forecastRepo,
         private readonly TicketRepository        $ticketRepo,
         private readonly TicketDateRepository    $ticketDateRepo,
         private readonly ReplaceValuesTicketRepository $replaceValuesTicketRepo,

@@ -2,25 +2,16 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Entity\Eigner;
-use App\Form\User\UserFormType;
-use App\Repository\UserRepository;
 use App\Service\PvpDataService;
-use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
+use Com\Tecnick\Pdf\Base;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 
-class PvpTransferDataController extends AbstractController{
-
+class PvpTransferDataController extends Base
+{
     #[Route('/pvp_transfer', name: 'app_pvp_data_transfer')]
     public function transfer(PvpDataService $service): JsonResponse
     {

@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
-use App\Service\ExportService;
 use App\Entity\Anlage;
 use App\Form\Model\WeatherToolsModel;
 use App\Form\Tools\CalcToolsFormType;
 use App\Form\Tools\ImportExcelFormType;
 use App\Form\Tools\WeatherToolsFormType;
+use App\Helper\G4NTrait;
 use App\Message\Command\CalcExpected;
 use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Repository\AnlagenRepository;
@@ -15,26 +15,26 @@ use App\Repository\TicketRepository;
 use App\Repository\UserLoginRepository;
 use App\Repository\WeatherStationRepository;
 use App\Service\AvailabilityByTicketService;
+use App\Service\ExportService;
 use App\Service\LogMessagesService;
 use App\Service\PdoService;
+use App\Service\UploaderHelper;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
+use Knp\Component\Pager\PaginatorInterface;
 use League\Flysystem\FilesystemException;
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Shuchkin\SimpleXLSX;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use App\Service\UploaderHelper;
-use App\Helper\G4NTrait;
-use Knp\Component\Pager\PaginatorInterface;
-use Shuchkin\SimpleXLSX;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class SpecialOperationsController extends AbstractController
+class SpecialOperationsController extends BaseController
 {
     use G4NTrait;
 

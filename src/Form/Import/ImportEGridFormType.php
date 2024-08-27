@@ -3,22 +3,15 @@
 namespace App\Form\Import;
 
 use App\Entity\Anlage;
-
 use App\Form\Model\ToolsModel;
-
 use App\Repository\AnlagenRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Bundle\SecurityBundle\Security;
-use Knp\Bundle\PaginatorBundle\DependencyInjection\Configuration;
 use Symfony\Component\Validator\Constraints\File;
 
 
@@ -36,18 +29,13 @@ class ImportEGridFormType extends AbstractType
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
-        if ($this->security->isGranted('ROLE_G4N')) {
-            $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
-        } else {
-            $eigner = $this?->security->getUser()?->getEigners()[0];
-            $anlagen = $this->anlagenRepository->findAllIDByEigner($eigner);
-        }
-
+        $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
 
         $builder
             ->add('anlage', EntityType::class, [
                 'label' => 'Please select a Plant',
                 'class' => Anlage::class,
+                'placeholder' => 'Please select a Plant',
                 'choices' => $anlagen,
                 'choice_label' => 'anlName',
             ])
@@ -82,6 +70,7 @@ class ImportEGridFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ToolsModel::class,
+            'required' => false
         ]);
     }
 }

@@ -3,13 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
-use App\Entity\User;
 use App\Helper\G4NTrait;
 use App\Repository\AcGroupsRepository;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityService;
 use App\Service\Charts\ChartService;
 use App\Service\Charts\HeatmapChartService;
+use App\Service\FunctionsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Cache\InvalidArgumentException;
@@ -17,7 +17,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use App\Service\FunctionsService;
 
 class DashboardPlantsController extends BaseController
 {

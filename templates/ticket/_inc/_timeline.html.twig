@@ -42,6 +42,19 @@
                            {% endif %}
                        {% endif %}
                    {% endif %}
+                        {% for work in notification.notificationWorks  %}
+                            <li>
+                            <div class="time">{{ work.begin|date("m/d/Y H:i") }}</div>
+                            {% if (work.type == 10) %}
+                                <p>The provider began the reparation</p>
+                            {% elseif (work.type == 20) %}
+                                <p>The provider made a pause</p>
+                            {% else %}
+                                <p>The provider ended the reparation</p>
+                            {% endif %}
+                            </li>
+
+                        {% endfor %}
                {% endfor %}
                {% if ticket.status == 90 %}
                    <li>

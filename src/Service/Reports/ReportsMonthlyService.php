@@ -12,16 +12,13 @@ use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\FunctionsService;
+use App\Service\PdoService;
 use App\Service\PRCalulationService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-use JetBrains\PhpStorm\NoReturn;
-use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use App\Service\PdoService;
 
 /**
  *
@@ -47,9 +44,13 @@ class ReportsMonthlyService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param int $reportMonth
+     * @param int $reportYear
      * @return string
      *
      * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function createMonthlyReport(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): string
     {

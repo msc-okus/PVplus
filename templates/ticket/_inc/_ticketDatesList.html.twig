@@ -25,7 +25,8 @@
         <th class="is-hidden" data-ticket-edit-target="headerExclude">Sensor to exclude</th>
         <th class="is-hidden" data-ticket-edit-target="headerReplace">Sensor to replace</th>
         <th class="is-hidden" data-ticket-edit-target="headerReplacePower">replace Energy with {{ features.simulatorName }}</th>
-        <th class="is-hidden" data-ticket-edit-target="headerReplaceIrr">replace Irr with {{ features.simulatorName }}</th>
+        <th class="is-hidden" data-ticket-edit-target="headerReplacePowerG4N">replace Energy with G4N Expected</th>
+        <th class="is-hidden" data-ticket-edit-target="headerReplaceIrr">replace Irradiation</th>
         <th class="is-hidden" data-ticket-edit-target="headerHour">Use Hour {% if (features and features.simulatorName == "PVSyst") %}(PVSyst){% endif %}</th>
         <th class="is-hidden" data-ticket-edit-target="headerEnergyValue">Value Energy [kWh]</th>
         <th class="is-hidden" data-ticket-edit-target="headerIrrValue">Value Irradiation [kWh/m²]</th>
@@ -88,6 +89,7 @@
                 </div>
             </td>
             <td class="is-hidden" data-ticket-edit-target="fieldReplacePower">{{ form_widget(date.replaceEnergy) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldReplacePowerG4N">{{ form_widget(date.replaceEnergyG4N) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldReplaceIrr">{{ form_widget(date.replaceIrr) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldHour">{{ form_widget(date.useHour) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldEnergyValue">{{ form_widget(date.valueEnergy) }}</td>

@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class DownloadController extends AbstractController
+class DownloadController extends BaseController
 {
     #[Route(path: '/download', name: 'app_download')]
     public function dataDownload(Request $request, DownloadDataService $downloadData): RedirectResponse|Response

@@ -6,13 +6,12 @@ use App\Entity\AnlageSensors;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
-use Doctrine\DBAL\Types\DateTimeImmutableType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 
 class SensorsListEmbeddedFormType extends AbstractType
 {

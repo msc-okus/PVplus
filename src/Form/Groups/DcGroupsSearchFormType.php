@@ -3,17 +3,11 @@
 namespace App\Form\Groups;
 
 use App\Entity\Anlage;
-use App\Entity\AnlageGroups;
 use App\Repository\AnlagenRepository;
-use App\Repository\GroupsRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DcGroupsSearchFormType extends AbstractType
 {

@@ -6,11 +6,11 @@ use App\Entity\Anlage;
 use App\Form\FileUpload\FileUploadFormType;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
+use JetBrains\PhpStorm\Deprecated;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use JetBrains\PhpStorm\Deprecated;
 
 #[Deprecated]
 class PlantUploadAdminController extends BaseController

@@ -8,22 +8,22 @@ use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketRepository;
 use App\Service\AnlageStringAssigmentService;
-use App\Service\TicketsGeneration\AlertSystemWeatherService;
-use App\Service\TicketsGeneration\InternalAlertSystemService;
-use App\Service\TicketsGeneration\AlertSystemV2Service;
 use App\Service\AssetManagementService;
 use App\Service\FunctionsService;
 use App\Service\PdfService;
 use App\Service\PRCalulationService;
+use App\Service\TicketsGeneration\AlertSystemV2Service;
+use App\Service\TicketsGeneration\AlertSystemWeatherService;
+use App\Service\TicketsGeneration\InternalAlertSystemService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
+use Hisune\EchartsPHP\ECharts;
 use JetBrains\PhpStorm\NoReturn;
+use PDO;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use PDO;
-use Hisune\EchartsPHP\ECharts;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -31,7 +31,7 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 #[IsGranted('ROLE_G4N')]
-class DefaultJMController extends AbstractController
+class DefaultJMController extends BaseController
 {
     use G4NTrait;
 
@@ -65,13 +65,14 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2): void
     {
-        $fromDate = "2024-07-09 00:00";
-        $toDate = "2024-07-09 10:00";
+        $fromDate = "2024-07-31 00:00";
+        $toDate = "2024-08-01 00:00";
 
-        $anlagen[] = $anlagenRepository->findIdLike("218")[0];
+        $anlagen[] = $anlagenRepository->findIdLike("237")[0];
 
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
+
         foreach ($anlagen as $anlage){
             $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
             try {
@@ -86,7 +87,7 @@ class DefaultJMController extends AbstractController
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
                     $alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
                 }
-            } catch(\Exception $e){}
+            } catch(\Exception $e){dd("something broke");}
         }
 
         dd("hello world");

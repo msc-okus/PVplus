@@ -260,8 +260,11 @@
                                     <thead>
                                     <tr>
                                         <th>Month</th>
-                                        <th>PR design</th>
-                                        <th>Yield design</th>
+                                        <th>Irradiation design [kWh/qm]</th>
+                                        <th>PR design [%]</th>
+                                        <th>Yield design [kW/h]</th>
+                                        <th>Temp. Ambient Design</th>
+                                        <th>Temp. Array AVG Design</th>
                                         <th></th>
                                     </tr>
                                     </thead>
@@ -269,8 +272,11 @@
                                     {% for pvsyst in anlageForm.pvSystMonths %}
                                         <tr class="js-pvsyst-item">
                                             <td>{{ form_widget(pvsyst.month) }}</td>
+                                            <td>{{ form_widget(pvsyst.irrDesign) }}</td>
                                             <td>{{ form_widget(pvsyst.prDesign) }}</td>
                                             <td>{{ form_widget(pvsyst.ertragDesign) }}</td>
+                                            <td>{{ form_widget(pvsyst.tempAmbientDesign) }}</td>
+                                            <td>{{ form_widget(pvsyst.tempArrayAvgDesign) }}</td>
 
                                             <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-pvsyst"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
                                         </tr>
@@ -559,7 +565,7 @@
             {{ form_widget(anlageForm.close) }}
         </div>
     </div>
-<div style="display: none">{{ form_rest(anlageForm) }}</div>
+    <div hidden style="display: none">{{ form_rest(anlageForm) }}</div>
     {% do anlageForm.legendMonthlyReports.setRendered() %}
     {% do anlageForm.legendEpcReports.setRendered() %}
     {% do anlageForm.pvSystMonths.setRendered() %}

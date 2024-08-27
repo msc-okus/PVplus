@@ -60,6 +60,12 @@ class NotificationInfo
     #[ORM\OneToMany(mappedBy: 'notificationInfo', targetEntity: AnlageFile::class)]
     private Collection $attachedMedia;
 
+    public function getAttachedMedia(): Collection
+    {
+        return $this->attachedMedia;
+    }
+
+
     public function getNotificationWorks(): Collection
     {
         return $this->notificationWorks;
@@ -218,35 +224,32 @@ class NotificationInfo
 
         return $this;
     }
-
-    /**
-     * @return Collection<int, AnlageFile>
-     */
-    public function getAttachedMedia(): Collection
+    public function addAttachedMedia(AnlageFile $attachedMedia): static
     {
-        return $this->attachedMedia;
-    }
-
-    public function addAttachedMedium(AnlageFile $attachedMedium): static
-    {
-        if (!$this->attachedMedia->contains($attachedMedium)) {
-            $this->attachedMedia->add($attachedMedium);
-            $attachedMedium->setNotificationInfo($this);
+        if (!$this->attachedMedia->contains($attachedMedia)) {
+            $this->attachedMedia->add($attachedMedia);
+            $attachedMedia->setNotificationInfo($this);
         }
 
         return $this;
     }
 
-    public function removeAttachedMedium(AnlageFile $attachedMedium): static
+    public function removeAttachedMedia(AnlageFile $attachedMedia): static
     {
-        if ($this->attachedMedia->removeElement($attachedMedium)) {
+        if ($this->attachedMedia->removeElement($attachedMedia)) {
             // set the owning side to null (unless already changed)
-            if ($attachedMedium->getNotificationInfo() === $this) {
-                $attachedMedium->setNotificationInfo(null);
+            if ($attachedMedia->getNotificationInfo() === $this) {
+                $attachedMedia->setNotificationInfo(null);
             }
         }
 
         return $this;
+    }
+
+    public function getWorkAsArray () :Array
+    {
+
+        return $this->notificationWorks->toArray();
     }
 
 }

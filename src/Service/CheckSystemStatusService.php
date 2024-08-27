@@ -8,7 +8,6 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\AnlagenStatusRepository;
 use App\Repository\ForcastDayRepository;
-use App\Repository\ForcastRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
 
@@ -23,7 +22,6 @@ class CheckSystemStatusService
         private readonly AnlagenStatusRepository $statusRepository,
         private readonly EntityManagerInterface $em,
         private readonly MessageService $messageService,
-        private readonly ForcastRepository $forecastRepo,
         private readonly ForcastDayRepository $forecastDayRepo,
         private readonly FunctionsService $functions)
     {
@@ -34,14 +32,13 @@ class CheckSystemStatusService
         // TODO: Umstellung auf Doctrine / Symfony
         $anlagenStatusDb = 'pvp_base.pvp_anlagen_status';
         $conn = $this->pdoService->getPdoPlant();
-
         $connAnlage = $this->pdoService->getPdoBase();
 
         $output = '';
 
-        $currentTimeStamp = self::getCetTime('TIMESTAMP-REAL');
+        $currentTimeStamp = self::getCetTime();
         $timestampModulo = ($currentTimeStamp - ($currentTimeStamp % 1800)); // nur zur vollen und halben Stunde. Uhrzeit runden, um unnötige db einträge zu verhindern (besonders beim Testen)
-        $timestampModulo = $currentTimeStamp;
+        //$timestampModulo = $currentTimeStamp;
         $sqlTimeStamp = date('Y-m-d H:i:s', $timestampModulo);
         $from = date('Y-m-d 00:00:00', $currentTimeStamp);
         $to = date('Y-m-d H:i:00', $timestampModulo - 1800);
@@ -52,9 +49,9 @@ class CheckSystemStatusService
         $timestampModuloYesterday = $timestampModulo - (24 * 3600);
 
         /* STATUS der Anlage ermitteln */
-
         // $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => true]);
         $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => '1']);
+        #$anlagen = $this->anlagenRepository->findBy(['anlId' => '251']);
         if (isset($anlagen)) {
             foreach ($anlagen as $anlage) {
                 $anlagenId = $anlage->getAnlId();
@@ -72,7 +69,7 @@ class CheckSystemStatusService
                 $res = $conn->query("SELECT stamp FROM $dbNameIst ORDER BY stamp DESC LIMIT 1");
                 if ($res) {
                     $rowTemp = $res->fetch(PDO::FETCH_OBJ);
-                    $lastRecStampIst = strtotime((string) $rowTemp->stamp);
+                    $lastRecStampIst = strtotime((string) $rowTemp->stamp ?? 'now');
                     if ($anlage->getAnlInputDaily() !== 'Yes') { // Wenn daten kontinuierlich kommen
                         if ($currentTimeStamp - $lastRecStampIst <= $GLOBALS['abweichung']['io']['normal']) {
                             $lastDataStatus = 'normal';
@@ -102,7 +99,7 @@ class CheckSystemStatusService
                 if ($res) {
                     if ($res->rowCount() > 0) {
                         $rowTemp = $res->fetch(PDO::FETCH_OBJ);
-                        $lastRecStampWeather = strtotime((string) $rowTemp->stamp);
+                        $lastRecStampWeather = strtotime((string) $rowTemp->stamp ?? 'now');
                         if ($currentTimeStamp - $lastRecStampWeather <= $GLOBALS['abweichung']['io']['normal']) {
                             $lastWeatherStatus = 'normal';
                         }
@@ -127,14 +124,14 @@ class CheckSystemStatusService
                 // ac und dc IST ermitteln (alles was da ist)
                 // ////////////////
                 $resultIst = $this->calcPowerIstAcAndDc($anlage, $from, $to);
-                $resultAcAct = round($resultIst['ac'], 0);
-                $resultDcAct = round($resultIst['dc'], 0);
+                $resultAcAct = $resultIst['ac'];
+                $resultDcAct = $resultIst['dc'];
 
                 // ac und dc SOLL ermitteln (alles was da ist)
                 // ////////////////
                 $resultSoll = $this->calcPowerSollAcAndDc($anlage, $from, $to);
-                $resultAcExp = round($resultSoll['ac'], 0);
-                $resultDcExp = round($resultSoll['dc'], 0);
+                $resultAcExp = $resultSoll['ac'];
+                $resultDcExp = $resultSoll['dc'];
 
                 // Forecast Wert bis aktuelle Woche ermitteln
                 $forecastDate = new \DateTime('last sunday');
@@ -155,9 +152,9 @@ class CheckSystemStatusService
                             }
                         } else {
                             if ($anlage->getShowEvuDiag()) {
-                                $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                                $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
                             } else {
-                                $forecastYear = $powerActArray['powerActYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                                $forecastYear = $powerActArray['powerActYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
                             }
                         }
                     }
@@ -221,13 +218,13 @@ class CheckSystemStatusService
 
                 // ac und dc 'IST' ermitteln
                 $resultActBoth = $this->calcPowerIstAcAndDc($anlage, $from, $toLastBoth);
-                $resultAcActBoth = round($resultActBoth['ac'], 0);
-                $resultDcActBoth = round($resultActBoth['dc'], 0);
+                $resultAcActBoth = round($resultActBoth['ac'] ?? 0, 0);
+                $resultDcActBoth = round($resultActBoth['dc'] ?? 0, 0);
 
                 // ac und dc 'SOLL' ermitteln
                 $resultExpBoth = $this->calcPowerSollAcAndDc($anlage, $from, $toLastBoth);
-                $resultAcExpBoth = round($resultExpBoth['ac'], 0);
-                $resultDcExpBoth = round($resultExpBoth['dc'], 0);
+                $resultAcExpBoth = round($resultExpBoth['ac'] ?? 0, 0);
+                $resultDcExpBoth = round($resultExpBoth['dc'] ?? 0, 0);
 
                 // diff AC und DC bilden
                 $acDiffBoth = $resultAcExpBoth - $resultAcActBoth;
@@ -287,12 +284,12 @@ class CheckSystemStatusService
                     ;
                 }
                 $status
-                    ->setLastDataIo(date_create($acActStamp))
+                    ->setLastDataIo(date_create($acActStamp ?? 'now'))
                     ->setLastDataStatus($lastDataStatus)
-                    ->setLastWeatherIo(date_create($acExpStamp))
+                    ->setLastWeatherIo(date_create($acExpStamp ?? 'now'))
                     ->setLastWeatherStatus($lastWeatherStatus)
-                    ->setActStamp(date_create($acActStamp))
-                    ->setExpStamp(date_create($acExpStamp))
+                    ->setActStamp(date_create($acActStamp ?? 'now'))
+                    ->setExpStamp(date_create($acExpStamp ?? 'now'))
                     ->setAcActAll($resultAcAct)
                     ->setAcExpAll($resultAcExp)
                     ->setAcDiffAll($acDiff)
@@ -338,9 +335,12 @@ class CheckSystemStatusService
                 ;
                 $this->em->persist($status);
                 $this->em->flush();
+
+                // Erzeugen von Fehlermeldungen (deaktiviert !!! NICHT LÖSCHEN
+                /*
                 if ($anlagenStatus > 0 && self::isInTimeRange()) { // Status des aktuellen Laufes
                     $month = date('m', $currentTimeStamp);
-                    if (date('H', $currentTimeStamp) == $GLOBALS['StartEndTimesAlert'][$month]['start'] && date('i', $currentTimeStamp) + 0 <= 10) {
+                    if (date('H', $currentTimeStamp) == $GLOBALS['StartEndTimesAlert'][$month]['start'] && (int)date('i', $currentTimeStamp) + 0 <= 10) {
                         // Stunde ist gleich der anfangsStunde im config array und die Minute sind dicht an der 00 (nicht mehr als 5 minuten verstrichen, nach voller Stunde)
                         // erster Lauf an diesem Tag
                         $firstRun = true;
@@ -415,6 +415,7 @@ class CheckSystemStatusService
                         }
                     }
                 }
+                */
                 $output .= 'ENDE<hr>';
             }
         }
@@ -430,39 +431,35 @@ class CheckSystemStatusService
     private function calcPowerIstAcAndDc(Anlage $anlage, $from, $to): array
     {
         $conn = $this->pdoService->getPdoPlant();
+
+        $returnArray['ac'] = 0;
+        $returnArray['dc'] = 0;
         if ($anlage->getUseNewDcSchema()) {
             $res = $conn->query('SELECT sum(wr_pac) as SumPowerAC FROM '.$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '$from' AND '$to'");
             if ($res->rowCount() > 0) {
                 $row = $res->fetch(PDO::FETCH_OBJ);
-                $actAc = $row->SumPowerAC;
+                $actAc = $row->SumPowerAC ?? 0;
                 $returnArray['ac'] = $actAc;
-            } else {
-                $returnArray['ac'] = 0;
             }
             $res = $conn->query('SELECT sum(wr_pdc) as SumPowerDC FROM '.$anlage->getDbNameDcIst()." WHERE stamp BETWEEN '$from' AND '$to'");
             if ($res) {
                 if ($res->rowCount() > 0) {
                     $row = $res->fetch(PDO::FETCH_OBJ);
-                    $actDc = $row->SumPowerDC;
+                    $actDc = $row->SumPowerDC ?? 0;
                     $returnArray['dc'] = $actDc;
                 }
-            } else {
-                $returnArray['dc'] = 0;
             }
         } else { // Altes Datenbank Schema ( AC und DC ISt in einer Tabelle )
             $res = $conn->query('SELECT sum(wr_pac) as SumPowerAC, sum(wr_pdc) as SumPowerDC FROM '.$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '$from' AND '$to'");
             if ($res) {
                 if ($res->rowCount() > 0) {
                     $row = $res->fetch(PDO::FETCH_OBJ);
-                    $actAc = $row->SumPowerAC;
-                    $actDc = $row->SumPowerDC;
+                    $actAc = $row->SumPowerAC ?? 0;
+                    $actDc = $row->SumPowerDC ?? 0;
 
                     $returnArray['ac'] = $actAc;
                     $returnArray['dc'] = $actDc;
                 }
-            } else {
-                $returnArray['ac'] = 0;
-                $returnArray['dc'] = 0;
             }
         }
 
@@ -476,16 +473,16 @@ class CheckSystemStatusService
     private function calcPowerSollAcAndDc(Anlage $anlage, $from, $to): array
     {
         $conn = $this->pdoService->getPdoPlant();
+        $returnArray['ac'] = 0;
+        $returnArray['dc'] = 0;
         // Soll AC
         $sql = 'SELECT sum(ac_exp_power) as SumPowerAC FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to'";
         $res = $conn->query($sql);
         if ($res) {
             if ($res->rowCount() > 0) {
                 $row = $res->fetch(PDO::FETCH_OBJ);
-                $returnArray['ac'] = round($row->SumPowerAC, 2);
+                $returnArray['ac'] = $row->SumPowerAC ?? 0;
             }
-        } else {
-            $returnArray['ac'] = 0;
         }
         // Soll DC
         $sql = 'SELECT sum(dc_exp_power) as SumPowerDC FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to'";
@@ -493,10 +490,8 @@ class CheckSystemStatusService
         if ($res) {
             if ($res->rowCount() === 1) {
                 $row = $res->fetch(PDO::FETCH_OBJ);
-                $returnArray['dc'] = round($row->SumPowerDC, 2);
+                $returnArray['dc'] = $row->SumPowerDC ?? 0;
             }
-        } else {
-            $returnArray['dc'] = 0;
         }
 
         return $returnArray;
@@ -532,16 +527,15 @@ class CheckSystemStatusService
                     $sql_grp_avg = 'SELECT AVG(wr_pac) AS avg_power_ac FROM '.$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '$from' AND '$to' AND group_ac = '$groupId'";
                     $result = $conn->query($sql_grp_avg);
                     $rowGrpAvg = $result->fetch(PDO::FETCH_OBJ);
-                    $grpAvgPowerAc = round($rowGrpAvg->avg_power_ac);
+                    $grpAvgPowerAc = $rowGrpAvg->avg_power_ac ?? 0;
           
                     if ($grpAvgPowerAc > 0) {
                         $inverterArray['invStatus'] = 'normal';
                         for ($inverter = $group['GMIN']; $inverter <= $group['GMAX']; ++$inverter) {
-                            // TODO: andere Berechnung für neues DB Schema entwickeln (Bsp Gronningen und Stadskanaal)
                             $sql_inv_avg = 'SELECT AVG(wr_pac) AS avg_power_ac FROM '.$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '$from' AND '$to' AND unit = '$inverter'";
                             $result = $conn->query($sql_inv_avg);
                             $rowInvAvg = $result->fetch(PDO::FETCH_OBJ);
-                            $inverterAvgPowerAc = round($rowInvAvg->avg_power_ac);
+                            $inverterAvgPowerAc = $rowInvAvg->avg_power_ac ?? 0;
                             
 
                             $lostInverter = 100 - round(100 / $grpAvgPowerAc * $inverterAvgPowerAc, 2); // Verlust in %
@@ -587,8 +581,8 @@ class CheckSystemStatusService
                 if ($resultAcIst->rowCount() == 1 && $resultAcSoll->rowCount() == 1) {
                     $rowIst = $resultAcIst->fetch(PDO::FETCH_OBJ);
                     $rowSoll = $resultAcSoll->fetch(PDO::FETCH_OBJ);
-                    $istPower = $rowIst->avg_power_ac_ist;
-                    $sollPower = $rowSoll->avg_power_ac_soll;
+                    $istPower = $rowIst->avg_power_ac_ist ?? 0;
+                    $sollPower = $rowSoll->avg_power_ac_soll ?? 0;
                     $lostInverter = $sollPower > 0 ? 100 - round($istPower / $sollPower * 100) : 0; // Verlust in %
                     if ($istPower > 0) {
                         $inverterArray['invStatus'] = 'normal';
@@ -628,7 +622,7 @@ class CheckSystemStatusService
     /**
      * Ermittelt den Status der Strings.
      */
-    private function checkStrings(Anlage $anlage, $timestampModulo)
+    private function checkStrings(Anlage $anlage, $timestampModulo): array
     {
         $conn = $this->pdoService->getPdoPlant();
 
@@ -642,6 +636,10 @@ class CheckSystemStatusService
         $stringArray['anzVoltageWarning'] = 0;
         $stringArray['anzVoltageAlert'] = 0;
         $stringArray['errorMessage'] = '';
+        $stringArray['stringIStatus'] = '';
+        $stringArray['stringUStatus'] = '';
+        $stringArray['dcStatus'] = '';
+        $stringArray['stringStatus'] = '';
         $anzCurrentAlert = 0;
         $anzVoltageAlert = 0;
 
@@ -652,8 +650,8 @@ class CheckSystemStatusService
         while ($rowAnlage = $result->fetch(PDO::FETCH_OBJ)) {
             $stamp = $rowAnlage->stamp;
             if (true) { // (isStartEndTimeValid($stamp))
-                $inverter = $rowAnlage->unit;
-                $group = $rowAnlage->group_ac;
+                $inverter = $rowAnlage->unit ?? 0;
+                $group = $rowAnlage->group_ac ?? 0;
                 $anzStringsCurrent = 0;
                 $anzStringsVoltage = 0;
                 if (isset($rowAnlage->wr_mpp_current)) {

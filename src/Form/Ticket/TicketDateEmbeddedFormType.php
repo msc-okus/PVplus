@@ -5,13 +5,13 @@ namespace App\Form\Ticket;
 use App\Entity\TicketDate;
 use App\Form\Type\SwitchType;
 use App\Helper\PVPNameArraysTrait;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TicketDateEmbeddedFormType extends AbstractType
@@ -47,8 +47,9 @@ class TicketDateEmbeddedFormType extends AbstractType
                     //'data-ticket-edit-target' => 'formEndDate'
                 ],
             ])
-            ->add('beginHidden', DateTimeType::class, [
-                'widget' => 'single_text',
+            ->add('beginHidden', TextType::class, [
+                'data' => '',
+                //'widget' => 'single_text',
                 'attr' => [
                     'readonly' => true,
                     'data-ticket-edit-target' => 'formBeginHidden',
@@ -56,8 +57,9 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'class' => 'is-hidden'
                 ],
             ])
-            ->add('endHidden', DateTimeType::class, [
-                'widget' => 'single_text',
+            ->add('endHidden', TextType::class, [
+                'data' => '',
+                //'widget' => 'single_text',
                 'attr' => [
                     'readonly' => true,
                     'data-ticket-edit-target' => 'formEndHidden',
@@ -151,14 +153,22 @@ class TicketDateEmbeddedFormType extends AbstractType
                 ->add('replaceEnergy', SwitchType::class, [
                     'label'     => 'replace Energy with PVsyst',
                     'attr' => [
-                        'data-action' => 'change->ticket-edit#replaceCheck',
+                        'data-action' => 'change->ticket-edit#checkCategory',
                         'data-ticket-edit-target' => 'formReplace'
                     ],
+                ])
+                ->add('replaceEnergyG4N', SwitchType::class, [
+                    'label'     => 'replace Energy with G4N Expected',
+                    'attr' => [
+                        'data-action' => 'change->ticket-edit#checkCategory',
+                        'data-ticket-edit-target' => 'formReplaceG4N'
+                    ],
                     // new field (bool)
-                ])->add('replaceIrr', SwitchType::class, [
+                ])
+                ->add('replaceIrr', SwitchType::class, [
                     'label'     => 'replace Irradiation with PVsyst',
                     'attr' => [
-                        'data-action' => 'change->ticket-edit#replaceCheck',
+                        'data-action' => 'change->ticket-edit#checkCategory',
                         'data-ticket-edit-target' => 'formReplaceIrr'
                     ],
                 ])

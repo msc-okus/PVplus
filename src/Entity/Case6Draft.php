@@ -6,12 +6,13 @@ use App\Repository\Case6DraftRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 #[ORM\Entity(repositoryClass: Case6DraftRepository::class)]
+#[Deprecated]
 class Case6Draft
 {
     use TimestampableEntity;
-
     use BlameableEntity;
 
     #[ORM\Id]

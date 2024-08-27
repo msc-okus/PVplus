@@ -2,12 +2,9 @@
 
 namespace App\Service\Forecast;
 
-use App\Entity\Anlage;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageSunShadingRepository;
 use App\Service\PdoService;
-use App\Repository\AnlageModulesDBRepository;
-use PDO;
 
 class SunShadingModelService {
     use G4NTrait;

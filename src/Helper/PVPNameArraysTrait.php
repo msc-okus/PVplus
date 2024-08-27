@@ -2,9 +2,6 @@
 
 namespace App\Helper;
 
-use App\Entity\Anlage;
-use Symfony\Contracts\Translation\TranslatorInterface;
-
 trait PVPNameArraysTrait
 {
 

@@ -12,6 +12,14 @@
 .ts-control  {
     padding: 0 6px;
     border-radius: 4px;
+    > input{
+        width: auto;
+        min-width: 5rem;
+    }
+    ::placeholder {
+        color: $g4n-black;
+        opacity: 1; /* Firefox */
+    }
 
     .item {
         align-self: center;
