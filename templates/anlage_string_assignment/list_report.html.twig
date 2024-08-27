@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 {% import 'macros/macros.library.html.twig' as macrolibrary %}
 
-{% block title %}list Reports{% endblock %}
+{% block title %}{{ parent() }}list Analyses{% endblock %}
 
 {% block body %}
     <div {{ stimulus_controller('anlagestring', {
@@ -9,19 +9,21 @@
         urlDelete: path('app_analysis_delete_file'),
         urlGenerate: path('app_analysis_list'),
     }) }}>
-        <div data-anlagestring-target="modal" style="display: none;position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, 0.5);z-index: 999;">
+        <div data-anlagestring-target="modal"
+             style="display: none;position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, 0.5);z-index: 999;">
             <div style="margin: 20% auto;">
-                <img src="{{ asset('/images/loader.gif') }}" class="img-responsive" alt="loader"  width="300" height="300" style="display: block; margin: 0 auto;">
+                <img src="{{ asset('/images/loader.gif') }}" class="img-responsive" alt="loader" width="300"
+                     height="300" style="display: block; margin: 0 auto;">
             </div>
         </div>
-        <h1>List Report</h1>
-        <div class="grid-x  " style="padding-top: 20px; padding-bottom: 20px; border-top: 1px solid #5858fc; border-bottom: 1px solid #5858fc;">
-            <div class="cell ">
+        <h1>List Analyses</h1>
+        <div class="grid-x ticketsearchbar">
+            <div class="cell small-12">
                 <div class="grid-x grid-padding-x">
                     <div class="cell small-12 medium-6" data-anlagestring-target="uploadForm">
                         <h4>Upload new Excel:</h4>
                         {{ form_start(uploadForm) }}
-                        <div class="grid-x grid-padding-x align-middle">
+                        <div class="grid-x grid-padding-x">
                             <div class="cell auto">
                                 {{ form_widget(uploadForm.anlage) }}
                             </div>
@@ -34,41 +36,40 @@
                         </div>
                         {{ form_end(uploadForm) }}
                     </div>
-                    <div class="cell small-12 medium-6" >
+                    <div class="cell small-12 medium-6">
                         <h4>Generate new Report:</h4>
-                {{ form_start(createForm,{'attr': {'data-anlagestring-target': 'createForm'}}) }}
-
-                <div class="grid-x grid-padding-x align-middle">
-                    <div class="cell auto">
-                        {{ form_widget(createForm.anlage) }}
-                    </div>
-                    <div class="cell auto">
-                        {{ form_widget(createForm.month) }}
-                    </div>
-                    <div class="cell auto">
-                        {{ form_widget(createForm.year) }}
-                    </div>
-                    <div class="cell auto">
-                        {{ form_widget(createForm.submit, {'attr': {'class': 'button'}}) }}
+                        {{ form_start(createForm,{'attr': {'data-anlagestring-target': 'createForm'}}) }}
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell auto">
+                                {{ form_widget(createForm.anlage) }}
+                            </div>
+                            <div class="cell auto">
+                                {{ form_widget(createForm.month) }}
+                            </div>
+                            <div class="cell auto">
+                                {{ form_widget(createForm.year) }}
+                            </div>
+                            <div class="cell auto">
+                                {{ form_widget(createForm.submit, {'attr': {'class': 'button'}}) }}
+                            </div>
+                        </div>
+                        {{ form_end(createForm) }}
                     </div>
                 </div>
-
-                {{ form_end(createForm) }}
-                    </div>
             </div>
         </div>
-    </div>
-        <div class="grid-x " style="padding-top: 20px;" >
-           <div class="cell"><h4>Search Report </h4></div>
-            <div class="grid-x grid-padding-x" style="padding-bottom: 10px;" id="search-form" data-anlagestring-target="searchForm">
-                <div class="cell " >
-                    <form  >
+        <div class="grid-x ticketsearchbar">
+            <div class="cell"><h4>Search Report </h4></div>
+            <div class="grid-x grid-padding-x" style="padding-bottom: 10px;" id="search-form"
+                 data-anlagestring-target="searchForm">
+                <div class="cell ">
+                    <form>
                         <div class="grid-x grid-padding-x">
                             <div class="cell auto">
                                 <select name="anlage">
-                                    <option value=""  {% if anlage == "" %} selected {% endif %} >Select Plant</option>
+                                    <option value="" {% if anlage == "" %} selected {% endif %} >Select Plant</option>
                                     {% for i in anlagen %}
-                                        <option value="{{ i.anlId }}" {% if anlage == i.anlId %} selected {% endif %}>   {{ i.anlName}}    </option>
+                                        <option value="{{ i.anlId }}" {% if anlage == i.anlId %} selected {% endif %}>   {{ i.anlName }}    </option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -83,7 +84,8 @@
 
                             <div class="cell auto">
                                 <select name="searchyear">
-                                    <option value="" {% if searchyear == '' %} selected {% endif %} >Select Year</option>
+                                    <option value="" {% if searchyear == '' %} selected {% endif %} >Select Year
+                                    </option>
                                     {% set isyear = 'now' | date('Y') %}
                                     {% for year in range (2020, isyear) %}
                                         <option value="{{ year }}"{% if searchyear == year %} selected {% endif %}>  {{ year }} </option>
@@ -104,6 +106,8 @@
                     </form>
                 </div>
             </div>
+        </div>
+        <div class="grid-x">
             {% include 'anlage_string_assignment/tab_report.html.twig' %}
         </div>
     </div>

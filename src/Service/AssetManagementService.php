@@ -1158,21 +1158,6 @@ class AssetManagementService
                                         'formatter' => '{b}:{c}'
                                     ]
                                 ],
-                                /*
-                                [
-                                    'name' => 'average PR:',
-
-                                    'yAxis' => $avgPr,
-                                    'lineStyle' => [
-                                        'type' => 'solid',
-                                        'width' => 3,
-                                        'color' => 'yellow'
-                                    ],
-                                    'label' => [
-                                        'formatter' => '{b}:{c}'
-                                    ]
-                                ]
-                                */
                             ],
                             'symbol' => 'none',
 
@@ -1226,7 +1211,8 @@ class AssetManagementService
             $acGroupsCleaned[] = substr($acGroups[$i]->getacGroupName(), strpos($acGroups[$i]->getacGroupName(), 'INV'));
         }
 
-        for ($i = 1; $i <= 12; ++$i) {
+        for ($i = 1; $i <= 12; $i++) {
+            dump($i);
             if ($i < 10) {
                 $month_transfer = "0$i";
             } else {
@@ -1238,7 +1224,7 @@ class AssetManagementService
             $endDayOfMonth = cal_days_in_month(CAL_GREGORIAN, $month_transfer, $report['reportYear']);
             $end = $report['reportYear'] . '-' . $month_transfer . '-' . $endDayOfMonth . ' 23:59';
             $data1_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-
+            dump($data1_grid_meter);
             if ($anlage->hasPVSYST()) {
                 try {
                     $resultErtrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
@@ -1280,12 +1266,10 @@ class AssetManagementService
             $expectedPvSyst[] = $Ertrag_design;
 
             if ($anlage->hasPVSYST()) {
-                $forecast = $expectedPvSyst;
+                $forecast[] = $expectedPvSyst;
             }
             else {
-                for ($i = 0; $i < 12; ++$i) {
-                    $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
-                }
+                $forecast[] = $this->functions->getForcastByMonth($anlage, $i);
             }
         }
         // fuer die Tabelle
@@ -1298,6 +1282,7 @@ class AssetManagementService
             'powerExt' => $powerExternal,
             'forecast' => $forecast,
         ];
+
 
         $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
@@ -1383,11 +1368,6 @@ class AssetManagementService
 // Rendu du graphique avec un identifiant et des styles spécifiés
         $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:700px;']);
         $series = []; // Réinitialisation de la variable des séries
-
-
-
-
-
         $chart = new ECharts(); // We must use AMCharts
         $chart->tooltip->show = false;
         $chart->tooltip->trigger = 'item';
@@ -1430,6 +1410,7 @@ class AssetManagementService
             'visualMap' => 'false',
 
         ];
+
         $series[] = [
             'name' => 'Forecast',
             'type' => 'bar',

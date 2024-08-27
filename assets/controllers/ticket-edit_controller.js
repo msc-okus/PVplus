@@ -13,9 +13,9 @@ export default class extends Controller {
                         'headerAktDep3', 'formReplace', 'fieldSensor', 'fieldReplacePower', 'fieldReplaceIrr', 'fieldHour',
                         'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
-                        'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
+                        'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'formReplaceG4N', 'headerFormKpi',
                         'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv', 'contactModal', 'modalContactBody', 'contactButton', 'modalContactCreateBody',
-                        'contactModalCreate', 'modalTimelineBody', 'timelineModal', 'firstDateEnd', 'lastDateBegin','AlertInverterSubmit', 'attatchButton'];
+                        'contactModalCreate', 'modalTimelineBody', 'timelineModal', 'firstDateEnd', 'lastDateBegin','AlertInverterSubmit', 'attatchButton', 'fieldReplacePowerG4N', 'headerReplacePowerG4N'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -255,18 +255,16 @@ export default class extends Controller {
         }
     }
     hourCheck(){
-
-        if ($(this.formReplaceTarget).prop('checked') == true) $(this.formHourTarget).prop('checked', true)
-
-        const cat = $(this.formCategoryTarget).val();
-        if (cat >= 70 && cat < 80){
-            $(this.formBeginDateTarget).val($(this.formBeginTarget).prop('value'));
-            $(this.formEndDateTarget).val($(this.formEndTarget).prop('value'));
+        if ($(this.formBeginHiddenTarget).prop('value') == '' && $(this.formEndHiddenTarget).prop('value') == '') {
+            $(this.formBeginHiddenTarget).val($(this.formBeginTarget).prop('value'));
+            $(this.formEndHiddenTarget).val($(this.formEndTarget).prop('value'));
         }
+
         const valueBegin = $(this.formBeginDateTarget).prop('value');
         const valueEnd = $(this.formEndDateTarget).prop('value');
-        const valueBeginHidden = $(this.formBeginHiddenTarget).prop('value');
-        const valueEndHidden = $(this.formEndHiddenTarget).prop('value');
+        var valueBeginHidden = $(this.formBeginHiddenTarget).prop('value');
+        var valueEndHidden = $(this.formEndHiddenTarget).prop('value');
+
         if ($(this.formHourTarget).prop('checked') == true) {
             $(this.formBeginHiddenTarget).val(valueBegin);
             $(this.formEndHiddenTarget).val(valueEnd);
@@ -340,20 +338,22 @@ export default class extends Controller {
             $(this.formBeginTarget).val(newStringBeginDate);
             $(this.formEndTarget).val(newStringEndDate);
         }
-        else if(valueBeginHidden != '' && valueEndHidden != ''){
+        else {
             $(this.formBeginDateTarget).val(valueBeginHidden);
             $(this.formEndDateTarget).val(valueEndHidden);
             $(this.formBeginTarget).val(valueBeginHidden);
             $(this.formEndTarget).val(valueEndHidden);
         }
-        //now we recheck the dates
+        //now we recheck the dates (possibly not needed)
+        /*
         const date1 = new Date($(this.formBeginTarget).prop('value'));
         const date2 = new Date($(this.formEndTarget).prop('value'));
         date1.setSeconds(0);
         date2.setSeconds(0);
         const timestamp1 = date1.getTime();
         const timestamp2 = date2.getTime();
-
+        console.log(timestamp1, timestamp2);
+        //this is just to display the error messages of date inconsistency
         if (timestamp2 > timestamp1) {
             $(this.CalloutTarget).addClass('is-hidden');
             $(this.saveButtonTarget).removeAttr('disabled');
@@ -377,74 +377,69 @@ export default class extends Controller {
             }
         }
 
-
+         */
     }
     replaceCheck(){
-// this is the change of overlay if the user decides to replace energy with PVSYST in the replace ticket
+        // this is the change of overlay if the user decides to replace energy with PVSYST in the replacement ticket
         let body = $(this.modalBodyTarget);
-            if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20);}
 
-            $(this.headerExcludeTargets).addClass('is-hidden');
-            $(this.headerReplaceTargets).addClass('is-hidden');
-            $(this.headerReplacePowerTargets).removeClass('is-hidden');
-            if ($(this.formReplaceTargets).prop('checked') == false) {
-                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+        if (this.formUrlValue === '/ticket/create') body.find('#ticket_form_KpiStatus').val(20);
+        $(this.scopeTarget).removeClass('is-hidden');
+            if ($(this.formReplaceTargets).prop('checked') == true) {
+                $(this.headerReplaceIrrTargets).removeClass('is-hidden');
+                $(this.headerHourTargets).removeClass('is-hidden');
+                $(this.headerReplacePowerTargets).removeClass('is-hidden');
+            }
+            else if ($(this.formReplaceG4NTargets).prop('checked') == true) {
+                $(this.headerReplacePowerG4NTargets).removeClass('is-hidden');
+            }
+            else{
                 $(this.headerEnergyValueTargets).removeClass('is-hidden');
                 $(this.headerIrrValueTargets).removeClass('is-hidden');
+                $(this.headerReplacePowerG4NTargets).removeClass('is-hidden');
+                $(this.headerReplacePowerTargets).removeClass('is-hidden');
             }
-            else{
-                $(this.headerReplaceIrrTargets).removeClass('is-hidden');
-                $(this.headerEnergyValueTargets).addClass('is-hidden');
-                $(this.headerIrrValueTargets).addClass('is-hidden');
-            }
-            $(this.headerHourTargets).removeClass('is-hidden');
-            $(this.headerCorrectionTargets).addClass('is-hidden');
-            $(this.headerEvaluationTargets).addClass('is-hidden');
             $(this.headerReasonTargets).removeClass('is-hidden');
-            $(this.headerAktDep1Targets).addClass('is-hidden');
-            $(this.headerAktDep2Targets).addClass('is-hidden');
-            $(this.headerAktDep3Targets).addClass('is-hidden');
             $(this.headerFormKpiTargets).removeClass('is-hidden');
-            $(this.headerPRMethodTargets).addClass('is-hidden');
 
-            $(this.fieldSensorTargets).addClass('is-hidden');
-            $(this.fieldReplacePowerTargets).removeClass('is-hidden');
-            if ($(this.formReplaceTargets).prop('checked') == false) {
-                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
-                $(this.fieldEnergyValueTargets).removeClass('is-hidden');
-                $(this.fieldIrrValueTargets).removeClass('is-hidden');
-            }
-            else{
-                $(this.fieldReplaceIrrTargets).removeClass('is-hidden');
-                $(this.fieldEnergyValueTargets).addClass('is-hidden');
-                $(this.fieldIrrValueTargets).addClass('is-hidden');
-            }
-            $(this.inverterDivTargets).addClass('is-hidden');
+        if ($(this.formReplaceTargets).prop('checked') == true) {
+            $(this.fieldReplaceIrrTargets).removeClass('is-hidden');
             $(this.fieldHourTargets).removeClass('is-hidden');
-            $(this.fieldCorrectionTargets).addClass('is-hidden');
-            $(this.fieldEvaluationTargets).addClass('is-hidden');
+            $(this.fieldReplacePowerTargets).removeClass('is-hidden');
+        }
+        else if ($(this.formReplaceG4NTargets).prop('checked') == true) {
+            $(this.fieldReplacePowerG4NTargets).removeClass('is-hidden');
+        }
+        else{
+            $(this.fieldEnergyValueTargets).removeClass('is-hidden');
+            $(this.fieldIrrValueTargets).removeClass('is-hidden');
+            $(this.fieldReplacePowerTargets).removeClass('is-hidden');
+            $(this.fieldReplacePowerG4NTargets).removeClass('is-hidden');
+        }
             $(this.fieldReasonTargets).removeClass('is-hidden');
-            $(this.fieldAktDep1Targets).addClass('is-hidden');
-            $(this.fieldAktDep2Targets).addClass('is-hidden');
-            $(this.fieldAktDep3Targets).addClass('is-hidden');
             $(this.formkpiStatusTargets).removeClass('is-hidden');
-            $(this.fieldPRMethodTargets).addClass('is-hidden');
             if ($(this.formReplaceTarget).prop('checked') == true) {
                 if ($(this.formHourTarget).prop('checked') == false) {
                     $(this.formHourTarget).prop('checked', true);
                     this.hourCheck();
                 }
+            }else if ($(this.formReplaceG4NTarget).prop('checked') == true){
+                $(this.formHourTargets).prop('checked', false);
+                this.hourCheck();
+            }
+            else{
+                $(this.formHourTargets).prop('checked', false);
             }
         let reason = $(this.formReasonSelectTarget).val();
         $(this.reasonInputTarget).val(reason);
     }
     checkCategory(){
-
         const cat = $(this.formCategoryTarget).val();
         var inverterString = '';
         var inverterNameString = '';
         let body = $(this.modalBodyTarget);
-        // in this switch we remove the hidding class to show the fields of the ticket date on demand
+
+        // in this switch we remove the 'is-hidden' class to show the fields of the ticket date depending on the category
 
         if (cat >= 70 && cat <= 80 ){
             body.find('input:checkbox[class=js-checkbox]').each(function () {
@@ -460,205 +455,104 @@ export default class extends Controller {
             body.find('#ticket_form_inverterName').val(inverterNameString);
         }
 
-        if (cat >= 72 && cat <= 80 ){
-            $(this.scopeTarget).removeClass('is-hidden');
-        }
-        else  $(this.scopeTarget).addClass('is-hidden');
+        //first we hide everything to show only what we need depending on the category
+        $(this.headerExcludeTargets).addClass('is-hidden');
+        $(this.headerReplaceTargets).addClass('is-hidden');
+        $(this.headerReplacePowerTargets).addClass('is-hidden');
+        $(this.headerReplaceIrrTargets).addClass('is-hidden');
+        $(this.headerHourTargets).addClass('is-hidden');
+        $(this.headerEnergyValueTargets).addClass('is-hidden');
+        $(this.headerIrrValueTargets).addClass('is-hidden');
+        $(this.headerCorrectionTargets).addClass('is-hidden');
+        $(this.headerEvaluationTargets).addClass('is-hidden');
+        $(this.headerAktDep1Targets).addClass('is-hidden');
+        $(this.headerReasonTargets).addClass('is-hidden');
+        $(this.headerAktDep2Targets).addClass('is-hidden');
+        $(this.headerAktDep3Targets).addClass('is-hidden');
+        $(this.headerFormKpiTargets).addClass('is-hidden');
+        $(this.headerPRMethodTargets).addClass('is-hidden');
+        $(this.headerReplacePowerG4NTargets).addClass('is-hidden');
+
+        $(this.fieldReplacePowerG4NTargets).addClass('is-hidden');
+        $(this.fieldSensorTargets).addClass('is-hidden');
+        $(this.fieldReplacePowerTargets).addClass('is-hidden');
+        $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+        $(this.fieldHourTargets).addClass('is-hidden');
+        $(this.fieldEnergyValueTargets).addClass('is-hidden');
+        $(this.fieldIrrValueTargets).addClass('is-hidden');
+        $(this.fieldCorrectionTargets).addClass('is-hidden');
+        $(this.fieldReasonTargets).addClass('is-hidden');
+        $(this.fieldEvaluationTargets).addClass('is-hidden');
+        $(this.fieldAktDep1Targets).addClass('is-hidden');
+        $(this.fieldAktDep2Targets).addClass('is-hidden');
+        $(this.fieldAktDep3Targets).addClass('is-hidden');
+        $(this.fieldPRMethodTargets).addClass('is-hidden');
+        $(this.inverterDivTargets).addClass('is-hidden');
+        $(this.formkpiStatusTargets).addClass('is-hidden');
+        $(this.scopeTarget).addClass('is-hidden');
         switch (cat){
             case '10':
-                $(this.headerExcludeTargets).addClass('is-hidden');
-                $(this.headerReplaceTargets).addClass('is-hidden');
-                $(this.headerReplacePowerTargets).addClass('is-hidden');
-                $(this.headerReplaceIrrTargets).addClass('is-hidden');
-                $(this.headerHourTargets).addClass('is-hidden');
-                $(this.headerEnergyValueTargets).addClass('is-hidden');
-                $(this.headerIrrValueTargets).addClass('is-hidden');
-                $(this.headerCorrectionTargets).addClass('is-hidden');
                 $(this.headerEvaluationTargets).removeClass('is-hidden');
-                $(this.headerReasonTargets).addClass('is-hidden');
                 $(this.headerAktDep1Targets).removeClass('is-hidden');
                 $(this.headerAktDep2Targets).removeClass('is-hidden');
                 $(this.headerAktDep3Targets).removeClass('is-hidden');
-                $(this.headerFormKpiTargets).addClass('is-hidden');
-                $(this.headerPRMethodTargets).addClass('is-hidden');
 
-                $(this.fieldSensorTargets).addClass('is-hidden');
-                $(this.fieldReplacePowerTargets).addClass('is-hidden');
-                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
-                $(this.fieldHourTargets).addClass('is-hidden');
-                $(this.fieldEnergyValueTargets).addClass('is-hidden');
-                $(this.fieldIrrValueTargets).addClass('is-hidden');
-                $(this.fieldCorrectionTargets).addClass('is-hidden');
-                $(this.fieldReasonTargets).addClass('is-hidden');
                 $(this.fieldEvaluationTargets).removeClass('is-hidden');
                 $(this.fieldAktDep1Targets).removeClass('is-hidden');
                 $(this.fieldAktDep2Targets).removeClass('is-hidden');
                 $(this.fieldAktDep3Targets).removeClass('is-hidden');
                 $(this.inverterDivTargets).removeClass('is-hidden');
+
                 $(this.formHourTargets).prop('checked', false);
-                $(this.formkpiStatusTargets).addClass('is-hidden');
-                $(this.fieldPRMethodTargets).addClass('is-hidden');
                 if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
                 break;
             case '20':
-                $(this.headerExcludeTargets).addClass('is-hidden');
-                $(this.headerReplaceTargets).addClass('is-hidden');
-                $(this.headerReplacePowerTargets).addClass('is-hidden');
-                $(this.headerReplaceIrrTargets).addClass('is-hidden');
-                $(this.headerHourTargets).addClass('is-hidden');
-                $(this.headerEnergyValueTargets).addClass('is-hidden');
-                $(this.headerIrrValueTargets).addClass('is-hidden');
-                $(this.headerCorrectionTargets).addClass('is-hidden');
                 $(this.headerEvaluationTargets).removeClass('is-hidden');
-                $(this.headerReasonTargets).addClass('is-hidden');
                 $(this.headerAktDep1Targets).removeClass('is-hidden');
                 $(this.headerAktDep2Targets).removeClass('is-hidden');
                 $(this.headerAktDep3Targets).removeClass('is-hidden');
-                $(this.headerFormKpiTargets).addClass('is-hidden');
-                $(this.headerPRMethodTargets).addClass('is-hidden');
 
-                $(this.fieldSensorTargets).addClass('is-hidden');
-                $(this.fieldReplacePowerTargets).addClass('is-hidden');
-                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
-                $(this.fieldHourTargets).addClass('is-hidden');
-                $(this.fieldEnergyValueTargets).addClass('is-hidden');
-                $(this.fieldIrrValueTargets).addClass('is-hidden');
-                $(this.fieldCorrectionTargets).addClass('is-hidden');
                 $(this.fieldEvaluationTargets).removeClass('is-hidden');
-                $(this.fieldReasonTargets).addClass('is-hidden');
                 $(this.fieldAktDep1Targets).removeClass('is-hidden');
                 $(this.fieldAktDep2Targets).removeClass('is-hidden');
                 $(this.fieldAktDep3Targets).removeClass('is-hidden');
                 $(this.inverterDivTargets).removeClass('is-hidden');
 
                 $(this.formHourTargets).prop('checked', false);
-                $(this.formkpiStatusTargets).addClass('is-hidden');
-                $(this.fieldPRMethodTargets).addClass('is-hidden');
                 if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
                 break;
+
             case '70':
                 $(this.headerExcludeTargets).removeClass('is-hidden');
-                $(this.headerReplaceTargets).addClass('is-hidden');
-                $(this.headerReplacePowerTargets).addClass('is-hidden');
-                $(this.headerReplaceIrrTargets).addClass('is-hidden');
-                $(this.headerHourTargets).addClass('is-hidden');
-                $(this.headerEnergyValueTargets).addClass('is-hidden');
-                $(this.headerIrrValueTargets).addClass('is-hidden');
-                $(this.headerCorrectionTargets).addClass('is-hidden');
-                $(this.headerEvaluationTargets).addClass('is-hidden');
-                $(this.headerReasonTargets).addClass('is-hidden');
-                $(this.headerAktDep1Targets).addClass('is-hidden');
-                $(this.headerAktDep2Targets).addClass('is-hidden');
-                $(this.headerAktDep3Targets).addClass('is-hidden');
                 $(this.headerFormKpiTargets).removeClass('is-hidden');
-                $(this.headerPRMethodTargets).addClass('is-hidden');
 
                 $(this.fieldSensorTargets).removeClass('is-hidden');
-                $(this.fieldReplacePowerTargets).addClass('is-hidden');
-                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
-                $(this.fieldHourTargets).addClass('is-hidden');
-                $(this.fieldEnergyValueTargets).addClass('is-hidden');
-                $(this.fieldIrrValueTargets).addClass('is-hidden');
-                $(this.fieldCorrectionTargets).addClass('is-hidden');
-                $(this.fieldEvaluationTargets).addClass('is-hidden');
-                $(this.fieldReasonTargets).addClass('is-hidden');
-                $(this.fieldAktDep1Targets).addClass('is-hidden');
-                $(this.fieldAktDep2Targets).addClass('is-hidden');
-                $(this.fieldAktDep3Targets).addClass('is-hidden');
-                $(this.inverterDivTargets).addClass('is-hidden');
-                $(this.formHourTargets).prop('checked', false);
-                body.find('input:checkbox[class=js-checkbox]').each(function () {
-                    $(this).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
-                    body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
-                });
-                inverterNameString = '*';
-                inverterString = '*';
-                body.find('#ticket_form_inverter').val(inverterString);
-                body.find('#ticket_form_inverterName').val(inverterNameString);
                 $(this.formkpiStatusTargets).removeClass('is-hidden');
-                $(this.fieldPRMethodTargets).addClass('is-hidden');
+
+                $(this.formHourTargets).prop('checked', false);
+
+
                 if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(10)};
                 break;
             case '71':
-                $(this.headerExcludeTargets).addClass('is-hidden');
                 $(this.headerReplaceTargets).removeClass('is-hidden');
-                $(this.headerReplacePowerTargets).addClass('is-hidden');
-                $(this.headerReplaceIrrTargets).addClass('is-hidden');
-                $(this.headerHourTargets).addClass('is-hidden');
-                $(this.headerEnergyValueTargets).addClass('is-hidden');
-                $(this.headerIrrValueTargets).addClass('is-hidden');
-                $(this.headerCorrectionTargets).addClass('is-hidden');
-                $(this.headerEvaluationTargets).addClass('is-hidden');
-                $(this.headerReasonTargets).addClass('is-hidden');
-                $(this.headerAktDep1Targets).addClass('is-hidden');
-                $(this.headerAktDep2Targets).addClass('is-hidden');
-                $(this.headerAktDep3Targets).addClass('is-hidden');
                 $(this.headerFormKpiTargets).removeClass('is-hidden');
-                $(this.headerPRMethodTargets).addClass('is-hidden');
 
                 $(this.fieldSensorTargets).removeClass('is-hidden');
-                $(this.fieldReplacePowerTargets).addClass('is-hidden');
-                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
-                $(this.fieldHourTargets).addClass('is-hidden');
-                $(this.fieldEnergyValueTargets).addClass('is-hidden');
-                $(this.fieldIrrValueTargets).addClass('is-hidden');
-                $(this.fieldCorrectionTargets).addClass('is-hidden');
-                $(this.fieldEvaluationTargets).addClass('is-hidden');
-                $(this.fieldReasonTargets).addClass('is-hidden');
-                $(this.fieldAktDep1Targets).addClass('is-hidden');
-                $(this.fieldAktDep2Targets).addClass('is-hidden');
-                $(this.fieldAktDep3Targets).addClass('is-hidden');
-                $(this.inverterDivTargets).addClass('is-hidden');
-                $(this.formHourTargets).prop('checked', false);
-                body.find('input:checkbox[class=js-checkbox]').each(function () {
-                    $(this).prop('checked', true);
-
-                    body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
-                    body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
-                });
-                inverterNameString = '*';
-                inverterString = '*';
-                body.find('#ticket_form_inverter').val(inverterString);
-                body.find('#ticket_form_inverterName').val(inverterNameString);
                 $(this.formkpiStatusTargets).removeClass('is-hidden');
-                $(this.fieldPRMethodTargets).addClass('is-hidden');
+
+                $(this.formHourTargets).prop('checked', false);
+
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
                 break;
             case '72':
-                $(this.headerExcludeTargets).addClass('is-hidden');
-                $(this.headerReplaceTargets).addClass('is-hidden');
-                $(this.headerReplacePowerTargets).addClass('is-hidden');
-                $(this.headerReplaceIrrTargets).addClass('is-hidden');
                 $(this.headerHourTargets).removeClass('is-hidden');
-                $(this.headerEnergyValueTargets).addClass('is-hidden');
-                $(this.headerIrrValueTargets).addClass('is-hidden');
-                $(this.headerCorrectionTargets).addClass('is-hidden');
-                $(this.headerEvaluationTargets).addClass('is-hidden');
-                $(this.headerReasonTargets).addClass('is-hidden');
-                $(this.headerAktDep1Targets).addClass('is-hidden');
-                $(this.headerAktDep2Targets).addClass('is-hidden');
-                $(this.headerAktDep3Targets).addClass('is-hidden');
                 $(this.headerFormKpiTargets).removeClass('is-hidden');
                 $(this.headerPRMethodTargets).removeClass('is-hidden');
 
-
-                $(this.fieldSensorTargets).addClass('is-hidden');
-                $(this.fieldReplacePowerTargets).addClass('is-hidden');
-                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
                 $(this.fieldHourTargets).removeClass('is-hidden');
-                $(this.fieldEnergyValueTargets).addClass('is-hidden');
-                $(this.fieldIrrValueTargets).addClass('is-hidden');
-                $(this.fieldCorrectionTargets).addClass('is-hidden');
-                $(this.fieldEvaluationTargets).addClass('is-hidden');
-                $(this.fieldReasonTargets).addClass('is-hidden');
-                $(this.fieldAktDep1Targets).addClass('is-hidden');
-                $(this.fieldAktDep2Targets).addClass('is-hidden');
-                $(this.fieldAktDep3Targets).addClass('is-hidden');
-                $(this.inverterDivTargets).addClass('is-hidden');
                 $(this.fieldPRMethodTargets).removeClass('is-hidden');
+                $(this.scopeTarget).removeClass('is-hidden');
 
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(10)};
                 break;
@@ -666,36 +560,13 @@ export default class extends Controller {
                 this.replaceCheck();
                 break;
             case '74':
-                $(this.headerExcludeTargets).addClass('is-hidden');
-                $(this.headerReplaceTargets).addClass('is-hidden');
-                $(this.headerReplacePowerTargets).addClass('is-hidden');
-                $(this.headerReplaceIrrTargets).addClass('is-hidden');
-                $(this.headerHourTargets).addClass('is-hidden');
-                $(this.headerEnergyValueTargets).addClass('is-hidden');
-                $(this.headerIrrValueTargets).addClass('is-hidden');
                 $(this.headerCorrectionTargets).removeClass('is-hidden');
-                $(this.headerEvaluationTargets).addClass('is-hidden');
                 $(this.headerReasonTargets).removeClass('is-hidden');
-                $(this.headerAktDep1Targets).addClass('is-hidden');
-                $(this.headerAktDep2Targets).addClass('is-hidden');
-                $(this.headerAktDep3Targets).addClass('is-hidden');
                 $(this.headerFormKpiTargets).removeClass('is-hidden');
-                $(this.headerPRMethodTargets).addClass('is-hidden');
 
-                $(this.fieldSensorTargets).addClass('is-hidden');
-                $(this.fieldReplacePowerTargets).addClass('is-hidden');
-                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
-                $(this.fieldHourTargets).addClass('is-hidden');
-                $(this.fieldEnergyValueTargets).addClass('is-hidden');
-                $(this.fieldIrrValueTargets).addClass('is-hidden');
                 $(this.fieldCorrectionTargets).removeClass('is-hidden');
-                $(this.fieldEvaluationTargets).addClass('is-hidden');
                 $(this.fieldReasonTargets).removeClass('is-hidden');
-                $(this.fieldAktDep1Targets).addClass('is-hidden');
-                $(this.fieldAktDep2Targets).addClass('is-hidden');
-                $(this.fieldAktDep3Targets).addClass('is-hidden');
-                $(this.inverterDivTargets).addClass('is-hidden');
-                $(this.fieldPRMethodTargets).addClass('is-hidden');
+                $(this.scopeTarget).removeClass('is-hidden');
 
                 let reason = $(this.formReasonSelectTarget).val();
                 $(this.reasonInputTarget).val(reason);
@@ -703,111 +574,29 @@ export default class extends Controller {
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
                 break;
             case '100':
-                $(this.headerExcludeTargets).addClass('is-hidden');
-                $(this.headerReplaceTargets).addClass('is-hidden');
-                $(this.headerReplacePowerTargets).addClass('is-hidden');
-                $(this.headerReplaceIrrTargets).addClass('is-hidden');
-                $(this.headerHourTargets).addClass('is-hidden');
-                $(this.headerEnergyValueTargets).addClass('is-hidden');
-                $(this.headerIrrValueTargets).addClass('is-hidden');
-                $(this.headerCorrectionTargets).addClass('is-hidden');
                 $(this.headerEvaluationTargets).removeClass('is-hidden');
-                $(this.headerReasonTargets).addClass('is-hidden');
                 $(this.headerAktDep1Targets).removeClass('is-hidden');
                 $(this.headerAktDep2Targets).removeClass('is-hidden');
                 $(this.headerAktDep3Targets).removeClass('is-hidden');
-                $(this.headerFormKpiTargets).addClass('is-hidden');
-                $(this.headerPRMethodTargets).addClass('is-hidden');
 
-                $(this.fieldSensorTargets).addClass('is-hidden');
-                $(this.fieldReplacePowerTargets).addClass('is-hidden');
-                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
-                $(this.fieldHourTargets).addClass('is-hidden');
-                $(this.fieldEnergyValueTargets).addClass('is-hidden');
-                $(this.fieldIrrValueTargets).addClass('is-hidden');
-                $(this.fieldCorrectionTargets).addClass('is-hidden');
                 $(this.fieldEvaluationTargets).removeClass('is-hidden');
-                $(this.fieldReasonTargets).addClass('is-hidden');
                 $(this.fieldAktDep1Targets).removeClass('is-hidden');
                 $(this.fieldAktDep2Targets).removeClass('is-hidden');
                 $(this.fieldAktDep3Targets).removeClass('is-hidden');
-                $(this.inverterDivTargets).addClass('is-hidden');
 
                 $(this.formHourTargets).prop('checked', false);
-                $(this.formkpiStatusTargets).addClass('is-hidden');
-                $(this.fieldPRMethodTargets).addClass('is-hidden');
                 if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
                 break;
             case '':
-                $(this.headerExcludeTargets).addClass('is-hidden');
-                $(this.headerReplaceTargets).addClass('is-hidden');
-                $(this.headerReplacePowerTargets).addClass('is-hidden');
-                $(this.headerReplaceIrrTargets).addClass('is-hidden');
-                $(this.headerHourTargets).addClass('is-hidden');
-                $(this.headerEnergyValueTargets).addClass('is-hidden');
-                $(this.headerIrrValueTargets).addClass('is-hidden');
-                $(this.headerCorrectionTargets).addClass('is-hidden');
-                $(this.headerEvaluationTargets).addClass('is-hidden');
-                $(this.headerAktDep1Targets).addClass('is-hidden');
-                $(this.headerReasonTargets).addClass('is-hidden');
-                $(this.headerAktDep3Targets).addClass('is-hidden');
-                $(this.headerAktDep3Targets).addClass('is-hidden');
-                $(this.headerFormKpiTargets).addClass('is-hidden');
-                $(this.headerPRMethodTargets).addClass('is-hidden');
-
-                $(this.fieldSensorTargets).addClass('is-hidden');
-                $(this.fieldReplacePowerTargets).addClass('is-hidden');
-                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
-                $(this.fieldHourTargets).addClass('is-hidden');
-                $(this.fieldEnergyValueTargets).addClass('is-hidden');
-                $(this.fieldIrrValueTargets).addClass('is-hidden');
-                $(this.fieldCorrectionTargets).addClass('is-hidden');
-                $(this.fieldReasonTargets).addClass('is-hidden');
-                $(this.fieldEvaluationTargets).addClass('is-hidden');
-                $(this.fieldAktDep1Targets).addClass('is-hidden');
-                $(this.fieldAktDep2Targets).addClass('is-hidden');
-                $(this.fieldAktDep3Targets).addClass('is-hidden');
-                $(this.fieldPRMethodTargets).addClass('is-hidden');
-                $(this.inverterDivTargets).addClass('is-hidden');
                 $(this.formHourTarget).prop('checked', false);
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
                 break;
 
             default:
-
-                $(this.headerExcludeTargets).addClass('is-hidden');
-                $(this.headerReplaceTargets).addClass('is-hidden');
-                $(this.headerReplacePowerTargets).addClass('is-hidden');
-                $(this.headerReplaceIrrTargets).addClass('is-hidden');
-                $(this.headerHourTargets).addClass('is-hidden');
-                $(this.headerEnergyValueTargets).addClass('is-hidden');
-                $(this.headerIrrValueTargets).addClass('is-hidden');
-                $(this.headerCorrectionTargets).addClass('is-hidden');
-                $(this.headerEvaluationTargets).addClass('is-hidden');
-                $(this.headerAktDep1Targets).addClass('is-hidden');
-                $(this.headerReasonTargets).addClass('is-hidden');
-                $(this.headerAktDep2Targets).addClass('is-hidden');
-                $(this.headerAktDep3Targets).addClass('is-hidden');
-                $(this.headerFormKpiTargets).addClass('is-hidden');
-                $(this.headerPRMethodTargets).addClass('is-hidden');
-
-                $(this.fieldSensorTargets).addClass('is-hidden');
-                $(this.fieldReplacePowerTargets).addClass('is-hidden');
-                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
-                $(this.fieldHourTargets).addClass('is-hidden');
-                $(this.fieldEnergyValueTargets).addClass('is-hidden');
-                $(this.fieldIrrValueTargets).addClass('is-hidden');
-                $(this.fieldCorrectionTargets).addClass('is-hidden');
-                $(this.fieldEvaluationTargets).addClass('is-hidden');
-                $(this.fieldAktDep1Targets).addClass('is-hidden');
-                $(this.fieldAktDep2Targets).addClass('is-hidden');
-                $(this.fieldAktDep3Targets).addClass('is-hidden');
-                $(this.fieldReasonTargets).addClass('is-hidden');
-                $(this.formHourTargets).prop('checked', false);
-                $(this.fieldPRMethodTargets).addClass('is-hidden');
                 $(this.inverterDivTargets).removeClass('is-hidden');
-                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
+                $(this.formHourTargets).prop('checked', false);
 
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
         }
     }
     setBody(html){
@@ -1184,7 +973,6 @@ export default class extends Controller {
         $(this.saveButtonTarget).attr('disabled', 'disabled');
         $(this.CalloutTarget).removeClass('is-hidden');
         $(this.AlertInverterSubmitTarget).removeClass('is-hidden');
-
     }
     submitInverters(event){
         event.preventDefault();

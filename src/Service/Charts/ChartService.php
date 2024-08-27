@@ -517,18 +517,12 @@ class ChartService
                     $resultArray['grid'] = $this->getGrid($anlage, $from, $to);
                     break;
                 case 'forecast':
-                    if ($anlage->getUseDayForecast()) {
-                        $dataArray = $this->forecastChart->getForecastDayClassic($anlage, $to);
-                    } else {
-                        if ($anlage->getUsePac()) {
-                            $dataArray = $this->forecastChart->getForecastFac($anlage, $to);
-                        } else {
-                            $dataArray = $this->forecastChart->getForecastClassic($anlage, $to);
-                        }
-                    }
+
+                    $dataArray = $this->forecastChart->getForecastDayClassic($anlage, $to);
+
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
-                        $resultArray['headline'] = 'Forecast Ertrag';
+                        $resultArray['headline'] = $dataArray['headline'];
                         $resultArray['series1']['name'] = '';
                         $resultArray['series1']['tooltipText'] = '';
                     }

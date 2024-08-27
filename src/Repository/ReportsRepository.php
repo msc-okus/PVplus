@@ -118,7 +118,7 @@ class ReportsRepository extends ServiceEntityRepository
             $qb->andWhere("report.year = $searchyear");
         }
         if ($term != '') {
-            $qb->andWhere(" a.anlName LIKE '$term' ");
+            $qb->andWhere(" a.anlId LIKE '$term' ");
         }
         return $qb;
     }

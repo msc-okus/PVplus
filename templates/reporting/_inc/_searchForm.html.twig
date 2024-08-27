@@ -4,8 +4,7 @@
         <div class="grid-x grid-padding-x">
 
             <div class="cell medium-6" >
-              <input type="text" name="anlage" class="input-group-field js-autocomplete-plant" value="{{ anlage }}" placeholder="Search plants">
-                {#   <select name="anlage-id"
+                <select name="anlage"
                         data-report-target="anlage"
                         data-action="report#handleAnlageInput"
                         {{ stimulus_controller('symfony/ux-autocomplete/autocomplete', {
@@ -20,7 +19,7 @@
                     {% for anlage in anlagen %}
                         <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlName }} ({{ anlage.anlId }})</option>
                     {% endfor %}
-                </select> #}
+                </select>
             </div>
 
             <div class="cell medium-6">
