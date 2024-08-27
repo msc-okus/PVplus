@@ -1046,6 +1046,24 @@ class AnlageFormType extends AbstractType
             ->add('transformerLimitation', TextType::class,[
                 'label' => 'Transformer Limitations[%]',
             ])
+            ->add('AmPADep1', SwitchType::class, [
+                'label' => 'Activate O&M Department for the PA graph'
+            ])
+            ->add('AmPADep2', SwitchType::class, [
+                'label' => 'Activate EPC Department for the PA graph'
+            ])
+            ->add('AmPADep3', SwitchType::class, [
+                'label' => 'Activate AM Department for the PA graph'
+            ])
+            ->add('AmPRDep1', SwitchType::class, [
+                'label' => 'Activate O&M Department for the PR graph'
+            ])
+            ->add('AmPRDep2', SwitchType::class, [
+                'label' => 'Activate EPC Department for the PR graph'
+            ])
+            ->add('AmPRDep3', SwitchType::class, [
+                'label' => 'Activate AM Department for the PR graph'
+            ])
 
 
             // ###############################################

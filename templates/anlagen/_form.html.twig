@@ -1,3 +1,132 @@
+{% import _self as formMacros %}
+
+{% macro addSunshadingModel(sunshading) %}
+    <li class="accordion-item js-sunshading-item" data-accordion-item data-allow-all-closed="true">
+        <!-- Accordion tab title -->
+        <a href="#" id="accordion-title" class="accordion-title">NEW Sun Shading Model:</a>
+
+        <div class="accordion-content" data-tab-content>
+
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-6">{{ form_row(sunshading.description) }}</div>
+                </div>
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_tilt) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_table_height) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_width) }}</div>
+                </div>
+            <div class="grid-x grid-padding-x">
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_table_distance) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.distance_a) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.distance_b) }}</div>
+                </div>
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-12">{{ form_row(sunshading.ground_slope) }}</div>
+                </div>
+            <fieldset class="fieldset">
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-6">{{ form_row(sunshading.modulesDB) }}</div>
+                    {#  <div class="cell medium-6">{{ form_row(sunshading.has_row_shading) }}</div> #}
+                    <div class="cell medium-6">{{ form_row(sunshading.mod_alignment) }}</div>
+                </div>
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_long_page) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_short_page) }}</div>
+                    <div class="cell medium-4">{{ form_row(sunshading.mod_row_tables) }}</div>
+                </div>
+            </fieldset>
+
+        </div>
+    </li>
+{% endmacro %}
+
+{% macro addModule(module) %}
+    <li class="accordion-item js-module-item" data-accordion-item data-allow-all-closed="true">
+        <!-- Accordion tab title -->
+        <a href="#" class="accordion-title">Modul: NEW</a>
+
+        <div class="accordion-content" data-tab-content>
+            <div class="grid-x grid-padding-x">
+                <div class="cell medium-2">{{ form_row(module.type) }}</div>
+                <div class="cell medium-2">{{ form_row(module.power) }}</div>
+                <div class="cell medium-2">{{ form_row(module.tempCoefCurrent) }}</div>
+                <div class="cell medium-2">{{ form_row(module.tempCoefVoltage) }}</div>
+                <div class="cell medium-2">{{ form_row(module.tempCoefPower) }}</div>
+                <div class="cell medium-2">{{ form_row(module.degradation) }}</div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="cell medium-2">{{ form_row(module.maxImpp) }}</div>
+                <div class="cell medium-2">{{ form_row(module.maxUmpp) }}</div>
+                <div class="cell medium-2">{{ form_row(module.maxPmpp) }}</div>
+                <div class="cell medium-2">{{ form_row(module.backSideFactor) }}</div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="cell medium-6 large-4">
+                    <fieldset class="fieldset">
+                        <legend>Operators Current</legend>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentA) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentB) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentC) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentD) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentE) }}</div>
+                        </div>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentHighA) }}</div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="cell medium-6 large-4">
+                    <fieldset class="fieldset">
+                        <legend>Operators Voltage</legend>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">{{ form_row(module.operatorVoltageA) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorVoltageB) }}</div>
+                        </div>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">{{ form_row(module.operatorVoltageHightA) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorVoltageHightB) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorVoltageHightC) }}</div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="cell medium-6 large-4">
+                    <fieldset class="fieldset">
+                        <legend>Operators Power</legend>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerA) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerB) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerC) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerD) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerE) }}</div>
+                        </div>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerHighA) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerHighB) }}</div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </li>
+{% endmacro %}
+
+{% macro addTimeConfig(timeConfig) %}
+    <tr>
+        <td>{{ form_widget(timeConfig.type) }}</td>
+        <td>{{ form_widget(timeConfig.startDateMonth) }}</td>
+        <td>{{ form_widget(timeConfig.startDateDay) }}</td>
+        <td>{{ form_widget(timeConfig.endDateMonth) }}</td>
+        <td>{{ form_widget(timeConfig.endDateDay) }}</td>
+        <td>{{ form_widget(timeConfig.startTime) }}</td>
+        <td>{{ form_widget(timeConfig.endTime) }}</td>
+        <td>{{ form_widget(timeConfig.maxFailTime) }}</td>
+        <td></td>
+    </tr>
+{% endmacro %}
+
 {{ form_start(anlageForm, {'attr': {'novalidate': 'no'}} ) }}
     <div class="grid-x">
         <div class="cell">
@@ -217,11 +346,33 @@
                                             {{ form_row(anlageForm.transformerLimitation) }}
                                         </div>
 
-                                        <div class="cell medium-6">{{ form_row(anlageForm.dataSourceAM) }}</div>
-                                        <div class="cell medium-6">{{ form_row(anlageForm.retrieveAllData) }}</div>
-                                    </div>
-                                </fieldset>
-                        </div>
+                                    <div class="cell medium-6">{{ form_row(anlageForm.dataSourceAM) }}</div>
+                                    <div class="cell medium-6">{{ form_row(anlageForm.retrieveAllData) }}</div>
+                                </div>
+                            </fieldset>
+                        <fieldset class="fieldset">
+                            <legend>AM Graphics configuration</legend>
+                            <div class="grid-x grid-margin-x">
+                                <div class="cell small-6 medium-6">
+                                    PA Graphics:
+
+                                    {{ form_row(anlageForm.AmPADep1) }}
+
+                                    {{ form_row(anlageForm.AmPADep2) }}
+
+                                    {{ form_row(anlageForm.AmPADep3) }}
+                                </div>
+                                <div class="cell small-6 medium-6">
+                                    PR Graphics:
+
+                                    {{ form_row(anlageForm.AmPRDep1) }}
+
+                                    {{ form_row(anlageForm.AmPRDep2) }}
+
+                                    {{ form_row(anlageForm.AmPRDep3) }}
+                                </div>
+                            </div>
+                        </fieldset>
                     </div>
                 </div>
             </div>
