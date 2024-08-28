@@ -128,8 +128,27 @@ class ImportService
 
             $stationCode = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'stationCode');
 
-            echo $stationCode;
+            echo "$stationCode<br>";
 
+            $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getKpiStationDay";
+            $headerFields = [
+                "content-type: application/json",
+                "Cookie: XSRF-TOKEN=". $apiAccessToken,
+                "XSRF-TOKEN: ". $apiAccessToken,
+            ];
+
+            $postFileds = '
+            {
+                "stationCodes": "'.$stationCode.'",
+                "collectTime": "1724273100000"
+            }
+            ';
+
+            $data = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'getKpiStationDay');
+
+            echo "<pre>";
+            print_r($data);
+            echo "</pre>";
             exit;
         }
 
