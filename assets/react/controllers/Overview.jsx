@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel, flexRender } from '@tanstack/react-table';
 import axios from 'axios';
 import ManageColumnsVisibility from "./ ManageColumnsVisibility";
@@ -6,31 +6,32 @@ import {useTheme} from "./ThemenContext";
 
 
 
-const Overview = ({ itemId, setSelectedRowData, onFirstRowClick }) => {
+const Overview = ({ itemId, setSelectedRowData}) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [columnVisibility, setColumnVisibility] = useState({ id: false });
     const [dropdownVisible, setDropdownVisible] = useState(false);
-    const [sorting, setSorting] = useState([{ id: 'status', desc: true }]);
+    const [sorting, setSorting] = useState([]);
     const [globalFilter, setGlobalFilter] = useState('');
     const [columnFilters, setColumnFilters] = useState([]);
     const [selectedRowData, setSelectedRowDataLocal] = useState(null);
     const [isG4N, setIsG4N] = useState(false);
     const { theme } = useTheme();
-    const firstRowRef = useRef(null); // Ref for the first row
 
-    useEffect(() => {
+
+    const fetchData = (showLoading = true) => {
+        if (showLoading) {
+            setLoading(true);
+        }else{
+            console.log('refresh')
+        }
         axios.get('/new/retrieve_plants')
             .then(response => {
                 setIsG4N(response.data.isG4n);
-                setData(response.data.plants);
-                setLoading(false);
-
-                // Automatically select the first row after data is loaded
-                if (response.data.plants.length > 0) {
-                    const firstRowData = response.data.plants[0];
-                    setSelectedRowDataLocal(firstRowData); // Update local state
-                    onFirstRowClick(firstRowData);
+                const sortedData = sortData(response.data.plants);
+                setData(sortedData);
+                if (showLoading) {
+                    setLoading(false);
                 }
 
             })
@@ -38,7 +39,40 @@ const Overview = ({ itemId, setSelectedRowData, onFirstRowClick }) => {
                 console.error("There was an error fetching the plants data!", error);
                 setLoading(false);
             });
+    };
+
+    const sortData = (plants) => {
+        return plants.sort((a, b) => {
+            const colorA = JSON.parse(a.status).color.toLowerCase();
+            const colorB = JSON.parse(b.status).color.toLowerCase();
+            const order = { 'red': 1, 'orange': 2, 'blue': 3, 'green': 4, 'black': 5 };
+            return order[colorA] - order[colorB];
+        });
+    };
+
+    // Chargement initial des données
+    useEffect(() => {
+        fetchData();
     }, []);
+
+    useEffect(() => {
+        const intervalId = setInterval(()=>fetchData(false), 30000);
+        return () => clearInterval(intervalId);
+    }, []);
+
+
+    useEffect(() => {
+        if (!loading && data.length > 0) {
+            if(selectedRowData){
+                handleRowClick(selectedRowData);
+            }else{
+                handleRowClick(data[0]);
+            }
+
+        }
+    }, [loading, data]);
+
+
 
     const columns = [
         {
@@ -162,8 +196,8 @@ const Overview = ({ itemId, setSelectedRowData, onFirstRowClick }) => {
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         initialState: {
-            pagination: { pageSize: 10 },
-            sorting: [{ id: 'status', desc: true }] // Set the initial sorting state here
+            pagination: { pageSize: 10 }
+
         },
     });
 
@@ -268,7 +302,6 @@ const Overview = ({ itemId, setSelectedRowData, onFirstRowClick }) => {
                             {table.getRowModel().rows.map((row,index) => (
                                 <tr
                                     key={row.id}
-                                    ref={index === 0 ? firstRowRef : null} // Assign ref to the first row
                                     onMouseDown={(e) => e.stopPropagation()}
                                     onClick={(e) => {
                                         e.stopPropagation();

@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 
+use App\Entity\Anlage;
 use App\Repository\AnlagenRepository;
 use App\Repository\EignerRepository;
+use App\Service\Charts\ChartService;
 use App\Service\SystemStatus2;
 use DateTime;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -108,6 +110,26 @@ class NewDashboardController extends BaseController
         return $this->json($data, 200, ['Content-Type' => 'application/json']);
     }
 
+    #[Route(path: '/new/chart', name: 'app_newDashboard_chart')]
+    public function chart( ChartService $chartService,AnlagenRepository $anlagenRepository): JsonResponse{
+
+        $hour = '';
+        $form = [];
+        $anlageId ='';
+        $data=[];
+        /* @var Anlage|null $aktAnlage */
+        if ($anlageId && $anlageId > 0) {
+            $aktAnlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
+        } else {
+            $aktAnlage = null;
+        }
+        if ($aktAnlage) {
+            $data = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
+        }
+
+        return $this->json($data, 200, ['Content-Type' => 'application/json']);
+    }
+
 
     private function convertDateTimeToString(?DateTime $date):string {
 
@@ -137,22 +159,22 @@ class NewDashboardController extends BaseController
         $paTodayStatus = $statusData['paToday']['paStatus'] ?? '';
 
         // Check conditions for "alert"
-        if ($ioPlantDataStatus === 'alert' || $ioWeatherDataStatus === 'alert' || $expDiffStatus === 'alert' || $paTodayStatus === 'alert') {
+        if ($ioPlantDataStatus === 'alert' || $ioWeatherDataStatus === 'alert'  || $paTodayStatus === 'alert') {
             return ['color'=>'red','status'=>'Alert'];
         }
 
         // Check conditions for "warning"
-        if ($ioPlantDataStatus === 'warning' || $ioWeatherDataStatus === 'warning' || $expDiffStatus === 'warning' || $paTodayStatus === 'warning') {
+        if ($ioPlantDataStatus === 'warning' || $ioWeatherDataStatus === 'warning'  || $paTodayStatus === 'warning') {
             return ['color'=>'orange','status'=>'Warning'];
         }
 
         // Check conditions for "blue"
-        if ($ioPlantDataStatus === '' || $ioWeatherDataStatus === '' || $expDiffStatus === '' || $paTodayStatus === '') {
+        if ($ioPlantDataStatus === '' || $ioWeatherDataStatus === '' ||  $paTodayStatus === '') {
             return ['color'=>'blue','status'=>'No data'];
         }
 
         // If all are "normal", return "green"
-        if ($ioPlantDataStatus === 'normal' && $ioWeatherDataStatus === 'normal' && $expDiffStatus === 'normal' && $paTodayStatus === 'normal') {
+        if ($ioPlantDataStatus === 'normal' && $ioWeatherDataStatus === 'normal'  && $paTodayStatus === 'normal') {
             return ['color'=>'green','status'=>'Normal'];
         }
 

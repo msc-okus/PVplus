@@ -315,6 +315,7 @@ class DashboardPlantsController extends BaseController
 #echo $form['selectedChart'];
 #exit;
 
+
         return $this->render('dashboardPlants/plantsShow.html.twig', [
             'anlagen' => $anlagen,
             'aktAnlage' => $aktAnlage,

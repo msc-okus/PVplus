@@ -73,8 +73,10 @@ class AnlageStringAssigmentService
 
         $connection_pvp_base = $this->pdo->getPdoBase();
         $stmt = $connection_pvp_base->prepare($sql_pvp_base);
-        $stmt->execute([':anlId' => $anlId]); // Corrigé pour utiliser un tableau associatif
+        $stmt->execute([':anlId' => $anlId]);
         $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
 
         $this->logMessages->updateEntry($logId, 'working', 30);
 
@@ -106,13 +108,14 @@ class AnlageStringAssigmentService
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-
         $resultsIndex = [];
         foreach ($results as $result) {
             $key = "{$result['inverterNr']}-{$result['stringNr']}-{$result['channelNr']}";
             $resultsIndex[$key] = $result['average_I_value'];
         }
        $this->logMessages->updateEntry($logId, 'working', 80);
+
+
 
         $joinedData = [];
         foreach ($assignments as $assignment) {

@@ -44,9 +44,7 @@ const Dashboard = ({ maxItems }) => {
         setLayouts(newLayouts);
     };
 
-    const onFirstRowClick = (firstRowData) => {
-        setSelectedRowData(firstRowData);
-    };
+
 
     const availableItemTypes = Object.keys(itemTypes);
 
@@ -110,7 +108,7 @@ const Dashboard = ({ maxItems }) => {
                 {layouts.lg.map((item) => (
                     <div key={item.i} data-grid={item} style={{ position: "relative", background: "white" }}>
                         {item.i.startsWith('overview') ? (
-                            <Overview itemId={item.i} setSelectedRowData={setSelectedRowData} onFirstRowClick={onFirstRowClick}/>
+                            <Overview itemId={item.i} setSelectedRowData={setSelectedRowData} />
                         ) : item.i.startsWith('panel') ? (
                             <Panel itemId={item.i} selectedRowData={selectedRowData} />
                         ) : item.i.startsWith('chart') ? (
