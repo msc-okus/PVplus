@@ -22,8 +22,6 @@ const Overview = ({ itemId, setSelectedRowData}) => {
     const fetchData = (showLoading = true) => {
         if (showLoading) {
             setLoading(true);
-        }else{
-            console.log('refresh')
         }
         axios.get('/new/retrieve_plants')
             .then(response => {
@@ -37,7 +35,9 @@ const Overview = ({ itemId, setSelectedRowData}) => {
             })
             .catch(error => {
                 console.error("There was an error fetching the plants data!", error);
-                setLoading(false);
+                if (showLoading) {
+                    setLoading(false);
+                }
             });
     };
 
