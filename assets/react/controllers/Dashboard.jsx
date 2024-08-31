@@ -11,9 +11,9 @@ import { useTheme } from "./ThemenContext";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const itemTypes = {
-    overview: { w: 12, h: 3, maxH: 5, minH: 3 },
+    overview: { w: 12, h: 3, maxH: 5, minH: 1.5 },
     panel: { w: 12, h: 2, maxH: 2, minH: 2 },
-    chart: { w: 4, h: 2, maxH: 5, minH: 2 }
+    chart: { w: 12, h: 2, maxH: 5, minH: 2 }
 };
 
 const Dashboard = ({ maxItems }) => {
@@ -233,7 +233,7 @@ const Dashboard = ({ maxItems }) => {
 const generateLayout = () => {
     return [
         { i: 'panel_0', x: 0, y: 0, w: 12, h: 2, maxH: 2, minH: 2, zIndex: 1 },
-        { i: 'overview_0', x: 0, y: 2, w: 12, h: 3, maxH: 5, minH: 3, zIndex: 2 },
+        { i: 'overview_0', x: 0, y: 2, w: 12, h: 3, maxH: 5, minH: 1.5, zIndex: 2 },
     ];
 };
 
