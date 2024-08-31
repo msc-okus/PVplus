@@ -83,10 +83,10 @@ class AnlageStringAssignmentController extends BaseController
             $job .= " - " . $this->getUser()->getname();
             $logId = $logMessages->writeNewEntry($anlage, 'AnlageStringAssignment', $job, $uid);
 
-           // $anlageStringAssigmentService->exportMontly((int)$anlageId,(int)$year,(int)$month,$currentUserName,$tableName,$logId);
+            $anlageStringAssigmentService->exportMontly((int)$anlageId,(int)$year,(int)$month,$currentUserName,$tableName,$logId);
 
-           $message = new \App\Message\Command\AnlageStringAssignment((int)$anlageId, (int)$year, (int)$month, $currentUserName, $tableName, $logId);
-            $messageBus->dispatch($message);
+          // $message = new \App\Message\Command\AnlageStringAssignment((int)$anlageId, (int)$year, (int)$month, $currentUserName, $tableName, $logId);
+         //   $messageBus->dispatch($message);
 
 
             return new Response(null, Response::HTTP_NO_CONTENT);

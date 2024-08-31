@@ -69,6 +69,7 @@ class AnlageStringAssigmentService
                             AND CAST(ass.station_nr AS UNSIGNED) = CAST(acg.trafo_nr AS UNSIGNED)
                             AND CAST(ass.inverter_nr AS UNSIGNED) = groups.ac_group
                             AND (CAST(ass.string_nr AS UNSIGNED) + (CAST(ass.inverter_nr AS UNSIGNED) - 1) * 9) = groups.unit_first
+                            AND ass.string_active = '1';
                         ";
 
         $connection_pvp_base = $this->pdo->getPdoBase();

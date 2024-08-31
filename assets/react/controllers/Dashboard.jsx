@@ -11,19 +11,20 @@ import { useTheme } from "./ThemenContext";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const itemTypes = {
-    overview: { w: 12, h: 3, maxH: 5 ,minH: 3},
-    panel: { w: 12, h: 2, maxH: 2, minH:2 },
-    chart: { w: 4, h: 2, maxH: 5 ,minH: 2}
+    overview: { w: 12, h: 3, maxH: 5, minH: 3 },
+    panel: { w: 12, h: 2, maxH: 2, minH: 2 },
+    chart: { w: 4, h: 2, maxH: 5, minH: 2 }
 };
 
 const Dashboard = ({ maxItems }) => {
     const [layouts, setLayouts] = useState({ lg: generateLayout() });
     const [counter, setCounter] = useState(4);
     const [selectedRowData, setSelectedRowData] = useState(null);
-    const { theme, toggleTheme } = useTheme(); // Use the theme and toggleTheme from context
+    const { theme, toggleTheme } = useTheme();
     const [isFullScreen, setIsFullScreen] = useState(false);
-    const [rowHeight, setRowHeight] = useState(150); // Default value for rowHeight
+    const [rowHeight, setRowHeight] = useState(150);
     const [gridHeight, setGridHeight] = useState('auto');
+    const [maxZIndex, setMaxZIndex] = useState(1); // Track maximum z-index
 
     const onLayoutChange = (layout, layouts) => {
         setLayouts(layouts);
@@ -39,7 +40,9 @@ const Dashboard = ({ maxItems }) => {
                 ...itemTypes[type],
                 maxH: itemTypes[type].maxH,
                 minH: itemTypes[type].minH,
+                zIndex: maxZIndex + 1, // Set initial zIndex
             };
+            setMaxZIndex(maxZIndex + 1); // Update max zIndex
             newLayouts.lg.push(newItem);
             setLayouts(newLayouts);
             setCounter(counter + 1);
@@ -53,7 +56,16 @@ const Dashboard = ({ maxItems }) => {
         setLayouts(newLayouts);
     };
 
-
+    const handleMouseOverItem = (itemId) => {
+        const newLayouts = layouts.lg.map(item => {
+            if (item.i === itemId) {
+                return { ...item, zIndex: maxZIndex + 1 };
+            }
+            return item;
+        });
+        setLayouts({ lg: newLayouts });
+        setMaxZIndex(maxZIndex + 1); // Update the max z-index
+    };
 
     const availableItemTypes = Object.keys(itemTypes);
 
@@ -67,38 +79,57 @@ const Dashboard = ({ maxItems }) => {
         }
     };
 
+    const onDragStop = (layout, oldItem, newItem, placeholder, e, element) => {
+        // Constrain item to stay within grid height
+        const maxY = Math.floor(gridHeight / rowHeight) - newItem.h;
+        if (newItem.y > maxY) {
+            newItem.y = maxY;
+            setLayouts({ lg: layout.map(l => l.i === newItem.i ? newItem : l) });
+        }
+    };
 
+    const onResizeStop = (layout, oldItem, newItem, placeholder, e, element) => {
+        // Calculate the maximum height the item can have within the grid
+        const maxAllowedHeight = Math.floor(gridHeight / rowHeight) - newItem.y;
+
+        // If resizing the item makes it exceed the grid's height, constrain it
+        if (newItem.h > maxAllowedHeight) {
+            newItem.h = maxAllowedHeight;
+            setLayouts({ lg: layout.map(l => l.i === newItem.i ? newItem : l) });
+        }
+    };
 
     useEffect(() => {
         const updateRowHeight = () => {
             const width = window.innerWidth;
 
-            if (width >= 1400) { // xxl
+            if (width >= 1400) {
                 setRowHeight(150);
-            } else if (width <= 1200) { // xl
+            } else if (width <= 1200) {
                 setRowHeight(120);
             }
         };
 
         window.addEventListener('resize', updateRowHeight);
-        updateRowHeight(); // Set the initial value
+        updateRowHeight();
 
         return () => window.removeEventListener('resize', updateRowHeight);
     }, []);
 
     useEffect(() => {
         const updateHeight = () => {
-            const totalRows = 5; // Example, you might calculate this dynamically
-            const margin = 15; // If you have a margin of [5, 5]
+            const totalRows = 5;
+            const margin = 15;
             const totalHeight = totalRows * (rowHeight + margin);
             setGridHeight(totalHeight);
         };
 
-        updateHeight(); // Set the initial value
+        updateHeight();
     }, [rowHeight]);
+
     return (
-        <div style={{height: '100%' ,border:'1px solid transparent'}}>
-            <div className="d-flex justify-content-between " style={{ marginBottom:'5px'}}>
+        <div style={{ height: '100%', border: '1px solid transparent' }}>
+            <div className="d-flex justify-content-between " style={{ marginBottom: '5px' }}>
                 <DropdownButton
                     id="dropdown-basic-button"
                     title={<i className="fas fa-plus" style={{
@@ -122,72 +153,78 @@ const Dashboard = ({ maxItems }) => {
                         </Dropdown.Item>
                     ))}
                 </DropdownButton>
-                <NavBar/>
+                <NavBar />
                 <div className="d-flex justify-content-center align-items-center">
                     <i
                         className="fas fa-adjust"
                         onClick={toggleTheme}
                         title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-                        style={{fontSize: '1.5rem', cursor: 'pointer'}}
+                        style={{ fontSize: '1.5rem', cursor: 'pointer' }}
                     ></i>
                     <i
                         className={isFullScreen ? "fas fa-compress" : "fas fa-expand"}
                         onClick={toggleFullScreen}
                         title={isFullScreen ? "Exit fullscreen" : "View fullscreen"}
-                        style={{fontSize: '1.5rem', cursor: 'pointer', marginLeft: '10px'}}
+                        style={{ fontSize: '1.5rem', cursor: 'pointer', marginLeft: '10px' }}
                     ></i>
                 </div>
             </div>
-            <div style={{ height: `${gridHeight}px` , border:`1px solid ${theme === 'dark'?'#5e5d5d':'#b9b7b7'}`}}>
-            <ResponsiveGridLayout
-                rowHeight={rowHeight}
-                margin={[5,5]}
-                layouts={layouts}
-                onLayoutChange={(layout, layouts) => onLayoutChange(layout, layouts)}
-                isDraggable={true}
-                isResizable={true}
-                allowOverlap={true}
-                useCSSTransforms={true} // Smoother dragging and resizing
-
-            >
-                {layouts.lg.map((item) => (
-                    <div key={item.i} data-grid={item} style={{position: "relative", background: "white"}}>
-                        {item.i.startsWith('overview') ? (
-                            <Overview itemId={item.i} setSelectedRowData={setSelectedRowData}/>
-                        ) : item.i.startsWith('panel') ? (
-                            <Panel itemId={item.i} selectedRowData={selectedRowData}/>
-                        ) : item.i.startsWith('chart') ? (
-                            <Chart itemId={item.i} selectedRowData={selectedRowData}/>
-                        ) : (
-                            <span className="text">{item.i}</span>
-                        )}
-                        <button
-                            onMouseDown={(e) => e.stopPropagation()}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                removeItem(item.i);
+            <div style={{ height: `${gridHeight}px`, border: `1px solid ${theme === 'dark' ? '#5e5d5d' : '#b9b7b7'}` }}>
+                <ResponsiveGridLayout
+                    rowHeight={rowHeight}
+                    margin={[5, 5]}
+                    layouts={layouts}
+                    onLayoutChange={(layout, layouts) => onLayoutChange(layout, layouts)}
+                    isDraggable={true}
+                    isResizable={true}
+                    allowOverlap={true}
+                    useCSSTransforms={true}
+                    onDragStop={onDragStop} // Handle dragging stops
+                    onResizeStop={onResizeStop} // Handle resizing stops
+                >
+                    {layouts.lg.map((item) => (
+                        <div
+                            key={item.i}
+                            data-grid={item}
+                            style={{
+                                position: "relative",
+                                background: "white",
+                                zIndex: item.zIndex || 1 // Ensure zIndex is set
                             }}
-                            className="btn"
-                            style={{position: "absolute", top: '0', right: '0', zIndex: '10'}}
+                            onMouseOver={() => handleMouseOverItem(item.i)} // Handle item click
                         >
-                            <i className="fas fa-times" style={{fontSize: '1rem', color: '#000'}} title="close"></i>
-                        </button>
-                    </div>
-                ))}
-            </ResponsiveGridLayout>
+                            {item.i.startsWith('overview') ? (
+                                <Overview itemId={item.i} setSelectedRowData={setSelectedRowData} />
+                            ) : item.i.startsWith('panel') ? (
+                                <Panel itemId={item.i} selectedRowData={selectedRowData} />
+                            ) : item.i.startsWith('chart') ? (
+                                <Chart itemId={item.i} selectedRowData={selectedRowData} />
+                            ) : (
+                                <span className="text">{item.i}</span>
+                            )}
+                            <button
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeItem(item.i);
+                                }}
+                                className="btn"
+                                style={{ position: "absolute", top: '0', right: '0', zIndex: '10' }}
+                            >
+                                <i className="fas fa-times" style={{ fontSize: '1rem', color: '#000' }} title="close"></i>
+                            </button>
+                        </div>
+                    ))}
+                </ResponsiveGridLayout>
             </div>
-            <div className="d-flex justify-content-center align-items-center" style={{  marginTop:'5px'}}>
-
-                <nav
-                    className={`navbar navbar-expand-lg ${theme === 'light' ? 'navbar-light bg-light' : 'navbar-dark bg-dark'}`}>
+            <div className="d-flex justify-content-center align-items-center" style={{ marginTop: '5px' }}>
+                <nav className={`navbar navbar-expand-lg ${theme === 'light' ? 'navbar-light bg-light' : 'navbar-dark bg-dark'}`}>
                     <div className="container-fluid">
                         <div className="collapse navbar-collapse ">
-                            <p className="text-center m-0">&copy; 2018 - 2024 Green4Net - All Rights Reserved - PV+ 4.0
-                                v2.5.1 beta</p>
+                            <p className="text-center m-0">&copy; 2018 - 2024 Green4Net - All Rights Reserved - PV+ 4.0 v2.5.1 beta</p>
                         </div>
                     </div>
                 </nav>
-
             </div>
         </div>
     );
@@ -195,8 +232,8 @@ const Dashboard = ({ maxItems }) => {
 
 const generateLayout = () => {
     return [
-        {i: 'panel_0', x: 0, y: 0, w: 12, h: 2,maxH: 2 , minH:2},
-        {i: 'overview_0', x: 0, y: 2, w: 12, h: 3,maxH: 5 , minH:3},
+        { i: 'panel_0', x: 0, y: 0, w: 12, h: 2, maxH: 2, minH: 2, zIndex: 1 },
+        { i: 'overview_0', x: 0, y: 2, w: 12, h: 3, maxH: 5, minH: 3, zIndex: 2 },
     ];
 };
 
