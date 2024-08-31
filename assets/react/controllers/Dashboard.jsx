@@ -13,7 +13,7 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 const itemTypes = {
     overview: { w: 12, h: 3, maxH: 5, minH: 1.5 },
     panel: { w: 12, h: 2, maxH: 2, minH: 2 },
-    chart: { w: 12, h: 2, maxH: 5, minH: 2 }
+    chart: { w: 11, h: 2, maxH: 5, minH: 2 }
 };
 
 const Dashboard = ({ maxItems }) => {
@@ -36,7 +36,7 @@ const Dashboard = ({ maxItems }) => {
             const newItem = {
                 i: `${type}_${counter}`,
                 x: 0,
-                y: 0,
+                y: 1,
                 ...itemTypes[type],
                 maxH: itemTypes[type].maxH,
                 minH: itemTypes[type].minH,
@@ -172,7 +172,7 @@ const Dashboard = ({ maxItems }) => {
             <div style={{ height: `${gridHeight}px`, border: `1px solid ${theme === 'dark' ? '#5e5d5d' : '#b9b7b7'}` }}>
                 <ResponsiveGridLayout
                     rowHeight={rowHeight}
-                    margin={[5, 5]}
+                    margin={[5, 10]}
                     layouts={layouts}
                     onLayoutChange={(layout, layouts) => onLayoutChange(layout, layouts)}
                     isDraggable={true}
