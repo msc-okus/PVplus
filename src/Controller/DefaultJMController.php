@@ -31,7 +31,7 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 #[IsGranted('ROLE_G4N')]
-class DefaultJMController extends AbstractController
+class DefaultJMController extends BaseController
 {
     use G4NTrait;
 

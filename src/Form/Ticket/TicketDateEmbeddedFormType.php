@@ -47,8 +47,9 @@ class TicketDateEmbeddedFormType extends AbstractType
                     //'data-ticket-edit-target' => 'formEndDate'
                 ],
             ])
-            ->add('beginHidden', DateTimeType::class, [
-                'widget' => 'single_text',
+            ->add('beginHidden', TextType::class, [
+                'data' => '',
+                //'widget' => 'single_text',
                 'attr' => [
                     'readonly' => true,
                     'data-ticket-edit-target' => 'formBeginHidden',
@@ -56,8 +57,9 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'class' => 'is-hidden'
                 ],
             ])
-            ->add('endHidden', DateTimeType::class, [
-                'widget' => 'single_text',
+            ->add('endHidden', TextType::class, [
+                'data' => '',
+                //'widget' => 'single_text',
                 'attr' => [
                     'readonly' => true,
                     'data-ticket-edit-target' => 'formEndHidden',
@@ -151,14 +153,14 @@ class TicketDateEmbeddedFormType extends AbstractType
                 ->add('replaceEnergy', SwitchType::class, [
                     'label'     => 'replace Energy with PVsyst',
                     'attr' => [
-                        'data-action' => 'change->ticket-edit#replaceCheck',
+                        'data-action' => 'change->ticket-edit#checkCategory',
                         'data-ticket-edit-target' => 'formReplace'
                     ],
                 ])
                 ->add('replaceEnergyG4N', SwitchType::class, [
                     'label'     => 'replace Energy with G4N Expected',
                     'attr' => [
-                        'data-action' => 'change->ticket-edit#replaceCheck',
+                        'data-action' => 'change->ticket-edit#checkCategory',
                         'data-ticket-edit-target' => 'formReplaceG4N'
                     ],
                     // new field (bool)
@@ -166,7 +168,7 @@ class TicketDateEmbeddedFormType extends AbstractType
                 ->add('replaceIrr', SwitchType::class, [
                     'label'     => 'replace Irradiation with PVsyst',
                     'attr' => [
-                        'data-action' => 'change->ticket-edit#replaceCheck',
+                        'data-action' => 'change->ticket-edit#checkCategory',
                         'data-ticket-edit-target' => 'formReplaceIrr'
                     ],
                 ])

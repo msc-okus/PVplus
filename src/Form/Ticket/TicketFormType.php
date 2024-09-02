@@ -166,11 +166,11 @@ class TicketFormType extends AbstractType
             ])
             ->add('needsProofIt', SwitchType::class, [
             'label' => 'proof by IT'
-            ]);
-
-            $builder->add('ignoreTicket', SwitchType::class, [
+            ])
+            ->add('ignoreTicket', SwitchType::class, [
                 'label' => 'Ignore',
             ])
+
             // ### Free Text for descriptions
             ->add('freeText', TextareaType::class, [
                 #'config' => ['toolbar' => 'my_toolbar'],

@@ -1,0 +1,58 @@
+{% import _self as formMacros %}
+
+{% macro addTimeConfig(timeConfig) %}
+    <tr>
+        <td>{{ form_widget(timeConfig.type) }}</td>
+        <td>{{ form_widget(timeConfig.startDateMonth) }}</td>
+        <td>{{ form_widget(timeConfig.startDateDay) }}</td>
+        <td>{{ form_widget(timeConfig.endDateMonth) }}</td>
+        <td>{{ form_widget(timeConfig.endDateDay) }}</td>
+        <td>{{ form_widget(timeConfig.startTime) }}</td>
+        <td>{{ form_widget(timeConfig.endTime) }}</td>
+        <td>{{ form_widget(timeConfig.maxFailTime) }}</td>
+        <td></td>
+    </tr>
+{% endmacro %}
+
+<div class="grid-x grid-margin-x">
+    <div class="cell">
+
+        <fieldset class="fieldset js-timeConfig-wrapper"
+                  data-prototype="{{ formMacros.addTimeConfig(anlageForm.timesConfigs.vars.prototype)|e('html_attr') }}"
+                  data-index="{{ anlageForm.timesConfigs|length }}"
+        >
+            <legend>Timings</legend>
+            <table id="timeConfig">
+                <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Begin Date Month</th>
+                    <th>Begin Date Day</th>
+                    <th>End Date Month</th>
+                    <th>End Date Day</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Max Fail </th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for timeConfig in anlageForm.timesConfigs %}
+                    <tr class="js-timeConfig-item">
+                        <td>{{ form_widget(timeConfig.type) }}</td>
+                        <td>{{ form_widget(timeConfig.startDateMonth) }}</td>
+                        <td>{{ form_widget(timeConfig.startDateDay) }}</td>
+                        <td>{{ form_widget(timeConfig.endDateMonth) }}</td>
+                        <td>{{ form_widget(timeConfig.endDateDay) }}</td>
+                        <td>{{ form_widget(timeConfig.startTime) }}</td>
+                        <td>{{ form_widget(timeConfig.endTime) }}</td>
+                        <td>{{ form_widget(timeConfig.maxFailTime) }}</td>
+                        <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-remove-timeConfig"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <button type="button" class="button secondary small js-add-timeConfig"> <span class="fa fa-plus-circle"></span>&nbsp;Add Time Configuartion</button>
+        </fieldset>
+    </div>
+</div>

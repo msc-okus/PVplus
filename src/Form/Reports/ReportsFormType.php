@@ -26,7 +26,7 @@ class ReportsFormType extends AbstractType
         $builder
             ->add('reportStatus', ChoiceType::class, [
                 'label' => 'Status',
-                'choices' => array_flip(self::reportStati()),//['final' => '0', 'under observation' => 3, 'proof reading' => '5', 'archive (only g4n)' => '9', 'draft (only g4n)' => '10', 'wrong (only g4n)' => '11'],
+                'choices' => array_flip(self::reportStati()),
                 'empty_data' => '0',
             ])
             ->add('headline', TextType::class, [
@@ -37,20 +37,7 @@ class ReportsFormType extends AbstractType
                 #'config' => ['toolbar' => 'my_toolbar'],
                 'empty_data' => '',
             ])
-/*
-            ->add('save', SubmitType::class, [
-                'label' => 'Save',
-                'attr' => ['class' => 'primary save'],
-            ])
-            ->add('saveclose', SubmitType::class, [
-                'label' => 'Save and Close',
-                'attr' => ['class' => 'primary saveclose'],
-            ])
-            ->add('close', SubmitType::class, [
-                'label' => 'Close without save',
-                'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
-            ])
-*/
+
         ;
     }
 

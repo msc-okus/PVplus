@@ -71,8 +71,9 @@ class ImportToolsFormType extends AbstractType
                 'class' => Anlage::class,
                 'required' => true,
                 'choices' => $anlagen_toShow,
-                'choice_label' => 'anlName','autocomplete' => true,
+                'choice_label' => 'anlName',
                 'placeholder' => 'Please select a Plant',
+                'autocomplete' => true,
                 'tom_select_options' => [
                     'max-item' => 1,
                     'create' => false,

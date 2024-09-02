@@ -68,9 +68,9 @@ class AnlageFormType extends AbstractType
             'Leek/Kampen' => 'Leek/Kampen',
         ];
         $epcReportArry = [
-            'Kein Bericht' => 'no',
-            'PR Garantie' => 'prGuarantee',
-            'Ertrags Garantie' => 'yieldGuarantee',
+            'No Report' => 'no',
+            'PR Guarantee' => 'prGuarantee',
+            'Yield Guarantee' => 'yieldGuarantee',
         ];
         $pldDiviorArray = [
             'Expected Energy' => 'expected',
@@ -145,11 +145,25 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '',
                 'required' => false,
             ])
+            /*
             ->add('country', TextType::class, [
                 'label' => 'Shortcut for the country (de, nl, ...)',
                 'help' => '[country]',
                 'empty_data' => '',
                 'required' => false,
+            ])
+            */
+            ->add('country', ChoiceType::class, [
+                'label' => 'Shortcut for the country (de, nl, ...)',
+                'help' => '[country]',
+                'choices' => self::countryCodes(),
+                'empty_data' => '',
+                'required' => false,
+                'autocomplete' => true,
+                'tom_select_options' => [
+                    'max-item' => 1,
+                    'create' => false,
+                ],
             ])
             ->add('anlGeoLat', TextType::class, [
                 'label' => 'Geografische Breite (Latitude) [Dezimalgrad]',
@@ -525,58 +539,64 @@ class AnlageFormType extends AbstractType
             // ###############################################
             ->add('useDayForecast', SwitchType::class, [
                 'label' => 'Use forecast by day for this plant',
-                'help' => '[On / Off]',
+                'help' => '[useDayForecast]<br>',
                 'required' => false,
+            ])
+            ->add('dataSince', DateType::class,[
+                'label' => 'Data Since',
+                'help' => '[dataSince]<br>Beginning with this date we have data in our system.',
+                'widget' => 'single_text',
+                'input' => 'datetime',
             ])
             ->add('useDayaheadForecast', SwitchType::class, [
                 'label' => 'Use Dayahead forecast for this plant',
-                'help' => '[On / Off]',
+                'help' => '[useDayaheadForecast]<br>',
                 'required' => false,
             ])
             ->add('degradationForecast', TextType::class, [
                 'label' => 'Degradation, only forecast [%]',
-                'help' => '[Degradation forecast in %]',
+                'help' => '[degradationForecast]<br>',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3, 'style' => 'width: 55px']
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
             ])
             ->add('lossesForecast', TextType::class, [
                 'label' => 'Losses, only forecast [%]',
-                'help' => '[Losses forecast in %]',
+                'help' => '[lossesForecast]<br>',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3, 'style' => 'width: 55px']
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
             ])
             ->add('bezMeridan', TextType::class, [
                 'label' => 'Reference meridian',
-                'help' => '[Reference meridian for mitteleuropa are 15]',
+                'help' => '[bezMeridan]<br>Reference meridian for mitteleuropa are 15',
                 'label_html' => true,
                 'required' => true,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 55px']
+                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2]
             ])
             ->add('modNeigung', TextType::class, [
                 'label' => 'Module alignment',
-                'help' => '[Module alignment in degrees , example 30]',
+                'help' => '[modNeigung]<br>Module alignment in degrees , example 30',
                 'label_html' => true,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2, 'style' => 'width: 55px']
+                'attr' => ['pattern' => '[0-9]{2}', 'maxlength' => 2]
             ])
             ->add('modAzimut', TextType::class, [
                 'label' => 'Modul azimut',
-                'help' => '[Modul azimut in degrees for S=180 O=90 W=270 ]',
+                'help' => '[modAzimut]<br>Modul azimut in degrees for S=180 O=90 W=270',
                 'label_html' => true,
                 'empty_data' => '0',
-                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3, 'style' => 'width: 55px']
+                'attr' => ['pattern' => '[0-9]{3}', 'maxlength' => 3]
             ])
             ->add('albeto', TextType::class, [
                 'label' => 'Albedo',
-                'help' => '[The albedo are 0.15 for grass or 0.3 for roof]',
+                'help' => '[albeto]<br>The albedo are 0.15 for grass or 0.3 for roof',
                 'label_html' => true,
                 'empty_data' => '0',
-                'attr' => ['maxlength' => 4, 'style' => 'width: 55px']
+                'attr' => ['maxlength' => 4]
             ])
             ->add('datFilename', FileType::class, [
                 'label' => 'Upload the metonorm *.dat file',
@@ -1026,6 +1046,24 @@ class AnlageFormType extends AbstractType
             ])
             ->add('transformerLimitation', TextType::class,[
                 'label' => 'Transformer Limitations[%]',
+            ])
+            ->add('AmPADep1', SwitchType::class, [
+                'label' => 'Activate O&M Department for the PA graph'
+            ])
+            ->add('AmPADep2', SwitchType::class, [
+                'label' => 'Activate EPC Department for the PA graph'
+            ])
+            ->add('AmPADep3', SwitchType::class, [
+                'label' => 'Activate AM Department for the PA graph'
+            ])
+            ->add('AmPRDep1', SwitchType::class, [
+                'label' => 'Activate O&M Department for the PR graph'
+            ])
+            ->add('AmPRDep2', SwitchType::class, [
+                'label' => 'Activate EPC Department for the PR graph'
+            ])
+            ->add('AmPRDep3', SwitchType::class, [
+                'label' => 'Activate AM Department for the PR graph'
             ])
 
 

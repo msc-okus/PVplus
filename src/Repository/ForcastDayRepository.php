@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Anlage;
 use App\Entity\AnlageForcastDay;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -28,8 +30,8 @@ class ForcastDayRepository extends ServiceEntityRepository
         $forecast = $this->createQueryBuilder('f')
             ->andWhere('f.anlage = :anlageId AND f.day <= :lastDay AND f.day >= :firstDay')
             ->setParameter('anlageId', $anlage->getAnlId())
-            ->setParameter('firstDay', $firstDayMonth + 1) // plus 1, because 'date' count the first day in year with 0
-            ->setParameter('lastDay', $lastDayMonth + 1) // plus 1, because 'date' count the first day in year with 0
+            ->setParameter('firstDay', (int)$firstDayMonth + 1) // plus 1, because 'date' count the first day in year with 0
+            ->setParameter('lastDay', (int)$lastDayMonth + 1) // plus 1, because 'date' count the first day in year with 0
             ->getQuery()
             ->getResult()
         ;
@@ -37,6 +39,10 @@ class ForcastDayRepository extends ServiceEntityRepository
         return $forecast;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
     public function calcForecastByDate(Anlage $anlage, \DateTime $date)
     {
         $forecastSum = $this->createQueryBuilder('f')

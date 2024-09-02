@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/anlage/groups')]
 #[IsGranted('ROLE_ADMIN')]
-class AnlageGroupsController extends AbstractController
+class AnlageGroupsController extends BaseController
 {
     #[Route('/', name: 'app_anlage_groups_index', methods: ['GET','POST'])]
     public function index(GroupsRepository $groupsRepository ,Request $request,PaginatorInterface $paginator ): Response

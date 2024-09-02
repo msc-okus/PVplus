@@ -12,23 +12,26 @@ class AnlageStringAssigmentCreateType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-
-
-            $builder
-                ->add('anlage', ChoiceType::class, [
-                    'choices' => $options['anlagen_choices'],
-                    'placeholder' => 'Choose a plant',
-                ])
-                ->add('month', ChoiceType::class, [
-                    'choices' => array_combine(range(1, 12), range(1, 12)),
-                    'placeholder' => 'Choose a month',
-                ])
-                ->add('year', ChoiceType::class, [
-                    'choices' => array_combine(range(2020, 2024), range(2020, 2024)),
-                    'placeholder' => 'Choose a year',
-                ])
-                ->add('submit', SubmitType::class);
-
+        $builder
+            ->add('anlage', ChoiceType::class, [
+                'choices' => $options['anlagen_choices'],
+                'placeholder' => 'Choose a plant',
+                'autocomplete' => true,
+                'tom_select_options' => [
+                    'max-item' => 1,
+                    'create' => false,
+                ],
+            ])
+            ->add('month', ChoiceType::class, [
+                'choices' => array_combine(range(1, 12), range(1, 12)),
+                'placeholder' => 'Choose a month',
+            ])
+            ->add('year', ChoiceType::class, [
+                'choices' => array_combine(range(2020, 2024), range(2020, 2024)),
+                'placeholder' => 'Choose a year',
+            ])
+            ->add('submit', SubmitType::class)
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

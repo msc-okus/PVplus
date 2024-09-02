@@ -1,5 +1,13 @@
-RewriteEngine On
 
+RewriteEngine On
+### Redirect to live version if not a IP from:
+### G4N
+#RewriteCond %{REMOTE_ADDR} !^87\.140\.79\.244$
+### MRE
+#RewriteCond %{REMOTE_ADDR} !^62\.91\.87\.146$
+#RewriteRule ^ https://www.g4npvplus.de%{REQUEST_URI} [R=302,L]
+
+### Symfony redirects
 RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
 RewriteRule ^(.*) - [E=BASE:%1]
 

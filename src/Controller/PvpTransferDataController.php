@@ -3,14 +3,15 @@
 namespace App\Controller;
 
 use App\Service\PvpDataService;
+use Com\Tecnick\Pdf\Base;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 
-class PvpTransferDataController extends AbstractController{
-
+class PvpTransferDataController extends Base
+{
     #[Route('/pvp_transfer', name: 'app_pvp_data_transfer')]
     public function transfer(PvpDataService $service): JsonResponse
     {

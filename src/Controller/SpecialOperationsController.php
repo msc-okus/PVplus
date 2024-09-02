@@ -34,7 +34,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class SpecialOperationsController extends AbstractController
+class SpecialOperationsController extends BaseController
 {
     use G4NTrait;
 

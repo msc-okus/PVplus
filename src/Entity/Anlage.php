@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use phpDocumentor\Reflection\Types\False_;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
@@ -63,6 +64,10 @@ class Anlage implements \Stringable
 
     #[ORM\Column(name: 'anl_betrieb', type: 'date', nullable: true)]
     private ?DateTime $anlBetrieb = null;
+
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?DateTime $dataSince = null;
+
 
     #[Groups(['main','api:read'])]
     #[SerializedName('plant_name')]
@@ -303,9 +308,6 @@ class Anlage implements \Stringable
 
     #[ORM\Column(type: 'boolean')]
     private bool $usePac = false;
-
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageForcast::class, cascade: ['persist', 'remove'])]
-    private Collection $anlageForecasts;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageForcastDay::class, cascade: ['persist', 'remove'])]
     private Collection $anlageForecastDays;
@@ -684,6 +686,24 @@ class Anlage implements \Stringable
     #[ORM\Column(nullable: true)]
     private ?int $ticketGenerationDelay = 8;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPADep1 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPADep2 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPADep3 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPRDep1 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPRDep2 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $AmPRDep3 = false;
+
     public function getAlertCheckInterval(): int
     {
         return $this->alertCheckInterval;
@@ -894,6 +914,18 @@ class Anlage implements \Stringable
 
         return $this;
     }
+
+    public function getDataSince(): ?DateTime
+    {
+        return $this->dataSince;
+    }
+
+    public function setDataSince(?DateTime $dataSince): void
+    {
+        $this->dataSince = $dataSince;
+    }
+
+
 
     public function getAnlName(): ?string
     {
@@ -2090,27 +2122,6 @@ class Anlage implements \Stringable
         return $this->anlageForecasts;
     }
 
-    public function addAnlageForecast(AnlageForcast $anlageForecast): self
-    {
-        if (!$this->anlageForecasts->contains($anlageForecast)) {
-            $this->anlageForecasts[] = $anlageForecast;
-            $anlageForecast->setAnlage($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAnlageForecast(AnlageForcast $anlageForecast): self
-    {
-        if ($this->anlageForecasts->removeElement($anlageForecast)) {
-            // set the owning side to null (unless already changed)
-            if ($anlageForecast->getAnlage() === $this) {
-                $anlageForecast->setAnlage(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getAnlageForecastDays(): Collection
     {
@@ -4269,6 +4280,78 @@ class Anlage implements \Stringable
     public function setTicketGenerationDelay(?int $ticketGenerationDelay): static
     {
         $this->ticketGenerationDelay = $ticketGenerationDelay;
+
+        return $this;
+    }
+
+    public function isAmPADep1(): ?bool
+    {
+        return $this->AmPADep1;
+    }
+
+    public function setAmPADep1(?bool $AmPADep1): static
+    {
+        $this->AmPADep1 = $AmPADep1;
+
+        return $this;
+    }
+
+    public function isAmPADep2(): ?bool
+    {
+        return $this->AmPADep2;
+    }
+
+    public function setAmPADep2(?bool $AmPADep2): static
+    {
+        $this->AmPADep2 = $AmPADep2;
+
+        return $this;
+    }
+
+    public function isAmPADep3(): ?bool
+    {
+        return $this->AmPADep3;
+    }
+
+    public function setAmPADep3(?bool $AmPADep3): static
+    {
+        $this->AmPADep3 = $AmPADep3;
+
+        return $this;
+    }
+
+    public function isAmPRDep1(): ?bool
+    {
+        return $this->AmPRDep1;
+    }
+
+    public function setAmPRDep1(?bool $AmPRDep1): static
+    {
+        $this->AmPRDep1 = $AmPRDep1;
+
+        return $this;
+    }
+
+    public function isAmPRDep2(): ?bool
+    {
+        return $this->AmPRDep2;
+    }
+
+    public function setAmPRDep2(?bool $AmPRDep2): static
+    {
+        $this->AmPRDep2 = $AmPRDep2;
+
+        return $this;
+    }
+
+    public function isAmPRDep3(): ?bool
+    {
+        return $this->AmPRDep3;
+    }
+
+    public function setAmPRDep3(?bool $AmPRDep3): static
+    {
+        $this->AmPRDep3 = $AmPRDep3;
 
         return $this;
     }

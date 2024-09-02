@@ -1210,9 +1210,7 @@ class AssetManagementService
         for ($i = 0; $i < count($acGroups); ++$i) {
             $acGroupsCleaned[] = substr($acGroups[$i]->getacGroupName(), strpos($acGroups[$i]->getacGroupName(), 'INV'));
         }
-
         for ($i = 1; $i <= 12; $i++) {
-            dump($i);
             if ($i < 10) {
                 $month_transfer = "0$i";
             } else {
@@ -1220,22 +1218,19 @@ class AssetManagementService
             }
 
             $start = $report['reportYear'] . '-' . $month_transfer . '-01 00:00';
-
             $endDayOfMonth = cal_days_in_month(CAL_GREGORIAN, $month_transfer, $report['reportYear']);
             $end = $report['reportYear'] . '-' . $month_transfer . '-' . $endDayOfMonth . ' 23:59';
             $data1_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-            dump($data1_grid_meter);
             if ($anlage->hasPVSYST()) {
                 try {
-                    $resultErtrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
+                    $expectedPvSyst[] = $this->pvSystMonthRepo->findOneMonth($anlage, $i)->getErtragDesign();
                 } catch (NonUniqueResultException $e) {
+                    $expectedPvSyst[] = 0;
                 }
             } else {
-                $resultErtrag_design = 0;
+                $expectedPvSyst[] = 0;
             }
-            if ($resultErtrag_design) {
-                $Ertrag_design = $resultErtrag_design->getErtragDesign();
-            } else $Ertrag_design = 0;
+
 
             if ($i > $report['reportMonth']) {
                 $data1_grid_meter['powerEvu'] = 0;
@@ -1252,8 +1247,6 @@ class AssetManagementService
                 (float)$powerEvu[] = $data1_grid_meter['powerAct'];
                 (float)$powerAct[] = $data1_grid_meter['powerAct']; // Inv out
             }
-
-
             if ($anlage->getShowEvuDiag()) {
                 (float)$powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
                 (float)$powerExp[] = $data1_grid_meter['powerExpEvu'];
@@ -1263,10 +1256,9 @@ class AssetManagementService
             }
 
             (float)$powerExternal[] = $data1_grid_meter['powerEGridExt'];
-            $expectedPvSyst[] = $Ertrag_design;
 
             if ($anlage->hasPVSYST()) {
-                $forecast[] = $expectedPvSyst;
+                $forecast[] = $expectedPvSyst[$i-1];
             }
             else {
                 $forecast[] = $this->functions->getForcastByMonth($anlage, $i);
@@ -3128,7 +3120,7 @@ class AssetManagementService
                 'symbol' => 'none',
             ]
         ];
-        if (!$anlage->getSettings()->isDisableDep1()) $series[] =
+        if ($anlage->isAmPRDep1()) $series[] =
             [
                 'name' => 'O&M',
                 'type' => 'bar',
@@ -3138,7 +3130,7 @@ class AssetManagementService
                     'rotate' => 90
                 ],
             ];
-        if (!$anlage->getSettings()->isDisableDep2()) $series[] = [
+        if ($anlage->isAmPRDep2()) $series[] = [
             'name' => 'EPC',
             'type' => 'bar',
             'data' => $graphArrayPR['Dep2'],
@@ -3147,7 +3139,7 @@ class AssetManagementService
                 'rotate' => 90
             ],
         ];
-        if (!$anlage->getSettings()->isDisableDep3()) $series[] = [
+        if ($anlage->isAmPRDep3()) $series[] = [
             'name' => 'AM',
             'type' => 'bar',
             'data' => $graphArrayPR['Dep3'],
@@ -3224,7 +3216,7 @@ class AssetManagementService
                 'symbol' => 'none'
             ]
         ];
-        if (!$anlage->getSettings()->isDisableDep1()) $series[] =
+        if ($anlage->isAmPADep1()) $series[] =
             [
                 'name' => 'O&M',
                 'type' => 'bar',
@@ -3234,7 +3226,7 @@ class AssetManagementService
                     'rotate' => 90
                 ],
             ];
-        if (!$anlage->getSettings()->isDisableDep2()) $series[] = [
+        if ($anlage->isAmPADep2()) $series[] = [
             'name' => 'EPC',
             'type' => 'bar',
             'data' => $graphArrayPA['Dep2'],
@@ -3243,7 +3235,7 @@ class AssetManagementService
                 'rotate' => 90
             ],
         ];
-        if (!$anlage->getSettings()->isDisableDep3()) $series[] = [
+        if ($anlage->isAmPADep3()) $series[] = [
             'name' => 'AM',
             'type' => 'bar',
             'data' => $graphArrayPA['Dep3'],
