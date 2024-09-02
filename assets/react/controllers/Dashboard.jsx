@@ -11,9 +11,9 @@ import { useTheme } from "./ThemenContext";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const itemTypes = {
-    overview: { w: 12, h: 3, maxH: 5, minH: 1.5 },
-    panel: { w: 12, h: 2, maxH: 2, minH: 2 },
-    chart: { w: 11, h: 2, maxH: 5, minH: 2 }
+    overview: { w: 12, h: 3, maxH: 5, minH: 2 ,minW:6.5},
+    panel: { w: 12, h: 2, maxH: 2.5, minH: 2 ,minW:6.5},
+    chart: { w: 5, h: 3, maxH: 5, minH: 2, minW:4 }
 };
 
 const Dashboard = ({ maxItems }) => {
@@ -35,8 +35,8 @@ const Dashboard = ({ maxItems }) => {
             const newLayouts = { ...layouts };
             const newItem = {
                 i: `${type}_${counter}`,
-                x: 0,
-                y: 1,
+                x: 5,
+                y: 2,
                 ...itemTypes[type],
                 maxH: itemTypes[type].maxH,
                 minH: itemTypes[type].minH,
@@ -55,6 +55,31 @@ const Dashboard = ({ maxItems }) => {
         };
         setLayouts(newLayouts);
     };
+
+    const toggleItemWidth = (itemId) => {
+        const newLayouts = layouts.lg.map(item => {
+            if (item.i === itemId) {
+                let newWidth;
+                if (item.i.startsWith('chart')) {
+                    // Toggle width between 5.4 and 12 for items of type 'chart'
+                    newWidth = item.w === 12 ? 5 : 12;
+                }
+                else if (item.i.startsWith('panel')) {
+                    // Toggle width between 7.5 and 12 for items of type 'panel'
+                    newWidth = item.w === 12 ? 7.5 : 12;
+                }
+
+                else {
+                    // Toggle width between 4 and 12 for other items
+                    newWidth = item.w === 12 ? 2 : 12;
+                }
+                return { ...item, w: newWidth };
+            }
+            return item;
+        });
+        setLayouts({ lg: newLayouts });
+    };
+
 
     const handleMouseOverItem = (itemId) => {
         const newLayouts = layouts.lg.map(item => {
@@ -213,6 +238,18 @@ const Dashboard = ({ maxItems }) => {
                             >
                                 <i className="fas fa-times" style={{ fontSize: '1rem', color: '#000' }} title="close"></i>
                             </button>
+                                <button
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleItemWidth(item.i);
+                                    }}
+                                    className="btn"
+                                    style={{ position: "absolute", top: '0', right: '30px', zIndex: '10' }}
+                                >
+                                    <i className="fas fa-arrows-alt-h" style={{ fontSize: '1rem', color: '#000' }} title="Toggle width"></i>
+                                </button>
+
                         </div>
                     ))}
                 </ResponsiveGridLayout>
@@ -232,8 +269,8 @@ const Dashboard = ({ maxItems }) => {
 
 const generateLayout = () => {
     return [
-        { i: 'panel_0', x: 0, y: 0, w: 12, h: 2, maxH: 2, minH: 2, zIndex: 1 },
-        { i: 'overview_0', x: 0, y: 2, w: 12, h: 3, maxH: 5, minH: 1.5, zIndex: 2 },
+        { i: 'panel_0', x: 0, y: 0, w: 12, h: 2, maxH: 2, minH: 2, zIndex: 1,minW:3 },
+        { i: 'overview_0', x: 0, y: 2, w: 12, h: 3, maxH: 5, minH: 2, zIndex: 2,minW: 3 },
     ];
 };
 

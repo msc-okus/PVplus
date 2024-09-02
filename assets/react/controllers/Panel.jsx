@@ -12,11 +12,11 @@ const Panel = ({ itemId, selectedRowData }) => {
         <div style={{
             height: '100%',
             display: 'flex',
-            padding: '0px 20px 0px 20px',
+            padding: '0px 20px 20px 20px',
             backgroundColor: theme === 'light' ? '#ffffff' : '#343a40' // Conditional styling
         }}>
             {selectedRowData ? (
-                <div style={{ flex: 1,height:'100%' }}>
+                <div style={{ flex: 1,display:'flex',flexDirection:'column',justifyContent:'space-between' }}>
                     <div style={{ textAlign: 'center' }}><span className="fw-bolder">{selectedRowData.name}</span></div>
                     <div className="panel-box">
                         <Performance selectedRowData={selectedRowData} />

@@ -222,8 +222,6 @@ const Overview = ({ itemId, setSelectedRowData}) => {
                     overflow: 'hidden'
                 }}>
                     <div>
-                        <label>
-                            Plant name
                             <input
                                 value={table.getColumn('name')?.getFilterValue() || ''}
                                 onMouseDown={(e) => e.stopPropagation()}
@@ -237,7 +235,6 @@ const Overview = ({ itemId, setSelectedRowData}) => {
                                     margin: '10px'
                                 }}
                             />
-                        </label>
                     </div>
                     <ManageColumnsVisibility table={table}/>
                     <div style={{flex: '1 1 auto', overflowY: 'auto'}}>
