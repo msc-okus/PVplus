@@ -254,7 +254,7 @@ class AnlageSettingsFormType extends AbstractType
                 'label'     => 'Choose API-Setting',
                 'placeholder'   => 'please Select',
                 'required'      => false,
-                'help'      => '[settings.importType]<br>Chose the plant have Stringboxes or inverters only',
+                'help'      => '[settings.importType]<br>Chose wich API-Setting is used for impoert',
                 'attr' => ['style' => 'width: 150px']
             ])
 

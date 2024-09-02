@@ -4,6 +4,7 @@
             <fieldset class="fieldset">
                 <legend>Import Settings</legend>
                 <div class="grid-x grid-padding-x">
+                    <div class="cell"> {{ form_row(anlageForm.settings.apiConfig) }}</div>
                     <div class="cell small-12"> {{ form_row(anlageForm.settings.symfonyImport) }}</div>
                     <div class="cell small-4"> {{ form_row(anlageForm.settings.useSensorsData) }}</div>
                     <div class="cell small-4"> {{ form_row(anlageForm.settings.sensorsInBasics) }}</div>
