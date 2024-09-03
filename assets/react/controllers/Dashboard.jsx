@@ -224,9 +224,9 @@ const Dashboard = ({ maxItems }) => {
                             ) : item.i.startsWith('panel') ? (
                                 <Panel itemId={item.i} selectedRowData={selectedRowData} />
                             ) : item.i.startsWith('chart_ac') ? (
-                                <Chart itemId={item.i} selectedRowData={selectedRowData} type='AC' />
+                                <Chart itemId={item.i} selectedRowData={selectedRowData} type='ac_single' />
                             ) : item.i.startsWith('chart_dc') ? (
-                                <Chart itemId={item.i} selectedRowData={selectedRowData} type='DC' />
+                                <Chart itemId={item.i} selectedRowData={selectedRowData} type='dc_single' />
                             ) : (
                                 <span className="text">{item.i}</span>
                             )}

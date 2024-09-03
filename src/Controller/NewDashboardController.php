@@ -9,6 +9,7 @@ use App\Repository\EignerRepository;
 use App\Service\Charts\ChartService;
 use App\Service\SystemStatus2;
 use DateTime;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -111,12 +112,35 @@ class NewDashboardController extends BaseController
     }
 
     #[Route(path: '/new/chart', name: 'app_newDashboard_chart')]
-    public function chart( ChartService $chartService,AnlagenRepository $anlagenRepository): JsonResponse{
+    public function chart( Request $request,ChartService $chartService,AnlagenRepository $anlagenRepository): JsonResponse{
 
-        $hour = '';
-        $form = [];
-        $anlageId ='';
-        $data=[];
+        // Decode the JSON content
+//        $content = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+//
+//        // Extract the values from the decoded JSON
+//        $hour = $content['toggleOption'] ;
+//        $anlageId = $content['anlageId'] ;
+//        $selectedChart = $content['selectedChart'] ;
+//        $startDate = $content['startDate'] ;
+//        $endDate = $content['endDate'] ;
+
+        $anlageId=258;
+        $selectedChart= "ac_single";
+        $hour= false;
+        $startDate="2024-09-03T10:48:37.389Z";
+        $endDate= "2024-09-03T10:48:37.389Z";
+
+        $form = [
+            'optionDate' => 1,
+            'from' => date('Y-m-d 00:00', strtotime($startDate)),
+            'to' => date('Y-m-d 23:59', strtotime($endDate)),
+            'hour' => $hour,
+            'selectedChart' => $selectedChart
+            // Add other form data you expect
+        ];
+
+
+        $plant=[];
         /* @var Anlage|null $aktAnlage */
         if ($anlageId && $anlageId > 0) {
             $aktAnlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
@@ -124,9 +148,14 @@ class NewDashboardController extends BaseController
             $aktAnlage = null;
         }
         if ($aktAnlage) {
-            $data = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
+            $plant = $chartService->getGraphsAndControlAcDC($form, $aktAnlage, $hour);
         }
 
+        $data[]=[
+            'data'=>$plant['data']
+        ];
+
+         dump($data);
         return $this->json($data, 200, ['Content-Type' => 'application/json']);
     }
 
