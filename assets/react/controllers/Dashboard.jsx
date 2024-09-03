@@ -13,7 +13,8 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 const itemTypes = {
     overview: { w: 12, h: 3, maxH: 5, minH: 2 ,minW:6.5},
     panel: { w: 12, h: 2, maxH: 2.5, minH: 2 ,minW:6.5},
-    chart: { w: 5, h: 3, maxH: 5, minH: 2, minW:4 }
+    chart_ac: { w: 5, h: 3, maxH: 5, minH: 2, minW:4 },
+    chart_dc: { w: 5, h: 3, maxH: 5, minH: 2, minW:4 }
 };
 
 const Dashboard = ({ maxItems }) => {
@@ -222,8 +223,10 @@ const Dashboard = ({ maxItems }) => {
                                 <Overview itemId={item.i} setSelectedRowData={setSelectedRowData} />
                             ) : item.i.startsWith('panel') ? (
                                 <Panel itemId={item.i} selectedRowData={selectedRowData} />
-                            ) : item.i.startsWith('chart') ? (
-                                <Chart itemId={item.i} selectedRowData={selectedRowData} />
+                            ) : item.i.startsWith('chart_ac') ? (
+                                <Chart itemId={item.i} selectedRowData={selectedRowData} type='AC' />
+                            ) : item.i.startsWith('chart_dc') ? (
+                                <Chart itemId={item.i} selectedRowData={selectedRowData} type='DC' />
                             ) : (
                                 <span className="text">{item.i}</span>
                             )}

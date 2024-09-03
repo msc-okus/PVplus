@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from './ThemenContext';
 
-const Chart = ({ itemId, selectedRowData }) => {
+const Chart = ({ itemId, selectedRowData, type }) => {
     const { theme } = useTheme();
     return (
 
@@ -14,7 +14,7 @@ const Chart = ({ itemId, selectedRowData }) => {
             }}>
                 {selectedRowData ? (
                     <div style={{flex: 1, height: '100%'}}>
-                        <div style={{textAlign: 'center'}}><span className="fw-bolder">{selectedRowData.name}</span>
+                        <div style={{textAlign: 'center'}}><span className="fw-bolder">{selectedRowData.name}_{type} </span>
                         </div>
                     </div>
                 ) : (
