@@ -320,6 +320,26 @@ trait ImportFunctionsTrait
                                     if (array_key_exists($anlageSensors[$i]->getVcomAbbr(), $sensors[$date][$anlageSensors[$i]->getVcomId()])) {
                                         if ($anlageSensors[$i]->getUseToCalc() == 1) {
                                             $gmPyEast[] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                            if(($anlageSensors[$i]->getVcomId() == 487122)){
+                                                $_SESSION['groundReflectionSJ'] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                                #echo "SJX Value GR ".$_SESSION['groundReflectionSJ']." <br>";
+                                            }
+                                            if(($anlageSensors[$i]->getVcomId() == 487123)){
+                                                #echo "SJX Value PM ".max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0)." <br>";
+                                                $summ = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0) + $_SESSION['groundReflectionSJ'];
+                                                $gmPyEast[] = $summ;
+                                                #echo "SJX PM Summe $summ <br><br>";
+                                            }
+                                            if(($anlageSensors[$i]->getVcomId() == 492065)){
+                                                $_SESSION['groundReflectionLaja'] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                                #echo "LajaX Value GR ".$_SESSION['groundReflectionLaja']." <br>";
+                                            }
+                                            if(($anlageSensors[$i]->getVcomId() == 492066)){
+                                                #echo "Value LajaX ".max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0)." <br>";
+                                                $summ = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0) + $_SESSION['groundReflectionLaja'];
+                                                $gmPyEast[] = $summ;
+                                                #echo "LajaX PM Summe $summ <br><br>";
+                                            }
                                         }
                                         $gmPyEastAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                                     }
@@ -328,7 +348,6 @@ trait ImportFunctionsTrait
                         }
                     }
                 }
-
             }
 
             $result[0] = [
@@ -534,6 +553,24 @@ trait ImportFunctionsTrait
                                         $value = $sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()];
                                     } else {
                                         $value = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+                                        if(($anlageSensors[$i]->getVcomId() == 487122)){
+                                            $_SESSION['groundReflectionSJ'] = $value;
+                                            #echo "SJ Value GR $value <br>";
+                                        }
+                                        if(($anlageSensors[$i]->getVcomId() == 487123)){
+                                            #echo "Value PM $value <br>";
+                                            $value = $value + $_SESSION['groundReflectionSJ'];
+                                            #echo "SJ Value PM Summe $value <br> <br>";
+                                        }
+                                        if(($anlageSensors[$i]->getVcomId() == 492065)){
+                                            $_SESSION['groundReflectionLaja'] = $value;
+                                            #echo "Laja Value GR $value <br>";
+                                        }
+                                        if(($anlageSensors[$i]->getVcomId() == 492066)){
+                                            #echo "Value PM $value <br>";
+                                            $value = $value + $_SESSION['groundReflectionLaja'];
+                                            #echo "Laja Value PM Summe $value <br> <br>";
+                                        }
                                     }
                                 }
                             }

@@ -14,7 +14,7 @@ class SystemStatus2
 {
     use G4NTrait;
 
-    private int $cacheLifetime = 30; // in sekunden (soll: 900)
+    private int $cacheLifetime = 900; // in sekunden (soll: 900)
 
     public function __construct(
         private readonly PdoService $pdoService,
@@ -34,7 +34,7 @@ class SystemStatus2
 
         $result['ioPlantData']      = $this->checkIOPlantData($anlage, $today);
         $result['ioWeatherData']    = $this->checkIOWeatherData($anlage, $today);
-        $result['paToday']          = $this->checkPA($anlage, date('Y-m-d 00:15:00', $today), date('Y-m-d H:i:s', $today));
+        $result['paToday']          = $this->checkPA($anlage, date('Y-m-d 00:15:00', $yesterday), date('Y-m-d H:i:s', $today));
         $result['expDiff']          = $this->checkExpDiff($anlage, date('Y-m-d 00:00:00', $yesterday), date('Y-m-d 23:59:00', $yesterday));
 
         return $result;
