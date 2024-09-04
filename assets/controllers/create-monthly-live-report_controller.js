@@ -33,6 +33,7 @@ export default class extends Controller {
     adjustStartDay() {
         let lastday = this.lastday(this.yearTarget.value, this.monthTarget.value);
         let oldOptions = this.startdayTarget.options;
+        let oldValue = parseInt(this.startdayTarget.value);
         for(let i = oldOptions.length - 1; i >= 0; i--) {
             this.startdayTarget.remove(i);
         }
@@ -47,6 +48,9 @@ export default class extends Controller {
                 option.value = i;
             }
             this.startdayTarget.add(option);
+        }
+        if (oldValue > 0) {
+            this.startdayTarget.value = oldValue
         }
     }
 
