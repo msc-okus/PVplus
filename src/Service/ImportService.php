@@ -25,12 +25,9 @@ class ImportService
         private readonly AnlageAvailabilityRepository $anlageAvailabilityRepo,
         private readonly FunctionsService $functions,
         private readonly EntityManagerInterface $em,
-        private readonly AvailabilityService $availabilityService,
         private readonly MeteoControlService $meteoControlService,
         private readonly ManagerRegistry $doctrine,
-        private readonly WeatherServiceNew $weatherService,
-        #private readonly DayAheadForecastDEKService $dayAheadForecastDEKService,
-        #private readonly Forecast\DayAheadForecastMALService $aheadForecastMALService
+        private readonly WeatherServiceNew $weatherService
     )
     {
     }

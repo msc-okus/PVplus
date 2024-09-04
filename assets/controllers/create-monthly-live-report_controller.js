@@ -37,7 +37,7 @@ export default class extends Controller {
             this.startdayTarget.remove(i);
         }
 
-        for(let i = 0; i <= lastday; i++) {
+        for (let i = 0; i <= lastday; i++) {
             let option = document.createElement('option')
             if (i === 0) {
                 option.text = 'Please choose a Start Day';
@@ -54,11 +54,11 @@ export default class extends Controller {
         let lastday = this.lastday(this.yearTarget.value, this.monthTarget.value);
         let oldOptions = this.enddayTarget.options;
         let oldValue = parseInt(this.enddayTarget.value);
-        for(let i = oldOptions.length - 1; i >= 0; i--) {
+        for (let i = oldOptions.length - 1; i >= 0; i--) {
             this.enddayTarget.remove(i);
         }
 
-        for(let i = parseInt(from); i <= lastday; i++) {
+        for (let i = parseInt(from); i <= lastday; i++) {
             let option = document.createElement('option')
             if (i === 0) {
                 option.text = 'Please choose a End Day';
