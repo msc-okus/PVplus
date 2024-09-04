@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Eigner;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\QueryBuilder;
@@ -39,7 +40,6 @@ class EignerRepository extends ServiceEntityRepository
             ->getResult();
 
     }
-
     public function findOperations(): array
     {
         return $this->createQueryBuilder('eigner')
@@ -86,4 +86,8 @@ class EignerRepository extends ServiceEntityRepository
 
         return $qb->orderBy('a.firma', 'ASC');
     }
+
+
+
+
 }
