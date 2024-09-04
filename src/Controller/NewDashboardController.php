@@ -115,20 +115,16 @@ class NewDashboardController extends BaseController
     public function chart( Request $request,ChartService $chartService,AnlagenRepository $anlagenRepository): JsonResponse{
 
         // Decode the JSON content
-//        $content = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-//
-//        // Extract the values from the decoded JSON
-//        $hour = $content['toggleOption'] ;
-//        $anlageId = $content['anlageId'] ;
-//        $selectedChart = $content['selectedChart'] ;
-//        $startDate = $content['startDate'] ;
-//        $endDate = $content['endDate'] ;
+        $content = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
-        $anlageId=258;
-        $selectedChart= "ac_single";
-        $hour= false;
-        $startDate="2024-09-03T10:48:37.389Z";
-        $endDate= "2024-09-03T10:48:37.389Z";
+        // Extract the values from the decoded JSON
+        $hour = $content['toggleOption'] ;
+        $anlageId = $content['anlageId'] ;
+        $selectedChart = $content['selectedChart'] ;
+        $startDate = $content['startDate'] ;
+        $endDate = $content['endDate'] ;
+
+
 
         $form = [
             'optionDate' => 1,
@@ -150,9 +146,24 @@ class NewDashboardController extends BaseController
         if ($aktAnlage) {
             $plant = $chartService->getGraphsAndControlAcDC($form, $aktAnlage, $hour);
         }
+        $sumContent=[
+
+             'actSum'=> $plant['actSum'],
+              'expSum' => $plant['expSum'],
+              'evuSum'=> $plant['evuSum'],
+              'expEvuSum' => $plant['expEvuSum'],
+              'expNoLimitSum' => $plant['expNoLimitSum'],
+              'irrSum' => $plant['irrSum'],
+              'cosPhiSum' => $plant['cosPhiSum'],
+              'headline' => $plant['headline'],
+             'theoPowerSum' => $plant['theoPowerSum'],
+        ];
+
 
         $data[]=[
-            'data'=>$plant['data']
+            'data'=>$plant['data'],
+            'sum'=>json_encode($sumContent)
+
         ];
 
          dump($data);

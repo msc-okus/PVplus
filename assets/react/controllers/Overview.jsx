@@ -56,7 +56,7 @@ const Overview = ({ itemId, setSelectedRowData}) => {
     }, []);
 
     useEffect(() => {
-        const intervalId = setInterval(()=>fetchData(false), 30000);
+        const intervalId = setInterval(()=>fetchData(false), 900000); //15 minute  //30000=> 30s
         return () => clearInterval(intervalId);
     }, []);
 
