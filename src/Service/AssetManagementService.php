@@ -1227,16 +1227,12 @@ class AssetManagementService
             dump($data1_grid_meter);
             if ($anlage->hasPVSYST()) {
                 try {
-                    $resultErtrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
+                    $Ertrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i)->getErtragDesign();
                 } catch (NonUniqueResultException $e) {
                 }
             } else {
-                $resultErtrag_design = 0;
+                $Ertrag_design = 0;
             }
-            if ($resultErtrag_design) {
-                $Ertrag_design = $resultErtrag_design->getErtragDesign();
-            } else $Ertrag_design = 0;
-
             if ($i > $report['reportMonth']) {
                 $data1_grid_meter['powerEvu'] = 0;
                 $data1_grid_meter['powerAct'] = 0;
@@ -1263,15 +1259,15 @@ class AssetManagementService
             }
 
             (float)$powerExternal[] = $data1_grid_meter['powerEGridExt'];
-            $expectedPvSyst[] = $Ertrag_design;
 
             if ($anlage->hasPVSYST()) {
-                $forecast[] = $expectedPvSyst;
+                $forecast[] = $Ertrag_design;
             }
             else {
                 $forecast[] = $this->functions->getForcastByMonth($anlage, $i);
             }
         }
+
         // fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,

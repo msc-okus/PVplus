@@ -397,6 +397,7 @@ export default class extends Controller {
                 $(this.headerEnergyValueTargets).removeClass('is-hidden');
                 $(this.headerIrrValueTargets).removeClass('is-hidden');
                 $(this.headerReplacePowerG4NTargets).removeClass('is-hidden');
+                $(this.headerHourTargets).removeClass('is-hidden');
                 $(this.headerReplacePowerTargets).removeClass('is-hidden');
             }
             $(this.headerReasonTargets).removeClass('is-hidden');
@@ -415,6 +416,7 @@ export default class extends Controller {
             $(this.fieldIrrValueTargets).removeClass('is-hidden');
             $(this.fieldReplacePowerTargets).removeClass('is-hidden');
             $(this.fieldReplacePowerG4NTargets).removeClass('is-hidden');
+            $(this.fieldHourTargets).removeClass('is-hidden');
         }
             $(this.fieldReasonTargets).removeClass('is-hidden');
             $(this.formkpiStatusTargets).removeClass('is-hidden');
@@ -439,7 +441,7 @@ export default class extends Controller {
         var inverterNameString = '';
         let body = $(this.modalBodyTarget);
 
-        // in this switch we remove the 'is-hidden' class to show the fields of the ticket date depending on the category
+        // in this switch we remove the 'is-hidden' class to show the field as of the ticket date depending on the category
 
         if (cat >= 70 && cat <= 80 ){
             body.find('input:checkbox[class=js-checkbox]').each(function () {
@@ -712,6 +714,7 @@ export default class extends Controller {
         });
         let inverterString = '';
         let inverterNameString = '';
+        console.log($(this.switchTarget).prop('checked'));
         if ($(this.switchTarget).prop('checked')) {
             
             body.find('input:checkbox[class=js-checkbox-trafo]').each(function () {
@@ -722,6 +725,9 @@ export default class extends Controller {
                 body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
                 body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
                 body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
+            });
+            $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
+                $(this).prop('checked', true);
             });
             if (edited == true) {
                 $(this.splitDeployTarget).removeAttr('disabled');
