@@ -291,10 +291,6 @@ class ImportService
             }
         }
 
-        $from = urlencode(date('c', (int)$start)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
-        $to = urlencode(date('c', (int)$end));
-
-
         $headerFields = [
             "X-API-KEY: ". $apiToken,
             "Authorization: Bearer $apiAccessToken"
@@ -303,6 +299,18 @@ class ImportService
         //get the Data from VCOM for all Plants are configured in the current plant
 
         for ($i = 0; $i < $numberOfPlants; ++$i) {
+            date_default_timezone_set($timeZonePlant);
+
+            if($fromCron){
+                $nineHundret = 900;
+            }
+            else{
+                $nineHundret = 0;
+            }
+
+
+            $from = urlencode(date('c', $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            $to = urlencode(date('c', $end));
             $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
             $tempBulk = $this->externalApis->getData($url, $headerFields);
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
@@ -311,9 +319,9 @@ class ImportService
         //beginn collect all Data from all Plants
         $numberOfBulkMeaserments = count($bulkMeaserments);
         if ($numberOfBulkMeaserments > 0) {
-            date_default_timezone_set($timeZonePlant);
+            #date_default_timezone_set($timeZonePlant);
             for ($i = 0; $i < $numberOfBulkMeaserments; ++$i) {
-                for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
+                for ($timestamp = $start+900; $timestamp <= $end; $timestamp += 900) {
 
                     $stamp = date('Y-m-d H:i:s', $timestamp);
                     $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
@@ -323,6 +331,7 @@ class ImportService
                             if ($i === 0) {
                                 $sensors[$date] = is_array($bulkMeaserments[$i]['sensors']) && array_key_exists($date, $bulkMeaserments[$i]['sensors']) ? $bulkMeaserments[$i]['sensors'][$date] : [];
                                 $inverters[$date] = is_array($bulkMeaserments[$i]['inverters']) && array_key_exists($date, $bulkMeaserments[$i]['inverters']) ? $bulkMeaserments[$i]['inverters'][$date] : [];
+
                                 $basics[$date] = is_array($bulkMeaserments[$i]['basics']) && array_key_exists($date, $bulkMeaserments[$i]['basics']) ? $bulkMeaserments[$i]['basics'][$date] : [];
                                 if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                                     $stringBoxes[$date] = is_array($bulkMeaserments[$i]['stringboxes']) && array_key_exists($date, $bulkMeaserments[$i]['stringboxes']) ? $bulkMeaserments[$i]['stringboxes'][$date] : [];
@@ -343,11 +352,13 @@ class ImportService
                     }
                 }
             }
+
             //end collect all Data from all Plants
 
             //beginn sort and seperate Data for writing into database
-            for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
-                $stamp = date('Y-m-d H:i', $timestamp);
+            for ($timestamp = $start+900; $timestamp <= $end; $timestamp += 900) {
+
+                $stamp = date('Y-m-d H:i:s', $timestamp);
                 $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
 
                 $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
@@ -408,6 +419,7 @@ class ImportService
                     $windSpeed = $checkSensors[1]['windSpeed'];
                     $windAnlageArray = $checkSensors[1]['anlageWind'];
                 }
+
                 /*if plant use not sensors datatable store data into the weather table
                 Diese Abfrage ist aktuell nicht wirklich relevant da in beiden Fällen das gleich geschieht.
                 TODO: die entsprechenden Skripte wie berechnung expected anpassen(Daten kommen aus db__pv_sensors_data_...)

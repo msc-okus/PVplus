@@ -319,26 +319,34 @@ trait ImportFunctionsTrait
                                 if (array_key_exists($anlageSensors[$i]->getVcomId(), $sensors[$date])) {
                                     if (array_key_exists($anlageSensors[$i]->getVcomAbbr(), $sensors[$date][$anlageSensors[$i]->getVcomId()])) {
                                         if ($anlageSensors[$i]->getUseToCalc() == 1) {
-                                            $gmPyEast[] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
+
                                             if(($anlageSensors[$i]->getVcomId() == 487122)){
                                                 $_SESSION['groundReflectionSJ'] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                                                 #echo "SJX Value GR ".$_SESSION['groundReflectionSJ']." <br>";
                                             }
                                             if(($anlageSensors[$i]->getVcomId() == 487123)){
+                                                $groundReflection = 1;
                                                 #echo "SJX Value PM ".max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0)." <br>";
                                                 $summ = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0) + $_SESSION['groundReflectionSJ'];
                                                 $gmPyEast[] = $summ;
                                                 #echo "SJX PM Summe $summ <br><br>";
+                                            }else{
+
+                                                $gmPyEast[] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                                             }
                                             if(($anlageSensors[$i]->getVcomId() == 492065)){
                                                 $_SESSION['groundReflectionLaja'] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
-                                                #echo "LajaX Value GR ".$_SESSION['groundReflectionLaja']." <br>";
+                                                #echo "Laja X Value GR ".$_SESSION['groundReflectionLaja']." <br>";
                                             }
                                             if(($anlageSensors[$i]->getVcomId() == 492066)){
+                                                $groundReflection = 1;
                                                 #echo "Value LajaX ".max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0)." <br>";
                                                 $summ = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0) + $_SESSION['groundReflectionLaja'];
                                                 $gmPyEast[] = $summ;
-                                                #echo "LajaX PM Summe $summ <br><br>";
+                                                #echo "Laja X PM Summe $summ <br><br>";
+                                            }else{
+
+                                                $gmPyEast[] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
                                             }
                                         }
                                         $gmPyEastAnlage[$anlageSensors[$i]->getNameShort()] = max($sensors[$date][$anlageSensors[$i]->getVcomId()][$anlageSensors[$i]->getVcomAbbr()], 0);
@@ -349,13 +357,19 @@ trait ImportFunctionsTrait
                     }
                 }
             }
+            if(($groundReflection == 1)){
+                $irrUpper = $gmPyEast[3];
+                #echo "$date $irrUpper <br>";
+            }else{
 
+                $irrUpper = $this->mittelwert($gmPyEast);
+            }
             $result[0] = [
                 'irrHorizontal' => $this->mittelwert($gmPyHori),
                 'irrHorizontalAnlage' => $gmPyHoriAnlage,
                 'irrLower' => 0,
                 'irrLowerAnlage' => [],
-                'irrUpper' => $this->mittelwert($gmPyEast),
+                'irrUpper' => $irrUpper,
                 'irrUpperAnlage' => $gmPyEastAnlage,
             ];
 
