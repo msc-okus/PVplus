@@ -1223,12 +1223,12 @@ class AssetManagementService
             $data1_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
             if ($anlage->hasPVSYST()) {
                 try {
-                    $expectedPvSyst[] = $this->pvSystMonthRepo->findOneMonth($anlage, $i)->getErtragDesign();
+                    $Ertrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i)->getErtragDesign();
                 } catch (NonUniqueResultException $e) {
-                    $expectedPvSyst[] = 0;
+                    $Ertrag_design = 0;
                 }
             } else {
-                $expectedPvSyst[] = 0;
+                $Ertrag_design = 0;
             }
 
 
@@ -1258,7 +1258,7 @@ class AssetManagementService
             (float)$powerExternal[] = $data1_grid_meter['powerEGridExt'];
 
             if ($anlage->hasPVSYST()) {
-                $forecast[] = $expectedPvSyst[$i-1];
+                $forecast[] = $Ertrag_design;
             }
             else {
                 $forecast[] = $this->functions->getForcastByMonth($anlage, $i);

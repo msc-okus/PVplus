@@ -352,7 +352,6 @@ export default class extends Controller {
         date2.setSeconds(0);
         const timestamp1 = date1.getTime();
         const timestamp2 = date2.getTime();
-        console.log(timestamp1, timestamp2);
         //this is just to display the error messages of date inconsistency
         if (timestamp2 > timestamp1) {
             $(this.CalloutTarget).addClass('is-hidden');
@@ -388,6 +387,7 @@ export default class extends Controller {
             if ($(this.formReplaceTargets).prop('checked') == true) {
                 $(this.headerReplaceIrrTargets).removeClass('is-hidden');
                 $(this.headerHourTargets).removeClass('is-hidden');
+                $(this.headerHourTargets).removeClass('is-hidden');
                 $(this.headerReplacePowerTargets).removeClass('is-hidden');
             }
             else if ($(this.formReplaceG4NTargets).prop('checked') == true) {
@@ -414,6 +414,7 @@ export default class extends Controller {
             $(this.fieldEnergyValueTargets).removeClass('is-hidden');
             $(this.fieldIrrValueTargets).removeClass('is-hidden');
             $(this.fieldReplacePowerTargets).removeClass('is-hidden');
+            $(this.fieldHourTargets).removeClass('is-hidden');
             $(this.fieldReplacePowerG4NTargets).removeClass('is-hidden');
         }
             $(this.fieldReasonTargets).removeClass('is-hidden');
@@ -439,7 +440,7 @@ export default class extends Controller {
         var inverterNameString = '';
         let body = $(this.modalBodyTarget);
 
-        // in this switch we remove the 'is-hidden' class to show the fields of the ticket date depending on the category
+        // in this switch we remove the 'is-hidden' class to show the field as of the ticket date depending on the category
 
         if (cat >= 70 && cat <= 80 ){
             body.find('input:checkbox[class=js-checkbox]').each(function () {
@@ -648,7 +649,6 @@ export default class extends Controller {
     }
     async contact() {
         const $form = $(this.contactModalTarget).find('form');
-        console.log($form, "hey");
         try {
             await $.ajax({
                 url: this.notifyUrlValue,
@@ -722,6 +722,9 @@ export default class extends Controller {
                 body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
                 body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
                 body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
+            });
+            $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
+                $(this).prop('checked', true);
             });
             if (edited == true) {
                 $(this.splitDeployTarget).removeAttr('disabled');

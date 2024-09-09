@@ -166,7 +166,6 @@ class NewDashboardController extends BaseController
 
         ];
 
-         dump($data);
         return $this->json($data, 200, ['Content-Type' => 'application/json']);
     }
 

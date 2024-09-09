@@ -60,11 +60,11 @@ class TicketDate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $PRExcludeMethod = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?DateTimeInterface $beginHidden;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $beginHidden = "";
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?DateTimeInterface $endHidden ;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $endHidden = "" ;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $sensors = "";
@@ -75,8 +75,6 @@ class TicketDate
 
     public function __construct()
     {
-        $this->beginHidden = new DateTime();
-        $this->endHidden = new DateTime();
     }
 
     public function getId(): ?int
@@ -272,24 +270,24 @@ class TicketDate
         return $this;
     }
 
-    public function getBeginHidden(): ?\DateTimeInterface
+    public function getBeginHidden(): ?string
     {
         return $this->beginHidden;
     }
 
-    public function setBeginHidden(?\DateTimeInterface $beginHidden): self
+    public function setBeginHidden(?string $beginHidden): self
     {
         $this->beginHidden = $beginHidden;
 
         return $this;
     }
 
-    public function getEndHidden(): ?\DateTimeInterface
+    public function getEndHidden(): ?string
     {
         return $this->endHidden;
     }
 
-    public function setEndHidden(?\DateTimeInterface $endHidden): self
+    public function setEndHidden(?string $endHidden): self
     {
         $this->endHidden = $endHidden;
 
