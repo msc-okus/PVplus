@@ -254,7 +254,6 @@ class AvailabilityByTicketService
         $to     = date('Y-m-d 00:00', $timestampDay + (3600 * 25)); // +25 (stunden) um sicher auf einen Time stamp des nächsten Tages zu kommen, auch wenn Umstellung auf Winterzeit
 
         $sunArray = $this->weatherService->getSunrise($anlage, $from);
-        #dump($sunArray);
 
         #$maxFailTime = $timesConfig->getMaxFailTime();
         $powerThersholdkWh = $anlage->getPowerThreshold() / 4; // Umrechnung von kW auf kWh bei 15 Minuten Werten

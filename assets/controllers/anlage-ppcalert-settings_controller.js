@@ -7,7 +7,6 @@ export default class extends Controller {
 
     }
     connect() {
-        //console.log(this.settingsTarget, this.behaviorTarget);
         this.changeVisibility();
         this.onChangeReplaceBy()
     }

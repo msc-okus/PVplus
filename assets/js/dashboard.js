@@ -42,7 +42,6 @@ function Display() {
 window.onload = function() {
     document.getElementById("clearButton").addEventListener("click", clear);
     document.getElementById("searchText").addEventListener("input", searchPlants);
-    //console.log(document.getElementById("searchText"));
 }
 
 function changeDisplay(coll, value){

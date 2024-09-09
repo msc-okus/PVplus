@@ -480,7 +480,6 @@ class IrradiationChartService
                     if ($j == $counter) {
                         for ($k = 0; $k < $valcounter; $k++) {
                             $x = $k+1;
-                            #echo 'YES:'.$x.' / '.$valcounter.'<br>';
                             $arrayTemp[$x] = 0;
                         }
                         if($plantId == 233 || $plantId == 232){

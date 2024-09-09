@@ -276,7 +276,6 @@ class AlertSystemV2Service
             $sysLog->setLastTicketExecution("Successful execution and log created");
         }
         $this->em->persist($sysLog);
-
         $this->em->flush();
 
         return 'success';
@@ -293,7 +292,7 @@ class AlertSystemV2Service
     {
         $totalOffset = 0;
         $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
-        $irrLimit = $anlage->getMinIrrThreshold() != "0" ? (float)$anlage->getMinIrrThreshold() : 20; // we get the irradiation limit from the plant config
+        $irrLimit = $anlage->getMinIrrThreshold(); // we get the irradiation limit from the plant config
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
         //we get the frequency values
@@ -307,10 +306,9 @@ class AlertSystemV2Service
         if ($irradiation !== null && $irradiation < $irrLimit) $this->irr = true; // about irradiation === null, it is better to miss a ticket than to have a false one
         else $this->irr = false;
 
-        if($irradiation === null or $irradiation == 0){
+        if ($irradiation === null or $irradiation == 0){
             $return['Irradiation'] = true;
-        }
-        else{
+        } else {
             $return['Irradiation'] = false;
         }
 
@@ -431,15 +429,14 @@ class AlertSystemV2Service
                     } else if ($anlage->getSettings()->getPpcAutoTicketPaBehavior() == "replace") {
                         $ticketDate->setPRExcludeMethod(20);
                     }
-                } else if ($cat == 73) {
+                } elseif ($cat == 73) {
                     if ($anlage->getSettings()->getPpcAutoTicketReplaceBy() == "g4n_exp") {
                         $ticketDate->setReplaceEnergyG4N(true);
-                        $ticketDate->setReplaceIrr($anlage->getSettings()->isPpcAutoTicketReplaceIrr());
                     } else {
                         $ticketDate->setReplaceEnergy(true);
                         $ticketDate->setUseHour($anlage->getSettings()->isPpcAutoTicketUseHour());
-                        $ticketDate->setReplaceIrr($anlage->getSettings()->isPpcAutoTicketReplaceIrr());
                     }
+                    $ticketDate->setReplaceIrr($anlage->getSettings()->isPpcAutoTicketReplaceIrr());
                 }
                 if ($anlage->getSettings()->isPpcAutoTicketUseHour()) {
                     $ticketDate->setUseHour(true);
@@ -451,6 +448,7 @@ class AlertSystemV2Service
             }
         }
     }
+
     /**
      * Given all the information needed to generate a ticket, the tickets are created and committed to the db (single ticket variant)
      * @param $errorType
@@ -458,146 +456,135 @@ class AlertSystemV2Service
      * @param Anlage $anlage
      * @param $inverter
      * @param $time
-     * @param $message
      * @param $PPC
      * @param bool|null $fullGap
      * @return void
-     * @throws TransportExceptionInterface
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
+     * @throws TransportExceptionInterface
      */
     private function generateTickets($errorType, $errorCategorie,Anlage $anlage, $inverter, $time, $PPC, ?bool $fullGap = false): void
     {
 
-            $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
-            if ($ticketArray != []) {
+        $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
+        if ($ticketArray != []) {
+            foreach ($ticketArray as $ticketOld) {
+                $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
+                $result = self::subArrayFromArray($inverter, $ticketOld->getInverterArray()); // this is the most important part of this function
+                // it is a function that given 2 arrays (actual faulty inverter and previous faulty inverters) will return 3 arrays:
+                // array of inverters present in the first array but not in the second (those are inverters failing in the previous quarter that now work fine)
+                // array of inverters present in the second array but not in the first (those are inverters that were working fine in the previous interval but now are faulty)
+                // the intersection: array of inverters present in both arrays
+                // for the first array we have to put the in a separated ticket and close it, for the second we have to create a new ticket with them and for the last we have to extend the previous ticket but only with those inverters
+                // IMPORTANT: if you are not sure about the changes you are going to do in this function please DO NOT DO THEM. This took a lot of thinking and even tho is complex its logic have been working fail-proof for months
+                $inverter = $result['array1'];
+                $intersection = implode(', ', $result['intersection']);
+                $Ticket2Inverters = implode(', ', $result['array2']);
+                if ($intersection !== ""){ // here we link (in time) and split (per inverter) base on the logic previously mentioned
+                    $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
+                    $end->getTimestamp();
+                    $ticketDate = $ticketOld->getDates()->last();
+                    if ($Ticket2Inverters !== "") {
+                        $ticketNew = new Ticket();
+                        $ticketNew->copyTicket($ticketOld);
+                        $ticketNew->setInverter($intersection);
+                        $ticketNew->setEnd($end);
+                        $ticketNew->setOpenTicket(true);
+                        $ticketNew->getDates()->last()->setEnd($end);
+                        $ticketDate->setEnd($end);
+                        $ticketNew->setCreatedBy("AlertSystem");
+                        $ticketNew->setUpdatedBy("AlertSystem");
+                        $this->em->persist($ticketNew);
 
-                foreach ($ticketArray as $ticketOld) {
-                    $endclose = date_create(date('Y-m-d H:i:s', strtotime($time)));
-                    $result = self::subArrayFromArray($inverter, $ticketOld->getInverterArray()); // this is the most important part of this function
-                    // it is a function that given 2 arrays (actual faulty inverter and previous faulty inverters) will return 3 arrays:
-                    // array of inverters present in the first array but not in the second (those are inverters failing in the previous quarter that now work fine)
-                    // array of inverters present in the second array but not in the first (those are inverters that were working fine in the previous interval but now are faulty)
-                    // the intersection: array of inverters present in both arrays
-                    // for the first array we have to put the in a separated ticket and close it, for the second we have to create a new ticket with them and for the last we have to extend the previous ticket but only with those inverters
-                    // IMPORTANT: if you are not sure about the changes you are going to do in this function please DO NOT DO THEM. This took a lot of thinking and even tho is complex its logic have been working fail-proof for months
-                    $inverter = $result['array1'];
-                    $intersection = implode(', ', $result['intersection']);
-                    $Ticket2Inverters = implode(', ', $result['array2']);
-                    if ($intersection !== ""){ // here we link (in time) and split (per inverter) base on the logic previously mentioned
-                        $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
-                        $end->getTimestamp();
-                        $ticketDate = $ticketOld->getDates()->last();
-                        if ($Ticket2Inverters !== "") {
-                            $ticketNew = new Ticket();
-                            $ticketNew->copyTicket($ticketOld);
-                            $ticketNew->setInverter($intersection);
-                            $ticketNew->setEnd($end);
-                            $ticketNew->setOpenTicket(true);
-                            $ticketNew->getDates()->last()->setEnd($end);
-                            $ticketDate->setEnd($end);
-                            $ticketNew->setCreatedBy("AlertSystem");
-                            $ticketNew->setUpdatedBy("AlertSystem");
-                            $this->em->persist($ticketNew);
 
-
-                        } else {
-                            $ticketOld->setEnd($end);
-                            $ticketOld->setOpenTicket(true);
-                            $ticketOld->setInverter($intersection);
-                            $ticketDate->setEnd($end);
-                            $this->em->persist($ticketOld);
-
-                        }
-                    }
-                    if ($Ticket2Inverters !== ""){
-                        $ticketOld->setOpenTicket(false);
-                        $ticketOld->setInverter($Ticket2Inverters);
-                        $ticketOld->getDates()->last()->setEnd($endclose);
+                    } else {
+                        $ticketOld->setEnd($end);
+                        $ticketOld->setOpenTicket(true);
+                        $ticketOld->setInverter($intersection);
+                        $ticketDate->setEnd($end);
                         $this->em->persist($ticketOld);
 
-
                     }
                 }
+                if ($Ticket2Inverters !== ""){
+                    $ticketOld->setOpenTicket(false);
+                    $ticketOld->setInverter($Ticket2Inverters);
+                    $ticketOld->getDates()->last()->setEnd($endclose);
+                    $this->em->persist($ticketOld);
+
+
+                }
             }
-            if ($inverter != "*" ) {
+        }
+        if ($inverter != "*" ) {
+            $restInverter = implode(', ', $inverter);
+        } else {
+            $restInverter = $inverter;
+        }
 
-                $restInverter = implode(', ', $inverter);
-
+        if ($restInverter != "" && ($errorCategorie == 100 or $this->irr === false)) {
+            // this is the easy part, here we create a new ticket if there is nothing else to link with, so this is the actual part where new tickets are created
+            //we set the internal values of the ticket based on the type of error and the current state of the system (mostly PPC signals)
+            $ticket = new Ticket();
+            $ticketDate = new TicketDate();
+            $ticketDate->setAnlage($anlage);
+            $ticketDate->setStatus('10');
+            $ticketDate->setSystemStatus(10);
+            $ticketDate->setPriority(10);
+            $ticketDate->setCreatedBy("AlertSystem");
+            $ticketDate->setUpdatedBy("AlertSystem");
+            $ticket->setAnlage($anlage);
+            $ticket->setStatus('10'); // Status 10 = open
+            $ticket->setEditor('Alert system');
+            $ticket->setSystemStatus(10);
+            $ticket->setPriority(10);
+            $ticket->setOpenTicket(true);
+            $ticket->setCreatedBy("AlertSystem");
+            $ticket->setUpdatedBy("AlertSystem");
+            $ticket->setProofAM(false);
+            $ticket->setCreationLog("Irradiation Limit: ". $anlage->getMinIrrThreshold()."; Power Limit: ".$anlage->getPowerThreshold());
+            $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
+            $ticketDate->setAlertType($errorCategorie);
+            $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
+            $ticketDate->setErrorType($errorType);
+            if ($errorCategorie == ticket::EXTERNAL_CONTROL) {
+                $ticket->setInverter('*');
+                $ticketDate->setInverter('*');
             } else {
-
-                $restInverter = $inverter;
+                $ticket->setInverter($restInverter);
+                $ticketDate->setInverter($restInverter);
             }
-            if ($restInverter != "" && ($errorCategorie == 100 or $this->irr === false)) { // this is the easy part, here we create a new ticket if there is nothing else to link with, so this is the actual part where new tickets are created
-
-                //we set the internal values of the ticket based on the type of error and the current state of the system (mostly PPC signals)
-                $ticket = new Ticket();
-                $ticketDate = new TicketDate();
-                $ticketDate->setAnlage($anlage);
-                $ticketDate->setStatus('10');
-                $ticketDate->setSystemStatus(10);
-                $ticketDate->setPriority(10);
-                $ticketDate->setCreatedBy("AlertSystem");
-                $ticketDate->setUpdatedBy("AlertSystem");
-                $ticket->setAnlage($anlage);
-                $ticket->setStatus('10'); // Status 10 = open
-                $ticket->setEditor('Alert system');
-                $ticket->setSystemStatus(10);
-                $ticket->setPriority(10);
-                $ticket->setOpenTicket(true);
-                $ticket->setCreatedBy("AlertSystem");
-                $ticket->setUpdatedBy("AlertSystem");
-                $ticket->setProofAM(false);
-                $ticket->setCreationLog("Irradiation Limit: ". $anlage->getMinIrrThreshold()."; Power Limit: ".$anlage->getPowerThreshold());
-                $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
-                $ticketDate->setAlertType($errorCategorie);
-                $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
-                $ticketDate->setErrorType($errorType);
-                if ($errorCategorie == ticket::EXTERNAL_CONTROL) {
-                    $ticket->setInverter('*');
-                    $ticketDate->setInverter('*');
-                } else {
-                    $ticket->setInverter($restInverter);
-                    $ticketDate->setInverter($restInverter);
+            if ($ticket->getAlertType() == "20") $ticketDate->setDataGapEvaluation(10);
+            $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
+            $begin->getTimestamp();
+            $ticket->setBegin($begin);
+            $ticketDate->setBegin($begin);
+            $ticket->addDate($ticketDate);
+            $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
+            $end->getTimestamp();
+            $ticketDate->setEnd($end);
+            $ticket->setEnd($end);
+            //default values por the kpi evaluation
+            if ( $errorCategorie == 20) {
+                $ticketDate->setDataGapEvaluation(10);
+                if (!$PPC) {
+                    $ticketDate->setKpiPaDep1(10);
+                } else{
+                    $ticketDate->setKpiPaDep1(20);
                 }
-                if ($ticket->getAlertType() == "20") $ticketDate->setDataGapEvaluation(10);
-                $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
-                $begin->getTimestamp();
-                $ticket->setBegin($begin);
-                $ticketDate->setBegin($begin);
-                $ticket->addDate($ticketDate);
-                $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
-                $end->getTimestamp();
-                $ticketDate->setEnd($end);
-                $ticket->setEnd($end);
-                //default values por the kpi evaluation
-                if ( $errorCategorie == 20) {
-                    if (!$PPC) {
-                            $ticketDate->setDataGapEvaluation(10);
-                            $ticketDate->setKpiPaDep1(10);
-                            $ticketDate->setKpiPaDep2(10);
-                            $ticketDate->setKpiPaDep3(10);
-                    } else{
-                            $ticketDate->setDataGapEvaluation(10);
-                            $ticketDate->setKpiPaDep1(20);
-                            $ticketDate->setKpiPaDep2(10);
-                            $ticketDate->setKpiPaDep3(10);
-                    }
-                }
-                if ($errorCategorie == 10 && $fullGap) $ticketDate->setDataGapEvaluation(20);
-
-
-
-                $this->em->persist($ticket);
-                $this->em->persist($ticketDate);
-                $this->em->flush();
-
-
-                //send alertMessage
-                $this->g4NSendMailService->sendAlertMessage($anlage,$ticket);
-
+                $ticketDate->setKpiPaDep2(10);
+                $ticketDate->setKpiPaDep3(10);
             }
+            if ($errorCategorie == 10 && $fullGap) $ticketDate->setDataGapEvaluation(20);
+
+            $this->em->persist($ticket);
+            $this->em->persist($ticketDate);
+            $this->em->flush();
+
+            //send alertMessage
+            $this->g4NSendMailService->sendAlertMessage($anlage,$ticket);
+        }
     }
 
     /**
@@ -609,6 +596,7 @@ class AlertSystemV2Service
      * @param $end
      * @param $message
      * @return void
+     * @throws \Exception
      */
     private function generateTicketsExpected($errorType, $anlage, $inverter, $begin, $end, $message): void
     {
@@ -671,6 +659,7 @@ class AlertSystemV2Service
      * @param $time
      * @param $errorCategory
      * @return mixed
+     * @throws \Exception
      */
     private function getAllTicketsByCat($anlage, $time, $errorCategory): mixed
     {
@@ -691,6 +680,7 @@ class AlertSystemV2Service
      * @param $errorCategory
      * @param $inverter
      * @return mixed
+     * @throws \Exception
      */
     private function getTicketYesterday($anlage, $time, $errorCategory, $inverter): mixed
     {
@@ -698,6 +688,7 @@ class AlertSystemV2Service
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
         $ticket = $this->ticketRepo->findLastByAnlageInverterTime($anlage, $today, $lastQuarterYesterday, $errorCategory, $inverter); // we try to retrieve the last quarter of yesterday
+
         return $ticket != null ? $ticket[0] : null;
     }
 
@@ -706,24 +697,24 @@ class AlertSystemV2Service
      * @param $anlage
      * @param $time
      * @return mixed
+     * @throws \Exception
      */
     private function getAllTickets($anlage, $time): mixed
     {
-        {
-            $today = date('Y-m-d', strtotime($time));
-            $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
-            $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
-            $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+        $today = date('Y-m-d', strtotime($time));
+        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+        $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
+        $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
 
-            $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
+        $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
 
-            if ($quarter <= $sunrise) {
-                $ticket = $this->ticketRepo->findAllYesterday($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
-            } else {
-                $ticket = $this->ticketRepo->findAllByTime($anlage, $time); // we try to retrieve the ticket in the previous quarter
-            }
-            return $ticket;
+        if ($quarter <= $sunrise) {
+            $ticket = $this->ticketRepo->findAllYesterday($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
+        } else {
+            $ticket = $this->ticketRepo->findAllByTime($anlage, $time); // we try to retrieve the ticket in the previous quarter
         }
+
+        return $ticket;
     }
 
     //AUXILIAR FUNCTIONS
@@ -746,6 +737,7 @@ class AlertSystemV2Service
         } else {
             $quarter = '45';
         }
+
         return $rest . ':' . $quarter;
     }
 

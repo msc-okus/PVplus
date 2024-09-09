@@ -1,0 +1,114 @@
+@import '~react-grid-layout/css/styles.css';
+@import '~react-resizable/css/styles.css';
+
+
+
+
+body.light .pagination-overview {
+    display: flex;
+    justify-content: space-between;
+    background-color: #ffffff;
+
+
+
+}
+body.light .pagination-overview button {
+
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    font-size: 0.6rem;
+    background-color: #ffffff;
+    cursor: pointer;
+}
+body.light .pagination-overview button:disabled {
+    border: 1px solid rgba(255,255,255,0.7);
+    background-color: rgba(255,255,255,0.7);
+    cursor: not-allowed;
+}
+
+body.dark .pagination-overview button {
+
+    padding: 0.5rem 1rem;
+    font-size: 0.6rem;
+    border: 1px solid #1f1f21;
+    background-color: #ffffff;
+    cursor: pointer;
+    font-weight: bolder;
+}
+body.dark .pagination-overview button:disabled {
+    border: 1px solid #2d3136;
+    background-color: rgba(52, 58, 64, 0.7);
+    cursor: not-allowed;
+}
+
+.panel-box{
+    flex: 1;
+    max-height: 280px;
+    display: flex;
+    font-weight: bold;
+
+}
+.panel-box-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+}
+body.dark .panel-white{
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
+}
+
+body.light .panel-white{
+    color: rgba(0, 0, 0,0.5);
+    font-size: 0.75rem;
+}
+
+body.dark .panel-white-io{
+    color: rgba(255, 255, 255);
+}
+
+body.light .panel-white-io{
+    color: rgba(0, 0, 0);
+}
+
+.panel-pr{
+    display: flex;
+    justify-content: space-between;
+
+}
+body.light .panel-box {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body.dark .panel-box {
+    background-color: #343a40;
+    color: #ffffff;
+}
+body.dark .fa-chevron-right {
+    color: rgba(204, 204, 204, 0.5);
+    font-size: 18px; /* Icon size */
+    transition: color 0.2s; /* Smooth transition for color change */
+
+}
+
+body.dark .fa-chevron-right:hover {
+     color: #ccc;
+}
+
+body.light .fa-chevron-right {
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 18px; /* Icon size */
+    transition: color 0.2s; /* Smooth transition for color change */
+
+}
+
+body.light .fa-chevron-right:hover {
+    color: #000000;
+}
+
+
+
+
+
