@@ -430,6 +430,7 @@ class ChartService
                     } else {
                         $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                     }
+
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [[W/m²]]';
@@ -454,6 +455,7 @@ class ChartService
                     } else {
                         $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to, $hour);
                     }
+
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
