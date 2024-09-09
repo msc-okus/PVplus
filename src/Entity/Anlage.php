@@ -4140,19 +4140,26 @@ class Anlage implements \Stringable
     /**
      * New Algorithme for TicketGeneration
      */
+    #[Deprecated]
     public function isNewAlgorythm(): ?bool
     {
         return $this->newAlgorythm;
     }
 
+    #[Deprecated]
     public function setNewAlgorythm(?bool $newAlgorythm): void
     {
         $this->newAlgorythm = $newAlgorythm;
     }
 
-    public function getMinIrrThreshold(): mixed
+    public function getMinIrrThreshold(): float
     {
-        return min($this->getThreshold2PA0(), $this->getThreshold2PA1(), $this->getThreshold2PA2(), $this->getThreshold2PA3());
+        $hardcodedMinTheshold = 20;
+        $irrThreshold = max(min($this->getThreshold2PA0(), $this->getThreshold2PA1(), $this->getThreshold2PA2(), $this->getThreshold2PA3()), $hardcodedMinTheshold);
+        if (is_float($irrThreshold)) {
+            return $irrThreshold;
+        }
+        return $hardcodedMinTheshold;
     }
 
     public function getPrformular0Image(): string

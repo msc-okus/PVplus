@@ -14,7 +14,7 @@
     border-radius: 4px;
     > input{
         width: auto;
-        min-width: 5rem;
+        min-width: 0;
     }
     ::placeholder {
         color: $g4n-black;

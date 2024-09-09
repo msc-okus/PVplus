@@ -17,6 +17,7 @@ use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Cache\InvalidArgumentException;
 
 define('EFOR', '10');
 define('SOR', '20');
@@ -429,11 +430,12 @@ class AlertSystemService
      * @param Anlage $anlage
      * @param $time
      * @return array
+     * @throws InvalidArgumentException
      */
     private function RetrievePlant(Anlage $anlage, $time): array
     {
         $time = date('Y-m-d H:i:s', strtotime($time));
-        $irrLimit = $anlage->getMinIrrThreshold() != "0" ? (float)$anlage->getMinIrrThreshold() : 20; // we get the irradiation limit from the plant config
+        $irrLimit = $anlage->getMinIrrThreshold(); // we get the irradiation limit from the plant config
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
         //we get the frequency values
