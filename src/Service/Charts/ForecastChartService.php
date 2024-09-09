@@ -22,14 +22,9 @@ class ForecastChartService
         private readonly PdoService $pdoService,
         private readonly ForcastDayRepository $forcastDayRepo,
         private readonly InvertersRepository $invertersRepo,
-        private readonly FunctionsService $functions)
-    {
-
+        private readonly FunctionsService $functions
+    ){
     }
-
-    // ###########
-    // # By Day ##
-    // ###########
 
     /**
      * @throws \Exception
@@ -49,12 +44,14 @@ class ForecastChartService
             $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS power  
                 FROM ".$anlage->getDbNameAcIst()." 
                 WHERE unit = 1 AND stamp >= '$localFrom' AND stamp < '$localTo' GROUP BY date_format(stamp, '$form')  
-                ORDER BY stamp;";
+                ORDER BY stamp;
+            ";
         } else {
             $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(wr_pac) as power  
                 FROM ".$anlage->getDbNameAcIst()." 
-                WHERE unit = 1 AND stamp >= '$localFrom' AND stamp < '$localTo'  GROUP BY date_format(stamp, '$form')
-                ORDER BY stamp;";
+                WHERE stamp >= '$localFrom' AND stamp < '$localTo'  GROUP BY date_format(stamp, '$form')
+                ORDER BY stamp;
+            ";
         }
         $result = $conn->prepare($sql);
         $result->execute();

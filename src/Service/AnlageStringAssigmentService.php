@@ -69,12 +69,15 @@ class AnlageStringAssigmentService
                             AND CAST(ass.station_nr AS UNSIGNED) = CAST(acg.trafo_nr AS UNSIGNED)
                             AND CAST(ass.inverter_nr AS UNSIGNED) = groups.ac_group
                             AND (CAST(ass.string_nr AS UNSIGNED) + (CAST(ass.inverter_nr AS UNSIGNED) - 1) * 9) = groups.unit_first
+                            AND ass.string_active = '1';
                         ";
 
         $connection_pvp_base = $this->pdo->getPdoBase();
         $stmt = $connection_pvp_base->prepare($sql_pvp_base);
-        $stmt->execute([':anlId' => $anlId]); // Corrigé pour utiliser un tableau associatif
+        $stmt->execute([':anlId' => $anlId]);
         $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
 
         $this->logMessages->updateEntry($logId, 'working', 30);
 
@@ -106,13 +109,14 @@ class AnlageStringAssigmentService
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-
         $resultsIndex = [];
         foreach ($results as $result) {
             $key = "{$result['inverterNr']}-{$result['stringNr']}-{$result['channelNr']}";
             $resultsIndex[$key] = $result['average_I_value'];
         }
        $this->logMessages->updateEntry($logId, 'working', 80);
+
+
 
         $joinedData = [];
         foreach ($assignments as $assignment) {

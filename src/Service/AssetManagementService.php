@@ -1229,6 +1229,7 @@ class AssetManagementService
                 try {
                     $Ertrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i)->getErtragDesign();
                 } catch (NonUniqueResultException $e) {
+                    $expectedPvSyst[] = 0;
                 }
             } else {
                 $Ertrag_design = 0;
@@ -1259,6 +1260,7 @@ class AssetManagementService
             }
 
             (float)$powerExternal[] = $data1_grid_meter['powerEGridExt'];
+
 
             if ($anlage->hasPVSYST()) {
                 $forecast[] = $Ertrag_design;

@@ -43,7 +43,7 @@ class Anlage implements \Stringable
     private string $dbAnlagenBase = 'pvp_base';
     private string $dbAnlagenDivision = 'pvp_division';
 
-    #[Groups(['main','api:read'])]
+    #[Groups(['main','api:read','dashboard'])]
     #[SerializedName('id')]
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\Id]
@@ -374,6 +374,7 @@ class Anlage implements \Stringable
     private Collection $anlageGridMeterDays;
     #[ORM\Column(type: 'boolean')]
     private bool $useGridMeterDayData = false;
+    #[Groups(['dashboard'])]
     #[ORM\Column(type: 'string', length: 20)]
     private string $country = '';
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: OpenWeather::class, cascade: ['persist', 'remove'] )]
@@ -1018,6 +1019,7 @@ class Anlage implements \Stringable
     }
 
 
+    #[Groups(['dashboard'])]
     public function getPnom(): ?float
     {
         return (float) $this->power;
@@ -1503,6 +1505,7 @@ class Anlage implements \Stringable
         return $this;
     }
 
+    #[Groups(['dashboard'])]
     public function getLastStatus(): Collection
     {
         $criteria = AnlagenRepository::lastAnlagenStatusCriteria();
@@ -1545,6 +1548,7 @@ class Anlage implements \Stringable
         return $this->pr->matching($criteria);
     }
 
+    #[Groups(['dashboard'])]
     public function getYesterdayPR(): ?Collection
     {
         $criteria = AnlagenRepository::yesterdayAnlagenPRCriteria();
@@ -2567,6 +2571,7 @@ class Anlage implements \Stringable
     /**
      * @return Collection|OpenWeather
      */
+    #[Groups(['dashboard'])]
     public function getLastOpenWeather(): Collection
     {
         $criteria = AnlagenRepository::lastOpenWeatherCriteria();
@@ -4242,35 +4247,6 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    /**
-     * @return Collection<int, AnlageFile>
-     */
-    public function getDocuments(): Collection
-    {
-        return $this->documents;
-    }
-
-    public function addDocument(AnlageFile $document): static
-    {
-        if (!$this->documents->contains($document)) {
-            $this->documents->add($document);
-            $document->setAnlage($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDocument(AnlageFile $document): static
-    {
-        if ($this->documents->removeElement($document)) {
-            // set the owning side to null (unless already changed)
-            if ($document->getAnlage() === $this) {
-                $document->setAnlage(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getTicketGenerationDelay(): ?int
     {
