@@ -387,7 +387,6 @@ export default class extends Controller {
             if ($(this.formReplaceTargets).prop('checked') == true) {
                 $(this.headerReplaceIrrTargets).removeClass('is-hidden');
                 $(this.headerHourTargets).removeClass('is-hidden');
-                $(this.headerHourTargets).removeClass('is-hidden');
                 $(this.headerReplacePowerTargets).removeClass('is-hidden');
             }
             else if ($(this.formReplaceG4NTargets).prop('checked') == true) {
@@ -398,10 +397,10 @@ export default class extends Controller {
                 $(this.headerIrrValueTargets).removeClass('is-hidden');
                 $(this.headerReplacePowerG4NTargets).removeClass('is-hidden');
                 $(this.headerReplacePowerTargets).removeClass('is-hidden');
+                $(this.headerHourTargets).removeClass('is-hidden');
             }
             $(this.headerReasonTargets).removeClass('is-hidden');
             $(this.headerFormKpiTargets).removeClass('is-hidden');
-
         if ($(this.formReplaceTargets).prop('checked') == true) {
             $(this.fieldReplaceIrrTargets).removeClass('is-hidden');
             $(this.fieldHourTargets).removeClass('is-hidden');
