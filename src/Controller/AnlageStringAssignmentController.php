@@ -39,7 +39,10 @@ class AnlageStringAssignmentController extends BaseController
 
         $anlageWithAssignments = [];
         foreach ($assignments as $assignment) {
-            $anlageWithAssignments[$assignment->getAnlage()->getAnlId()] = true;
+            $anlage = $assignment->getAnlage();
+            if ($anlage !== null) {
+                $anlageWithAssignments[$anlage->getAnlId()] = true;
+            }
         }
         $anlagen = $anlagenRepository->getOwner($eigners, $grantedPlantList)->getQuery()->getResult();
 

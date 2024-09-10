@@ -26,6 +26,12 @@
                 }
             }
         },
+        "@symfony/ux-react": {
+            "react": {
+                "enabled": true,
+                "fetch": "eager"
+            }
+        },
         "@symfony/ux-toggle-password": {
             "toggle-password": {
                 "enabled": true,

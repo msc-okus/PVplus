@@ -38,7 +38,7 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'required' => true,
             ])
             ->add('mod_height', TextType::class, [
-                'label' => 'The module height',
+                'label' => 'Module height',
                 'empty_data' => '0',
                 'help' => '[The module height in mm]',
                 'label_html' => true,
@@ -46,7 +46,7 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'required' => true,
             ])
             ->add('mod_width', TextType::class, [
-                'label' => 'The light width [LW] in mm',
+                'label' => 'Light width [LW] in mm',
                 'empty_data' => '0',
                 'help' => 'The light width between behind edge row 1 to behind edge row 2 [LW] in mm',
                 'label_html' => true,
@@ -66,7 +66,7 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'required' => true,
             ])
             ->add('mod_tilt', TextType::class, [
-                'label' => 'The modul tilt [ß] in °',
+                'label' => 'Modul tilt [ß] in °',
                 'empty_data' => '0',
                 'help' => '[The modul tilt [ß] in °]',
                 'label_html' => true,
@@ -74,7 +74,7 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'required' => true,
             ])
             ->add('mod_table_height', TextType::class, [
-                'label' => 'The table height [M] in mm',
+                'label' => 'Table height [M] in mm',
                 'empty_data' => '0',
                 'help' => '[The table height [M] in mm]',
                 'label_html' => true,
@@ -90,9 +90,9 @@ class SunShadingListEmbeddedFormType extends AbstractType
                 'required' => true,
             ])
             ->add('distance_a', TextType::class, [
-                'label' => 'The Lot [H] in mm',
+                'label' => 'Lot [H] in mm',
                 'empty_data' => '0',
-                'help' => '[The Lot from table top to footpoint [H] in mm]',
+                'help' => '[distance_a]The Lot from table top to footpoint [H] in mm',
                 'label_html' => true,
                 'attr' => ['pattern' => '[0-9]{4}', 'maxlength' => 4, 'style' => 'width: 55px'],
                 'required' => true,
@@ -121,11 +121,11 @@ class SunShadingListEmbeddedFormType extends AbstractType
                ])
                */
                ->add('mod_alignment', ChoiceType::class, [
-                   'label' => 'The Modul Alignment',
+                   'label' => 'Modul Alignment',
                    'choices' => array(
                        'Landscape' => '0',
-                       'Portrait Fullzell'   => '1',
-                       'Portrait Halfzell'   => '2',
+                       'Portrait Fullcell'   => '1',
+                       'Portrait Halfcell'   => '2',
                    ),
                    'multiple' => false,
                    'expanded' => false,

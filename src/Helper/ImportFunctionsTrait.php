@@ -159,7 +159,7 @@ trait ImportFunctionsTrait
      * @param  $date
      * @return array
      */
-    function checkSensors(array $anlageSensors, int $length, bool $istOstWest, array $sensors, array $basics, $date): array
+    function checkSensors(array $anlageSensors, int $length, bool $istOstWest, array $sensors, array $basics, $date, $plantId): array
     {
         if ($istOstWest) {
             $gmPyHori = [];
@@ -328,7 +328,13 @@ trait ImportFunctionsTrait
                         }
                     }
                 }
+            }
 
+            if($plantId == 233 || $plantId == 232){
+                $irrUpper = $gmPyEast[0] + $gmPyEast[1];
+                #echo "$date /". $gmPyEast[0] .' / '.  $gmPyEast[1]. ' / '.$irrUpper."<br>";
+            }else{
+                $irrUpper = $this->mittelwert($gmPyEast);
             }
 
             $result[0] = [
@@ -336,7 +342,7 @@ trait ImportFunctionsTrait
                 'irrHorizontalAnlage' => $gmPyHoriAnlage,
                 'irrLower' => 0,
                 'irrLowerAnlage' => [],
-                'irrUpper' => $this->mittelwert($gmPyEast),
+                'irrUpper' => $irrUpper,
                 'irrUpperAnlage' => $gmPyEastAnlage,
             ];
 
