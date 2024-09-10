@@ -61,10 +61,12 @@ class TicketDate
     private ?string $PRExcludeMethod = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
+
     private ?string $beginHidden = "";
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $endHidden = "" ;
+
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $sensors = "";
@@ -270,10 +272,13 @@ class TicketDate
         return $this;
     }
 
+
     public function getBeginHidden(): ?string
+
     {
         return $this->beginHidden;
     }
+
 
     public function setBeginHidden(?string $beginHidden): self
     {
@@ -282,10 +287,12 @@ class TicketDate
         return $this;
     }
 
+
     public function getEndHidden(): ?string
     {
         return $this->endHidden;
     }
+
 
     public function setEndHidden(?string $endHidden): self
     {

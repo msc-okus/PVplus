@@ -1231,7 +1231,7 @@ class AssetManagementService
                 $Ertrag_design = 0;
             }
 
-
+          
             if ($i > $report['reportMonth']) {
                 $data1_grid_meter['powerEvu'] = 0;
                 $data1_grid_meter['powerAct'] = 0;
@@ -1264,6 +1264,7 @@ class AssetManagementService
                 $forecast[] = $this->functions->getForcastByMonth($anlage, $i);
             }
         }
+
         // fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,
