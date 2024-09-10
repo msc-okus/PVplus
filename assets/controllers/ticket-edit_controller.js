@@ -433,14 +433,15 @@ export default class extends Controller {
         let reason = $(this.formReasonSelectTarget).val();
         $(this.reasonInputTarget).val(reason);
     }
+
     checkCategory(){
         const cat = $(this.formCategoryTarget).val();
-        var inverterString = '';
-        var inverterNameString = '';
+        let inverterString = '';
+        let inverterNameString = '';
         let body = $(this.modalBodyTarget);
 
         // in this switch we remove the 'is-hidden' class to show the field as of the ticket date depending on the category
-
+        console.log(cat);
         if (cat >= 70 && cat <= 80 ){
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
@@ -521,16 +522,57 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
                 break;
+            case '40':
+                body.find('input:checkbox[class=js-checkbox]').each(function () {
+                    $(this).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
+                });
 
+                inverterString = '*';
+                inverterNameString = '*';
+                body.find('#ticket_form_inverter').val(inverterString);
+                body.find('#ticket_form_inverterName').val(inverterNameString);
+                $(this.formHourTargets).prop('checked', false);
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
+                break;
+            case '50':
+                body.find('input:checkbox[class=js-checkbox]').each(function () {
+                    $(this).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
+                });
+
+                inverterString = '*';
+                inverterNameString = '*';
+                body.find('#ticket_form_inverter').val(inverterString);
+                body.find('#ticket_form_inverterName').val(inverterNameString);
+                $(this.formHourTargets).prop('checked', false);
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
+                break;
+            case '60':
+                body.find('input:checkbox[class=js-checkbox]').each(function () {
+                    $(this).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
+                });
+
+                inverterString = '*';
+                inverterNameString = '*';
+                body.find('#ticket_form_inverter').val(inverterString);
+                body.find('#ticket_form_inverterName').val(inverterNameString);
+                $(this.formHourTargets).prop('checked', false);
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
+                break;
             case '70':
                 $(this.headerExcludeTargets).removeClass('is-hidden');
                 $(this.headerFormKpiTargets).removeClass('is-hidden');
-
                 $(this.fieldSensorTargets).removeClass('is-hidden');
                 $(this.formkpiStatusTargets).removeClass('is-hidden');
-
                 $(this.formHourTargets).prop('checked', false);
-
 
                 if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(10)};
                 break;
@@ -599,6 +641,7 @@ export default class extends Controller {
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
         }
     }
+
     setBody(html){
         this.modalBodyTarget.innerHTML = html;
     }
