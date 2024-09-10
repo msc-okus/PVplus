@@ -272,15 +272,15 @@
         >
             {# Forecast #}
             <optgroup label="Forcast">
-                {% if aktAnlage.settings.chartAnalyse3 %}
+                {% if aktAnlage.settings.chartAnalyse3 and aktAnlage.useDayForecast %}
                     <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast Ertrag&nbsp;[kWh]
                     </option>
                 {% endif %}
-                {% if aktAnlage.settings.chartAnalyse10 %}
+                {% if aktAnlage.settings.chartAnalyse10 and aktAnlage.useDayForecast %}
                     <option value="forecast_pr" {% if form.selectedChart == 'forecast_pr' %}selected{% endif %}>Forecast PR&nbsp;[kWh / %]
                     </option>
                 {% endif %}
-                {% if aktAnlage.settings.chartAnalyse11 %}
+                {% if aktAnlage.settings.chartAnalyse11 and aktAnlage.useDayForecast %}
                     <option value="forecast3" {% if form.selectedChart == 'forecast3' %}selected{% endif %}>Forecast3&nbsp;[kWh]
                     </option>
                 {% endif %}
