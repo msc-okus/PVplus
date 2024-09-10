@@ -3525,7 +3525,7 @@ class Anlage implements \Stringable
      */
     public function hasPVSYST(): bool
     {
-        return (intval($this->kwPeakPvSyst) > 0 &&  $this->showPvSyst);
+        return (intval($this->kwPeakPvSyst) > 0 && $this->showPvSyst);
     }
 
     public function getPicture(): ?string
