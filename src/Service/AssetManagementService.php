@@ -1229,11 +1229,16 @@ class AssetManagementService
                 try {
                     $Ertrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i)->getErtragDesign();
                 } catch (NonUniqueResultException $e) {
-                    $expectedPvSyst[] = 0;
+                    $Ertrag_design = 0;
                 }
             } else {
                 $Ertrag_design = 0;
             }
+<<<<<<< HEAD
+=======
+
+          
+>>>>>>> 7e2e43f0f3adbcec4f5bf9027cb8f748671e121e
             if ($i > $report['reportMonth']) {
                 $data1_grid_meter['powerEvu'] = 0;
                 $data1_grid_meter['powerAct'] = 0;

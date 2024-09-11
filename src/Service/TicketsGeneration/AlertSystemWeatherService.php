@@ -82,7 +82,6 @@ class AlertSystemWeatherService
                 if ($status_report['Temperature']!= "All good") $ticketData = $ticketData . "Problem with the Temperature";
                 if ($status_report['wspeed'] != "All good") $ticketData = $ticketData . "Problem with the Wind Speed";
                 //$this->generateTicket($ticketData, $time, $anlage);
-                dump($status_report);
                 unset($status_report);
             }
         //}
@@ -106,7 +105,6 @@ class AlertSystemWeatherService
         $resw = $conn->query($sqlw);
         if ($resw->rowCount() > 0) {
             $wdata = $resw->fetch(PDO::FETCH_ASSOC);
-            dump($wdata,$sqlw);
             if ($wdata['gi'] != null && $wdata['gmod'] != null) {
                 if ($wdata['gi'] <= 0 && $wdata['gmod'] <= 0) {
                     $status_report['Irradiation'] = 'Irradiation is 0';

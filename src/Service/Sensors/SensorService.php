@@ -81,12 +81,11 @@ class SensorService
                     $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempStartDateMinus15->format('Y-m-d H:i'), $tempEndDateMinus15->format('Y-m-d H:i'), false, $anlage);
                     $intervallPAs = $this->weatherFunctionsService->getIntervallPA($anlage, $tempStartDateMinus15, $tempEndDateMinus15);
 
-                    if ($anlage->getSettings()->isUseSensorsData() && false) {  // sensor daten aus Datenban 'Sensors' ermitteln
+                    if ($anlage->getSettings()->isUseSensorsData()) {  // sensor daten aus Datenban 'Sensors' ermitteln
                         $sensorArrays = $this->sensorGetters->getSensorsIrrByTime($anlage, $tempStartDate, $tempEndDate);
                     } else {  // Search for sensor (irr) values in ac_ist database
                         $sensorArrays = $this->weatherFunctionsService->getSensors($anlage, $tempStartDate, $tempEndDate);
                     }
-
 
                     // ermitteln welche Sensoren excludiert werden sollen
                     $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];

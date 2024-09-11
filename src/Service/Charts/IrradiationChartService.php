@@ -118,6 +118,7 @@ class IrradiationChartService
         $conn = $this->pdoService->getPdoPlant();
         $isEastWest = $anlage->getIsOstWestAnlage();
         $anlageSensors = $anlage->getSensors()->toArray();
+        $plantId = $anlage->getAnlId();
         $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
         $sensorsArray = self::getSensorsData($anlageSensors, $length);
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
@@ -153,19 +154,31 @@ class IrradiationChartService
                                 'val2' =>       $this->mittelwert($gmPyWest), //irrLower
                             ];
                         }else{
-                            $gmPyEast[] = 0;
+                            #$gmPyEast[] = 0;
+                            if($plantId == 233 || $plantId == 232){
+                                $irrUpper = $gmPyEast[0] + $gmPyEast[1];
+
+                            }else{
+                                $irrUpper = $this->mittelwert($gmPyEast);
+                            }
                             $dataArray['chart'][] = [
                                 'date' =>          $stampTemp,
-                                'val1' =>       $this->mittelwert($gmPyEast), //irrUpper
+                                'val1' =>       $irrUpper, //irrUpper
                                 'val2' =>       $this->mittelwert($gmPyWest), //irrLower
                             ];
-
                         }
+
 
                         if (!($this->mittelwert($gmPyEast) + $this->mittelwert($gmPyWest) == 0 && self::isDateToday($stampTemp) && self::getCetTime() - strtotime($stampTemp) < 7200)) {
                             switch ($mode) {
                                 case 'all':
-                                    $dataArray['chart'][$counter2]['val1'] = $this->mittelwert($gmPyEast) < 0 ? 0 : $this->mittelwert($gmPyEast); // upper pannel
+                                    if($plantId == 233 || $plantId == 232){
+                                        $irrUpper = $gmPyEast[0] + $gmPyEast[1];
+
+                                    }else{
+                                        $irrUpper = $this->mittelwert($gmPyEast);
+                                    }
+                                    $dataArray['chart'][$counter2]['val1'] = $irrUpper; // upper pannel
                                     $dataArray['chart'][$counter2]['val2'] = $this->mittelwert($gmPyWest) < 0 ? 0 : $this->mittelwert($gmPyWest); // lower pannel
                                     break;
                                 case 'upper':
@@ -359,6 +372,7 @@ class IrradiationChartService
         $length = is_countable($anlageSensors) ? count($anlageSensors) : 0;
         $sensorsArray = self::getSensorsData($anlageSensors, $length);
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+        $plantId = $anlage->getAnlId();
 
         if ($hour) {
             //zu from eine Stunde + da sonst Diagrammm nicht erscheint
@@ -468,10 +482,15 @@ class IrradiationChartService
                             $x = $k+1;
                             $arrayTemp[$x] = 0;
                         }
+                        if($plantId == 233 || $plantId == 232){
+                            $irrUpper = array_sum($gmPyEast);
+                        }else{
+                            $irrUpper = $this->mittelwert($gmPyEast);
+                        }
                         $dataArrayTemp[] = [
                             'irrHoriz'          => $this->mittelwert($gmPyHori),
                             'irrLower'          => $this->mittelwert($gmPyWest),
-                            'irrUpper'          => $this->mittelwert($gmPyEast),
+                            'irrUpper'          => $irrUpper,
                             'stamp'             => $dataArray[$i]['stamp'],
                             #'gmo'               => $dataArray[$i]['gmo'],
                             'values'            => $arrayTemp

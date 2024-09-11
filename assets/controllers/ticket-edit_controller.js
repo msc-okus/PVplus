@@ -344,6 +344,42 @@ export default class extends Controller {
             $(this.formBeginTarget).val(valueBeginHidden);
             $(this.formEndTarget).val(valueEndHidden);
         }
+<<<<<<< HEAD
+=======
+        //now we recheck the dates (possibly not needed)
+        /*
+        const date1 = new Date($(this.formBeginTarget).prop('value'));
+        const date2 = new Date($(this.formEndTarget).prop('value'));
+        date1.setSeconds(0);
+        date2.setSeconds(0);
+        const timestamp1 = date1.getTime();
+        const timestamp2 = date2.getTime();
+        //this is just to display the error messages of date inconsistency
+        if (timestamp2 > timestamp1) {
+            $(this.CalloutTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
+            $(this.AlertDatesTarget).addClass('is-hidden');
+            if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                $(this.AlertFormatTarget).addClass('is-hidden');
+            } else {
+                $(this.CalloutTarget).removeClass('is-hidden');
+                $(this.AlertFormatTarget).removeClass('is-hidden');
+                $(this.saveButtonTarget).attr('disabled', 'disabled');
+            }
+        }
+        else{
+            $(this.CalloutTarget).removeClass('is-hidden');
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
+            $(this.AlertDatesTarget).removeClass('is-hidden');
+            if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                $(this.AlertFormatTarget).addClass('is-hidden');
+            } else {
+                $(this.AlertFormatTarget).removeClass('is-hidden');
+            }
+        }
+
+         */
+>>>>>>> 7e2e43f0f3adbcec4f5bf9027cb8f748671e121e
     }
     replaceCheck(){
         // this is the change of overlay if the user decides to replace energy with PVSYST in the replacement ticket
@@ -365,10 +401,10 @@ export default class extends Controller {
                 $(this.headerReplacePowerG4NTargets).removeClass('is-hidden');
                 $(this.headerHourTargets).removeClass('is-hidden');
                 $(this.headerReplacePowerTargets).removeClass('is-hidden');
+                $(this.headerHourTargets).removeClass('is-hidden');
             }
             $(this.headerReasonTargets).removeClass('is-hidden');
             $(this.headerFormKpiTargets).removeClass('is-hidden');
-
         if ($(this.formReplaceTargets).prop('checked') == true) {
             $(this.fieldReplaceIrrTargets).removeClass('is-hidden');
             $(this.fieldHourTargets).removeClass('is-hidden');
@@ -381,6 +417,7 @@ export default class extends Controller {
             $(this.fieldEnergyValueTargets).removeClass('is-hidden');
             $(this.fieldIrrValueTargets).removeClass('is-hidden');
             $(this.fieldReplacePowerTargets).removeClass('is-hidden');
+            $(this.fieldHourTargets).removeClass('is-hidden');
             $(this.fieldReplacePowerG4NTargets).removeClass('is-hidden');
             $(this.fieldHourTargets).removeClass('is-hidden');
         }
@@ -401,14 +438,18 @@ export default class extends Controller {
         let reason = $(this.formReasonSelectTarget).val();
         $(this.reasonInputTarget).val(reason);
     }
+
     checkCategory(){
         const cat = $(this.formCategoryTarget).val();
-        var inverterString = '';
-        var inverterNameString = '';
+        let inverterString = '';
+        let inverterNameString = '';
         let body = $(this.modalBodyTarget);
 
         // in this switch we remove the 'is-hidden' class to show the field as of the ticket date depending on the category
+<<<<<<< HEAD
         console.log(cat);
+=======
+>>>>>>> 7e2e43f0f3adbcec4f5bf9027cb8f748671e121e
         if (cat >= 70 && cat <= 80 ){
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
@@ -496,6 +537,8 @@ export default class extends Controller {
                     body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
                     body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
                 });
+<<<<<<< HEAD
+=======
 
                 inverterString = '*';
                 inverterNameString = '*';
@@ -511,6 +554,7 @@ export default class extends Controller {
                     body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
                     body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
                 });
+>>>>>>> 7e2e43f0f3adbcec4f5bf9027cb8f748671e121e
 
                 inverterString = '*';
                 inverterNameString = '*';
@@ -519,6 +563,24 @@ export default class extends Controller {
                 $(this.formHourTargets).prop('checked', false);
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
                 break;
+<<<<<<< HEAD
+            case '50':
+                body.find('input:checkbox[class=js-checkbox]').each(function () {
+                    $(this).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
+                });
+
+                inverterString = '*';
+                inverterNameString = '*';
+                body.find('#ticket_form_inverter').val(inverterString);
+                body.find('#ticket_form_inverterName').val(inverterNameString);
+                $(this.formHourTargets).prop('checked', false);
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
+                break;
+=======
+>>>>>>> 7e2e43f0f3adbcec4f5bf9027cb8f748671e121e
             case '60':
                 body.find('input:checkbox[class=js-checkbox]').each(function () {
                     $(this).prop('checked', true);
@@ -608,6 +670,7 @@ export default class extends Controller {
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
         }
     }
+
     setBody(html){
         this.modalBodyTarget.innerHTML = html;
     }
@@ -657,7 +720,6 @@ export default class extends Controller {
     }
     async contact() {
         const $form = $(this.contactModalTarget).find('form');
-        console.log($form, "hey");
         try {
             await $.ajax({
                 url: this.notifyUrlValue,

@@ -24,7 +24,6 @@ export default class extends Controller {
     async upload(event){
         const $uploadForm = $(this.uploadFormTarget).find('form');
         let serializedData = $uploadForm.serialize();
-        console.log($uploadForm);
          await $.ajax({
             url: this.urlUploadValue,
             method: 'GET',//$uploadForm.prop('method'),
