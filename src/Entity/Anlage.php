@@ -673,8 +673,6 @@ class Anlage implements \Stringable
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageFile::class, orphanRemoval: true)]
     private Collection $documents;
 
-
-
     #[ORM\Column(name: 'allow_send_alert_mail', type: 'boolean', nullable: true)]
     private bool $allowSendAlertMail = false;
 
@@ -846,9 +844,6 @@ class Anlage implements \Stringable
     {
         $this->albeto = $albeto;
     }
-
-
-
 
     public function getAnlId(): string
     {
@@ -4254,6 +4249,35 @@ class Anlage implements \Stringable
         return $this;
     }
 
+    /**
+     * @return Collection<int, AnlageFile>
+     */
+    public function getDocuments(): Collection
+    {
+        return $this->documents;
+    }
+
+    public function addDocument(AnlageFile $document): static
+    {
+        if (!$this->documents->contains($document)) {
+            $this->documents->add($document);
+            $document->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocument(AnlageFile $document): static
+    {
+        if ($this->documents->removeElement($document)) {
+            // set the owning side to null (unless already changed)
+            if ($document->getAnlage() === $this) {
+                $document->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
 
     public function getTicketGenerationDelay(): ?int
     {

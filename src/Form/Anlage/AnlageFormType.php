@@ -786,7 +786,8 @@ class AnlageFormType extends AbstractType
             ->add('ticketGenerationDelay', IntegerType::class,[
                 'label' => 'Delay in the ticket generation (in 15-minutes interval)',
                 'help' => 'this number will be multiplied with 15 to get the amount of minutes ',
-                'attr' => ['data-plant-target' => 'ticket']
+                'attr' => ['data-plant-target' => 'ticket'],
+                'disabled' => !$isG4NUser,
             ])
             ->add('ActivateTicketSystem', SwitchType::class, [
                 'label' => 'Activate ticket autogeneration',
@@ -800,6 +801,7 @@ class AnlageFormType extends AbstractType
                 ->add('internalTicketSystem', SwitchType::class, [
                     'label' => 'Activate internal ticket autogeneration',
                     'help' => '<br>[internalTicketSystem]',
+                    'attr' => ['data-plant-target' => 'ticket'],
                 ]);
         }
         $builder
@@ -814,12 +816,14 @@ class AnlageFormType extends AbstractType
                 'help' => '[freqBase]',
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '50',
+                'disabled' => !$isG4NUser,
             ])
             ->add('freqTolerance', TextType::class, [
                 'label' => 'Frequency tolerance of the Plant [Hz]',
                 'help' => '[hasFrequency]',
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '2',
+                'disabled' => !$isG4NUser,
             ])
             ->add('expectedTicket', SwitchType::class, [
                 'label' => 'Activate Expected Tickets',
@@ -856,6 +860,7 @@ class AnlageFormType extends AbstractType
                 'help' => "Minimum Power to set a Inverter to 'working', is also used for PA calculation.<br>[PowerThreshold]",
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '0',
+                'disabled' => !$isG4NUser,
             ])
             ->add('ppcBlockTicket', SwitchType::class, [
                 'label' => 'PPC blocks the generation of inverter tickets',
