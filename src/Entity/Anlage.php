@@ -43,7 +43,7 @@ class Anlage implements \Stringable
     private string $dbAnlagenBase = 'pvp_base';
     private string $dbAnlagenDivision = 'pvp_division';
 
-    #[Groups(['main','api:read'])]
+    #[Groups(['main','api:read','dashboard'])]
     #[SerializedName('id')]
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\Id]
@@ -374,6 +374,7 @@ class Anlage implements \Stringable
     private Collection $anlageGridMeterDays;
     #[ORM\Column(type: 'boolean')]
     private bool $useGridMeterDayData = false;
+    #[Groups(['dashboard'])]
     #[ORM\Column(type: 'string', length: 20)]
     private string $country = '';
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: OpenWeather::class, cascade: ['persist', 'remove'] )]
@@ -672,8 +673,6 @@ class Anlage implements \Stringable
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageFile::class, orphanRemoval: true)]
     private Collection $documents;
 
-
-
     #[ORM\Column(name: 'allow_send_alert_mail', type: 'boolean', nullable: true)]
     private bool $allowSendAlertMail = false;
 
@@ -846,9 +845,6 @@ class Anlage implements \Stringable
         $this->albeto = $albeto;
     }
 
-
-
-
     public function getAnlId(): string
     {
         return $this->anlId;
@@ -1018,6 +1014,7 @@ class Anlage implements \Stringable
     }
 
 
+    #[Groups(['dashboard'])]
     public function getPnom(): ?float
     {
         return (float) $this->power;
@@ -1503,6 +1500,7 @@ class Anlage implements \Stringable
         return $this;
     }
 
+    #[Groups(['dashboard'])]
     public function getLastStatus(): Collection
     {
         $criteria = AnlagenRepository::lastAnlagenStatusCriteria();
@@ -1545,6 +1543,7 @@ class Anlage implements \Stringable
         return $this->pr->matching($criteria);
     }
 
+    #[Groups(['dashboard'])]
     public function getYesterdayPR(): ?Collection
     {
         $criteria = AnlagenRepository::yesterdayAnlagenPRCriteria();
@@ -2567,6 +2566,7 @@ class Anlage implements \Stringable
     /**
      * @return Collection|OpenWeather
      */
+    #[Groups(['dashboard'])]
     public function getLastOpenWeather(): Collection
     {
         $criteria = AnlagenRepository::lastOpenWeatherCriteria();
@@ -3520,7 +3520,7 @@ class Anlage implements \Stringable
      */
     public function hasPVSYST(): bool
     {
-        return (intval($this->kwPeakPvSyst) > 0 &&  $this->showPvSyst);
+        return (intval($this->kwPeakPvSyst) > 0 && $this->showPvSyst);
     }
 
     public function getPicture(): ?string
@@ -4135,19 +4135,26 @@ class Anlage implements \Stringable
     /**
      * New Algorithme for TicketGeneration
      */
+    #[Deprecated]
     public function isNewAlgorythm(): ?bool
     {
         return $this->newAlgorythm;
     }
 
+    #[Deprecated]
     public function setNewAlgorythm(?bool $newAlgorythm): void
     {
         $this->newAlgorythm = $newAlgorythm;
     }
 
-    public function getMinIrrThreshold(): mixed
+    public function getMinIrrThreshold(): float
     {
-        return min($this->getThreshold2PA0(), $this->getThreshold2PA1(), $this->getThreshold2PA2(), $this->getThreshold2PA3());
+        $hardcodedMinTheshold = 20;
+        $irrThreshold = max(min($this->getThreshold2PA0(), $this->getThreshold2PA1(), $this->getThreshold2PA2(), $this->getThreshold2PA3()), $hardcodedMinTheshold);
+        if (is_float($irrThreshold)) {
+            return $irrThreshold;
+        }
+        return $hardcodedMinTheshold;
     }
 
     public function getPrformular0Image(): string

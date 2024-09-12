@@ -143,8 +143,7 @@
     <div class="grid-x">
         <div class="cell">
             <ul class="tabs" data-tabs id="cust-plant-config" data-deep-link="true">
-                <li class="tabs-title is-active"><a data-tabs-target="general" href="#general" aria-selected="true">General</a></li>
-                <li class="tabs-title"><a data-tabs-target="legend" href="#legend">Legend Configuration</a></li>
+                <li class="tabs-title is-active"><a data-tabs-target="legend" href="#legend" aria-selected="true">Legend Configuration</a></li>
                 <li class="tabs-title"><a data-tabs-target="pvsyst" href="#pvsyst">PVSYST Month Values Design</a></li>
                 <li class="tabs-title"><a data-tabs-target="monthly-yield" href="#monthly-yield">Monthly recalculated Values from PVSYST</a></li>
                 {% if is_granted('ROLE_AM') %}
@@ -154,29 +153,10 @@
             </ul>
 
             <div class="tabs-content" data-tabs-content="cust-plant-config">
-                {# General #}
-                <div class="tabs-panel is-active" id="general">
-                    <fieldset class="fieldset">
-                        <legend>General Project Info</legend>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlName) }}
-                                {{ form_row(anlageForm.projektNr) }}
-                            </div>
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlStrasse) }}
-                                {{ form_row(anlageForm.anlPlz) }}
-                                {{ form_row(anlageForm.anlOrt) }}
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-
                 {# Legend #}
-                <div class="tabs-panel" id="legend">
+                <div class="tabs-panel is-active" id="legend">
                     <div class="grid-x grid-margin-x">
                         <div class="cell">
-
                             <fieldset class="fieldset js-legend-monthly-wrapper"
                                       data-prototype="{{ formMacros.addLegend(anlageForm.legendMonthlyReports.vars.prototype)|e('html_attr') }}"
                                       data-index="{{ anlageForm.legendMonthlyReports|length }}"

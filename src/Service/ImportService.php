@@ -21,19 +21,16 @@ class ImportService
 
     public function __construct(
         private readonly PdoService $pdoService,
-        private readonly PVSystDatenRepository        $pvSystRepo,
-        private readonly AnlagenRepository            $anlagenRepository,
+        private readonly PVSystDatenRepository $pvSystRepo,
+        private readonly AnlagenRepository $anlagenRepository,
         private readonly AnlageAvailabilityRepository $anlageAvailabilityRepo,
         private readonly ApiConfigRepository          $apiConfigRepository,
         private readonly FunctionsService             $functions,
         private readonly EntityManagerInterface       $em,
-        private readonly AvailabilityService          $availabilityService,
         private readonly MeteoControlService          $meteoControlService,
         private readonly ManagerRegistry              $doctrine,
         private readonly WeatherServiceNew            $weatherService,
-        private readonly externalApisService          $externalApis,
-        #private readonly DayAheadForecastDEKService $dayAheadForecastDEKService,
-        #private readonly Forecast\DayAheadForecastMALService $aheadForecastMALService
+        private readonly externalApisService          $externalApis
     )
     {
         $thisApi = $this->externalApis;
@@ -407,8 +404,8 @@ class ImportService
                 $checkSensors = [];
 
                 if ($length > 0 && $hasSensorsFromSatelite != 1){
-                    $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, $isEastWest, $sensors, $basics, $date);
-                    $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
+                    $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, $isEastWest, $sensors, $basics, $date, $plantId);
+                    $irrAnlageArray = array_merge_recursive($checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
                     $irrLower = $checkSensors[0]['irrLower'];
                     $irrUpper = $checkSensors[0]['irrUpper'];
@@ -419,7 +416,6 @@ class ImportService
                     $windSpeed = $checkSensors[1]['windSpeed'];
                     $windAnlageArray = $checkSensors[1]['anlageWind'];
                 }
-
                 /*if plant use not sensors datatable store data into the weather table
                 Diese Abfrage ist aktuell nicht wirklich relevant da in beiden Fällen das gleich geschieht.
                 TODO: die entsprechenden Skripte wie berechnung expected anpassen(Daten kommen aus db__pv_sensors_data_...)

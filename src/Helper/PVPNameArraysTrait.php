@@ -105,12 +105,13 @@ trait PVPNameArraysTrait
         return [
             'No Cust PR (EnergyProduced / Theo.Energy) | IEC'   => 'no', // IEC61724-1:2021 Kapitel 14.3.1
             'EnergyProduced / (Theo.Energy * deg)'              => 'IEC_with_deg', // Basis IEC61724-1:2021 Kapitel 14.3.1 + Degradation
-            'EnergyProduced / (Theo.Energy * PA)'               => 'Veendam', // IEC_with_PA // Basis IEC61724-1:2021 Kapitel 14.3.1 + Gewichtet mit PA (PlantAvailability)
+            'EnergyProduced / (Theo.Energy * PA)'               => 'IEC_with_PA', // IEC_with_PA // Basis IEC61724-1:2021 Kapitel 14.3.1 + Gewichtet mit PA (PlantAvailability)
             'EnergyProduced / (Theo.Energy * Ft) | IEC or NREL' => 'TempCorrNREL', //IEC_tempCorr // IEC61724-1:2021 Kapitel 14.3.2 und 14.3.3
-            'EnergyProduced / (Theo.Energy * Ft * deg) | IEC'   => 'IEC61724-1:2021', // IEC_tempCorr_deg // Basis IEC61724-1:2021 Kapitel 14.3.2 und 14.3.3 + degradation
-            'Lelystad (deprecated)'                             => 'Lelystad', // Sonder Lösung mit Berechnung der Cell Temp nach NREL
-            'Ladenburg (not ready)'                             => 'Ladenburg',  // solte eine der esten 5 sein
-            'Doellen (not ready)'                               => 'Doellen', // solte eine der esten 5 sein
+            'EnergyProduced / (Theo.Energy * Ft * deg) | IEC'   => 'IEC61724-1:2021_deg', // IEC_tempCorr_deg // Basis IEC61724-1:2021 Kapitel 14.3.2 und 14.3.3 + degradation
+            'Lelystad (deprecated use IEC61724-1:2021)'         => 'Lelystad', // Sonder Lösung mit Berechnung der Cell Temp nach NREL
+            'Ladenburg (deprecated use IEC_with_deg)'           => 'Ladenburg',  // solte eine der esten 5 sein
+            'Doellen (deprecated use IEC61724-1:2021_deg)'      => 'Doellen', // solte eine der esten 5 sein
+            'Veendam (deprecated use IEC_with_PA)'              => 'Veendam',
             'Groningen (deprecated)'                            => 'Groningen', // Sonder Lösung
         ];
     }

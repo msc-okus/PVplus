@@ -45,7 +45,7 @@
                         <option value="" {% if filter.anlagen.value == '' %} selected {% endif %} >Select a Plant</option>
                         {% for anlage in filter.anlagen.array %}
                             <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>
-                                {{ anlage.anlName }}{% if is_granted('ROLE_G4N') %} - {{ anlage.anlId }} | {{ anlage.eigner.firma }}{% endif %}
+                                {{ anlage.anlName }}{% if is_granted('ROLE_OPERATIONS_G4N') %} - {{ anlage.anlId }} | {{ anlage.eigner.firma }}{% endif %}
                             </option>
                         {% endfor %}
                     </select>
@@ -85,6 +85,14 @@
 
             </div>
             <div class="grid-x grid-margin-x grid-margin-y align-top">
+                {# {% if is_granted('ROLE_G4N') %}
+                    <div class="cell large-1">
+                        <select name="owner" class="no-margin">
+                            <option value="00">Owner</option>
+                        </select>
+                    </div>
+                {% endif %}
+                #}
                 <div class="cell large-1">
                     <select name="prio" class="no-margin">
                         <option value="00"> {% trans %}ticket.priority.name{% endtrans %} </option>

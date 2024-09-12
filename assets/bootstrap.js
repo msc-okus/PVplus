@@ -6,6 +6,17 @@ export const app = startStimulusApp(require.context(
     true,
     /\.[jt]sx?$/
 ));
+
+
+
+
+import { registerReactControllerComponents } from '@symfony/ux-react';
+
+registerReactControllerComponents(require.context(
+    './react/controllers',
+    true,
+    /\.([jt])sx?$/));
+
 /*import { startStimulusApp } from '@symfony/stimulus-bridge';
 
 // Registers Stimulus controllers from controllers.json and in the controllers/ directory

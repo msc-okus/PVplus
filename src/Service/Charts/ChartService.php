@@ -430,6 +430,7 @@ class ChartService
                     } else {
                         $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                     }
+
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [[W/m²]]';
@@ -454,6 +455,7 @@ class ChartService
                     } else {
                         $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to, $hour);
                     }
+
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -967,4 +969,90 @@ class ChartService
 
         return $dataArray;
     }
+
+
+
+    public function getGraphsAndControlAcDC($form, ?Anlage $anlage, ?bool $hour): array
+    {
+        $resultArray = [];
+        $resultArray['data'] = '';
+        $resultArray['showEvuDiag'] = 0;
+        $resultArray['showCosPhiDiag'] = 0;
+        $resultArray['showCosPhiPowerDiag'] = 0;
+        $resultArray['actSum'] = 0;
+        $resultArray['expSum'] = 0;
+        $resultArray['evuSum'] = 0;
+        $resultArray['expEvuSum'] = 0;
+        $resultArray['expNoLimitSum'] = 0;
+        $resultArray['irrSum'] = 0;
+        $resultArray['cosPhiSum'] = 0;
+        $resultArray['headline'] = '';
+        $resultArray['series1']['name'] = '';
+        $resultArray['series1']['tooltipText'] = '';
+        $resultArray['series2']['name'] = '';
+        $resultArray['series2']['tooltipText'] = '';
+        $resultArray['seriesx']['name'] = '';
+        $resultArray['seriesx']['tooltipText'] = '';
+        $resultArray['offsetLegende'] = 0;
+        $resultArray['rangeValue'] = 0;
+        $resultArray['maxSeries'] = 0;
+        $resultArray['hasLink'] = false;
+        $currentYear = date('Y');
+        $currentMonth = date('m');
+        $currentDay = date('d');
+
+        // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
+        if (isset($form['backFromMonth'])) {
+            if ($form['backFromMonth'] === true) {
+                $form['from'] = date('Y-m-d 00:00', strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay) - (86400 * ($form['optionDate'] - 1)));
+                $form['to'] = date('Y-m-d 23:59', strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay));
+            }
+        }
+
+
+        $from =  $form['from'];
+        $to =  date('Y-m-d 00:00:00',strtotime($form['to'])+60); //correct $to stamp to 0 oclock next day
+
+        if ($anlage) {
+            switch ($form['selectedChart']) {
+                // AC Charts //
+                // AC1 //
+                case 'ac_single':
+                    $dataArray = $this->acCharts->getAC1($anlage, $from, $to, $hour);
+                    if ($dataArray) {
+                        $resultArray['data'] = json_encode($dataArray['chart']);
+                        $resultArray['showEvuDiag'] = $anlage->getShowEvuDiag();
+                        $resultArray['showCosPhiPowerDiag'] = $anlage->getShowCosPhiPowerDiag();
+                        $resultArray['actSum'] = $dataArray['actSum'];
+                        $resultArray['expSum'] = $dataArray['expSum'];
+                        $resultArray['evuSum'] = $dataArray['evuSum'];
+                        $resultArray['irrSum'] = $dataArray['irrSum'];
+                        $resultArray['expEvuSum'] = $dataArray['expEvuSum'];
+                        $resultArray['theoPowerSum'] = $dataArray['theoPowerSum'];
+                        $resultArray['expNoLimitSum'] = $dataArray['expNoLimitSum'];
+                        $resultArray['cosPhiSum'] = $dataArray['cosPhiSum'];
+                        $resultArray['headline'] = 'AC production [[kWh]] – actual and expected';
+                        $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
+                    }
+                    break;
+                case 'dc_single':
+                    $dataArray = $this->dcChart->getDC1($anlage, $from, $to, $hour);
+                    if ($dataArray) {
+                        $resultArray['data'] = json_encode($dataArray['chart']);
+                        $resultArray['actSum'] = $dataArray['actSum'];
+                        $resultArray['expSum'] = $dataArray['expSum'];
+                        $resultArray['irrSum'] = $dataArray['irrSum']; // Einstrahlung in kW/m²
+                        $resultArray['theoPowerSum'] = 0;
+                        $resultArray['headline'] = 'DC Production [[kWh]] – Actual and Expected';
+                        $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
+                    }
+                    break;
+                default:
+                    $resultArray['headline'] = 'Something was wrong '.$form['selectedChart'];
+            }
+        }
+
+        return $resultArray;
+    }
+
 }

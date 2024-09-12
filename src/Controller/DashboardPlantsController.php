@@ -98,6 +98,7 @@ class DashboardPlantsController extends BaseController
         } else {
             $aktAnlage = null;
         }
+
         /* @var Anlage $anlagen */
         if ($eignerId) {
             if ($this->isGranted('ROLE_OPERATIONS_G4N')) {
@@ -312,8 +313,6 @@ class DashboardPlantsController extends BaseController
         if($form['selectedChart'] == 'sollistirranalyse' || $form['selectedChart'] == 'sollisttempanalyse' || $form['selectedChart'] == 'sollistanalyse'){
             $selectAllInverters = 1;
         }
-#echo $form['selectedChart'];
-#exit;
 
         return $this->render('dashboardPlants/plantsShow.html.twig', [
             'anlagen' => $anlagen,

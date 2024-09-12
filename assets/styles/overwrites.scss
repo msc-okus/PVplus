@@ -1214,11 +1214,13 @@
         .working td{ color: #71A8E2;}
         .waiting td {color: #be0000;}
     }
+
     footer {
         background-color: $g4n-white;
         box-shadow: 0 0 10px 0 rgba(100,100,100,0.75);
-        padding-top: 1rem;
-        height: 60px;
+        height: 30px;
+        padding-top: 0.2rem;
+        font-size: 80%;
     }
 
     .round-corner {border-radius: 4px;}
