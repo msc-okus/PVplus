@@ -119,7 +119,6 @@ class ImportToolsController extends BaseController
     {
         //get all Plants for Import via via Cron
         $anlagen = $anlagenRepo->findAllSymfonyImport();
-        dd($anlagen);
 
         $time = time();
         $time -= $time % 900;

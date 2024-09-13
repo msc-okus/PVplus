@@ -329,7 +329,7 @@ trait ImportFunctionsTrait
                     }
                 }
             }
-q   
+
             if($plantId == 233 || $plantId == 232){
                 $irrUpper = $gmPyEast[0] + $gmPyEast[1];
             }else{
