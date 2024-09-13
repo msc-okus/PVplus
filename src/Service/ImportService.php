@@ -79,7 +79,6 @@ class ImportService
 
         $importTypeConfig = $anlage->getSettings()->getImportType();
 
-        echo "Test $plantId $importTypeConfig<br>";
         if($importTypeConfig != 'ftpPush'){
             $apiconfigId = $anlage->getSettings()->getApiConfig();
             $apiconfig = $this->apiConfigRepository->findOneById($apiconfigId);
