@@ -179,9 +179,6 @@ class ImportService
         $start = $start - $dataDelay;
         $end = $end - $dataDelay;
 
-        $from = date('Y-m-d H:i', $start);
-        $to = date('Y-m-d H:i', $end);
-
         //If Data comes from Satelite
         if($hasSensorsFromSatelite == 1){
             $importType = 'api-import-weather';
@@ -305,7 +302,6 @@ class ImportService
             else{
                 $nineHundret = 0;
             }
-
 
             $from = urlencode(date('c', $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $end));
