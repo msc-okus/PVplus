@@ -107,6 +107,18 @@ class OwnerFormType extends AbstractType
             ->add('settings', OwnerSettingsFormType::class, [
                 'label' => 'Settings',
             ])
+
+            // #############################################
+            // ###              Contacts                ####
+            // #############################################
+            ->add('ApiConfig', CollectionType::class, [
+                'entry_type' => OwnerApiFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
+            ])
+
             // #############################################
             // ###              Contacts                ####
             // #############################################

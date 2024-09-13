@@ -332,7 +332,6 @@ trait ImportFunctionsTrait
 
             if($plantId == 233 || $plantId == 232){
                 $irrUpper = $gmPyEast[0] + $gmPyEast[1];
-                #echo "$date /". $gmPyEast[0] .' / '.  $gmPyEast[1]. ' / '.$irrUpper."<br>";
             }else{
                 $irrUpper = $this->mittelwert($gmPyEast);
             }

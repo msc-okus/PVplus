@@ -1,7 +1,5 @@
 <?php
 namespace App\Service;
-
-
 use Exception;
 
 /**
@@ -11,7 +9,6 @@ class MeteoControlService
 {
     static function checkBulkResponse($bulk): bool
     {
-
         return false;
     }
 

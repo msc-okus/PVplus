@@ -13,6 +13,17 @@
     </tr>
 {% endmacro %}
 
+{% macro addApiConfig(api) %}
+    <tr>
+        <td>{{ form_widget(api.apiType) }}</td>
+        <td>{{ form_widget(api.configName) }}</td>
+        <td>{{ form_widget(api.apiUser) }}</td>
+        <td>{{ form_widget(api.apiPassword) }}</td>
+        <td>{{ form_widget(api.apiToken) }}</td>
+        <td></td>
+    </tr>
+{% endmacro %}
+
 {{ form_start(ownerForm, {'attr': {'novalidate': 'no'}}) }}
 <div class="grid-x grid-margin-x grid-padding-x">
     <div class="cell">
@@ -21,12 +32,12 @@
             {% if is_granted('ROLE_G4N') %}
                 <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
                 <li class="tabs-title"><a data-tabs-target="features" href="#features">Features</a></li>
+                <li class="tabs-title"><a data-tabs-target="apiconfigs" href="#apiconfigs">API Config</a></li>
             {% endif %}
              <li class="tabs-title "><a data-tabs-target="contacts" href="#contacts">Contacts</a></li>
         </ul>
 
         <div class="tabs-content" data-tabs-content="owner-tabs">
-
             {# Basic Infos Owner #}
             <div class="tabs-panel is-active" id="owner1">
                 <div class="grid-x grid-margin-x grid-margin-y">
@@ -77,9 +88,6 @@
                     {{ form_row(ownerForm.settings.nameDep1) }}
                     {{ form_row(ownerForm.settings.nameDep2) }}
                     {{ form_row(ownerForm.settings.nameDep3) }}
-                    {{ form_row(ownerForm.settings.mcUser) }}
-                    {{ form_row(ownerForm.settings.mcPassword) }}
-                    {{ form_row(ownerForm.settings.mcToken) }}
                 </fieldset>
             </div>
 
@@ -99,6 +107,39 @@
                     </fieldset>
                 </div>
             {% endif %}
+            {# ApiConfig #}
+            <div class="tabs-panel" id="apiconfigs">
+                <fieldset class="fieldset js-apiconfig-wrapper"
+                          data-prototype="{{ formMacros.addApiConfig(ownerForm.ApiConfig.vars.prototype)|e('html_attr') }}"
+                          data-index="{{ ownerForm.ApiConfig|length }}">
+                    <legend>API</legend>
+                    <table id="apiconfig-table">
+                        <thead>
+                        <tr>
+                            <th style="width: 20%; ">Api type</th>
+                            <th style="width: 20%; ">Api name</th>
+                            <th style="width: 20%; ">User name</th>
+                            <th style="width: 20%; ">Password</th>
+                            <th style="width: 15%; ">API Token</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for api in ownerForm.ApiConfig %}
+                            <tr class="js-apiconfig-item">
+                                <td>{{ form_widget(api.apiType) }}</td>
+                                <td>{{ form_widget(api.configName) }}</td>
+                                <td>{{ form_widget(api.apiUser) }}</td>
+                                <td>{{ form_widget(api.apiPassword) }}</td>
+                                <td>{{ form_widget(api.apiToken) }}</td>
+                                <td><a href="#" class="js-remove-apiconfig"><span class="fa fa-minus-circle"></span></a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="button" class="button secondary small js-add-apiconfig"> <span class="fa fa-plus-circle"></span>&nbsp;Add Api Config</button>
+                </fieldset>
+            </div>
             {# Contacts #}
             <div class="tabs-panel" id="contacts">
                 <fieldset class="fieldset js-contact-wrapper"
