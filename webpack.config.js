@@ -23,6 +23,7 @@ Encore
     .addEntry('app', './assets/js/app.js')
     .addEntry('login', './assets/js/login.js')
     .addEntry('dashboard', './assets/js/dashboard.js')
+    .addEntry('new_dashboard', './assets/js/new_dashboard.js')
     .addEntry('reports_list', './assets/js/reports_list.js')
     .addEntry('tickets_list', './assets/js/tickets_list.js')
     .addEntry('ticket_edit', './assets/js/ticket_edit.js')
@@ -38,6 +39,8 @@ Encore
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()
+
+    .enableReactPreset()
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     .enableStimulusBridge('./assets/controllers.json')
@@ -77,7 +80,7 @@ Encore
     //.enableTypeScriptLoader()
 
     // uncomment if you use React
-    //.enableReactPreset()
+    .enableReactPreset()
 
     // uncomment to get integrity="..." attributes on your script & link tags
     // requires WebpackEncoreBundle 1.4 or higher

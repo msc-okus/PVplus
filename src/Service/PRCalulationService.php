@@ -1058,23 +1058,29 @@ class PRCalulationService
                 case 'Groningen': // special for Groningen
                     if ($theoPower > $irrLimit && $pa !== null) $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / ($theoPower / 1000 * $pa)) * (10 / 0.9945) : null;
                     break;
-                case 'Veendam': // with availability
+                case 'Veendam': /** @deprecated  */
+                case 'IEC_with_PA':
+                    // with availability
                     if ($theoPower > $irrLimit) $result = $eGrid > 0 ? ($eGrid / $theoPower) * 100 : null;
                     break;
-                case 'IEC61724-1:2021':// with Temp Correction by IEC 61724-1:2021
-                case 'TempCorrNREL':
-                case 'Lelystad': // with Temp Correction by NREL
+                case 'IEC61724-1:2021':
+                case 'TempCorrNREL':  /** @deprecated  */
+                case 'Lelystad': /** @deprecated  */
+                    // with Temp Correction by NREL / IEC 61724-1:2021
                     // Sum of theo. power from the actual values (corrected with temperature correction)
                     if ($theoPower > $irrLimit) $result = $eGrid > 0 ? ($eGrid / $theoPower) * 100 : null;
                     break;
-                case 'Ladenburg': // not tested (2023-03-22 MR)
+                case 'Ladenburg': /** @deprecated  */
+                case 'IEC_with_deg': // not tested (2023-03-22 MR)
                     if ($years >= 0) {
                         // entspricht Standard PR plus degradation (Faktor = $years int)
                         $powerTheo = $pnom * (1 - ($anlage->getDegradationPR() / 100)) ** $years * $irr;
                         $result = ($irr > $irrLimit) ? ($eGrid / $powerTheo) * 100 : null;
                     }
                     break;
-                case 'Doellen': // not finaly tested (2023-09-12 MR)
+                case 'Doellen': /** @deprecated  */
+                case 'IEC61724-1:2021_deg':
+                // not finaly tested (2023-09-12 MR)
                     if ($years >= 0) {
                         // entspricht Standard PR plus degradation in Zwei Faktoren (Faktor = $years int)
                         $powerTheo = $pnom * (1 - ($anlage->getDegradationPR() / 100)) ** ($years - 1) * (1 - ($anlage->getDegradationPR() / 100) / 2) * $irr;

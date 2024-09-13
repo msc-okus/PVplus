@@ -32,8 +32,6 @@ class ImportService
         private readonly ManagerRegistry              $doctrine,
         private readonly WeatherServiceNew            $weatherService,
         private readonly externalApisService          $externalApis,
-        #private readonly DayAheadForecastDEKService $dayAheadForecastDEKService,
-        #private readonly Forecast\DayAheadForecastMALService $aheadForecastMALService
     )
     {
         $thisApi = $this->externalApis;
@@ -407,8 +405,8 @@ class ImportService
                 $checkSensors = [];
 
                 if ($length > 0 && $hasSensorsFromSatelite != 1){
-                    $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, $isEastWest, $sensors, $basics, $date);
-                    $irrAnlageArray = array_merge_recursive($irrAnlageArrayGMO, $checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
+                    $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, $isEastWest, $sensors, $basics, $date, $plantId);
+                    $irrAnlageArray = array_merge_recursive($checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
                     $irrLower = $checkSensors[0]['irrLower'];
                     $irrUpper = $checkSensors[0]['irrUpper'];

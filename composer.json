@@ -79,6 +79,7 @@
         "symfony/ux-autocomplete": "^2.17",
         "symfony/ux-chartjs": "^2.0",
         "symfony/ux-dropzone": "^2.17",
+        "symfony/ux-react": "*",
         "symfony/ux-toggle-password": "^2.16",
         "symfony/validator": "6.4.*",
         "symfony/var-dumper": "6.4.*",

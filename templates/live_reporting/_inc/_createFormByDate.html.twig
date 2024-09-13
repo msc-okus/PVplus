@@ -65,7 +65,7 @@
             >
                 <option value="0" disabled selected hidden>Please choose a Start Day</option>
                 {% for start in 1..31 %}
-                    {# <option value="{{ start }}" {% if app.request.request.get('start-day') == start %} selected {% endif %}>{{ start }}</option> #}
+                    <option value="{{ start }}" {% if app.request.request.get('start-day') == start %} selected {% endif %}>{{ start }}</option>
                 {% endfor %}
             </select>
         </div>

@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Eigner.
@@ -19,6 +20,7 @@ class Eigner
     /**
      * @var int
      */
+
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
@@ -28,6 +30,7 @@ class Eigner
     #[Gedmo\Timestampable(on: 'create')]
     private  ?\DateTimeInterface $created = null;
 
+    #[Groups(['dashboard'])]
     #[ORM\Column(name: 'firma', type: 'string', length: 100, nullable: false)]
     private ?string $firma = null;
 
@@ -67,6 +70,7 @@ class Eigner
     #[ORM\Column(name: 'language', type: 'string', length: 10, nullable: false, options: ['default' => 'EN'])]
     private string $language = 'EN';
 
+
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eigners')]
     #[ORM\JoinTable(name: 'eigner_user')]
     private ?Collection $user;
@@ -74,6 +78,7 @@ class Eigner
     #[ORM\Column(type: 'string', length: 15, nullable: true)]
     private ?string $activateAlertMessage = null;
 
+    #[Groups(['dashboard'])] // Include this for serialization
     #[ORM\OneToMany(mappedBy: 'eigner', targetEntity: Anlage::class)]
     private ?Collection $anlage;
 
@@ -326,6 +331,7 @@ class Eigner
     {
         return $this->anlage;
     }
+
 
     public function getActiveAnlage(bool $role = false): Collection
     {

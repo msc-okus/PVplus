@@ -9,6 +9,9 @@
     <ul class="vertical menu accordion-menu" data-accordion-menu>
         <li><a href="{{ path('app_dashboard') }}"><i class="fa fa-tachometer-alt"></i><span> Dashboard</span></a></li>
         {% if is_granted('ROLE_G4N') %}
+            <li><a href="{{ path('app_newDashboard') }}"><i class="fa fa-tachometer-alt"></i><span> New Dashboard</span></a></li>
+        {% endif %}
+        {% if is_granted('ROLE_G4N') %}
             <li><a href="{{ path('app_operations_dashboard') }}"><i class="fa fa-tachometer-alt"></i><span> Operations</span></a></li>
         {% endif %}
         <li><a href="{{ path('app_analyse_download') }}"><i class="fa fa-file-download"></i><span> Download</span></a></li>
