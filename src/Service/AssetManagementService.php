@@ -1234,11 +1234,7 @@ class AssetManagementService
             } else {
                 $Ertrag_design = 0;
             }
-<<<<<<< HEAD
-=======
 
-          
->>>>>>> 7e2e43f0f3adbcec4f5bf9027cb8f748671e121e
             if ($i > $report['reportMonth']) {
                 $data1_grid_meter['powerEvu'] = 0;
                 $data1_grid_meter['powerAct'] = 0;
@@ -1286,7 +1282,7 @@ class AssetManagementService
             'forecast' => $forecast,
         ];
 
-
+        dd("bottleneck?");
         $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
             $dataCfArray[$i]['month'] = $monthExtendedArray[$i]['month'];
@@ -2444,7 +2440,7 @@ class AssetManagementService
             unset($pa);
         }
 
-
+dd("bottleneck until here?");
         // we have to generate the overall values of errors for the year
         $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
         $endate = $report['reportYear'] . '-' . $report['reportMonth'] . '-' . $daysInThisMonth . " 23:59:00";

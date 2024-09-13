@@ -500,7 +500,7 @@ class TicketController extends BaseController
             $key = uniqid($ticket->getId());
             $notification = new NotificationInfo();
             foreach (array_keys($request->request->all(), "on") as $documentId) {
-                $notification->addAttachedMedium($docuRepo->findOneBy(['id' => $documentId]));
+                $notification->addAttachedMedia($docuRepo->findOneBy(['id' => $documentId]));
             }
             $notification->setTicket($ticket);
             $notification->setStatus(10);

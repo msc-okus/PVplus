@@ -88,7 +88,7 @@ class ReportingController extends BaseController
         $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
         $userId = $this->getUser()->getUserIdentifier();
         $uid = $this->getUser()->getUserId();
-        if ($request->query->get('sort')) {
+
             switch ($reportType) {
                 case 'monthly':
                     if ($rpif) {
@@ -130,7 +130,7 @@ class ReportingController extends BaseController
                     }
                     break;
             }
-        }
+
         $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
         $pagination = $paginator->paginate(
             $queryBuilder,
