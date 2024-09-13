@@ -77,82 +77,84 @@ class ImportService
         $timeZonePlant = $anlage->getNearestTimezone();
         $dateTimeZoneOfPlant = new \DateTimeZone($timeZonePlant);
 
-        $apiconfigId = $anlage->getSettings()->getApiConfig();
-        $apiconfig = $this->apiConfigRepository->findOneById($apiconfigId);
+        $importTypeConfig = $anlage->getSettings()->getImportType();
 
-        $apiUser = $apiconfig->apiUser;
-        $apiPassword = $this->unHashData($apiconfig->apiPassword);
-        $apiToken = $apiconfig->apiToken;
-        $apiType = $apiconfig->apiType;
+        echo "Test $plantId $importTypeConfig<br>";
+        if($importTypeConfig != 'ftpPush'){
+            $apiconfigId = $anlage->getSettings()->getApiConfig();
+            $apiconfig = $this->apiConfigRepository->findOneById($apiconfigId);
+            $apiUser = $apiconfig->apiUser;
+            $apiPassword = $this->unHashData($apiconfig->apiPassword);
+            $apiToken = $apiconfig->apiToken;
+            $apiType = $apiconfig->apiType;
+            if($apiType == 'vcom'){
+                $baseUrl = 'https://api.meteocontrol.de/v2/login';
+                $postFileds = "grant_type=password&client_id=vcom-api&client_secret=AYB=~9_f-BvNoLt8+x=3maCq)>/?@Nom&username=$apiUser&password=$apiPassword";
+                $headerFields = [
+                    "content-type: application/x-www-form-urlencoded",
+                    "X-API-KEY: ". $apiToken,
+                ];
+                $curlHeader = false;
+            }
 
-        if($apiType == 'vcom'){
-            $baseUrl = 'https://api.meteocontrol.de/v2/login';
-            $postFileds = "grant_type=password&client_id=vcom-api&client_secret=AYB=~9_f-BvNoLt8+x=3maCq)>/?@Nom&username=$apiUser&password=$apiPassword";
-            $headerFields = [
-                "content-type: application/x-www-form-urlencoded",
-                "X-API-KEY: ". $apiToken,
-            ];
-            $curlHeader = false;
-        }
-
-        if($apiType == 'huawai'){
-            $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/login";
-            $postFileds = '
+            if($apiType == 'huawai'){
+                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/login";
+                $postFileds = '
             {
                 "userName": "'.$apiUser.'",
                 "systemCode": "'.$apiPassword.'"
             }
             ';
-            $headerFields = [
-                "content-type: application/json",
-                "Cookie: XSRF-TOKEN=". $apiToken,
-            ];
-            $curlHeader = true;
-        }
+                $headerFields = [
+                    "content-type: application/json",
+                    "Cookie: XSRF-TOKEN=". $apiToken,
+                ];
+                $curlHeader = true;
+            }
 
-        $apiAccessToken = $this->externalApis->getAccessToken($baseUrl, $postFileds, $headerFields, $apiType, $curlHeader);
+            $apiAccessToken = $this->externalApis->getAccessToken($baseUrl, $postFileds, $headerFields, $apiType, $curlHeader);
 
 
 
-        if($apiType == 'huawai'){
-            $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getStationList";
-            $headerFields = [
-                "content-type: application/json",
-                "Cookie: XSRF-TOKEN=". $apiAccessToken,
-                "XSRF-TOKEN: ". $apiAccessToken,
-            ];
+            if($apiType == 'huawai'){
+                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getStationList";
+                $headerFields = [
+                    "content-type: application/json",
+                    "Cookie: XSRF-TOKEN=". $apiAccessToken,
+                    "XSRF-TOKEN: ". $apiAccessToken,
+                ];
 
-            $postFileds = '
+                $postFileds = '
             {
             }
             ';
 
-            $stationCode = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'stationCode');
+                $stationCode = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'stationCode');
 
-            echo "$stationCode<br>";
+                echo "$stationCode<br>";
 
-            $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getKpiStationDay";
-            $headerFields = [
-                "content-type: application/json",
-                "Cookie: XSRF-TOKEN=". $apiAccessToken,
-                "XSRF-TOKEN: ". $apiAccessToken,
-            ];
+                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getKpiStationDay";
+                $headerFields = [
+                    "content-type: application/json",
+                    "Cookie: XSRF-TOKEN=". $apiAccessToken,
+                    "XSRF-TOKEN: ". $apiAccessToken,
+                ];
 
-            $postFileds = '
+                $postFileds = '
             {
                 "stationCodes": "'.$stationCode.'",
                 "collectTime": "1724273100000"
             }
             ';
 
-            $data = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'getKpiStationDay');
+                $data = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'getKpiStationDay');
 
-            echo "<pre>";
-            print_r($data);
-            echo "</pre>";
-            exit;
+                echo "<pre>";
+                print_r($data);
+                echo "</pre>";
+                exit;
+            }
         }
-
 
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
@@ -312,7 +314,7 @@ class ImportService
 
         //beginn collect all Data from all Plants
         $numberOfBulkMeaserments = count($bulkMeaserments);
-        if ($numberOfBulkMeaserments > 0) {
+        if ($numberOfBulkMeaserments > 0 && $importTypeConfig != 'ftpPush') {
             #date_default_timezone_set($timeZonePlant);
             for ($i = 0; $i < $numberOfBulkMeaserments; ++$i) {
                 for ($timestamp = $start+900; $timestamp <= $end; $timestamp += 900) {
