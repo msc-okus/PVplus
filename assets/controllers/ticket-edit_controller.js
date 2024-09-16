@@ -344,6 +344,7 @@ export default class extends Controller {
             $(this.formBeginTarget).val(valueBeginHidden);
             $(this.formEndTarget).val(valueEndHidden);
         }
+
     }
     replaceCheck(){
         // this is the change of overlay if the user decides to replace energy with PVSYST in the replacement ticket
@@ -410,6 +411,7 @@ export default class extends Controller {
         let body = $(this.modalBodyTarget);
 
         // in this switch we remove the 'is-hidden' class to show the field as of the ticket date depending on the category
+
         if (cat >= 70 && cat <= 80 ){
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
@@ -513,7 +515,6 @@ export default class extends Controller {
                     body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
                     body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
                 });
-
                 inverterString = '*';
                 inverterNameString = '*';
                 body.find('#ticket_form_inverter').val(inverterString);
