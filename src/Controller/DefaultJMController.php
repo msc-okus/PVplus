@@ -73,6 +73,8 @@ class DefaultJMController extends BaseController
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
 
+
+        dd("test");
         foreach ($anlagen as $anlage){
             $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
             try {

@@ -175,6 +175,7 @@ class AnlageAcGroups
     public function getLimitation(): string
     {
         return $this->limitation;
+
     }
 
     public function setLimitation(string $limitation): self

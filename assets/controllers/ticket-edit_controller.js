@@ -419,13 +419,11 @@ export default class extends Controller {
                 body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
                 body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
             });
-
             inverterString = '*';
             inverterNameString = '*';
             body.find('#ticket_form_inverter').val(inverterString);
             body.find('#ticket_form_inverterName').val(inverterNameString);
         }
-
         //first we hide everything to show only what we need depending on the category
         $(this.headerExcludeTargets).addClass('is-hidden');
         $(this.headerReplaceTargets).addClass('is-hidden');
@@ -499,7 +497,6 @@ export default class extends Controller {
                     body.find($('#split-'+$(this).prop('id')+'a')).prop('checked', true);
                     body.find($('#div-split-'+$(this).prop('id')+'b')).removeClass('is-hidden');
                 });
-
                 inverterString = '*';
                 inverterNameString = '*';
                 body.find('#ticket_form_inverter').val(inverterString);
