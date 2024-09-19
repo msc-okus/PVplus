@@ -397,30 +397,25 @@ class TicketRepository extends ServiceEntityRepository
 
         return $result->getResult();
     }
-    public function findForSafeDelete($anlage, $begin, $end = null)
+    public function findForSafeDelete($anlage, $begin, $end = null, $type = 0)
     {
-        if ($end != null)
-            $result = $this->createQueryBuilder('t')
-                ->andWhere('t.anlage = :anl')
-                ->andWhere('t.begin >= :begin')
-                ->andWhere('t.begin <= :end')
-                ->andWhere("t.editor = 'Alert system'")
-                ->setParameter('anl', $anlage)
-                ->setParameter('begin', $begin)
-                ->setParameter('end', $end)
-                ->getQuery()
-            ;
-        else
-            $result = $this->createQueryBuilder('t')
-                ->andWhere('t.anlage = :anl')
-                ->andWhere('t.begin >= :begin')
-                ->andWhere("t.editor = 'Alert system'")
-                ->setParameter('anl', $anlage)
-                ->setParameter('begin', $begin)
-                ->getQuery()
-            ;
+        $qb = $this->createQueryBuilder('t');
 
-        return $result->getResult();
+            $qb->andWhere('t.anlage = :anl')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere("t.editor = 'Alert system'")
+            ->setParameter('anl', $anlage)
+            ->setParameter('begin', $begin);
+
+        if ($end != null) {
+            $qb->andWhere('t.begin <= :end')
+                ->setParameter('end', $end);
+        }
+        if ($type != 0){
+            $qb->andWhere('t.alertType <= :type')
+                ->setParameter('type', $type);
+        }
+        return $qb->getQuery()->getResult();
     }
 
     public function findOneById($id): ?ticket

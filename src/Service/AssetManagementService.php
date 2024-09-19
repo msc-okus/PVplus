@@ -1212,7 +1212,6 @@ class AssetManagementService
         }
 
         for ($i = 1; $i <= 12; $i++) {
-            dump($i);
             if ($i < 10) {
                 $month_transfer = "0$i";
             } else {
@@ -1224,7 +1223,7 @@ class AssetManagementService
             $endDayOfMonth = cal_days_in_month(CAL_GREGORIAN, $month_transfer, $report['reportYear']);
             $end = $report['reportYear'] . '-' . $month_transfer . '-' . $endDayOfMonth . ' 23:59';
             $data1_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-            dump($data1_grid_meter);
+
             if ($anlage->hasPVSYST()) {
                 try {
                     $Ertrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i)->getErtragDesign();
@@ -1234,7 +1233,6 @@ class AssetManagementService
             } else {
                 $Ertrag_design = 0;
             }
-
             if ($i > $report['reportMonth']) {
                 $data1_grid_meter['powerEvu'] = 0;
                 $data1_grid_meter['powerAct'] = 0;
@@ -1270,7 +1268,6 @@ class AssetManagementService
                 $forecast[] = $this->functions->getForcastByMonth($anlage, $i);
             }
         }
-
         // fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,

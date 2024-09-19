@@ -137,68 +137,43 @@ class AlertSystemV2Service
         if ($anlage->isExpectedTicket() && $anlage->getAnlType() != "masterslave"){
             $timeEnd =  $this->getLastQuarter(date("Y-m-d H:i",strtotime($sungap['sunset'])));
             $timeBegin = $this->getLastQuarter(date("Y-m-d H:i",strtotime($sungap['sunrise']))); // we start looking one hour in the past to check the power and expected
-            $counter = 0;
             switch ($anlage->getConfigType()) {
                 case 1:
                 case 2:
-                    $actQuery = "SELECT unit as inverter, avg(wr_pac) as power 
+                $actQuery = "SELECT sum(wr_pac) as power 
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  wr_pac > 0 
-                            GROUP BY unit";
+                            WHERE stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  wr_pac > 0 ";
+                $resp = $conn->query($actQuery);
+                $value['power'] = $resp->fetch(PDO::FETCH_ASSOC)['power'];
 
-                    $resp = $conn->query($actQuery);
-                    $power = $resp->fetchAll(PDO::FETCH_ASSOC);
+                $expQuery = "SELECT sum(ac_exp_power) as exp
+                    FROM  " . $anlage->getDbNameDcSoll() . "
+                    WHERE stamp BETWEEN '$timeBegin' AND '$timeEnd' ";
 
-                    foreach ($power as $value) {
-                        if ($value['inverter'] != null) {
-                            $expQuery = "SELECT avg(ac_exp_power) as exp
-                                FROM  " . $anlage->getDbNameDcSoll() . " 
-                                WHERE stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  wr_num = " . $value['inverter'] . " ";
-                            $respExp = $conn->query($expQuery);
-                            $expected = $respExp->fetch(PDO::FETCH_ASSOC);
+                $respExp = $conn->query($expQuery);
+                $value['exp'] = $respExp->fetch(PDO::FETCH_ASSOC)['exp'];
 
-                            if ((abs($expected['exp'] - $value['power']) * 100 / (($value['power'] + $expected['exp']) / 2) > $percentajeDiff) && ($value['power'] > 0)) {
-                                $counter++;
-                                if ($powerArray == "")
-                                    $powerArray = $value['inverter'];
-                                else
-                                    $powerArray = $powerArray . ", " . $value['inverter'];
-                            }
-                        }
-                    }
-                    break;
+                if ((abs($value['exp'] - $value['power']) * 100 / (($value['power'] + $value['exp']) / 2) > $percentajeDiff) && ($value['power'] > 0)) $powerArray = "*";
+
+                break;
+
                 case 3:
-
-                    $actQuery = "SELECT group_ac as groupe, sum(wr_pac) as power 
+                    $actQuery = "sum(wr_pac) as power 
                             FROM " . $anlage->getDbNameIst() . "
-                            WHERE stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  wr_pac > 0 
-                            GROUP by group_ac";
+                            WHERE stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  wr_pac > 0";
                     $resp = $conn->query($actQuery);
-                    $power = $resp->fetchAll(PDO::FETCH_ASSOC);
-                    foreach ($power as $value) {
-                        if ($value['groupe'] != null) {
-                            $expQuery = "SELECT sum(ac_exp_power) as exp, group_ac as inverter
+                    $value['power'] = $resp->fetchAll(PDO::FETCH_ASSOC)['power'];
+                    $expQuery = "SELECT sum(ac_exp_power) as exp
                                 FROM " . $anlage->getDbNameDcSoll() . " 
-                                WHERE stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  group_ac = " . $value['groupe'] . " 
-                                GROUP BY group_ac";
-                            $respExp = $conn->query($expQuery);
-                            $expected = $respExp->fetch(PDO::FETCH_ASSOC);
-                            if ((abs($expected['exp'] - $value['power']) * 100 / (($value['power'] + $expected['exp']) / 2) > $percentajeDiff) && ($value['power'] > 0)) {
-                                $counter++;
-                                if ($powerArray == "")
-                                    $powerArray = $expected['inverter'];
-                                else
-                                    $powerArray = $powerArray . ", " . $expected['inverter'];
-                            }
-                        }
-                    }
+                                WHERE stamp BETWEEN '$timeBegin' AND '$timeEnd'";
+                    $respExp = $conn->query($expQuery);
+                    $value['exp'] = $respExp->fetch(PDO::FETCH_ASSOC)['exp'];
+                    if ((abs($value['exp'] - $value['power']) * 100 / (($value['power'] + $value['exp']) / 2) > $percentajeDiff) && ($value['power'] > 0)) $powerArray = "*";
                     break;
             }
-            if ($counter == $invCount)  $powerArray = "*";
-
-            if ($powerArray != ""){
-                $message = "Power below ".$percentajeDiff." % of Expected: " . $powerArray;
-                $this->generateTicketsExpected(10, $anlage, $powerArray, $timeBegin, $timeEnd, $message);
+            if ($powerArray == "*"){
+                dump("i generate");
+                $this->generateTicketsExpected($anlage, $powerArray, $timeBegin, $timeEnd, "Power below ".$percentajeDiff." % of Expected.");
             }
         }
 
@@ -496,15 +471,12 @@ class AlertSystemV2Service
                         $ticketNew->setCreatedBy("AlertSystem");
                         $ticketNew->setUpdatedBy("AlertSystem");
                         $this->em->persist($ticketNew);
-
-
                     } else {
                         $ticketOld->setEnd($end);
                         $ticketOld->setOpenTicket(true);
                         $ticketOld->setInverter($intersection);
                         $ticketDate->setEnd($end);
                         $this->em->persist($ticketOld);
-
                     }
                 }
                 if ($Ticket2Inverters !== ""){
@@ -512,8 +484,6 @@ class AlertSystemV2Service
                     $ticketOld->setInverter($Ticket2Inverters);
                     $ticketOld->getDates()->last()->setEnd($endclose);
                     $this->em->persist($ticketOld);
-
-
                 }
             }
         }
@@ -522,7 +492,6 @@ class AlertSystemV2Service
         } else {
             $restInverter = $inverter;
         }
-
         if ($restInverter != "" && ($errorCategorie == 100 or $this->irr === false)) {
             // this is the easy part, here we create a new ticket if there is nothing else to link with, so this is the actual part where new tickets are created
             //we set the internal values of the ticket based on the type of error and the current state of the system (mostly PPC signals)
@@ -598,7 +567,7 @@ class AlertSystemV2Service
      * @return void
      * @throws \Exception
      */
-    private function generateTicketsExpected($errorType, $anlage, $inverter, $begin, $end, $message): void
+    private function generateTicketsExpected($anlage, $inverter, $begin, $end, $message): void
     {
         $ticketOld = $this->getTicketYesterday($anlage, $begin, 60,  $inverter);// we retrieve here the previous ticket (if any)
         //this could be the ticket from  the previous quarter or the last ticket from  the previous day
@@ -632,8 +601,8 @@ class AlertSystemV2Service
             $ticketDate->setInverter($inverter);
             $ticket->setAlertType(60); //  category = alertType (bsp: datagap, inverter power, etc.)
             $ticketDate->setAlertType(60);
-            $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
-            $ticketDate->setErrorType($errorType);
+            $ticket->setErrorType(60); // type = errorType (Bsp:  SOR, EFOR, OMC)
+            $ticketDate->setErrorType(60);
             $begin = date_create(date('Y-m-d H:i:s', strtotime($begin) ));
             $begin->getTimestamp();
             $ticket->setBegin($begin);
@@ -643,15 +612,11 @@ class AlertSystemV2Service
             $end->getTimestamp();
             $ticketDate->setEnd($end);
             $ticket->setEnd($end);
-            //default values por the kpi evaluation
-            if ($errorType == ticket::EFOR) {
-                $ticketDate->setKpiPaDep1(10);
-                $ticketDate->setKpiPaDep2(10);
-                $ticketDate->setKpiPaDep3(10);
-            }
+            $ticket->setDescription($message);
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
         }
+        $this->em->flush();
     }
 
     /**
