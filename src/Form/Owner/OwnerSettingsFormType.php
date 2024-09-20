@@ -25,20 +25,6 @@ class OwnerSettingsFormType extends AbstractType
                 'label' => 'Name Department 3',
                 'help'  => '[nameDep3]<br>Default Value is "AM (Aset Management)"'
             ])
-            ->add('mcUser', TextType::class, [
-                'label' => 'MedioControl VCOM User',
-                'help'  => '[mcUser]'
-            ])
-            ->add('mcPassword', TextType::class, [
-                'label' => 'MedioControl VCOM Passwort',
-                'help'  => '[mcPassword]'
-
-            ])
-            ->add('mcToken', TextType::class, [
-                'label' => 'MedioControl VCOM API Token',
-                'help'  => '[mcToken]'
-
-            ])
         ;
     }
 

@@ -172,19 +172,19 @@ $wrapper_eventmail.on('click', '.js-add-eventmail', function(e) {
 });
 
 // legend
-let $wrapper_legend = $('.js-legend-_monthly-wrapper');
-$wrapper_legend.on('click', '.js-remove-legend-_monthly', function(e) {
+let $wrapper_legend = $('.js-legend-monthly-wrapper');
+$wrapper_legend.on('click', '.js-remove-legend-monthly', function(e) {
     e.preventDefault();
-    $(this).closest('.js-legend-_monthly-item')
+    $(this).closest('.js-legend-monthly-item')
         .remove();
 });
-$wrapper_legend.on('click', '.js-add-legend-_monthly', function(e) {
+$wrapper_legend.on('click', '.js-add-legend-monthly', function(e) {
     e.preventDefault();
     let prototype = $wrapper_legend.data('prototype');
     let index = $wrapper_legend.data('index');
     let newForm = prototype.replace(/__name__/g, index);
     $wrapper_legend.data('index', index + 1);
-    $('#legend-_monthly>tbody').append(newForm);
+    $('#legend-monthly>tbody').append(newForm);
 });
 
 // legend EPC
