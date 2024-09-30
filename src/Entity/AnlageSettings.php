@@ -207,6 +207,10 @@ class AnlageSettings
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $ppcAutoTicketBehavior = null;
 
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $ppcAutoTicketScope = null;
+
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $ppcAutoTicketReplaceBy = null;
 
@@ -940,6 +944,22 @@ class AnlageSettings
     public function setPpcAutoTicketReplaceBy(?string $ppcAutoTicketReplaceBy): static
     {
         $this->ppcAutoTicketReplaceBy = $ppcAutoTicketReplaceBy;
+
+        return $this;
+    }
+
+    public function getPpcAutoTicketScope(): ?array
+    {
+        return explode(", ",$this->ppcAutoTicketScope);
+    }
+
+    public function isPpcAutoTicketScope($departement): bool
+    {
+        return in_array($departement, $this->getPpcAutoTicketScope());
+    }
+    public function setPpcAutoTicketScope(?array $scope): self
+    {
+        $this->ppcAutoTicketScope = implode(", ",$scope);
 
         return $this;
     }

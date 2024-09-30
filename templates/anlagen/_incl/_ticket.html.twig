@@ -67,7 +67,11 @@
                 <legend>Settings for autogenerate Performance Tickets on PPC Alerts</legend>
                 <div class="grid-x grid-margin-x" {{ stimulus_target('anlage-ppcalert-settings','behavior') }}>
                     <div class="cell small-6">
-                        {{ form_row(anlageForm.settings.ppcAutoTicketBehavior) }}</div>
+                        {{ form_row(anlageForm.settings.ppcAutoTicketBehavior) }}
+                    </div>
+                    <div class="cell small-6">
+                        {{ form_row(anlageForm.settings.ppcAutoTicketScope) }}
+                    </div>
                 </div>
                 <div class="grid-x grid-margin-x"{{ stimulus_target('anlage-ppcalert-settings','settings')}}>
                     <div class="cell small-3">

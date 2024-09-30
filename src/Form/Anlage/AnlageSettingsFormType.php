@@ -16,6 +16,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AnlageSettingsFormType extends AbstractType
 {
@@ -24,9 +25,9 @@ class AnlageSettingsFormType extends AbstractType
 
     public function __construct(
         private readonly ApiConfigRepository $apiConfigRepository,
-        private readonly Security          $security
-    )
-    {
+        private readonly TranslatorInterface $translator,
+        private readonly Security $security
+    ){
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -327,6 +328,14 @@ class AnlageSettingsFormType extends AbstractType
                 'empty_data' => 'nothing',
                 'attr' => ['data-action' => 'anlage-ppcalert-settings#onChangeBehavior']
             ])
+            ->add('ppcAutoTicketScope', ChoiceType::class, [
+                'label' => 'Scope',
+                'attr' => ['class' => 'js-settings'],
+                'choices' => $this->scope(),
+                'expanded' => true,
+                'multiple' => true,
+                'label_attr' => ['class' => 'checkbox-inline']
+            ])
             ->add('ppcAutoTicketReplaceBy',ChoiceType::class, [
                 'multiple' => false,
                 'attr' => ['class' => 'js-settings js-disable-exclude','data-action' => 'anlage-ppcalert-settings#onChangeReplaceBy'],
@@ -363,4 +372,5 @@ class AnlageSettingsFormType extends AbstractType
             'required' => false,
         ]);
     }
+
 }

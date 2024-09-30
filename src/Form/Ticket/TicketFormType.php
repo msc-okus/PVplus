@@ -37,7 +37,8 @@ class TicketFormType extends AbstractType
         $isBeta = $this->security->isGranted('ROLE_BETA');
         $isG4N = $this->security->isGranted('ROLE_G4N');
         $isTicket = $this->security->isGranted('ROLE_TICKET');
-*/
+        */
+
         /** @var Ticket $ticket */
         $ticket = $options['data'] ?? null;
 

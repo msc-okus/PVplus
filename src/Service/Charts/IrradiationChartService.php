@@ -393,7 +393,7 @@ class IrradiationChartService
                 $gmO = null;
                 while ($i = $result->fetch(PDO::FETCH_ASSOC)) {
 
-                    if($sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr-west' || $sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr-east' || $sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr' || $sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr-hori'){
+                    if($sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr-west' || $sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr-east' || $sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr' || $sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr-hori' || $sensorsArray[$i['id_sensor']]['type_sensor'] == 'irr-ground'){
                         $dataArray[] = [
                             #'gmo'               =>  $i['gmo'],
                             'stamp'             =>  $i['stamp'],
@@ -438,7 +438,7 @@ class IrradiationChartService
                         }
                     }else{
                         $gmPyEast[] = 0;
-                        if($dataArray[$i]['useToCalc'] && $dataArray[$i]['sensorType'] == 'irr'){
+                        if($dataArray[$i]['useToCalc'] && ($dataArray[$i]['sensorType'] == 'irr' || $dataArray[$i]['sensorType'] == 'irr-ground')){
                             $gmPyEast[] = $dataArray[$i]['value'];
                         }
                         $gmPyWest = [];
@@ -583,8 +583,8 @@ class IrradiationChartService
             for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
                 $date = date('Y-m-d H:i:s', $dayStamp);
                 $dataArrayFinal['chart'][$i] = [
-                    'date'              =>  $date,
-                    'val1'=>0
+                    'date'  => $date,
+                    'val1'  => 0
                 ];
                 $i++;
             }
