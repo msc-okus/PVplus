@@ -172,7 +172,6 @@ class AlertSystemV2Service
                     break;
             }
             if ($powerArray == "*"){
-                dump("i generate");
                 $this->generateTicketsExpected($anlage, $powerArray, $timeBegin, $timeEnd, "Power below ".$percentajeDiff." % of Expected.");
             }
         }
@@ -576,7 +575,7 @@ class AlertSystemV2Service
             $end = date_create(date('Y-m-d H:i:s', strtotime($end) ));
             $end->getTimestamp();
             $ticketOld->setEnd($end);
-            $ticketOld->setOpenTicket(true);
+            $ticketOld->setOpenTicket(false);
             $ticketDate->setEnd($end);
             $this->em->persist($ticketDate);
             $this->em->persist($ticketOld);
@@ -594,7 +593,7 @@ class AlertSystemV2Service
             $ticket->setEditor('Alert system');
             $ticket->setSystemStatus(10);
             $ticket->setPriority(10);
-            $ticket->setOpenTicket(true);
+            $ticket->setOpenTicket(false);
             $ticket->setCreatedBy("AlertSystem");
             $ticket->setUpdatedBy("AlertSystem");
             $ticket->setInverter($inverter);

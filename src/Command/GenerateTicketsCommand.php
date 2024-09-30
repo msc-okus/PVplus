@@ -122,9 +122,6 @@ class GenerateTicketsCommand extends Command
                         --$counter;
                     }
                     $io->comment($anlage->getAnlName());
-
-                    //}catch(\Exception $e){}
-
                 }
 
             $io->progressFinish();
