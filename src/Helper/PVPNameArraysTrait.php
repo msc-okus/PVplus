@@ -79,10 +79,11 @@ trait PVPNameArraysTrait
     public static function virtualSensors(): array
     {
         $virtualSensors['irradiation'] = [
-            'irr'       => 'irr',
-            'irr-east'  => 'irr-east',
-            'irr-west'  => 'irr-west',
-            'irr-hori'  => 'irr-hori',
+            'irr'           => 'irr',
+            'irr-east'      => 'irr-east',
+            'irr-west'      => 'irr-west',
+            'irr-hori'      => 'irr-hori',
+            'irr-ground'    => 'irr-ground',
         ];
         $virtualSensors['temperature'] = [
             'temp-ambient'      => 'temp-ambient',
