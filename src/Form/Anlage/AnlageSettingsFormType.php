@@ -3,23 +3,41 @@
 namespace App\Form\Anlage;
 
 use App\Entity\AnlageSettings;
-use App\Form\Type\SwitchType;
-use App\Helper\PVPNameArraysTrait;
-use phpDocumentor\Reflection\Types\Integer;
+use App\Helper\G4NTrait;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use App\Helper\PVPNameArraysTrait;
+use App\Repository\ApiConfigRepository;
+use App\Form\Type\SwitchType;
+use phpDocumentor\Reflection\Types\Integer;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\FormTypeInterface;
-use Symfony\Component\Validator\Constraints\Length;
+
 class AnlageSettingsFormType extends AbstractType
 {
+    use G4NTrait;
     use PVPNameArraysTrait;
+
+    public function __construct(
+        private readonly ApiConfigRepository $apiConfigRepository,
+        private readonly Security          $security
+    )
+    {
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        //cgreate Options for API-Settings Select
+        $apiConfigs = $this->apiConfigRepository->findByOwnerId($_SESSION['tempOwnerId']);
+
+        for($i=0; $i < count($apiConfigs); $i++) {
+            $apiConfigsArray[$apiConfigs[$i]->getConfigName()] = $apiConfigs[$i]->getId();
+        }
+
         $builder
             ######## Handling Departments ########
             ->add('disableDep0', SwitchType::class, [
@@ -229,7 +247,17 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => '[epxCalculationByCurrent]'
             ])
 
+
             ###### Import ######
+            ->add('apiConfig', ChoiceType::class, [
+                'choices'       => $apiConfigsArray,
+                'label'     => 'Choose API-Setting',
+                'placeholder'   => 'please Select',
+                'required'      => false,
+                'help'      => '[settings.importType]<br>Chose wich API-Setting is used for impoert',
+                'attr' => ['style' => 'width: 150px']
+            ])
+
             ->add('symfonyImport', SwitchType::class, [
                 'label'     => 'Import Data with Symphony',
                 'help'      => '[symfonyImport]<br>Enable Import Data with Symphony without the old php skript files'

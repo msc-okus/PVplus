@@ -7,6 +7,7 @@ use App\Helper\G4NTrait;
 use App\Helper\ImportFunctionsTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
+use App\Repository\ApiConfigRepository;
 use App\Repository\PVSystDatenRepository;
 use App\Service;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,16 +21,20 @@ class ImportService
 
     public function __construct(
         private readonly PdoService $pdoService,
-        private readonly PVSystDatenRepository $pvSystRepo,
-        private readonly AnlagenRepository $anlagenRepository,
+        private readonly PVSystDatenRepository        $pvSystRepo,
+        private readonly AnlagenRepository            $anlagenRepository,
         private readonly AnlageAvailabilityRepository $anlageAvailabilityRepo,
-        private readonly FunctionsService $functions,
-        private readonly EntityManagerInterface $em,
-        private readonly MeteoControlService $meteoControlService,
-        private readonly ManagerRegistry $doctrine,
-        private readonly WeatherServiceNew $weatherService
+        private readonly ApiConfigRepository          $apiConfigRepository,
+        private readonly FunctionsService             $functions,
+        private readonly EntityManagerInterface       $em,
+        private readonly AvailabilityService          $availabilityService,
+        private readonly MeteoControlService          $meteoControlService,
+        private readonly ManagerRegistry              $doctrine,
+        private readonly WeatherServiceNew            $weatherService,
+        private readonly externalApisService          $externalApis,
     )
     {
+        $thisApi = $this->externalApis;
     }
 
     /**
@@ -72,10 +77,84 @@ class ImportService
         $timeZonePlant = $anlage->getNearestTimezone();
         $dateTimeZoneOfPlant = new \DateTimeZone($timeZonePlant);
 
-        $owner = $anlage->getEigner();
-        $mcUser = $owner->getSettings()->getMcUser();
-        $mcPassword = $owner->getSettings()->getMcPassword();
-        $mcToken = $owner->getSettings()->getMcToken();
+        $importTypeConfig = $anlage->getSettings()->getImportType();
+
+        if($importTypeConfig != 'ftpPush'){
+            $apiconfigId = $anlage->getSettings()->getApiConfig();
+            $apiconfig = $this->apiConfigRepository->findOneById($apiconfigId);
+            $apiUser = $apiconfig->apiUser;
+            $apiPassword = $this->unHashData($apiconfig->apiPassword);
+            $apiToken = $apiconfig->apiToken;
+            $apiType = $apiconfig->apiType;
+            if($apiType == 'vcom'){
+                $baseUrl = 'https://api.meteocontrol.de/v2/login';
+                $postFileds = "grant_type=password&client_id=vcom-api&client_secret=AYB=~9_f-BvNoLt8+x=3maCq)>/?@Nom&username=$apiUser&password=$apiPassword";
+                $headerFields = [
+                    "content-type: application/x-www-form-urlencoded",
+                    "X-API-KEY: ". $apiToken,
+                ];
+                $curlHeader = false;
+            }
+
+            if($apiType == 'huawai'){
+                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/login";
+                $postFileds = '
+            {
+                "userName": "'.$apiUser.'",
+                "systemCode": "'.$apiPassword.'"
+            }
+            ';
+                $headerFields = [
+                    "content-type: application/json",
+                    "Cookie: XSRF-TOKEN=". $apiToken,
+                ];
+                $curlHeader = true;
+            }
+
+            $apiAccessToken = $this->externalApis->getAccessToken($baseUrl, $postFileds, $headerFields, $apiType, $curlHeader);
+
+
+
+            if($apiType == 'huawai'){
+                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getStationList";
+                $headerFields = [
+                    "content-type: application/json",
+                    "Cookie: XSRF-TOKEN=". $apiAccessToken,
+                    "XSRF-TOKEN: ". $apiAccessToken,
+                ];
+
+                $postFileds = '
+            {
+            }
+            ';
+
+                $stationCode = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'stationCode');
+
+                echo "$stationCode<br>";
+
+                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getKpiStationDay";
+                $headerFields = [
+                    "content-type: application/json",
+                    "Cookie: XSRF-TOKEN=". $apiAccessToken,
+                    "XSRF-TOKEN: ". $apiAccessToken,
+                ];
+
+                $postFileds = '
+            {
+                "stationCodes": "'.$stationCode.'",
+                "collectTime": "1724273100000"
+            }
+            ';
+
+                $data = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'getKpiStationDay');
+
+                echo "<pre>";
+                print_r($data);
+                echo "</pre>";
+                exit;
+            }
+        }
+
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
         $hasSensorsInBasics = $anlage->getSettings()->isSensorsInBasics();
         $hasSensorsFromSatelite = $anlage->getSettings()->isSensorsFromSatelite();
@@ -88,10 +167,8 @@ class ImportService
         $anlageSensors = $anlage->getSensors();
         $isEastWest = $anlage->getIsOstWestAnlage();
 
-        $dataDelay = $anlage->getSettings()->getDataDelay()*3600;
+        $dataDelay = $anlage->getSettings()->getDataDelay() * 3600;
         //end collect params from plant
-
-
 
         $bulkMeaserments = [];
         $basics = [];
@@ -102,9 +179,6 @@ class ImportService
 
         $start = $start - $dataDelay;
         $end = $end - $dataDelay;
-
-        $from = date('Y-m-d H:i', $start);
-        $to = date('Y-m-d H:i', $end);
 
         //If Data comes from Satelite
         if($hasSensorsFromSatelite == 1){
@@ -213,20 +287,36 @@ class ImportService
             }
         }
 
+        $headerFields = [
+            "X-API-KEY: ". $apiToken,
+            "Authorization: Bearer $apiAccessToken"
+        ];
+
         //get the Data from VCOM for all Plants are configured in the current plant
-        $curl = curl_init();
+
         for ($i = 0; $i < $numberOfPlants; ++$i) {
-            $tempBulk = $this->meteoControlService->getSystemsKeyBulkMeaserments($mcUser, $mcPassword, $mcToken, $arrayVcomIds[$i], $start, $end, "fifteen-minutes", $timeZonePlant, $curl, $fromCron);
+            date_default_timezone_set($timeZonePlant);
+
+            if($fromCron){
+                $nineHundret = 900;
+            }
+            else{
+                $nineHundret = 0;
+            }
+
+            $from = urlencode(date('c', $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            $to = urlencode(date('c', $end));
+            $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
+            $tempBulk = $this->externalApis->getData($url, $headerFields);
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
         }
-        curl_close($curl);
 
         //beginn collect all Data from all Plants
         $numberOfBulkMeaserments = count($bulkMeaserments);
-        if ($numberOfBulkMeaserments > 0) {
-            date_default_timezone_set($timeZonePlant);
+        if ($numberOfBulkMeaserments > 0 && $importTypeConfig != 'ftpPush') {
+            #date_default_timezone_set($timeZonePlant);
             for ($i = 0; $i < $numberOfBulkMeaserments; ++$i) {
-                for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
+                for ($timestamp = $start+900; $timestamp <= $end; $timestamp += 900) {
 
                     $stamp = date('Y-m-d H:i:s', $timestamp);
                     $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
@@ -236,6 +326,7 @@ class ImportService
                             if ($i === 0) {
                                 $sensors[$date] = is_array($bulkMeaserments[$i]['sensors']) && array_key_exists($date, $bulkMeaserments[$i]['sensors']) ? $bulkMeaserments[$i]['sensors'][$date] : [];
                                 $inverters[$date] = is_array($bulkMeaserments[$i]['inverters']) && array_key_exists($date, $bulkMeaserments[$i]['inverters']) ? $bulkMeaserments[$i]['inverters'][$date] : [];
+
                                 $basics[$date] = is_array($bulkMeaserments[$i]['basics']) && array_key_exists($date, $bulkMeaserments[$i]['basics']) ? $bulkMeaserments[$i]['basics'][$date] : [];
                                 if ($anlage->getSettings()->getImportType() == 'withStringboxes') {
                                     $stringBoxes[$date] = is_array($bulkMeaserments[$i]['stringboxes']) && array_key_exists($date, $bulkMeaserments[$i]['stringboxes']) ? $bulkMeaserments[$i]['stringboxes'][$date] : [];
@@ -260,8 +351,9 @@ class ImportService
             //end collect all Data from all Plants
 
             //beginn sort and seperate Data for writing into database
-            for ($timestamp = $start; $timestamp <= $end; $timestamp += 900) {
-                $stamp = date('Y-m-d H:i', $timestamp);
+            for ($timestamp = $start+900; $timestamp <= $end; $timestamp += 900) {
+
+                $stamp = date('Y-m-d H:i:s', $timestamp);
                 $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
 
                 $irrUpper = $irrLower = $tempAmbient = $tempPanel = $windSpeed = $irrHorizontal = null;
@@ -322,6 +414,7 @@ class ImportService
                     $windSpeed = $checkSensors[1]['windSpeed'];
                     $windAnlageArray = $checkSensors[1]['anlageWind'];
                 }
+
                 /*if plant use not sensors datatable store data into the weather table
                 Diese Abfrage ist aktuell nicht wirklich relevant da in beiden Fällen das gleich geschieht.
                 TODO: die entsprechenden Skripte wie berechnung expected anpassen(Daten kommen aus db__pv_sensors_data_...)
@@ -510,4 +603,10 @@ class ImportService
             //end write Data in the tables
         }
     }
+
+    public function unHashData(string $encodedData): string
+    {
+        return hex2bin(base64_decode($encodedData));
+    }
+
 }

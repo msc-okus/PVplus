@@ -673,8 +673,6 @@ class Anlage implements \Stringable
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageFile::class, orphanRemoval: true)]
     private Collection $documents;
 
-
-
     #[ORM\Column(name: 'allow_send_alert_mail', type: 'boolean', nullable: true)]
     private bool $allowSendAlertMail = false;
 
@@ -846,9 +844,6 @@ class Anlage implements \Stringable
     {
         $this->albeto = $albeto;
     }
-
-
-
 
     public function getAnlId(): string
     {
@@ -3525,8 +3520,7 @@ class Anlage implements \Stringable
      */
     public function hasPVSYST(): bool
     {
-
-        return (intval($this->kwPeakPvSyst) > 0 &&  $this->showPvSyst);
+        return (intval($this->kwPeakPvSyst) > 0 && $this->showPvSyst);
     }
 
     public function getPicture(): ?string

@@ -158,7 +158,7 @@ class ImportToolsController extends BaseController
 
         $tots = strtotime("$to 23:45:00");
 
-        //get all Plants for Import via via Cron
+        //get one Plant for Import manuell
         $anlage = $anlagenRepo->findOneByIdAndJoin($id);
         $step = 22*3600;
         $step2 = 24*3600;

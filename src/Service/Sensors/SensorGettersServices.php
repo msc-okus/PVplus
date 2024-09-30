@@ -3,6 +3,7 @@
 namespace App\Service\Sensors;
 
 use App\Entity\Anlage;
+use App\Entity\AnlageSensors;
 use App\Service\PdoService;
 use DateTime;
 use PDO;
@@ -32,14 +33,16 @@ class SensorGettersServices
         $sql = "SELECT * FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$fromSQL' AND stamp <= '$toSQL' order by stamp, id_sensor;";
         $result = $conn->query($sql);
 
+        /** @var AnlageSensors $sensor */
         if ($result->rowCount() > 0) {
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 foreach ($sensors as $sensor) {
-                    $resultArray[$row['stamp']][$sensor->getNameShort()] = $row['value'];
+                    if($row['id_sensor'] == $sensor->getId()){
+                        $resultArray[$row['stamp']][$sensor->getNameShort()] = $row['value'];
+                    }
                 }
             }
         }
-
         return $resultArray;
     }
 }

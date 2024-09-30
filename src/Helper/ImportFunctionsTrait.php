@@ -156,7 +156,9 @@ trait ImportFunctionsTrait
      * @param int $length
      * @param bool $istOstWest
      * @param array $sensors
+     * @param array $basics
      * @param  $date
+     * @param $plantId
      * @return array
      */
     function checkSensors(array $anlageSensors, int $length, bool $istOstWest, array $sensors, array $basics, $date, $plantId): array
@@ -297,7 +299,7 @@ trait ImportFunctionsTrait
 
                 }
 
-                if ($anlageSensors[$i]->getvirtualSensor() == 'irr') {
+                if ($anlageSensors[$i]->getvirtualSensor() == 'irr' || $anlageSensors[$i]->getvirtualSensor() == 'irr-ground') {
                     $start = 0;
                     $end = 0;
                     if ($anlageSensors[$i]->getStartDateSensor() != null) {
@@ -332,7 +334,6 @@ trait ImportFunctionsTrait
 
             if($plantId == 233 || $plantId == 232){
                 $irrUpper = $gmPyEast[0] + $gmPyEast[1];
-                #echo "$date /". $gmPyEast[0] .' / '.  $gmPyEast[1]. ' / '.$irrUpper."<br>";
             }else{
                 $irrUpper = $this->mittelwert($gmPyEast);
             }
@@ -572,8 +573,9 @@ trait ImportFunctionsTrait
         return $result;
     }
 
-    //Prüft welche Anlagen für den Import via Symfony freigeschaltet sind
     /**
+     * Prüft welche Anlagen für den Import via Symfony freigeschaltet sind
+     *
      * @param object $conn
      * @return array
      */
@@ -584,9 +586,9 @@ trait ImportFunctionsTrait
         return $stmt->fetchAll();
     }
 
-    //importiert die Daten für Anlegen mit Stringboxes
-
     /**
+     * importiert die Daten für Anlegen mit Stringboxes
+     *
      * @param array|null $stringBoxesTime
      * @param array $acGroups
      * @param array $inverters
@@ -753,9 +755,9 @@ trait ImportFunctionsTrait
         return $result;
     }
 
-    //importiert die Daten für Anlegen ohne Stringboxes
-
     /**
+     * importiert die Daten für Anlegen ohne Stringboxes
+     *
      * @param array $inverters
      * @param string $date
      * @param int $plantId
@@ -907,8 +909,9 @@ trait ImportFunctionsTrait
         return $result;
     }
 
-    //importiert die Daten für PPC
     /**
+     * importiert die Daten für PPC
+     *
      * @param $anlagePpcs
      * @param array $ppcs
      * @param string $date

@@ -103,6 +103,9 @@ class Eigner
     #[ORM\OneToOne(mappedBy: 'owner', cascade: ['persist', 'remove'])]
     private ?OwnerSettings $settings = null;
 
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: ApiConfig::class, cascade: ['persist', 'remove'])]
+    private Collection $apiConfig;
+
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: ContactInfo::class, cascade: ['persist', 'remove'])]
     private Collection $contactInfos;
 
@@ -114,6 +117,7 @@ class Eigner
         $this->user = new ArrayCollection();
         $this->anlage = new ArrayCollection();
         $this->anlagenReports = new ArrayCollection();
+        $this->apiConfig = new ArrayCollection();
         $this->contactInfos = new ArrayCollection();
     }
 
@@ -481,6 +485,36 @@ class Eigner
         }
 
         $this->settings = $settings;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ApiConfig>
+     */
+    public function ApiConfig(): Collection
+    {
+        return $this->apiConfig;
+    }
+
+    public function addApiConfig(ApiConfig $apiConfig): static
+    {
+        if (!$this->apiConfig->contains($apiConfig)) {
+            $this->apiConfig->add($apiConfig);
+            $apiConfig->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeApiConfig(ApiConfig $apiConfig): static
+    {
+        if ($this->apiConfig->removeElement($apiConfig)) {
+            // set the owning side to null (unless already changed)
+            if ($apiConfig->getOwner() === $this) {
+                $apiConfig->setOwner(null);
+            }
+        }
 
         return $this;
     }
