@@ -1210,6 +1210,7 @@ class AssetManagementService
         for ($i = 0; $i < count($acGroups); ++$i) {
             $acGroupsCleaned[] = substr($acGroups[$i]->getacGroupName(), strpos($acGroups[$i]->getacGroupName(), 'INV'));
         }
+
         for ($i = 1; $i <= 12; $i++) {
             if ($i < 10) {
                 $month_transfer = "0$i";
@@ -1218,9 +1219,11 @@ class AssetManagementService
             }
 
             $start = $report['reportYear'] . '-' . $month_transfer . '-01 00:00';
+
             $endDayOfMonth = cal_days_in_month(CAL_GREGORIAN, $month_transfer, $report['reportYear']);
             $end = $report['reportYear'] . '-' . $month_transfer . '-' . $endDayOfMonth . ' 23:59';
             $data1_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
+
             if ($anlage->hasPVSYST()) {
                 try {
                     $Ertrag_design = $this->pvSystMonthRepo->findOneMonth($anlage, $i)->getErtragDesign();
@@ -1230,8 +1233,6 @@ class AssetManagementService
             } else {
                 $Ertrag_design = 0;
             }
-
-          
             if ($i > $report['reportMonth']) {
                 $data1_grid_meter['powerEvu'] = 0;
                 $data1_grid_meter['powerAct'] = 0;
@@ -1247,6 +1248,8 @@ class AssetManagementService
                 (float)$powerEvu[] = $data1_grid_meter['powerAct'];
                 (float)$powerAct[] = $data1_grid_meter['powerAct']; // Inv out
             }
+
+
             if ($anlage->getShowEvuDiag()) {
                 (float)$powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
                 (float)$powerExp[] = $data1_grid_meter['powerExpEvu'];
@@ -1257,6 +1260,7 @@ class AssetManagementService
 
             (float)$powerExternal[] = $data1_grid_meter['powerEGridExt'];
 
+
             if ($anlage->hasPVSYST()) {
                 $forecast[] = $Ertrag_design;
             }
@@ -1264,7 +1268,6 @@ class AssetManagementService
                 $forecast[] = $this->functions->getForcastByMonth($anlage, $i);
             }
         }
-
         // fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,
@@ -1276,7 +1279,7 @@ class AssetManagementService
             'forecast' => $forecast,
         ];
 
-
+        dd("bottleneck?");
         $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
             $dataCfArray[$i]['month'] = $monthExtendedArray[$i]['month'];
@@ -2434,7 +2437,7 @@ class AssetManagementService
             unset($pa);
         }
 
-
+dd("bottleneck until here?");
         // we have to generate the overall values of errors for the year
         $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
         $endate = $report['reportYear'] . '-' . $report['reportMonth'] . '-' . $daysInThisMonth . " 23:59:00";

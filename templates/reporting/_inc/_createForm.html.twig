@@ -1,72 +1,71 @@
-<div class="cell medium-2">
+<div class="grid-x align-middle">
+    {% if (is_granted('ROLE_OPERATIONS_G4N') or is_granted('ROLE_BETA')) %}
 
-    <div class="cell ">
-        <select name="anlage-idddd"
-                data-report-target="anlage"
-                data-action="report#handleAnlageInput"
-                {{ stimulus_controller('symfony/ux-autocomplete/autocomplete', {
-                    tom_select_options: {
-                        maxItems: 1,
-                        create: false,
-                    }
-                }) }}
-        >
-            <option value="" disabled selected hidden>Please choose a Plant</option>
-            <option value=""   {% if status == ''   %}   selected {% endif %} > Select a Plant</option>
-            {% for anlage in anlagen %}
-                <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlName }} ({{ anlage.anlId }})</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="cell ">
-        <select name="report-typ"
-                data-report-target="type"
-                data-action="report#handleInput">
-            <option value="" disabled selected hidden>Please choose a Report Type</option>
-            {% if (is_granted('ROLE_G4N')) %}
-                <option value="monthly"{% if app.request.query.get('report-typ') == 'monthly' %} selected {% endif %}>Monthly Report (O&M)</option>
-                <option value="epc"{% if app.request.query.get('report-typ') == 'epc' %} selected {% endif %}>EPC Report</option>
-                <option value="epc-new-pr"{% if app.request.query.get('report-typ') == 'epc-new-pr' %} selected {% endif %}>New EPC PR Report</option>
-            {% endif %}
-            <option value="am"{% if app.request.query.get('report-typ') == 'am' %} selected {% endif %}>Asset Management Report</option>
-        </select>
-    </div>
-    <div class="cell">
-        <select name="month"
-                data-report-target="month"
-                data-action="report#handleInput">
-            <option value="" disabled selected hidden>Please choose a Month</option>
-            <option value="1" {% if app.request.query.get('month') == 1 %} selected {% endif %}>01</option>
-            <option value="2" {% if app.request.query.get('month') == 2 %} selected {% endif %}>02</option>
-            <option value="3" {% if app.request.query.get('month') == 3 %} selected {% endif %}>03</option>
-            <option value="4" {% if app.request.query.get('month') == 4 %} selected {% endif %}>04</option>
-            <option value="5" {% if app.request.query.get('month') == 5 %} selected {% endif %}>05</option>
-            <option value="6" {% if app.request.query.get('month') == 6 %} selected {% endif %}>06</option>
-            <option value="7" {% if app.request.query.get('month') == 7 %} selected {% endif %}>07</option>
-            <option value="8" {% if app.request.query.get('month') == 8 %} selected {% endif %}>08</option>
-            <option value="9" {% if app.request.query.get('month') == 9 %} selected {% endif %}>09</option>
-            <option value="10" {% if app.request.query.get('month') == 10 %} selected {% endif %}>10</option>
-            <option value="11" {% if app.request.query.get('month') == 11 %} selected {% endif %}>11</option>
-            <option value="12" {% if app.request.query.get('month') == 12 %} selected {% endif %}>12</option>
-        </select>
-    </div>
-    <div class="cell">
-        <select name="year"
-                data-report-target="year"
-                data-action="report#handleInput">
-            <option value="" disabled selected hidden>Please choose a Year</option>
-            <option value="2020"{% if app.request.query.get('year') == 2020 %} selected {% endif %}>2020</option>
-            <option value="2021"{% if app.request.query.get('year') == 2021 %} selected {% endif %}>2021</option>
-            <option value="2022"{% if app.request.query.get('year') == 2022 %} selected {% endif %}>2022</option>
-            <option value="2023"{% if app.request.query.get('year') == 2023 %} selected {% endif %}>2023</option>
-            <option value="2024"{% if app.request.query.get('year') == 2024 %} selected {% endif %}>2024</option>
-        </select>
-    </div>
-</div>
+        <div class="cell medium-5" id="create-form" data-report-target="createForm">
+            <h4>Create New Report:</h4>
+            <div class="grid-x grid-padding-x">
+                <div class="cell medium-6">
+                    <select name="anlage-id"
+                            data-report-target="anlage"
+                            data-action="report#handleAnlageInput"
+                            {{ stimulus_controller('symfony/ux-autocomplete/autocomplete', {
+                                tom_select_options: {
+                                    maxItems: 1,
+                                    create: false,
+                                }
+                            }) }}
+                    >
+                        <option value="" disabled selected hidden>Please choose a Plant</option>
+                        <option value=""   {% if status == ''   %}   selected {% endif %} > Select a Plant</option>
+                        {% for anlage in anlagen %}
+                            <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlName }} ({{ anlage.anlId }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-<div class="cell medium-2">
-    <div class="cell ">
-        <button name="new-report" title="Create Report" class="button action-icon tiny hollow shadow" value="yes" disabled data-report-target="deactivable"  data-action="report#create">
-            <span class="fa fa-plus"></span></button>
-</div>
+                <div class="cell medium-6">
+                    <select name="report-typ" data-report-target="type" data-action="report#handleInput">
+                        <option value="" disabled selected hidden>Please choose a Report Type</option>
+                        {% if (is_granted('ROLE_G4N')) %}
+                            <option value="monthly"{% if app.request.query.get('report-typ') == 'monthly' %} selected {% endif %}>Monthly Report (O&M)</option>
+                            <option value="epc"{% if app.request.query.get('report-typ') == 'epc' %} selected {% endif %}>EPC Report</option>
+                            <option value="epc-new-pr"{% if app.request.query.get('report-typ') == 'epc-new-pr' %} selected {% endif %}>New EPC PR Report</option>
+                        {% endif %}
+                        <option value="am"{% if app.request.query.get('report-typ') == 'am' %} selected {% endif %}>Asset Management Report</option>
+                    </select>
+                </div>
+
+                <div class="cell medium-6">
+                    <select name="month"  data-report-target="month" data-action="report#handleInput">
+                        <option value="" disabled selected hidden>Please choose a Month</option>
+                        {% for i in range (1, 12) %}
+                            <option value="{{ i }}"  {% if app.request.query.get('month') == i %} selected {% endif %}>   {{ "%02d"|format(i)}}  </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="cell medium-6">
+                    <select name="year" data-report-target="year" data-action="report#handleInput">
+                        <option value="" disabled selected hidden>Please choose a Year</option>
+                        {% set isyear = 'now' | date('Y')  %}
+                        {% for year in range (2020, isyear) %}
+                            <option value="{{ year }}"{% if app.request.query.get('year') == year %} selected {% endif %}> {{ year }} </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="cell medium-12">
+                {% if is_granted('ROLE_G4N') %}
+                    <label style="display: inline-block;">Run in foreground:
+                        <input type="checkbox" name="rpif" {% if is_granted('ROLE_DEV') %}checked{% endif %}>
+                    </label>
+                {% endif %}
+                <span data-tooltip tabindex="1" title="Create New Report">
+                    <button name="new-report" title="Create Report" class="button action-icon tiny hollow shadow" value="yes" disabled data-report-target="deactivable"  data-action="report#create">
+                        <span class="fa fa-plus"></span>
+                    </button>
+                </span>
+            </div>
+        </div>
+    {% endif %}
 </div>

@@ -65,14 +65,40 @@ class DefaultJMController extends BaseController
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2): void
     {
-        $fromDate = "2024-07-31 00:00";
-        $toDate = "2024-08-01 00:00";
+        $fromDate = "2024-09-10 00:00";
+        $toDate = "2024-09-17 00:00";
 
-        $anlagen[] = $anlagenRepository->findIdLike("237")[0];
+        $anlage = $anlagenRepository->findIdLike("250")[0];
+        $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate, 60);
+        foreach ($tickets as $ticket) {
+            $notifications = $ticket->getNotificationInfos();
+            foreach ($notifications as $notification) {
+                $files = $notification->getAttachedMedia();
+                foreach ($files as $file){
+                    $em->remove($file);
+                }
+                $works = $notification->getNotificationWorks();
+                foreach ($works as $work){
+                   $em->remove($work);
+                }
+                $em->remove($notification);
+            }
+            $dates = $ticket->getDates();
+            foreach ($dates as $date) {
+                $em->remove($date);
+            }
+            $em->remove($ticket);
+        }
+        $em->flush();
 
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
+        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 86400) {
+            $alertServiceV2->generateTicketsExpectedInterval($anlage, date('Y-m-d H:i:00', $stamp));
+        }
 
+        dd("test");
+        /*
         foreach ($anlagen as $anlage){
             $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate);
             try {
@@ -91,6 +117,7 @@ class DefaultJMController extends BaseController
         }
 
         dd("hello world");
+    */
     }
     #[Route(path: '/generate/ticketsWeather', name: 'generate_tickets_weather')]
     public function generateWeatherTickets(AnlagenRepository $anlagenRepository, AlertSystemWeatherService $alertServiceV2): void
