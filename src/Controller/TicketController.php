@@ -90,7 +90,7 @@ class TicketController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var Ticket $ticket */
             $ticket = $form->getData();
-            $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
+            $ticket->setEditor($this->currentUser());
             if ($ticket->getStatus() == 90) $ticket->setWhenClosed(new DateTime('now'));
             $dates = $ticket->getDates();
             foreach ($dates as $date) {
@@ -213,7 +213,7 @@ class TicketController extends BaseController
                 $ticket->setWhenHidded("");
             }
             $ticketDates = $ticket->getDates();
-            $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
+            $ticket->setEditor($this->currentUser());
             if ($ticket->getStatus() == 90) {
                 $ticket->setWhenClosed(new DateTime('now'));
             }
@@ -681,8 +681,7 @@ class TicketController extends BaseController
         $newTicket->setInverter($request->query->get('inverterb'));
         $ticket->setInverter($request->query->get('invertera'));
 
-        $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
-        $ticket->setEditor($this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier());
+        $ticket->setEditor($this->currentUser());
         if ($ticket->getStatus() == 90) $ticket->setWhenClosed(new DateTime('now'));
         $newTicket->setStatus(10);
         $em->persist($ticket);
@@ -1351,6 +1350,7 @@ class TicketController extends BaseController
             $currTicket = $ticketRepo->findOneBy(['id' => $ticket]);
             if ($currTicket) {
                 $currTicket->setStatus($status);
+                $currTicket->setEditor($this->currentUser());
                 $em->persist($currTicket);
             }
         }
@@ -1359,4 +1359,9 @@ class TicketController extends BaseController
         return new Response(null, Response::HTTP_OK);
     }
 
+
+    private function currentUser(): string
+    {
+        return $this->getUser()->getUsername() != '' ? $this->getUser()->getUsername() : $this->getUser()->getUserIdentifier();
+    }
 }
