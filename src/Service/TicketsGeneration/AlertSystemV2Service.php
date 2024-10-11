@@ -31,9 +31,7 @@ use Twig\Error\SyntaxError;
 class AlertSystemV2Service
 {
     use G4NTrait;
-
     private bool $irr = false;
-
     public function __construct(
         private readonly PdoService              $pdoService,
         private readonly AnlagenRepository       $anlagenRepository,
@@ -49,7 +47,6 @@ class AlertSystemV2Service
         private readonly SystemLogRepository     $sysLogRepo,
     )
     {
-
     }
 
     /**
@@ -99,29 +96,10 @@ class AlertSystemV2Service
             $this->checkExpected($anlage, date('Y-m-d', $fromStamp));
         }
     }
-
-    /**
-     * this method should be called from the command to join the tickets
-     * not in use now
-     * no other method from this class should be called manually
-     * @deprecated
-     * @param Anlage $anlage
-     * @param string $from
-     * @param string $to
-     * @throws InvalidArgumentException
-     */
-    public function joinTicketsInterval(Anlage $anlage, string $from, string $to): void
-    {
-        $fromStamp = strtotime(date("Y-m-d", strtotime($from)));
-        $toStamp = strtotime(date("Y-m-d", strtotime($to)));
-        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 86400) {
-            $this->joinTicketsForTheDay($anlage, date('Y-m-d H:i:00', $stamp));
-        }
-    }
-
     /**
      * Generate tickets for the given time, check if there is an older ticket for same inverter with same error.
      * Write new ticket to database or extend existing ticket with new end time.
+     * (this function could possibly be made private)
      * @param Anlage $anlage
      * @param string|null $time
      * @throws InvalidArgumentException
@@ -181,6 +159,7 @@ class AlertSystemV2Service
     /**
      * Generate tickets for the given time, check if there is an older ticket for same inverter with same error.
      * Write new ticket to database or extend existing ticket with new end time.
+     * (this function could possibly be made private)
      * @param Anlage $anlage
      * @param string|null $time
      * @return string
@@ -209,6 +188,7 @@ class AlertSystemV2Service
                 }
             }
             $anlType = $anlage->getAnlType();
+            try {
             if ( $plant_status['Irradiation'] == false ) {
 
                 if ($plant_status['ppc'] != null && $plant_status['ppc']){
@@ -232,7 +212,10 @@ class AlertSystemV2Service
             }else {
                 $this->generateTickets('', 100, $anlage, ['*'], $time, $plant_status['ppc'], true);
             }
+
+          } catch (TransportExceptionInterface $e) {}
         }
+
 
         $sysLog = $this->sysLogRepo->findOneBy(['anlage' => $anlage]);
         if ($sysLog != null){
@@ -346,9 +329,11 @@ class AlertSystemV2Service
         return $return;
     }
 
+    //TICKET GENERATING FUNCTION
     private function generatePPCTickets($errorType,Anlage $anlage, $time): void{
-        if ($anlage->getSettings()->getPpcAutoTicketBehavior() != "nothing"){
-            if ($anlage->getSettings()->getPpcAutoTicketBehavior() == "replace") {
+        $behavior = $anlage->getSettings()->getPpcAutoTicketBehavior();
+        if ( $behavior != "nothing"){
+            if ($behavior == "replace") {
                 $cat = 73;
             } else {
                 $cat = 72;
@@ -365,9 +350,8 @@ class AlertSystemV2Service
                 $this->em->persist($previousTicket);
             } else {
                 $ticket = new Ticket();
-                $ticket->setErrorType($cat);
-                $ticket = new Ticket();
                 $ticketDate = new TicketDate();
+                $ticket->setErrorType($cat);
                 $ticketDate->setAnlage($anlage);
                 $ticketDate->setStatus('10');
                 $ticketDate->setSystemStatus(10);
@@ -397,10 +381,12 @@ class AlertSystemV2Service
                 $end->getTimestamp();
                 $ticketDate->setEnd($end);
                 $ticket->setEnd($end);
+                $paBehaviour = $anlage->getSettings()->getPpcAutoTicketPaBehavior();
+                $replaceHour = $anlage->getSettings()->isPpcAutoTicketUseHour();
                 if ($cat == 72) {
-                    if ($anlage->getSettings()->getPpcAutoTicketPaBehavior() == "skip") {
+                    if ($paBehaviour == "skip") {
                         $ticketDate->setPRExcludeMethod(10);
-                    } else if ($anlage->getSettings()->getPpcAutoTicketPaBehavior() == "replace") {
+                    } else if ($paBehaviour == "replace") {
                         $ticketDate->setPRExcludeMethod(20);
                     }
                 } elseif ($cat == 73) {
@@ -408,15 +394,12 @@ class AlertSystemV2Service
                         $ticketDate->setReplaceEnergyG4N(true);
                     } else {
                         $ticketDate->setReplaceEnergy(true);
-                        $ticketDate->setUseHour($anlage->getSettings()->isPpcAutoTicketUseHour());
+
                     }
                     $ticketDate->setReplaceIrr($anlage->getSettings()->isPpcAutoTicketReplaceIrr());
                 }
-                if ($anlage->getSettings()->isPpcAutoTicketUseHour()) {
-                    $ticketDate->setUseHour(true);
-                } else {
-                    $ticketDate->setUseHour(false);
-                }
+                $ticketDate->setUseHour($replaceHour);
+                $ticket->setScope($anlage->getSettings()->getPpcAutoTicketScope());
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
             }
@@ -440,7 +423,6 @@ class AlertSystemV2Service
      */
     private function generateTickets($errorType, $errorCategorie,Anlage $anlage, $inverter, $time, $PPC, ?bool $fullGap = false): void
     {
-
         $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
         if ($ticketArray != []) {
             foreach ($ticketArray as $ticketOld) {
@@ -546,6 +528,7 @@ class AlertSystemV2Service
             }
             if ($errorCategorie == 10 && $fullGap) $ticketDate->setDataGapEvaluation(20);
 
+
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
             $this->em->flush();
@@ -618,6 +601,7 @@ class AlertSystemV2Service
         $this->em->flush();
     }
 
+    // TICKET FINDING FUNCTIONS
     /**
      * @param $anlage
      * @param $time

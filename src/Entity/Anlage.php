@@ -3504,7 +3504,6 @@ class Anlage implements \Stringable
             $this->anlageFiles[] = $anlageFile;
             $anlageFile->setPlant($this);
         }
-
         return $this;
     }
 
@@ -3516,7 +3515,6 @@ class Anlage implements \Stringable
                 $anlageFile->setPlant(null);
             }
         }
-
         return $this;
     }
 
