@@ -154,9 +154,9 @@ class ImportToolsController extends BaseController
     public function importManuell(#[MapQueryParameter] int $id, #[MapQueryParameter] string $from, #[MapQueryParameter] string $to, AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
         date_default_timezone_set('UTC');
-        $fromts = strtotime("$from 00:00:00") - 900;
+        $fromts = strtotime("$from 00:00:00");
 
-        $tots = strtotime("$to 23:45:00");
+        $tots = strtotime("$to 23:59:59");
 
         //get one Plant for Import manuell
         $anlage = $anlagenRepo->findOneByIdAndJoin($id);
@@ -166,7 +166,6 @@ class ImportToolsController extends BaseController
         for ($dayStamp = $fromts; $dayStamp < $tots; $dayStamp += $step2) {
             $from_new = $dayStamp;
             $to_new = $dayStamp+$step;
-
             if($i > 1){
                 $from_new = $from_new - 7200;
             }
@@ -191,6 +190,7 @@ class ImportToolsController extends BaseController
                 sleep(20);
                 $minute = (int)date('i');
             }
+
             $importService->prepareForImport($anlage, $from_new, $to_new);
 
             sleep(1);

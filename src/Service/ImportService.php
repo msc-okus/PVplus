@@ -304,25 +304,34 @@ class ImportService
                 $nineHundret = 0;
             }
 
-            $from = urlencode(date('c', $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
-            $to = urlencode(date('c', $end));
+            if (date('I', $end) && !date('I', $start)) {
+
+                    $timeShiftDST = 3600;
+
+            } else {
+
+                $timeShiftDST = 0;
+            }
+
+            $from = urlencode(date('Y-m-d\T00:00:00', $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            $to = urlencode(date('Y-m-d\T23:59:00', $end));
             $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
+echo "<br>$url";
+
             $tempBulk = $this->externalApis->getData($url, $headerFields);
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
         }
 
-        //beginn collect all Data from all Plants
+        //begin collect all Data from all Plants
         $numberOfBulkMeaserments = count($bulkMeaserments);
         if ($numberOfBulkMeaserments > 0 && $importTypeConfig != 'ftpPush') {
             #date_default_timezone_set($timeZonePlant);
             for ($i = 0; $i < $numberOfBulkMeaserments; ++$i) {
                 for ($timestamp = $start+900; $timestamp <= $end; $timestamp += 900) {
-
                     $stamp = date('Y-m-d H:i:s', $timestamp);
                     $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
-
                     if (array_key_exists($i, $bulkMeaserments)) {
-                        if (array_key_exists('basics', $bulkMeaserments[$i])) {
+                        if (is_array($bulkMeaserments[$i]['basics']) && array_key_exists('basics', $bulkMeaserments[$i])) {
                             if ($i === 0) {
                                 $sensors[$date] = is_array($bulkMeaserments[$i]['sensors']) && array_key_exists($date, $bulkMeaserments[$i]['sensors']) ? $bulkMeaserments[$i]['sensors'][$date] : [];
                                 $inverters[$date] = is_array($bulkMeaserments[$i]['inverters']) && array_key_exists($date, $bulkMeaserments[$i]['inverters']) ? $bulkMeaserments[$i]['inverters'][$date] : [];
@@ -347,7 +356,7 @@ class ImportService
                     }
                 }
             }
-
+exit;
             //end collect all Data from all Plants
 
             //beginn sort and seperate Data for writing into database
