@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use function GuzzleHttp\Psr7\str;
 
 #[IsGranted('ROLE_G4N')]
 class DefaultMREController extends BaseController
@@ -40,6 +41,12 @@ class DefaultMREController extends BaseController
     #[Route(path: '/mr/test')]
     public function test(AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
+        $sun_info = date_sun_info(strtotime("2024-09-12"), 49.811838, 72.872068);
+        dump (urlencode(date('Y-m-d\TH:i:s', strtotime('2024-09-12 23:54'))));
+        foreach ($sun_info as $key => $val) {
+            dump( "$key: " . date("H:i:s", $val) . "\n");
+        }
+        dd($sun_info);
         $anlagen = $anlagenRepo->findAllSymfonyImport();
         $time = time();
         $time -= $time % 900;
