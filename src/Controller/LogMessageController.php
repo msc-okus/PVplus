@@ -15,7 +15,8 @@ class LogMessageController extends BaseController
     #[Route(path: '/log/messages/list', name: 'app_log_messages_list')]
     public function listActualMessages(LogMessagesRepository $logMessagesRepo): Response
     {
-        $logMessages = $logMessagesRepo->findUsefull();
+        $uid = $this->getUser()->getUserId();
+        $logMessages = $logMessagesRepo->findUsefull($uid);
 
         return $this->render('logMessages/_list.html.twig', [
             'logs' => $logMessages,
