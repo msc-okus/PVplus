@@ -205,7 +205,7 @@ class AnlageSettings
     private ?bool $stringAnalysis = false;
 
     #[ORM\Column(length: 20, nullable: true)]
-    private ?string $ppcAutoTicketBehavior = null;
+    private ?string $ppcAutoTicketBehavior = "nothing";
 
 
     #[ORM\Column(length: 20, nullable: true)]

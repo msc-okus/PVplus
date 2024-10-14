@@ -700,7 +700,7 @@ export default class extends Controller {
             }
         });
         $(this.switchTarget).prop('checked', false)
-        this.saveCheck();
+        //this.saveCheck();
     }
 
     checkSelect({ params: { edited }}){
@@ -757,6 +757,7 @@ export default class extends Controller {
         }
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
         body.find('#ticket_form_inverterName').val(inverterNameString);
+        /*
         if (inverterString == '') {
             $(this.CalloutTarget).removeClass('is-hidden');
             $(this.AlertInverterTarget).removeClass('is-hidden');
@@ -830,6 +831,8 @@ export default class extends Controller {
 
 
         }
+
+         */
     }
 
     setHiddenValue(){
