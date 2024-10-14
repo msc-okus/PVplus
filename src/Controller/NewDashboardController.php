@@ -5,15 +5,13 @@ namespace App\Controller;
 
 use App\Entity\Anlage;
 use App\Repository\AnlagenRepository;
-use App\Repository\EignerRepository;
 use App\Service\Charts\ChartService;
 use App\Service\SystemStatus2;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Routing\Attribute\Route;
 
 
 class NewDashboardController extends BaseController

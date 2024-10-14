@@ -40,6 +40,7 @@ class ImportPvSystFormType extends AbstractType
                 'placeholder' => 'Please select a Plant',
                 'choices' => $anlagen,
                 'choice_label' => 'anlName',
+                'autocomplete' => true
             ])
             ->add('file', FileType::class, [
                 'mapped' => false,
