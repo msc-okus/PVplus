@@ -6,15 +6,15 @@ use App\Entity\Anlage;
 use App\Entity\AnlagenPR;
 use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
-use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Repository\AnlagenRepository;
 use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
-use App\Service\TicketsGeneration\TicketsGeneration\TicketsGeneration\Reports\ReportsEpcYieldV2;
+use App\Service\Reports\ReportsEpcYieldV2;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -33,7 +33,7 @@ class ReportEpcService
         private readonly PRCalulationService $PRCalulation,
         private readonly AvailabilityService $availabilityService,
         private readonly ReportsEpcYieldV2 $epcNew,
-        private LogMessagesService $logMessages,
+        private readonly LogMessagesService $logMessages,
     )
     {}
 
@@ -41,6 +41,7 @@ class ReportEpcService
      * @throws ExceptionInterface
      * @throws Exception
      */
+    #[Deprecated]
     public function createEpcReport(Anlage $anlage, \DateTime $date, ?string $userId = null, ?int $logId = null): string
     {
         $currentDate = date('Y-m-d H-i');
@@ -474,9 +475,7 @@ class ReportEpcService
         return $report;
     }
 
-    /**
-     * @deprecated
-     */
+    #[Deprecated]
     public function reportYieldGuarantee(Anlage $anlage): array
     {
         $anzahlMonate = ((int) $anlage->getEpcReportEnd()->format('Y') - (int) $anlage->getEpcReportStart()->format('Y')) * 12 + ((int) $anlage->getEpcReportEnd()->format('m') - (int) $anlage->getEpcReportStart()->format('m')) + 1;
