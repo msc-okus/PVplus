@@ -2451,7 +2451,7 @@ class AssetManagementService
 
         $sqlw = 'SELECT count(db_id) as quarters
                     FROM  ' . $anlage->getDbNameWeather() . "  
-                    WHERE stamp BETWEEN '$begin' AND '$end' AND (g_lower + g_upper)/2 > '" . $anlage->getThreshold2PA() . "'";// hay que cambiar aqui para que la radiacion sea mayor que un valor
+                    WHERE stamp BETWEEN '$begin' AND '$end' AND (g_lower + g_upper)/2 > '" . $anlage->getThreshold2PA2() . "'";// hay que cambiar aqui para que la radiacion sea mayor que un valor
         $resw = $this->conn->query($sqlw);
         $sumquarters = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
 

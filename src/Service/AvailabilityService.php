@@ -63,8 +63,8 @@ class   AvailabilityService
         $case3Helper = [];
         $availability = [];
         $case5 = false;
-        $threshold1PA = $anlage->getThreshold1PA();
-        $threshold2PA = $anlage->getThreshold2PA();
+        $threshold1PA = $anlage->getThreshold1PA2();
+        $threshold2PA = $anlage->getThreshold2PA2();
 
         $from = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampModulo);
         $to = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampModulo);

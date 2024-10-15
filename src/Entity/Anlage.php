@@ -323,16 +323,16 @@ class Anlage implements \Stringable
     private bool $isOstWestAnlage = false;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $threshold1PA0 = '0';
+    private ?string $threshold1PA0 = '50';
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $threshold1PA1 = '0';
+    private ?string $threshold1PA1 = '50';
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $threshold1PA2 = '0';
+    private ?string $threshold1PA2 = '50';
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $threshold1PA3 = '0';
+    private ?string $threshold1PA3 = '50';
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $threshold2PA0 = '0';
+    private ?string $threshold2PA0 = '50';
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $threshold2PA1 = '50';
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
@@ -348,6 +348,16 @@ class Anlage implements \Stringable
     private bool $usePAFlag2 = false;
     #[ORM\Column(type: 'boolean')]
     private bool $usePAFlag3 = false;
+
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $nightAvailability0 = false;
+    #[ORM\Column(type: 'boolean')]
+    private bool $nightAvailability1 = false;
+    #[ORM\Column(type: 'boolean')]
+    private bool $nightAvailability2 = false;
+    #[ORM\Column(type: 'boolean')]
+    private bool $nightAvailability3 = false;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $paFormular0 = '2'; // 2 = ti / titheo
@@ -2221,17 +2231,6 @@ class Anlage implements \Stringable
     }
 
     #[Deprecated]
-    public function getMinIrradiationAvailability(): ?string
-    {
-        return $this->threshold2PA2;
-    }
-    #[Deprecated]
-    public function setMinIrradiationAvailability(?string $minIrradiationAvailability): self
-    {
-        $this->threshold2PA2 = str_replace(',', '.', $minIrradiationAvailability);
-        return $this;
-    }
-    #[Deprecated]
     public function getThreshold1PA(): ?float
     {
         return (float)$this->threshold1PA2;
@@ -2240,17 +2239,6 @@ class Anlage implements \Stringable
     public function setThreshold1PA(?string $threshold1PA): self
     {
         $this->threshold1PA2 = str_replace(',', '.', $threshold1PA);
-        return $this;
-    }
-    #[Deprecated]
-    public function getThreshold2PA(): ?float
-    {
-        return (float)$this->threshold2PA2;
-    }
-    #[Deprecated]
-    public function setThreshold2PA(?string $threshold2PA): self
-    {
-        $this->threshold2PA2 = str_replace(',', '.', $threshold2PA);
         return $this;
     }
 
@@ -2380,6 +2368,46 @@ class Anlage implements \Stringable
     public function setUsePAFlag3(bool $usePAFlag3): void
     {
         $this->usePAFlag3 = $usePAFlag3;
+    }
+
+    public function isNightAvailability0(): bool
+    {
+        return $this->nightAvailability0;
+    }
+
+    public function setNightAvailability0(bool $nightAvailability0): void
+    {
+        $this->nightAvailability0 = $nightAvailability0;
+    }
+
+    public function isNightAvailability1(): bool
+    {
+        return $this->nightAvailability1;
+    }
+
+    public function setNightAvailability1(bool $nightAvailability1): void
+    {
+        $this->nightAvailability1 = $nightAvailability1;
+    }
+
+    public function isNightAvailability2(): bool
+    {
+        return $this->nightAvailability2;
+    }
+
+    public function setNightAvailability2(bool $nightAvailability2): void
+    {
+        $this->nightAvailability2 = $nightAvailability2;
+    }
+
+    public function isNightAvailability3(): bool
+    {
+        return $this->nightAvailability3;
+    }
+
+    public function setNightAvailability3(bool $nightAvailability3): void
+    {
+        $this->nightAvailability3 = $nightAvailability3;
     }
 
 
