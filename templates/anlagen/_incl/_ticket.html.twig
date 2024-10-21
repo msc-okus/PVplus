@@ -59,7 +59,7 @@
             </div>
         </fieldset>
 
-        {% if is_granted('ROLE_G4N') %}
+        {% if is_granted('ROLE_API_FULL_USER') %}
             <fieldset
                 class="fieldset"
                 {{ stimulus_controller('anlage-ppcalert-settings') }}
