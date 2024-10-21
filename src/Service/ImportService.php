@@ -293,8 +293,19 @@ class ImportService
         ];
 
         //get the Data from VCOM for all Plants are configured in the current plant
+        $local_tz = new DateTimeZone('Europe/Berlin');
+        $local = new DateTime('now', $local_tz);
 
+        $user_tz = new DateTimeZone($timeZonePlant);
+        $user = new DateTime('now', $user_tz);
+
+        $local_offset = $local->getOffset() / 3600;
+        $user_offset = $user->getOffset() / 3600;
+
+        $diff = $user_offset - $local_offset;
+        echo "$diff<br>";
         for ($i = 0; $i < $numberOfPlants; ++$i) {
+            $fromday = urlencode(date('d', $start));
             date_default_timezone_set($timeZonePlant);
 
             if($fromCron){
@@ -313,8 +324,10 @@ class ImportService
                 $timeShiftDST = 0;
             }
 
-            $from = urlencode(date('Y-m-d\T00:00:00', $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
-            $to = urlencode(date('Y-m-d\T23:59:00', $end));
+            #$from = urlencode(date("Y-m-$fromday\T00:00:00", $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            #$to = urlencode(date('Y-m-d\T23:45:00', $end));
+            $from = urlencode(date('c', $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            $to = urlencode(date('c', $end));
             $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
 echo "<br>$url";
 

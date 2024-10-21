@@ -153,7 +153,7 @@ class ImportToolsController extends BaseController
     #[Route('/import/manuel', name: 'import_manuell')]
     public function importManuell(#[MapQueryParameter] int $id, #[MapQueryParameter] string $from, #[MapQueryParameter] string $to, AnlagenRepository $anlagenRepo, ImportService $importService): Response
     {
-        date_default_timezone_set('UTC');
+        #date_default_timezone_set('UTC');
         $fromts = strtotime("$from 00:00:00");
 
         $tots = strtotime("$to 23:59:59");
