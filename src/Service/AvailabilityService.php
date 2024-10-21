@@ -3,8 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Anlage;
-use App\Entity\AnlageAvailability;
-use App\Entity\AnlageGroups;
 use App\Entity\TimesConfig;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
@@ -226,6 +224,7 @@ class   AvailabilityService
      *
      * @throws InvalidArgumentException|NonUniqueResultException
      */
+    #[Deprecated]
     public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null, int $department = 0): float
     {
         if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);

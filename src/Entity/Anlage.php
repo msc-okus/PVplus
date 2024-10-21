@@ -2230,17 +2230,6 @@ class Anlage implements \Stringable
         return $this;
     }
 
-    #[Deprecated]
-    public function getThreshold1PA(): ?float
-    {
-        return (float)$this->threshold1PA2;
-    }
-    #[Deprecated]
-    public function setThreshold1PA(?string $threshold1PA): self
-    {
-        $this->threshold1PA2 = str_replace(',', '.', $threshold1PA);
-        return $this;
-    }
 
     public function getThreshold1PA0(): ?float
     {
@@ -4180,12 +4169,11 @@ class Anlage implements \Stringable
 
     public function getMinIrrThreshold(): float
     {
-        $hardcodedMinTheshold = 20;
-        $irrThreshold = max(min($this->getThreshold2PA0(), $this->getThreshold2PA1(), $this->getThreshold2PA2(), $this->getThreshold2PA3()), $hardcodedMinTheshold);
+        $irrThreshold = max(min($this->getThreshold2PA0(), $this->getThreshold2PA1(), $this->getThreshold2PA2(), $this->getThreshold2PA3()));
         if (is_float($irrThreshold)) {
             return $irrThreshold;
         }
-        return $hardcodedMinTheshold;
+        return 0;
     }
 
     public function getPrformular0Image(): string
