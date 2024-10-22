@@ -522,7 +522,6 @@ class AvailabilityByTicketService
         if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
 
         $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
-
         $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter, $department);
         $ti = $titheo = $pa = $paSum = $paSingle = $paSingleSum = 0;
         $cases['case0'] = $cases['case1'] = $cases['case2'] = $cases['case3'] = $cases['case4'] = $cases['case5'] = $cases['case6'] = $cases['control'] = 0;

@@ -51,7 +51,7 @@ class IrradiationService
         if ($conn->query("SHOW COLUMNS from " . $anlage->getDbNameWeather() . " LIKE 'irr_flag';")->rowCount() === 1){ // Zwartowo und Test Zwartowo
             $sqlIrrFlag = ", b.irr_flag ";
         }
-        $sqlEinstrahlung = "SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed $sqlIrrFlag FROM (db_dummysoll a left JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND  '$to'";
+        $sqlEinstrahlung = "SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed $sqlIrrFlag FROM (db_dummysoll a left JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND  a.stamp <= '$to'";
         $resultEinstrahlung = $conn->query($sqlEinstrahlung);
 
         if ($resultEinstrahlung->rowCount() > 0) {
