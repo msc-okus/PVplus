@@ -169,6 +169,16 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getResult()
             ;
     }
+    public function findExpectedAlertSystemActive(bool $active, bool $expected){
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.ActivateTicketSystem = (:val)')
+            ->setParameter('val', $active)
+            ->andWhere('a.expectedTicket', $expected)
+            ->setParameter('expected', $expected)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
     public function findAlertSystemActiveByEigner(bool $active, string $eignerId){
         return $this->createQueryBuilder('a')
             ->andWhere('a.ActivateTicketSystem = (:val)')

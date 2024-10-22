@@ -4,8 +4,7 @@ namespace App\Repository;
 
 use App\Entity\LogMessages;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -22,10 +21,6 @@ class LogMessagesRepository extends ServiceEntityRepository
         parent::__construct($registry, LogMessages::class);
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
     public function add(LogMessages $entity, bool $flush = true): void
     {
         $this->_em->persist($entity);
@@ -34,10 +29,6 @@ class LogMessagesRepository extends ServiceEntityRepository
         }
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
     public function remove(LogMessages $entity, bool $flush = true): void
     {
         $this->_em->remove($entity);
@@ -46,16 +37,27 @@ class LogMessagesRepository extends ServiceEntityRepository
         }
     }
 
-    public function findUsefull()
+    public function findUsefull($uid)
     {
-        return $this->createQueryBuilder('log')
-            ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
-            ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 6))
-            ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600 * 48))
-            ->orderBy('log.startedAt', 'DESC')
-            ->getQuery()
-            ->getResult()
-        ;
+        if ($this->security->isGranted('ROLE_G4N')) {
+            $q = $this->createQueryBuilder('log')
+                ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
+                ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 4))
+                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600 * 4))
+                ->orderBy('log.startedAt', 'DESC')
+                ->getQuery()
+                ->getResult();
+        } else {
+            $q = $this->createQueryBuilder('log')
+                ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
+                ->andWhere("log.userId = $uid")
+                ->setParameter('end', date('Y-m-d H:i:s', time() - 3600))
+                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600))
+                ->orderBy('log.startedAt', 'DESC')
+                ->getQuery()
+                ->getResult();
+        }
+        return $q;
     }
 
     public function findSmallList($uid)
@@ -63,9 +65,8 @@ class LogMessagesRepository extends ServiceEntityRepository
         if ($this->security->isGranted('ROLE_G4N')) {
             $q = $this->createQueryBuilder('log')
                 ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
-                ->andWhere("log.userId = $uid")
-                ->setParameter('end', date('Y-m-d H:i:s', time() - 14400 * 1))
-                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 14400 * 1))
+                ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 4))
+                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600 * 4))
                 ->orderBy('log.startedAt', 'DESC')
                 ->setMaxResults(4)
                 ->getQuery()
@@ -73,8 +74,9 @@ class LogMessagesRepository extends ServiceEntityRepository
         } else {
             $q = $this->createQueryBuilder('log')
                 ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
-                ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 1))
-                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600 * 1))
+                ->andWhere("log.userId = $uid")
+                ->setParameter('end', date('Y-m-d H:i:s', time() - 3600))
+                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600))
                 ->orderBy('log.startedAt', 'DESC')
                 ->setMaxResults(4)
                 ->getQuery()
@@ -88,29 +90,23 @@ class LogMessagesRepository extends ServiceEntityRepository
     {
         if ($this->security->isGranted('ROLE_G4N')) {
             $q = $this->createQueryBuilder('log')
-                ->where("log.state = 'done' AND log.isSeen = '0' AND log.progress = '100' AND log.userId = $uid")
+                ->andWhere("log.state = 'done' AND log.isSeen = '0' AND log.progress = '100'")
                 ->orderBy('log.finishedAt')
                 ->setMaxResults(1);
-            try {
-                return $q->getQuery()->getOneOrNullResult();
-            }
-            catch(\Doctrine\ORM\NoResultException $e) {
-                return 'noMessage';
-            }
         } else {
             $q = $this->createQueryBuilder('log')
-                ->where("log.state = 'done' AND log.isSeen = '0' AND log.progress = '100' AND log.userId = $uid")
+                ->andWhere("log.state = 'done' AND log.isSeen = '0' AND log.progress = '100'")
+                ->andWhere("log.userId = $uid")
                 ->orderBy('log.finishedAt')
                 ->setMaxResults(1);
-            try {
-                return $q->getQuery()->getOneOrNullResult();
-            }
-            catch(\Doctrine\ORM\NoResultException $e) {
-                return 'noMessage';
-            }
+        }
+        try {
+            return $q->getQuery()->getOneOrNullResult();
+        }
+        catch (NonUniqueResultException $e) {
+            return 'noMessage';
         }
 
-        return $q;
     }
 
     public function setStatusMessagesIsSeen($id)
