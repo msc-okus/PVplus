@@ -3857,6 +3857,25 @@ class Anlage implements \Stringable
         return 'unknown';
     }
 
+    /**
+     * Funktion um zu prüfen, ob für diese Anlage, zum angebenen Datum die Zeitumstellung (Normalzeit/Sommerzeit) statfindet.
+     *
+     * @throws \Exception
+     */
+    public function isDSTSwitchDay(string $date): bool
+    {
+        $return = false;
+        $defalttimezone = date_default_timezone_get();
+        date_default_timezone_set($this->getNearestTimezone());
+        $today = date_create_immutable($date);
+        $yesterday = $today->sub(new \DateInterval('P1D'));
+        // Umstellung der Zeit
+        if ((int)$yesterday->format('I') !== (int)$today->format('I')) $return = true;
+        date_default_timezone_set($defalttimezone);
+
+        return $return;
+    }
+
     public function isExpectedTicket(): ?bool
     {
         return $this->expectedTicket;
