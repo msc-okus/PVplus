@@ -308,8 +308,13 @@ class ImportService
         echo "$diff<br>";
         for ($i = 0; $i < $numberOfPlants; ++$i) {
             $fromday = urlencode(date('d', $start));
+            $today = urlencode(date('d', $end));
+            echo "$today $timeZonePlant<br>";
             date_default_timezone_set($timeZonePlant);
-
+            echo urlencode(date('c', $start)).'<br>'; // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            echo urlencode(date('c', $end)).'<br>';
+            $fromh = urlencode(date('H', $start));
+            $toh = urlencode(date('H', $end));
             if($fromCron){
                 $nineHundret = 900;
             }
@@ -317,24 +322,43 @@ class ImportService
                 $nineHundret = 0;
             }
 
-            if (date('I', $end) && !date('I', $start)) {
-
-                    $timeShiftDST = 3600;
-
-            } else {
-
-                $timeShiftDST = 0;
+            $changeToSummer = 0;
+            if($toh-$fromh == 1){
+                $tohOrigin = $toh;
+                $toh = $fromh;
+                $changeToSummer = 1;
+            }
+            if($diff == 0){
+                unset($diff);
             }
 
-            #$from = urlencode(date("Y-m-$fromday\T00:00:00", $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
-            #$to = urlencode(date('Y-m-d\T23:45:00', $end));
-            $from = urlencode(date('c', $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
-            $to = urlencode(date('c', $end));
+
+
+            $from = urlencode(date("Y-m-d\T$fromh:00:00$diff", $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            $to = urlencode(date("Y-m-d\T$toh:00:00$diff", $end));
+
             $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
 echo "<br>$url";
 
             $tempBulk = $this->externalApis->getData($url, $headerFields);
+            $tempBulk2 = [];
+
+            if($changeToSummer == 1 && !$fromCron){
+                $from = urlencode(date("Y-m-$today\T$toh:00:00$diff", $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+                $to = urlencode(date("Y-m-$today\T$tohOrigin:00:00$diff", $end));
+                $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
+                echo "<br>URL2 $url";
+                $tempBulk1 = $tempBulk;
+                unset($tempBulk);
+                $tempBulk2 = $this->externalApis->getData($url, $headerFields);
+
+                $tempBulk = array_merge_recursive($tempBulk1, $tempBulk2);
+            }
+
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
+            echo "<pre>";
+            print_r($bulkMeaserments);
+            echo "</pre>";
         }
 
         //begin collect all Data from all Plants
