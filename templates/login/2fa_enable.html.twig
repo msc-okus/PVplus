@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% block title %}2fa Activation{% endblock %}
+{% block body %}
+    <div class="container">
+        <div class="grid-x">
+            <div class="login-form bg-light cell small-12">
+                <h1 >Use Authy or Google Authenticator to Scan the QR Code</h1>
+                <img src="{{ path('app_2fa_qrcode') }}" alt="2fa QR Code">
+            </div>
+        </div>
+    </div>
+{% endblock %}

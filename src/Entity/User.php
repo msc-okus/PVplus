@@ -12,7 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
 use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
-use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TwoFactorInterfaceTotp;
+use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as TwoFactorInterfaceEmail;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -40,7 +41,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\UniqueConstraint(name: 'name', columns: ['name'])]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterfaceTotp, TwoFactorInterfaceEmail
 {
     final public const ARRAY_OF_G4N_ROLES = [
         'Developer'             => 'ROLE_DEV',
@@ -120,7 +121,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
 
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $totpSecret;
+    private string $totpSecret;
+
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $emailAuthCode;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $use2fa = false;
 
     private Collection $userLogins;
 
@@ -455,6 +463,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         return $roles;
     }
 
+    public function getUse2fa(): ?bool
+    {
+        return $this->use2fa;
+    }
+
+    public function setUse2fa(?bool $use2fa): void
+    {
+        $this->use2fa = $use2fa;
+    }
+
     public function getTotpSecret()
     {
         return $this->totpSecret;
@@ -467,7 +485,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
 
     public function isTotpAuthenticationEnabled(): bool
     {
-        return (bool)$this->totpSecret;
+        return (bool)$this->use2fa;
     }
 
     public function getTotpAuthenticationUsername(): string
@@ -480,4 +498,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
     }
 
+    public function isEmailAuthEnabled(): bool
+    {
+        return false; // (bool)$this->use2fa;
+    }
+
+    public function getEmailAuthRecipient(): string
+    {
+        return $this->email;
+    }
+
+    public function getEmailAuthCode(): string
+    {
+        if (null === $this->emailAuthCode) {
+            throw new \LogicException('The email authentication code was not set');
+        }
+
+        return $this->emailAuthCode;
+    }
+
+    public function setEmailAuthCode(string $authCode): void
+    {
+        $this->emailAuthCode = $authCode;
+    }
 }

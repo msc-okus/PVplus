@@ -127,11 +127,16 @@ class UserFormType extends AbstractType
             ])
             ->add('allPlants', SwitchType::class, [
                 'label'         => 'allow all activ Plants',
+                'required'      => false,
             ])
             ->add('grantedList', TextType::class, [
                 'label' => '',
                 'compound' => true,
                 'empty_data' => '',
+            ])
+            ->add('use2fa', SwitchType::class, [
+                'label'         => 'use 2 factor Authentification',
+                'required'      => false,
             ])
             ->add('eignersPlantList', ChoiceType::class,[
                 'choices' => $anlagenid,

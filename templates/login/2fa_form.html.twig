@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Two Factor Auth{% endblock %}
+
+{% block body %}
+    <div class="tiny reveal" id="login" data-reveal data-close-on-click="false" data-close-on-esc="false"
+         data-animation-in="fade-out" data-animation-out="fade-out">
+        <div class="login-page shadow">
+            <h2>Login PV+ 4.0<br><small>Two Factor Authentication</small></h2>
+            <div class="grid-container">
+                <div class="grid-x grid-padding-x grid-padding-y text-center">
+                    <div class="cell medium-12 ">
+
+                        <p>
+                            Open your Authenticator app and type in the number.
+                        </p>
+
+                        {% if authenticationError %}
+                            <div class="callout alert">
+                                {{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}
+                            </div>
+                        {% endif %}
+                        {# Let the user select the authentication method #}
+                        <p>{{ "choose_provider"|trans({}, 'SchebTwoFactorBundle') }}:
+                            {% for provider in availableTwoFactorProviders %}
+                                <a href="{{ path("2fa_login", {"preferProvider": provider}) }}">{{ provider }}</a>
+                            {% endfor %}
+                        </p>
+                        {# Display current two-factor provider #}
+                        <form class="form" action="{{ checkPathUrl ? checkPathUrl: path(checkPathRoute) }}" method="post">
+                            <p>
+                                <label for="_auth_code">{{ "auth_code"|trans({}, 'SchebTwoFactorBundle') }} {{ twoFactorProvider }}
+                                    <input
+                                            id="_auth_code"
+                                            style="width: 50%; margin: auto; text-align: center;"
+                                            type="text"
+                                            name="{{ authCodeParameterName }}"
+                                            autocomplete="one-time-code"
+                                            autofocus
+                                    />
+                                </label>
+                            </p>
+                            {% if displayTrustedOption %}
+                                <label for="_trusted">
+                                    <input id="_trusted" type="checkbox" name="{{ trustedParameterName }}"/> {{ "trusted"|trans({}, 'SchebTwoFactorBundle') }}
+                                </label>
+                            {% endif %}
+                            {% if isCsrfProtectionEnabled %}
+                                <input type="hidden" name="{{ csrfParameterName }}" value="{{ csrf_token(csrfTokenId) }}">
+                            {% endif %}
+                            <p>
+                                <a class="button secondary" href="{{ logoutPath }}">{{ "cancel"|trans({}, 'SchebTwoFactorBundle') }}</a>
+                                <button type="submit" class="button primary">{{ "login"|trans({}, 'SchebTwoFactorBundle') }}</button>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block styles %}
+    {{ parent() }}
+    <style>
+        .login-page h2,
+        .login-page h3 {
+            text-align: center;
+            padding: 1em;
+            background: #0F5694;
+            border-bottom: 10px solid #4b7884;
+            margin: 0;
+            color: #fff;
+            font-size: 1.6em;
+        }
+        .reveal {
+            padding: 0;
+            border: none;
+        }
+        .button-signin {
+            background-color: #8DBE48;
+            display: block;
+            margin: auto;
+            min-width: 200px;
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('login') }}
+{% endblock %}

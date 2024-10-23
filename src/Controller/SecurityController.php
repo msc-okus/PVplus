@@ -3,19 +3,24 @@
 namespace App\Controller;
 
 use App\Entity\ApiToken;
+use App\Entity\User;
 use App\Repository\ApiTokenRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Email\Generator\CodeGeneratorInterface;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticatorInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends BaseController
 {
     #[Route(path: '/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(AuthenticationUtils $authenticationUtils, CodeGeneratorInterface $codeGenerator): Response
     {
          if ($this->getUser()) {
              return $this->redirectToRoute('app_dashboard');
@@ -69,27 +74,31 @@ class SecurityController extends BaseController
         return null;
     }
 
-    #[Route(path: '/2fa-enable', name:'app_2fa_enable')]
-    public function enable2fa(TotpAuthenticatorInterface $totpAuthenticator, EntityManagerInterface $entityManager)
+    #[Route(path: '/autentication/2fa/enable', name:'app_2fa_enable')]
+    public function enable2fa(TotpAuthenticatorInterface $totpAuthenticator, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
         if (!$user->isTotpAuthenticationEnabled()) {
             $user->setTotpSecret($totpAuthenticator->generateSecret());
+            $user->setUse2fa(true);
             $entityManager->flush();
         }
 
-        dd($user);
+        return $this->render('login/2fa_enable.html.twig', [
+            #'qrCode' => $qrCode,
+        ]);
     }
 
-    /**
-     * @Route("/authentication/2fa/qr-code", name="app_qr_code")
-     */
-    #[Route(path: '/2fa-qr-code', name:'app_2fa_disable')]
-    public function displayGoogleAuthenticatorQrCode(QrCodeGenerator $qrCodeGenerator)
+    #[Route(path: '/autentication/2fa/qr-code', name:'app_2fa_qrcode')]
+    #[IsGranted('ROLE_USER')]
+    public function displayGoogleAuthenticatorQrCode(TotpAuthenticatorInterface $totpAuthenticator): Response
     {
-        // $qrCode is provided by the endroid/qr-code library. See the docs how to customize the look of the QR code:
-        // https://github.com/endroid/qr-code
-        $qrCode = $qrCodeGenerator->getTotpQrCode($this->getUser());
-        return new Response($qrCode->writeString(), 200, ['Content-Type' => 'image/png']);
+        $qrCodeContent = $totpAuthenticator->getQRContent($this->getUser());
+
+        $writer = new PngWriter();
+        $qrCode = new QrCode($qrCodeContent);
+        $result = $writer->write($qrCode);
+
+        return new Response($result->getString(), 200, ['Content-Type' => 'image/png']);
     }
 }
