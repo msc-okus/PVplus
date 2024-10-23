@@ -356,9 +356,9 @@ echo "<br>$url";
             }
 
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
-            echo "<pre>";
-            print_r($bulkMeaserments);
-            echo "</pre>";
+            #echo "<pre>";
+            #print_r($bulkMeaserments);
+            #echo "</pre>";
         }
 
         //begin collect all Data from all Plants
@@ -395,7 +395,7 @@ echo "<br>$url";
                     }
                 }
             }
-exit;
+
             //end collect all Data from all Plants
 
             //beginn sort and seperate Data for writing into database
