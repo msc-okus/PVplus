@@ -3,8 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Anlage;
-use App\Entity\AnlageAvailability;
-use App\Entity\AnlageGroups;
 use App\Entity\TimesConfig;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
@@ -63,8 +61,8 @@ class   AvailabilityService
         $case3Helper = [];
         $availability = [];
         $case5 = false;
-        $threshold1PA = $anlage->getThreshold1PA();
-        $threshold2PA = $anlage->getThreshold2PA();
+        $threshold1PA = $anlage->getThreshold1PA2();
+        $threshold2PA = $anlage->getThreshold2PA2();
 
         $from = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampModulo);
         $to = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampModulo);
@@ -226,6 +224,7 @@ class   AvailabilityService
      *
      * @throws InvalidArgumentException|NonUniqueResultException
      */
+    #[Deprecated]
     public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null, int $department = 0): float
     {
         if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);

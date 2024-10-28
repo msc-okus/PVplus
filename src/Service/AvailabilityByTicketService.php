@@ -64,15 +64,6 @@ class AvailabilityByTicketService
         // If $date is a string, create a DateTime Object
         if (! $date instanceof DateTime) {$date = date_create($date);}
 
-        // Suche pasende Zeitkonfiguration für diese Anlage und dieses Datum
-        /* @var TimesConfig $timesConfig */
-        $timesConfig = match ($department) {
-            1 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_1', $date),
-            2 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_2', $date),
-            3 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_3', $date),
-            default => $this->timesConfigRepo->findValidConfig($anlage, 'availability_0', $date),
-        };
-
         $dayStamp = new DateTime($date->format('Y-m-d 04:00'));
 
         $inverterPowerDc = [];
@@ -93,7 +84,7 @@ class AvailabilityByTicketService
             $inverterPowerDc = $anlage->getPnomInverterArray();
 
             // Verfügbarkeit Berechnen und in Hilfsarray speichern
-            $availabilitysReturnArray = $this->checkAvailabilityInverter($anlage, $date->getTimestamp(), $timesConfig, $inverterPowerDc, $department);
+            $availabilitysReturnArray = $this->checkAvailabilityInverter($anlage, $date->getTimestamp(), $department);
 
             $availabilitysHelper = $availabilitysReturnArray['availability'];
             $availabilityByStamp = $availabilitysReturnArray['availabilityByStamp'];
@@ -221,35 +212,41 @@ class AvailabilityByTicketService
      *
      * @param Anlage $anlage
      * @param $timestampDay
-     * @param TimesConfig $timesConfig
-     * @param array $inverterPowerDc
      * @param int $department
      * @return array
      * @throws InvalidArgumentException
      * @throws \JsonException
      * @throws \Exception
      */
-    public function checkAvailabilityInverter(Anlage $anlage, $timestampDay, TimesConfig $timesConfig, array $inverterPowerDc, int $department = 0): array
+    public function checkAvailabilityInverter(Anlage $anlage, $timestampDay, int $department = 0): array
     {
         $case3Helper = $availability = $availabilityByStamp = [];
         switch ($department){
             case 1:
                 $threshold1PA = $anlage->getThreshold1PA1();
                 $threshold2PA = $anlage->getThreshold2PA1();
+                $nightAvailability = $anlage->isNightAvailability1();
                 break;
             case 2:
                 $threshold1PA = $anlage->getThreshold1PA2();
                 $threshold2PA = $anlage->getThreshold2PA2();
+                $nightAvailability = $anlage->isNightAvailability2();
                 break;
             case 3 :
                 $threshold1PA = $anlage->getThreshold1PA3();
                 $threshold2PA = $anlage->getThreshold2PA3();
+                $nightAvailability = $anlage->isNightAvailability3();
                 break;
             default:
                 $threshold1PA = $anlage->getThreshold1PA0();
                 $threshold2PA = $anlage->getThreshold2PA0();
+                $nightAvailability = $anlage->isNightAvailability0();
         }
-
+#### ToDo:
+#### ist nur zum Testen ob neuer Schalter für Nacht Verfügbarkeit richtig finktioniert.
+#### Sobald neue Live Version muss das gelöscht werden und die Anlagen die threshold1 = -1 haben müssnen geändert werden
+        if($threshold1PA < 0) $threshold1PA = $threshold2PA;
+####
         $from   = date('Y-m-d 00:15', $timestampDay);
         $to     = date('Y-m-d 00:00', $timestampDay + (3600 * 25)); // +25 (stunden) um sicher auf einen Time stamp des nächsten Tages zu kommen, auch wenn Umstellung auf Winterzeit
 
@@ -308,23 +305,6 @@ class AvailabilityByTicketService
             }
             unset($perfTicketsSkips);
 
-            // suche Case 5 Fälle und schreibe diese in case5Array[inverter][stamp] = true|false
-            // sollte so bald wie möglich entfallen, da 'Case5' durch Ticketsystem ersetzt wird (gibt auch keine erfassung für 'Case5' mehr)
-            /*
-            foreach ($this->case5Repository->findAllCase5($anlage, $from, $to) as $case) {
-                $c5From = strtotime((string) $case['stampFrom']);
-                $c5To = strtotime((string) $case['stampTo']);
-                $inverters = $this->functions->readInverters($case['inverter'], $anlage);
-                for ($c5Stamp = $c5From; $c5Stamp <= $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
-                    foreach ($inverters as $inverter) {
-                        $inverter = trim((string) $inverter, ' ');
-                        $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
-                    }
-                }
-            }
-            */
-
-
             // Handele case5 by ticket
             $case5Tickets = $this->ticketDateRepo->findTiFm($anlage, $from, $to, $department);
             /** @var TicketDate $case5Ticket */
@@ -341,22 +321,6 @@ class AvailabilityByTicketService
             }
             unset($case5Tickets);
             unset($perfTicketsCase5);
-
-            // suche Case 6 Fälle und schreibe diese in case6Array[inverter][stamp] = true|false
-            // sollte so bald wie möglich entfallen, da 'Case6' durch Ticketsystem ersetzt wird ('Case6' war nur eine Hilfslösung)
-            /*
-            foreach ($this->case6Repository->findAllCase6($anlage, $from, $to) as $case) {
-                $c6From = strtotime((string) $case['stampFrom']);
-                $c6To = strtotime((string) $case['stampTo']);
-                $inverters = $this->functions->readInverters($case['inverter'], $anlage);
-                for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
-                    foreach ($inverters as $inverter) {
-                        $inverter = trim((string) $inverter, ' ');
-                        $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
-                    }
-                }
-            }
-            */
 
             // Handel case6 by ticket
             /** @var TicketDate $case6Ticket */
@@ -418,7 +382,7 @@ class AvailabilityByTicketService
                     $case0 = $case1 = $case2 = $case3 = $case4 = $case5 = $case6 = false;
                     $commIssu = $commIssuCase5 = $skipTi = $skipTiTheo = $outageAsTiFm = false;
 
-                    if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $threshold1PA < 0) || ($strahlung === null && $threshold1PA < 0)) {//
+                    if ($strahlung > $threshold1PA || ($strahlung === 0.0 && $nightAvailability) || ($strahlung === null && $nightAvailability)) {//
                         // Schaue in Arrays nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                         $case5          = isset($case5Array[$inverter][$stamp]) && !isset($commIssuArray[$inverter][$stamp]);
                         $case6          = isset($case6Array[$inverter][$stamp]);
