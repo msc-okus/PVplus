@@ -13,6 +13,8 @@ use App\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
+use DateTimeZone;
+use DateTime;
 
 class ImportService
 {
@@ -293,10 +295,26 @@ class ImportService
         ];
 
         //get the Data from VCOM for all Plants are configured in the current plant
+        $local_tz = new DateTimeZone('Europe/Berlin');
+        $local = new DateTime('now', $local_tz);
 
+        $user_tz = new DateTimeZone($timeZonePlant);
+        $user = new DateTime('now', $user_tz);
+
+        $local_offset = $local->getOffset() / 3600;
+        $user_offset = $user->getOffset() / 3600;
+
+        $diff = $user_offset - $local_offset;
+        echo "$diff<br>";
         for ($i = 0; $i < $numberOfPlants; ++$i) {
+            $fromday = urlencode(date('d', $start));
+            $today = urlencode(date('d', $end));
+            echo "$today $timeZonePlant<br>";
             date_default_timezone_set($timeZonePlant);
-
+            echo urlencode(date('c', $start)).'<br>'; // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            echo urlencode(date('c', $end)).'<br>';
+            $fromh = urlencode(date('H', $start));
+            $toh = urlencode(date('H', $end));
             if($fromCron){
                 $nineHundret = 900;
             }
@@ -304,25 +322,55 @@ class ImportService
                 $nineHundret = 0;
             }
 
-            $from = urlencode(date('c', $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
-            $to = urlencode(date('c', $end));
+            $changeToSummer = 0;
+            if($toh-$fromh == 1){
+                $tohOrigin = $toh;
+                $toh = $fromh;
+                $changeToSummer = 1;
+            }
+            if($diff == 0){
+                unset($diff);
+            }
+
+
+
+            $from = urlencode(date("Y-m-d\T$fromh:00:00$diff", $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            $to = urlencode(date("Y-m-d\T$toh:00:00$diff", $end));
+
             $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
+echo "<br>$url";
+
             $tempBulk = $this->externalApis->getData($url, $headerFields);
+            $tempBulk2 = [];
+
+            if($changeToSummer == 1 && !$fromCron){
+                $from = urlencode(date("Y-m-$today\T$toh:00:00$diff", $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+                $to = urlencode(date("Y-m-$today\T$tohOrigin:00:00$diff", $end));
+                $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
+                echo "<br>URL2 $url";
+                $tempBulk1 = $tempBulk;
+                unset($tempBulk);
+                $tempBulk2 = $this->externalApis->getData($url, $headerFields);
+
+                $tempBulk = array_merge_recursive($tempBulk1, $tempBulk2);
+            }
+
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
+            #echo "<pre>";
+            #print_r($bulkMeaserments);
+            #echo "</pre>";
         }
 
-        //beginn collect all Data from all Plants
+        //begin collect all Data from all Plants
         $numberOfBulkMeaserments = count($bulkMeaserments);
         if ($numberOfBulkMeaserments > 0 && $importTypeConfig != 'ftpPush') {
             #date_default_timezone_set($timeZonePlant);
             for ($i = 0; $i < $numberOfBulkMeaserments; ++$i) {
                 for ($timestamp = $start+900; $timestamp <= $end; $timestamp += 900) {
-
                     $stamp = date('Y-m-d H:i:s', $timestamp);
                     $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
-
                     if (array_key_exists($i, $bulkMeaserments)) {
-                        if (array_key_exists('basics', $bulkMeaserments[$i])) {
+                        if (is_array($bulkMeaserments[$i]['basics']) && array_key_exists('basics', $bulkMeaserments[$i])) {
                             if ($i === 0) {
                                 $sensors[$date] = is_array($bulkMeaserments[$i]['sensors']) && array_key_exists($date, $bulkMeaserments[$i]['sensors']) ? $bulkMeaserments[$i]['sensors'][$date] : [];
                                 $inverters[$date] = is_array($bulkMeaserments[$i]['inverters']) && array_key_exists($date, $bulkMeaserments[$i]['inverters']) ? $bulkMeaserments[$i]['inverters'][$date] : [];
