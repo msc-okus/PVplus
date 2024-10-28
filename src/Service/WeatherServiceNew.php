@@ -189,9 +189,11 @@ class WeatherServiceNew
      */
     public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
-        $time = date('Y-m-d', strtotime($time)); // reformat the passed $time to an only day stamp
         date_default_timezone_set($anlage->getNearestTimezone());
+        $time = date('Y-m-d', strtotime($time)); // reformat the passed $time to an only day stamp
+
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
+
 
         $totalOffset = 0; // quick fix to stop considering time zones
         $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);

@@ -37,32 +37,32 @@ class AssetManagementService
     private PDO $conn;
 
     public function __construct(
-        private PdoService                  $pdoService,
-        private EntityManagerInterface      $em,
-        private PvSystMonthRepository       $pvSystMonthRepo,
-        private FunctionsService            $functions,
-        private NormalizerInterface         $serializer,
-        private DownloadAnalyseService      $DownloadAnalyseService,
-        private EconomicVarValuesRepository $ecoVarValueRepo,
-        private PRCalulationService         $PRCalulation,
-        private EconomicVarNamesRepository  $ecoVarNameRepo,
-        private AvailabilityByTicketService $availability,
-        private TicketDateRepository        $ticketDateRepo,
-        private ReportsRepository           $reportRepo,
-        private Environment                 $twig,
-        private PdfService                  $pdf,
-        private LogMessagesService          $logMessages,
-        private ReportsMonthlyV2Service     $reportsMonthly,
-        private AnlagenRepository           $anlagenRepository,
-        private SensorService               $sensorService,
-        private WeatherFunctionsService     $weatherFunctions,
-        private ForcastDayRepository        $forecastDayRepo,
-        private Filesystem                  $fileSystemFtp,
-        private Filesystem                  $filesystem,
-        private AnlageFileRepository        $RepositoryUpload,
-        private TicketRepository            $ticketRepo,
-        private NotificationInfoRepository  $notificationRepo,
-        private readonly Security           $security,
+        private PdoService                   $pdoService,
+        private EntityManagerInterface       $em,
+        private PvSystMonthRepository        $pvSystMonthRepo,
+        private FunctionsService             $functions,
+        private NormalizerInterface          $serializer,
+        private DownloadAnalyseService       $DownloadAnalyseService,
+        private EconomicVarValuesRepository  $ecoVarValueRepo,
+        private PRCalulationService          $PRCalulation,
+        private EconomicVarNamesRepository   $ecoVarNameRepo,
+        private AvailabilityByTicketService  $availability,
+        private TicketDateRepository         $ticketDateRepo,
+        private ReportsRepository            $reportRepo,
+        private Environment                  $twig,
+        private PdfService                   $pdf,
+        private LogMessagesService           $logMessages,
+        private ReportsMonthlyV2Service      $reportsMonthly,
+        private AnlagenRepository            $anlagenRepository,
+        private SensorService                $sensorService,
+        private WeatherFunctionsService      $weatherFunctions,
+        private ForcastDayRepository         $forecastDayRepo,
+        private Filesystem                   $fileSystemFtp,
+        private Filesystem                   $filesystem,
+        private AnlageFileRepository         $RepositoryUpload,
+        private TicketRepository             $ticketRepo,
+        private NotificationInfoRepository   $notificationRepo,
+        private readonly Security            $security,
         private AnlageStringAssigmentService $anlageStringAssigmentService
     )
     {
@@ -85,7 +85,7 @@ class AssetManagementService
         }
         // then we generate our own report and try to persist it
         $output = $this->assetReport($anlage, $reportMonth, $reportYear, $logId);
-        $sheetsData = $this->anlageStringAssigmentService->exportAmReport($anlage->getAnlId(),$reportMonth,$reportYear);
+        $sheetsData = $this->anlageStringAssigmentService->exportAmReport($anlage->getAnlId(), $reportMonth, $reportYear);
 
 
         $data = [
@@ -1263,8 +1263,7 @@ class AssetManagementService
 
             if ($anlage->hasPVSYST()) {
                 $forecast[] = $Ertrag_design;
-            }
-            else {
+            } else {
                 $forecast[] = $this->functions->getForcastByMonth($anlage, $i);
             }
         }
