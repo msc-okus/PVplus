@@ -32,6 +32,7 @@ class OwnerSettingsFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => OwnerSettings::class,
+            'required' => false,
         ]);
     }
 }

@@ -30,18 +30,22 @@ class OwnerFormType extends AbstractType
             ->add('zusatz', TextType::class, [
                 'label' => 'Additional Information',
                 'empty_data' => '',
+                'required' => false,
             ])
             ->add('plz', TextType::class, [
                 'label' => 'ZIP Code',
                 'empty_data' => '',
+                'required' => false,
             ])
             ->add('ort', TextType::class, [
                 'label' => 'City',
                 'empty_data' => '',
+                'required' => false,
             ])
             ->add('strasse', TextType::class, [
                 'label' => 'Address',
                 'empty_data' => '',
+                'required' => false,
             ])
             ->add('anrede', ChoiceType::class, [
                 'choices' => [
@@ -49,29 +53,35 @@ class OwnerFormType extends AbstractType
                     'Mrs.' => 'Mrs.',
                 ],
                 'label' => 'Salutation',
+                'required' => false,
             ])
             ->add('vorname', TextType::class, [
                 'label' => 'Firstname',
                 'empty_data' => '',
+                'required' => false,
             ])
             ->add('nachname', TextType::class, [
                 'label' => 'Lastname',
                 'empty_data' => '',
+                'required' => false,
             ])
             ->add('active', ChoiceType::class, [
                 'label' => 'Eigner aktiv ?',
                 'choices' => ['Yes' => '1', 'No' => '0'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => '1',
+                'required' => false,
             ])
             ->add('language', ChoiceType::class, [
                 'label' => 'Sprache (im Moment nur EN)',
                 'choices' => ['EN' => 'EN', 'DE' => 'DE'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 'EN',
+                'required' => false,
             ])
             ->add('operations', SwitchType::class,[
-                'label' => 'company is operated by G4N'
+                'label' => 'company is operated by G4N',
+                'required' => false,
             ])
             ->add('imageFile', FileType::class, [
                 'label' => 'Logo',
@@ -89,6 +99,7 @@ class OwnerFormType extends AbstractType
                         'mimeTypesMessage' => 'Please upload a valid image type(jpeg, png, gif, jpg, svg)',
                     ]),
                 ],
+                'required' => false,
             ])
 
             // #############################################
