@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\ApiToken;
-use App\Entity\User;
 use App\Repository\ApiTokenRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -69,6 +68,15 @@ class SecurityController extends BaseController
         return null;
     }
 
+    /**
+     * Enables the 2fa and redirects to form with QR code to set up Autenticator app
+     * if you click 'cancel' 2fa is NOT enabled
+     *
+     * @param Request $request
+     * @param TotpAuthenticatorInterface $totpAuthenticator
+     * @param EntityManagerInterface $entityManager
+     * @return Response
+     */
     #[Route(path: '/autentication/2fa/enable', name:'app_2fa_enable')]
     public function enable2fa(Request $request, TotpAuthenticatorInterface $totpAuthenticator, EntityManagerInterface $entityManager): Response
     {
@@ -79,13 +87,12 @@ class SecurityController extends BaseController
             $entityManager->flush();
         }
 
-        $submitted = $request->request->get('cancel') === 'cancel';
         if ($request->request->get('cancel') === 'cancel'){
             $user->setUse2fa(false);
             $entityManager->flush();
+
             return $this->redirectToRoute('app_dashboard');
         }
-
 
         return $this->render('login/2fa_enable.html.twig');
     }
