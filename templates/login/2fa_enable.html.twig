@@ -1,12 +1,56 @@
 {% extends 'base.html.twig' %}
 {% block title %}2fa Activation{% endblock %}
 {% block body %}
-    <div class="container">
-        <div class="grid-x">
-            <div class="login-form bg-light cell small-12">
-                <h1 >Use Authy or Google Authenticator to Scan the QR Code</h1>
-                <img src="{{ path('app_2fa_qrcode') }}" alt="2fa QR Code">
+    <div class="tiny reveal" id="login" data-reveal data-close-on-click="false" data-close-on-esc="false"
+         data-animation-in="fade-out" data-animation-out="fade-out">
+        <div class="login-page shadow">
+            <h2>Use Authy or Google Authenticator to Scan the QR Code</h2>
+            <div class="grid-container">
+                <form method="post">
+                    <div class="grid-x grid-padding-x grid-padding-y text-center">
+                        <div class="cell medium-12 ">
+                            <img src="{{ path('app_2fa_qrcode') }}" alt="2fa QR Code">
+
+                            <p>
+                                <button class="button secondary" name="cancel"  value="cancel">Cancel</button>
+                                <a href="{{ path('app_logout') }}" type="submit" class="button primary">Enable 2 factor autentification</a>
+                            </p>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+{% endblock %}
+
+
+{% block styles %}
+    {{ parent() }}
+    <style>
+        .login-page h2,
+        .login-page h3 {
+            text-align: center;
+            padding: 1em;
+            background: #0F5694;
+            border-bottom: 10px solid #4b7884;
+            margin: 0;
+            color: #fff;
+            font-size: 1.6em;
+        }
+        .reveal {
+            padding: 0;
+            border: none;
+        }
+        .button-signin {
+            background-color: #8DBE48;
+            display: block;
+            margin: auto;
+            min-width: 200px;
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('login') }}
 {% endblock %}

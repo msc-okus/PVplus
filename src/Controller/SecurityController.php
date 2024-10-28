@@ -12,6 +12,7 @@ use Endroid\QrCode\Writer\PngWriter;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Email\Generator\CodeGeneratorInterface;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticatorInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -29,16 +30,10 @@ class SecurityController extends BaseController
         $error = $authenticationUtils->getLastAuthenticationError();
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
-        $page['homeLink'] = '';
-        $page['logoutLink'] = '';
-        $page['username'] = '';
-        $session['level'] = 1;
 
         return $this->render('login/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
-            #'page' => $page,
-            #'session' => $session,
         ]);
     }
 
@@ -75,7 +70,7 @@ class SecurityController extends BaseController
     }
 
     #[Route(path: '/autentication/2fa/enable', name:'app_2fa_enable')]
-    public function enable2fa(TotpAuthenticatorInterface $totpAuthenticator, EntityManagerInterface $entityManager): Response
+    public function enable2fa(Request $request, TotpAuthenticatorInterface $totpAuthenticator, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
         if (!$user->isTotpAuthenticationEnabled()) {
@@ -84,11 +79,23 @@ class SecurityController extends BaseController
             $entityManager->flush();
         }
 
-        return $this->render('login/2fa_enable.html.twig', [
-            #'qrCode' => $qrCode,
-        ]);
+        $submitted = $request->request->get('cancel') === 'cancel';
+        if ($request->request->get('cancel') === 'cancel'){
+            $user->setUse2fa(false);
+            $entityManager->flush();
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+
+        return $this->render('login/2fa_enable.html.twig');
     }
 
+    /**
+     * generates the QR code as an image. Is used to show the QR code in twig layout
+     *
+     * @param TotpAuthenticatorInterface $totpAuthenticator
+     * @return Response
+     */
     #[Route(path: '/autentication/2fa/qr-code', name:'app_2fa_qrcode')]
     #[IsGranted('ROLE_USER')]
     public function displayGoogleAuthenticatorQrCode(TotpAuthenticatorInterface $totpAuthenticator): Response
