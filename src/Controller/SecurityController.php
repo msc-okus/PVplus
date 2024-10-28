@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\ApiToken;
 use App\Repository\ApiTokenRepository;
 use App\Repository\UserRepository;
+use App\Service\G4NSendMailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
@@ -84,6 +85,7 @@ class SecurityController extends BaseController
         if (!$user->isTotpAuthenticationEnabled()) {
             $user->setTotpSecret($totpAuthenticator->generateSecret());
             $user->setUse2fa(true);
+            #$user->addBackUpCode(md5('NasenBaer'));
             $entityManager->flush();
         }
 
@@ -114,5 +116,32 @@ class SecurityController extends BaseController
         $result = $writer->write($qrCode);
 
         return new Response($result->getString(), 200, ['Content-Type' => 'image/png']);
+    }
+
+    #[Route(path: '/autentication/2fa/onetimepw', name: 'app_2fa_onetime_password')]
+    public function sendOneTimePassword(G4NSendMailService $g4NSendMail, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        if ($user->isTotpAuthenticationEnabled()) {
+            $otp = $this->randomPassword();
+            $user->addBackUpCode($otp);
+            $g4NSendMail->sendOneTimePassword($user, $otp);
+            $entityManager->flush();
+
+            return $this->json(["result"=>'email send']);
+        }
+
+        return $this->json(["result"=>'Somthing went wrong']);
+    }
+
+    private function randomPassword(int $length = 6): string
+    {
+        $alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
+        $pass = [];
+        for ($i = 0; $i < $length; $i++) {
+            $n = rand(0, strlen($alphabet)-1);
+            $pass[$i] = $alphabet[$n];
+        }
+        return implode($pass);
     }
 }

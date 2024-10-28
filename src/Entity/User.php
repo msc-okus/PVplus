@@ -17,6 +17,7 @@ use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as TwoFactorInterfaceEm
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Scheb\TwoFactorBundle\Model\BackupCodeInterface;
 
 #[ApiResource(
     shortName: 'users',
@@ -41,7 +42,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\UniqueConstraint(name: 'name', columns: ['name'])]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterfaceTotp, TwoFactorInterfaceEmail
+class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterfaceTotp, TwoFactorInterfaceEmail, BackupCodeInterface
 {
     final public const ARRAY_OF_G4N_ROLES = [
         'Developer'             => 'ROLE_DEV',
@@ -129,6 +130,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
 
     #[ORM\Column(nullable: true)]
     private ?bool $use2fa = false;
+
+    #[ORM\Column(type: 'json')]
+    private array $backupCodes = [];
 
     private Collection $userLogins;
 
@@ -520,5 +524,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
     public function setEmailAuthCode(string $authCode): void
     {
         $this->emailAuthCode = $authCode;
+    }
+
+    /**
+     * Check if it is a valid backup code.
+     */
+    public function isBackupCode(string $code): bool
+    {
+        return in_array($code, $this->backupCodes);
+    }
+
+    /**
+     * Invalidate a backup code
+     */
+    public function invalidateBackupCode(string $code): void
+    {
+        $key = array_search($code, $this->backupCodes);
+        if ($key !== false){
+            unset($this->backupCodes[$key]);
+        }
+    }
+
+    /**
+     * Add a backup code
+     */
+    public function addBackUpCode(string $backUpCode): void
+    {
+        if (!in_array($backUpCode, $this->backupCodes)) {
+            $this->backupCodes[] = $backUpCode;
+        }
     }
 }

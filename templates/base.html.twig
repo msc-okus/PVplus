@@ -68,7 +68,9 @@
                                         <li><a class="dropdown-item" href="{{ path('app_admin_user_list', {'_switch_user': '_exit'}) }}"><i class="fas fa-random"></i> Exit Impersonation </a></li>
                                     {% else %}
                                         {% if (is_granted('ROLE_G4N')) %}
-                                            <li><a href="{{ path('app_2fa_enable') }}"><i class="fas fa-sign-out-alt"></i> Enable 2FA </a></li>
+                                            {% if (not app.user.use2fa) %}
+                                                <li><a href="{{ path('app_2fa_enable') }}"><i class="fas fa-sign-out-alt"></i> Enable 2FA </a></li>
+                                            {% endif %}
                                         {% else %}
                                             {% if (app.user.owner.features.allow2fa) %}
                                                 {% if (not app.user.use2fa) %}

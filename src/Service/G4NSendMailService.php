@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\AlertMessages;
 use App\Entity\Anlage;
 use App\Entity\Ticket;
+use App\Entity\User;
 use App\Helper\G4NTrait;
 use App\Repository\AlertMessagesRepository;
 use App\Repository\AnlagenRepository;
@@ -101,7 +102,7 @@ class G4NSendMailService
      * @throws RuntimeError
      * @throws LoaderError
      */
-    private  function send(AlertMessages $alertMessage, array $receivers , ?bool $remember=false): void
+    private function send(AlertMessages $alertMessage, array $receivers , ?bool $remember=false): void
     {
         $emailAddresses=[];
 
@@ -126,5 +127,21 @@ class G4NSendMailService
 
             $this->mailer->send($email);
         }
+    }
+
+    public function sendOneTimePassword(User $user, string $otp)
+    {
+        $htmlContent = $this->twig->render('email/rawMail.html.twig', [
+            'subject' => 'Your requested one time Password',
+            'message' => 'Your requested one time Password: <b>' . $otp . '</b>',
+            'name'    => $user->getName(),
+        ]);
+        $email = new Email();
+        $email->from(new Address('noreply@g4npvplus.de', 'PVplus Alert System'))
+            ->to($user->getEmail())
+            ->subject('Your requested one time Password')
+            ->html($htmlContent);
+
+        $this->mailer->send($email);
     }
 }
