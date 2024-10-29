@@ -129,7 +129,13 @@ class G4NSendMailService
         }
     }
 
-    public function sendOneTimePassword(User $user, string $otp)
+    /**
+     * @throws SyntaxError
+     * @throws TransportExceptionInterface
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function sendOneTimePassword(User $user, string $otp): void
     {
         $htmlContent = $this->twig->render('email/rawMail.html.twig', [
             'subject' => 'Your requested one time Password',
