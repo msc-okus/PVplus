@@ -674,19 +674,21 @@ class AlertSystemV2Service
      */
     private function getLastQuarter($stamp): string
     {
+        $hours = date('H', strtotime($stamp));
         $mins = date('i', strtotime($stamp));
         $rest = date('Y-m-d H', strtotime($stamp));
         if ($mins >= '00' && $mins < '15') {
-            $quarter = '00';
-        } elseif ($mins >= '15' && $mins < '30') {
-            $quarter = '15';
-        } elseif ($mins >= '30' && $mins < '45') {
-            $quarter = '30';
-        } else {
             $quarter = '45';
+            $hours = strval(intval($hours) - 1);
+        } elseif ($mins >= '15' && $mins < '30') {
+            $quarter = '00';
+        } elseif ($mins >= '30' && $mins < '45') {
+            $quarter = '15';
+        } else {
+            $quarter = '30';
         }
 
-        return $rest . ':' . $quarter;
+        return $rest .' '.$hours. ':' . $quarter;
     }
     private function getNextQuarter($stamp): string
     {
@@ -694,14 +696,15 @@ class AlertSystemV2Service
 
         $hours = date('H', strtotime($stamp));
         $rest = date('Y-m-d', strtotime($stamp));
-        if ($mins > '00' && $mins <= '15') {
-            $quarter = '15';
-        } elseif ($mins > '15' && $mins <= '30') {
+        if ($mins >= '00' && $mins < '15') {
             $quarter = '30';
-        } elseif ($mins > '30' && $mins <= '45') {
+        } elseif ($mins >= '15' && $mins < '30') {
             $quarter = '45';
-        } else {
+        } elseif ($mins >= '30' && $mins < '45') {
             $quarter = '00';
+            $hours = strval(intval($hours) + 1);
+        } else {
+            $quarter = '15';
             $hours = strval(intval($hours) + 1);
         }
 
@@ -709,9 +712,9 @@ class AlertSystemV2Service
     }
     private function getSunriseLocal($anlage, $time){
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+
         $sungapCorrected['sunrise'] = $this->getNextQuarter($sungap['sunrise']);
         $sungapCorrected['sunset'] = $this->getLastQuarter($sungap['sunset']);
-
         return $sungapCorrected;
     }
 }
