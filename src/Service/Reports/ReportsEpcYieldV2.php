@@ -9,7 +9,6 @@ use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
 use App\Service\AvailabilityByTicketService;
-use App\Service\AvailabilityService;
 use App\Service\FunctionsService;
 use App\Service\PdoService;
 use App\Service\PRCalulationService;
@@ -33,7 +32,6 @@ class ReportsEpcYieldV2
         private readonly NormalizerInterface $serializer,
         private readonly FunctionsService $functions,
         private readonly PRCalulationService $PRCalulation,
-        private readonly AvailabilityService $availabilityService,
         private readonly AvailabilityByTicketService $availabilityByTicket)
     {
     }

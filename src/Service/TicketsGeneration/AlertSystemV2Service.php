@@ -136,9 +136,10 @@ class AlertSystemV2Service
                 break;
 
                 case 3:
-                    $actQuery = "sum(wr_pac) as power 
+                    $actQuery = "SELECT sum(wr_pac) as power 
                             FROM " . $anlage->getDbNameIst() . "
                             WHERE stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  wr_pac > 0";
+
                     $resp = $conn->query($actQuery);
                     $value['power'] = $resp->fetchAll(PDO::FETCH_ASSOC)['power'];
                     $expQuery = "SELECT sum(ac_exp_power) as exp
@@ -169,11 +170,10 @@ class AlertSystemV2Service
     {
 
         if ($time === null) {
-
             $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
         }
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
-        $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+        $sungap = $this->getSunriseLocal($anlage, date('Y-m-d', strtotime($time)));
         $time = self::timeAjustment($time, -2);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
 
@@ -674,19 +674,47 @@ class AlertSystemV2Service
      */
     private function getLastQuarter($stamp): string
     {
+        $hours = date('H', strtotime($stamp));
         $mins = date('i', strtotime($stamp));
         $rest = date('Y-m-d H', strtotime($stamp));
         if ($mins >= '00' && $mins < '15') {
-            $quarter = '00';
-        } elseif ($mins >= '15' && $mins < '30') {
-            $quarter = '15';
-        } elseif ($mins >= '30' && $mins < '45') {
-            $quarter = '30';
-        } else {
             $quarter = '45';
+            $hours = strval(intval($hours) - 1);
+        } elseif ($mins >= '15' && $mins < '30') {
+            $quarter = '00';
+        } elseif ($mins >= '30' && $mins < '45') {
+            $quarter = '15';
+        } else {
+            $quarter = '30';
         }
 
-        return $rest . ':' . $quarter;
+        return $rest .' '.$hours. ':' . $quarter;
     }
+    private function getNextQuarter($stamp): string
+    {
+        $mins = date('i', strtotime($stamp));
 
+        $hours = date('H', strtotime($stamp));
+        $rest = date('Y-m-d', strtotime($stamp));
+        if ($mins >= '00' && $mins < '15') {
+            $quarter = '30';
+        } elseif ($mins >= '15' && $mins < '30') {
+            $quarter = '45';
+        } elseif ($mins >= '30' && $mins < '45') {
+            $quarter = '00';
+            $hours = strval(intval($hours) + 1);
+        } else {
+            $quarter = '15';
+            $hours = strval(intval($hours) + 1);
+        }
+
+        return $rest .' '.$hours. ':' . $quarter;
+    }
+    private function getSunriseLocal($anlage, $time){
+        $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+
+        $sungapCorrected['sunrise'] = $this->getNextQuarter($sungap['sunrise']);
+        $sungapCorrected['sunset'] = $this->getLastQuarter($sungap['sunset']);
+        return $sungapCorrected;
+    }
 }

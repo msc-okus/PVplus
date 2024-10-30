@@ -27,29 +27,29 @@ class ChartService
     use G4NTrait;
 
     public function __construct(
-        private readonly PdoService $pdoService,
-        private readonly Security $security,
-        private readonly AnlagenStatusRepository $statusRepository,
-        private readonly AnlageAvailabilityRepository $availabilityRepository,
-        private readonly PRRepository $prRepository,
-        private readonly PVSystDatenRepository $pvSystRepository,
-        private readonly InvertersRepository $invertersRepo,
-        private readonly FunctionsService $functions,
-        private readonly ForecastChartService $forecastChart,
-        private readonly ACPowerChartsService $acCharts,
-        private readonly DCPowerChartService $dcChart,
-        private readonly DCCurrentChartService $currentChart,
-        private readonly VoltageChartService $voltageChart,
-        private readonly IrradiationChartService $irradiationChart,
-        private readonly GridMeterDayRepository $gridMeterDayRepository,
-        private readonly HeatmapChartService $heatmapChartService,
-        private readonly TempHeatmapChartService $tempheatmapChartService,
-        private readonly SollIstAnalyseChartService $sollistAnalyseChartService,
+        private readonly PdoService                     $pdoService,
+        private readonly Security                       $security,
+        private readonly AnlagenStatusRepository        $statusRepository,
+        private readonly AnlageAvailabilityRepository   $availabilityRepository,
+        private readonly PRRepository                   $prRepository,
+        private readonly PVSystDatenRepository          $pvSystRepository,
+        private readonly InvertersRepository            $invertersRepo,
+        private readonly FunctionsService               $functions,
+        private readonly ForecastChartService           $forecastChart,
+        private readonly ACPowerChartsService           $acCharts,
+        private readonly DCPowerChartService            $dcChart,
+        private readonly DCCurrentChartService          $currentChart,
+        private readonly VoltageChartService            $voltageChart,
+        private readonly IrradiationChartService        $irradiationChart,
+        private readonly GridMeterDayRepository         $gridMeterDayRepository,
+        private readonly HeatmapChartService            $heatmapChartService,
+        private readonly TempHeatmapChartService        $tempheatmapChartService,
+        private readonly SollIstAnalyseChartService     $sollistAnalyseChartService,
         private readonly SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
-        private readonly SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
-        private readonly SollIstHeatmapChartService $sollistheatmapChartService,
-        private readonly AvailabilityByTicketService $availabilityByTicket,
-        private readonly AvailabilityChartService $availabilityChart
+        private readonly SollIstIrrAnalyseChartService  $sollistirrAnalyseChartService,
+        private readonly SollIstHeatmapChartService     $sollistheatmapChartService,
+        private readonly AvailabilityByTicketService    $availabilityByTicket,
+        private readonly AvailabilityChartService       $availabilityChart
     )
     {
     }
@@ -93,16 +93,16 @@ class ChartService
         // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
         if (isset($form['backFromMonth'])) {
             if ($form['backFromMonth'] === true) {
-                $form['from'] = date('Y-m-d 00:00', strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay) - (86400 * ($form['optionDate'] - 1)));
-                $form['to'] = date('Y-m-d 23:59', strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay));
+                $form['from'] = date('Y-m-d 00:00', strtotime($currentYear . '-' . $currentMonth . '-' . $currentDay) - (86400 * ($form['optionDate'] - 1)));
+                $form['to'] = date('Y-m-d 23:59', strtotime($currentYear . '-' . $currentMonth . '-' . $currentDay));
             }
         }
         if ($form['selectedGroup'] == '-1') {
             $form['selectedGroup'] = -1;
         }
 
-        $from =  $form['from'];
-        $to =  date('Y-m-d 00:00:00',strtotime($form['to'])+60); //correct $to stamp to 0 oclock next day
+        $from = $form['from'];
+        $to = date('Y-m-d 00:00:00', strtotime($form['to']) + 60); //correct $to stamp to 0 oclock next day
 
         if ($anlage) {
             switch ($form['selectedChart']) {
@@ -126,9 +126,9 @@ class ChartService
                         $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
                     }
                     break;
-                    // AC2 //
+                // AC2 //
                 case 'ac_act_overview':
-                    if($form['inverterRadio'] == ''){
+                    if ($form['inverterRadio'] == '') {
                         $form['inverterRadio'] = 1;
                     }
                     $dataArray = $this->acCharts->getAC2($anlage, $from, $to, $form['inverterRadio'], $hour);
@@ -145,9 +145,9 @@ class ChartService
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
-                    // AC3 //
+                // AC3 //
                 case 'ac_act_group':
-                    if($form['inverterRadio'] == ''){
+                    if ($form['inverterRadio'] == '') {
                         $form['inverterRadio'] = 1;
                     }
                     $dataArray = $this->acCharts->getAC3($anlage, $from, $to, $form['inverterRadio'], $hour);
@@ -178,7 +178,7 @@ class ChartService
                     }
                     break;
                 case 'ac_act_voltage':
-                    if($form['inverterRadio'] == ''){
+                    if ($form['inverterRadio'] == '') {
                         $form['inverterRadio'] = 1;
                     }
                     $dataArray = $this->acCharts->getActVoltageGroupAC($anlage, $from, $to, $form['inverterRadio'], $hour);
@@ -199,7 +199,7 @@ class ChartService
                     }
                     break;
                 case 'ac_act_current':
-                    if($form['inverterRadio'] == ''){
+                    if ($form['inverterRadio'] == '') {
                         $form['inverterRadio'] = 1;
                     }
                     $dataArray = $this->acCharts->getActCurrentGroupAC($anlage, $from, $to, $form['inverterRadio'], $hour);
@@ -220,7 +220,7 @@ class ChartService
                     }
                     break;
                 case 'ac_act_frequency':
-                    if($form['inverterRadio'] == ''){
+                    if ($form['inverterRadio'] == '') {
                         $form['inverterRadio'] = 1;
                     }
                     $dataArray = $this->acCharts->getActFrequncyGroupAC($anlage, $from, $to, $form['inverterRadio'], $hour);
@@ -246,7 +246,7 @@ class ChartService
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                     }
                     break;
-                    // DC Charts //
+                // DC Charts //
                 case 'dc_single':
                     $dataArray = $this->dcChart->getDC1($anlage, $from, $to, $hour);
                     if ($dataArray) {
@@ -260,7 +260,7 @@ class ChartService
                     }
                     break;
                 case 'dc_act_overview':
-                    if($form['inverterRadio'] == ''){
+                    if ($form['inverterRadio'] == '') {
                         $form['inverterRadio'] = 1;
                     }
                     $dataArray = $this->dcChart->getDC2($anlage, $from, $to, $form['inverterRadio'], $hour);
@@ -278,7 +278,7 @@ class ChartService
                     }
                     break;
                 case 'dc_act_group': // [DC 3]
-                    if($form['inverterRadio'] == ''){
+                    if ($form['inverterRadio'] == '') {
                         $form['inverterRadio'] = 1;
                     }
                     $dataArray = $this->dcChart->getDC3($anlage, $from, $to, $form['inverterRadio'], $hour);
@@ -322,10 +322,10 @@ class ChartService
                         $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
                     }
                     break;
-                    // Current Charts DC //
-                    // Übersicht Strom auf Basis der AC Gruppe
+                // Current Charts DC //
+                // Übersicht Strom auf Basis der AC Gruppe
                 case 'dc_current_overview':
-                    if($form['inverterRadio'] == null){
+                    if ($form['inverterRadio'] == null) {
                         $form['inverterRadio'] = 1;
                     }
                     $dataArray = $this->currentChart->getCurr1($anlage, $from, $to, $form['inverterRadio'], $hour);
@@ -385,7 +385,7 @@ class ChartService
                     break;
                 // Voltage Charts DC //
                 case 'dc_voltage_1':
-                    if($form['inverterRadio'] == ''){
+                    if ($form['inverterRadio'] == '') {
                         $form['inverterRadio'] = 1;
                     }
                     $dataArray = $this->voltageChart->getVoltage1($anlage, $from, $to, $form['inverterRadio'], $hour);
@@ -403,7 +403,7 @@ class ChartService
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
-                    // Voltage Charts DC //
+                // Voltage Charts DC //
                 case 'dc_voltage_groups':
                     $dataArray = $this->voltageChart->getVoltageGroups($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray) {
@@ -425,7 +425,7 @@ class ChartService
                     }
                     break;
                 case 'irradiation':
-                    if($anlage->getSettings()->isUseSensorsData()){
+                    if ($anlage->getSettings()->isUseSensorsData() && false) {
                         $dataArray = $this->irradiationChart->getIrradiationFromSensorsData($anlage, $from, $to, 'all', $hour);
                     } else {
                         $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
@@ -435,9 +435,9 @@ class ChartService
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [[W/m²]]';
                         $resultArray['series1']['name'] = ($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident upper table';
-                        $resultArray['series1']['tooltipText'] = (($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident upper table').' [[W/m²]]';
+                        $resultArray['series1']['tooltipText'] = (($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident upper table') . ' [[W/m²]]';
                         $resultArray['series2']['name'] = ($anlage->getWeatherStation()->getLabelLower() != '') ? $anlage->getWeatherStation()->getLabelLower() : 'Incident lower table';
-                        $resultArray['series2']['tooltipText'] = (($anlage->getWeatherStation()->getLabelLower() != '') ? $anlage->getWeatherStation()->getLabelLower() : 'Incident lower table').' [[W/m²]]';
+                        $resultArray['series2']['tooltipText'] = (($anlage->getWeatherStation()->getLabelLower() != '') ? $anlage->getWeatherStation()->getLabelLower() : 'Incident lower table') . ' [[W/m²]]';
                     }
                     break;
                 case 'irradiation_one':
@@ -446,11 +446,11 @@ class ChartService
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [[W/m²]]';
                         $resultArray['series1']['name'] = ($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident';
-                        $resultArray['series1']['tooltipText'] = (($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident').' [[W/m²]]';
+                        $resultArray['series1']['tooltipText'] = (($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident') . ' [[W/m²]]';
                     }
                     break;
                 case 'irradiation_plant':
-                    if($anlage->getSettings()->isUseSensorsData()){
+                    if ($anlage->getSettings()->isUseSensorsData()) {
                         $dataArray = $this->irradiationChart->getIrradiationPlantFromSensorsData($anlage, $from, $to, $hour);
                     } else {
                         $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to, $hour);
@@ -468,7 +468,7 @@ class ChartService
                     }
                     break;
                 case 'temp':
-                    if($anlage->getSettings()->isUseSensorsData()) {
+                    if ($anlage->getSettings()->isUseSensorsData()) {
                         $dataArray = $this->getAirAndPanelTempFromSensorsData($anlage, $from, $to, $hour);
                     } else {
                         $dataArray = $this->getAirAndPanelTemp($anlage, $from, $to, $hour);
@@ -539,10 +539,10 @@ class ChartService
                     }
                     break;
                 case 'forecast_dayahead':
-                    $dataArray = $this->forecastChart->getForecastDayAhead($anlage, $from, $form['optionDayAheadView'],$form['optionDayAheadViewDay']);
+                    $dataArray = $this->forecastChart->getForecastDayAhead($anlage, $from, $form['optionDayAheadView'], $form['optionDayAheadViewDay']);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
-                        switch($form['optionDayAheadView']){
+                        switch ($form['optionDayAheadView']) {
                             case 0 :
                                 $resultArray['headline'] = 'Forecast-Day-Ahead ';
                                 break;
@@ -588,7 +588,7 @@ class ChartService
                     $resultArray['SeriesNameArray'] = json_encode($dataArray['SeriesNameArray']);
                     break;
                 case 'heatmap':
-                    $to =  date('Y-m-d 00:00:00',strtotime($form['to']));
+                    $to = date('Y-m-d 00:00:00', strtotime($form['to']));
                     $dataArray = $this->heatmapChartService->getHeatmap($anlage, $from, $to, $form['invnames']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Inverter PR Heatmap [[%]]';
@@ -598,7 +598,7 @@ class ChartService
                     $resultArray['temp'] = $dataArray['temp'];
                     break;
                 case 'tempheatmap':
-                    $to =  date('Y-m-d 00:00:00',strtotime($form['to']));
+                    $to = date('Y-m-d 00:00:00', strtotime($form['to']));
                     $dataArray = $this->tempheatmapChartService->getTempHeatmap($anlage, $from, $to, $form['invnames']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Inverter Temperature Heatmap [[°C]]';
@@ -608,7 +608,7 @@ class ChartService
                     $resultArray['invNames'] = json_encode($dataArray['invNames']);
                     break;
                 case 'sollistheatmap':
-                    $to =  date('Y-m-d 00:00:00',strtotime($form['to']));
+                    $to = date('Y-m-d 00:00:00', strtotime($form['to']));
                     $dataArray = $this->sollistheatmapChartService->getSollIstHeatmap($anlage, $from, $to, $form['invnames']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'DC Current Heatmap';
@@ -618,21 +618,21 @@ class ChartService
                     $resultArray['temp'] = $dataArray['temp'];
                     break;
                 case 'sollistanalyse':
-                    if($form['inverterRadio'] == ''){
+                    if ($form['inverterRadio'] == '') {
                         $form['inverterRadio'] = 1;
                     }
-                    if($form['inverterRadio'] == 1000000){
+                    if ($form['inverterRadio'] == 1000000) {
                         $form['inverterRadio'] = 0;
                     }
-                    $dataArray = $this->sollistAnalyseChartService->getSollIstDeviationAnalyse($anlage, $from, $to ,$form['inverterRadio']);
+                    $dataArray = $this->sollistAnalyseChartService->getSollIstDeviationAnalyse($anlage, $from, $to, $form['inverterRadio']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'AC differnce between actual and expected power';
                     break;
                 case 'sollisttempanalyse':
-                    if($form['inverterRadio'] == ''){
+                    if ($form['inverterRadio'] == '') {
                         $form['inverterRadio'] = 1;
                     }
-                    if($form['inverterRadio'] == 1000000){
+                    if ($form['inverterRadio'] == 1000000) {
                         $form['inverterRadio'] = 0;
                     }
                     $dataArray = $this->sollisttempAnalyseChartService->getSollIstTempDeviationAnalyse($anlage, $from, $to, $form['inverterRadio']);
@@ -640,10 +640,10 @@ class ChartService
                     $resultArray['headline'] = 'Performance Categories vs. Temperatures';
                     break;
                 case 'sollistirranalyse':
-                    if($form['inverterRadio'] == ''){
+                    if ($form['inverterRadio'] == '') {
                         $form['inverterRadio'] = 1;
                     }
-                    if($form['inverterRadio'] == 1000000){
+                    if ($form['inverterRadio'] == 1000000) {
                         $form['inverterRadio'] = 0;
                     }
                     $dataArray = $this->sollistirrAnalyseChartService->getSollIstIrrDeviationAnalyse($anlage, $from, $to, $form['inverterRadio'], $form['optionIrrVal']);
@@ -652,14 +652,13 @@ class ChartService
                     $resultArray['headline'] = 'Performance Categories vs. Irradiation';
                     break;
                 default:
-                    $resultArray['headline'] = 'Something was wrong '.$form['selectedChart'];
+                    $resultArray['headline'] = 'Something was wrong ' . $form['selectedChart'];
             }
         }
 
         return $resultArray;
     }
     // ##########################################
-
 
 
     /**
@@ -679,7 +678,7 @@ class ChartService
     {
         $conn = $this->pdoService->getPdoPlant();
         $dataArray = [];
-        $sql = 'SELECT stamp, sum(wr_pac) AS power_ac, sum(wr_pdc) AS power_dc, unit AS inverter  FROM '.$anlage->getDbNameIst()." WHERE stamp BETWEEN '$from' AND '$to' AND group_ac = '$group' GROUP by unit";
+        $sql = 'SELECT stamp, sum(wr_pac) AS power_ac, sum(wr_pdc) AS power_dc, unit AS inverter  FROM ' . $anlage->getDbNameIst() . " WHERE stamp BETWEEN '$from' AND '$to' AND group_ac = '$group' GROUP by unit";
         $result = $conn->query($sql);
         if ($result->rowCount() > 0) {
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
@@ -724,7 +723,7 @@ class ChartService
                         avg(b.temp_pannel) as tempPannel, 
                         avg(b.temp_cell_corr) as tempCellCorr, 
                         avg(b.wind_speed) as windSpeed 
-                    FROM (db_dummysoll a LEFT JOIN ".$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
+                    FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
                     WHERE a.stamp > '$from' and a.stamp <= '$to' 
                     GROUP by date_format(DATE_SUB(a.stamp, INTERVAL 15 MINUTE), '$form')";
         } else {
@@ -734,7 +733,7 @@ class ChartService
                         sum(b.temp_pannel) as tempPannel, 
                         sum(b.temp_cell_corr) as tempCellCorr, 
                         sum(b.wind_speed) as windSpeed 
-                    FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
+                    FROM (db_dummysoll a LEFT JOIN ' . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
                     WHERE a.stamp > '$from' and a.stamp <= '$to' 
                     GROUP BY date_format(a.stamp, '$form')";
         }
@@ -784,11 +783,11 @@ class ChartService
         $dataArray['chart'] = [];
         if ($hour) {
             //zu from eine Stunde + da sonst Diagrammm nicht erscheint
-            $fromPlusOneHour = strtotime($from)+3600;
+            $fromPlusOneHour = strtotime($from) + 3600;
             $from = date('Y-m-d H:i', $fromPlusOneHour);
             $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value, avg(gmo) as gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
             $timeStepp = 3600;
-        }else{
+        } else {
             $sql_irr_plant = "SELECT stamp, id_sensor, avg(value) as value, avg(gmo) as gmo FROM " . $anlage->getDbNameSensorsData() . " WHERE stamp >= '$from' AND stamp <= '$to'  group by id_sensor, date_format(stamp, '$form') order by stamp, id_sensor;";
             $timeStepp = 900;
         }
@@ -800,17 +799,17 @@ class ChartService
                 $counter = 0;
                 $tempAmbientArray = $tempModuleArray = $windSpeedArray = [];
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                    if($counter == 0){
+                    if ($counter == 0) {
                         $stampTemp = $row['stamp'];
                     }
 
-                    if($stampTemp != $row['stamp']){
+                    if ($stampTemp != $row['stamp']) {
                         $dataArray['chart'][] = [
-                            'date' =>               $stampTemp,
-                            'tempAmbient' =>         $this->mittelwert($tempAmbientArray),
-                            'tempCellMeasuerd' =>   $this->mittelwert($tempModuleArray),
-                            'tempCellCorr' =>       null,
-                            'windSpeed' =>         $this->mittelwert($windSpeedArray)
+                            'date' => $stampTemp,
+                            'tempAmbient' => $this->mittelwert($tempAmbientArray),
+                            'tempCellMeasuerd' => $this->mittelwert($tempModuleArray),
+                            'tempCellCorr' => null,
+                            'windSpeed' => $this->mittelwert($windSpeedArray)
                         ];
                         unset($tempAmbientArray);
                         unset($tempModuleArray);
@@ -819,20 +818,20 @@ class ChartService
 
                     }
 
-                    if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-ambient'){
+                    if ($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-ambient') {
                         array_push($tempAmbientArray, $row['value']);
                     }
-                    if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-modul'){
+                    if ($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-modul') {
                         array_push($tempModuleArray, $row['value']);
                     }
 
-                    if($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'wind-speed'){
+                    if ($sensorsArray[$row['id_sensor']]['usetocalc_sensor'] && $sensorsArray[$row['id_sensor']]['type_sensor'] == 'wind-speed') {
                         array_push($windSpeedArray, $row['value']);
                     }
 
                     #if($sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-ambient' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'temp-modul' || $sensorsArray[$row['id_sensor']]['type_sensor'] == 'wind-speed') {
-                        $stampTemp = $row['stamp'];
-                        $counter++;
+                    $stampTemp = $row['stamp'];
+                    $counter++;
                     #}
                 }
             }
@@ -842,10 +841,10 @@ class ChartService
         $from = substr($stampTemp, 0, -3);
 
         $fromObj = date_create($from);
-        $endObj  = date_create($to);
+        $endObj = date_create($to);
 
         //fil up rest of day
-        if(is_array($dataArray) && count($dataArray) > 0) {
+        if (is_array($dataArray) && count($dataArray) > 0) {
             for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
 
                 #echo "$dayStamp <br>";
@@ -856,20 +855,20 @@ class ChartService
             }
         }
 
-        if(is_array($dataArray) && count($dataArray) == 0){
+        if (is_array($dataArray) && count($dataArray) == 0) {
             $x = [];
             $from = $date = date('Y-m-d 00:00', time());;
 
             $fromObj = date_create($from);
-            $endObj  = date_create($to);
+            $endObj = date_create($to);
 
             //fil up rest of day
             $i = 0;
             for ($dayStamp = $fromObj->getTimestamp(); $dayStamp <= $endObj->getTimestamp(); $dayStamp += $timeStepp) {
                 $date = date('Y-m-d H:i', $dayStamp);
                 $dataArray['chart'][$i] = [
-                    'date'              =>  $date,
-                    'val1'=>0
+                    'date' => $date,
+                    'val1' => 0
                 ];
                 $i++;
             }
@@ -927,14 +926,14 @@ class ChartService
     public function getpvSyst(Anlage $anlage, $from, $to): array
     {
         $dataArray = [];
-        $pvsysts= $this->pvSystRepository->allGreateZero($anlage, $from, $to);
+        $pvsysts = $this->pvSystRepository->allGreateZero($anlage, $from, $to);
 
         $conn = $this->pdoService->getPdoPlant();
         /** @var AnlagePVSystDaten $pvsyst */
         foreach ($pvsysts as $key => $pvsyst) {
             $stampAdjust = self::timeAjustment($pvsyst->getStamp(), 0.25);
             $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-            $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM '.$anlage->getDbNameIst()." WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and unit = 1 GROUP by date_format(stamp, '%y%m%d%')";
+            $sqlEvu = 'SELECT sum(e_z_evu) as eZEvu FROM ' . $anlage->getDbNameIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and unit = 1 GROUP by date_format(stamp, '%y%m%d%')";
             $resEvu = $conn->query($sqlEvu);
             $eZEvu = 0;
             if ($resEvu->rowCount() == 1) {
@@ -971,7 +970,6 @@ class ChartService
     }
 
 
-
     public function getGraphsAndControlAcDC($form, ?Anlage $anlage, ?bool $hour): array
     {
         $resultArray = [];
@@ -1004,14 +1002,14 @@ class ChartService
         // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
         if (isset($form['backFromMonth'])) {
             if ($form['backFromMonth'] === true) {
-                $form['from'] = date('Y-m-d 00:00', strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay) - (86400 * ($form['optionDate'] - 1)));
-                $form['to'] = date('Y-m-d 23:59', strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay));
+                $form['from'] = date('Y-m-d 00:00', strtotime($currentYear . '-' . $currentMonth . '-' . $currentDay) - (86400 * ($form['optionDate'] - 1)));
+                $form['to'] = date('Y-m-d 23:59', strtotime($currentYear . '-' . $currentMonth . '-' . $currentDay));
             }
         }
 
 
-        $from =  $form['from'];
-        $to =  date('Y-m-d 00:00:00',strtotime($form['to'])+60); //correct $to stamp to 0 oclock next day
+        $from = $form['from'];
+        $to = date('Y-m-d 00:00:00', strtotime($form['to']) + 60); //correct $to stamp to 0 oclock next day
 
         if ($anlage) {
             switch ($form['selectedChart']) {
@@ -1048,7 +1046,7 @@ class ChartService
                     }
                     break;
                 default:
-                    $resultArray['headline'] = 'Something was wrong '.$form['selectedChart'];
+                    $resultArray['headline'] = 'Something was wrong ' . $form['selectedChart'];
             }
         }
 

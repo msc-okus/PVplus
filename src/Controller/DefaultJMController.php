@@ -65,10 +65,10 @@ class DefaultJMController extends BaseController
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2): void
     {
-        $fromDate = "2024-09-10 00:00";
-        $toDate = "2024-09-17 00:00";
+        $fromDate = "2024-10-21 12:50";
+        $toDate = "2024-10-24 00:50";
 
-        $anlage = $anlagenRepository->findIdLike("250")[0];
+        $anlage = $anlagenRepository->findIdLike("251")[0];
         $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate, 60);
         foreach ($tickets as $ticket) {
             $notifications = $ticket->getNotificationInfos();
@@ -94,7 +94,7 @@ class DefaultJMController extends BaseController
         $fromStamp = strtotime($fromDate);
         $toStamp = strtotime($toDate);
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 86400) {
-            $alertServiceV2->generateTicketsExpectedInterval($anlage, date('Y-m-d H:i:00', $stamp));
+            $alertServiceV2->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
         }
 
         dd("test");

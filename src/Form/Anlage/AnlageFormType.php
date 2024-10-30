@@ -633,7 +633,7 @@ class AnlageFormType extends AbstractType
             // ###############################################
             ->add('hasSunshadingModel', SwitchType::class, [
                 'label' => 'Use the Sunshading Model for this plant',
-                'help' => '[On / Off]',
+                'help' => '[hasSunshadingModel]<br>',
                 'required' => false,
             ])
             // ###############################################
@@ -641,7 +641,7 @@ class AnlageFormType extends AbstractType
             // ###############################################
             ->add('isTrackerEow', SwitchType::class, [
                 'label' => 'Is a one axis tracker',
-                'help' => 'Is a one axis tracker with east west orientation [Yes / No] <bR> Check that Plant is oriented east/west of [NO]',
+                'help' => '[isTrackerEow]<br>Is a one axis tracker with east west orientation [Yes / No] <br> Check that Plant is oriented east/west of [NO]',
                 'required' => false,
             ])
             // ###############################################
@@ -694,15 +694,31 @@ class AnlageFormType extends AbstractType
             ])
             ->add('usePAFlag1', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag1]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('usePAFlag2', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag2]<br>Use special formular to calulate irr limit for PA',
             ])
             ->add('usePAFlag3', SwitchType::class, [
                 'label' => 'Use PA Flag from Sensors',
-                'help' => '[usePAFlag0]<br>Use special formular to calulate irr limit for PA',
+                'help' => '[usePAFlag3]<br>Use special formular to calulate irr limit for PA',
+            ])
+            ->add('nightAvailability0', SwitchType::class, [
+                'label' => 'Plant is available at night',
+                'help' => '[nightAvailability0]<br>',
+            ])
+            ->add('nightAvailability1', SwitchType::class, [
+                'label' => 'Plant is available at night',
+                'help' => '[nightAvailability1]<br>',
+            ])
+            ->add('nightAvailability2', SwitchType::class, [
+                'label' => 'Plant is available at night',
+                'help' => '[nightAvailability2]<br>',
+            ])
+            ->add('nightAvailability3', SwitchType::class, [
+                'label' => 'Plant is available at night',
+                'help' => '[nightAvailability3]<br>',
             ])
             ->add('paFormular0', ChoiceType::class, [
                 'label' => 'PA Formular',

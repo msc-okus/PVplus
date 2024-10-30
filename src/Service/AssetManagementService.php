@@ -37,32 +37,32 @@ class AssetManagementService
     private PDO $conn;
 
     public function __construct(
-        private PdoService                  $pdoService,
-        private EntityManagerInterface      $em,
-        private PvSystMonthRepository       $pvSystMonthRepo,
-        private FunctionsService            $functions,
-        private NormalizerInterface         $serializer,
-        private DownloadAnalyseService      $DownloadAnalyseService,
-        private EconomicVarValuesRepository $ecoVarValueRepo,
-        private PRCalulationService         $PRCalulation,
-        private EconomicVarNamesRepository  $ecoVarNameRepo,
-        private AvailabilityByTicketService $availability,
-        private TicketDateRepository        $ticketDateRepo,
-        private ReportsRepository           $reportRepo,
-        private Environment                 $twig,
-        private PdfService                  $pdf,
-        private LogMessagesService          $logMessages,
-        private ReportsMonthlyV2Service     $reportsMonthly,
-        private AnlagenRepository           $anlagenRepository,
-        private SensorService               $sensorService,
-        private WeatherFunctionsService     $weatherFunctions,
-        private ForcastDayRepository        $forecastDayRepo,
-        private Filesystem                  $fileSystemFtp,
-        private Filesystem                  $filesystem,
-        private AnlageFileRepository        $RepositoryUpload,
-        private TicketRepository            $ticketRepo,
-        private NotificationInfoRepository  $notificationRepo,
-        private readonly Security           $security,
+        private PdoService                   $pdoService,
+        private EntityManagerInterface       $em,
+        private PvSystMonthRepository        $pvSystMonthRepo,
+        private FunctionsService             $functions,
+        private NormalizerInterface          $serializer,
+        private DownloadAnalyseService       $DownloadAnalyseService,
+        private EconomicVarValuesRepository  $ecoVarValueRepo,
+        private PRCalulationService          $PRCalulation,
+        private EconomicVarNamesRepository   $ecoVarNameRepo,
+        private AvailabilityByTicketService  $availability,
+        private TicketDateRepository         $ticketDateRepo,
+        private ReportsRepository            $reportRepo,
+        private Environment                  $twig,
+        private PdfService                   $pdf,
+        private LogMessagesService           $logMessages,
+        private ReportsMonthlyV2Service      $reportsMonthly,
+        private AnlagenRepository            $anlagenRepository,
+        private SensorService                $sensorService,
+        private WeatherFunctionsService      $weatherFunctions,
+        private ForcastDayRepository         $forecastDayRepo,
+        private Filesystem                   $fileSystemFtp,
+        private Filesystem                   $filesystem,
+        private AnlageFileRepository         $RepositoryUpload,
+        private TicketRepository             $ticketRepo,
+        private NotificationInfoRepository   $notificationRepo,
+        private readonly Security            $security,
         private AnlageStringAssigmentService $anlageStringAssigmentService
     )
     {
@@ -85,7 +85,7 @@ class AssetManagementService
         }
         // then we generate our own report and try to persist it
         $output = $this->assetReport($anlage, $reportMonth, $reportYear, $logId);
-        $sheetsData = $this->anlageStringAssigmentService->exportAmReport($anlage->getAnlId(),$reportMonth,$reportYear);
+        $sheetsData = $this->anlageStringAssigmentService->exportAmReport($anlage->getAnlId(), $reportMonth, $reportYear);
 
 
         $data = [
@@ -1263,8 +1263,7 @@ class AssetManagementService
 
             if ($anlage->hasPVSYST()) {
                 $forecast[] = $Ertrag_design;
-            }
-            else {
+            } else {
                 $forecast[] = $this->functions->getForcastByMonth($anlage, $i);
             }
         }
@@ -2451,7 +2450,7 @@ class AssetManagementService
 
         $sqlw = 'SELECT count(db_id) as quarters
                     FROM  ' . $anlage->getDbNameWeather() . "  
-                    WHERE stamp BETWEEN '$begin' AND '$end' AND (g_lower + g_upper)/2 > '" . $anlage->getThreshold2PA() . "'";// hay que cambiar aqui para que la radiacion sea mayor que un valor
+                    WHERE stamp BETWEEN '$begin' AND '$end' AND (g_lower + g_upper)/2 > '" . $anlage->getThreshold2PA2() . "'";// hay que cambiar aqui para que la radiacion sea mayor que un valor
         $resw = $this->conn->query($sqlw);
         $sumquarters = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
 
