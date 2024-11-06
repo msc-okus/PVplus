@@ -14,12 +14,10 @@
         <h2>Login PV+ 4.0<br><small>Two Factor Authentication</small></h2>
         <div class="grid-container">
             <div class="grid-x grid-padding-x grid-padding-y text-center">
-                <div class="cell medium-12 ">
-
+                <div class="cell medium-12" {{ stimulus_controller('login') }}>
                     <p>
                         Open your Authenticator app and type in the number.
                     </p>
-
                     {% if authenticationError %}
                         <div class="callout alert">
                             {{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}
@@ -35,17 +33,17 @@
                     {% endif %}
                     {# Display current two-factor provider #}
                     <form action="{{ checkPathUrl ? checkPathUrl: path(checkPathRoute) }}" method="post">
-                        <p>
-                            <label for="_auth_code">{{ "auth_code"|trans({}, 'SchebTwoFactorBundle') }} {{ twoFactorProvider }}</label>
-                            <input
-                                    id="_auth_code"
-                                    style="width: 50%; margin: auto; text-align: center;"
-                                    type="text"
-                                    name="{{ authCodeParameterName }}"
-                                    autocomplete="one-time-code"
-                                    autofocus="autofocus"
-                            />
-                        </p>
+
+                        <label for="_auth_code">{{ "auth_code"|trans({}, 'SchebTwoFactorBundle') }} {{ twoFactorProvider }}</label>
+                        <div class="authArea">
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input id="_auth_code" type="hidden" name="{{ authCodeParameterName }}"/>
+                        </div>
                         {% if displayTrustedOption %}
                             <label for="_trusted">
                                 <input id="_trusted" type="checkbox" name="{{ trustedParameterName }}"/> {{ "trusted"|trans({}, 'SchebTwoFactorBundle') }}
@@ -56,11 +54,11 @@
                         {% endif %}
                         <p>
                             <a class="button secondary" href="{{ logoutPath }}">{{ "cancel"|trans({}, 'SchebTwoFactorBundle') }}</a>
-                            <button type="submit" class="button primary">{{ "login"|trans({}, 'SchebTwoFactorBundle') }}</button>
+                            <button id="submit" type="submit" class="button primary">{{ "login"|trans({}, 'SchebTwoFactorBundle') }}</button>
                         </p>
-                        <p {{ stimulus_controller('login') }}>
+                        <p>
                             <small>
-                                <button  {{ stimulus_action('login', 'sendMail') }} class="button  hollow tiny">Please send a one time Password to my email address.</button>
+                                <button {{ stimulus_action('login', 'sendMail') }} class="button  hollow tiny">Please send a one time Password to my email address.</button>
                             </small>
                         </p>
                     </form>
@@ -74,25 +72,10 @@
 
 {% block styles %}
     {{ parent() }}
-    <style>
-        .login-page h2,
-        .login-page h3 {
-            text-align: center;
-            padding: 1em;
-            background: #0F5694;
-            border-bottom: 10px solid #4b7884;
-            margin: 0;
-            color: #fff;
-            font-size: 1.6em;
-        }
-        .reveal {
-            padding: 0;
-            border: none;
-        }
-    </style>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    {{ encore_entry_script_tags('login') }}
+    {{ encore_entry_script_tags('login_2fa') }}
+
 {% endblock %}

@@ -14,9 +14,13 @@ use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticatorInte
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class SecurityController extends BaseController
 {
@@ -118,6 +122,12 @@ class SecurityController extends BaseController
         return new Response($result->getString(), 200, ['Content-Type' => 'image/png']);
     }
 
+    /**
+     * @throws SyntaxError
+     * @throws TransportExceptionInterface
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
     #[Route(path: '/autentication/2fa/onetimepw', name: 'app_2fa_onetime_password')]
     public function sendOneTimePassword(G4NSendMailService $g4NSendMail, EntityManagerInterface $entityManager): Response
     {
@@ -134,11 +144,11 @@ class SecurityController extends BaseController
         return $this->json(["result"=>'Somthing went wrong']);
     }
 
-    private function randomPassword(int $length = 6): string
+    private function randomPassword(): string
     {
-        $alphabet = "abcdefghijklmnopqrstuwxyzABCDEFGHIJKLMNOPQRSTUWXYZ0123456789";
+        $alphabet = "0123456789";
         $pass = [];
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < 6; $i++) {
             $n = rand(0, strlen($alphabet)-1);
             $pass[$i] = $alphabet[$n];
         }

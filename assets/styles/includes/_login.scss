@@ -1,0 +1,76 @@
+#login {
+
+    &.reveal {
+        padding: 0;
+        border: none;
+    }
+
+    .button-signin {
+        background-color: $g4n-green;
+        display: block;
+        margin: auto;
+        min-width: 200px;
+    }
+
+    .login-page h2,
+    .login-page h3 {
+        text-align: center;
+        padding: 1em;
+        background: $g4n-blue;
+        border-bottom: 10px solid #4b7884;
+        margin: 0;
+        color: $g4n-white;
+        font-size: 1.6em;
+    }
+
+    :root {
+        --softTint: rgba(0, 0, 0, 0.2);
+        --bounce: 0.3s cubic-bezier(0.3, -0.1, 0.5, 1.4);
+        --ease: 0.2s cubic-bezier(0.3, 0.1, 0.3, 1);
+    }
+
+    .authArea {
+        --size: 2rem;
+        --space: 1rem;
+        padding-left: var(--space);
+        display: flex;
+        transition: var(--bounce);
+        justify-content: center;
+
+        input[type="number"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: var(--size);
+            height: calc(var(--size) * 1.4);
+            font-size: calc(var(--size) * 0.7);
+            text-align: center;
+            border: 0.12em solid var(--softTint);
+            border-radius: calc(var(--size) * 0.2);
+            outline: none;
+            margin: var(--space);
+            margin-left: 0;
+            transition: var(--ease);
+
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+                display: none;
+            }
+
+            &:not(:placeholder-shown) {
+                border-color: $g4n-blue;
+            }
+        }
+    }
+
+    .submit:focus ~ .indicator {
+        --i: 7;
+    }
+
+    @for $i from 1 through 6 {
+        #n#{$i}:focus ~ .indicator {
+            --i: #{$i};
+        }
+    }
+
+
+}
