@@ -6,6 +6,9 @@ $('#login').foundation('toggle');
 
 $(document).foundation();
 
+
+// Based on code from : https://codepen.io/groundtutorial/pen/OJwpXvW
+
 //Initial references
 const input = document.querySelectorAll(".input");
 const inputField = document.querySelector(".authArea");
