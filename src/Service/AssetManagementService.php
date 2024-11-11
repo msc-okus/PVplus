@@ -3047,14 +3047,14 @@ class AssetManagementService
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $index, (int)$report['reportYear']);
             $result = $this->PRCalulation->calcPR($anlage, new \DateTime($report['reportYear'] . "-" . $index . "-" . "01"), new \DateTime($report['reportYear'] . "-" . $index . "-" . $daysInMonth));
 
-            $monthlyTableForPRAndPA[$index]['Dep0PA'] = round($result['pa0'], 2);
-            $monthlyTableForPRAndPA[$index]['Dep1PA'] = round($result['pa1'], 2);
-            $monthlyTableForPRAndPA[$index]['Dep2PA'] = round($result['pa2'], 2);
-            $monthlyTableForPRAndPA[$index]['Dep3PA'] = round($result['pa3'], 2);
-            $graphArrayPA['Dep0'][] = round($result['pa0'], 2);
-            $graphArrayPA['Dep1'][] = round($result['pa1'], 2);
-            $graphArrayPA['Dep2'][] = round($result['pa2'], 2);
-            $graphArrayPA['Dep3'][] = round($result['pa3'], 2);
+            $monthlyTableForPRAndPA[$index]['Dep0PA'] = round($result['pa0'], 3);
+            $monthlyTableForPRAndPA[$index]['Dep1PA'] = round($result['pa1'], 3);
+            $monthlyTableForPRAndPA[$index]['Dep2PA'] = round($result['pa2'], 3);
+            $monthlyTableForPRAndPA[$index]['Dep3PA'] = round($result['pa3'], 3);
+            $graphArrayPA['Dep0'][] = round($result['pa0'], 3);
+            $graphArrayPA['Dep1'][] = round($result['pa1'], 3);
+            $graphArrayPA['Dep2'][] = round($result['pa2'], 3);
+            $graphArrayPA['Dep3'][] = round($result['pa3'], 3);
 
             if ($anlage->getUseGridMeterDayData()) {
                 $monthlyTableForPRAndPA[$index]['Dep0PR'] = round($result['prDep0EGridExt'], 2);
