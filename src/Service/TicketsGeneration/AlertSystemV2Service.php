@@ -168,19 +168,20 @@ class AlertSystemV2Service
      */
     public function checkSystem(Anlage $anlage, ?string $time = null): string
     {
-
         if ($time === null) {
             $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
         }
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->getSunriseLocal($anlage, date('Y-m-d', strtotime($time)));
         $time = self::timeAjustment($time, -2);
-        if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
 
+        if (strtotime($time) >= strtotime($sungap['sunrise']) && strtotime($time) <= strtotime($sungap['sunset'])) {
             //here we retrieve the values from the plant and set soma flags to generate tickets
+
             $plant_status = self::RetrievePlant($anlage, $time);
             $ticketOld = $this->getAllTickets($anlage, $time);
             //revise; maybe we can skip this
+
             if ((isset($ticketOld))) {
                 foreach ($ticketOld as $ticket) {
                     $ticket->setOpenTicket(false);
@@ -190,7 +191,6 @@ class AlertSystemV2Service
             $anlType = $anlage->getAnlType();
             try {
             if ( $plant_status['Irradiation'] == false ) {
-
                 if ($plant_status['ppc'] != null && $plant_status['ppc']){
                     $this->generateTickets(ticket::OMC, ticket::EXTERNAL_CONTROL, $anlage, ["*"], $time, $plant_status['ppc'], false);
                     $this->generatePPCTickets(ticket::OMC, $anlage,  $time);
@@ -199,15 +199,13 @@ class AlertSystemV2Service
                     $this->generateTickets('', ticket::DATA_GAP, $anlage, $plant_status['Gap'], $time, ($plant_status['ppc']), false);}
                 if ($anlType != "masterslave"){
 
-
                     if ($plant_status['Power0'] != null && count($plant_status['Power0']) > 0 ){
                         if (!$anlage->isPpcBlockTicket() or !$plant_status['ppc']){
                             $this->generateTickets(ticket::EFOR, ticket::INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, ($plant_status['ppc']), false);}
                     }
                 }
-                if ($plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*"))
+                if (($plant_status['Vol'] == ["*"]))
                 {
-
                     $this->generateTickets('', ticket::GRID_ERROR, $anlage, $plant_status['Vol'], $time, ($plant_status['ppc']), false);}
             }else {
                 $this->generateTickets('', 100, $anlage, ['*'], $time, $plant_status['ppc'], true);
@@ -247,6 +245,7 @@ class AlertSystemV2Service
      */
     private function RetrievePlant(Anlage $anlage, $time): array
     {
+
         $totalOffset = 0;
         $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
         $irrLimit = $anlage->getMinIrrThreshold(); // we get the irradiation limit from the plant config
@@ -296,12 +295,14 @@ class AlertSystemV2Service
             $resp = $conn->query($sqlNull);
             $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
             if ($anlage->isGridTicket()) {
+
                 $sqlVol = "SELECT b.unit 
                     FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  (b.u_ac < " . $voltLimit . " OR b.frequency < " . $freqLimitBot . " OR b.frequency > " . $freqLimitTop . ")";
+                    WHERE a.stamp = '$time' AND  ((b.u_ac < " . $voltLimit . " OR b.frequency < " . $freqLimitBot . " OR b.frequency > " . $freqLimitTop . ") OR (b.u_ac is null AND b.frequency is null))";
                 $resp = $conn->query($sqlVol);
                 //here if there is no plant control we check the values and get the information to create the tickets
                 $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
+
                 if (count($resultVol) == $invCount &&  $this->irr == false) $return['Vol'] = ['*'];
                 else if (count($resultVol) == 0) $return['Vol'] = [];
                 else {
@@ -309,6 +310,7 @@ class AlertSystemV2Service
                         $return['Vol'][] =  $value['unit'];
                     }
                 }
+
             }
             else $return['Vol'] = [];
             if (count($resultNull) == $invCount &&  $this->irr == false) $return['Gap'] = ['*'];
@@ -611,10 +613,11 @@ class AlertSystemV2Service
      */
     private function getAllTicketsByCat($anlage, $time, $errorCategory): mixed
     {
+        $sunrise = self::getNextQuarter($this->weather->getSunrise($anlage, $time)['sunrise']); // the first quarter of today
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']);
-        $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) {
+
+        if (strtotime($time) - 900 < strtotime($sunrise)) {
             return $this->ticketRepo->findByAnlageTimeYesterday($anlage, $lastQuarterYesterday, $time, $errorCategory);
         } else {
             return $this->ticketRepo->findByAnlageTime($anlage, $time, $errorCategory);
@@ -651,17 +654,14 @@ class AlertSystemV2Service
     {
         $today = date('Y-m-d', strtotime($time));
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
-        $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
+        $sunrise = self::getNextQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-
         $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
-
-        if ($quarter <= $sunrise) {
+        if (strtotime($quarter) <= strtotime($sunrise)) {
             $ticket = $this->ticketRepo->findAllYesterday($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
         } else {
             $ticket = $this->ticketRepo->findAllByTime($anlage, $time); // we try to retrieve the ticket in the previous quarter
         }
-
         return $ticket;
     }
 
@@ -676,7 +676,7 @@ class AlertSystemV2Service
     {
         $hours = date('H', strtotime($stamp));
         $mins = date('i', strtotime($stamp));
-        $rest = date('Y-m-d H', strtotime($stamp));
+        $rest = date('Y-m-d', strtotime($stamp));
         if ($mins >= '00' && $mins < '15') {
             $quarter = '45';
             $hours = strval(intval($hours) - 1);
