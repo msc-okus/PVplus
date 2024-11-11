@@ -27,20 +27,20 @@ class ExpectedService
     use G4NTrait;
 
     public function __construct(
-        private readonly PdoService $pdoService,
-        private readonly AnlagenRepository $anlagenRepo,
-        private readonly GroupsRepository $groupsRepo,
-        private readonly GroupMonthsRepository $groupMonthsRepo,
-        private readonly GroupModulesRepository $groupModulesRepo,
-        private readonly AnlageMonthRepository $anlageMonthRepo,
-        private readonly FunctionsService $functions,
-        private readonly WeatherFunctionsService $weatherFunctions,
-        private readonly OpenWeatherService $openWeather,
-        private readonly OpenWeatherRepository $openWeatherRepo,
+        private readonly PdoService                 $pdoService,
+        private readonly AnlagenRepository          $anlagenRepo,
+        private readonly GroupsRepository           $groupsRepo,
+        private readonly GroupMonthsRepository      $groupMonthsRepo,
+        private readonly GroupModulesRepository     $groupModulesRepo,
+        private readonly AnlageMonthRepository      $anlageMonthRepo,
+        private readonly FunctionsService           $functions,
+        private readonly WeatherFunctionsService    $weatherFunctions,
+        private readonly OpenWeatherService         $openWeather,
+        private readonly OpenWeatherRepository      $openWeatherRepo,
         private readonly AnlageSunShadingRepository $anlageSunShadingRepository,
-        private readonly SunShadingModelService $sunShadingModelService,
-        private readonly ForecastCalcService $forecastCalcService,
-        private readonly IrradiationService $irradiationService)
+        private readonly SunShadingModelService     $sunShadingModelService,
+        private readonly ForecastCalcService        $forecastCalcService,
+        private readonly IrradiationService         $irradiationService)
     {
     }
 
@@ -54,19 +54,18 @@ class ExpectedService
         }
 
         $output = '';
-      # if ($anlage->getGroups() && !$anlage->isExcludeFromExpCalc() && $anlage->getAnlBetrieb() !== null) {
         if ($anlage->getGroups() && $anlage->getAnlBetrieb() !== null) {
             $conn = $this->pdoService->getPdoPlant();
             $arrayExpected = $this->calcExpected($anlage, $from, $to);
             if ($arrayExpected) {
-                $sql = 'INSERT INTO '.$anlage->getDbNameDcSoll().' (stamp, wr, wr_num, group_dc, group_ac, ac_exp_power, ac_exp_power_evu, ac_exp_power_no_limit, dc_exp_power, dc_exp_current, soll_imppwr, soll_pdcwr, dc_exp_voltage) VALUES ';
+                $sql = 'INSERT INTO ' . $anlage->getDbNameDcSoll() . ' (stamp, wr, wr_num, group_dc, group_ac, ac_exp_power, ac_exp_power_evu, ac_exp_power_no_limit, dc_exp_power, dc_exp_current, soll_imppwr, soll_pdcwr, dc_exp_voltage) VALUES ';
                 foreach ($arrayExpected as $expected) {
-                    $sql .= "('".$expected['stamp']."',".$expected['unit'].','.$expected['dc_group'].','.$expected['dc_group'].','.$expected['ac_group'].','.
-                        $expected['exp_power_ac'].','.$expected['exp_evu'].','.$expected['exp_nolimit'].','.$expected['exp_power_dc'].','.
-                        $expected['exp_current_dc'].','.$expected['exp_current_dc'].','.$expected['exp_power_dc'].','.$expected['exp_voltage'].'),';
+                    $sql .= "('" . $expected['stamp'] . "'," . $expected['unit'] . ',' . $expected['dc_group'] . ',' . $expected['dc_group'] . ',' . $expected['ac_group'] . ',' .
+                        $expected['exp_power_ac'] . ',' . $expected['exp_evu'] . ',' . $expected['exp_nolimit'] . ',' . $expected['exp_power_dc'] . ',' .
+                        $expected['exp_current_dc'] . ',' . $expected['exp_current_dc'] . ',' . $expected['exp_power_dc'] . ',' . $expected['exp_voltage'] . '),';
                 }
                 $sql = substr($sql, 0, -1); // nimm das letzte Komma weg
-                $conn->exec('DELETE FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to';");
+                $conn->exec('DELETE FROM ' . $anlage->getDbNameDcSoll() . " WHERE stamp BETWEEN '$from' AND '$to';");
                 $conn->exec($sql);
                 $recUpdated = count($arrayExpected);
                 $output .= "From $from until $to – $recUpdated records updated.<br>";
@@ -87,14 +86,14 @@ class ExpectedService
     {
         $resultArray = [];
         $sumModules = 0;
-        $aktuellesJahr = date('Y', strtotime((string) $from));
+        $aktuellesJahr = date('Y', strtotime((string)$from));
         $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre
-        $month = date('m', strtotime((string) $from));
+        $month = date('m', strtotime((string)$from));
         $sshrep = $this->anlageSunShadingRepository->findBy(['anlage' => $anlage->getAnlId()]); // Call the Repository
         $conn = $this->pdoService->getPdoPlant();
         // Lade Wetter (Wetterstation der Anlage) Daten für die angegebene Zeit und Speicher diese in ein Array
         $weatherStations = $this->groupsRepo->findAllWeatherstations($anlage, $anlage->getWeatherStation());
-        $sqlWetterDaten = 'SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, temp_pannel AS panel_temp, temp_ambient AS ambient_temp FROM '.$anlage->getDbNameWeather()." WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
+        $sqlWetterDaten = 'SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, temp_pannel AS panel_temp, temp_ambient AS ambient_temp FROM ' . $anlage->getDbNameWeather() . " WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
 
         $resWeather = $conn->prepare($sqlWetterDaten);
         $resWeather->execute();
@@ -102,7 +101,7 @@ class ExpectedService
 
         $resWeather = null;
         foreach ($weatherStations as $weatherStation) {
-            $sqlWetterDaten = 'SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, pt_avg AS panel_temp, at_avg as ambient_temp FROM '.$weatherStation->getWeatherStation()->getDbNameWeather()." WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
+            $sqlWetterDaten = 'SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, pt_avg AS panel_temp, at_avg as ambient_temp FROM ' . $weatherStation->getWeatherStation()->getDbNameWeather() . " WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
             $resWeather = $conn->prepare($sqlWetterDaten);
             $resWeather->execute();
             $weatherArray[$weatherStation->getWeatherStation()->getDatabaseIdent()] = $resWeather->fetchAll(PDO::FETCH_ASSOC);
@@ -111,7 +110,7 @@ class ExpectedService
         $conn = null;
         // wenn das Sunshadding Model eingegeben wurde.
 
-        if($anlage->getHasSunshadingModel()){
+        if ($anlage->getHasSunshadingModel()) {
             $input_gb = (float)$anlage->getAnlGeoLat();       // Geo Breite / Latitute
             $input_gl = (float)$anlage->getAnlGeoLon();       // Geo Länge / Longitude
             $input_mer = (integer)$anlage->getBezMeridan();   // Bezugsmeridan Mitteleuropa
@@ -119,7 +118,7 @@ class ExpectedService
             $ausrichtung = ($anlage->getIsOstWestAnlage()) ? '90' : '180';
         }
 
-        /** @var AnlageGroups $group  */
+        /** @var AnlageGroups $group */
 
         foreach ($anlage->getGroups() as $group) {
             foreach ($group->getModules() as $module) {
@@ -161,11 +160,11 @@ class ExpectedService
                     // Werte für die Eingruppierung sind mit OS und TL abgesprochen
                     if ($currentWeatherStation->getHasUpper() && !$currentWeatherStation->getHasLower()) {
                         // Station hat nur oberen Sensor => Die Strahlung OHNE Gewichtung zurückgeben, Verluste werden dann über die Verschattung berechnet
-                        $tempIrr = (float) $weather['irr_upper'];
+                        $tempIrr = (float)$weather['irr_upper'];
                     } elseif ($anlage->getUseLowerIrrForExpected()) {
-                        $tempIrr = (float) $weather['irr_lower'];
+                        $tempIrr = (float)$weather['irr_lower'];
                     } else {
-                        $tempIrr = $this->functions->mittelwert([(float) $weather['irr_upper'], (float) $weather['irr_lower']]);
+                        $tempIrr = $this->functions->mittelwert([(float)$weather['irr_upper'], (float)$weather['irr_lower']]);
                     }
                     // wenn das Sunshadding Model eingegeben wurde.
                     if ($anlage->getHasSunshadingModel()) {
@@ -201,8 +200,8 @@ class ExpectedService
                     }
 
                     $pannelTemp = is_numeric($weather['panel_temp']) ? (float)$weather['panel_temp'] : null;   // Pannel Temperatur
-                    $irrUpper = (float) $weather['irr_upper'] - ((float) $weather['irr_upper'] / 100 * $shadow_loss);    // Strahlung an obern (Ost) Sensor
-                    $irrLower = (float) $weather['irr_lower'] - ((float) $weather['irr_lower'] / 100 * $shadow_loss);    // Strahlung an unterem (West) Sensor
+                    $irrUpper = (float)$weather['irr_upper'] - ((float)$weather['irr_upper'] / 100 * $shadow_loss);    // Strahlung an obern (Ost) Sensor
+                    $irrLower = (float)$weather['irr_lower'] - ((float)$weather['irr_lower'] / 100 * $shadow_loss);    // Strahlung an unterem (West) Sensor
 
                     // Strahlung berechnen, für Analgen die KEINE 'Ost/West' Ausrichtung haben
                     if ($anlage->getUseLowerIrrForExpected()) {
@@ -268,7 +267,7 @@ class ExpectedService
                             $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
                         }
                         // degradation abziehen (degradation * Betriebsjahre).
-                        $expCurrentDcHlp = $expCurrentDcHlp - $expCurrentDcHlp  * ($modul->getModuleType()->getDegradation() * $betriebsJahre / 100);
+                        $expCurrentDcHlp = $expCurrentDcHlp - $expCurrentDcHlp * ($modul->getModuleType()->getDegradation() * $betriebsJahre / 100);
                         $expPowerDcHlp = $expPowerDcHlp - $expPowerDcHlp * ($modul->getModuleType()->getDegradation() * $betriebsJahre / 100);
 
                         $expPowerDc += $expPowerDcHlp;
@@ -327,41 +326,41 @@ class ExpectedService
     }
 
     // MS 07/2023
-    public function calcExpectedforForecast(Anlage $anlage, $decarray, $intervall = 'doy' ): bool|array
+    public function calcExpectedforForecast(Anlage $anlage, $decarray, $intervall = 'doy'): bool|array
     {
         // $aktuellesJahr = date("Y",time());
         // $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre werden nicht berücksichtigt
         $resultArray = [];
-        $theoYear = $expEvuSumYear = $expEvuSumDay =  $Fttheohrday =  $FttheoYear = $expEvuSum = 0;
+        $theoYear = $expEvuSumYear = $expEvuSumDay = $Fttheohrday = $FttheoYear = $expEvuSum = 0;
         $pnomsgl = $anlage->getPnom() / 2;
-        $pnomall = $anlage->getPnom() ;
+        $pnomall = $anlage->getPnom();
         $kwp = $anlage->getKwPeak();
         $modulisbif = false; // Sollte aus der Modul DB kommen muss noch gemacht werden
         $TcellTypDay = $theoday = $irrYear = $irrDay = 0;
 
         if ((is_countable($decarray) ? count($decarray) : 0) > 0) {
-        // Erstelle Jahres Werte
+            // Erstelle Jahres Werte
             foreach ($decarray as $key_out => $val_out) {
 
                 foreach ($val_out as $key_y => $valy) {
-                            isset($valy['TMP']) ? $airTemp = $valy['TMP'] : $airTemp = '0.0';
-                            isset($valy['FF']) ? $windSpeed = $valy['FF'] : $windSpeed = '0.0';
-                            isset($valy['DOY']) ? $doy = $valy['DOY'] : $doy = '0';
+                    isset($valy['TMP']) ? $airTemp = $valy['TMP'] : $airTemp = '0.0';
+                    isset($valy['FF']) ? $windSpeed = $valy['FF'] : $windSpeed = '0.0';
+                    isset($valy['DOY']) ? $doy = $valy['DOY'] : $doy = '0';
 
-                        if ($anlage->getIsOstWestAnlage()) {
+                    if ($anlage->getIsOstWestAnlage()) {
 
-                            if ($modulisbif) {
-                                isset($valy['OSTWEST']['RGESBIF_UPPER']) ? $irrUpper = round($valy['OSTWEST']['RGESBIF_UPPER'], 2) : $irrUpper = '0.0';
-                                isset($valy['OSTWEST']['RGESBIF_LOWER']) ? $irrLower = round($valy['OSTWEST']['RGESBIF_LOWER'], 2) : $irrLower = '0.0';
-                            } else {
-                                isset($valy['OSTWEST']['RGES_UPPER']) ? $irrUpper = round($valy['OSTWEST']['RGES_UPPER'], 2) : $irrUpper = '0.0';
-                                isset($valy['OSTWEST']['RGES_LOWER']) ? $irrLower = round($valy['OSTWEST']['RGES_LOWER'], 2) : $irrLower = '0.0';
-                            }
+                        if ($modulisbif) {
+                            isset($valy['OSTWEST']['RGESBIF_UPPER']) ? $irrUpper = round($valy['OSTWEST']['RGESBIF_UPPER'], 2) : $irrUpper = '0.0';
+                            isset($valy['OSTWEST']['RGESBIF_LOWER']) ? $irrLower = round($valy['OSTWEST']['RGESBIF_LOWER'], 2) : $irrLower = '0.0';
+                        } else {
+                            isset($valy['OSTWEST']['RGES_UPPER']) ? $irrUpper = round($valy['OSTWEST']['RGES_UPPER'], 2) : $irrUpper = '0.0';
+                            isset($valy['OSTWEST']['RGES_LOWER']) ? $irrLower = round($valy['OSTWEST']['RGES_LOWER'], 2) : $irrLower = '0.0';
+                        }
 
                         $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irrUpper), 2);
-                        $TcellTyp = round($irrUpper / 1000 * $Tcell,2);
+                        $TcellTyp = round($irrUpper / 1000 * $Tcell, 2);
                         $TcellTypDay += $TcellTyp;
-                        $irrYear += $irrUpper ; // W/m
+                        $irrYear += $irrUpper; // W/m
 
                     } else {
 
@@ -371,7 +370,7 @@ class ExpectedService
                             isset($valy['SUED']['RGES']) ? $irr = round($valy['SUED']['RGES'], 2) : $irr = '0.0';
                         }
                         $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
-                        $TcellTyp = round($irr / 1000 * $Tcell,2);
+                        $TcellTyp = round($irr / 1000 * $Tcell, 2);
                         $TcellTypDay += $TcellTyp;
                         $irrYear += $irr; // W/m
                     }
@@ -381,7 +380,7 @@ class ExpectedService
             }
 
             $irrYearkWh = $irrYear / 1000;
-            $tcell_avg = round($TcellTypDay / $irrYearkWh,2);
+            $tcell_avg = round($TcellTypDay / $irrYearkWh, 2);
             $irrUpper = $irrLower = $irr = 0;
             // Erstelle die Tageserträge
             foreach ($decarray as $keyout => $valout) {
@@ -395,10 +394,9 @@ class ExpectedService
                     isset($val['HR']) ? $hr = $val['HR'] : $hr = '0';
                     isset($val['TS']) ? $ts = $val['TS'] : $ts = '0';
 
-                    $hrarry[$doy][$hr] = ['ts' => $ts, 'ex' => 0, 'irr' => 0,'tmp' => 0,'gdir' => 0];
+                    $hrarry[$doy][$hr] = ['ts' => $ts, 'ex' => 0, 'irr' => 0, 'tmp' => 0, 'gdir' => 0];
 
                     if ($anlage->getIsOstWestAnlage()) {
-
                         if ($modulisbif) {
                             isset($val['OSTWEST']['RGESBIF_UPPER']) ? $irrUpper = round($val['OSTWEST']['RGESBIF_UPPER'], 2) : $irrUpper = '0.0';
                             isset($val['OSTWEST']['RGESBIF_LOWER']) ? $irrLower = round($val['OSTWEST']['RGESBIF_LOWER'], 2) : $irrLower = '0.0';
@@ -407,18 +405,16 @@ class ExpectedService
                             isset($val['OSTWEST']['RGES_LOWER']) ? $irrLower = round($val['OSTWEST']['RGES_LOWER'], 2) : $irrLower = '0.0';
                         }
                         $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irrUpper), 2);
-                        $Ft = round(1 - ($tcell_avg - $Tcell) * -0.34 / 100, 2);// FT Faktor
-
                     } else {
-
                         if ($modulisbif) {
                             isset($val['SUED']['RGESBIF']) ? $irr = round($val['SUED']['RGESBIF'], 2) : $irr = '0.0';
                         } else {
                             isset($val['SUED']['RGES']) ? $irr = round($val['SUED']['RGES'], 2) : $irr = '0.0';
                         }
                         $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
-                        $Ft = round(1 - ($tcell_avg - $Tcell) * -0.34 / 100, 2); // FT Faktor
                     }
+                    // FT Faktor
+                    $Ft = round(1 - ($tcell_avg - $Tcell) * -0.34 / 100, 2);
 
                     // Weiter für Irr day per hour
                     if ($irr > 0 or $irrUpper > 0 or $irrLower > 0) {
@@ -430,7 +426,6 @@ class ExpectedService
                             $expPowerDc = 0;
 
                             foreach ($modules as $modul) {
-
                                 if ($anlage->getIsOstWestAnlage()) {
                                     // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
                                     // Power
@@ -472,7 +467,6 @@ class ExpectedService
                         }
 
                         if ($anlage->getIsOstWestAnlage()) {
-
                             $hj = round(($irrUpper / 1000 * $pnomsgl + $irrLower / 1000 * $pnomsgl) / $pnomall, 2);
                             $theohr = ($pnomall * $hj);
                             $Fttheohr = $theohr * $Ft; // Theoretical * FT Faktor
@@ -481,12 +475,10 @@ class ExpectedService
                             $ex4 = $expEvuSum * 4; // * 4;
                             $expEvuSumDay += $ex4; // Wh
                             $irrDay += ($irrUpper + $irrLower) / 2; // W/m
-                            $hrarry[$doy][$hr] = ['ts' => $ts, 'ex' => round($ex4,2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir]; // array for houry return
+                            $hrarry[$doy][$hr] = ['ts' => $ts, 'ex' => round($ex4, 2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir]; // array for houry return
                             $expEvuSum = 0;
                             $irrUpper = 0;
-
-                          } else {
-
+                        } else {
                             $hj = round(($irr / 1000 * $pnomsgl + $irr / 1000 * $pnomsgl) / $pnomall, 2);
                             $theohr = ($pnomall * $hj);
                             $theoday += $theohr;
@@ -495,10 +487,9 @@ class ExpectedService
                             $ex4 = $expEvuSum * 4; //* 4;
                             $expEvuSumDay += $ex4; // Wh
                             $irrDay += $irr; // W/m
-                            $hrarry[$doy][$hr] = ['ts' => $ts, 'ex' => round($ex4,2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir]; // array for houry return
+                            $hrarry[$doy][$hr] = ['ts' => $ts, 'ex' => round($ex4, 2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir]; // array for houry return
                             $expEvuSum = 0;
                             $irr = 0;
-
                         }
 
                     }
@@ -587,24 +578,19 @@ class ExpectedService
                     $Fttheohrday = 0;
 
                 } else {
-
-                 $resultArray = $hrarry;
-
-
+                    $resultArray = $hrarry;
                 }
-
             }
 
             return $resultArray;
-
         }
 
         return false;
-
     }
 
     // MS 11/2023
-    public function calcExpectedforDayAheadForecast(Anlage $anlage, $decarray): bool|array {
+    public function calcExpectedforDayAheadForecast(Anlage $anlage, $decarray): bool|array
+    {
         // $aktuellesJahr = date("Y",time());
         // $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre werden nicht berücksichtigt
         $resultArray = [];
@@ -618,48 +604,48 @@ class ExpectedService
 
                 foreach ($valout as $keyin => $valin) {
 
-                   foreach ($valin as $key => $val) {
+                    foreach ($valin as $key => $val) {
 
-                    isset($val['TMP']) ? $airTemp = $val['TMP'] : $airTemp = '0.0';
-                    isset($val['FF']) ? $windSpeed = $val['FF'] : $windSpeed = '0.0';
-                    isset($val['GDIR']) ? $gdir = $val['GDIR'] : $gdir = '0.0';
-                    isset($val['DOY']) ? $doy = $val['DOY'] : $doy = '0';
-                    isset($val['HR']) ? $hr = $val['HR'] : $hr = '0';
-                    isset($val['MIN']) ? $m = $val['MIN'] : $m = '0';
-                    isset($val['TS']) ? $ts = $val['TS'] : $ts = '0';
-                    isset($val['TIP']) ? $tip = $val['TIP'] : $tip = '';
+                        isset($val['TMP']) ? $airTemp = $val['TMP'] : $airTemp = '0.0';
+                        isset($val['FF']) ? $windSpeed = $val['FF'] : $windSpeed = '0.0';
+                        isset($val['GDIR']) ? $gdir = $val['GDIR'] : $gdir = '0.0';
+                        isset($val['DOY']) ? $doy = $val['DOY'] : $doy = '0';
+                        isset($val['HR']) ? $hr = $val['HR'] : $hr = '0';
+                        isset($val['MIN']) ? $m = $val['MIN'] : $m = '0';
+                        isset($val['TS']) ? $ts = $val['TS'] : $ts = '0';
+                        isset($val['TIP']) ? $tip = $val['TIP'] : $tip = '';
 
-                    $hrarry[$doy][$hr][$key] = ['ts' => $ts, 'ex' => 0, 'irr' => 0,'tmp' => 0,'gdir' => 0,'tcell' => 0];
+                        $hrarry[$doy][$hr][$key] = ['ts' => $ts, 'ex' => 0, 'irr' => 0, 'tmp' => 0, 'gdir' => 0, 'tcell' => 0];
 
-                    if ($anlage->getIsOstWestAnlage()) {
+                        if ($anlage->getIsOstWestAnlage()) {
 
-                        if ($modulisbif) {
-                            isset($val['OSTWEST']['RGESBIF_UPPER']) ? $irrUpper = round($val['OSTWEST']['RGESBIF_UPPER'], 2) : $irrUpper = '0.0';
-                            isset($val['OSTWEST']['RGESBIF_LOWER']) ? $irrLower = round($val['OSTWEST']['RGESBIF_LOWER'], 2) : $irrLower = '0.0';
+                            if ($modulisbif) {
+                                isset($val['OSTWEST']['RGESBIF_UPPER']) ? $irrUpper = round($val['OSTWEST']['RGESBIF_UPPER'], 2) : $irrUpper = 0.0;
+                                isset($val['OSTWEST']['RGESBIF_LOWER']) ? $irrLower = round($val['OSTWEST']['RGESBIF_LOWER'], 2) : $irrLower = '0.0';
+                            } else {
+                                isset($val['OSTWEST']['RGES_UPPER']) ? $irrUpper = round($val['OSTWEST']['RGES_UPPER'], 2) : $irrUpper = '0.0';
+                                isset($val['OSTWEST']['RGES_LOWER']) ? $irrLower = round($val['OSTWEST']['RGES_LOWER'], 2) : $irrLower = '0.0';
+                            }
+
+                            if ($tip == "15min") {
+                                $irrUpper = $irrUpper / 4;
+                            }
+
+                            $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irrUpper), 2);
+
                         } else {
-                            isset($val['OSTWEST']['RGES_UPPER']) ? $irrUpper = round($val['OSTWEST']['RGES_UPPER'], 2) : $irrUpper = '0.0';
-                            isset($val['OSTWEST']['RGES_LOWER']) ? $irrLower = round($val['OSTWEST']['RGES_LOWER'], 2) : $irrLower = '0.0';
+                            if ($modulisbif) {
+                                isset($val['SUED']['RGESBIF']) ? $irr = round($val['SUED']['RGESBIF'], 2) : $irr = '0.0';
+                            } else {
+                                isset($val['SUED']['RGES']) ? $irr = round($val['SUED']['RGES'], 2) : $irr = '0.0';
+                            }
+                            if ($tip == "15min") {
+                                $irr = $irr / 4;
+                            }
+                            $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
                         }
 
-                        if ($tip == "15min") { $irrUpper = $irrUpper / 4; }
-
-                        $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irrUpper), 2);
-
-                    } else {
-
-                        if ($modulisbif) {
-                            isset($val['SUED']['RGESBIF']) ? $irr = round($val['SUED']['RGESBIF'], 2) : $irr = '0.0';
-                        } else {
-                            isset($val['SUED']['RGES']) ? $irr = round($val['SUED']['RGES'], 2) : $irr = '0.0';
-                        }
-
-                        if ($tip == "15min") { $irr = $irr / 4; }
-
-                        $Tcell = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
-
-                    }
-
-                    // Weiter für Irr day per hour
+                        // Weiter für Irr day per hour
 
                         foreach ($anlage->getGroups() as $group) {
                             // Monatswerte für diese Gruppe laden
@@ -726,11 +712,11 @@ class ExpectedService
                             $ex4 = $expEvuSum * 4; //* 4;
                         }
 
-                            $hrarry[$doy][$hr][$key]  = ['ts' => $ts, 'ex' => round($ex4,2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir, 'tcell' => $Tcell]; // array for houry return
-                            $expEvuSum = 0;
-                            $irr = 0;
+                        $hrarry[$doy][$hr][$key] = ['ts' => $ts, 'ex' => round($ex4, 2), 'irr' => $irr, 'tmp' => $airTemp, 'gdir' => $gdir, 'tcell' => $Tcell]; // array for houry return
+                        $expEvuSum = 0;
+                        $irr = 0;
 
-                  }
+                    }
 
                 }
 
