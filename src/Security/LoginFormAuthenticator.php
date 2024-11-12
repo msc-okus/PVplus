@@ -33,8 +33,8 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly EntityManagerInterface $em,
-        private readonly UserLoginRepository $userLogingRepository)
-    {
+        private readonly UserLoginRepository $userLogingRepository
+    ){
     }
 
     public function supports(Request $request): bool

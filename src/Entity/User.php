@@ -10,9 +10,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TwoFactorInterfaceTotp;
+use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as TwoFactorInterfaceEmail;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Scheb\TwoFactorBundle\Model\BackupCodeInterface;
 
 #[ApiResource(
     shortName: 'users',
@@ -37,7 +42,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\UniqueConstraint(name: 'name', columns: ['name'])]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterfaceTotp, TwoFactorInterfaceEmail, BackupCodeInterface
 {
     final public const ARRAY_OF_G4N_ROLES = [
         'Developer'             => 'ROLE_DEV',
@@ -114,6 +119,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $apiTokens;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogin::class, cascade: ['remove'])]
+
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private string $totpSecret;
+
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $emailAuthCode;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $use2fa = false;
+
+    #[ORM\Column(type: 'json')]
+    private array $backupCodes = [];
 
     private Collection $userLogins;
 
@@ -446,5 +465,93 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $roles;
+    }
+
+    public function getUse2fa(): ?bool
+    {
+        return $this->use2fa;
+    }
+
+    public function setUse2fa(?bool $use2fa): void
+    {
+        $this->use2fa = $use2fa;
+    }
+
+    public function getTotpSecret()
+    {
+        return $this->totpSecret;
+    }
+
+    public function setTotpSecret($totpSecret): void
+    {
+        $this->totpSecret = $totpSecret;
+    }
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return (bool)$this->use2fa;
+    }
+
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->getUserIdentifier();
+    }
+
+    public function getTotpAuthenticationConfiguration(): TotpConfigurationInterface|null
+    {
+        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
+    }
+
+    public function isEmailAuthEnabled(): bool
+    {
+        return false; // (bool)$this->use2fa;
+    }
+
+    public function getEmailAuthRecipient(): string
+    {
+        return $this->email;
+    }
+
+    public function getEmailAuthCode(): string
+    {
+        if (null === $this->emailAuthCode) {
+            throw new \LogicException('The email authentication code was not set');
+        }
+
+        return $this->emailAuthCode;
+    }
+
+    public function setEmailAuthCode(string $authCode): void
+    {
+        $this->emailAuthCode = $authCode;
+    }
+
+    /**
+     * Check if it is a valid backup code.
+     */
+    public function isBackupCode(string $code): bool
+    {
+        return in_array($code, $this->backupCodes);
+    }
+
+    /**
+     * Invalidate a backup code
+     */
+    public function invalidateBackupCode(string $code): void
+    {
+        $key = array_search($code, $this->backupCodes);
+        if ($key !== false){
+            unset($this->backupCodes[$key]);
+        }
+    }
+
+    /**
+     * Add a backup code
+     */
+    public function addBackUpCode(string $backUpCode): void
+    {
+        if (!in_array($backUpCode, $this->backupCodes)) {
+            $this->backupCodes[] = $backUpCode;
+        }
     }
 }

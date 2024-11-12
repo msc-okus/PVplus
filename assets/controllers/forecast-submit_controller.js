@@ -1,9 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { useDispatch } from 'stimulus-use';
-import { Reveal } from 'foundation-sites';
 import  Swal  from 'sweetalert2';
 import $ from 'jquery';
-import axios from 'axios';
 
 export default class extends Controller {
     static targets = ['modal', 'modalBody', 'modalContent', 'modalForecast'];

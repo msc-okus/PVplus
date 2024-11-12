@@ -94,17 +94,27 @@
             {# Features #}
             {% if is_granted('ROLE_G4N') %}
                 <div class="tabs-panel" id="features">
-                    <fieldset class="fieldset">
-                        <legend>Ticket Features</legend>
-                        {{ form_row(ownerForm.features.simulatorName) }}
-                        {{ form_row(ownerForm.features.aktDep1) }}
-                        {{ form_row(ownerForm.features.aktDep2) }}
-                        {{ form_row(ownerForm.features.aktDep3) }}
-                        {{ form_row(ownerForm.features.SplitInverter) }}
-                        {{ form_row(ownerForm.features.SplitGap) }}
-                        {{ form_row(ownerForm.features.manAktive) }}
-                        {{ form_row(ownerForm.features.amStringAnalyseAktive) }}
-                    </fieldset>
+
+                    <div class="grid-x grid-margin-x grid-margin-y">
+                        <div class="cell medium-6">
+                            <fieldset class="fieldset">
+                                <legend>Ticket Features</legend>
+                                {{ form_row(ownerForm.features.simulatorName) }}
+                                {{ form_row(ownerForm.features.aktDep1) }}
+                                {{ form_row(ownerForm.features.aktDep2) }}
+                                {{ form_row(ownerForm.features.aktDep3) }}
+                                {{ form_row(ownerForm.features.SplitInverter) }}
+                                {{ form_row(ownerForm.features.SplitGap) }}
+                                {{ form_row(ownerForm.features.mroAktive) }}
+                                {{ form_row(ownerForm.features.amStringAnalyseAktive) }}
+                            </fieldset>
+                        </div>
+                       <div class="cell medium-6">
+                            <fieldset class="fieldset">
+                                <legend>other Features</legend>
+                                {{ form_row(ownerForm.features.allow2fa) }}
+                            </fieldset>
+                       </div>
                 </div>
             {% endif %}
             {# ApiConfig #}

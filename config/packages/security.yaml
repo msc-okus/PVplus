@@ -53,17 +53,23 @@ security:
 
             switch_user: true
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
+            two_factor:
+                auth_form_path: 2fa_login
+                check_path: 2fa_login_check
+                multi_factor: false
 
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/verify, roles: PUBLIC_ACCESS }
         - { path: ^/notification, roles: PUBLIC_ACCESS }
+        # This makes the logout route accessible during two-factor authentication. Allows the user to
+        # cancel two-factor authentication, if they need to.
+        - { path: ^/logout, role: PUBLIC_ACCESS }
+        # This ensures that the form can only be accessed when two-factor authentication is in progress.
+        - { path: ^/2fa, role: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+        - { path: ^/autentication/2fa/onetimepw, role: IS_AUTHENTICATED_2FA_IN_PROGRESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/import/manuel, roles: PUBLIC_ACCESS }
         - { path: ^/import/cron, roles: PUBLIC_ACCESS, ips: [127.0.0.1, 116.202.252.113, 2a01:4f8:d0a:74ce::2, 2003:a:110f:f400:541d:51b9:68d9:1244, 128.204.133.182, 208.67.222.222, 84.152.231.253, 87.140.79.244]}

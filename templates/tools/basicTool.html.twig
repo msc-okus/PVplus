@@ -6,18 +6,6 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {#
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-    <script>
-        $(document).ready( function() {
-            $('#tools_form_function').change(function() {
-                // to get the selected value
-                var titletext = document.getElementsByClassName('titletextflexspan')[0];
-                titletext.innerText = $("#tools_form_function option:selected").text();
-            });
-        });
-    </script>
-    #}
 {% endblock %}
 
 {% block body %}

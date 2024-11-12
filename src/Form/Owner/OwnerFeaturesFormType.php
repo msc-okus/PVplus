@@ -38,13 +38,17 @@ class OwnerFeaturesFormType extends AbstractType
                 'label'     => 'Split by Time',
                 'help'      => '[SplitGap]<br>Ticket feature - Split ticket by time (on/off)'
             ])
-            ->add('manAktive', SwitchType::class, [
+            ->add('mroAktive', SwitchType::class, [
                 'label'     => 'Aktivate Maintenance Contact',
-                'help'      => '[ManAktive]<br>Aktivate the maintenance contact function (on/off) ',
+                'help'      => '[ManAktive]<br>Activate the maintenance contact function',
             ])
             ->add('amStringAnalyseAktive', SwitchType::class, [
                 'label'     => 'AM String Analyse',
-                'help'      => '[amStringAnalyseAktive]<br>Aktivate the Asset Management String Analyse (on/off) ',
+                'help'      => '[amStringAnalyseAktive]<br>Activate the Asset Management String Analyse',
+            ])
+            ->add('allow2fa', SwitchType::class, [
+                'label'     => 'Allow 2fa for this Owner',
+                'help'      => '[allow2fa]<br> 2fa = 2-factor authentication',
             ])
         ;
     }
@@ -53,6 +57,7 @@ class OwnerFeaturesFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => OwnerFeatures::class,
+            'required' => false,
         ]);
     }
 }

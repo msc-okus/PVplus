@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Two Factor Auth{% endblock %}
+
+{% block body %}
+<div id="login"
+     class="tiny reveal"
+     data-reveal
+     data-close-on-click="false"
+     data-close-on-esc="false"
+
+>
+    <div class="login-page shadow">
+        <h2>Login PV+ 4.0<br><small>Two Factor Authentication</small></h2>
+        <div class="grid-container">
+            <div class="grid-x grid-padding-x grid-padding-y text-center">
+                <div class="cell medium-12" {{ stimulus_controller('login') }}>
+                    <p>
+                        Open your Authenticator app and type in the number.
+                    </p>
+                    {% if authenticationError %}
+                        <div class="callout alert">
+                            {{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}
+                        </div>
+                    {% endif %}
+                    {# Let the user select the authentication method #}
+                    {% if availableTwoFactorProviders|length > 1 %}
+                        <p>{{ "choose_provider"|trans({}, 'SchebTwoFactorBundle') }}:
+                            {% for provider in availableTwoFactorProviders %}
+                                <a href="{{ path("2fa_login", {"preferProvider": provider}) }}">{{ provider }}</a>
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                    {# Display current two-factor provider #}
+                    <form action="{{ checkPathUrl ? checkPathUrl: path(checkPathRoute) }}" method="post">
+
+                        <label for="_auth_code">{{ "auth_code"|trans({}, 'SchebTwoFactorBundle') }} {{ twoFactorProvider }}</label>
+                        <div class="authArea">
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input type="number" maxlength="1" class="input" disabled />
+                            <input id="_auth_code" type="hidden" name="{{ authCodeParameterName }}"/>
+                        </div>
+                        {% if displayTrustedOption %}
+                            <label for="_trusted">
+                                <input id="_trusted" type="checkbox" name="{{ trustedParameterName }}"/> {{ "trusted"|trans({}, 'SchebTwoFactorBundle') }}
+                            </label>
+                        {% endif %}
+                        {% if isCsrfProtectionEnabled %}
+                            <input type="hidden" name="{{ csrfParameterName }}" value="{{ csrf_token(csrfTokenId) }}">
+                        {% endif %}
+                        <p>
+                            <a class="button secondary" href="{{ logoutPath }}">{{ "cancel"|trans({}, 'SchebTwoFactorBundle') }}</a>
+                            <button id="submit" type="submit" class="button primary">{{ "login"|trans({}, 'SchebTwoFactorBundle') }}</button>
+                        </p>
+                        <p>
+                            <small>
+                                <button {{ stimulus_action('login', 'sendMail') }} class="button  hollow tiny">Please send a one time Password to my email address.</button>
+                            </small>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block styles %}
+    {{ parent() }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('login_2fa') }}
+
+{% endblock %}

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\OwnerFeaturesRepository;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 #[ORM\Entity(repositoryClass: OwnerFeaturesRepository::class)]
 class OwnerFeatures
@@ -39,6 +40,9 @@ class OwnerFeatures
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $simulatorName = "Simulation";
+
+    #[ORM\Column(nullable: true, options: ['default' => '0'])]
+    private ?bool $allow2fa = false;
 
     public function getId(): ?int
     {
@@ -116,23 +120,26 @@ class OwnerFeatures
 
         return $this;
     }
-    /** @deprecated  */
+
+    #[Deprecated]
     public function isManAktive(): ?bool
     {
         return $this->manAktive;
     }
-    public function isMroAktive(): ?bool
-    {
-        return $this->manAktive;
-    }
 
-    /** @deprecated  */
+    #[Deprecated]
     public function setManAktive(bool $manActive): self
     {
         $this->manAktive = $manActive;
 
         return $this;
     }
+
+    public function isMroAktive(): ?bool
+    {
+        return $this->manAktive;
+    }
+
     public function setMroAktive(bool $manActive): self
     {
         $this->manAktive = $manActive;
@@ -164,4 +171,16 @@ class OwnerFeatures
 
         return $this;
     }
+
+    public function getAllow2fa(): ?bool
+    {
+        return $this->allow2fa;
+    }
+
+    public function setAllow2fa(?bool $allow2fa): void
+    {
+        $this->allow2fa = $allow2fa;
+    }
+
+
 }
