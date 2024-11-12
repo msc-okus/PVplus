@@ -4,9 +4,9 @@
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Comments & Explanations</h3>
     <div >
         <p><sup>*1</sup> The net capacity factor is the unitless ratio of an actual electrical energy output over a given period of time to the maximum possible electrical energy output over that period.<br></p>
-        <img width="130" src="{{ absolute_url(asset('goldbeck/reports/asset_management/cf.png')) }}"></td>
+        <img width="130" src="{{ absolute_url(asset('goldbeck/reports/asset_management/cf.png')) }}" alt="">
         <p><sup>*2</sup> <b>Availability: </b></p>
-        <p>Data gaps are evaluated as available; Pac > 0; Irradiation > <b>{{ anlage.getThreshold2PA }}</b> W/m<sup>2</sup>{% if(anlage.getUseCosPhi)%}; CosPhi <b> <span>&#8800;</span> </b> 0 {% endif %}</p>
+        <p>Data gaps are evaluated as available; Pac > 0; Irradiation > <b>{{ anlage.getThreshold2PA3 }}</b> W/m<sup>2</sup>{% if (anlage.getUseCosPhi)%}; CosPhi <b> <span>&#8800;</span> </b> 0 {% endif %}</p>
         <p><b>Explanation of terms:</b></p>
         <p>
             <b>- EXP: </b> Expected production based on the PV System. <br>
@@ -17,7 +17,7 @@
         <table>
             <tr>
                 <td  style="text-align: left">
-                    <p style="align-content: "><sup>*3</sup> PR - default (OpenBook): </p>
+                    <p><sup>*3</sup> PR - default (OpenBook): </p>
                     <img width="250" src="{{ absolute_url(asset(pr0image)) }}">
                 </td>
                 <td style="text-align: left">
@@ -38,7 +38,6 @@
                         <p><sup>*6</sup> PR - AM: </p>
                         <img width="250" src="{{ absolute_url(asset(pr3image)) }}">
                     {% endif %}
-                </td>
                 </td>
             </tr>
         </table>

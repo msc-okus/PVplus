@@ -65,8 +65,8 @@ class DefaultJMController extends BaseController
     #[Route(path: '/generate/tickets', name: 'generate_tickets')]
     public function generateTickets(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em, AlertSystemV2Service $alertServiceV2): void
     {
-        $fromDate = "2024-10-21 12:50";
-        $toDate = "2024-10-24 00:50";
+        $fromDate = "2024-10-29 12:50";
+        $toDate = "2024-10-31 23:30";
 
         $anlage = $anlagenRepository->findIdLike("251")[0];
         $tickets = $ticketRepo->findForSafeDelete($anlage, $fromDate, $toDate, 60);
