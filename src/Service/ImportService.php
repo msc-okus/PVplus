@@ -13,6 +13,7 @@ use App\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 
 class ImportService
 {
@@ -20,14 +21,13 @@ class ImportService
     use G4NTrait;
 
     public function __construct(
-        private readonly PdoService $pdoService,
+        private readonly PdoService                   $pdoService,
         private readonly PVSystDatenRepository        $pvSystRepo,
         private readonly AnlagenRepository            $anlagenRepository,
         private readonly AnlageAvailabilityRepository $anlageAvailabilityRepo,
         private readonly ApiConfigRepository          $apiConfigRepository,
         private readonly FunctionsService             $functions,
         private readonly EntityManagerInterface       $em,
-        private readonly AvailabilityService          $availabilityService,
         private readonly MeteoControlService          $meteoControlService,
         private readonly ManagerRegistry              $doctrine,
         private readonly WeatherServiceNew            $weatherService,
@@ -40,7 +40,7 @@ class ImportService
     /**
      * @throws NonUniqueResultException
      * @throws \JsonException
-     * @throws \Exception
+     * @throws Exception
      */
     public function prepareForImport(Anlage|int $anlage, $start, $end, string $importType = "", $fromCron = false): void
     {
@@ -79,34 +79,34 @@ class ImportService
 
         $importTypeConfig = $anlage->getSettings()->getImportType();
 
-        if($importTypeConfig != 'ftpPush'){
+        if ($importTypeConfig != 'ftpPush') {
             $apiconfigId = $anlage->getSettings()->getApiConfig();
             $apiconfig = $this->apiConfigRepository->findOneById($apiconfigId);
             $apiUser = $apiconfig->apiUser;
             $apiPassword = $this->unHashData($apiconfig->apiPassword);
             $apiToken = $apiconfig->apiToken;
             $apiType = $apiconfig->apiType;
-            if($apiType == 'vcom'){
+            if ($apiType == 'vcom') {
                 $baseUrl = 'https://api.meteocontrol.de/v2/login';
                 $postFileds = "grant_type=password&client_id=vcom-api&client_secret=AYB=~9_f-BvNoLt8+x=3maCq)>/?@Nom&username=$apiUser&password=$apiPassword";
                 $headerFields = [
                     "content-type: application/x-www-form-urlencoded",
-                    "X-API-KEY: ". $apiToken,
+                    "X-API-KEY: " . $apiToken,
                 ];
                 $curlHeader = false;
             }
 
-            if($apiType == 'huawai'){
+            if ($apiType == 'huawai') {
                 $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/login";
                 $postFileds = '
             {
-                "userName": "'.$apiUser.'",
-                "systemCode": "'.$apiPassword.'"
+                "userName": "' . $apiUser . '",
+                "systemCode": "' . $apiPassword . '"
             }
             ';
                 $headerFields = [
                     "content-type: application/json",
-                    "Cookie: XSRF-TOKEN=". $apiToken,
+                    "Cookie: XSRF-TOKEN=" . $apiToken,
                 ];
                 $curlHeader = true;
             }
@@ -114,13 +114,12 @@ class ImportService
             $apiAccessToken = $this->externalApis->getAccessToken($baseUrl, $postFileds, $headerFields, $apiType, $curlHeader);
 
 
-
-            if($apiType == 'huawai'){
+            if ($apiType == 'huawai') {
                 $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getStationList";
                 $headerFields = [
                     "content-type: application/json",
-                    "Cookie: XSRF-TOKEN=". $apiAccessToken,
-                    "XSRF-TOKEN: ". $apiAccessToken,
+                    "Cookie: XSRF-TOKEN=" . $apiAccessToken,
+                    "XSRF-TOKEN: " . $apiAccessToken,
                 ];
 
                 $postFileds = '
@@ -135,13 +134,13 @@ class ImportService
                 $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getKpiStationDay";
                 $headerFields = [
                     "content-type: application/json",
-                    "Cookie: XSRF-TOKEN=". $apiAccessToken,
-                    "XSRF-TOKEN: ". $apiAccessToken,
+                    "Cookie: XSRF-TOKEN=" . $apiAccessToken,
+                    "XSRF-TOKEN: " . $apiAccessToken,
                 ];
 
                 $postFileds = '
             {
-                "stationCodes": "'.$stationCode.'",
+                "stationCodes": "' . $stationCode . '",
                 "collectTime": "1724273100000"
             }
             ';
@@ -181,7 +180,7 @@ class ImportService
         $end = $end - $dataDelay;
 
         //If Data comes from Satelite
-        if($hasSensorsFromSatelite == 1){
+        if ($hasSensorsFromSatelite == 1) {
             $importType = 'api-import-weather';
             $meteo_data = new Service\Forecast\APIOpenMeteoService($input_gl, $input_gb, $input_neigung, $input_azimut);
             $meteo_array = $meteo_data->make_sortable_data();
@@ -192,7 +191,7 @@ class ImportService
                     foreach ($interarray['minute'] as $key => $value) {
                         $stamp = strtotime($key);
 
-                        if($stamp <= $end && $stamp >= $start){
+                        if ($stamp <= $end && $stamp >= $start) {
                             $isDay = $anlage->isDay($stamp);
                             $date = date_create_immutable($key, $dateTimeZoneOfPlant)->format('c');
 
@@ -211,10 +210,10 @@ class ImportService
                             $basics[$date]['date'] = $date;
                             $basics[$date]['stamp'] = $key;
                             $basics[$date]['isDay'] = $isDay;
-                            if($isEastWest) {
+                            if ($isEastWest) {
                                 $basics[$date]["GM_0_E"] = $irr;
                                 $basics[$date]["GM_0_W"] = $irr;
-                            }else{
+                            } else {
                                 $basics[$date]["GM_0"] = $irr;
                             }
 
@@ -228,25 +227,25 @@ class ImportService
                 }
             }
             //create Data Arrays and save them to DB
-            foreach ($basics  as $key => $value) {
-                if($isEastWest) {
+            foreach ($basics as $key => $value) {
+                if ($isEastWest) {
                     $gMo = $value["GM_0_E"];
-                }else{
+                } else {
                     $gMo = $value["GM_0"];
                 }
                 $result = self::getSensorsDataFromVcomResponse((array)$anlageSensors->toArray(), $length, $sensors, $basics, $value['stamp'], $key, (string)$gMo, $value['isDay']);
                 //built array for sensordata
-                for ($j = 0; $j <= count($result[0])-1; $j++) {
+                for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                     $dataSensors[] = $result[0][$j];
                 }
                 unset($result);
                 $tempAmbient = $value["TA_0"];
                 $tempPanel = '';
                 $windSpeed = $value["WS_0"];
-                if($isEastWest) {
+                if ($isEastWest) {
                     $irrUpper = $value["GM_0_E"];
                     $irrLower = $value["GM_0_W"];
-                }else{
+                } else {
                     $irrUpper = $value["GM_0"];
                     $irrLower = '';
                 }
@@ -276,19 +275,19 @@ class ImportService
             }
 
             $DBDataConnection = $this->pdoService->getPdoPlant();
-            if($useSensorsDataTable == 1 && is_array($dataSensors) && count($dataSensors) > 0) {
+            if ($useSensorsDataTable == 1 && is_array($dataSensors) && count($dataSensors) > 0) {
                 $tableName = "db__pv_sensors_data_$anlagenTabelle";
                 self::insertData($tableName, $dataSensors, $DBDataConnection);
             }
 
-            if(is_array($data_pv_weather) && count($data_pv_weather) > 0){
+            if (is_array($data_pv_weather) && count($data_pv_weather) > 0) {
                 $tableName = "db__pv_ws_$weatherDbIdent";
                 self::insertData($tableName, $data_pv_weather, $DBDataConnection);
             }
         }
 
         $headerFields = [
-            "X-API-KEY: ". $apiToken,
+            "X-API-KEY: " . $apiToken,
             "Authorization: Bearer $apiAccessToken"
         ];
 
@@ -296,15 +295,9 @@ class ImportService
 
         for ($i = 0; $i < $numberOfPlants; ++$i) {
             date_default_timezone_set($timeZonePlant);
+            $nineHundret = $fromCron ? 900 : 0;
 
-            if($fromCron){
-                $nineHundret = 900;
-            }
-            else{
-                $nineHundret = 0;
-            }
-
-            $from = urlencode(date('c', $start-$nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
+            $from = urlencode(date('c', $start - $nineHundret)); // minus 14 Minute, API liefert seit mitte April wenn ich Daten für 5:00 Uhr abfrage erst daten ab 5:15, wenn ich 4:46 abfrage bekomme ich die Daten von 5:00
             $to = urlencode(date('c', $end));
             $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
 
@@ -317,13 +310,13 @@ class ImportService
         if ($numberOfBulkMeaserments > 0 && $importTypeConfig != 'ftpPush') {
             #date_default_timezone_set($timeZonePlant);
             for ($i = 0; $i < $numberOfBulkMeaserments; ++$i) {
-                for ($timestamp = $start+900; $timestamp <= $end; $timestamp += 900) {
+                for ($timestamp = $start + 900; $timestamp <= $end; $timestamp += 900) {
 
                     $stamp = date('Y-m-d H:i:s', $timestamp);
                     $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
 
                     if (array_key_exists($i, $bulkMeaserments)) {
-                        if (array_key_exists('basics', $bulkMeaserments[$i])) {
+                        if ($bulkMeaserments[$i] !== null && array_key_exists('basics', $bulkMeaserments[$i])) {
                             if ($i === 0) {
                                 $sensors[$date] = is_array($bulkMeaserments[$i]['sensors']) && array_key_exists($date, $bulkMeaserments[$i]['sensors']) ? $bulkMeaserments[$i]['sensors'][$date] : [];
                                 $inverters[$date] = is_array($bulkMeaserments[$i]['inverters']) && array_key_exists($date, $bulkMeaserments[$i]['inverters']) ? $bulkMeaserments[$i]['inverters'][$date] : [];
@@ -346,13 +339,14 @@ class ImportService
                             }
                         }
                     }
+
                 }
             }
 
             //end collect all Data from all Plants
 
             //beginn sort and seperate Data for writing into database
-            for ($timestamp = $start+900; $timestamp <= $end; $timestamp += 900) {
+            for ($timestamp = $start + 900; $timestamp <= $end; $timestamp += 900) {
 
                 $stamp = date('Y-m-d H:i:s', $timestamp);
                 $date = date_create_immutable($stamp, $dateTimeZoneOfPlant)->format('c');
@@ -365,24 +359,24 @@ class ImportService
                 if (is_array($basics) && array_key_exists($date, $basics)) {
                     $tempGm = [];
                     for ($i = 0; $i < $numberOfPlants; ++$i) {
-                        if ($basics[$date]["G_M".$i] == ''){
+                        if ($basics[$date]["G_M" . $i] == '') {
                             $tempGm[] = 0.0;
                         } else {
-                            $tempGm[] = (float)$basics[$date]["G_M".$i];
+                            $tempGm[] = (float)$basics[$date]["G_M" . $i];
                         }
                     }
 
                     //Hier Mittelwert bilden
                     $irrAnlageGMO = $this->mittelwert($tempGm, true);   //
 
-                    if ($basics[$date]['E_Z_EVU'] > 0){
+                    if ($basics[$date]['E_Z_EVU'] > 0) {
                         $eZEvu = (float)$basics[$date]['E_Z_EVU'];
                     }
                 }
 
                 $isDay = $anlage->isDay($timestamp);
-                if($timeZonePlant == 'Asia/Almaty' || $timeZonePlant == 'Asia/Qostanay'){
-                    $stamp = date('Y-m-d H:i', $timestamp-3600);
+                if ($timeZonePlant == 'Asia/Almaty' || $timeZonePlant == 'Asia/Qostanay') {
+                    $stamp = date('Y-m-d H:i', $timestamp - 3600);
                 }
 
                 //beginn get Sensors Data
@@ -390,10 +384,10 @@ class ImportService
 
                 if ((is_array($sensors) && array_key_exists($date, $sensors) && $length > 0) || $hasSensorsInBasics == 1) {
                     //if plant is use sensors datatable get data for the table
-                    if ($useSensorsDataTable){
+                    if ($useSensorsDataTable) {
                         $result = self::getSensorsDataFromVcomResponse((array)$anlageSensors->toArray(), $length, $sensors, $basics, $stamp, $date, (string)$irrAnlageGMO, $isDay);
                         //built array for sensordata
-                        for ($j = 0; $j <= count($result[0])-1; $j++) {
+                        for ($j = 0; $j <= count($result[0]) - 1; $j++) {
                             $dataSensors[] = $result[0][$j];
                         }
                         unset($result);
@@ -402,7 +396,7 @@ class ImportService
 
                 $checkSensors = [];
 
-                if ($length > 0 && $hasSensorsFromSatelite != 1){
+                if ($length > 0 && $hasSensorsFromSatelite != 1) {
                     $checkSensors = self::checkSensors($anlageSensors->toArray(), $length, $isEastWest, $sensors, $basics, $date, $plantId);
                     $irrAnlageArray = array_merge_recursive($checkSensors[0]['irrHorizontalAnlage'], $checkSensors[0]['irrLowerAnlage'], $checkSensors[0]['irrUpperAnlage']);
                     $irrHorizontal = $checkSensors[0]['irrHorizontal'];
@@ -420,21 +414,12 @@ class ImportService
                 Diese Abfrage ist aktuell nicht wirklich relevant da in beiden Fällen das gleich geschieht.
                 TODO: die entsprechenden Skripte wie berechnung expected anpassen(Daten kommen aus db__pv_sensors_data_...)
                 */
-                if (!$useSensorsDataTable){
-                    $irrAnlage = json_encode($irrAnlageArray, JSON_THROW_ON_ERROR);
-                    $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
-                    $windAnlage = json_encode($windAnlageArray, JSON_THROW_ON_ERROR);
-                } else {
-                    //create emmpty anlage arrays to make shure import in pv_ist works
-                    #$irrAnlageArray = [];
-                    #$tempAnlageArray = [];
-                    #$windAnlageArray = [];
-                    $irrAnlage = json_encode($irrAnlageArray, JSON_THROW_ON_ERROR);
-                    $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
-                    $windAnlage = json_encode($windAnlageArray, JSON_THROW_ON_ERROR);
-                }
+                $irrAnlage = json_encode($irrAnlageArray, JSON_THROW_ON_ERROR);
+                $tempAnlage = json_encode($tempAnlageArray, JSON_THROW_ON_ERROR);
+                $windAnlage = json_encode($windAnlageArray, JSON_THROW_ON_ERROR);
 
-                if (!$isDay){
+
+                if (!$isDay) {
                     $irrLower = 0;
                     $irrUpper = 0;
                     $irrHorizontal = 0;
@@ -543,11 +528,11 @@ class ImportService
             //beginn write Data in the tables
             switch ($importType) {
                 case 'api-import-weather':
-                    if($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0 && $importType != 'ftpPush') {
+                    if ($useSensorsDataTable && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
                     }
-                    if(is_array($data_pv_weather) && count($data_pv_weather) > 0 && $importType != 'ftpPush'){
+                    if (is_array($data_pv_weather) && count($data_pv_weather) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_ws_$weatherDbIdent";
                         self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                     }
@@ -567,17 +552,17 @@ class ImportService
                         self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
                     }
 
-                    if(is_array($data_pv_ist) && count($data_pv_ist) > 0 && $importType != 'ftpPush') {
+                    if (is_array($data_pv_ist) && count($data_pv_ist) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_ist_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_ist, $DBDataConnection);
                     }
                     break;
                 default:
-                    if($useSensorsDataTable == 1 && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0 && $importType != 'ftpPush') {
+                    if ($useSensorsDataTable == 1 && $length > 0 && is_array($dataSensors) && count($dataSensors) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_sensors_data_$anlagenTabelle";
                         self::insertData($tableName, $dataSensors, $DBDataConnection);
                     }
-                    if(is_array($data_pv_weather) && count($data_pv_weather) > 0 && $importType != 'ftpPush'){
+                    if (is_array($data_pv_weather) && count($data_pv_weather) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_ws_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_weather, $DBDataConnection);
                     }
@@ -595,7 +580,7 @@ class ImportService
                         self::insertData($tableName, $data_db_string_pv, $DBStbConnection);
                     }
 
-                    if(is_array($data_pv_ist) && count($data_pv_ist) > 0 && $importType != 'ftpPush') {
+                    if (is_array($data_pv_ist) && count($data_pv_ist) > 0 && $importType != 'ftpPush') {
                         $tableName = "db__pv_ist_$anlagenTabelle";
                         self::insertData($tableName, $data_pv_ist, $DBDataConnection);
                     }
