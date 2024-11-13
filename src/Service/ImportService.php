@@ -111,6 +111,7 @@ class ImportService
                 $curlHeader = true;
             }
 
+            
             $apiAccessToken = $this->externalApis->getAccessToken($baseUrl, $postFileds, $headerFields, $apiType, $curlHeader);
 
             if ($apiType == 'huawai' && $fromCron != 1) {
