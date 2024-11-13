@@ -99,11 +99,11 @@ class ImportService
             if ($apiType == 'huawai') {
                 $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/login";
                 $postFileds = '
-            {
-                "userName": "' . $apiUser . '",
-                "systemCode": "' . $apiPassword . '"
-            }
-            ';
+                    {
+                        "userName": "' . $apiUser . '",
+                        "systemCode": "' . $apiPassword . '"
+                    }
+                ';
                 $headerFields = [
                     "content-type: application/json",
                     "Cookie: XSRF-TOKEN=" . $apiToken,
@@ -113,8 +113,7 @@ class ImportService
 
             $apiAccessToken = $this->externalApis->getAccessToken($baseUrl, $postFileds, $headerFields, $apiType, $curlHeader);
 
-
-            if ($apiType == 'huawai') {
+            if ($apiType == 'huawai' && $fromCron != 1) {
                 $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getStationList";
                 $headerFields = [
                     "content-type: application/json",
@@ -123,9 +122,9 @@ class ImportService
                 ];
 
                 $postFileds = '
-            {
-            }
-            ';
+                    {
+                    }
+                ';
 
                 $stationCode = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'stationCode');
 
@@ -139,11 +138,11 @@ class ImportService
                 ];
 
                 $postFileds = '
-            {
-                "stationCodes": "' . $stationCode . '",
-                "collectTime": "1724273100000"
-            }
-            ';
+                    {
+                        "stationCodes": "' . $stationCode . '",
+                        "collectTime": "1724273100000"
+                    }
+                ';
 
                 $data = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'getKpiStationDay');
 
@@ -151,6 +150,8 @@ class ImportService
                 print_r($data);
                 echo "</pre>";
                 exit;
+            }else{
+                $resultParam = '';
             }
         }
 
@@ -301,7 +302,7 @@ class ImportService
             $to = urlencode(date('c', $end));
             $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
 
-            $tempBulk = $this->externalApis->getData($url, $headerFields);
+            $tempBulk = $this->externalApis->getData($url, $headerFields, $resultParam);
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
         }
 

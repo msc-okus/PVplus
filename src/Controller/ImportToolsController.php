@@ -195,6 +195,7 @@ class ImportToolsController extends BaseController
 
             sleep(1);
         }
+        return new Response('This is used for import manuel.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
     }
 
     /**
