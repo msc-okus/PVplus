@@ -141,7 +141,25 @@ class ImportService
                 $postFileds = '
                     {
                         "stationCodes": "' . $stationCode . '",
-                        "collectTime": "1724273100000"
+                        "collectTime": "1501862400000"
+                    }
+                ';
+
+                $data = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'getKpiStationDay');
+
+
+                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getDevRealKpi";
+                $headerFields = [
+                    "content-type: application/json",
+                    "Cookie: XSRF-TOKEN=" . $apiAccessToken,
+                    "XSRF-TOKEN: " . $apiAccessToken,
+                ];
+
+                $postFileds = '
+                    {
+                        "devTypeId":"10",
+                        "devIds": "1000000035718179,1000000035692164,1000000035718579,1000000035718580,1000000035718581,1000000035718582,1000000035606393",
+                        "collectTime":"1731579588082"
                     }
                 ';
 
