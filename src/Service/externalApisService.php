@@ -2,7 +2,6 @@
 // src/Sewrvice/externalApisSewrvice.php
 namespace App\Service;
 
-
 class externalApisService
 {
     public function __construct(
@@ -11,8 +10,6 @@ class externalApisService
 
     public function getAccessToken($url, $postFileds, $headerFields, $apiType, $curlHeader)
     {
-
-
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_SSL_VERIFYHOST =>false,

@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ImportService
 {
@@ -32,6 +33,7 @@ class ImportService
         private readonly ManagerRegistry              $doctrine,
         private readonly WeatherServiceNew            $weatherService,
         private readonly externalApisService          $externalApis,
+        private HttpClientInterface                   $client
     )
     {
         $thisApi = $this->externalApis;
@@ -111,6 +113,51 @@ class ImportService
                 $curlHeader = true;
             }
 
+            $response = $this->client->request('POST', $baseUrl, [
+                'headers' => [
+                    'Content-Type: application/json',
+                    'Cookie: XSRF-TOKEN=: '.$apiToken,
+                ],
+                'body' => '
+                    {
+                        "userName": "' . $apiUser . '",
+                        "systemCode": "' . $apiPassword . '"
+                    }
+                     ',
+            ]);
+
+            $headers = $response->getHeaders();
+
+            $responseJson = $response->getContent();
+            $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
+
+            $apiAccessToken = $headers['xsrf-token'][0];
+
+            $response = $this->client->request('POST', 'https://eu5.fusionsolar.huawei.com/thirdData/getDevRealKpi', [
+                'headers' => [
+                    'Content-Type: application/json',
+                    "Cookie: XSRF-TOKEN=" . $apiAccessToken,
+                    "XSRF-TOKEN: " . $apiAccessToken,
+                ],
+                'body' => '
+                    {
+                        "devTypeId":"10",
+                        "devIds": "1000000035718179,1000000035692164,1000000035718579,1000000035718580,1000000035718581,1000000035718582,1000000035606393",
+                        "collectTime":"1731579588082"
+                    }
+                     ',
+            ]);
+
+            $responseJson = $response->getContent();
+            $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
+            $stationCode = $responseData['data'][0]['stationCode'];
+            echo "$stationCode<pre>";
+            print_r($responseData);
+            echo "</pre>";
+
+
+
+            exit;
             
             $apiAccessToken = $this->externalApis->getAccessToken($baseUrl, $postFileds, $headerFields, $apiType, $curlHeader);
 
