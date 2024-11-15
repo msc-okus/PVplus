@@ -8,75 +8,43 @@ class externalApisService
     ) {
     }
 
-    public function getAccessToken($url, $postFileds, $headerFields, $apiType, $curlHeader)
+    public function getAccessToken(object $client, string $url, $postFileds, $headerFields, string $apiType)
     {
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_SSL_VERIFYHOST =>false,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS =>$postFileds,
-            CURLOPT_HTTPHEADER => $headerFields,
-            CURLOPT_HEADER => $curlHeader
-        ));
+        $response = $client->request('POST', $url, [
+            'headers' => $headerFields,
+            'body' => $postFileds,
+        ]);
 
-        $body = curl_exec($curl);
+        $headers = $response->getHeaders();
+
+        $responseJson = $response->getContent();
+        $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
 
         if($apiType == 'vcom'){
-            curl_close($curl);
-            $result = json_decode($body, true);
-            $token = $result['access_token'];
+            $responseJson = $response->getContent();
+            $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
+            $token = $responseData['access_token'];
         }
 
         if($apiType == 'huawai') {
-            // extract header
-            $headerSize = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
-            $header = substr($body, 0, $headerSize);
-            $headers = $this->getHeaders($header);
-
-            curl_close($curl);
-
-            $token = $headers['xsrf-token'];
+            $token = $headers['xsrf-token'][0];
         }
         return $token;
     }
 
-    public function getDataHuawai($url, $headerFields, $postFileds, $curlHeader, $resultParam)
+    public function getDataHuawai($client, $url, $headerFields, $postFileds)
     {
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_SSL_VERIFYHOST =>false,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_HTTPHEADER => $headerFields,
-            CURLOPT_POSTFIELDS =>$postFileds,
-            CURLOPT_HEADER => $curlHeader
-        ));
+        $response = $client->request('POST', $url, [
+            'headers' => $headerFields,
+            'body' => $postFileds,
+        ]);
 
-        $body = curl_exec($curl);
+        $headers = $response->getHeaders();
 
-        curl_close($curl);
-        $result = json_decode($body, true, 1024);
+        $responseJson = $response->getContent();
+        $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
 
-        if($resultParam == 'stationCode'){
-            $result = $result['data'][0]['stationCode'];
-        }
-
-        return $result;
+        return $responseData;
     }
 
     public function getData($url, $headerFields)
@@ -103,23 +71,5 @@ class externalApisService
 
         return $result;
 
-    }
-
-    public function getHeaders($respHeaders) {
-        $headers = [];
-
-        $headerText = substr($respHeaders, 0, strpos($respHeaders, "\r\n\r\n"));
-
-        foreach (explode("\r\n", $headerText) as $i => $line) {
-            if ($i === 0) {
-                $headers['http_code'] = $line;
-            } else {
-                list ($key, $value) = explode(': ', $line);
-
-                $headers[$key] = $value;
-            }
-        }
-
-        return $headers;
     }
 }

@@ -95,7 +95,7 @@ class ImportService
                     "content-type: application/x-www-form-urlencoded",
                     "X-API-KEY: " . $apiToken,
                 ];
-                $curlHeader = false;
+
             }
 
             if ($apiType == 'huawai') {
@@ -110,89 +110,12 @@ class ImportService
                     "content-type: application/json",
                     "Cookie: XSRF-TOKEN=" . $apiToken,
                 ];
-                $curlHeader = true;
             }
 
-            $response = $this->client->request('POST', $baseUrl, [
-                'headers' => [
-                    'Content-Type: application/json',
-                    'Cookie: XSRF-TOKEN=: '.$apiToken,
-                ],
-                'body' => '
-                    {
-                        "userName": "' . $apiUser . '",
-                        "systemCode": "' . $apiPassword . '"
-                    }
-                     ',
-            ]);
-
-            $headers = $response->getHeaders();
-
-            $responseJson = $response->getContent();
-            $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
-
-            $apiAccessToken = $headers['xsrf-token'][0];
-
-            $response = $this->client->request('POST', 'https://eu5.fusionsolar.huawei.com/thirdData/getDevRealKpi', [
-                'headers' => [
-                    'Content-Type: application/json',
-                    "Cookie: XSRF-TOKEN=" . $apiAccessToken,
-                    "XSRF-TOKEN: " . $apiAccessToken,
-                ],
-                'body' => '
-                    {
-                        "devTypeId":"10",
-                        "devIds": "1000000035718179,1000000035692164,1000000035718579,1000000035718580,1000000035718581,1000000035718582,1000000035606393",
-                        "collectTime":"1731579588082"
-                    }
-                     ',
-            ]);
-
-            $responseJson = $response->getContent();
-            $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
-            $stationCode = $responseData['data'][0]['stationCode'];
-            echo "$stationCode<pre>";
-            print_r($responseData);
-            echo "</pre>";
-
-
-
-            exit;
-            
-            $apiAccessToken = $this->externalApis->getAccessToken($baseUrl, $postFileds, $headerFields, $apiType, $curlHeader);
+            $apiAccessToken = $this->externalApis->getAccessToken($this->client, $baseUrl, $postFileds, $headerFields, $apiType);
+            echo "Token $apiAccessToken<br>";
 
             if ($apiType == 'huawai' && $fromCron != 1) {
-                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getStationList";
-                $headerFields = [
-                    "content-type: application/json",
-                    "Cookie: XSRF-TOKEN=" . $apiAccessToken,
-                    "XSRF-TOKEN: " . $apiAccessToken,
-                ];
-
-                $postFileds = '
-                    {
-                    }
-                ';
-
-                $stationCode = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'stationCode');
-
-                echo "$stationCode<br>";
-
-                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getKpiStationDay";
-                $headerFields = [
-                    "content-type: application/json",
-                    "Cookie: XSRF-TOKEN=" . $apiAccessToken,
-                    "XSRF-TOKEN: " . $apiAccessToken,
-                ];
-
-                $postFileds = '
-                    {
-                        "stationCodes": "' . $stationCode . '",
-                        "collectTime": "1501862400000"
-                    }
-                ';
-
-                $data = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'getKpiStationDay');
 
 
                 $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getDevRealKpi";
@@ -202,15 +125,43 @@ class ImportService
                     "XSRF-TOKEN: " . $apiAccessToken,
                 ];
 
+                for ($i = 0; $i <= count($groups) - 1; $i++) {
+                    $groupIds[] = $groups[$i]->getImportId();
+                }
+
+                $gropuIds =  implode(",",$groupIds);
+
                 $postFileds = '
                     {
-                        "devTypeId":"10",
-                        "devIds": "1000000035718179,1000000035692164,1000000035718579,1000000035718580,1000000035718581,1000000035718582,1000000035606393",
+                        "devTypeId":"1",
+                        "devIds": "'.$gropuIds.'",
                         "collectTime":"1731579588082"
                     }
                 ';
 
-                $data = $this->externalApis->getDataHuawai($baseUrl, $headerFields, $postFileds, false, 'getKpiStationDay');
+                $data = $this->externalApis->getDataHuawai($this->client, $baseUrl, $headerFields, $postFileds);
+                echo "Groups<pre>";
+                print_r($data);
+                echo "</pre><br>Die Emis";
+
+                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getDevRealKpi";
+                $headerFields = [
+                    "content-type: application/json",
+                    "Cookie: XSRF-TOKEN=" . $apiAccessToken,
+                    "XSRF-TOKEN: " . $apiAccessToken,
+                ];
+
+                $emiIds = "1000000035718179,1000000035692164,1000000035718579,1000000035718580,1000000035718581,1000000035718582,1000000035606393";
+
+                $postFileds = '
+                    {
+                        "devTypeId":"10",
+                        "devIds": "'.$emiIds.'",
+                        "collectTime":"1731579588082"
+                    }
+                ';
+
+                $data = $this->externalApis->getDataHuawai($this->client, $baseUrl, $headerFields, $postFileds);
 
                 echo "<pre>";
                 print_r($data);
@@ -368,7 +319,7 @@ class ImportService
             $to = urlencode(date('c', $end));
             $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
 
-            $tempBulk = $this->externalApis->getData($url, $headerFields, $resultParam);
+            $tempBulk = $this->externalApis->getData($url, $headerFields);
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
         }
 
