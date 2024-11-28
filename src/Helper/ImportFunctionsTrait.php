@@ -951,5 +951,123 @@ trait ImportFunctionsTrait
         return $result;
     }
 
+    function insertHuaweiData($groups, $data, $plantId): array
+    {
 
+        $i = 0;
+        foreach ($groups as $group) {
+
+            $pvpGroupDc = $group->getDcGroup();
+            $pvpGroupAc = $group->getAcGroup();;
+            $importId = $group->getImportId();
+            $inv_name = $group->getDcGroupName();
+            $unit_from = $group->getUnitFirst();
+            $unit_to = $group->getUnitLast();
+            $timestamp = time();
+            $timeStampHR = date('Y,m,d H,i,00', $timestamp);
+            $CND = '27'; #The for count
+            $sumacPower = 0;
+            $mkk = 'pv';
+
+            if (is_array($data['data'][$i])) {
+                $dataMap = $data['data'][$i]['dataItemMap'];
+
+                $array_temp = [];
+
+                for ($j = 1; $j <= $CND; ++$j) {
+                    $pufinder = "$mkk$j" . "_u";  #Build a Finder for u
+                    $pifinder = "$mkk$j" . "_i";  #Build a Finder for i
+                    $dcvoltage += $dataMap[$pufinder];     #Volt
+                    $dcelectricity += $dataMap[$pifinder]; #Amp
+
+                    $array_temp[$pufinder] = $dataMap[$pufinder];
+                    $array_temp[$pifinder] = $dataMap[$pifinder];
+
+                    $dcPower += ($dataMap[$pufinder] * $dataMap[$pifinder]); #Watt
+                    (($dataMap[$pufinder] <= 0.0) ? $dx++ : $dx);
+                }
+
+                $mwx = $CND - $dx; # Mittelwert Teiler aus nicht vorhandenen Records
+                # mwx darf nicht 0 sein
+                # der Mittelwert aus DCVoltage der einzelen Stränge
+                (($mwx > 0) ? $dcvoltage = $dcvoltage / $mwx : $dcvoltage = $dcvoltage);
+
+                $data_real = [
+                    'PlantID' => $plantId,
+                    'DeviceID' => $importId,
+                    'DCGRP' => $pvpGroupDc,
+                    'DCcnd' => $unit_to,
+                    'INVName' => $inv_name,
+                    'ACPower' => $dataMap['active_power'],
+                    'DCPower' => $dcPower,
+                    'DCElectricity' => ($dcelectricity != '') ? $dcelectricity : NULL,
+                    'DCVoltage' => ($dcvoltage != '') ? $dcvoltage : NULL,
+                    'Frequenze' => ($dataMap['elec_freq'] != '') ? $dataMap['elec_freq'] : NULL,
+                    'RePower' => ($dataMap['reactive_power'] != '') ? $dataMap['reactive_power'] : NULL,
+                    'MpptTCAP' => ($dataMap['mppt_total_cap'] != '') ? $dataMap['mppt_total_cap'] : NULL,
+                    'GridAB' => ($dataMap['ab_u'] != '') ? $dataMap['ab_u'] : NULL,
+                    'GridBC' => ($dataMap['bc_u'] != '') ? $dataMap['bc_u'] : NULL,
+                    'GridCA' => ($dataMap['ca_u'] != '') ? $dataMap['ca_u'] : NULL,
+                    'Ph_u1' => ($dataMap['a_u'] != '') ? $dataMap['a_u'] : NULL,
+                    'Ph_u2' => ($dataMap['b_u'] != '') ? $dataMap['b_u'] : NULL,
+                    'Ph_u3' => ($dataMap['c_u'] != '') ? $dataMap['c_u'] : NULL,
+                    'Ph_i1' => ($dataMap['a_i'] != '') ? $dataMap['a_i'] : NULL,
+                    'Ph_i2' => ($dataMap['b_i'] != '') ? $dataMap['b_i'] : NULL,
+                    'Ph_i3' => ($dataMap['c_i'] != '') ? $dataMap['c_i'] : NULL,
+                    'TStamp' => ($timestamp != '') ? $timestamp : NULL,
+                    'TimeStampHR' => ($timeStampHR != '') ? $timeStampHR : NULL,
+                    'TempAmb' => ($dataMap['temperature'] != '') ? $dataMap['temperature'] : NULL,
+                ];
+
+                $array_final[] = array_merge($data_real, $array_temp);
+                $array_final[$i]['StatusCode'] = ($dataMap['inverter_state'] != '') ? $dataMap['inverter_state'] : NULL;
+
+
+            }else{
+                echo 'Mist';
+                exit;
+            }
+
+            $i++;
+        }
+
+        $result = $array_final;
+        return $result;
+    }
+
+    function insertHuaweiDataEMI($sensors, $data, $plantId): array
+    {
+
+        $i = 0;
+        foreach ($sensors as $sensor) {
+            $sensorId = $sensor->getVcomId();
+            $timestamp = time();
+            $timeStampHR = date('Y,m,d H,i,00', $timestamp);
+
+            if (is_array($data['data'][$i])) {
+                $dataMap = $data['data'][$i]['dataItemMap'];
+
+                $data_emi = [
+                    'PlantID' => $plantId,
+                    'DeviceID' => $sensorId,
+                    'TotalRadiation' => $dataMap['radiant_line'],
+                    'AmbientTemp' => $dataMap['pv_temperature'],
+                    'PanelTemp' => $dataMap['temperature'],
+                    'TStamp' => ($timestamp != '') ? $timestamp : NULL,
+                    'TimeStampHR' => ($timeStampHR != '') ? $timeStampHR : NULL
+                ];
+
+                $array_final[] = $data_emi;
+
+
+            }else{
+                echo 'Mist';
+                exit;
+            }
+            $i++;
+        }
+
+        $result = $array_final;
+        return $result;
+    }
 }

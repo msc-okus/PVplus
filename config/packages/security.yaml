@@ -72,6 +72,7 @@ security:
         - { path: ^/autentication/2fa/onetimepw, role: IS_AUTHENTICATED_2FA_IN_PROGRESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/import/manuel, roles: PUBLIC_ACCESS }
+        - { path: ^/import/huawei, roles: PUBLIC_ACCESS }
         - { path: ^/import/cron, roles: PUBLIC_ACCESS, ips: [127.0.0.1, 116.202.252.113, 2a01:4f8:d0a:74ce::2, 2003:a:110f:f400:541d:51b9:68d9:1244, 128.204.133.182, 208.67.222.222, 84.152.231.253, 87.140.79.244]}
         - { path: ^/, roles: ROLE_USER }
 

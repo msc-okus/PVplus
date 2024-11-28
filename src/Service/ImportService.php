@@ -118,7 +118,7 @@ class ImportService
             if ($apiType == 'huawai' && $fromCron != 1) {
 
 
-                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getDevRealKpi";
+                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getDevHistoryKpi";
                 $headerFields = [
                     "content-type: application/json",
                     "Cookie: XSRF-TOKEN=" . $apiAccessToken,
@@ -133,9 +133,10 @@ class ImportService
 
                 $postFileds = '
                     {
-                        "devTypeId":"1",
-                        "devIds": "'.$gropuIds.'",
-                        "collectTime":"1731579588082"
+                        "devTypeId":1,
+                        "devIds": "1000000035553551,1000000035553550,1000000035553549",
+                        "startTime":'.$start.'000,
+                        "endTime":'.$end.'000
                     }
                 ';
 
@@ -144,7 +145,7 @@ class ImportService
                 print_r($data);
                 echo "</pre><br>Die Emis";
 
-                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getDevRealKpi";
+                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getDevHistoryKpi";
                 $headerFields = [
                     "content-type: application/json",
                     "Cookie: XSRF-TOKEN=" . $apiAccessToken,
@@ -155,9 +156,10 @@ class ImportService
 
                 $postFileds = '
                     {
-                        "devTypeId":"10",
+                        "devTypeId":10,
                         "devIds": "'.$emiIds.'",
-                        "collectTime":"1731579588082"
+                        "startTime":'.$start.'000,
+                        "endTime":'.$end.'000
                     }
                 ';
 
