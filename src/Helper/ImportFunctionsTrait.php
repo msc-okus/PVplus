@@ -1661,17 +1661,10 @@ trait ImportFunctionsTrait
             $tableName = "db__pv_dcist_CX$plantId";
             self::insertData($tableName, $dataDC, $DBDataConnection);
         }
-
-
-        echo "sssss<pre>";
-        print_r($dataAC);
-        echo "<pre>";
-        #exit;
-        // Write the Database
-        $deleteTs = $timestamp - 86400;
+        
         // Delete all data how older than to day
         echo "DELETE Temp Data older then a day.<br>\n";
-
+        $deleteTs = $timestamp - 86400;
         $DBDataConnection->exec("DELETE FROM RealTimeData WHERE TStamp < $deleteTs");
         $DBDataConnection->exec("DELETE FROM RealTimeDataEMI WHERE TStamp < $deleteTs");
     }
