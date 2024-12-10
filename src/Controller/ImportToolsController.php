@@ -152,32 +152,28 @@ class ImportToolsController extends BaseController
      * @throws JsonException
      */
     #[Route('/import/huawei', name: 'import_huawei')]
-    public function importHuawei(#[MapQueryParameter] int $id, #[MapQueryParameter] string $type, AnlagenRepository $anlagenRepo, ImportHuaweiService $importHuaweiService): Response
+    public function importHuawei(#[MapQueryParameter] string $type, AnlagenRepository $anlagenRepo, ImportHuaweiService $importHuaweiService): Response
     {
         date_default_timezone_set('Europe/Berlin');
 
         //get one Plant for Import manuell
-        $anlage = $anlagenRepo->findOneByIdAndJoin($id);
-        $time = time();
-        $time -= $time % 900;
-        $currentHour = (int)date('h');
-        if ($currentHour >= 12) {
-            $start = $time - (12 * 3600);
-        } else {
-            $start = $time - ($currentHour * 3600) + 900;
-        }
-        $start = $time - 4 * 3600;
-        $end = $time;
 
-        if($type == 'importData'){
-            $importHuaweiService->prepareForImport($anlage, $start, $end, $type);
-            sleep(1);
-            return new Response('This is used for import Data Huawei.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
-        }else{
-            $importHuaweiService->saveToDb($anlage);
-            sleep(1);
-            return new Response('This is used to save Data to DB Huawei.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
+        $anlagen = $anlagenRepo->findAllHuaweiImport();
+
+
+        foreach ($anlagen as $anlage) {
+            if($type == 'importData'){
+                echo $anlage->getAnlId().'<br>';
+                $importHuaweiService->prepareForImport($anlage, $type);
+                sleep(1);
+                return new Response('This is used for import Data Huawei.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
+            }else{
+                $importHuaweiService->saveToDb($anlage);
+                sleep(1);
+                return new Response('This is used to save Data to DB Huawei.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
+            }
         }
+        return new Response('This is used for import Data Huaweixxxxx.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
     }
 
     /**

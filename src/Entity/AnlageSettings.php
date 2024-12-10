@@ -174,6 +174,9 @@ class AnlageSettings
     #[ORM\Column(nullable: true)]
     private ?bool $symfonyImport = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $huaweiImport = false;
+
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $importType = null;
 
@@ -808,6 +811,18 @@ class AnlageSettings
     public function setSymfonyImport(?bool $symfonyImport): self
     {
         $this->symfonyImport = $symfonyImport;
+
+        return $this;
+    }
+
+    public function isHuaweiImport(): ?bool
+    {
+        return $this->symfonyImport;
+    }
+
+    public function setHuaweiImport(?bool $huaweiImport): self
+    {
+        $this->huaweiImport = $huaweiImport;
 
         return $this;
     }

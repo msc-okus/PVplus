@@ -92,7 +92,6 @@
             </div>
 
             {# Features #}
-            {% if is_granted('ROLE_G4N') %}
                 <div class="tabs-panel" id="features">
 
                     <div class="grid-x grid-margin-x grid-margin-y">
@@ -115,8 +114,9 @@
                                 {{ form_row(ownerForm.features.allow2fa) }}
                             </fieldset>
                        </div>
+                    </div>
                 </div>
-            {% endif %}
+
             {# ApiConfig #}
             <div class="tabs-panel" id="apiconfigs">
                 <fieldset class="fieldset js-apiconfig-wrapper"

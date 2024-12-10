@@ -399,6 +399,26 @@ class AnlagenRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * Suche alle aktiven Anlagen für die ein Benutzer die Zugriffsrechte hat und die ueber Huawei Importiert werden
+     *
+     * @return Anlage[]
+     */
+    public function findAllHuaweiImport(): array
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings')
+            ->andWhere("a.anlHidePlant = 'No'")
+            ->andWhere('settings.huaweiImport = true');
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function querBuilderFindAllActiveAndAllowed(): QueryBuilder
     {
 

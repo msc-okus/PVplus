@@ -261,7 +261,12 @@ class AnlageSettingsFormType extends AbstractType
 
             ->add('symfonyImport', SwitchType::class, [
                 'label'     => 'Import Data with Symphony',
-                'help'      => '[symfonyImport]<br>Enable Import Data with Symphony without the old php skript files'
+                'help'      => '[symfonyImport]<br>Enable Import Data with Symphony'
+            ])
+
+            ->add('huaweiImport', SwitchType::class, [
+                'label'     => 'Import Data from Huawei (Huawei)',
+                'help'      => '[symfonyImport]<br>Enable Import Data from Huawei'
             ])
 
             ->add('useSensorsData', SwitchType::class, [
