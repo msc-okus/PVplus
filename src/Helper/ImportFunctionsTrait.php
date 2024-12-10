@@ -1671,8 +1671,9 @@ trait ImportFunctionsTrait
 
         // Delete all data how older than to day
         echo "DEV -> Delete OLD values from database A Sqlite <br>\n";
-        $delRTD = $DBDataConnection->exec("DELETE FROM RealTimeData WHERE TStamp < '$stamp'");
-        $delEMI = $DBDataConnection->exec("DELETE FROM RealTimeDataEMI WHERE TStamp < '$stamp'");
+        $deleteTs = $timestamp - 86400;
+        $DBDataConnection->exec("DELETE FROM RealTimeData WHERE TStamp < '$deleteTs'");
+        $DBDataConnection->exec("DELETE FROM RealTimeDataEMI WHERE TStamp < '$deleteTs'");
     }
 
 }
