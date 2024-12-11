@@ -98,80 +98,7 @@ class ImportService
 
             }
 
-            if ($apiType == 'huawai') {
-                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/login";
-                $postFileds = '
-                    {
-                        "userName": "' . $apiUser . '",
-                        "systemCode": "' . $apiPassword . '"
-                    }
-                ';
-                $headerFields = [
-                    "content-type: application/json",
-                    "Cookie: XSRF-TOKEN=" . $apiToken,
-                ];
-            }
-
             $apiAccessToken = $this->externalApis->getAccessToken($this->client, $baseUrl, $postFileds, $headerFields, $apiType);
-            echo "Token $apiAccessToken<br>";
-
-            if ($apiType == 'huawai' && $fromCron != 1) {
-
-
-                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getDevHistoryKpi";
-                $headerFields = [
-                    "content-type: application/json",
-                    "Cookie: XSRF-TOKEN=" . $apiAccessToken,
-                    "XSRF-TOKEN: " . $apiAccessToken,
-                ];
-
-                for ($i = 0; $i <= count($groups) - 1; $i++) {
-                    $groupIds[] = $groups[$i]->getImportId();
-                }
-
-                $gropuIds =  implode(",",$groupIds);
-
-                $postFileds = '
-                    {
-                        "devTypeId":1,
-                        "devIds": "1000000035553551,1000000035553550,1000000035553549",
-                        "startTime":'.$start.'000,
-                        "endTime":'.$end.'000
-                    }
-                ';
-
-                $data = $this->externalApis->getDataHuawai($this->client, $baseUrl, $headerFields, $postFileds);
-                echo "Groups<pre>";
-                print_r($data);
-                echo "</pre><br>Die Emis";
-
-                $baseUrl = "https://eu5.fusionsolar.huawei.com/thirdData/getDevHistoryKpi";
-                $headerFields = [
-                    "content-type: application/json",
-                    "Cookie: XSRF-TOKEN=" . $apiAccessToken,
-                    "XSRF-TOKEN: " . $apiAccessToken,
-                ];
-
-                $emiIds = "1000000035718179,1000000035692164,1000000035718579,1000000035718580,1000000035718581,1000000035718582,1000000035606393";
-
-                $postFileds = '
-                    {
-                        "devTypeId":10,
-                        "devIds": "'.$emiIds.'",
-                        "startTime":'.$start.'000,
-                        "endTime":'.$end.'000
-                    }
-                ';
-
-                $data = $this->externalApis->getDataHuawai($this->client, $baseUrl, $headerFields, $postFileds);
-
-                echo "<pre>";
-                print_r($data);
-                echo "</pre>";
-                exit;
-            }else{
-                $resultParam = '';
-            }
         }
 
         $useSensorsDataTable = $anlage->getSettings()->isUseSensorsData();
@@ -321,7 +248,8 @@ class ImportService
             $to = urlencode(date('c', $end));
             $url = "https://api.meteocontrol.de/v2/systems/$arrayVcomIds[$i]/bulk/measurements?from=$from&to=$to&resolution=fifteen-minutes";
 
-            $tempBulk = $this->externalApis->getData($url, $headerFields);
+            $tempBulk = $this->externalApis->getData($this->client, $url, $headerFields);
+
             if ($tempBulk !== false) $bulkMeaserments[$i] = $tempBulk;
         }
 

@@ -163,7 +163,7 @@ class ImportToolsController extends BaseController
 
         foreach ($anlagen as $anlage) {
             if($type == 'importData'){
-                echo $anlage->getAnlId().'<br>';
+                #echo $anlage->getAnlId().'<br>';
                 $importHuaweiService->prepareForImport($anlage, $type);
                 sleep(1);
                 return new Response('This is used for import Data Huawei.', Response::HTTP_OK, ['Content-Type' => 'text/html']);

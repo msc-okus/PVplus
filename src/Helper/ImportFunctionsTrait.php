@@ -1240,7 +1240,7 @@ trait ImportFunctionsTrait
                 $array_final[] = array_merge($data_real, $array_temp);
                 $array_final[$i]['StatusCode'] = ($dataMap['inverter_state'] != '') ? $dataMap['inverter_state'] : null;
             } else {
-                echo 'Mist';
+                echo 'To much requests';
                 exit;
             }
 
@@ -1275,7 +1275,7 @@ trait ImportFunctionsTrait
 
                 $array_final[] = $data_emi;
             } else {
-                echo 'Mist';
+                echo 'To much requests';
                 exit;
             }
             $i++;
@@ -1661,7 +1661,7 @@ trait ImportFunctionsTrait
             $tableName = "db__pv_dcist_CX$plantId";
             self::insertData($tableName, $dataDC, $DBDataConnection);
         }
-        
+
         // Delete all data how older than to day
         echo "DELETE Temp Data older then a day.<br>\n";
         $deleteTs = $timestamp - 86400;

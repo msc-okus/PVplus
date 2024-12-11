@@ -18,7 +18,6 @@ class externalApisService
         $headers = $response->getHeaders();
 
         $responseJson = $response->getContent();
-        $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
 
         if($apiType == 'vcom'){
             $responseJson = $response->getContent();
@@ -47,29 +46,16 @@ class externalApisService
         return $responseData;
     }
 
-    public function getData($url, $headerFields)
+    public function getData($client, $url, $headerFields)
     {
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => $url,
-                CURLOPT_SSL_VERIFYHOST =>false,
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'GET',
-                CURLOPT_HTTPHEADER => $headerFields
-            ));
+        $response = $client->request('GET', $url, [
+            'headers' => $headerFields
+        ]);
 
-        $response = curl_exec($curl);
+        $responseJson = $response->getContent();
+        $responseData = json_decode($responseJson, true, 512, JSON_THROW_ON_ERROR);
 
-        curl_close($curl);
-        $result = json_decode($response, true);
-
-        return $result;
+        return $responseData;
 
     }
 }
