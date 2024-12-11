@@ -173,7 +173,7 @@ class ImportToolsController extends BaseController
                 return new Response('This is used to save Data to DB Huawei.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
             }
         }
-        return new Response('This is used for import Data Huaweixxxxx.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
+        return new Response('This is used for import Data Huawei.', Response::HTTP_OK, ['Content-Type' => 'text/html']);
     }
 
     /**
