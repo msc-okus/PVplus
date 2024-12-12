@@ -4,9 +4,10 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-    app.host:           '%env(host)%'
+    app.host_base:      '%env(host_base)%'
     app.user_base:      '%env(user_base)%'
     app.password_base:  '%env(password_base)%'
+    app.host_plant:      '%env(host_base)%'
     app.user_plant:     '%env(user_plant)%'     # Measerment Data
     app.password_plant: '%env(password_plant)%' # Measerment Data
 
@@ -23,9 +24,10 @@ services:
             $filesystem:        '@oneup_flysystem.public_uploads_filesystem_filesystem'
             $fileSystemFtp:     '@oneup_flysystem.sftp_filesystem'
             $kernelProjectDir:  '%kernel.project_dir%'
-            $host:              '%app.host%'
+            $hostBase:          '%app.host_base%'
             $userBase:          '%app.user_base%'
             $passwordBase:      '%app.password_base%'
+            $hostPlant:          '%app.host_plant%'
             $userPlant:         '%app.user_plant%'
             $passwordPlant:     '%app.password_plant%'
 

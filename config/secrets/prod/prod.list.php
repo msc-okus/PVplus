@@ -1,7 +1,8 @@
 <?php
 
 return [
-    'host' => null,
+    'host_base' => null,
+    'host_plant' => null,
     'password_base' => null,
     'password_plant' => null,
     'sftp_password' => null,

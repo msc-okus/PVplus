@@ -4,7 +4,7 @@ doctrine:
         connections:
             default:
                 dbname:         pvp_base
-                host:           '%env(host)%'
+                host:           '%env(host_base)%'
                 port:           3306
                 user:           '%env(user_base)%'
                 password:       '%env(password_base)%'
@@ -13,7 +13,7 @@ doctrine:
                 #mariadb-10.5.15
             data:
                 dbname:         pvp_data
-                host:           '%env(host)%'
+                host:           '%env(host_plant)%'
                 port:           3306
                 user:           '%env(user_plant)%'
                 password:       '%env(password_plant)%'

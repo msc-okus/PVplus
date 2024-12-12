@@ -166,7 +166,7 @@
                 series5.connect = false;
             {% endif %}
 
-            {% if (aktAnlage.anlId == '237') or is_granted('ROLE_G4N') %} {# theoretische Leitung (theoPower) mit TempKorrektur nach NREL  #}
+            {% if (aktAnlage.anlId == '237') or is_granted('ROLE_G4N') %} {# theoretische Leistung (theoPower) mit TempKorrektur nach NREL  #}
                 let theoPower = chart.series.push(new am4charts.LineSeries());
                 theoPower.name = "Theoretical Power {{ (content.theoPowerSum)|number_format(0, ',', '.') }} kWh";
                 theoPower.dataFields.dateX = "date";

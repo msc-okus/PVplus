@@ -10,9 +10,10 @@ class PdoService
     use G4NTrait;
 
     public function __construct(
-        private $host,
+        private $hostBase,
         private $userBase,
         private $passwordBase,
+        private $hostPlant,
         private $userPlant,
         private $passwordPlant
     )
@@ -22,19 +23,19 @@ class PdoService
     //connection for imported data
     public function getPdoPlant(): PDO
     {
-        return($this->getPdoConnection($this->host, $this->userPlant, $this->passwordPlant, 'pvp_data'));
+        return($this->getPdoConnection($this->hostPlant, $this->userPlant, $this->passwordPlant, 'pvp_data'));
     }
 
     //connection for imported data from StringBoxes
     public function getPdoStringBoxes(): PDO
     {
-        return($this->getPdoConnection($this->host, $this->userPlant, $this->passwordPlant, 'pvp_division'));
+        return($this->getPdoConnection($this->hostPlant, $this->userPlant, $this->passwordPlant, 'pvp_division'));
     }
 
     //connection for base tables like anlagen
     public function getPdoBase(): PDO
     {
-        return($this->getPdoConnection($this->host, $this->userBase, $this->passwordBase, 'pvp_base'));
+        return($this->getPdoConnection($this->hostBase, $this->userBase, $this->passwordBase, 'pvp_base'));
     }
 
     /**
